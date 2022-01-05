@@ -1,0 +1,100 @@
+﻿@model IntranetPortal.Areas.GlobalSettings.Models.LocationsListViewModel
+@{
+    ViewData["Title"] = "Global Settings | Bureaux";
+    Layout = "~/Areas/GlobalSettings/Views/Shared/_GBSLayout.cshtml";
+}
+
+<div class="container">
+    <h3 class="mb-4">Bureaux List</h3>
+    <hr />
+    <div class="mb-1">
+        <a asp-area="GlobalSettings" asp-controller="Home" asp-action="Index" class="btn btn-dark" style="width:100px" title="Click to Go Back">
+            <span class="text-white">Back</span>
+        </a>
+        <a asp-area="GlobalSettings" asp-controller="Locations" asp-action="AddBureau" class="btn btn-primary" style="width:200px" title="Click to Add New Bureau">
+            <span class="text-white">New Bureau</span>
+        </a>
+        @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-x-circle"></i>
+                <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (!String.IsNullOrEmpty(Model.ViewModelSuccessMessage))
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="bi bi-check-circle"></i>
+                <span class="fw-bold">@Model.ViewModelSuccessMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+    </div>
+    @if (Model == null)
+    {
+        <div class="alert alert-info fade show" role="alert">
+            <i class="bi bi-info-circle"></i>
+            <span class="fw-bold">No record was found.</span>
+        </div>
+    }
+    else if (Model.LocationList.Count < 1)
+    {
+        <div class="alert alert-info fade show" role="alert">
+            <i class="bi bi-info-circle"></i>
+            <span class="fw-bold">No record was found.</span>
+        </div>
+    }
+    else
+    {
+        <div class="row">
+            <div class="table-responsive">
+                <table class="table table-hover table-sm ">
+                    <thead class="table-dark">
+                        <tr>
+                            <th><span class="text-white fw-bold">#</span></th>
+                            <th><span class="text-white fw-bold">Name</span></th>
+                            <th><span class="text-white fw-bold">State</span></th>
+                            <th><span class="text-white fw-bold">Country</span></th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody class="table-success">
+                        @{
+                            int rowNumber = 0;
+                        }
+                        @foreach (var bureau in Model.LocationList)
+                        {
+                            rowNumber++;
+                            <tr>
+                                <th>@rowNumber.ToString()</th>
+                                <td>
+                                    @bureau.LocationName
+                                </td>
+                                <td>
+                                    @bureau.LocationState
+                                </td>
+                                <td>
+                                    @bureau.LocationCountry
+                                </td>
+                                <td>
+                                    <div class="text-center">
+                                        <a asp-area="GlobalSettings" asp-controller="Locations" asp-action="DeleteBureau" asp-route-id="@bureau.LocationID" title="Delete" class="btn btn-xs btn-danger" style="width:50px">
+                                            <i class="bi bi-trash-fill" style="font-size: 1.0rem; color:white"></i>
+                                        </a>
+                                        <a asp-area="GlobalSettings" asp-controller="Locations" asp-action="EditBureau" asp-route-id="@bureau.LocationID" title="Edit" class="btn btn-xs btn-primary" style="width:50px">
+                                            <i class="bi bi-pencil-square" style="font-size: 1.0rem;"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+</div>
+
+
+

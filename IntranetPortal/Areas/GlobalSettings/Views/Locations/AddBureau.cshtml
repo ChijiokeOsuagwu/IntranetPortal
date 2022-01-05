@@ -1,0 +1,100 @@
+﻿@model IntranetPortal.Areas.GlobalSettings.Models.LocationAddViewModel
+@{
+    ViewData["Title"] = "Location Settings | Add Bureau";
+    Layout = "~/Areas/GlobalSettings/Views/Shared/_GBSLayout.cshtml";
+}
+
+<div class="card ml-5 mt-5 w-50">
+    <div class="card-header bg-dark">
+        <h4 class="text-white">New Bureau</h4>
+    </div>
+    <div class="card-body bg-secondary">
+        @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-x-circle"></i>
+                <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (!String.IsNullOrEmpty(Model.ViewModelSuccessMessage))
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="bi bi-check-circle"></i>
+                <span class="fw-bold">@Model.ViewModelSuccessMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (!String.IsNullOrEmpty(Model.ViewModelWarningMessage))
+        {
+            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                <i class="bi bi-exclamation-circle"></i>
+                <span class="fw-bold">@Model.ViewModelWarningMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        <form asp-area="GlobalSettings" asp-controller="Locations" asp-action="AddBureau" method="post">
+            <div class="row">
+                <div class="col-mb-12 mb-1">
+                    <input type="hidden" asp-for="LocationType" />
+                    <input type="hidden" asp-for="LocationID" />
+                    <label asp-for="Name" class="form-label text-white fw-bold"></label>
+                    <input asp-for="Name" class="form-control" placeholder="Enter Name">
+                    <div><span asp-validation-for="Name" class="text-danger"></span></div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6  mb-1">
+                    <label asp-for="State" class="form-label text-white fw-bold"></label>
+                    <select asp-for="State" asp-items="@ViewBag.StateList" class="form-control">
+                        <option value="">- Select -</option>
+                    </select>
+                    <div><span asp-validation-for="State" class="text-danger"></span></div>
+                </div>
+                <div class="col-md-6  mb-1">
+                    <label asp-for="Country" class="form-label text-white fw-bold"></label>
+                    <select asp-for="Country" asp-items="@ViewBag.CountryList" class="form-control">
+                        <option value="">- Select -</option>
+                    </select>
+                    <div><span asp-validation-for="Country" class="text-danger"></span></div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6 mb-1">
+                    <label asp-for="LocationHeadID1" class="form-label text-white fw-bold"></label>
+                    <select asp-for="LocationHeadID1" asp-items="@ViewBag.StaffList" class="form-control">
+                        <option value="">- Select -</option>
+                    </select>
+                    <div><span asp-validation-for="LocationHeadID1" class="text-danger"></span></div>
+                </div>
+                <div class="col-md-6  mb-3">
+                    <label asp-for="LocationHeadID2" class="form-label text-white fw-bold"></label>
+                    <select asp-for="LocationHeadID2" asp-items="@ViewBag.StaffList" class="form-control">
+                        <option value="">- Select -</option>
+                    </select>
+                    <div><span asp-validation-for="LocationHeadID2" class="text-danger"></span></div>
+                </div>
+            </div>
+            <div class="row">
+                <a asp-area="GlobalSettings" asp-controller="Home" asp-action="Index" class="btn btn-dark" style="width:100px" title="Return to Global Settings">
+                    <span class="text-white">Exit</span>
+                </a>&nbsp;
+                <a asp-area="GlobalSettings" asp-controller="Locations" asp-action="Bureaus" class="btn btn-dark" style="width:100px" title="Return to Bureaux List">
+                    <span class="text-white">Go Back</span>
+                </a>&nbsp;
+                <a asp-area="GlobalSettings" asp-controller="Locations" asp-action="AddBureau" class="btn btn-warning" style="width:100px" title="Clear">
+                    <span class="text-white">Clear</span>
+                </a>&nbsp;
+                @if (!Model.OperationIsCompleted)
+                {
+                    <button type="submit" class="btn btn-primary" title="Save" style="width:200px"><span class="text-white">Save</span></button>
+                }
+            </div>
+        </form>
+    </div>
+</div>
+
+
+
+
+

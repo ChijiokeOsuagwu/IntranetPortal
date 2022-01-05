@@ -1,0 +1,27 @@
+﻿
+@model IntranetPortal.Base.Models.ContentManagerModels.Post
+@{
+    ViewData["Title"] = "OfficeManager | Read Content";
+    Layout = "~/Views/Shared/_BlueLayout.cshtml";
+}
+    <div class="m-5">
+        <p>
+            <a class="btn btn-default" asp-area="" asp-controller="Home" asp-action="Index" role="button"><span class="text-white">Go Back</span></a>
+            <a class="btn btn-default" asp-area="" asp-controller="Home" asp-action="Index" role="button"><span class="text-white">Go Back</span></a>
+        </p>
+        @if (Model != null && !String.IsNullOrEmpty(Model.PostDetails))
+        {
+            <h4 class="text-dark fw-bold">@Model.PostTitle</h4>
+            <h6 class="text-muted" style="font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif">Uploaded By: @Model.CreatedBy  Uploaded On: @Model.CreatedDate</h6>
+            @Html.Raw(Model.PostDetails)
+        }
+        else
+        {
+            <div class="alert alert-success" role="alert">
+                <h4 class="alert-heading"><i class="bi bi-info-circle-fill"></i> No Content Found!</h4>
+                <hr/>
+                <h6>Oops! It appears no content has yet been uploaded for this post. Please check back later.</h6>
+            </div>
+        }
+
+    </div>

@@ -1,0 +1,50 @@
+﻿@model IntranetPortal.Areas.ContentManager.Models.EventsDeleteViewModel
+@{
+    ViewData["Title"] = "Content Manager | Delete Event";
+    Layout = "~/Areas/ContentManager/Views/Shared/_CMSLayout.cshtml";
+}
+<div class="card ml-5 mt-5 w-75">
+    <div class="card-header bg-danger">
+        <h4 class="text-white">Delete Event</h4>
+    </div>
+    <div class="card-body">
+        @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-x-circle"></i>
+                <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        <form asp-area="ContentManager" asp-controller="Articles" asp-action="Delete" method="post">
+            <input id="Id" name="Id" value="@Model.Id" type="hidden" />
+            <input id="ImagePath" name="ImagePath" value="@Model.ImagePath" type="hidden" />
+            <div class="card h-75 w-100">
+                <img class="card-img-top" src="/@Model.ImagePath" alt="Article Image" />
+                <div class="card-body">
+                    <h4 class="card-title">@Model.Title</h4>
+                    <p class="card-text">@Model.Summary</p>
+                    <div class="text-center">
+                        <p>
+                            <i class="bi bi-exclamation-triangle-fill" style="color:red; font-size:2rem"></i>
+                            <span class="text-danger fw-bold font-18">Hey! You are about to permanently delete this Event together with its related contents and comments.</span>
+                        </p>
+                        <button type="submit" title="Delete" class="btn btn-outline-danger" style="width:200px">
+                            <i class="bi bi-trash" style="font-size: 1.2rem;"></i> <span class="fw-bold font-16">Yes Delete</span>
+                        </button>
+                        <a asp-area="ContentManager" asp-controller="Events" asp-action="Index" title="Back" class="btn btn-outline-primary" style="width:200px">
+                            <i class="bi bi-skip-backward" style="font-size: 1.2rem;"></i> <span class="fw-bold font-16">No Go Back</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+
+
+
+
+

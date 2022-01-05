@@ -1,0 +1,108 @@
+﻿@model IntranetPortal.Areas.EmployeeRecords.Models.EmployeeHistoryInfoViewModel
+@{
+    ViewData["Title"] = "Employee Records | History Info";
+    Layout = "~/Areas/GlobalSettings/Views/Shared/_GBSLayout.cshtml";
+}
+<div class="card ml-5 mt-5 w-75">
+    <div class="card-header bg-dark">
+        <h4 class="text-white">History Information</h4>
+    </div>
+    <div class="card-body bg-secondary">
+        @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-x-circle"></i>
+                <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (!String.IsNullOrEmpty(Model.ViewModelSuccessMessage))
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="bi bi-check-circle"></i>
+                <span class="fw-bold">@Model.ViewModelSuccessMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (!String.IsNullOrEmpty(Model.ViewModelWarningMessage))
+        {
+            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                <i class="bi bi-exclamation-circle"></i>
+                <span class="fw-bold">@Model.ViewModelWarningMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        <form asp-area="EmployeeRecords" asp-controller="Home" asp-action="AddEmployeeHistoryInfo" method="post">
+            <div class="row">
+                <div class="col-md-6 mb-2">
+                    <input type="hidden" asp-for="EmployeeID" />
+                    <label asp-for="EmployeeNo1" class="form-label text-white fw-bold"></label>
+                    <input asp-for="EmployeeNo1" class="form-control" readonly="readonly">
+                    <div><span asp-validation-for="EmployeeNo1" class="text-danger"></span></div>
+                </div>
+                <div class="col-md-6 mb-2">
+                    <label asp-for="EmployeeName" class="form-label text-white fw-bold"></label>
+                    <input asp-for="EmployeeName" class="form-control" readonly="readonly">
+                    <div><span asp-validation-for="EmployeeName" class="text-danger"></span></div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6 mb-2">
+                    <label asp-for="PlaceOfEngagement" class="form-label text-white fw-bold"></label>
+                    <select asp-for="PlaceOfEngagement" asp-items="@ViewBag.LocationsList" class="form-control">
+                        <option value=""> - Select -</option>
+                    </select>
+                    <div><span asp-validation-for="PlaceOfEngagement" class="text-danger"></span></div>
+                </div>
+                <div class="col-md-6  mb-2">
+                    <label asp-for="ConfirmationDate" class="form-label text-white fw-bold"></label>
+                    <input asp-for="ConfirmationDate" class="form-control" placeholder="Select Date">
+                    <div><span asp-validation-for="ConfirmationDate" class="text-danger"></span></div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6  mb-2">
+                    <label asp-for="DateOfLastPromotion" class="form-label text-white fw-bold"></label>
+                    <input asp-for="DateOfLastPromotion" class="form-control" placeholder="Select Date">
+                    <div><span asp-validation-for="DateOfLastPromotion" class="text-danger"></span></div>
+                </div>
+                <div class="col-md-6 mb-2">
+                    <label asp-for="CurrentDesignation" class="form-label text-white fw-bold"></label>
+                    <input asp-for="CurrentDesignation" class="form-control" placeholder="Enter Current Designation">
+                    <div><span asp-validation-for="CurrentDesignation" class="text-danger"></span></div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6 mb-2">
+                    <label asp-for="YearsOfExperience" class="form-label text-white fw-bold"></label>
+                    <input asp-for="YearsOfExperience" class="form-control" type="number" min="0" max="70" />
+                    <div><span asp-validation-for="YearsOfExperience" class="text-danger"></span></div>
+                </div>
+                <div class="col-md-6 mb-2">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12 mb-1">
+                    <a asp-area="EmployeeRecords" asp-controller="Home" asp-action="List" class="btn btn-dark" style="width:100px" title="Return to Employee List">
+                        <span class="text-white">Exit</span>
+                    </a>&nbsp;
+                    <a asp-area="EmployeeRecords" asp-controller="Home" asp-action="AddEmployeeNextOfKinInfo" asp-route-id="@Model.EmployeeID" class="btn btn-dark" style="width:100px" title="Go Back">
+                        <span class="text-white">Go Back</span>
+                    </a>&nbsp;
+                    <a asp-area="EmployeeRecords" asp-controller="Home" asp-action="AddEmployeeHistoryInfo" asp-route-id="@Model.EmployeeID" class="btn btn-warning" style="width:100px" title="Clear">
+                        <span class="text-white">Clear</span>
+                    </a>&nbsp;
+                    @if (!Model.OperationIsCompleted)
+                    {
+                        <button type="submit" class="btn btn-primary" title="Save Changes" style="width:200px"><span class="text-white">Save</span></button>
+                    }
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+
+
+

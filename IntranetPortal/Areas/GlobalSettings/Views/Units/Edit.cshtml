@@ -1,0 +1,94 @@
+﻿@model IntranetPortal.Areas.GlobalSettings.Models.UnitViewModel
+@{
+    ViewData["Title"] = "Unit Settings | Edit Unit";
+    Layout = "~/Areas/GlobalSettings/Views/Shared/_GBSLayout.cshtml";
+}
+<div class="card ml-5 mt-5 w-50">
+    <div class="card-header bg-dark">
+        <h4 class="text-white">Edit Unit</h4>
+    </div>
+    <div class="card-body bg-secondary">
+        @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-x-circle"></i>
+                <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (!String.IsNullOrEmpty(Model.ViewModelSuccessMessage))
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="bi bi-check-circle"></i>
+                <span class="fw-bold">@Model.ViewModelSuccessMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (!String.IsNullOrEmpty(Model.ViewModelWarningMessage))
+        {
+            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                <i class="bi bi-exclamation-circle"></i>
+                <span class="fw-bold">@Model.ViewModelWarningMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+    <form asp-area="GlobalSettings" asp-controller="Units" asp-action="Edit" method="post">
+        <div class="row">
+            <div class="col-mb-12 mb-1">
+                <input type="hidden" asp-for="UnitID" />
+                <label asp-for="UnitName" class="form-label text-white fw-bold"></label>
+                <input asp-for="UnitName" class="form-control" />
+                <div><span asp-validation-for="UnitName" class="text-danger"></span></div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12  mb-1">
+                <label asp-for="DepartmentID" class="form-label text-white fw-bold"></label>
+                <select asp-for="DepartmentID" asp-items="@ViewBag.DeptList" class="form-control">
+                    <option value="">- Select -</option>
+                </select>
+                <div><span asp-validation-for="DepartmentID" class="text-danger"></span></div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6  mb-1">
+                <label asp-for="UnitHeadID1" class="form-label text-white fw-bold"></label>
+                <select asp-for="UnitHeadID1" asp-items="@ViewBag.StaffList" class="form-control">
+                    <option value="">- Select -</option>
+                </select>
+                <div><span asp-validation-for="UnitHeadID1" class="text-danger"></span></div>
+            </div>
+            <div class="col-md-6  mb-3">
+                <label asp-for="UnitHeadID2" class="form-label text-white fw-bold"></label>
+                <select asp-for="UnitHeadID2" asp-items="@ViewBag.StaffList" class="form-control">
+                    <option value="">- Select -</option>
+                </select>
+                <div><span asp-validation-for="UnitHeadID2" class="text-danger"></span></div>
+            </div>
+        </div>
+        <div class="row">
+            <a asp-area="GlobalSettings" asp-controller="Home" asp-action="Index" class="btn btn-dark" style="width:100px" title="Return to Global Settings">
+                <span class="text-white">Exit</span>
+            </a>&nbsp;
+            <a asp-area="GlobalSettings" asp-controller="Units" asp-action="List" class="btn btn-dark" style="width:100px" title="Return to Units List">
+                <span class="text-white">Go Back</span>
+            </a>&nbsp;
+            <a asp-area="GlobalSettings" asp-controller="Units" asp-action="Edit" asp-route-id="@Model.UnitID" class="btn btn-warning" style="width:100px" title="Refresh">
+                <span class="text-white">Refresh</span>
+            </a>&nbsp;
+            @if (!Model.OperationIsCompleted)
+            {
+                <button type="submit" class="btn btn-primary" title="Save" style="width:200px"><span class="text-white">Save</span></button>
+            }
+        </div>
+    </form>
+    </div>
+</div>
+
+
+
+
+
+
+
+

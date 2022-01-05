@@ -1,0 +1,72 @@
+﻿@model IntranetPortal.Areas.ContentManager.Models.AddPostDetailsViewModel
+@{
+    ViewData["Title"] = "Content Manager | Add Details";
+    Layout = "~/Areas/ContentManager/Views/Shared/_CMSLayout.cshtml";
+}
+<link href="~/lib/summernote/dist/summernote-lite.min.css" rel="stylesheet" />
+<div class="card ml-2 mt-3" style="width:80pc">
+    <div class="card-header bg-success">
+        <h4 class="text-white">Add Content</h4>
+    </div>
+    <div class="card-body">
+        @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-x-circle"></i>
+                <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (!String.IsNullOrEmpty(Model.ViewModelSuccessMessage))
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="bi bi-check-circle"></i>
+                <span class="fw-bold">@Model.ViewModelSuccessMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (!String.IsNullOrEmpty(Model.ViewModelWarningMessage))
+        {
+            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                <i class="bi bi-exclamation-circle"></i>
+                <span class="fw-bold">@Model.ViewModelWarningMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        <h4>@Model.PostTitle</h4>
+        <form enctype="multipart/form-data" asp-area="ContentManager" asp-controller="Home" asp-action="AddDetails" method="post">
+            <div class="mb-3" style="height:400px">
+                <div><span asp-validation-for="PostDetailsHtml" class="text-danger"></span></div>
+                <textarea asp-for="PostDetailsHtml" class="form-control"></textarea>
+            </div>
+            <input id="PostId" name="PostId" value="@Model.PostId" type="hidden" />
+            <input id="PostTypeId" name="PostTypeId" value="@Model.PostTypeId" type="hidden" />
+            <a asp-area="ContentManager" asp-controller="Home" asp-action="Index" class="btn btn-dark" style="width:100px" title="Return to Articles Library">
+                <span class="text-white">Exit</span>
+            </a>
+            <button type="submit" class="btn btn-success" style="width:200px"><span class="text-white">Save Content</span></button>
+        </form>
+    </div>
+</div>
+    @section Scripts{
+        <script src="~/lib/summernote/dist/summernote-lite.min.js"></script>
+        <script>
+            $(document).ready(function () {
+                $('#PostDetailsHtml').summernote({
+                    height: 330,                 // set editor height
+                    minHeight: null,             // set minimum height of editor
+                    maxHeight: null,             // set maximum height of editor
+                    focus: true                 // set focus to editable area after initializing summernote
+                });
+            });
+        </script>
+    }
+
+
+
+
+
+
+
+
+

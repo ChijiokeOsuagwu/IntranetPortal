@@ -1,0 +1,87 @@
+﻿@model IntranetPortal.Areas.ContentManager.Models.BannerAddViewModel
+@{
+    ViewData["Title"] = "Content Manager | Add Banner";
+    Layout = "~/Areas/ContentManager/Views/Shared/_CMSLayout.cshtml";
+}
+<div class="card ml-5 mt-5 w-75">
+    <div class="card-header bg-success">
+        <h4 class="text-white">New Banner</h4>
+    </div>
+    <div class="card-body">
+        @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-x-circle"></i>
+                <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (!String.IsNullOrEmpty(Model.ViewModelSuccessMessage))
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="bi bi-check-circle"></i>
+                <span class="fw-bold">@Model.ViewModelSuccessMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (!String.IsNullOrEmpty(Model.ViewModelWarningMessage))
+        {
+            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                <i class="bi bi-exclamation-circle"></i>
+                <span class="fw-bold">@Model.ViewModelWarningMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+    <form enctype="multipart/form-data" asp-area="ContentManager" asp-controller="Banners" asp-action="Add" method="post">
+        <div class="mb-3">
+            <label asp-for="Title" class="form-label fw-bold"></label>
+            <input asp-for="Title" class="form-control" placeholder="Enter Title">
+            <div><span asp-validation-for="Title" class="text-danger"></span></div>
+        </div>
+        <div class="mb-3">
+            <label asp-for="Summary" class="form-label fw-bold"></label>
+            <input asp-for="Summary" class="form-control" placeholder="Enter Caption">
+            <div><span asp-validation-for="Summary" class="text-danger"></span></div>
+        </div>
+        <div class="mb-3">
+            <div id="bannerImageHelp" class="fst-italic">(For best results choose only images of width:1900 and height:600.)</div>
+            <div class="custom-file">
+                <input asp-for="BannerImage" class="form-control custom-file-input">
+                <label class="custom-file-label">Choose File ...</label>
+            </div>
+            <div><span asp-validation-for="BannerImage" class="text-danger"></span></div>
+        </div>
+        <div class="mb-3 row">
+            <div class="col-md-6">
+                <div class="form-check">
+                    <input asp-for="EnableComments" class="form-check-input">
+                    <label class="form-check-label fw-bold">Allow Comments</label>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-check">
+                    <input asp-for="IsHidden" class="form-check-input">
+                    <label class="form-check-label fw-bold">Hide Banner</label>
+                </div>
+            </div>
+        </div>
+        <div class="mb-3">
+            <a asp-area="ContentManager" asp-controller="Banners" asp-action="List" class="btn btn-dark" style="width:100px" title="Return to Banner Gallery">
+                <span class="text-white">Exit</span>
+            </a>
+            <button type="submit" class="btn btn-success" style="width:100px"><span class="text-white">Add</span></button>
+        </div>
+        @section Scripts{
+            <script>
+                $(document).ready(function () {
+                    $('.custom-file-input').on("change", function () {
+                        var fileName = $(this).val().split("\\").pop();
+                        $(this).next('.custom-file-label').html(fileName);
+                    });
+                })
+            </script>
+        }
+    </form>
+    </div>
+</div>
+

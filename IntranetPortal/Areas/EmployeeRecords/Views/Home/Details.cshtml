@@ -1,0 +1,271 @@
+﻿@model IntranetPortal.Base.Models.EmployeeRecordModels.Employee
+@{
+    ViewData["Title"] = "Employee Records | Details";
+    Layout = "~/Areas/GlobalSettings/Views/Shared/_GBSLayout.cshtml";
+}
+<div>
+    @if (!String.IsNullOrEmpty(ViewBag.ErrorMessage))
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-x-circle"></i>
+            <span class="fw-bold">@ViewBag.ErrorMessage</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+</div>
+<div class="mt-5">
+    <a asp-area="EmployeeRecords" asp-controller="Home" asp-action="Index" class="btn btn-dark" style="width:100px" title="Return to Employee Home">
+        <span class="text-white">Exit</span>
+    </a>&nbsp;
+    <a asp-area="EmployeeRecords" asp-controller="Home" asp-action="List" class="btn btn-dark" style="width:100px" title="Return to Staff List">
+        <span class="text-white">Go Back</span>
+    </a>
+</div>
+<div class="container mt-3">
+    <ul class="nav nav-tabs">
+        <li class="nav-item">
+            <a class="nav-link active" data-bs-toggle="tab" href="#personal"><strong>Personal Info</strong></a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" data-bs-toggle="tab" href="#employment"><strong>Employment Info</strong></a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" data-bs-toggle="tab" href="#nextofkin"><strong>Next Of Kin Info</strong></a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" data-bs-toggle="tab" href="#history"><strong>Employment History</strong></a>
+        </li>
+    </ul>
+    <!-- Tab panes -->
+    <div class="tab-content">
+        <div class="tab-pane container active" id="personal">
+            <div class="card">
+                <div class="card-header bg-dark">
+                    <h4 class="text-white">Personal Information</h4>
+                </div>
+                <div class="card-body bg-secondary">
+                    <div class="row">
+                        <div class="col-md-4 mb-2">
+                            <input type="hidden" asp-for="PersonID" />
+                            <label class="form-label text-white fw-bold">First Name</label>
+                            <input asp-for="FirstName" class="form-control" readonly="readonly">
+                        </div>
+                        <div class="col-md-4 mb-2">
+                            <label class="form-label text-white fw-bold">Surname</label>
+                            <input asp-for="Surname" class="form-control" readonly="readonly">
+                        </div>
+                        <div class="col-md-4 mb-2">
+                            <label class="form-label text-white fw-bold">Other Names</label>
+                            <input asp-for="OtherNames" class="form-control" readonly="readonly">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4 mb-2">
+                            <label class="form-label text-white fw-bold">Gender</label>
+                            <input asp-for="Sex" class="form-control" readonly="readonly">
+                        </div>
+                        <div class="col-md-4 mb-2">
+                            <label class="form-label text-white fw-bold">Marital Status</label>
+                            <input asp-for="MaritalStatus" class="form-control" readonly="readonly">
+                        </div>
+                        <div class="col-md-4 mb-2">
+                            <label class="form-label text-white fw-bold">Date of Birth</label>
+                            <input asp-for="DateOfBirth" class="form-control" readonly="readonly">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4 mb-2">
+                            <label class="form-label text-white fw-bold">Phone No.</label>
+                            <input asp-for="PhoneNo1" class="form-control" readonly="readonly">
+                        </div>
+                        <div class="col-md-4  mb-2">
+                            <label class="form-label text-white fw-bold">Alt. Phone No.</label>
+                            <input asp-for="PhoneNo2" class="form-control" readonly="readonly">
+                        </div>
+                        <div class="col-md-4 mb-2">
+                            <label class="form-label text-white fw-bold">Email</label>
+                            <input asp-for="Email" class="form-control" readonly="readonly">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-2">
+                            <label class="form-label text-white fw-bold">Address</label>
+                            <input asp-for="Address" class="form-control" readonly="readonly">
+                        </div>
+                        <div class="col-md-6 mb-2">
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="tab-pane container fade" id="employment">
+            <div class="card">
+                <div class="card-header bg-dark">
+                    <h4 class="text-white">Employee Information</h4>
+                </div>
+                <div class="card-body bg-secondary">
+                    <div class="row">
+                        <div class="col-md-4 mb-2">
+                            <input type="hidden" asp-for="EmployeeID" />
+                            <label class="form-label text-white fw-bold">Employee No.</label>
+                            <input asp-for="EmployeeNo1" class="form-control" readonly="readonly">
+                        </div>
+                        <div class="col-md-4 mb-2">
+                            <label class="form-label text-white fw-bold">Custom Code</label>
+                            <input asp-for="EmployeeNo2" class="form-control" placeholder="Custom Code">
+                        </div>
+                        <div class="col-md-4 mb-2">
+                            <label class="form-label text-white fw-bold">Employment Status</label>
+                            <input asp-for="EmploymentStatus" class="form-control" readonly="readonly">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4 mb-2">
+                            <label class="form-label text-white fw-bold">Company</label>
+                            <input asp-for="CompanyName" class="form-control" readonly="readonly">
+                        </div>
+                        <div class="col-md-4 mb-2">
+                            <label class="form-label text-white fw-bold">Location</label>
+                            <input asp-for="LocationName" class="form-control" readonly="readonly">
+                        </div>
+                        <div class="col-md-4 mb-2">
+                            <label class="form-label text-white fw-bold">Unit</label>
+                            <input asp-for="UnitName" class="form-control" readonly="readonly">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4 mb-2">
+                            <label class="form-label text-white fw-bold">Job Grade</label>
+                            <input asp-for="JobGrade" class="form-control" readonly="readonly">
+                        </div>
+                        <div class="col-md-4 mb-2">
+                            <label class="form-label text-white fw-bold">Start Up Date</label>
+                            <input asp-for="StartUpDateFormatted" class="form-control" readonly="readonly">
+                        </div>
+                        <div class="col-md-4 mb-2">
+                            <label class="form-label text-white fw-bold">Start Up Designation</label>
+                            <input asp-for="StartUpDesignation" class="form-control" readonly="readonly">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4 mb-2">
+                            <label class="form-label text-white fw-bold">Reports To</label>
+                            <input asp-for="ReportsTo1_EmployeeName" class="form-control" readonly="readonly">
+                        </div>
+                        <div class="col-md-4 mb-2">
+                            <label class="form-label text-white fw-bold">Also Reports To</label>
+                            <input asp-for="ReportsTo2_EmployeeName" class="form-control" readonly="readonly">
+                        </div>
+                        <div class="col-md-4 mb-2">
+                            <label class="form-label text-white fw-bold">Also Reports To</label>
+                            <input asp-for="ReportsTo3_EmployeeID" class="form-control" readonly="readonly">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label text-white fw-bold">Religion</label>
+                            <input asp-for="Religion" class="form-control" readonly="readonly">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label text-white fw-bold">State of Origin</label>
+                            <input asp-for="StateOfOrigin" class="form-control" readonly="readonly">
+                        </div>
+                        <div class="col-md-4  mb-3">
+                            <label class="form-label text-white fw-bold">LGA of Origin</label>
+                            <input asp-for="LgaOfOrigin" class="form-control" readonly="readonly">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="tab-pane container fade" id="nextofkin">
+            <div class="card">
+                <div class="card-header bg-dark">
+                    <h4 class="text-white">Next of Kin Information</h4>
+                </div>
+                <div class="card-body bg-secondary">
+                    <div class="row">
+                        <div class="col-md-6 mb-2">
+                            <label class="form-label text-white fw-bold">Next of Kin Name</label>
+                            <input asp-for="NextOfKinName" class="form-control" readonly="readonly">
+                        </div>
+                        <div class="col-md-6  mb-2">
+                            <label class="form-label text-white fw-bold">Next of Kin Relationship</label>
+                            <input asp-for="NextOfKinRelationship" class="form-control" readonly="readonly">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12 mb-2">
+                            <label class="form-label text-white fw-bold">Address</label>
+                            <input asp-for="NextOfKinAddress" class="form-control" readonly="readonly">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-2">
+                            <label class="form-label text-white fw-bold">Phone No.</label>
+                            <input asp-for="NextOfKinPhone" class="form-control" readonly="readonly">
+                        </div>
+                        <div class="col-md-6  mb-2">
+                            <label class="form-label text-white fw-bold">Email</label>
+                            <input asp-for="NextOfKinEmail" class="form-control" readonly="readonly">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="tab-pane container fade" id="history">
+            <div class="card">
+                <div class="card-header bg-dark">
+                    <h4 class="text-white">Employment History</h4>
+                </div>
+                <div class="card-body bg-secondary">
+                    <div class="row">
+                        <div class="col-md-6 mb-2">
+                            <input type="hidden" asp-for="EmployeeID" />
+                            <label class="form-label text-white fw-bold">Employee No.</label>
+                            <input asp-for="EmployeeNo1" class="form-control" readonly="readonly">
+                        </div>
+                        <div class="col-md-6 mb-2">
+                            <label class="form-label text-white fw-bold">Full Name</label>
+                            <input asp-for="FullName" class="form-control" readonly="readonly">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-2">
+                            <label class="form-label text-white fw-bold">Place of Engagement</label>
+                            <input asp-for="PlaceOfEngagement" class="form-control" readonly="readonly">
+                        </div>
+                        <div class="col-md-6  mb-2">
+                            <label class="form-label text-white fw-bold">Confirmation Date</label>
+                            <input asp-for="ConfirmationDateFormatted" class="form-control" readonly="readonly">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6  mb-2">
+                            <label class="form-label text-white fw-bold">Date of Last Promotion</label>
+                            <input asp-for="DateOfLastPromotionFormatted" class="form-control" readonly="readonly">
+                        </div>
+                        <div class="col-md-6 mb-2">
+                            <label class="form-label text-white fw-bold">Current Designation</label>
+                            <input asp-for="CurrentDesignation" class="form-control" readonly="readonly">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-2">
+                            <label class="form-label text-white fw-bold">Years of Experience</label>
+                            <input asp-for="YearsOfExperience" class="form-control" readonly="readonly">
+                        </div>
+                        <div class="col-md-6 mb-2">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
