@@ -1,20 +1,21 @@
 ﻿@{
     ViewData["Title"] = "Global Settings";
-   Layout = "~/Areas/GlobalSettings/Views/Shared/_GBSLayout.cshtml";
 }
 <link href="~/lib/matrix/dist/css/style.min.css" rel="stylesheet" />
 <div class="my-2">
     <!-- ============================================================== -->
     <!-- Sales Cards  -->
     <!-- ============================================================== -->
+    <h4 class="fw-bold">Global Settings</h4>
+    <hr />
     <div class="row">
         <!-- Column -->
         <div class="col-md-6 col-lg-2 col-xlg-3">
             <a asp-area="GlobalSettings" asp-controller="Locations" asp-action="Stations">
                 <div class="card card-hover">
-                    <div class="box bg-secondary text-center">
-                        <h1 class="font-light text-white" style="font-size:3em"><i class="bi bi-building"></i></h1>
-                        <h6 class="text-white"> Stations</h6>
+                    <div class="box bg-light text-center">
+                        <h1 class="font-light" style="font-size:3em"><i class="bi bi-building"></i></h1>
+                        <h6> Stations</h6>
                     </div>
                 </div>
             </a>
@@ -23,9 +24,9 @@
         <div class="col-md-6 col-lg-2 col-xlg-3">
             <a asp-area="GlobalSettings" asp-controller="Locations" asp-action="Bureaus">
                 <div class="card card-hover">
-                    <div class="box bg-secondary text-center">
-                        <h1 class="font-light text-white" style="font-size:3em"><i class="far fa-building"></i></h1>
-                        <h6 class="text-white"> Bureaux</h6>
+                    <div class="box bg-light text-center">
+                        <h1 class="font-light" style="font-size:3em"><i class="far fa-building"></i></h1>
+                        <h6> Bureaux</h6>
                     </div>
                 </div>
             </a>
@@ -34,108 +35,35 @@
         <div class="col-md-6 col-lg-2 col-xlg-3">
             <a asp-area="GlobalSettings" asp-controller="Departments" asp-action="List">
                 <div class="card card-hover">
-                    <div class="box bg-secondary text-center">
-                        <h1 class="font-light text-white" style="font-size:3em"><i class="far fa-building"></i></h1>
-                        <h6 class="text-white">Departments</h6>
-                    </div>
-                </div>
-                </a>
-        </div>
-        <!-- Column -->
-        <div class="col-md-6 col-lg-2 col-xlg-3">
-            <a asp-area="GlobalSettings" asp-controller="Units" asp-action="List">
-                <div class="card card-hover">
-                    <div class="box bg-secondary text-center">
-                        <h1 class="font-light text-white" style="font-size:3em"><i class="bi bi-building"></i></h1>
-                        <h6 class="text-white">Units</h6>
-                    </div>
-                </div>
-                </a>
-        </div>
-        <!-- Column -->
-        <div class="col-md-6 col-lg-2 col-xlg-3">
-            <div class="card card-hover">
-                <div class="box bg-danger text-center">
-                    <h1 class="font-light text-white" style="font-size:5em"><i class="fas fa-chalkboard-teacher"></i></h1>
-                    <h6 class="text-white">Channels Learning</h6>
-                </div>
-            </div>
-        </div>
-        <!-- Column -->
-        <div class="col-md-6 col-lg-2 col-xlg-3">
-            <div class="card card-hover">
-                <div class="box bg-info text-center">
-                    <h1 class="font-light text-white" style="font-size:5em"><i class="far fa-calendar-alt"></i></h1>
-                    <h6 class="text-white">Assignment Scheduler</h6>
-                </div>
-            </div>
-        </div>
-        <!-- Column -->
-        <div class="col-md-6 col-lg-2 col-xlg-3">
-            <div class="card card-hover">
-                <div class="box bg-success text-center">
-                    <h1 class="font-light text-white" style="font-size:5em"><i class="fas fa-file-invoice-dollar"></i></h1>
-                    <h6 class="text-white">Requisitions Processing</h6>
-                </div>
-            </div>
-        </div>
-        <!-- Column -->
-        <div class="col-md-6 col-lg-2 col-xlg-3">
-            <div class="card card-hover">
-                <div class="box bg-danger text-center">
-                    <h1 class="font-light text-white" style="font-size:5em"><i class="fas fa-tasks"></i></h1>
-                    <h6 class="text-white">Task Management</h6>
-                </div>
-            </div>
-        </div>
-        <!-- Column -->
-        <div class="col-md-6 col-lg-2 col-xlg-3">
-            <div class="card card-hover">
-                <div class="box bg-info text-center">
-                    <h1 class="font-light text-white"><i class="mdi mdi-relative-scale"></i></h1>
-                    <h6 class="text-white">Buttons</h6>
-                </div>
-            </div>
-        </div>
-        <!-- Column -->
-        <div class="col-md-6 col-lg-2 col-xlg-3">
-            <div class="card card-hover">
-                <div class="box bg-cyan text-center">
-                    <h1 class="font-light text-white"><i class="mdi mdi-pencil"></i></h1>
-                    <h6 class="text-white">Elements</h6>
-                </div>
-            </div>
-        </div>
-        <!-- Column -->
-        <div class="col-md-6 col-lg-2 col-xlg-3">
-            <div class="card card-hover">
-                <div class="box bg-success text-center">
-                    <h1 class="font-light text-white"><i class="mdi mdi-calendar-check"></i></h1>
-                    <h6 class="text-white">Calendar</h6>
-                </div>
-            </div>
-        </div>
-        <!-- Column -->
-        <div class="col-md-6 col-lg-2 col-xlg-3">
-            <div class="card card-hover">
-                <div class="box bg-warning text-center">
-                    <h1 class="font-light text-white"><i class="mdi mdi-alert"></i></h1>
-                    <h6 class="text-white">Errors</h6>
-                </div>
-            </div>
-        </div>
-        <!-- Column -->
-        <div class="col-md-6 col-lg-2 col-xlg-3">
-            <a asp-area="GlobalSettings" asp-controller="Home" asp-action="Index">
-                <div class="card card-hover">
-                    <div class="box bg-danger text-center">
-                        <h1 class="font-light text-white" style="font-size:5em"><i class="bi bi-sliders"></i></h1>
-                        <h6 class="text-white">Global Settings</h6>
+                    <div class="box bg-light text-center">
+                        <h1 class="font-light" style="font-size:3em"><i class="far fa-building"></i></h1>
+                        <h6>Departments</h6>
                     </div>
                 </div>
             </a>
         </div>
         <!-- Column -->
+        <div class="col-md-6 col-lg-2 col-xlg-3">
+            <a asp-area="GlobalSettings" asp-controller="Units" asp-action="List">
+                <div class="card card-hover">
+                    <div class="box bg-light text-center">
+                        <h1 class="font-light" style="font-size:3em"><i class="bi bi-building"></i></h1>
+                        <h6>Units</h6>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <!-- Column -->
+        <div class="col-md-6 col-lg-2 col-xlg-3">
+            <a asp-area="GlobalSettings" asp-controller="Teams" asp-action="List">
+                <div class="card card-hover">
+                    <div class="box bg-light text-center">
+                        <h1 class="font-light" style="font-size:3em"><i class="fa fa-users" aria-hidden="true"></i></h1>
+                        <h6>Teams</h6>
+                    </div>
+                </div>
+            </a>
+        </div>
     </div>
 </div>
 @section Scripts{

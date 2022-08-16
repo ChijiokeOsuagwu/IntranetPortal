@@ -1,0 +1,26 @@
+﻿
+@{
+    ViewData["Title"] = "OfficeManager | Authorize";
+    Layout = "~/Views/Shared/_BlueLayout.cshtml";
+}
+
+<h1>Welcome to Authorize Page!</h1>
+<a class="btn btn-info" asp-controller="Home" asp-action="Index"> Return Home</a>
+@if (User.Identity.IsAuthenticated)
+{
+    <table class="table table-bordered table-striped">
+        <tr>
+            <td class="text-dark fw-bold">Claim Type</td>
+            <td class="text-dark fw-bold">Claim Value</td>
+        </tr>
+        @foreach (var claim in User.Claims)
+        {
+            <tr>
+                <td>@claim.Type</td>
+                <td>@claim.Value</td>
+            </tr>
+        }
+
+    </table>
+}
+

@@ -1,0 +1,81 @@
+﻿
+
+@model IntranetPortal.Areas.GlobalSettings.Models.TeamMemberViewModel
+@{
+    ViewData["Title"] = "Team Settings | Edit Member";
+    Layout = "~/Areas/GlobalSettings/Views/Shared/_GBSLayout.cshtml";
+}
+<div class="d-flex align-items-center justify-content-center" style="height:100vh">
+    <div class="card" style="min-width:600px">
+        <div class="card-header bg-info">
+            <h4 class="text-white">Edit Member</h4>
+        </div>
+        <div class="card-body bg-secondary">
+            @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bi bi-x-circle"></i>
+                    <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            @if (!String.IsNullOrEmpty(Model.ViewModelSuccessMessage))
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="bi bi-check-circle"></i>
+                    <span class="fw-bold">@Model.ViewModelSuccessMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            @if (!String.IsNullOrEmpty(Model.ViewModelWarningMessage))
+            {
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                    <i class="bi bi-exclamation-circle"></i>
+                    <span class="fw-bold">@Model.ViewModelWarningMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            <form asp-area="GlobalSettings" asp-controller="Teams" asp-action="EditMember" method="post">
+                <div class="row">
+                    <div class="row">
+                        <div class="col-md-12  mb-2">
+                            <input type="hidden" asp-for="TeamID" />
+                            <input type="hidden" asp-for="TeamMemberID" />
+                            <input type="hidden" asp-for="MemberID" />
+                            <label asp-for="MemberName" class="form-label text-white fw-bold"></label>
+                            <input asp-for="MemberName"  class="form-control fw-bold" readonly="readonly"/>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12  mb-3">
+                        <label asp-for="MemberRole" class="form-label text-white fw-bold"></label>
+                        <select asp-for="MemberRole" class="form-control fw-bold">
+                            <option value="Team Member">Team Member</option>
+                            <option value="Team Lead">Team Lead</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row">
+                    <a asp-area="GlobalSettings" asp-controller="Home" asp-action="Index" class="btn btn-dark" style="width:100px" title="Return to Global Settings">
+                        <span class="text-white">Exit</span>
+                    </a>&nbsp;
+                    <a asp-area="GlobalSettings" asp-controller="Teams" asp-action="Members" asp-route-id="@Model.TeamID" class="btn btn-dark" style="width:100px" title="Return to Members List">
+                        <span class="text-white">Go Back</span>
+                    </a>&nbsp;
+                    <a asp-area="GlobalSettings" asp-controller="Teams" asp-action="EditMember" asp-route-id="@Model.TeamMemberID" class="btn btn-warning" style="width:100px" title="Clear">
+                        <span class="text-white">Clear</span>
+                    </a>&nbsp;
+                    @if (!Model.OperationIsCompleted)
+                    {
+                        <button type="submit" class="btn btn-info" title="Save" style="width:200px"><span class="text-white">Save</span></button>
+                    }
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+
+

@@ -6,6 +6,7 @@ using IntranetPortal.Areas.ContentManager.Models;
 using IntranetPortal.Base.Models.ContentManagerModels;
 using IntranetPortal.Base.Services;
 using IntranetPortal.Configurations;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -13,6 +14,7 @@ using Microsoft.Extensions.Configuration;
 namespace IntranetPortal.Areas.ContentManager.Controllers
 {
     [Area("ContentManager")]
+    [Authorize]
     public class HomeController : Controller
     {
         private readonly IConfiguration _configuration;
@@ -27,11 +29,13 @@ namespace IntranetPortal.Areas.ContentManager.Controllers
             _dataProtector = dataProtectionProvider.CreateProtector(dataProtectionEncryptionStrings.RouteValuesEncryptionCode);
         }
 
+        [Authorize(Roles = "PCMVWHMPG, XYALLACCZ")]
         public IActionResult Index()
         {
             return View();
         }
 
+        [Authorize(Roles = "PCMDETADN, XYALLACCZ")]
         public async Task<IActionResult> AddDetails(string id)
         {
             AddPostDetailsViewModel model = new AddPostDetailsViewModel();
@@ -54,6 +58,7 @@ namespace IntranetPortal.Areas.ContentManager.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "PCMDETADN, XYALLACCZ")]
         public async Task<IActionResult> AddDetails(AddPostDetailsViewModel model)
         {
             if (ModelState.IsValid)
@@ -78,6 +83,7 @@ namespace IntranetPortal.Areas.ContentManager.Controllers
 
 
         [HttpPost]
+        [Authorize(Roles = "PCMDETADN, XYALLACCZ")]
         public async Task<string> AddHtmlDetails(string id, string htmlFormat)
         {
             string modifiedBy = "System Administrator";

@@ -13,7 +13,7 @@
         </div>
     }
 </div>
-<div class="mt-5">
+<div class="cold-md-12 mt-5">
     <a asp-area="EmployeeRecords" asp-controller="Home" asp-action="Index" class="btn btn-dark" style="width:100px" title="Return to Employee Home">
         <span class="text-white">Exit</span>
     </a>&nbsp;
@@ -21,19 +21,20 @@
         <span class="text-white">Go Back</span>
     </a>
 </div>
+<hr />
 <div class="container mt-3">
     <ul class="nav nav-tabs">
-        <li class="nav-item">
-            <a class="nav-link active" data-bs-toggle="tab" href="#personal"><strong>Personal Info</strong></a>
+        <li class="nav-item bg-warning">
+            <a class="nav-link active" data-bs-toggle="tab" href="#personal"><span class="text-dark fw-bold">Personal Info</span></a>
         </li>
-        <li class="nav-item">
-            <a class="nav-link" data-bs-toggle="tab" href="#employment"><strong>Employment Info</strong></a>
+        <li class="nav-item bg-primary">
+            <a class="nav-link" data-bs-toggle="tab" href="#employment"><span class="text-dark fw-bold">Employment Info</span></a>
         </li>
-        <li class="nav-item">
-            <a class="nav-link" data-bs-toggle="tab" href="#nextofkin"><strong>Next Of Kin Info</strong></a>
+        <li class="nav-item bg-danger">
+            <a class="nav-link" data-bs-toggle="tab" href="#nextofkin"><span class="text-dark fw-bold">Next Of Kin Info</span></a>
         </li>
-        <li class="nav-item">
-            <a class="nav-link" data-bs-toggle="tab" href="#history"><strong>Employment History</strong></a>
+        <li class="nav-item bg-success">
+            <a class="nav-link" data-bs-toggle="tab" href="#history"><span class="text-dark fw-bold">Employment History</span></a>
         </li>
     </ul>
     <!-- Tab panes -->
@@ -88,11 +89,11 @@
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-md-6 mb-2">
+                        <div class="col-md-8 mb-2">
                             <label class="form-label text-white fw-bold">Address</label>
                             <input asp-for="Address" class="form-control" readonly="readonly">
                         </div>
-                        <div class="col-md-6 mb-2">
+                        <div class="col-md-4 mb-2">
 
                         </div>
                     </div>

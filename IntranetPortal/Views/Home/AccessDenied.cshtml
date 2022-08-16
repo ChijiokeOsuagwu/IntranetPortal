@@ -1,0 +1,23 @@
+﻿@{
+    ViewData["Title"] = "OfficeManager | Access Denied";
+    Layout = "~/Views/Shared/_BlueLayout.cshtml";
+}
+<div class="bg-body d-flex align-items-center justify-content-center" style="height:100vh">
+    <div class="card">
+        <div class="card-body bg-body">
+            <div class="col-6 mb-1">
+                <h2 class="text-danger">Access Denied</h2>
+            </div>
+            <div class="col-6 mb-1">
+                <h5 class="text-dark">
+                    It appears you do not have permission to this part of the application. Please contact the System Administrator for assistance.
+                </h5>
+            </div>
+            <div class="col-6 mb-1">
+                <a asp-controller="Home" asp-action="Index" class="btn btn-sm btn-outline-danger" style="width:100px" title="Return to Home Page">
+                    <span class="text-dark">Exit</span>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

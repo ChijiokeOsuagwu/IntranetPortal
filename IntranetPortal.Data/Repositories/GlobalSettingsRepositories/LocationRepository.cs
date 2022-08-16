@@ -180,6 +180,52 @@ namespace IntranetPortal.Data.Repositories.GlobalSettingsRepositories
             return location;
         }
 
+        public async Task<Location> GetLocationByNameAsync(string locationName)
+        {
+            Location location = new Location();
+            var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
+            //string query = String.Empty;
+            StringBuilder sb = new StringBuilder();
+            if (string.IsNullOrEmpty(locationName)) { throw new ArgumentNullException("Required parameter [locationName] cannot be null."); }
+            sb.Append($"SELECT locqk, locname, loctype, lochq1, lochq2, locmb, locmd, loccb, loccd, ");
+            sb.Append($"locctr, locst	FROM public.gst_locs WHERE (locname = @locname) ORDER BY locname LIMIT 1; ");
+            string query = sb.ToString();
+            try
+            {
+                await conn.OpenAsync();
+                // Retrieve all rows
+                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+                {
+                    var location_name= cmd.Parameters.Add("@locname", NpgsqlDbType.Text);
+                    await cmd.PrepareAsync();
+                    location_name.Value = locationName;
+                    using (var reader = await cmd.ExecuteReaderAsync())
+                        while (await reader.ReadAsync())
+                        {
+                            location.LocationID = reader["locqk"] == DBNull.Value ? 0 : (int)(reader["locqk"]);
+                            location.LocationName = reader["locname"] == DBNull.Value ? String.Empty : reader["locname"].ToString();
+                            location.LocationType = reader["loctype"] == DBNull.Value ? String.Empty : reader["loctype"].ToString();
+                            location.LocationHeadID1 = reader["lochq1"] == DBNull.Value ? String.Empty : reader["lochq1"].ToString();
+                            location.LocationHeadID2 = reader["lochq2"] == DBNull.Value ? String.Empty : reader["lochq2"].ToString();
+                            location.LocationCountry = reader["locctr"] == DBNull.Value ? String.Empty : reader["locctr"].ToString();
+                            location.LocationState = reader["locst"] == DBNull.Value ? String.Empty : reader["locst"].ToString();
+                            location.ModifiedBy = reader["locmb"] == DBNull.Value ? string.Empty : reader["locmb"].ToString();
+                            location.ModifiedDate = reader["locmd"] == DBNull.Value ? string.Empty : reader["locmd"].ToString();
+                            location.CreatedBy = reader["loccb"] == DBNull.Value ? string.Empty : reader["loccb"].ToString();
+                            location.CreatedDate = reader["loccd"] == DBNull.Value ? string.Empty : reader["loccd"].ToString();
+                        }
+                }
+                await conn.CloseAsync();
+            }
+            catch (Exception ex)
+            {
+                await conn.CloseAsync();
+                throw new Exception(ex.Message);
+            }
+            return location;
+        }
+
+
         public async Task<IList<Location>> GetLocationsAsync()
         {
             List<Location> locationList = new List<Location>();
@@ -335,6 +381,45 @@ namespace IntranetPortal.Data.Repositories.GlobalSettingsRepositories
                 using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
                 {
                     await cmd.PrepareAsync();
+                    var reader = await cmd.ExecuteReaderAsync();
+                    while (await reader.ReadAsync())
+                    {
+                        statesList.Add(new State()
+                        {
+                            Code = reader["stts_cd"] == DBNull.Value ? string.Empty : reader["stts_cd"].ToString(),
+                            Name = reader["stts_nm"] == DBNull.Value ? String.Empty : reader["stts_nm"].ToString(),
+                            Region = reader["stts_rg"] == DBNull.Value ? String.Empty : reader["stts_rg"].ToString(),
+                            Country = reader["stts_ct"] == DBNull.Value ? String.Empty : reader["stts_ct"].ToString(),
+                        });
+                    }
+                }
+                await conn.CloseAsync();
+            }
+            catch (Exception ex)
+            {
+                await conn.CloseAsync();
+                throw new Exception(ex.Message);
+            }
+            return statesList;
+        }
+
+        public async Task<IList<State>> SearchStatesByNameAsync(string name)
+        {
+            List<State> statesList = new List<State>();
+            var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
+            StringBuilder sb = new StringBuilder();
+            sb.Append("SELECT stts_cd, stts_nm, stts_rg, stts_ct FROM public.gst_loc_stts ");
+            sb.Append($"WHERE(LOWER(stts_nm) LIKE '%'||LOWER(@stts_nm)||'%') ORDER BY stts_nm;");
+            string query = sb.ToString();
+            try
+            {
+                await conn.OpenAsync();
+                // Retrieve all rows
+                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+                {
+                    var stts_nm = cmd.Parameters.Add("@stts_nm", NpgsqlDbType.Text);
+                    await cmd.PrepareAsync();
+                    stts_nm.Value = name;
                     var reader = await cmd.ExecuteReaderAsync();
                     while (await reader.ReadAsync())
                     {

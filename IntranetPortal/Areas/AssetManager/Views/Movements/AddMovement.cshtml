@@ -1,0 +1,121 @@
+﻿@model IntranetPortal.Areas.AssetManager.Models.AssetMovementViewModel
+@{
+    ViewData["Title"] = "OfficeManager | New Transfer";
+}
+<div>
+    <div class="card" style="min-width:600px">
+        <div class="card-header bg-success">
+            <h4 class="text-white">New Equipment Transfer</h4>
+        </div>
+        <div class="card-body bg-secondary">
+            @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bi bi-x-circle"></i>
+                    <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            @if (!String.IsNullOrEmpty(Model.ViewModelSuccessMessage))
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="bi bi-check-circle"></i>
+                    <span class="fw-bold">@Model.ViewModelSuccessMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            @if (!String.IsNullOrEmpty(Model.ViewModelWarningMessage))
+            {
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                    <i class="bi bi-exclamation-circle"></i>
+                    <span class="fw-bold">@Model.ViewModelWarningMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            <form asp-area="AssetManager" asp-controller="Movements" asp-action="AddMovement" method="post">
+                <div class="row">
+                    <div class="col-md-6 mb-1">
+                        <input type="hidden" asp-for="AssetID" />
+                        <input type="hidden" asp-for="AssetTypeID" />
+                        <input type="hidden" asp-for="AssetCategoryID" />
+                        <input type="hidden" asp-for="AssetMovementID" />
+                        <label asp-for="AssetName" class="form-label text-white fw-bold"></label>
+                        <input asp-for="AssetName" class="form-control fw-bold" onblur="getAssetParameters()">
+                        <div><span asp-validation-for="AssetName" class="text-danger"></span></div>
+                    </div>
+                    <div class="col-md-6 mb-1">
+                        <label asp-for="MovedOn" class="form-label text-white fw-bold"></label>
+                        <input asp-for="MovedOn" class="form-control fw-bold">
+                        <div><span asp-validation-for="MovedOn" class="text-danger"></span></div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-1">
+                        <label asp-for="MovedFromLocationID" class="form-label text-white fw-bold"></label>
+                        <select asp-for="MovedFromLocationID" asp-items="@ViewBag.LocationsList" class="form-control fw-bold">
+                            <option value=""> - Select - </option>
+                        </select>
+                        <div><span asp-validation-for="MovedFromLocationID" class="text-danger"></span></div>
+                    </div>
+                    <div class="col-md-6 mb-1">
+                        <label asp-for="MovedToLocationID" class="form-label text-white fw-bold"></label>
+                        <select asp-for="MovedToLocationID" asp-items="@ViewBag.LocationsList" class="form-control fw-bold">
+                            <option value=""> - Select - </option>
+                        </select>
+                        <div><span asp-validation-for="MovedToLocationID" class="text-danger"></span></div>
+                    </div>
+                </div>
+                <div class="row">
+                    <input type="hidden" asp-for="AssetCondition" />
+                    <div class="col-md-6 mb-1">
+                        <label asp-for="MovementPurpose" class="form-label text-white fw-bold"></label>
+                        <textarea class="form-control fw-bold" name="@Html.NameFor(m => m.MovementPurpose)">@Model.MovementPurpose</textarea>
+                        <div><span asp-validation-for="MovementPurpose" class="text-danger"></span></div>
+                    </div>
+                    <div class="col-md-6 mb-1">
+                        <label asp-for="Comments" class="form-label text-white fw-bold"></label>
+                        <textarea class="form-control fw-bold" name="@Html.NameFor(m => m.Comments)">@Model.Comments</textarea>
+                        <div><span asp-validation-for="Comments" class="text-danger"></span></div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="SupervisedBy" class="form-label text-white fw-bold"></label>
+                        <input asp-for="SupervisedBy" class="form-control fw-bold">
+                        <div><span asp-validation-for="SupervisedBy" class="text-danger"></span></div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="ApprovedBy" class="form-label text-white fw-bold"></label>
+                        <input asp-for="ApprovedBy" class="form-control fw-bold">
+                        <div><span asp-validation-for="ApprovedBy" class="text-danger"></span></div>
+                    </div>
+                </div>
+                <div class="row">
+                    <a asp-area="AssetManager" asp-controller="Home" asp-action="Index" class="btn btn-dark ml-2" style="width:100px" title="Return Home">
+                        <span class="text-white">Exit</span>
+                    </a>
+                    <a asp-area="AssetManager" asp-controller="Movements" asp-action="List" class="btn btn-dark ml-1" style="width:100px" title="Return to Transfers">
+                        <span class="text-white">Go Back</span>
+                    </a>
+                    @if (!Model.OperationIsCompleted)
+                    {
+                        <a asp-area="AssetManager" asp-controller="Movements" asp-action="AddMovement" class="btn btn-warning ml-1" style="width:100px" title="Clear">
+                            <span class="text-white">Clear</span>
+                        </a>
+                        <button type="submit" class="btn btn-success ml-2" title="Save" style="width:200px"><span class="text-white">Save</span></button>
+                    }
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+@section Scripts{
+    <script src="~/js/js_asm/asm_mvts_add.js"></script>
+}
+
+
+
+
+
+>
+

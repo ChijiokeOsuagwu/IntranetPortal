@@ -1,4 +1,5 @@
-﻿using IntranetPortal.Base.Models.GlobalSettingsModels;
+﻿using IntranetPortal.Base.Models.EmployeeRecordModels;
+using IntranetPortal.Base.Models.GlobalSettingsModels;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -14,10 +15,12 @@ namespace IntranetPortal.Base.Services
         Task<bool> DeleteLocationAsync(int locationId);
         Task<bool> UpdateLocationAsync(Location location);
         Task<Location> GetLocationByIdAsync(int locationId);
+        Task<Location> GetLocationByNameAsync(string locationName);
         Task<IList<Location>> GetAllLocationsAsync();
         Task<IList<Location>> GetStationsAsync();
         Task<IList<Location>> GetBureausAsync();
         Task<IList<State>> GetStatesAsync();
+        Task<IList<State>> SearchStatesAsync(string stateName);
         Task<State> GetStateAsync(string stateName);
         Task<IList<Country>> GetCountriesAsync();
         #endregion
@@ -45,6 +48,41 @@ namespace IntranetPortal.Base.Services
         #region Company Service Methods
         Task<IList<Company>> GetCompaniesAsync();
         Task<Company> GetCompanyAsync(string companyCode);
+
+        #endregion
+
+        //============================= Team Service Methods ==================================================//
+        #region Teams Service Methods
+        Task<bool> CreateTeamAsync(Team team);
+
+        Task<bool> DeleteTeamAsync(string teamId);
+
+        Task<bool> UpdateTeamAsync(Team team);
+
+        Task<IList<Team>> GetTeamsAsync();
+
+        Task<Team> GetTeamByIdAsync(string teamId);
+
+        Task<IList<Team>> SearchTeamsByNameAsync(string teamName);
+
+        #endregion
+
+        //============================ Team Members Service Methods =========================================//
+        #region Team Members Service Methods
+
+        Task<bool> CreateTeamMemberAsync(TeamMember teamMember);
+
+        Task<bool> DeleteTeamMemberAsync(int teamMemberId);
+
+        Task<bool> UpdateTeamMemberAsync(TeamMember teamMember);
+
+        Task<IEnumerable<TeamMember>> GetTeamMembersByTeamIdAsync(string teamId);
+
+        Task<TeamMember> GetTeamMemberByIdAsync(int teamMemberId);
+
+        Task<IEnumerable<TeamMember>> GetTeamMembersByMemberNameAsync(string teamId, string memberName);
+
+        Task<IEnumerable<Employee>> GetNonTeamMembersByTeamIdAsync(string teamId);
 
         #endregion
     }

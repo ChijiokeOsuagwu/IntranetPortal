@@ -14,10 +14,19 @@ namespace IntranetPortal.Base.Models.EmployeeRecordModels
         public string CompanyName { get; set; }
         public int? LocationID { get; set; }
         public string LocationName { get; set; }
+        public string LocationType { get; set; }
+        public string LocationState { get; set; }
+        public string LocationCountry { get; set; }
+        public string LocationHead1 { get; set; }
+        public string LocationHead2 { get; set; }
         public int? DepartmentID { get; set; }
         public string DepartmentName { get; set; }
+        public string DepartmentHead1 { get; set; }
+        public string DepartmentHead2 { get; set; }
         public int? UnitID { get; set; }
         public string UnitName { get; set; }
+        public string UnitHead1 { get; set; }
+        public string UnitHead2 { get; set; }
         public DateTime? StartUpDate { get; set; }
         public string StartUpDateFormatted { get; set; }
         public string StartUpDesignation { get; set; }

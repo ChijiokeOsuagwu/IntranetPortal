@@ -1,0 +1,117 @@
+﻿@model IntranetPortal.Areas.UserAdministration.Models.EmployeeUserDetailsViewModel
+@{
+    ViewData["Title"] = "User Administration | User Account Details";
+}
+<div class="card ml-5 mt-5 w-75">
+    <div class="card-header bg-dark">
+        <h4 class="text-white">User Account Details</h4>
+    </div>
+    <div class="card-body bg-secondary">
+        @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-x-circle"></i>
+                <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (!String.IsNullOrEmpty(Model.ViewModelSuccessMessage))
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="bi bi-check-circle"></i>
+                <span class="fw-bold">@Model.ViewModelSuccessMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (!String.IsNullOrEmpty(Model.ViewModelWarningMessage))
+        {
+            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                <i class="bi bi-exclamation-circle"></i>
+                <span class="fw-bold">@Model.ViewModelWarningMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+    <form enctype="multipart/form-data" asp-area="UserAdministration" asp-controller="Staff" asp-action="EmployeeUserDetails" method="get">
+        @*<div class="card">
+        <div class="card-header bg-dark">
+             <h4 class="text-white">User Account Details</h4>
+         </div>
+        <div class="card-body bg-secondary">*@
+        <div class="row">
+            <div class="col-md-4 mb-2">
+                <input type="hidden" asp-for="UserID" />
+                <label class="form-label text-white fw-bold">Full Name</label>
+                <input asp-for="FullName" class="form-control" readonly="readonly">
+            </div>
+            <div class="col-md-4 mb-2">
+                <label class="form-label text-white fw-bold">Employee No.</label>
+                <input asp-for="EmployeeNo1" class="form-control" readonly="readonly">
+            </div>
+            <div class="col-md-4 mb-2">
+                <label class="form-label text-white fw-bold">Company</label>
+                <input asp-for="CompanyName" class="form-control" readonly="readonly">
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-4 mb-2">
+                <label class="form-label text-white fw-bold">Login ID</label>
+                <input asp-for="LoginID" class="form-control" readonly="readonly">
+            </div>
+            <div class="col-md-4 mb-2">
+                <label class="form-label text-white fw-bold">Official Email</label>
+                <input asp-for="OfficialEmail" class="form-control" readonly="readonly">
+            </div>
+            <div class="col-md-4 mb-2">
+                <label class="form-label text-white fw-bold">Personal Email</label>
+                <input asp-for="PersonalEmail" class="form-control" readonly="readonly">
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-4 mb-2">
+                <label class="form-label text-white fw-bold">Location</label>
+                <input asp-for="LocationName" class="form-control" readonly="readonly">
+            </div>
+            <div class="col-md-4 mb-2">
+                <label class="form-label text-white fw-bold">Department</label>
+                <input asp-for="DepartmentName" class="form-control" readonly="readonly">
+            </div>
+            <div class="col-md-4  mb-2">
+                <label class="form-label text-white fw-bold">Unit</label>
+                <input asp-for="UnitName" class="form-control" readonly="readonly">
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-4 mb-2">
+                <label class="form-label text-white fw-bold">Phone No.</label>
+                <input asp-for="PhoneNo1" class="form-control" readonly="readonly">
+            </div>
+            <div class="col-md-4  mb-2">
+                <label class="form-label text-white fw-bold">Alt. Phone No.</label>
+                <input asp-for="PhoneNo2" class="form-control" readonly="readonly">
+            </div>
+            <div class="col-md-4 mb-4">
+                <label class="form-label text-white fw-bold">Lock Status</label>
+                @if (Model.EnableLockOut)
+                {
+                    <div> <i class="bi bi-lock-fill text-danger" style="font-size: 1.2rem"></i> </div>
+                }
+                else
+                {
+                    <div> <i class="bi bi-unlock-fill text-success" style="font-size: 1.2rem"></i></div>
+                }
+            </div>
+        </div>
+        <div class="row">
+            <a asp-area="UserAdministration" asp-controller="Home" asp-action="Index" class="btn btn-dark" style="width:100px" title="Return to Home Page">
+                <span class="text-white">Exit</span>
+            </a>&nbsp;
+            <a asp-area="UserAdministration" asp-controller="Staff" asp-action="UserList" class="btn btn-dark" style="width:100px" title="Return to Previous">
+                <span class="text-white">Go Back</span>
+            </a>&nbsp;
+        </div>
+        @*</div>
+        </div>*@
+    </form>
+    </div>
+</div>
+

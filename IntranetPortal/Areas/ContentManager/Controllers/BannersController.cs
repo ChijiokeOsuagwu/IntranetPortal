@@ -12,10 +12,12 @@ using IntranetPortal.Base.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.DataProtection;
 using IntranetPortal.Configurations;
+using Microsoft.AspNetCore.Authorization;
 
 namespace IntranetPortal.Areas.ContentManager.Controllers
 {
     [Area("ContentManager")]
+    [Authorize]
     public class BannersController : Controller
     {
         private readonly IWebHostEnvironment _webHostEnvironment;
@@ -32,6 +34,7 @@ namespace IntranetPortal.Areas.ContentManager.Controllers
             _dataProtector = dataProtectionProvider.CreateProtector(dataProtectionEncryptionStrings.RouteValuesEncryptionCode);
         }
 
+        [Authorize(Roles = "PCMBANVWL, XYALLACCZ")]
         public async Task<IActionResult> List()
         {
             BannerListViewModel model = new BannerListViewModel();
@@ -49,6 +52,7 @@ namespace IntranetPortal.Areas.ContentManager.Controllers
             return View(model);
         }
 
+        [Authorize(Roles = "PCMBANADN, XYALLACCZ")]
         public IActionResult Add()
         {
             BannerAddViewModel model = new BannerAddViewModel();
@@ -56,6 +60,7 @@ namespace IntranetPortal.Areas.ContentManager.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "PCMBANADN, XYALLACCZ")]
         public async Task<IActionResult> Add(BannerAddViewModel model)
         {
             if (ModelState.IsValid)
@@ -106,6 +111,7 @@ namespace IntranetPortal.Areas.ContentManager.Controllers
             return View(model);
         }
 
+        [Authorize(Roles = "PCMBANDLT, XYALLACCZ")]
         public async Task<IActionResult> Delete(string id)
         {
             int PostId = Convert.ToInt32(_dataProtector.Unprotect(id));
@@ -119,6 +125,7 @@ namespace IntranetPortal.Areas.ContentManager.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "PCMBANDLT, XYALLACCZ")]
         public async Task<IActionResult> Delete(BannerDeleteViewModel model)
         {
             if (model == null || model.Id < 1)
@@ -147,6 +154,7 @@ namespace IntranetPortal.Areas.ContentManager.Controllers
             return RedirectToAction("List", "Banners");
         }
 
+        [Authorize(Roles = "PCMBANEDT, XYALLACCZ")]
         public async Task<IActionResult> Edit(string id)
         {
             int PostId = 0;
@@ -164,6 +172,7 @@ namespace IntranetPortal.Areas.ContentManager.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "PCMBANEDT, XYALLACCZ")]
         public async Task<IActionResult> Edit(BannerEditViewModel model)
         {
             if (ModelState.IsValid)

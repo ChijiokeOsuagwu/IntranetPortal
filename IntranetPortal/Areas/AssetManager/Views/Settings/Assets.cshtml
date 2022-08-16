@@ -1,0 +1,109 @@
+﻿@model IntranetPortal.Areas.AssetManager.Models.AssetListViewModel
+@{
+    ViewData["Title"] = "OfficeManager | Assets List";
+}
+<div class="container">
+    <h4>Assets List</h4>
+    <hr />
+    <div class="mb-1">
+        <form asp-area="AssetManager" asp-controller="Settings" asp-action="Assets" method="get">
+            <a asp-area="AssetManager" asp-controller="Home" asp-action="Index" class="btn btn-dark" style="width:100px" title="Click to Go Back">
+                <span class="text-white">Back</span>
+            </a>
+            <a asp-area="AssetManager" asp-controller="Settings" asp-action="AddAsset" class="btn btn-success pr-2" style="width:200px" title="Click to Add New Asset Type">
+                <span class="text-white">New Asset</span>
+            </a>
+            <select asp-for="sp" asp-items="@ViewBag.AssetTypesList" class="border-0" style="width:250px">
+                <option value="">- Select Type -</option>
+            </select>
+            <input type="submit" value="Search" class="btn btn-dark" style="width:100px" />
+        </form>
+
+        @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-x-circle"></i>
+                <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (!String.IsNullOrEmpty(Model.ViewModelSuccessMessage))
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="bi bi-check-circle"></i>
+                <span class="fw-bold">@Model.ViewModelSuccessMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+    </div>
+    @if (Model == null)
+    {
+        <div class="alert alert-info fade show" role="alert">
+            <i class="bi bi-info-circle"></i>
+            <span class="fw-bold">No record was found.</span>
+        </div>
+    }
+    else if (Model.AssetList == null || Model.AssetList.Count < 1)
+    {
+        <div class="alert alert-info fade show" role="alert">
+            <i class="bi bi-info-circle"></i>
+            <span class="fw-bold">No record was found.</span>
+        </div>
+    }
+    else
+    {
+        <div class="row">
+            <div class="table-responsive">
+                <table class="table table-hover table-sm ">
+                    <thead class="table-dark">
+                        <tr>
+                            <th><span class="text-white fw-bold">Number</span></th>
+                            <th><span class="text-white fw-bold">Name</span></th>
+                            <th><span class="text-white fw-bold">Description</span></th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody class="table-warning">
+                        @foreach (var asset in Model.AssetList)
+                        {
+                            <tr>
+                                <td>
+                                    <span class="fw-bold">@asset.AssetNumber</span>
+                                </td>
+                                <td>
+                                    <span class="fw-bold" title="@asset.AssetDescription">@asset.AssetName</span>
+                                </td>
+                                <td>
+                                    <span class="fw-bold">@asset.Condition</span>
+                                </td>
+                                <td>
+                                    <div class="text-center">
+                                        <a asp-area="AssetManager" asp-controller="Home" asp-action="ShowImage" asp-route-id="@asset.AssetID" title="Show Image" class="btn btn-xs btn-secondary" style="width:50px">
+                                            <i class="bi bi-image" style="font-size: 0.7rem;"></i>
+                                        </a>
+                                        <a asp-area="AssetManager" asp-controller="Home" asp-action="AssetDetails" asp-route-id="@asset.AssetID" title="Details" class="btn btn-xs btn-warning" style="width:50px">
+                                            <i class="bi bi-card-text" style="font-size: 0.7rem;"></i>
+                                        </a>
+                                        <a asp-area="AssetManager" asp-controller="Settings" asp-action="EditAsset" asp-route-id="@asset.AssetID" title="Edit Asset" class="btn btn-xs btn-primary" style="width:50px">
+                                            <i class="bi bi-pencil-square" style="font-size: 0.7rem;"></i>
+                                        </a>
+                                        <a asp-area="AssetManager" asp-controller="Settings" asp-action="DeleteAsset" asp-route-id="@asset.AssetID" title="Delete Asset" class="btn btn-xs btn-danger" style="width:50px">
+                                            <i class="bi bi-trash-fill" style="font-size: 0.7rem; color:white"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+</div>
+
+
+
+
+
+
+

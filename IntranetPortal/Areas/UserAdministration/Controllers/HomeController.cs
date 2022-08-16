@@ -1,0 +1,302 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using IntranetPortal.Areas.UserAdministration.Models;
+using IntranetPortal.Base.Models.SecurityModels;
+using IntranetPortal.Base.Services;
+using IntranetPortal.Configurations;
+using IntranetPortal.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.Extensions.Configuration;
+
+namespace IntranetPortal.Areas.UserAdministration.Controllers
+{
+    [Area("UserAdministration")]
+    [Authorize]
+    public class HomeController : Controller
+    {
+        private readonly IConfiguration _configuration;
+        private readonly ISecurityService _securityService;
+        private readonly IDataProtector _dataProtector;
+        private readonly IBaseModelService _baseModelService;
+        public HomeController(IConfiguration configuration, ISecurityService securityService, IDataProtectionProvider dataProtectionProvider,
+                               DataProtectionEncryptionStrings dataProtectionEncryptionStrings, IBaseModelService baseModelService)
+        {
+            _configuration = configuration;
+            _securityService = securityService;
+            _baseModelService = baseModelService;
+            _dataProtector = dataProtectionProvider.CreateProtector(dataProtectionEncryptionStrings.RouteValuesEncryptionCode);
+        }
+
+        [Authorize(Roles = "UADUSRHMP, XYALLACCZ")]
+        public IActionResult Index()
+        {
+            return View();
+        }
+
+
+        [HttpGet]
+        [Authorize(Roles = "UADPWDRST, XYALLACCZ")]
+        public async Task<IActionResult> ResetUserPassword(string id)
+        {
+            PasswordResetViewModel model = new PasswordResetViewModel();
+            if (!string.IsNullOrEmpty(id))
+            {
+                var users = await _securityService.GetUsersByUserId(id);
+                if (users == null || users.Count < 1)
+                {
+                    model.ViewModelErrorMessage = "Sorry, no record was found for the selected user.";
+                    model.OperationIsCompleted = true;
+                    return View();
+                }
+
+                ApplicationUser user = users.FirstOrDefault();
+                model.ConfirmPassword = string.Empty;
+                model.FullName = user.FullName;
+                model.Password = string.Empty;
+                model.UserID = user.Id;
+                model.UserType = user.UserType;
+            }
+            else
+            {
+                model.ViewModelErrorMessage = "Sorry, no record was found for the selected staff.";
+                model.OperationIsCompleted = true;
+            }
+            return View(model);
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "UADPWDRST, XYALLACCZ")]
+        public async Task<IActionResult> ResetUserPassword(PasswordResetViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    if (string.IsNullOrEmpty(model.UserID) || string.IsNullOrEmpty(model.Password))
+                    {
+                        model.OperationIsCompleted = false;
+                        model.OperationIsSuccessful = false;
+                        model.ViewModelErrorMessage = $"Operation could not be completed. some key form values were not found.";
+                        return View(model);
+                    }
+                    else
+                    {
+                        ApplicationUser user = new ApplicationUser
+                        {
+                            Id = model.UserID,
+                            ModifiedBy = "System Administrator",
+                            ModifiedTime = $"{DateTime.Now.Date.ToLongDateString()} {DateTime.Now.ToLongTimeString()}",
+                        };
+
+                        if (string.IsNullOrWhiteSpace(model.Password))
+                        {
+                            model.OperationIsCompleted = false;
+                            model.OperationIsSuccessful = false;
+                            model.ViewModelErrorMessage = $"Sorry, the operation could not be completed. Password has an invalid value. Please try again.";
+                            return View(model);
+                        }
+                        user.PasswordHash = _securityService.CreatePasswordHash(model.Password);
+                        bool result = await _securityService.ResetUserPasswordAsync(user);
+                        if (result)
+                        {
+                            model.OperationIsCompleted = true;
+                            model.OperationIsSuccessful = true;
+                            model.ViewModelSuccessMessage = "Password reset was completed successfully!";
+                            return View(model);
+                        }
+                        else
+                        {
+                            model.ViewModelErrorMessage = $"Sorry, there was a problem. The password reset failed.";
+                            model.OperationIsCompleted = false;
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    model.ViewModelErrorMessage = ex.Message;
+                    model.OperationIsCompleted = true;
+                }
+            }
+            else
+            {
+                model.ViewModelErrorMessage = $"Ooops! It appears some fields have missing or invalid values. Please correct this and try again.";
+                model.OperationIsCompleted = false;
+            }
+            return View(model);
+        }
+
+        [HttpGet]
+        [Authorize(Roles = "UADUSREDT, XYALLACCZ")]
+        public async Task<IActionResult> EditUserAccount(string id)
+        {
+            EditUserAccountViewModel model = new EditUserAccountViewModel();
+            if (!string.IsNullOrEmpty(id))
+            {
+                var users = await _securityService.GetUsersByUserId(id);
+                if (users == null || users.Count < 1)
+                {
+                    model.ViewModelErrorMessage = "Sorry, no record was found for the selected user.";
+                    model.OperationIsCompleted = true;
+                    return View();
+                }
+
+                ApplicationUser user = users.FirstOrDefault();
+                model.EnableLockOut = user.LockoutEnabled;
+                model.FullName = user.FullName;
+                model.LoginID = user.UserName;
+                model.OldLoginID = user.UserName;
+                model.UserID = user.Id;
+                model.UserType = user.UserType;
+                model.LockOutEndDate = user.LockoutEnd;
+            }
+            else
+            {
+                model.ViewModelErrorMessage = "Sorry, no record was found for the selected staff.";
+                model.OperationIsCompleted = true;
+            }
+            return View(model);
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "UADUSREDT, XYALLACCZ")]
+        public async Task<IActionResult> EditUserAccount(EditUserAccountViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    ApplicationUser user = new ApplicationUser
+                    {
+                        Id = model.UserID,
+                        ModifiedBy = "System Administrator",
+                        UserName = model.LoginID,
+                        FullName = model.FullName,
+                        LockoutEnabled = model.EnableLockOut,
+                        LockoutEnd = model.LockOutEndDate,
+                        ModifiedTime = $"{DateTime.Now.Date.ToLongDateString()} {DateTime.Now.ToLongTimeString()}",
+                    };
+
+                    bool LoginIsAvailable = await _securityService.LoginIdIsAvailable(model.UserID, model.LoginID);
+                    if (LoginIsAvailable)
+                    {
+                        bool IsSuccessful = await _securityService.UpdateUserAsync(user);
+                        if (IsSuccessful)
+                        {
+                            model.OperationIsCompleted = true;
+                            model.OperationIsSuccessful = true;
+                            model.ViewModelSuccessMessage = "Update completed successfully!";
+                            return View(model);
+                        }
+                        else
+                        {
+                            model.ViewModelErrorMessage = $"Sorry, there was a problem. The update operation failed.";
+                            model.OperationIsCompleted = false;
+                            return View(model);
+                        }
+                    }
+                    else
+                    {
+                        model.OperationIsCompleted = false;
+                        model.OperationIsSuccessful = false;
+                        model.ViewModelErrorMessage = $"Sorry this Login ID already exists in the system. Please enter a different value.";
+                        return View(model);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    model.ViewModelErrorMessage = ex.Message;
+                    model.OperationIsCompleted = true;
+                }
+            }
+            else
+            {
+                model.ViewModelErrorMessage = $"Ooops! It appears some fields have missing or invalid values. Please correct this and try again.";
+                model.OperationIsCompleted = false;
+            }
+            return View(model);
+        }
+
+        [Authorize(Roles = "UADPMSVWL, XYALLACCZ")]
+        public async Task<IActionResult> UserPermissions(string id, string sortOrder, string currentFilter, string searchString, int? pageNumber)
+        {
+            string userId = id;
+
+            if (searchString != null)
+            {
+                pageNumber = 1;
+            }
+            else
+            {
+                searchString = currentFilter;
+            }
+
+            ViewData["UserID"] = id;
+            ViewData["CurrentFilter"] = searchString;
+            List<UserPermission> permissions = new List<UserPermission>();
+
+            if (!String.IsNullOrEmpty(searchString))
+            {
+                var entities = await _securityService.GetAllUserPermissionsByUserIdAndApplicationIdAsync(userId, searchString);
+                permissions = entities.ToList();
+            }
+
+            var applications = await _baseModelService.GetSystemApplicationsAsync();
+            ViewBag.ApplicationList = new SelectList(applications, "ApplicationID", "ApplicationName", searchString);
+
+            int pageSize = 50;
+            return View(PaginatedList<UserPermission>.CreateAsync(permissions.AsQueryable(), pageNumber ?? 1, pageSize));
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "UADPMSADN, XYALLACCZ")]
+        public string GrantUserPermission(string usd, string rld)
+        {
+            if(string.IsNullOrWhiteSpace(usd) && string.IsNullOrWhiteSpace(rld)){return "parameter";}
+            string actionBy = HttpContext.User.Identity.Name;
+            try
+            {
+                if(_securityService.GrantPermissionAsync(usd, rld, actionBy).Result)
+                {
+                    return "granted";
+                }
+                else
+                {
+                    return "failed";
+                }
+            }
+            catch
+            {
+                return "failed";
+            }
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "UADPMSRVK, XYALLACCZ")]
+        public string RevokeUserPermission(string usd, string rld)
+        {
+            if (string.IsNullOrWhiteSpace(usd) || string.IsNullOrWhiteSpace(rld)) { return "parameter"; }
+            string actionBy = HttpContext.User.Identity.Name;
+            try
+            {
+                if (_securityService.RevokePermissionAsync(usd, rld, actionBy).Result)
+                {
+                    return "revoked";
+                }
+                else
+                {
+                    return "failed";
+                }
+            }
+            catch
+            {
+                return "failed";
+            }
+        }
+    }
+}

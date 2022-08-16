@@ -1,4 +1,5 @@
-﻿using IntranetPortal.Base.Models.GlobalSettingsModels;
+﻿using IntranetPortal.Base.Models.EmployeeRecordModels;
+using IntranetPortal.Base.Models.GlobalSettingsModels;
 using IntranetPortal.Base.Repositories.GlobalSettingsRepositories;
 using System;
 using System.Collections.Generic;
@@ -14,13 +15,16 @@ namespace IntranetPortal.Base.Services
         private readonly IDepartmentRepository _departmentRepository;
         private readonly IUnitRepository _unitRepository;
         private readonly ICompanyRepository _companyRepository;
+        private readonly ITeamRepository _teamRepository;
         public GlobalSettingsService(ILocationRepository locationRepository, IDepartmentRepository departmentRepository,
-                                        IUnitRepository unitRepository, ICompanyRepository companyRepository)
+                                        IUnitRepository unitRepository, ICompanyRepository companyRepository,
+                                        ITeamRepository teamRepository)
         {
             _locationRepository = locationRepository;
             _departmentRepository = departmentRepository;
             _unitRepository = unitRepository;
             _companyRepository = companyRepository;
+            _teamRepository = teamRepository;
         }
 
         //================================= Location Action Methods ====================================//
@@ -47,6 +51,12 @@ namespace IntranetPortal.Base.Services
         {
             if (locationId < 1) { throw new ArgumentNullException(nameof(locationId), "Required parameter [locationId] is missing."); }
             return await _locationRepository.GetLocationByIdAsync(locationId);
+        }
+
+        public async Task<Location> GetLocationByNameAsync(string locationName)
+        {
+            if (string.IsNullOrEmpty(locationName)) { throw new ArgumentNullException(nameof(locationName), "Required parameter [locationId] is missing."); }
+            return await _locationRepository.GetLocationByNameAsync(locationName);
         }
 
         public async Task<IList<Location>> GetAllLocationsAsync()
@@ -115,6 +125,20 @@ namespace IntranetPortal.Base.Services
             return state;
         }
 
+        public async Task<IList<State>> SearchStatesAsync(string stateName)
+        {
+            List<State> states = new List<State>();
+            try
+            {
+                var entities = await _locationRepository.SearchStatesByNameAsync(stateName);
+                states = entities.ToList();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return states;
+        }
 
         public async Task<IList<Country>> GetCountriesAsync()
         {
@@ -318,5 +342,212 @@ namespace IntranetPortal.Base.Services
         }
         #endregion
 
+        //================================= Team Action Methods ==================================//
+        #region Team Action Methods
+
+        public async Task<bool> CreateTeamAsync(Team team)
+        {
+            if (team == null) { throw new ArgumentNullException(nameof(team), "Required parameter [team] is missing. The request cannot be processed."); }
+            bool IsSuccessful = false;
+            try
+            {
+                IsSuccessful = await _teamRepository.AddTeamAsync(team);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return IsSuccessful;
+        }
+
+        public async Task<bool> DeleteTeamAsync(string teamId)
+        {
+            if (string.IsNullOrWhiteSpace(teamId)) { throw new ArgumentNullException(nameof(teamId), "Required parameter [teamId] is missing."); }
+            bool IsSuccessful = false;
+            try
+            {
+                IsSuccessful = await _teamRepository.DeleteTeamAsync(teamId);
+            }
+            catch (Exception ex)
+            {
+
+                throw new Exception(ex.Message);
+            }
+            return IsSuccessful;
+        }
+
+        public async Task<bool> UpdateTeamAsync(Team team)
+        {
+            if (team == null) { throw new ArgumentNullException(nameof(team), "Required parameter [team] is missing."); }
+            bool IsSuccessful = false;
+            try
+            {
+                IsSuccessful = await _teamRepository.EditTeamAsync(team);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return IsSuccessful;
+        }
+
+        public async Task<IList<Team>> GetTeamsAsync()
+        {
+            List<Team> teams = new List<Team>();
+            try
+            {
+                var entities = await _teamRepository.GetTeamsAsync().ConfigureAwait(false);
+                teams = entities.ToList();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return teams;
+        }
+
+        public async Task<Team> GetTeamByIdAsync(string teamId)
+        {
+            Team team = new Team();
+            if (string.IsNullOrWhiteSpace(teamId)) { throw new ArgumentNullException(nameof(teamId), "The required parameter [teamId] is missing. The request cannot be processed."); }
+            try
+            {
+                var entity = await _teamRepository.GetTeamByIdAsync(teamId).ConfigureAwait(false);
+                team = entity;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return team;
+        }
+
+        public async Task<IList<Team>> SearchTeamsByNameAsync(string teamName)
+        {
+            List<Team> teams = new List<Team>();
+            try
+            {
+                var entities = await _teamRepository.GetTeamByNameAsync(teamName).ConfigureAwait(false);
+                teams = entities.ToList();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return teams;
+        }
+
+        #endregion
+
+
+        //================================ Team Members Action Methods ==========================//
+        #region Team Members Action Methods
+
+        public async Task<bool> CreateTeamMemberAsync(TeamMember teamMember)
+        {
+            if (teamMember == null) { throw new ArgumentNullException(nameof(teamMember), "Required parameter [Team Member] is missing. The request cannot be processed."); }
+            bool IsSuccessful = false;
+            try
+            {
+                IsSuccessful = await _teamRepository.AddTeamMemberAsync(teamMember);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return IsSuccessful;
+        }
+
+        public async Task<bool> DeleteTeamMemberAsync(int teamMemberId)
+        {
+            if (teamMemberId < 1) { throw new ArgumentNullException(nameof(teamMemberId), "Required parameter [TeamMemberID] is missing."); }
+            bool IsSuccessful = false;
+            try
+            {
+                IsSuccessful = await _teamRepository.DeleteTeamMemberAsync(teamMemberId);
+            }
+            catch (Exception ex)
+            {
+
+                throw new Exception(ex.Message);
+            }
+            return IsSuccessful;
+        }
+
+        public async Task<bool> UpdateTeamMemberAsync(TeamMember teamMember)
+        {
+            if (teamMember == null) { throw new ArgumentNullException(nameof(teamMember), "Required parameter [TeamMember] is missing."); }
+            bool IsSuccessful = false;
+            try
+            {
+                IsSuccessful = await _teamRepository.EditTeamMemberAsync(teamMember);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return IsSuccessful;
+        }
+
+        public async Task<IEnumerable<TeamMember>> GetTeamMembersByTeamIdAsync(string teamId)
+        {
+            List<TeamMember> teamMembers = new List<TeamMember>();
+            try
+            {
+                var entities = await _teamRepository.GetTeamMembersByTeamIdAsync(teamId);
+                teamMembers = entities.ToList();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return teamMembers;
+        }
+
+        public async Task<TeamMember> GetTeamMemberByIdAsync(int teamMemberId)
+        {
+            TeamMember teamMember = new TeamMember();
+            try
+            {
+                teamMember = await _teamRepository.GetTeamMemberByIdAsync(teamMemberId);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return teamMember;
+        }
+
+        public async Task<IEnumerable<TeamMember>> GetTeamMembersByMemberNameAsync(string teamId, string memberName)
+        {
+            List<TeamMember> teamMembers = new List<TeamMember>();
+            try
+            {
+                var entities = await _teamRepository.GetTeamMembersByMemberNameAsync(teamId, memberName);
+                teamMembers = entities.ToList();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return teamMembers;
+        }
+
+        public async Task<IEnumerable<Employee>> GetNonTeamMembersByTeamIdAsync(string teamId)
+        {
+            List<Employee> employees = new List<Employee>();
+            try
+            {
+                var entities = await _teamRepository.GetNonTeamMembersAsync(teamId);
+                employees = entities.ToList();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return employees;
+        }
+
+        #endregion
     }
 }

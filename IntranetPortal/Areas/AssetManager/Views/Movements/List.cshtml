@@ -1,0 +1,122 @@
+﻿@model IntranetPortal.Models.PaginatedList<AssetMovement>
+@{
+    ViewData["Title"] = "OfficeManager | Equipment Transfer Register";
+}
+<div class="container">
+    <h4>Equipment Transfer Register</h4>
+    <hr />
+    <div class="mb-1">
+        <form asp-area="AssetManager" asp-controller="Movements" asp-action="List" method="get">
+            <a asp-area="" asp-controller="Home" asp-action="Apps" class="btn btn-dark pr-2" style="width:100px" title="Click to Add New Equipment Incident">
+                <span class="text-white">Exit</span>
+            </a>
+            <a asp-area="AssetManager" asp-controller="Home" asp-action="Index" class="btn btn-dark" style="width:100px" title="Click to Go Back">
+                <span class="text-white">Back</span>
+            </a>
+            <a asp-area="AssetManager" asp-controller="Movements" asp-action="AddMovement" class="btn btn-success pr-2" style="width:150px" title="Click to Add New Equipment Transfer">
+                <span class="text-white">New Transfer</span>
+            </a>
+            <select id="tp" name="tp" asp-items="@ViewBag.AssetTypesList" class="border-0" style="width:200px">
+                <option value=""> Select Equipment Type </option>
+            </select>
+            <input type="submit" value="Search" class="btn btn-dark" style="width:100px" />
+        </form>
+
+        @if (!String.IsNullOrEmpty(ViewBag.ErrorMessage))
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-x-circle"></i>
+                <span class="fw-bold">@ViewBag.ErrorMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+    </div>
+    @if (Model == null || Model.Count < 1)
+    {
+        <div class="alert alert-info fade show" role="alert">
+            <i class="bi bi-info-circle"></i>
+            <span class="fw-bold">No record was found.</span>
+        </div>
+    }
+    else
+    {
+        int rownumber = 0;
+        <div class="row">
+            <div class="table-responsive">
+                <table class="table table-hover table-sm ">
+                    <thead class="table-dark">
+                        <tr>
+                            <th><span class="text-white fw-bold">Equipment</span></th>
+                            <th><span class="text-white fw-bold">Transferred From</span></th>
+                            <th><span class="text-white fw-bold">Transferred To</span></th>
+                            <th><span class="text-white fw-bold">Transfer Date</span></th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody class="table-success">
+                        @foreach (var item in Model)
+                        {
+                            rownumber++;
+                        <tr>
+                            <td>
+                                <span class="fw-bold" title="@item.AssetDescription">@item.AssetName</span>
+                            </td>
+                            <td>
+                                <span class="fw-bold">@item.MovedFromLocationName</span>
+                            </td>
+                            <td>
+                                <span class="fw-bold">@item.MovedToLocationName</span>
+                            </td>
+                            <td>
+                                <span class="fw-bold">@item.MovedOn.Value.ToLongDateString()</span>
+                            </td>
+                            <td>
+                                <div class="text-center">
+                                    <a asp-area="AssetManager" asp-controller="Movements" asp-action="MovementDetails" asp-route-id="@item.AssetMovementID" title="See Details" class="btn btn-xs btn-dark" style="width:50px">
+                                        <i class="bi bi-card-text" style="font-size: 0.7rem; color:white"></i>
+                                    </a>
+                                    <a asp-area="AssetManager" asp-controller="Movements" asp-action="EditMovement" asp-route-id="@item.AssetMovementID" title="Edit" class="btn btn-xs btn-info" style="width:50px">
+                                        <i class="bi bi-pencil-square" style="font-size: 0.7rem; color:white"></i>
+                                    </a>
+                                    <a asp-area="AssetManager" asp-controller="Movements" asp-action="DeleteMovement" asp-route-id="@item.AssetMovementID" title="Delete" class="btn btn-xs btn-danger" style="width:50px">
+                                        <i class="bi bi-trash-fill" style="font-size: 0.7rem; color:white"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            @{
+                var prevDisabled = !Model.HasPreviousPage ? "disabled" : "";
+                var nextDisabled = !Model.HasNextPage ? "disabled" : "";
+            }
+            <a asp-action="Index"
+               asp-route-pg="@(Model.PageIndex - 1)"
+               asp-route-sp="@ViewData["CurrentFilter"]"
+               class="btn btn-dark @prevDisabled" style="width:100px">
+                Previous
+            </a>
+            <a asp-action="Index"
+               asp-route-pg="@(Model.PageIndex + 1)"
+               asp-route-sp="@ViewData["CurrentFilter"]"
+               class="btn btn-dark ml-1 @nextDisabled" style="width:100px">
+                Next
+            </a>
+        </div>
+    }
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+

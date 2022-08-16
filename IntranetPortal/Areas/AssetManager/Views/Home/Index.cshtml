@@ -1,0 +1,147 @@
+﻿
+@{
+    ViewData["Title"] = "Asset Manager Home";
+}
+<link href="~/lib/matrix/dist/css/style.min.css" rel="stylesheet" />
+<div class="my-2">
+    <!-- ============================================================== -->
+    <!-- Sales Cards  -->
+    <!-- ============================================================== -->
+    <h4 class="fw-bold">Asset Management System</h4>
+    <hr />
+    <div class="row">
+        <div class="col-md-6 col-lg-2 col-xlg-3">
+            <a asp-area="AssetManager" asp-controller="Home" asp-action="AssetList">
+                <div class="card card-hover">
+                    <div class="box bg-light text-center">
+                        <h1 class="font-light text-dark"><i class="bi bi-box-arrow-left"></i></h1>
+                        <h6 class="text-dark">Check Out</h6>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <!-- Column -->
+        <div class="col-md-6 col-lg-2 col-xlg-3">
+            <a asp-area="AssetManager" asp-controller="Usage" asp-action="CheckOutList">
+                <div class="card card-hover">
+                    <div class="box bg-light text-center">
+                        <h1 class="font-light text-dark"><i class="bi bi-box-arrow-in-right"></i></h1>
+                        <h6 class="text-dark">Check In</h6>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <!-- Column -->
+        <div class="col-md-6 col-lg-2 col-xlg-3">
+            <a asp-area="AssetManager" asp-controller="Home" asp-action="Bookings">
+                <div class="card card-hover">
+                    <div class="box bg-light text-center">
+                        <h1 class="font-light text-dark"><i class="bi bi-tags"></i></h1>
+                        <h6 class="text-dark">Bookings</h6>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <!-- Column -->
+        <div class="col-md-6 col-lg-2 col-xlg-3">
+            <a asp-area="AssetManager" asp-controller="Incidents" asp-action="List">
+                <div class="card card-hover">
+                    <div class="box bg-light text-center">
+                        <h1 class="font-light text-dark"><i class="bi bi-exclamation-triangle"></i></h1>
+                        <h6 class="text-dark">Incidents</h6>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <!-- Column -->
+        <div class="col-md-6 col-lg-2 col-xlg-3">
+            <a asp-area="AssetManager" asp-controller="Maintenance" asp-action="List">
+                <div class="card card-hover">
+                    <div class="box bg-light text-center">
+                        <h1 class="font-light text-dark"><i class="bi bi-tools"></i></h1>
+                        <h6 class="text-dark">Maintenance</h6>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <!-- Column -->
+        <div class="col-md-6 col-lg-2 col-xlg-3">
+            <a asp-area="AssetManager" asp-controller="Movements" asp-action="List">
+                <div class="card card-hover">
+                    <div class="box bg-light text-center">
+                        <h1 class="font-light text-dark"><i class="bi bi-arrow-left-right"></i></h1>
+                        <h6 class="text-dark">Transfers</h6>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <!-- Column -->
+        <div class="col-md-6 col-lg-2 col-xlg-3">
+            <a asp-area="AssetManager" asp-controller="Settings" asp-action="Assets">
+                <div class="card card-hover">
+                    <div class="box bg-light text-center">
+                        <h1 class="font-light text-dark"><i class="bi bi-truck"></i></h1>
+                        <h6 class="text-dark">Assets</h6>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <!-- Column -->
+        <div class="col-md-6 col-lg-2 col-xlg-3">
+            <a asp-area="AssetManager" asp-controller="Settings" asp-action="AssetTypes">
+                <div class="card card-hover">
+                    <div class="box bg-light text-center">
+                        <h1 class="font-light text-dark"><i class="bi bi-columns-gap"></i></h1>
+                        <h6 class="text-dark">Asset Types</h6>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <!-- Column -->
+        <div class="col-md-6 col-lg-2 col-xlg-3">
+            <a asp-area="AssetManager" asp-controller="Settings" asp-action="Categories">
+                <div class="card card-hover">
+                    <div class="box bg-light text-center">
+                        <h1 class="font-light text-dark"><i class="bi bi-columns"></i></h1>
+                        <h6 class="text-dark"> Asset Categories</h6>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <!-- Column -->
+        <div class="col-md-6 col-lg-2 col-xlg-3">
+            <div class="card card-hover">
+                <div class="box bg-light text-center">
+                    <h1 class="font-light text-dark"><i class="fas fa-chalkboard-teacher"></i></h1>
+                    <h6 class="text-dark">Channels Learning</h6>
+                </div>
+            </div>
+        </div>
+        <!-- Column -->
+        <div class="col-md-6 col-lg-2 col-xlg-3">
+            <a asp-area="UserAdministration" asp-controller="Home" asp-action="Index">
+                <div class="card card-hover">
+                    <div class="box bg-light text-center">
+                        <h1 class="font-light text-dark"><i class="bi bi-people"></i></h1>
+                        <h6 class="text-dark">User Administration</h6>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <!-- Column -->
+        <div class="col-md-6 col-lg-2 col-xlg-3">
+            <a asp-area="GlobalSettings" asp-controller="Home" asp-action="Index">
+                <div class="card card-hover">
+                    <div class="box bg-light text-center">
+                        <h1 class="font-light text-dark"><i class="bi bi-sliders"></i></h1>
+                        <h6 class="text-dark">Global Settings</h6>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <!-- Column -->
+    </div>
+</div>
+@section Scripts{
+
+}

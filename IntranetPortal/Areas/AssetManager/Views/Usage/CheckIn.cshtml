@@ -1,0 +1,115 @@
+﻿@model IntranetPortal.Areas.AssetManager.Models.AssetCheckInViewModel
+@{
+    ViewData["Title"] = "OfficeManager | Equipment Check In";
+}
+<div>
+    <div class="card" style="min-width:600px">
+        <div class="card-header bg-success">
+            <h4 class="text-white">Equipment Check In</h4>
+        </div>
+        <div class="card-body bg-secondary">
+            @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bi bi-x-circle"></i>
+                    <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            @if (!String.IsNullOrEmpty(Model.ViewModelSuccessMessage))
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="bi bi-check-circle"></i>
+                    <span class="fw-bold">@Model.ViewModelSuccessMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            @if (!String.IsNullOrEmpty(Model.ViewModelWarningMessage))
+            {
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                    <i class="bi bi-exclamation-circle"></i>
+                    <span class="fw-bold">@Model.ViewModelWarningMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+        <form asp-area="AssetManager" asp-controller="Usage" asp-action="CheckIn" method="post">
+            <div class="row">
+                <div class="col-md-6 mb-1">
+                    <input type="hidden" asp-for="UsageID" />
+                    <input type="hidden" asp-for="AssetID" />
+                    <label asp-for="AssetName" class="form-label text-white fw-bold"></label>
+                    <input asp-for="AssetName" class="form-control fw-bold" readonly="readonly" title="@Model.AssetDescription">
+                    <div><span asp-validation-for="AssetName" class="text-danger"></span></div>
+                </div>
+                <div class="col-md-6 mb-1">
+                    <label asp-for="CheckedInFromLocation" class="form-label text-white fw-bold"></label><span class="text-white">*</span>
+                    <input asp-for="CheckedInFromLocation" class="form-control fw-bold" readonly="readonly">
+                    <div><span asp-validation-for="CheckedInFromLocation" class="text-danger"></span></div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6 mb-1">
+                    <label asp-for="CheckedInToLocation" class="form-label text-white fw-bold"></label><span class="text-white">*</span>
+                    <select asp-for="CheckedInToLocation" asp-items="@ViewBag.LocationsList" class="form-control fw-bold">
+                        <option value="">- Select -</option>
+                    </select>
+                    <div><span asp-validation-for="CheckedInToLocation" class="text-danger"></span></div>
+                </div>
+                <div class="col-md-6 mb-1">
+                    <label asp-for="CheckedInCondition" class="form-label text-white fw-bold"></label><span class="text-white">*</span>
+                    <select asp-for="CheckedInCondition" class="form-control fw-bold">
+                        <option value=""> - Select - </option>
+                        <option value="In Good Condition">In Good Condition</option>
+                        <option value="Faulty (Requires Repairs)">Faulty (Requires Repair)</option>
+                        <option value="Broken & Unfixable">Broken & Unfixable</option>
+                        <option value="Lost or Stolen">Lost or Stolen</option>
+                        <option value="Disposed or Scrapped">Disposed or Scrapped</option>
+                    </select>
+                    <div><span asp-validation-for="CheckedInCondition" class="text-danger"></span></div>
+                </div>
+            </div>
+            <div class="col-md-12 mb-1">
+                <label asp-for="CheckedInComment" class="form-label text-white fw-bold"></label>
+                <textarea class="form-control fw-bold" name="@Html.NameFor(m => m.CheckedInComment)">@Model.CheckedInComment</textarea>
+                <div><span asp-validation-for="CheckedInComment" class="text-danger"></span></div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6  mb-3">
+                    <label asp-for="CheckedInBy" class="form-label text-white fw-bold"></label><span class="text-white">*</span>
+                    <input id="CheckedOutTo" asp-for="CheckedInBy" class="form-control fw-bold" readonly="readonly">
+                    <div><span asp-validation-for="CheckedInBy" class="text-danger"></span></div>
+                </div>
+                <div class="col-md-6  mb-1">
+                    <label asp-for="CheckedInTime" class="form-label text-white fw-bold"></label><span class="text-white">*</span>
+                    <input asp-for="CheckedInTime" class="form-control fw-bold" readonly="readonly">
+                    <div><span asp-validation-for="CheckedInTime" class="text-danger"></span></div>
+                </div>
+            </div>
+            <div class="row">
+                <a asp-area="AssetManager" asp-controller="Home" asp-action="Index" class="btn btn-dark ml-2" style="width:100px" title="Return Home">
+                    <span class="text-white">Exit</span>
+                </a>
+                <button class="btn btn-dark ml-1" style="width:100px" title="Go Back" onclick="history.back()"><span class="text-white">Go Back</span></button>
+
+                @if (!Model.OperationIsCompleted)
+                {
+                    <a asp-area="AssetManager" asp-controller="Usage" asp-action="CheckIn" asp-route-id="@Model.UsageID" class="btn btn-warning ml-1" style="width:100px" title="Clear">
+                        <span class="text-white">Clear</span>
+                    </a>
+
+                    <button type="submit" class="btn btn-success ml-2" title="Proceed" style="width:200px"><span class="text-white">Check In</span></button>
+                }
+            </div>
+        </form>
+        </div>
+    </div>
+</div>
+@section Scripts{
+
+    <script src="~/js/js_asm/assets_checkout.js"></script>
+}
+
+
+
+

@@ -1,12 +1,20 @@
-﻿using IntranetPortal.Base.Repositories.BaseRepositories;
+﻿using IntranetPortal.Base.Repositories.AssetManagerRepositories;
+using IntranetPortal.Base.Repositories.BamsRepositories;
+using IntranetPortal.Base.Repositories.BaseRepositories;
+using IntranetPortal.Base.Repositories.BusinessManagerRepositories;
 using IntranetPortal.Base.Repositories.ContentManagerRepositories;
 using IntranetPortal.Base.Repositories.EmployeeRecordRepositories;
 using IntranetPortal.Base.Repositories.GlobalSettingsRepositories;
+using IntranetPortal.Base.Repositories.SecurityRepositories;
 using IntranetPortal.Base.Services;
+using IntranetPortal.Data.Repositories.AssetManagerRepositories;
+using IntranetPortal.Data.Repositories.BamsRepositories;
 using IntranetPortal.Data.Repositories.BaseRepositories;
+using IntranetPortal.Data.Repositories.BusinessManagerRepositories;
 using IntranetPortal.Data.Repositories.ContentManagerRepositories;
 using IntranetPortal.Data.Repositories.EmployeeRecordRepositories;
 using IntranetPortal.Data.Repositories.GlobalSettingsRepositories;
+using IntranetPortal.Data.Repositories.SecurityRepositories;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
@@ -27,14 +35,36 @@ namespace IntranetPortal.Configurations
             services.AddScoped<IUnitRepository, UnitRepository>();
             services.AddScoped<ICompanyRepository, CompanyRepository>();
             services.AddScoped<IUtilityRepository, UtilityRepository>();
+            services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<IRoleRepository, RoleRepository>();
+            services.AddScoped<IEmployeeUserRepository, EmployeeUserRepository>();
+            services.AddScoped<IUserPermissionRepository, UserPermissionRepository>();
+            services.AddScoped<ITeamRepository, TeamRepository>();
+            services.AddScoped<IAssetRepository, AssetRepository>();
+            services.AddScoped<IAssetTypeRepository, AssetTypeRepository>();
+            services.AddScoped<IAssetCategoryRepository, AssetCategoryRepository>();
+            services.AddScoped<IAssetReservationRepository, AssetReservationRepository>();
+            services.AddScoped<IAssetUsageRepository, AssetUsageRepository>();
+            services.AddScoped<IAssetIncidentRepository, AssetIncidentRepository>();
+            services.AddScoped<IAssetMaintenanceRepository, AssetMaintenanceRepository>();
+            services.AddScoped<IAssetMovementRepository, AssetMovementRepository>();
+            services.AddScoped<IBusinessRepository, BusinessRepository>();
+            services.AddScoped<IBusinessContactRepository, BusinessContactRepository>();
+            services.AddScoped<IAssignmentEventRepository, AssignmentEventRepository>();
+            services.AddScoped<IAssignmentDeploymentRepository, AssignmentDeploymentRepository>();
+            services.AddScoped<IBamsSettingsRepository, BamsSettingsRepository>();
         }
 
         public static void ConfigureServiceManagers(this IServiceCollection services)
         {
+            services.AddScoped<ISecurityService, SecurityService>();
             services.AddScoped<IContentManagerService, ContentManagerService>();
             services.AddScoped<IGlobalSettingsService, GlobalSettingsService>();
             services.AddScoped<IEmployeeRecordService, EmployeeRecordService>();
             services.AddScoped<IBaseModelService, BaseModelService>();
+            services.AddScoped<IAssetManagerService, AssetManagerService>();
+            services.AddScoped<IBusinessManagerService, BusinessManagerService>();
+            services.AddScoped<IBamsManagerService, BamsManagerService>();
         }
 
     }

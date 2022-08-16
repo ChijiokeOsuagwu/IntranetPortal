@@ -1,0 +1,111 @@
+﻿@model IntranetPortal.Models.PaginatedList<Business>
+@{
+    ViewData["Title"] = "OfficeManager | Suppliers";
+}
+<div class="container">
+    <h4>Suppliers List</h4>
+    <hr />
+    <div class="mb-1">
+        <form asp-area="PartnerServices" asp-controller="Suppliers" asp-action="List" method="get">
+            <a asp-area="" asp-controller="Home" asp-action="Apps" class="btn btn-dark pr-2" style="width:100px" title="Exit">
+                <span class="text-white">Exit</span>
+            </a>
+            <a asp-area="PartnerServices" asp-controller="Home" asp-action="Index" class="btn btn-dark" style="width:100px" title="Back">
+                <span class="text-white">Back</span>
+            </a>
+            <a asp-area="PartnerServices" asp-controller="Suppliers" asp-action="AddSupplier" class="btn btn-success" style="width:200px" title="Add New Supplier">
+                <span class="text-white">New Supplier</span>
+            </a>
+            <input id="sp" name="sp" class="border-0" style="width:300px" placeholder="Enter Text Here">
+            <input type="submit" value="Search" class="btn btn-dark" style="width:100px" />
+        </form>
+
+        @if (!String.IsNullOrEmpty(ViewBag.ErrorMessage))
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-x-circle"></i>
+                <span class="fw-bold">@ViewBag.ErrorMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+    </div>
+    @if (Model == null || Model.Count < 1)
+    {
+        <div class="alert alert-info fade show" role="alert">
+            <i class="bi bi-info-circle"></i>
+            <span class="fw-bold">No record was found.</span>
+        </div>
+    }
+    else
+    {
+        <div class="row">
+            <div class="table-responsive">
+                <table class="table table-hover table-sm ">
+                    <thead class="table-dark">
+                        <tr>
+                            <th><span class="text-white fw-bold">No.</span></th>
+                            <th><span class="text-white fw-bold">Name</span></th>
+                            <th><span class="text-white fw-bold">Phone</span></th>
+                            <th><span class="text-white fw-bold">Station</span></th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody class="table-light">
+                        @foreach (var business in Model)
+                        {
+                            <tr class="p-0">
+                                <td>
+                                    <span class="fw-bold">@business.BusinessNumber</span>
+                                </td>
+                                <td>
+                                    <span class="fw-bold">@business.BusinessName</span>
+                                </td>
+                                <td>
+                                    <span class="fw-bold">@business.PhoneNo1</span>
+                                    @if (!string.IsNullOrWhiteSpace(business.PhoneNo2))
+                                    {<span class="fw-bold">, @business.PhoneNo2</span>}
+                                </td>
+                                <td>
+                                    <span class="fw-bold">@business.BusinessStationName</span>
+                                </td>
+                                <td>
+                                    <div class="text-center">
+                                        <a asp-area="PartnerServices" asp-controller="Suppliers" asp-action="Details" asp-route-id="@business.BusinessID" title="Details" class="btn btn-xs btn-dark text-white" style="width:50px">
+                                            <i class="bi bi-card-text fw-bolder" style="font-size: 0.7rem;"></i>
+                                        </a>
+                                        <a asp-area="PartnerServices" asp-controller="Suppliers" asp-action="Edit" asp-route-id="@business.BusinessID" title="Edit" class="btn btn-xs btn-info text-white" style="width:50px">
+                                            <i class="bi bi-pencil-square fw-bolder" style="font-size: 0.7rem;"></i>
+                                        </a>
+                                        <a asp-area="PartnerServices" asp-controller="Suppliers" asp-action="Contacts" asp-route-sp="@business.BusinessID" title="Contacts" class="btn btn-xs btn-success text-white" style="width:50px">
+                                            <i class="bi bi-people fw-bolder" style="font-size: 0.7rem;"></i>
+                                        </a>
+                                        <a asp-area="PartnerServices" asp-controller="Suppliers" asp-action="Delete" asp-route-id="@business.BusinessID" title="Delete" class="btn btn-xs btn-danger text-white" style="width:50px">
+                                            <i class="bi bi-trash fw-bolder" style="font-size: 0.7rem;"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            @{
+                var prevDisabled = !Model.HasPreviousPage ? "disabled" : "";
+                var nextDisabled = !Model.HasNextPage ? "disabled" : "";
+            }
+
+            <a asp-action="List"
+               asp-route-pg="@(Model.PageIndex - 1)"
+               asp-route-sp="@ViewData["CurrentFilter"]"
+               class="btn btn-dark @prevDisabled" style="width:100px">
+                Previous
+            </a>
+            <a asp-action="List"
+               asp-route-pg="@(Model.PageIndex + 1)"
+               asp-route-sp="@ViewData["CurrentFilter"]"
+               class="btn btn-dark ml-1 @nextDisabled" style="width:100px">
+                Next
+            </a>
+        </div>
+    }
+</div>

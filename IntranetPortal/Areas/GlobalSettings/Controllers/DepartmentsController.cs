@@ -6,6 +6,7 @@ using IntranetPortal.Areas.GlobalSettings.Models;
 using IntranetPortal.Base.Models.GlobalSettingsModels;
 using IntranetPortal.Base.Services;
 using IntranetPortal.Configurations;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -14,6 +15,7 @@ using Microsoft.Extensions.Configuration;
 namespace IntranetPortal.Areas.GlobalSettings.Controllers
 {
     [Area("GlobalSettings")]
+    [Authorize]
     public class DepartmentsController : Controller
     {
 
@@ -33,6 +35,8 @@ namespace IntranetPortal.Areas.GlobalSettings.Controllers
 
         //================================= Departments Action Methods =====================================================================//
         #region Department Action Methods
+
+        [Authorize(Roles = "GBSDPTVWL, XYALLACCZ")]
         public async Task<IActionResult> List()
         {
             DepartmentListViewModel model = new DepartmentListViewModel();
@@ -42,6 +46,7 @@ namespace IntranetPortal.Areas.GlobalSettings.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "GBSDPTADN, XYALLACCZ")]
         public async Task<IActionResult> AddNew()
         {
             DepartmentViewModel model = new DepartmentViewModel();
@@ -52,6 +57,7 @@ namespace IntranetPortal.Areas.GlobalSettings.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "GBSDPTADN, XYALLACCZ")]
         public async Task<IActionResult> AddNew(DepartmentViewModel model)
         {
             if (ModelState.IsValid)
@@ -85,6 +91,7 @@ namespace IntranetPortal.Areas.GlobalSettings.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "GBSDPTEDT, XYALLACCZ")]
         public async Task<IActionResult> Edit(int? id)
         {
             Department department = new Department();
@@ -108,6 +115,7 @@ namespace IntranetPortal.Areas.GlobalSettings.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "GBSDPTEDT, XYALLACCZ")]
         public async Task<IActionResult> Edit(DepartmentViewModel model)
         {
             if (ModelState.IsValid)
@@ -141,6 +149,7 @@ namespace IntranetPortal.Areas.GlobalSettings.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "GBSDPTDLT, XYALLACCZ")]
         public async Task<IActionResult> Delete(int? id)
         {
             Department department = new Department();
@@ -161,6 +170,7 @@ namespace IntranetPortal.Areas.GlobalSettings.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "GBSDPTDLT, XYALLACCZ")]
         public async Task<IActionResult> Delete(DepartmentViewModel model)
         {
             if (model != null)

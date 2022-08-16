@@ -55,6 +55,31 @@ namespace IntranetPortal.Base.Services
             }
         }
 
+        public async Task<bool> DeleteEmployeeAsync(string employeeId)
+        {
+            bool personIsDeleted = false;
+            bool employeeIsDeleted = false;
+            if (string.IsNullOrEmpty(employeeId)) { throw new ArgumentNullException(nameof(employeeId), "The required parameter [employeeId] is missing."); }
+            //Person person = employee.ToPerson();
+            try
+            {
+                employeeIsDeleted = await _employeeRepository.DeleteEmployeeAsync(employeeId);
+                if (employeeIsDeleted)
+                {
+                    personIsDeleted = await _personRepository.DeletePersonAsync(employeeId);
+                    return employeeIsDeleted;
+                }
+                else
+                {
+                    throw new Exception("Prerequisite Operation Failure. Employee Info could not be deleted.");
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
         public async Task<List<Employee>> GetAllEmployeesAsync()
         {
             List<Employee> employees = new List<Employee>();
@@ -85,6 +110,23 @@ namespace IntranetPortal.Base.Services
             return employees;
         }
 
+        public async Task<List<string>> GetEmployeeNamesByNameAsync(string employeeName)
+        {
+            List<string> employeeNames = new List<string>();
+            try
+            {
+                var entities = await _employeeRepository.GetEmployeesByNameAsync(employeeName);
+                employeeNames = entities.Select(x => x.FullName).ToList();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return employeeNames;
+        }
+
+
+
         public async Task<Employee> GetEmployeesByIdAsync(string EmployeeID)
         {
             Employee employee = new Employee();
@@ -98,6 +140,36 @@ namespace IntranetPortal.Base.Services
                 throw new Exception(ex.Message);
             }
             return employee;
+        }
+
+        public async Task<List<Employee>> GetNonUserEmployeesAsync()
+        {
+            List<Employee> employees = new List<Employee>();
+            try
+            {
+                var entities = await _employeeRepository.GetAllNonUserEmployeesAsync();
+                employees = entities.ToList();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return employees.ToList();
+        }
+
+        public async Task<List<Employee>> GetNonUserEmployeesByNameAsync(string employeeName)
+        {
+            List<Employee> employees = new List<Employee>();
+            try
+            {
+                var entities = await _employeeRepository.GetNonUserEmployeesByNameAsync(employeeName);
+                employees = entities.ToList();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return employees;
         }
 
         public async Task<bool> EmployeeExistsAsync(string EmployeeID)
@@ -114,8 +186,6 @@ namespace IntranetPortal.Base.Services
             }
             return employee != null;
         }
-
-
 
         #endregion
 

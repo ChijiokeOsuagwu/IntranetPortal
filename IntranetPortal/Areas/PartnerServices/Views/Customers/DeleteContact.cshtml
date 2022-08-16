@@ -1,0 +1,114 @@
+﻿
+@model IntranetPortal.Areas.PartnerServices.Models.ContactViewModel
+@{
+    ViewData["Title"] = "OfficeManager | Delete Contact";
+}
+<div>
+    <div class="card" style="min-width:600px">
+        <div class="card-header bg-danger">
+            <h4 class="text-white">Delete Contact</h4>
+        </div>
+        <div class="card-body bg-secondary">
+            @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bi bi-x-circle"></i>
+                    <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            @if (!String.IsNullOrEmpty(Model.ViewModelSuccessMessage))
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="bi bi-check-circle"></i>
+                    <span class="fw-bold">@Model.ViewModelSuccessMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            @if (!String.IsNullOrEmpty(Model.ViewModelWarningMessage))
+            {
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                    <i class="bi bi-exclamation-circle"></i>
+                    <span class="fw-bold">@Model.ViewModelWarningMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            <form asp-area="PartnerServices" asp-controller="Customers" asp-action="DeleteContact" method="post">
+                <div class="row">
+                    <div class="col-md-6 mb-1">
+                        <input type="hidden" asp-for="BusinessContactID" />
+                        <input type="hidden" asp-for="PersonID" />
+                        <input type="hidden" asp-for="BusinessID" />
+                        <label asp-for="BusinessName" class="form-label text-white fw-bold"></label>
+                        <input asp-for="BusinessName" class="form-control fw-bold" readonly="readonly">
+                    </div>
+                    <div class="col-md-6 mb-1">
+                        <label asp-for="PersonRole" class="form-label text-white fw-bold"></label>
+                        <input asp-for="PersonRole" class="form-control fw-bold" readonly="readonly">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-1">
+                        <input type="hidden" asp-for="FirstName" />
+                        <label asp-for="FullName" class="form-label text-white fw-bold"></label>
+                        <input asp-for="FullName" class="form-control fw-bold" readonly="readonly">
+                    </div>
+                    <div class="col-md-3 mb-1">
+                        <label asp-for="Sex" class="form-label text-white fw-bold"></label>
+                        <input asp-for="Sex" class="form-control fw-bold" readonly="readonly">
+                    </div>
+                    <div class="col-md-3 mb-1">
+                        <label asp-for="MaritalStatus" class="form-label text-white fw-bold"></label>
+                        <input asp-for="MaritalStatus" class="form-control fw-bold" readonly="readonly">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-1">
+                        <label asp-for="Email" class="form-label text-white fw-bold"></label>
+                        <input asp-for="Email" class="form-control fw-bold" readonly="readonly">
+                    </div>
+                    <div class="col-md-3 mb-1">
+                        <label asp-for="PhoneNo1" class="form-label text-white fw-bold"></label>
+                        <input asp-for="PhoneNo1" class="form-control fw-bold" readonly="readonly">
+                    </div>
+                    <div class="col-md-3 mb-1">
+                        <label asp-for="PhoneNo2" class="form-label text-white fw-bold"></label>
+                        <input asp-for="PhoneNo2" class="form-control fw-bold" readonly="readonly">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="Address" class="form-label text-white fw-bold"></label>
+                        <input asp-for="Address" class="form-control fw-bold" readonly="readonly">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="DateOfBirth" class="form-label text-white fw-bold"></label>
+                        <input asp-for="DateOfBirth" class="form-control fw-bold" readonly="readonly">
+                    </div>
+                </div>
+                <div class="row">
+                    <a asp-area="PartnerServices" asp-controller="Home" asp-action="Index" class="btn btn-dark ml-2" style="width:100px" title="Return Home">
+                        <span class="text-white">Exit</span>
+                    </a>
+                    <a asp-area="PartnerServices" asp-controller="Customers" asp-action="Contacts" asp-route-sp="@Model.BusinessID" class="btn btn-dark ml-1" style="width:100px" title="Return to Contacts">
+                        <span class="text-white">Go Back</span>
+                    </a>
+                    @if (!Model.OperationIsCompleted)
+                    {
+                        <button type="submit" class="btn btn-danger ml-2" title="Delete" style="width:200px" onclick="return confirm('Delete Permanently?');"><span class="text-white">Delete</span></button>
+                    }
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+
+

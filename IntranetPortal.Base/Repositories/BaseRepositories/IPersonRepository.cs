@@ -12,6 +12,7 @@ namespace IntranetPortal.Base.Repositories.BaseRepositories
         Task<bool> DeletePersonAsync(string Id);
         Task<bool> EditPersonAsync(Person person);
         Task<Person> GetPersonByIdAsync(string Id);
+        Task<Person> GetPersonByNameAsync(string personName);
         Task<IList<Person>> GetPersonsAsync();
     }
 }

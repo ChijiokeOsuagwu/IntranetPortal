@@ -1,11 +1,15 @@
-﻿<!DOCTYPE html>
+﻿@using IntranetPortal.Base.Models.SecurityModels
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
     <meta name="description" content="" />
     <meta name="author" content="" />
-    <title>@ViewData["Title"] | IntranetPortal</title>
+    <title>@ViewData["Title"]</title>
+    <!-- JQuery UI CSS -->
+    <link href="~/lib/jquery-ui/jquery-ui.css" rel="stylesheet" />
+    <!-- Boostrap CSS -->
     <link href="~/lib/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
     <!-- Font Awesome icons (free version)-->
     <script src="~/lib/font-awesome/js/all.js" crossorigin="anonymous"></script>
@@ -18,54 +22,73 @@
 </head>
 <body>
     <!-- Navigation-->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-info">
         <div class="container">
             <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="index">
-                <img src="~/img/logo_h60_w47.png" alt="" width="60" height="47"/>
+                <img src="~/img/logo_h60_w47.png" alt="" width="60" height="47" />
                 <span class="fw-bold">OfficeManager</span>
             </a>
             <button class="navbar-toggler navbar-toggler-right" type="button" data-bs-toggle="collapse" data-bs-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
             <div class="collapse navbar-collapse" id="navbarResponsive">
                 <ul class="navbar-nav ml-auto">
                     <li class="nav-item dropdown mx-2 my-1">
-                        <a class="btn btn-outline-light dropdown-toggle" id="navbarDropdownPortfolio"  data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Channels Online</a>
+                        <a class="btn btn-outline-light dropdown-toggle" id="navbarDropdownPortfolio" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Channels Online</a>
                         <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownPortfolio">
-                            <a class="dropdown-item" href="portfolio-1-col.html"><i class="fab fa-facebook-square"></i> Facebook</a>
-                            <a class="dropdown-item" href="portfolio-2-col.html"><i class="fab fa-youtube-square"></i> Youtube</a>
-                            <a class="dropdown-item" href="portfolio-3-col.html"><i class="fab fa-instagram-square"></i> Instagram</a>
-                            <a class="dropdown-item" href="portfolio-4-col.html"><i class="fab fa-twitter-square"></i> Twitter</a>
-                            <a class="dropdown-item" href="portfolio-item.html"><i class="fas fa-globe"></i> Channels Website</a>
+                            <a class="dropdown-item" href="https://www.facebook.com/channelsforum" target="_blank"><i class="fab fa-facebook-square"></i> Facebook</a>
+                            <a class="dropdown-item" href="https://www.youtube.com/subscription_center?add_user=channelsweb" target="_blank"><i class="fab fa-youtube-square"></i> Youtube</a>
+                            <a class="dropdown-item" href="https://www.instagram.com/channelstelevision/" target="_blank"><i class="fab fa-instagram-square"></i> Instagram</a>
+                            <a class="dropdown-item" href="https://twitter.com/channelstv" target="_blank"><i class="fab fa-twitter-square"></i> Twitter</a>
+                            <a class="dropdown-item" href="https://www.channelstv.com" target="_blank"><i class="fas fa-globe"></i> Channels Website</a>
                         </div>
                     </li>
-                    <li class="nav-item mx-1 my-1">
-                        <a class="btn btn-outline-light position-relative" title="Click to open the Login form">
-                            <i class="bi bi-door-open-fill"></i>
-                            Login
-                        </a>
-                    </li>
-                    <li class="nav-item mx-1 my-1">
-                        <a class="btn btn-outline-light" title="Click to see list of applications" asp-area="" asp-controller="Home" asp-action="Apps">
-                            Applications
-                        </a>
-                    </li>
-                    <li class="nav-item ml-1 mr-3 my-1 dropdown">
-                        <a class="btn btn-outline-light dropdown-toggle" id="navbarDropdownPages" data-bs-toggle="dropdown" role="button" aria-expanded="false" title="User Options">
-                            <i class="bi bi-person-circle"></i>
-                        </a>
-                        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownPages">
-                            <a class="dropdown-item" href="#"><i class="bi bi-person-badge"></i> View Profile</a>
-                            <a class="dropdown-item" href="#"><i class="bi bi-pencil-square"></i> Change Password</a>
-                            <a class="dropdown-item" href="#"><i class="bi bi-door-closed-fill"></i> Log Out</a>
-                        </div>
-                    </li>
-                    <li class="nav-item mx-1 my-1">
-                        <a class="btn btn-outline-light position-relative" title="Click to open Message Inbox">
-                            <i class="bi bi-envelope-fill"></i>
-                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                                99+
-                            </span>
-                        </a>
-                    </li>
+                    @if (User.Identity.IsAuthenticated)
+                    {
+                        <li class="nav-item mx-1 my-1">
+                            <a class="btn btn-outline-light" title="Click to see list of applications" asp-area="" asp-controller="Home" asp-action="Apps">
+                                Applications
+                            </a>
+                        </li>
+                        <li class="nav-item ml-1 mr-3 my-1 dropdown">
+                            <a class="btn btn-outline-light dropdown-toggle" id="navbarDropdownPages" data-bs-toggle="dropdown" role="button" aria-expanded="false" title="@User.Identity.Name">
+                                <i class="bi bi-person-circle"></i>
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownPages">
+                                <a class="dropdown-item" href="#"><i class="bi bi-person-badge"></i> View Profile</a>
+                                <a class="dropdown-item" href="#"><i class="bi bi-pencil-square"></i> Change Password</a>
+                                <a class="dropdown-item" asp-area="" asp-controller="Home" asp-action="Logout"><i class="bi bi-door-closed-fill"></i> Log Out</a>
+                            </div>
+                        </li>
+                        @if (ViewData["UnreadMessageCount"] != null)
+                        {
+                            <li class="nav-item mx-1 my-1">
+                                <a asp-area="" asp-controller="Home" asp-action="Messages" class="btn btn-outline-light position-relative" title="Click to open Message Inbox">
+                                    <i class="bi bi-envelope-fill"></i>
+                                    @if ((int)ViewData["UnreadMessageCount"] > 99)
+                                    {
+                                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                            99+
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                            @ViewData["UnreadMessageCount"]
+                                        </span>
+                                    }
+                                </a>
+                            </li>
+
+                        }
+                    }
+                    else
+                    {
+                        <li class="nav-item mx-1 my-1">
+                            <a asp-area="" asp-controller="Home" asp-action="Login" class="btn btn-outline-light position-relative" title="Login">
+                                <i class="bi bi-door-open-fill"></i>
+                                Login
+                            </a>
+                        </li>
+                    }
                 </ul>
             </div>
         </div>
@@ -74,18 +97,23 @@
         @RenderBody()
     </div>
     <!-- Footer-->
-    <footer class="py-5 bg-primary">
+    <footer class="py-5 bg-info">
         <div class="container"><p class="m-0 text-center text-white">Copyright &copy; Channels Incorporated @DateTime.Now.Year</p></div>
     </footer>
     <!-- jQuery JS -->
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <!--- JQuery UI JS -->
+    <script src="~/lib/jquery-ui/jquery-ui.min.js"></script>
+    <!-- jQuery Validate JS -->
+    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+    <!-- jQuery Validation Unobstructive -->
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
     <!-- Bootstrap core JS-->
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <!-- Core theme JS-->
     <script src="~/lib/startbootstrap/js/scripts.js"></script>
     <!-- Matrix JS -->
     <script src="~/lib/matrix/dist/js/waves.js"></script>
-   
-    @RenderSection("Scripts", false)
+    @RenderSection("Scripts", required: false)
 </body>
 </html>

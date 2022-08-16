@@ -1,0 +1,133 @@
+﻿@model IntranetPortal.Areas.AssetManager.Models.AssetIncidentViewModel
+@{
+    ViewData["Title"] = "OfficeManager | Edit Incident";
+}
+<div>
+    <div class="card" style="min-width:600px">
+        <div class="card-header bg-info">
+            <h4 class="text-white">Edit Incident</h4>
+        </div>
+        <div class="card-body bg-secondary">
+            @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bi bi-x-circle"></i>
+                    <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            @if (!String.IsNullOrEmpty(Model.ViewModelSuccessMessage))
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="bi bi-check-circle"></i>
+                    <span class="fw-bold">@Model.ViewModelSuccessMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            @if (!String.IsNullOrEmpty(Model.ViewModelWarningMessage))
+            {
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                    <i class="bi bi-exclamation-circle"></i>
+                    <span class="fw-bold">@Model.ViewModelWarningMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+        <form asp-area="AssetManager" asp-controller="Incidents" asp-action="EditIncident" method="post">
+            <div class="row">
+                <div class="col-md-6 mb-1">
+                    <input type="hidden" asp-for="AssetID" />
+                    <input type="hidden" asp-for="AssetTypeID" />
+                    <input type="hidden" asp-for="AssetCategoryID" />
+                    <input type="hidden" asp-for="AssetIncidentID" />
+                    <label asp-for="AssetName" class="form-label text-white fw-bold"></label>
+                    <input asp-for="AssetName" class="form-control fw-bold" onblur="getAssetParameters()">
+                    <div><span asp-validation-for="AssetName" class="text-danger"></span></div>
+                </div>
+                <div class="col-md-6 mb-1">
+                    <label asp-for="AssetCondition" class="form-label text-white fw-bold"></label>
+                    <select asp-for="AssetCondition" class="form-control fw-bold">
+                        <option value=""> - Select - </option>
+                        <option value="In Good Condition">In Good Condition</option>
+                        <option value="Faulty (Requires Repairs)">Faulty (Requires Repair)</option>
+                        <option value="Broken & Unfixable">Broken & Unfixable</option>
+                        <option value="Lost or Stolen">Lost or Stolen</option>
+                        <option value="Disposed or Scrapped">Disposed or Scrapped</option>
+                    </select>
+                    <div><span asp-validation-for="AssetCondition" class="text-danger"></span></div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6 mb-1">
+                    <label asp-for="IncidentTitle" class="form-label text-white fw-bold"></label>
+                    <input asp-for="IncidentTitle" class="form-control fw-bold">
+                    <div><span asp-validation-for="IncidentTitle" class="text-danger"></span></div>
+                </div>
+                <div class="col-md-6 mb-1">
+                    <label asp-for="IncidentTime" class="form-label text-white fw-bold"></label>
+                    <input asp-for="IncidentTime" class="form-control fw-bold">
+                    <div><span asp-validation-for="IncidentTime" class="text-danger"></span></div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6 mb-1">
+                    <label asp-for="IncidentDescription" class="form-label text-white fw-bold"></label>
+                    <textarea class="form-control fw-bold" name="@Html.NameFor(m => m.IncidentDescription)">@Model.IncidentDescription</textarea>
+                    <div><span asp-validation-for="IncidentDescription" class="text-danger"></span></div>
+                </div>
+                <div class="col-md-6 mb-1">
+                    <label asp-for="ActionTaken" class="form-label text-white fw-bold"></label>
+                    <textarea class="form-control fw-bold" name="@Html.NameFor(m => m.ActionTaken)">@Model.ActionTaken</textarea>
+                    <div><span asp-validation-for="ActionTaken" class="text-danger"></span></div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6 mb-1">
+                    <label asp-for="Recommendation" class="form-label text-white fw-bold"></label>
+                    <textarea class="form-control fw-bold" name="@Html.NameFor(m => m.Recommendation)">@Model.Recommendation</textarea>
+                    <div><span asp-validation-for="Recommendation" class="text-danger"></span></div>
+                </div>
+                <div class="col-md-6 mb-1">
+                    <label asp-for="Comments" class="form-label text-white fw-bold"></label>
+                    <textarea class="form-control fw-bold" name="@Html.NameFor(m => m.Comments)">@Model.Comments</textarea>
+                    <div><span asp-validation-for="Comments" class="text-danger"></span></div>
+                </div>
+                <input type="hidden" asp-for="LoggedTime" />
+            </div>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label asp-for="LoggedBy" class="form-label text-white fw-bold"></label>
+                    <input asp-for="LoggedBy" class="form-control fw-bold" readonly="readonly">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label asp-for="LoggedTime" class="form-label text-white fw-bold"></label>
+                    <input value="@Model.LoggedTime.Value.ToLongDateString() @Model.LoggedTime.Value.ToLongTimeString()" class="form-control fw-bold" readonly="readonly">
+                </div>
+            </div>
+            <div class="row">
+                <a asp-area="AssetManager" asp-controller="Home" asp-action="Index" class="btn btn-dark ml-2" style="width:100px" title="Return Home">
+                    <span class="text-white">Exit</span>
+                </a>
+                <a asp-area="AssetManager" asp-controller="Incidents" asp-action="List" class="btn btn-dark ml-1" style="width:100px" title="Return to Incident List">
+                    <span class="text-white">Go Back</span>
+                </a>
+                @if (!Model.OperationIsCompleted)
+                {
+                    <a asp-area="AssetManager" asp-controller="Incidents" asp-action="EditIncident" asp-route-id="@Model.AssetIncidentID" class="btn btn-warning ml-1" style="width:100px" title="Clear">
+                        <span class="text-white">Clear</span>
+                    </a>
+                    <button type="submit" class="btn btn-success ml-2" title="Save" style="width:200px"><span class="text-white">Save Changes</span></button>
+                }
+            </div>
+        </form>
+        </div>
+    </div>
+</div>
+@section Scripts{
+    <script src="~/js/js_asm/assets_incidents_add_new.js"></script>
+}
+
+
+
+
+
+

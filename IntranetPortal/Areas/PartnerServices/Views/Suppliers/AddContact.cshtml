@@ -1,0 +1,207 @@
+﻿@model IntranetPortal.Areas.PartnerServices.Models.ContactViewModel
+@{
+    ViewData["Title"] = "OfficeManager | New Contact";
+}
+<div>
+    <div class="card" style="min-width:600px">
+        <div class="card-header bg-success">
+            <h4 class="text-white">New Contact</h4>
+        </div>
+        <div class="card-body bg-secondary">
+            @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bi bi-x-circle"></i>
+                    <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            @if (!String.IsNullOrEmpty(Model.ViewModelSuccessMessage))
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="bi bi-check-circle"></i>
+                    <span class="fw-bold">@Model.ViewModelSuccessMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            @if (!String.IsNullOrEmpty(Model.ViewModelWarningMessage))
+            {
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                    <i class="bi bi-exclamation-circle"></i>
+                    <span class="fw-bold">@Model.ViewModelWarningMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+        <form asp-area="PartnerServices" asp-controller="Suppliers" asp-action="AddContact" method="post">
+            <div class="row">
+                <div class="col-md-8 mb-1">
+                    <input type="hidden" asp-for="BusinessID" />
+                    <input type="hidden" asp-for="PersonID" />
+                    <label asp-for="BusinessName" class="form-label text-white fw-bold"></label>
+                    <input asp-for="BusinessName" class="form-control fw-bold">
+                    <div><span asp-validation-for="BusinessName" class="text-danger"></span></div>
+                </div>
+                <div class="col-md-4 mb-1">
+                    <label asp-for="PersonRole" class="form-label text-white fw-bold"></label>
+                    <input asp-for="PersonRole" class="form-control fw-bold">
+                    <div><span asp-validation-for="PersonRole" class="text-danger"></span></div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-2 mb-1">
+                    <label asp-for="Title" class="form-label text-white fw-bold"></label>
+                    <input asp-for="Title" class="form-control fw-bold">
+                    <div><span asp-validation-for="Title" class="text-danger"></span></div>
+                </div>
+                <div class="col-md-3 mb-1">
+                    <label asp-for="FirstName" class="form-label text-white fw-bold"></label>
+                    <input asp-for="FirstName" class="form-control fw-bold">
+                    <div><span asp-validation-for="FirstName" class="text-danger"></span></div>
+                </div>
+                <div class="col-md-3 mb-1">
+                    <label asp-for="Surname" class="form-label text-white fw-bold"></label>
+                    <input asp-for="Surname" class="form-control fw-bold">
+                    <div><span asp-validation-for="Surname" class="text-danger"></span></div>
+                </div>
+                <div class="col-md-4 mb-1">
+                    <label asp-for="OtherNames" class="form-label text-white fw-bold"></label>
+                    <input asp-for="OtherNames" class="form-control fw-bold">
+                    <div><span asp-validation-for="OtherNames" class="text-danger"></span></div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-2 mb-1">
+                    <label asp-for="Sex" class="form-label text-white fw-bold"></label>
+                    <select asp-for="Sex" class="form-control fw-bold">
+                        <option value="">- Select - </option>
+                        <option value="Female">Female</option>
+                        <option value="Male">Male</option>
+                    </select>
+                    <div><span asp-validation-for="Sex" class="text-danger"></span></div>
+                </div>
+                <div class="col-md-2 mb-1">
+                    <label asp-for="MaritalStatus" class="form-label text-white fw-bold"></label>
+                    <select asp-for="MaritalStatus" class="form-control fw-bold">
+                        <option value="">- Select - </option>
+                        <option value="Married">Married</option>
+                        <option value="Single">Single</option>
+                        <option value="Separated">Separated</option>
+                        <option value="Divorced">Divorced</option>
+                        <option value="Widowed">Widowed</option>
+                    </select>
+                    <div><span asp-validation-for="MaritalStatus" class="text-danger"></span></div>
+                </div>
+                <div class="col-md-2 mb-1">
+                    <label asp-for="PhoneNo1" class="form-label text-white fw-bold"></label>
+                    <input asp-for="PhoneNo1" class="form-control fw-bold">
+                    <div><span asp-validation-for="PhoneNo1" class="text-danger"></span></div>
+                </div>
+                <div class="col-md-2 mb-1">
+                    <label asp-for="PhoneNo2" class="form-label text-white fw-bold"></label>
+                    <input asp-for="PhoneNo2" class="form-control fw-bold">
+                    <div><span asp-validation-for="PhoneNo2" class="text-danger"></span></div>
+                </div>
+                <div class="col-md-4 mb-1">
+                    <label asp-for="Email" class="form-label text-white fw-bold"></label>
+                    <input asp-for="Email" class="form-control fw-bold">
+                    <div><span asp-validation-for="Email" class="text-danger"></span></div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label asp-for="Address" class="form-label text-white fw-bold"></label>
+                    <input asp-for="Address" class="form-control fw-bold">
+                    <div><span asp-validation-for="Address" class="text-danger"></span></div>
+                </div>
+                <div class="col-md-2 mb-3">
+                    <label asp-for="BirthDay" class="form-label text-white fw-bold"></label>
+                    <select asp-for="BirthDay" class="form-control fw-bold">
+                        <option value=""> dd </option>
+                        <option value="1">1st</option>
+                        <option value="2">2nd</option>
+                        <option value="3">3rd</option>
+                        <option value="4">4th</option>
+                        <option value="5">5th</option>
+                        <option value="6">6th</option>
+                        <option value="7">7th</option>
+                        <option value="8">8th</option>
+                        <option value="9">9th</option>
+                        <option value="10">10th</option>
+                        <option value="11">11th</option>
+                        <option value="12">12th</option>
+                        <option value="13">13th</option>
+                        <option value="14">14th</option>
+                        <option value="15">15th</option>
+                        <option value="16">16th</option>
+                        <option value="17">17th</option>
+                        <option value="18">18th</option>
+                        <option value="19">19th</option>
+                        <option value="20">20th</option>
+                        <option value="21">21st</option>
+                        <option value="22">22nd</option>
+                        <option value="23">23rd</option>
+                        <option value="24">24th</option>
+                        <option value="25">25th</option>
+                        <option value="26">26th</option>
+                        <option value="27">27th</option>
+                        <option value="28">28th</option>
+                        <option value="29">29th</option>
+                        <option value="30">30th</option>
+                        <option value="31">31st</option>
+                    </select>
+                    <div><span asp-validation-for="BirthDay" class="text-danger"></span></div>
+                </div>
+                <div class="col-md-2 mb-3">
+                    <label asp-for="BirthMonth" class="form-label text-white fw-bold"></label>
+                    <select asp-for="BirthMonth" class="form-control fw-bold">
+                        <option value=""> mm </option>
+                        <option value="1">Jan</option>
+                        <option value="2">Feb</option>
+                        <option value="3">Mar</option>
+                        <option value="4">Apr</option>
+                        <option value="5">May</option>
+                        <option value="6">Jun</option>
+                        <option value="7">Jul</option>
+                        <option value="8">Aug</option>
+                        <option value="9">Sep</option>
+                        <option value="10">Oct</option>
+                        <option value="11">Nov</option>
+                        <option value="12">Dec</option>
+                    </select>
+                    <div><span asp-validation-for="BirthMonth" class="text-danger"></span></div>
+                </div>
+                <div class="col-md-2 mb-3">
+                    <label asp-for="BirthYear" class="form-label text-white fw-bold"></label>
+                    <input asp-for="BirthYear" class="form-control fw-bold"  min="1930" max="2040" maxlength="4" placeholder="yyyy">
+                    <div><span asp-validation-for="BirthYear" class="text-danger"></span></div>
+                </div>
+            </div>
+            <div class="row">
+                <a asp-area="PartnerServices" asp-controller="Home" asp-action="Index" class="btn btn-dark ml-2" style="width:100px" title="Return Home">
+                    <span class="text-white">Exit</span>
+                </a>
+                <a asp-area="PartnerServices" asp-controller="Suppliers" asp-action="Contacts" asp-route-sp="@Model.BusinessID" class="btn btn-dark ml-1" style="width:100px" title="Return to Contacts">
+                    <span class="text-white">Go Back</span>
+                </a>
+                @if (!Model.OperationIsCompleted)
+                {
+                    <a asp-area="PartnerServices" asp-controller="Suppliers" asp-action="AddContact" class="btn btn-warning ml-1" style="width:100px" title="Clear">
+                        <span class="text-white">Clear</span>
+                    </a>
+                    <button type="submit" class="btn btn-success ml-2" title="Save" style="width:200px"><span class="text-white">Save</span></button>
+                }
+            </div>
+        </form>
+        </div>
+    </div>
+</div>
+@section Scripts{
+    <script src="~/js/js_ptns/ptns_contacts_add.js"></script>
+}
+
+
+
+
+
+
+

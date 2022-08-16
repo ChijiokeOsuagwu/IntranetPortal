@@ -8,6 +8,7 @@ using IntranetPortal.Base.Enums;
 using IntranetPortal.Base.Models.ContentManagerModels;
 using IntranetPortal.Base.Services;
 using IntranetPortal.Configurations;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -16,6 +17,7 @@ using Microsoft.Extensions.Configuration;
 namespace IntranetPortal.Areas.ContentManager.Controllers
 {
     [Area("ContentManager")]
+    [Authorize]
     public class EventsController : Controller
     {
         private readonly IWebHostEnvironment _webHostEnvironment;
@@ -32,6 +34,7 @@ namespace IntranetPortal.Areas.ContentManager.Controllers
             _dataProtector = dataProtectionProvider.CreateProtector(dataProtectionEncryptionStrings.RouteValuesEncryptionCode);
         }
 
+        [Authorize(Roles = "PCMEVEVWL, XYALLACCZ")]
         public IActionResult Index()
         {
             EventsListViewModel model = new EventsListViewModel();
@@ -39,6 +42,7 @@ namespace IntranetPortal.Areas.ContentManager.Controllers
             return View(model);
         }
 
+        [Authorize(Roles = "PCMEVEADN, XYALLACCZ")]
         public IActionResult Add()
         {
             EventsAddViewModel model = new EventsAddViewModel();
@@ -46,6 +50,7 @@ namespace IntranetPortal.Areas.ContentManager.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "PCMEVEADN, XYALLACCZ")]
         public async Task<IActionResult> Add(EventsAddViewModel model)
         {
             if (ModelState.IsValid)
@@ -96,6 +101,7 @@ namespace IntranetPortal.Areas.ContentManager.Controllers
             return View(model);
         }
 
+        [Authorize(Roles = "PCMEVEDLT, XYALLACCZ")]
         public async Task<IActionResult> Delete(string id)
         {
             int PostId = Convert.ToInt32(_dataProtector.Unprotect(id));
@@ -109,6 +115,7 @@ namespace IntranetPortal.Areas.ContentManager.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "PCMEVEDLT, XYALLACCZ")]
         public async Task<IActionResult> Delete(EventsDeleteViewModel model)
         {
             if (model == null || model.Id < 1)
@@ -137,6 +144,7 @@ namespace IntranetPortal.Areas.ContentManager.Controllers
             return RedirectToAction("Index", "Events");
         }
 
+        [Authorize(Roles = "PCMEVEEDT, XYALLACCZ")]
         public async Task<IActionResult> Edit(string id)
         {
             int PostId = 0;
@@ -154,6 +162,7 @@ namespace IntranetPortal.Areas.ContentManager.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "PCMEVEEDT, XYALLACCZ")]
         public async Task<IActionResult> Edit(EventEditViewModel model)
         {
             if (ModelState.IsValid)

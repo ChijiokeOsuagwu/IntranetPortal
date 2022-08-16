@@ -1,0 +1,93 @@
+﻿
+@{
+    ViewData["Title"] = "Broadcast Assignment Manager";
+}
+<link href="~/lib/matrix/dist/css/style.min.css" rel="stylesheet" />
+<div class="my-2">
+    <!-- ============================================================== -->
+    <!-- Sales Cards  -->
+    <!-- ============================================================== -->
+    <h4 class="fw-bold">Broadcast Assignment Management System</h4>
+    <hr />
+    <div class="row">
+        <div class="col-md-6 col-lg-2 col-xlg-3">
+            <a asp-area="Bams" asp-controller="Home" asp-action="ActiveAssignments">
+                <div class="card card-hover">
+                    <div class="box bg-light text-center">
+                        <h1 class="font-light text-dark"><i class="bi bi-list-check"></i></h1>
+                        <h6 class="text-dark">Active Assignment</h6>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <!-- Column -->
+        <div class="col-md-6 col-lg-2 col-xlg-3">
+            <a asp-area="Bams" asp-controller="Home" asp-action="NewAssignment">
+                <div class="card card-hover">
+                    <div class="box bg-light text-center">
+                        <h1 class="font-light text-dark"><i class="bi bi-file-earmark-plus"></i></h1>
+                        <h6 class="text-dark">New Assignment</h6>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <!-- Column -->
+        <div class="col-md-6 col-lg-2 col-xlg-3">
+            <a asp-area="PartnerServices" asp-controller="Suppliers" asp-action="List">
+                <div class="card card-hover">
+                    <div class="box bg-light text-center">
+                        <h1 class="font-light text-dark"><i class="bi bi-briefcase-fill"></i></h1>
+                        <h6 class="text-dark">Suppliers</h6>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <!-- Column -->
+        <div class="col-md-6 col-lg-2 col-xlg-3">
+            <a asp-area="PartnerServices" asp-controller="Suppliers" asp-action="List">
+                <div class="card card-hover">
+                    <div class="box bg-light text-center">
+                        <h1 class="font-light text-dark"><i class="bi bi-people-fill"></i></h1>
+                        <h6 class="text-dark">Suppliers Contacts</h6>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <!-- Column -->
+        <div class="col-md-6 col-lg-2 col-xlg-3">
+            <div class="card card-hover">
+                <div class="box bg-light text-center">
+                    <h1 class="font-light text-dark"><i class="fas fa-chalkboard-teacher"></i></h1>
+                    <h6 class="text-dark">Channels Learning</h6>
+                </div>
+            </div>
+        </div>
+        <!-- Column -->
+        <div class="col-md-6 col-lg-2 col-xlg-3">
+            <a asp-area="UserAdministration" asp-controller="Home" asp-action="Index">
+                <div class="card card-hover">
+                    <div class="box bg-light text-center">
+                        <h1 class="font-light text-dark"><i class="bi bi-people"></i></h1>
+                        <h6 class="text-dark">User Administration</h6>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <!-- Column -->
+        <div class="col-md-6 col-lg-2 col-xlg-3">
+            <a asp-area="GlobalSettings" asp-controller="Home" asp-action="Index">
+                <div class="card card-hover">
+                    <div class="box bg-light text-center">
+                        <h1 class="font-light text-dark"><i class="bi bi-sliders"></i></h1>
+                        <h6 class="text-dark">Global Settings</h6>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <!-- Column -->
+    </div>
+</div>
+@section Scripts{
+
+}
+

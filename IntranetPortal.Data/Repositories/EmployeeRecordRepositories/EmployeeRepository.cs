@@ -269,14 +269,15 @@ namespace IntranetPortal.Data.Repositories.EmployeeRecordRepositories
             string query = String.Empty;
             StringBuilder sb = new StringBuilder();
 
-            sb.Append($"SELECT emp_id, emp_no_1, emp_no_2, coy_id, dept_id, unit_id, loc_id, start_up_date, yrs_of_experience, ");
-            sb.Append($"length_of_service, start_up_designation, place_of_engagement, confirmation_date, current_designation, job_grade, ");
-            sb.Append($"reports_to_1, reports_to_2, reports_to_3, employment_status, date_of_last_promotion, official_email, ");
-            sb.Append($"state_of_origin, lga_of_origin, religion, geo_political_region, next_of_kin_name, next_of_kin_relationship, ");
-            sb.Append($"modified_by, modified_date, created_by, created_date, next_of_kin_address, next_of_kin_phone, next_of_kin_email, ");
-            sb.Append($"id, title, sname, fname, oname, fullname, sex, phone1, phone2, email, address, mdb, mdt, ctb, ctt, imgp, ");
-            sb.Append($"birthday, birthmonth, birthyear, maritalstatus FROM public.erm_emps e ");
-            sb.Append($"INNER JOIN gst_prsns p ON e.emp_id = p.id WHERE(LOWER(emp_id) = LOWER(@emp_id));");
+            sb.Append($"SELECT emp_id, emp_no_1, emp_no_2, start_up_date, yrs_of_experience, length_of_service, start_up_designation, ");
+            sb.Append($"place_of_engagement, confirmation_date, current_designation, job_grade, reports_to_1, reports_to_2, reports_to_3, ");
+            sb.Append($"employment_status, date_of_last_promotion, official_email, state_of_origin, lga_of_origin, religion, ");
+            sb.Append($"geo_political_region, next_of_kin_name, next_of_kin_relationship, modified_by, modified_date, created_by, ");
+            sb.Append($"created_date, next_of_kin_address, next_of_kin_phone, next_of_kin_email, dept_id, unit_id, loc_id, coy_id, ");
+            sb.Append($"id, title, sname, fname, oname, fullname, sex, phone1, phone2, personal_email, address, mdb, mdt, ctb, ctt, imgp, ");
+            sb.Append($"birthday, birthmonth, birthyear, maritalstatus, locname, loctype, lochq1, lochq2, locmb, locmd, loccb, loccd, locctr, ");
+            sb.Append($"locst, locqk, coy_code, coy_name, deptname, depthd1, depthd2, deptqk, unitname, unithd1, unithd2, unitqk ");
+            sb.Append($"FROM public.v_erm_emps_dtl WHERE(LOWER(emp_id) = LOWER(@emp_id));");
             query = sb.ToString();
             try
             {
@@ -293,10 +294,6 @@ namespace IntranetPortal.Data.Repositories.EmployeeRecordRepositories
                             employee.EmployeeID = reader["emp_id"] == DBNull.Value ? string.Empty : (reader["emp_id"]).ToString();
                             employee.EmployeeNo1 = reader["emp_no_1"] == DBNull.Value ? string.Empty : (reader["emp_no_1"]).ToString();
                             employee.EmployeeNo2 = reader["emp_no_2"] == DBNull.Value ? string.Empty : (reader["emp_no_2"]).ToString();
-                            employee.CompanyID = reader["coy_id"] == DBNull.Value ? string.Empty : (reader["coy_id"]).ToString();
-                            employee.DepartmentID = reader["dept_id"] == DBNull.Value ? 0 : (int)(reader["dept_id"]);
-                            employee.UnitID = reader["unit_id"] == DBNull.Value ? 0 : (int)(reader["unit_id"]);
-                            employee.LocationID = reader["loc_id"] == DBNull.Value ? 0 : (int)(reader["loc_id"]);
                             employee.StartUpDate = reader["start_up_date"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["start_up_date"];
                             employee.YearsOfExperience = reader["yrs_of_experience"] == DBNull.Value ? 0 : (int)reader["yrs_of_experience"];
                             employee.LengthOfService = reader["length_of_service"] == DBNull.Value ? 0 : (int)reader["length_of_service"];
@@ -310,6 +307,7 @@ namespace IntranetPortal.Data.Repositories.EmployeeRecordRepositories
                             employee.ReportsTo3_EmployeeID = reader["reports_to_3"] == DBNull.Value ? String.Empty : reader["reports_to_3"].ToString();
                             employee.EmploymentStatus = reader["employment_status"] == DBNull.Value ? String.Empty : reader["employment_status"].ToString();
                             employee.DateOfLastPromotion = reader["date_of_last_promotion"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["date_of_last_promotion"];
+
                             employee.OfficialEmail = reader["official_email"] == DBNull.Value ? String.Empty : reader["official_email"].ToString();
                             employee.StateOfOrigin = reader["state_of_origin"] == DBNull.Value ? String.Empty : reader["state_of_origin"].ToString();
                             employee.LgaOfOrigin = reader["lga_of_origin"] == DBNull.Value ? String.Empty : reader["lga_of_origin"].ToString();
@@ -320,6 +318,10 @@ namespace IntranetPortal.Data.Repositories.EmployeeRecordRepositories
                             employee.NextOfKinAddress = reader["next_of_kin_address"] == DBNull.Value ? String.Empty : reader["next_of_kin_address"].ToString();
                             employee.NextOfKinPhone = reader["next_of_kin_phone"] == DBNull.Value ? String.Empty : reader["next_of_kin_phone"].ToString();
                             employee.NextOfKinEmail = reader["next_of_kin_email"] == DBNull.Value ? String.Empty : reader["next_of_kin_email"].ToString();
+                            employee.CompanyID = reader["coy_id"] == DBNull.Value ? string.Empty : (reader["coy_id"]).ToString();
+                            employee.DepartmentID = reader["dept_id"] == DBNull.Value ? 0 : (int)(reader["dept_id"]);
+                            employee.UnitID = reader["unit_id"] == DBNull.Value ? 0 : (int)(reader["unit_id"]);
+                            employee.LocationID = reader["loc_id"] == DBNull.Value ? 0 : (int)(reader["loc_id"]);
                             employee.EmployeeModifiedBy = reader["modified_by"] == DBNull.Value ? string.Empty : reader["modified_by"].ToString();
                             employee.EmployeeModifiedDate = reader["modified_date"] == DBNull.Value ? string.Empty : reader["modified_date"].ToString();
                             employee.EmployeeCreatedBy = reader["created_by"] == DBNull.Value ? string.Empty : reader["created_by"].ToString();
@@ -338,12 +340,28 @@ namespace IntranetPortal.Data.Repositories.EmployeeRecordRepositories
                             employee.BirthYear = reader["birthyear"] == DBNull.Value ? 0 : (int)reader["birthyear"];
                             employee.PhoneNo1 = reader["phone1"] == DBNull.Value ? string.Empty : reader["phone1"].ToString();
                             employee.PhoneNo2 = reader["phone2"] == DBNull.Value ? string.Empty : reader["phone2"].ToString();
-                            employee.Email = reader["email"] == DBNull.Value ? string.Empty : reader["email"].ToString();
+                            employee.Email = reader["personal_email"] == DBNull.Value ? string.Empty : reader["personal_email"].ToString();
                             employee.Address = reader["address"] == DBNull.Value ? string.Empty : reader["address"].ToString();
+                            employee.ImagePath = reader["imgp"] == DBNull.Value ? string.Empty : reader[""].ToString();
                             employee.ModifiedBy = reader["mdb"] == DBNull.Value ? string.Empty : reader["mdb"].ToString();
                             employee.ModifiedTime = reader["mdt"] == DBNull.Value ? string.Empty : reader["mdt"].ToString();
                             employee.CreatedTime = reader["ctt"] == DBNull.Value ? string.Empty : reader["ctt"].ToString();
                             employee.CreatedBy = reader["ctb"] == DBNull.Value ? string.Empty : reader["ctb"].ToString();
+
+                            employee.LocationName = reader["locname"] == DBNull.Value ? string.Empty : reader["locname"].ToString();
+                            employee.LocationType = reader["loctype"] == DBNull.Value ? string.Empty : reader["loctype"].ToString();
+                            employee.LocationHead1 = reader["lochq1"] == DBNull.Value ? string.Empty : reader["lochq1"].ToString();
+                            employee.LocationHead2 = reader["lochq2"] == DBNull.Value ? string.Empty : reader["lochq2"].ToString();
+                            employee.LocationCountry = reader["locctr"] == DBNull.Value ? string.Empty : reader["locctr"].ToString();
+                            employee.LocationState = reader["locst"] == DBNull.Value ? string.Empty : reader["locst"].ToString();
+                            employee.CompanyName = reader["coy_name"] == DBNull.Value ? string.Empty : reader["coy_name"].ToString();
+                            employee.DepartmentHead1 = reader["depthd1"] == DBNull.Value ? string.Empty : reader["depthd1"].ToString();
+                            employee.DepartmentHead2 = reader["depthd2"] == DBNull.Value ? string.Empty : reader["depthd2"].ToString();
+                            employee.DepartmentName = reader["deptname"] == DBNull.Value ? string.Empty : reader["deptname"].ToString();
+                            employee.UnitHead1 = reader["unithd1"] == DBNull.Value ? string.Empty : reader["unithd1"].ToString();
+                            employee.UnitHead2 = reader["unithd2"] == DBNull.Value ? string.Empty : reader["unithd2"].ToString();
+                            employee.UnitName = reader["unitname"] == DBNull.Value ? string.Empty : reader["unitname"].ToString();
+
                         }
                 }
                 await conn.CloseAsync();
@@ -363,14 +381,15 @@ namespace IntranetPortal.Data.Repositories.EmployeeRecordRepositories
             string query = String.Empty;
             StringBuilder sb = new StringBuilder();
 
-            sb.Append($"SELECT emp_id, emp_no_1, emp_no_2, coy_id, dept_id, unit_id, loc_id, start_up_date, yrs_of_experience, ");
-            sb.Append($"length_of_service, start_up_designation, place_of_engagement, confirmation_date, current_designation, job_grade, ");
-            sb.Append($"reports_to_1, reports_to_2, reports_to_3, employment_status, date_of_last_promotion, official_email, ");
-            sb.Append($"state_of_origin, lga_of_origin, religion, geo_political_region, next_of_kin_name, next_of_kin_relationship, ");
-            sb.Append($"modified_by, modified_date, created_by, created_date, next_of_kin_address, next_of_kin_phone, next_of_kin_email, ");
-            sb.Append($"id, title, sname, fname, oname, fullname, sex, phone1, phone2, email, address, mdb, mdt, ctb, ctt, imgp, ");
-            sb.Append($"birthday, birthmonth, birthyear, maritalstatus FROM public.erm_emps e ");
-            sb.Append($"INNER JOIN gst_prsns p ON e.emp_id = p.id ORDER BY fname;");
+            sb.Append($"SELECT emp_id, emp_no_1, emp_no_2, start_up_date, yrs_of_experience, length_of_service, start_up_designation, ");
+            sb.Append($"place_of_engagement, confirmation_date, current_designation, job_grade, reports_to_1, reports_to_2, reports_to_3, ");
+            sb.Append($"employment_status, date_of_last_promotion, official_email, state_of_origin, lga_of_origin, religion, geo_political_region, ");
+            sb.Append($"next_of_kin_name, next_of_kin_relationship, modified_by, modified_date, created_by, created_date, next_of_kin_address, ");
+            sb.Append($"next_of_kin_phone, next_of_kin_email, dept_id, unit_id, loc_id, coy_id, id, title, sname, fname, oname, fullname, sex,");
+            sb.Append($"phone1, phone2, personal_email, address, mdb, mdt, ctb, ctt, imgp, birthday, birthmonth, birthyear, maritalstatus, ");
+            sb.Append($"locname, loctype, lochq1, lochq2, locctr, locst, locqk, coy_code, coy_name, deptname, ");
+            sb.Append($"depthd1, depthd2, deptqk, unitname, unithd1, unithd2, unitqk FROM public.v_erm_emps_dtl ORDER BY fullname; ");
+
             query = sb.ToString();
             try
             {
@@ -386,11 +405,7 @@ namespace IntranetPortal.Data.Repositories.EmployeeRecordRepositories
                         {
                             EmployeeID = reader["emp_id"] == DBNull.Value ? string.Empty : (reader["emp_id"]).ToString(),
                             EmployeeNo1 = reader["emp_no_1"] == DBNull.Value ? string.Empty : (reader["emp_no_1"]).ToString(),
-                            CompanyID = reader["coy_id"] == DBNull.Value ? string.Empty : (reader["coy_id"]).ToString(),
                             EmployeeNo2 = reader["emp_no_2"] == DBNull.Value ? string.Empty : (reader["emp_no_2"]).ToString(),
-                            DepartmentID = reader["dept_id"] == DBNull.Value ? 0 : (int)reader["dept_id"],
-                            UnitID = reader["unit_id"] == DBNull.Value ? 0 : (int)reader["unit_id"],
-                            LocationID = reader["loc_id"] == DBNull.Value ? 0 : (int)reader["loc_id"],
                             StartUpDate = reader["start_up_date"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["start_up_date"],
                             YearsOfExperience = reader["yrs_of_experience"] == DBNull.Value ? 0 : (int)reader["yrs_of_experience"],
                             LengthOfService = reader["length_of_service"] == DBNull.Value ? 0 : (int)reader["length_of_service"],
@@ -418,26 +433,45 @@ namespace IntranetPortal.Data.Repositories.EmployeeRecordRepositories
                             EmployeeModifiedDate = reader["modified_date"] == DBNull.Value ? string.Empty : reader["modified_date"].ToString(),
                             EmployeeCreatedBy = reader["created_by"] == DBNull.Value ? string.Empty : reader["created_by"].ToString(),
                             EmployeeCreatedDate = reader["created_date"] == DBNull.Value ? string.Empty : reader["created_date"].ToString(),
+                            DepartmentID = reader["dept_id"] == DBNull.Value ? 0 : (int)reader["dept_id"],
+                            UnitID = reader["unit_id"] == DBNull.Value ? 0 : (int)reader["unit_id"],
+                            LocationID = reader["loc_id"] == DBNull.Value ? 0 : (int)reader["loc_id"],
+                            CompanyID = reader["coy_id"] == DBNull.Value ? string.Empty : (reader["coy_id"]).ToString(),
 
                             PersonID = reader["id"] == DBNull.Value ? String.Empty : reader["id"].ToString(),
                             Title = reader["title"] == DBNull.Value ? string.Empty : reader["title"].ToString(),
                             Surname = reader["sname"] == DBNull.Value ? string.Empty : reader["sname"].ToString(),
                             FirstName = reader["fname"] == DBNull.Value ? string.Empty : reader["fname"].ToString(),
                             OtherNames = reader["oname"] == DBNull.Value ? string.Empty : reader["oname"].ToString(),
-                            FullName = reader["fullname"] == DBNull.Value ? string.Empty : reader["fullname"].ToString(),
                             Sex = reader["sex"] == DBNull.Value ? string.Empty : reader["sex"].ToString(),
-                            MaritalStatus = reader["maritalstatus"] == DBNull.Value ? String.Empty : reader["maritalstatus"].ToString(),
-                            BirthDay = reader["birthday"] == DBNull.Value ? 0 : (int)reader["birthday"],
-                            BirthMonth = reader["birthmonth"] == DBNull.Value ? 0 : (int)reader["birthmonth"],
-                            BirthYear = reader["birthyear"] == DBNull.Value ? 0 : (int)reader["birthyear"],
+                            FullName = reader["fullname"] == DBNull.Value ? string.Empty : reader["fullname"].ToString(),
                             PhoneNo1 = reader["phone1"] == DBNull.Value ? string.Empty : reader["phone1"].ToString(),
                             PhoneNo2 = reader["phone2"] == DBNull.Value ? string.Empty : reader["phone2"].ToString(),
-                            Email = reader["email"] == DBNull.Value ? string.Empty : reader["email"].ToString(),
+                            Email = reader["personal_email"] == DBNull.Value ? string.Empty : reader["personal_email"].ToString(),
                             Address = reader["address"] == DBNull.Value ? string.Empty : reader["address"].ToString(),
                             ModifiedBy = reader["mdb"] == DBNull.Value ? string.Empty : reader["mdb"].ToString(),
                             ModifiedTime = reader["mdt"] == DBNull.Value ? string.Empty : reader["mdt"].ToString(),
                             CreatedTime = reader["ctt"] == DBNull.Value ? string.Empty : reader["ctt"].ToString(),
                             CreatedBy = reader["ctb"] == DBNull.Value ? string.Empty : reader["ctb"].ToString(),
+                            ImagePath = reader["imgp"] == DBNull.Value ? string.Empty : reader["imgp"].ToString(),
+                            BirthDay = reader["birthday"] == DBNull.Value ? 0 : (int)reader["birthday"],
+                            BirthMonth = reader["birthmonth"] == DBNull.Value ? 0 : (int)reader["birthmonth"],
+                            BirthYear = reader["birthyear"] == DBNull.Value ? 0 : (int)reader["birthyear"],
+                            MaritalStatus = reader["maritalstatus"] == DBNull.Value ? String.Empty : reader["maritalstatus"].ToString(),
+                            LocationName = reader["locname"] == DBNull.Value ? String.Empty : reader["locname"].ToString(),
+                            LocationType = reader["loctype"] == DBNull.Value ? String.Empty : reader["loctype"].ToString(),
+                            LocationHead1 = reader["lochq1"] == DBNull.Value ? String.Empty : reader["lochq1"].ToString(),
+                            LocationHead2 = reader["lochq2"] == DBNull.Value ? String.Empty : reader["lochq2"].ToString(),
+                            LocationState = reader["locst"] == DBNull.Value ? String.Empty : reader["locst"].ToString(),
+                            LocationCountry = reader["locctr"] == DBNull.Value ? String.Empty : reader["locctr"].ToString(),
+                            CompanyName = reader["coy_name"] == DBNull.Value ? String.Empty : reader["coy_name"].ToString(),
+                            DepartmentName = reader["deptname"] == DBNull.Value ? String.Empty : reader["deptname"].ToString(),
+                            DepartmentHead1 = reader["depthd1"] == DBNull.Value ? String.Empty : reader["depthd1"].ToString(),
+                            DepartmentHead2 = reader["depthd2"] == DBNull.Value ? String.Empty : reader["depthd1"].ToString(),
+                            UnitName = reader["unitname"] == DBNull.Value ? String.Empty : reader["unitname"].ToString(),
+                            UnitHead1 = reader["unithd1"] == DBNull.Value ? String.Empty : reader["unithd1"].ToString(),
+                            UnitHead2 = reader["unithd2"] == DBNull.Value ? String.Empty : reader["unithd1"].ToString(),
+
                         });
                     }
                 }
@@ -460,14 +494,15 @@ namespace IntranetPortal.Data.Repositories.EmployeeRecordRepositories
             string query = String.Empty;
             StringBuilder sb = new StringBuilder();
 
-            sb.Append($"SELECT emp_id, emp_no_1, emp_no_2, dept_id, unit_id, loc_id, coy_id, start_up_date, yrs_of_experience, ");
-            sb.Append($"length_of_service, start_up_designation, place_of_engagement, confirmation_date, current_designation, job_grade, ");
-            sb.Append($"reports_to_1, reports_to_2, reports_to_3, employment_status, date_of_last_promotion, official_email, ");
-            sb.Append($"state_of_origin, lga_of_origin, religion, geo_political_region, next_of_kin_name, next_of_kin_relationship, ");
-            sb.Append($"modified_by, modified_date, created_by, created_date, next_of_kin_address, next_of_kin_phone, next_of_kin_email, ");
-            sb.Append($"id, title, sname, fname, oname, fullname, sex, phone1, phone2, email, address, mdb, mdt, ctb, ctt, imgp, ");
-            sb.Append($"birthday, birthmonth, birthyear, maritalstatus FROM public.erm_emps e ");
-            sb.Append($"INNER JOIN gst_prsns p ON e.emp_id = p.id  WHERE(LOWER(fullname) LIKE '%'||LOWER(@fullname)||'%') ORDER BY fname;");
+            sb.Append($"SELECT emp_id, emp_no_1, emp_no_2, start_up_date, yrs_of_experience, length_of_service, start_up_designation, ");
+            sb.Append($"place_of_engagement, confirmation_date, current_designation, job_grade, reports_to_1, reports_to_2, reports_to_3, ");
+            sb.Append($"employment_status, date_of_last_promotion, official_email, state_of_origin, lga_of_origin, religion, geo_political_region, ");
+            sb.Append($"next_of_kin_name, next_of_kin_relationship, modified_by, modified_date, created_by, created_date, next_of_kin_address, ");
+            sb.Append($"next_of_kin_phone, next_of_kin_email, dept_id, unit_id, loc_id, coy_id, id, title, sname, fname, oname, fullname, sex,");
+            sb.Append($"phone1, phone2, personal_email, address, mdb, mdt, ctb, ctt, imgp, birthday, birthmonth, birthyear, maritalstatus, ");
+            sb.Append($"locname, loctype, lochq1, lochq2, locctr, locst, locqk, coy_code, coy_name, deptname, ");
+            sb.Append($"depthd1, depthd2, deptqk, unitname, unithd1, unithd2, unitqk FROM public.v_erm_emps_dtl ");
+            sb.Append($"WHERE(LOWER(fullname) LIKE '%'||LOWER(@fullname)||'%') ORDER BY fullname;");
             query = sb.ToString();
             try
             {
@@ -486,10 +521,6 @@ namespace IntranetPortal.Data.Repositories.EmployeeRecordRepositories
                             EmployeeID = reader["emp_id"] == DBNull.Value ? string.Empty : (reader["emp_id"]).ToString(),
                             EmployeeNo1 = reader["emp_no_1"] == DBNull.Value ? string.Empty : (reader["emp_no_1"]).ToString(),
                             EmployeeNo2 = reader["emp_no_2"] == DBNull.Value ? string.Empty : (reader["emp_no_2"]).ToString(),
-                            CompanyID = reader["coy_id"] == DBNull.Value ? string.Empty : (reader["coy_id"]).ToString(),
-                            DepartmentID = reader["dept_id"] == DBNull.Value ? 0 : (int)reader["dept_id"],
-                            UnitID = reader["unit_id"] == DBNull.Value ? 0 : (int)reader["unit_id"],
-                            LocationID = reader["loc_id"] == DBNull.Value ? 0 : (int)reader["loc_id"],
                             StartUpDate = reader["start_up_date"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["start_up_date"],
                             YearsOfExperience = reader["yrs_of_experience"] == DBNull.Value ? 0 : (int)reader["yrs_of_experience"],
                             LengthOfService = reader["length_of_service"] == DBNull.Value ? 0 : (int)reader["length_of_service"],
@@ -504,7 +535,6 @@ namespace IntranetPortal.Data.Repositories.EmployeeRecordRepositories
                             EmploymentStatus = reader["employment_status"] == DBNull.Value ? String.Empty : reader["employment_status"].ToString(),
                             DateOfLastPromotion = reader["date_of_last_promotion"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["date_of_last_promotion"],
                             OfficialEmail = reader["official_email"] == DBNull.Value ? String.Empty : reader["official_email"].ToString(),
-                            MaritalStatus = reader["marital_status"] == DBNull.Value ? String.Empty : reader["marital_status"].ToString(),
                             StateOfOrigin = reader["state_of_origin"] == DBNull.Value ? String.Empty : reader["state_of_origin"].ToString(),
                             LgaOfOrigin = reader["lga_of_origin"] == DBNull.Value ? String.Empty : reader["lga_of_origin"].ToString(),
                             Religion = reader["religion"] == DBNull.Value ? String.Empty : reader["religion"].ToString(),
@@ -518,22 +548,44 @@ namespace IntranetPortal.Data.Repositories.EmployeeRecordRepositories
                             EmployeeModifiedDate = reader["modified_date"] == DBNull.Value ? string.Empty : reader["modified_date"].ToString(),
                             EmployeeCreatedBy = reader["created_by"] == DBNull.Value ? string.Empty : reader["created_by"].ToString(),
                             EmployeeCreatedDate = reader["created_date"] == DBNull.Value ? string.Empty : reader["created_date"].ToString(),
+                            DepartmentID = reader["dept_id"] == DBNull.Value ? 0 : (int)reader["dept_id"],
+                            UnitID = reader["unit_id"] == DBNull.Value ? 0 : (int)reader["unit_id"],
+                            LocationID = reader["loc_id"] == DBNull.Value ? 0 : (int)reader["loc_id"],
+                            CompanyID = reader["coy_id"] == DBNull.Value ? string.Empty : (reader["coy_id"]).ToString(),
 
                             PersonID = reader["id"] == DBNull.Value ? String.Empty : reader["id"].ToString(),
                             Title = reader["title"] == DBNull.Value ? string.Empty : reader["title"].ToString(),
                             Surname = reader["sname"] == DBNull.Value ? string.Empty : reader["sname"].ToString(),
                             FirstName = reader["fname"] == DBNull.Value ? string.Empty : reader["fname"].ToString(),
                             OtherNames = reader["oname"] == DBNull.Value ? string.Empty : reader["oname"].ToString(),
-                            FullName = reader["fullname"] == DBNull.Value ? string.Empty : reader["fullname"].ToString(),
                             Sex = reader["sex"] == DBNull.Value ? string.Empty : reader["sex"].ToString(),
+                            FullName = reader["fullname"] == DBNull.Value ? string.Empty : reader["fullname"].ToString(),
                             PhoneNo1 = reader["phone1"] == DBNull.Value ? string.Empty : reader["phone1"].ToString(),
                             PhoneNo2 = reader["phone2"] == DBNull.Value ? string.Empty : reader["phone2"].ToString(),
-                            Email = reader["email"] == DBNull.Value ? string.Empty : reader["email"].ToString(),
+                            Email = reader["personal_email"] == DBNull.Value ? string.Empty : reader["personal_email"].ToString(),
                             Address = reader["address"] == DBNull.Value ? string.Empty : reader["address"].ToString(),
                             ModifiedBy = reader["mdb"] == DBNull.Value ? string.Empty : reader["mdb"].ToString(),
                             ModifiedTime = reader["mdt"] == DBNull.Value ? string.Empty : reader["mdt"].ToString(),
                             CreatedTime = reader["ctt"] == DBNull.Value ? string.Empty : reader["ctt"].ToString(),
                             CreatedBy = reader["ctb"] == DBNull.Value ? string.Empty : reader["ctb"].ToString(),
+                            ImagePath = reader["imgp"] == DBNull.Value ? string.Empty : reader["imgp"].ToString(),
+                            BirthDay = reader["birthday"] == DBNull.Value ? 0 : (int)reader["birthday"],
+                            BirthMonth = reader["birthmonth"] == DBNull.Value ? 0 : (int)reader["birthmonth"],
+                            BirthYear = reader["birthyear"] == DBNull.Value ? 0 : (int)reader["birthyear"],
+                            MaritalStatus = reader["maritalstatus"] == DBNull.Value ? String.Empty : reader["maritalstatus"].ToString(),
+                            LocationName = reader["locname"] == DBNull.Value ? String.Empty : reader["locname"].ToString(),
+                            LocationType = reader["loctype"] == DBNull.Value ? String.Empty : reader["loctype"].ToString(),
+                            LocationHead1 = reader["lochq1"] == DBNull.Value ? String.Empty : reader["lochq1"].ToString(),
+                            LocationHead2 = reader["lochq2"] == DBNull.Value ? String.Empty : reader["lochq2"].ToString(),
+                            LocationState = reader["locst"] == DBNull.Value ? String.Empty : reader["locst"].ToString(),
+                            LocationCountry = reader["locctr"] == DBNull.Value ? String.Empty : reader["locctr"].ToString(),
+                            CompanyName = reader["coy_name"] == DBNull.Value ? String.Empty : reader["coy_name"].ToString(),
+                            DepartmentName = reader["deptname"] == DBNull.Value ? String.Empty : reader["deptname"].ToString(),
+                            DepartmentHead1 = reader["depthd1"] == DBNull.Value ? String.Empty : reader["depthd1"].ToString(),
+                            DepartmentHead2 = reader["depthd2"] == DBNull.Value ? String.Empty : reader["depthd1"].ToString(),
+                            UnitName = reader["unitname"] == DBNull.Value ? String.Empty : reader["unitname"].ToString(),
+                            UnitHead1 = reader["unithd1"] == DBNull.Value ? String.Empty : reader["unithd1"].ToString(),
+                            UnitHead2 = reader["unithd2"] == DBNull.Value ? String.Empty : reader["unithd1"].ToString(),
                         });
                     }
                 }
@@ -546,6 +598,234 @@ namespace IntranetPortal.Data.Repositories.EmployeeRecordRepositories
             }
             return employeeList;
         }
+
+        public async Task<IList<Employee>> GetAllNonUserEmployeesAsync()
+        {
+            List<Employee> employeeList = new List<Employee>();
+            var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
+            string query = String.Empty;
+            StringBuilder sb = new StringBuilder();
+
+            sb.Append($"SELECT emp_id, emp_no_1, emp_no_2, start_up_date, yrs_of_experience, length_of_service, start_up_designation, ");
+            sb.Append($"place_of_engagement, confirmation_date, current_designation, job_grade, reports_to_1, reports_to_2, reports_to_3, ");
+            sb.Append($"employment_status, date_of_last_promotion, official_email, state_of_origin, lga_of_origin, religion, geo_political_region, ");
+            sb.Append($"next_of_kin_name, next_of_kin_relationship, modified_by, modified_date, created_by, created_date, next_of_kin_address, ");
+            sb.Append($"next_of_kin_phone, next_of_kin_email, dept_id, unit_id, loc_id, coy_id, id, title, sname, fname, oname, fullname, sex,");
+            sb.Append($"phone1, phone2, personal_email, address, mdb, mdt, ctb, ctt, imgp, birthday, birthmonth, birthyear, maritalstatus, ");
+            sb.Append($"locname, loctype, lochq1, lochq2, locctr, locst, locqk, coy_code, coy_name, deptname, ");
+            sb.Append($"depthd1, depthd2, deptqk, unitname, unithd1, unithd2, unitqk FROM public.v_erm_emps_dtl ");
+            sb.Append($"WHERE emp_id NOT IN (SELECT usr_id FROM public.sct_usr_acct) ORDER BY fullname;");
+
+            query = sb.ToString();
+            try
+            {
+                await conn.OpenAsync();
+                // Retrieve all rows
+                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+                {
+                    await cmd.PrepareAsync();
+                    var reader = await cmd.ExecuteReaderAsync();
+                    while (await reader.ReadAsync())
+                    {
+                        employeeList.Add(new Employee()
+                        {
+                            EmployeeID = reader["emp_id"] == DBNull.Value ? string.Empty : (reader["emp_id"]).ToString(),
+                            EmployeeNo1 = reader["emp_no_1"] == DBNull.Value ? string.Empty : (reader["emp_no_1"]).ToString(),
+                            EmployeeNo2 = reader["emp_no_2"] == DBNull.Value ? string.Empty : (reader["emp_no_2"]).ToString(),
+                            StartUpDate = reader["start_up_date"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["start_up_date"],
+                            YearsOfExperience = reader["yrs_of_experience"] == DBNull.Value ? 0 : (int)reader["yrs_of_experience"],
+                            LengthOfService = reader["length_of_service"] == DBNull.Value ? 0 : (int)reader["length_of_service"],
+                            StartUpDesignation = reader["start_up_designation"] == DBNull.Value ? String.Empty : reader["start_up_designation"].ToString(),
+                            PlaceOfEngagement = reader["place_of_engagement"] == DBNull.Value ? String.Empty : reader["place_of_engagement"].ToString(),
+                            ConfirmationDate = reader["confirmation_date"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["confirmation_date"],
+                            CurrentDesignation = reader["current_designation"] == DBNull.Value ? String.Empty : reader["current_designation"].ToString(),
+                            JobGrade = reader["job_grade"] == DBNull.Value ? String.Empty : reader["job_grade"].ToString(),
+                            ReportsTo1_EmployeeID = reader["reports_to_1"] == DBNull.Value ? String.Empty : reader["reports_to_1"].ToString(),
+                            ReportsTo2_EmployeeID = reader["reports_to_2"] == DBNull.Value ? String.Empty : reader["reports_to_2"].ToString(),
+                            ReportsTo3_EmployeeID = reader["reports_to_3"] == DBNull.Value ? String.Empty : reader["reports_to_3"].ToString(),
+                            EmploymentStatus = reader["employment_status"] == DBNull.Value ? String.Empty : reader["employment_status"].ToString(),
+                            DateOfLastPromotion = reader["date_of_last_promotion"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["date_of_last_promotion"],
+                            OfficialEmail = reader["official_email"] == DBNull.Value ? String.Empty : reader["official_email"].ToString(),
+                            StateOfOrigin = reader["state_of_origin"] == DBNull.Value ? String.Empty : reader["state_of_origin"].ToString(),
+                            LgaOfOrigin = reader["lga_of_origin"] == DBNull.Value ? String.Empty : reader["lga_of_origin"].ToString(),
+                            Religion = reader["religion"] == DBNull.Value ? String.Empty : reader["religion"].ToString(),
+                            GeoPoliticalRegion = reader["geo_political_region"] == DBNull.Value ? String.Empty : reader["geo_political_region"].ToString(),
+                            NextOfKinName = reader["next_of_kin_name"] == DBNull.Value ? String.Empty : reader["next_of_kin_name"].ToString(),
+                            NextOfKinRelationship = reader["next_of_kin_relationship"] == DBNull.Value ? String.Empty : reader["next_of_kin_relationship"].ToString(),
+                            NextOfKinAddress = reader["next_of_kin_address"] == DBNull.Value ? String.Empty : reader["next_of_kin_address"].ToString(),
+                            NextOfKinPhone = reader["next_of_kin_phone"] == DBNull.Value ? String.Empty : reader["next_of_kin_phone"].ToString(),
+                            NextOfKinEmail = reader["next_of_kin_email"] == DBNull.Value ? String.Empty : reader["next_of_kin_email"].ToString(),
+                            EmployeeModifiedBy = reader["modified_by"] == DBNull.Value ? string.Empty : reader["modified_by"].ToString(),
+                            EmployeeModifiedDate = reader["modified_date"] == DBNull.Value ? string.Empty : reader["modified_date"].ToString(),
+                            EmployeeCreatedBy = reader["created_by"] == DBNull.Value ? string.Empty : reader["created_by"].ToString(),
+                            EmployeeCreatedDate = reader["created_date"] == DBNull.Value ? string.Empty : reader["created_date"].ToString(),
+                            DepartmentID = reader["dept_id"] == DBNull.Value ? 0 : (int)reader["dept_id"],
+                            UnitID = reader["unit_id"] == DBNull.Value ? 0 : (int)reader["unit_id"],
+                            LocationID = reader["loc_id"] == DBNull.Value ? 0 : (int)reader["loc_id"],
+                            CompanyID = reader["coy_id"] == DBNull.Value ? string.Empty : (reader["coy_id"]).ToString(),
+
+                            PersonID = reader["id"] == DBNull.Value ? String.Empty : reader["id"].ToString(),
+                            Title = reader["title"] == DBNull.Value ? string.Empty : reader["title"].ToString(),
+                            Surname = reader["sname"] == DBNull.Value ? string.Empty : reader["sname"].ToString(),
+                            FirstName = reader["fname"] == DBNull.Value ? string.Empty : reader["fname"].ToString(),
+                            OtherNames = reader["oname"] == DBNull.Value ? string.Empty : reader["oname"].ToString(),
+                            Sex = reader["sex"] == DBNull.Value ? string.Empty : reader["sex"].ToString(),
+                            FullName = reader["fullname"] == DBNull.Value ? string.Empty : reader["fullname"].ToString(),
+                            PhoneNo1 = reader["phone1"] == DBNull.Value ? string.Empty : reader["phone1"].ToString(),
+                            PhoneNo2 = reader["phone2"] == DBNull.Value ? string.Empty : reader["phone2"].ToString(),
+                            Email = reader["personal_email"] == DBNull.Value ? string.Empty : reader["personal_email"].ToString(),
+                            Address = reader["address"] == DBNull.Value ? string.Empty : reader["address"].ToString(),
+                            ModifiedBy = reader["mdb"] == DBNull.Value ? string.Empty : reader["mdb"].ToString(),
+                            ModifiedTime = reader["mdt"] == DBNull.Value ? string.Empty : reader["mdt"].ToString(),
+                            CreatedTime = reader["ctt"] == DBNull.Value ? string.Empty : reader["ctt"].ToString(),
+                            CreatedBy = reader["ctb"] == DBNull.Value ? string.Empty : reader["ctb"].ToString(),
+                            ImagePath = reader["imgp"] == DBNull.Value ? string.Empty : reader["imgp"].ToString(),
+                            BirthDay = reader["birthday"] == DBNull.Value ? 0 : (int)reader["birthday"],
+                            BirthMonth = reader["birthmonth"] == DBNull.Value ? 0 : (int)reader["birthmonth"],
+                            BirthYear = reader["birthyear"] == DBNull.Value ? 0 : (int)reader["birthyear"],
+                            MaritalStatus = reader["maritalstatus"] == DBNull.Value ? String.Empty : reader["maritalstatus"].ToString(),
+                            LocationName = reader["locname"] == DBNull.Value ? String.Empty : reader["locname"].ToString(),
+                            LocationType = reader["loctype"] == DBNull.Value ? String.Empty : reader["loctype"].ToString(),
+                            LocationHead1 = reader["lochq1"] == DBNull.Value ? String.Empty : reader["lochq1"].ToString(),
+                            LocationHead2 = reader["lochq2"] == DBNull.Value ? String.Empty : reader["lochq2"].ToString(),
+                            LocationState = reader["locst"] == DBNull.Value ? String.Empty : reader["locst"].ToString(),
+                            LocationCountry = reader["locctr"] == DBNull.Value ? String.Empty : reader["locctr"].ToString(),
+                            CompanyName = reader["coy_name"] == DBNull.Value ? String.Empty : reader["coy_name"].ToString(),
+                            DepartmentName = reader["deptname"] == DBNull.Value ? String.Empty : reader["deptname"].ToString(),
+                            DepartmentHead1 = reader["depthd1"] == DBNull.Value ? String.Empty : reader["depthd1"].ToString(),
+                            DepartmentHead2 = reader["depthd2"] == DBNull.Value ? String.Empty : reader["depthd1"].ToString(),
+                            UnitName = reader["unitname"] == DBNull.Value ? String.Empty : reader["unitname"].ToString(),
+                            UnitHead1 = reader["unithd1"] == DBNull.Value ? String.Empty : reader["unithd1"].ToString(),
+                            UnitHead2 = reader["unithd2"] == DBNull.Value ? String.Empty : reader["unithd1"].ToString(),
+
+                        });
+                    }
+                }
+                await conn.CloseAsync();
+            }
+            catch (Exception ex)
+            {
+
+                await conn.CloseAsync();
+                throw new Exception(ex.Message);
+            }
+            return employeeList;
+        }
+
+        public async Task<IList<Employee>> GetNonUserEmployeesByNameAsync(string employeeName)
+        {
+            if (String.IsNullOrEmpty(employeeName)) { return null; }
+            List<Employee> employeeList = new List<Employee>();
+            var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
+            string query = String.Empty;
+            StringBuilder sb = new StringBuilder();
+
+            sb.Append($"SELECT emp_id, emp_no_1, emp_no_2, start_up_date, yrs_of_experience, length_of_service, start_up_designation, ");
+            sb.Append($"place_of_engagement, confirmation_date, current_designation, job_grade, reports_to_1, reports_to_2, reports_to_3, ");
+            sb.Append($"employment_status, date_of_last_promotion, official_email, state_of_origin, lga_of_origin, religion, geo_political_region, ");
+            sb.Append($"next_of_kin_name, next_of_kin_relationship, modified_by, modified_date, created_by, created_date, next_of_kin_address, ");
+            sb.Append($"next_of_kin_phone, next_of_kin_email, dept_id, unit_id, loc_id, coy_id, id, title, sname, fname, oname, fullname, sex,");
+            sb.Append($"phone1, phone2, personal_email, address, mdb, mdt, ctb, ctt, imgp, birthday, birthmonth, birthyear, maritalstatus, ");
+            sb.Append($"locname, loctype, lochq1, lochq2, locctr, locst, locqk, coy_code, coy_name, deptname, ");
+            sb.Append($"depthd1, depthd2, deptqk, unitname, unithd1, unithd2, unitqk FROM public.v_erm_emps_dtl ");
+            sb.Append($"WHERE emp_id NOT IN (SELECT usr_id FROM public.sct_usr_acct) ");
+            sb.Append($"AND (LOWER(fullname) LIKE '%'||LOWER(@fullname)||'%') ORDER BY fullname;");
+            query = sb.ToString();
+            try
+            {
+                await conn.OpenAsync();
+                // Retrieve all rows
+                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+                {
+                    var fullName = cmd.Parameters.Add("@fullname", NpgsqlDbType.Text);
+                    await cmd.PrepareAsync();
+                    fullName.Value = employeeName;
+                    var reader = await cmd.ExecuteReaderAsync();
+                    while (await reader.ReadAsync())
+                    {
+                        employeeList.Add(new Employee()
+                        {
+                            EmployeeID = reader["emp_id"] == DBNull.Value ? string.Empty : (reader["emp_id"]).ToString(),
+                            EmployeeNo1 = reader["emp_no_1"] == DBNull.Value ? string.Empty : (reader["emp_no_1"]).ToString(),
+                            EmployeeNo2 = reader["emp_no_2"] == DBNull.Value ? string.Empty : (reader["emp_no_2"]).ToString(),
+                            StartUpDate = reader["start_up_date"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["start_up_date"],
+                            YearsOfExperience = reader["yrs_of_experience"] == DBNull.Value ? 0 : (int)reader["yrs_of_experience"],
+                            LengthOfService = reader["length_of_service"] == DBNull.Value ? 0 : (int)reader["length_of_service"],
+                            StartUpDesignation = reader["start_up_designation"] == DBNull.Value ? String.Empty : reader["start_up_designation"].ToString(),
+                            PlaceOfEngagement = reader["place_of_engagement"] == DBNull.Value ? String.Empty : reader["place_of_engagement"].ToString(),
+                            ConfirmationDate = reader["confirmation_date"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["confirmation_date"],
+                            CurrentDesignation = reader["current_designation"] == DBNull.Value ? String.Empty : reader["current_designation"].ToString(),
+                            JobGrade = reader["job_grade"] == DBNull.Value ? String.Empty : reader["job_grade"].ToString(),
+                            ReportsTo1_EmployeeID = reader["reports_to_1"] == DBNull.Value ? String.Empty : reader["reports_to_1"].ToString(),
+                            ReportsTo2_EmployeeID = reader["reports_to_2"] == DBNull.Value ? String.Empty : reader["reports_to_2"].ToString(),
+                            ReportsTo3_EmployeeID = reader["reports_to_3"] == DBNull.Value ? String.Empty : reader["reports_to_3"].ToString(),
+                            EmploymentStatus = reader["employment_status"] == DBNull.Value ? String.Empty : reader["employment_status"].ToString(),
+                            DateOfLastPromotion = reader["date_of_last_promotion"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["date_of_last_promotion"],
+                            OfficialEmail = reader["official_email"] == DBNull.Value ? String.Empty : reader["official_email"].ToString(),
+                            StateOfOrigin = reader["state_of_origin"] == DBNull.Value ? String.Empty : reader["state_of_origin"].ToString(),
+                            LgaOfOrigin = reader["lga_of_origin"] == DBNull.Value ? String.Empty : reader["lga_of_origin"].ToString(),
+                            Religion = reader["religion"] == DBNull.Value ? String.Empty : reader["religion"].ToString(),
+                            GeoPoliticalRegion = reader["geo_political_region"] == DBNull.Value ? String.Empty : reader["geo_political_region"].ToString(),
+                            NextOfKinName = reader["next_of_kin_name"] == DBNull.Value ? String.Empty : reader["next_of_kin_name"].ToString(),
+                            NextOfKinRelationship = reader["next_of_kin_relationship"] == DBNull.Value ? String.Empty : reader["next_of_kin_relationship"].ToString(),
+                            NextOfKinAddress = reader["next_of_kin_address"] == DBNull.Value ? String.Empty : reader["next_of_kin_address"].ToString(),
+                            NextOfKinPhone = reader["next_of_kin_phone"] == DBNull.Value ? String.Empty : reader["next_of_kin_phone"].ToString(),
+                            NextOfKinEmail = reader["next_of_kin_email"] == DBNull.Value ? String.Empty : reader["next_of_kin_email"].ToString(),
+                            EmployeeModifiedBy = reader["modified_by"] == DBNull.Value ? string.Empty : reader["modified_by"].ToString(),
+                            EmployeeModifiedDate = reader["modified_date"] == DBNull.Value ? string.Empty : reader["modified_date"].ToString(),
+                            EmployeeCreatedBy = reader["created_by"] == DBNull.Value ? string.Empty : reader["created_by"].ToString(),
+                            EmployeeCreatedDate = reader["created_date"] == DBNull.Value ? string.Empty : reader["created_date"].ToString(),
+                            DepartmentID = reader["dept_id"] == DBNull.Value ? 0 : (int)reader["dept_id"],
+                            UnitID = reader["unit_id"] == DBNull.Value ? 0 : (int)reader["unit_id"],
+                            LocationID = reader["loc_id"] == DBNull.Value ? 0 : (int)reader["loc_id"],
+                            CompanyID = reader["coy_id"] == DBNull.Value ? string.Empty : (reader["coy_id"]).ToString(),
+
+                            PersonID = reader["id"] == DBNull.Value ? String.Empty : reader["id"].ToString(),
+                            Title = reader["title"] == DBNull.Value ? string.Empty : reader["title"].ToString(),
+                            Surname = reader["sname"] == DBNull.Value ? string.Empty : reader["sname"].ToString(),
+                            FirstName = reader["fname"] == DBNull.Value ? string.Empty : reader["fname"].ToString(),
+                            OtherNames = reader["oname"] == DBNull.Value ? string.Empty : reader["oname"].ToString(),
+                            Sex = reader["sex"] == DBNull.Value ? string.Empty : reader["sex"].ToString(),
+                            FullName = reader["fullname"] == DBNull.Value ? string.Empty : reader["fullname"].ToString(),
+                            PhoneNo1 = reader["phone1"] == DBNull.Value ? string.Empty : reader["phone1"].ToString(),
+                            PhoneNo2 = reader["phone2"] == DBNull.Value ? string.Empty : reader["phone2"].ToString(),
+                            Email = reader["personal_email"] == DBNull.Value ? string.Empty : reader["personal_email"].ToString(),
+                            Address = reader["address"] == DBNull.Value ? string.Empty : reader["address"].ToString(),
+                            ModifiedBy = reader["mdb"] == DBNull.Value ? string.Empty : reader["mdb"].ToString(),
+                            ModifiedTime = reader["mdt"] == DBNull.Value ? string.Empty : reader["mdt"].ToString(),
+                            CreatedTime = reader["ctt"] == DBNull.Value ? string.Empty : reader["ctt"].ToString(),
+                            CreatedBy = reader["ctb"] == DBNull.Value ? string.Empty : reader["ctb"].ToString(),
+                            ImagePath = reader["imgp"] == DBNull.Value ? string.Empty : reader["imgp"].ToString(),
+                            BirthDay = reader["birthday"] == DBNull.Value ? 0 : (int)reader["birthday"],
+                            BirthMonth = reader["birthmonth"] == DBNull.Value ? 0 : (int)reader["birthmonth"],
+                            BirthYear = reader["birthyear"] == DBNull.Value ? 0 : (int)reader["birthyear"],
+                            MaritalStatus = reader["maritalstatus"] == DBNull.Value ? String.Empty : reader["maritalstatus"].ToString(),
+                            LocationName = reader["locname"] == DBNull.Value ? String.Empty : reader["locname"].ToString(),
+                            LocationType = reader["loctype"] == DBNull.Value ? String.Empty : reader["loctype"].ToString(),
+                            LocationHead1 = reader["lochq1"] == DBNull.Value ? String.Empty : reader["lochq1"].ToString(),
+                            LocationHead2 = reader["lochq2"] == DBNull.Value ? String.Empty : reader["lochq2"].ToString(),
+                            LocationState = reader["locst"] == DBNull.Value ? String.Empty : reader["locst"].ToString(),
+                            LocationCountry = reader["locctr"] == DBNull.Value ? String.Empty : reader["locctr"].ToString(),
+                            CompanyName = reader["coy_name"] == DBNull.Value ? String.Empty : reader["coy_name"].ToString(),
+                            DepartmentName = reader["deptname"] == DBNull.Value ? String.Empty : reader["deptname"].ToString(),
+                            DepartmentHead1 = reader["depthd1"] == DBNull.Value ? String.Empty : reader["depthd1"].ToString(),
+                            DepartmentHead2 = reader["depthd2"] == DBNull.Value ? String.Empty : reader["depthd1"].ToString(),
+                            UnitName = reader["unitname"] == DBNull.Value ? String.Empty : reader["unitname"].ToString(),
+                            UnitHead1 = reader["unithd1"] == DBNull.Value ? String.Empty : reader["unithd1"].ToString(),
+                            UnitHead2 = reader["unithd2"] == DBNull.Value ? String.Empty : reader["unithd1"].ToString(),
+                        });
+                    }
+                }
+                await conn.CloseAsync();
+            }
+            catch (Exception ex)
+            {
+                await conn.CloseAsync();
+                employeeList = null;
+            }
+            return employeeList;
+        }
+
 
         #endregion
 

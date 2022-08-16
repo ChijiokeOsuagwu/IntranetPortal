@@ -59,9 +59,15 @@
                                     @Html.DisplayFor(modelItem => item.LocationName)
                                 </td>
                                 <td>
-                                    <a asp-action="AddPersonalInfo" asp-route-id="@item.EmployeeID">Edit</a> |
-                                    <a asp-action="Details" asp-route-id="@item.EmployeeID">Details</a> |
-                                    <a asp-action="Delete" asp-route-id="@item.EmployeeID">Delete</a>
+                                    <a asp-area="EmployeeRecords" asp-controller="Home" asp-action="Details" asp-route-id="@item.EmployeeID" title="Details" class="btn btn-xs btn-info" style="width:50px">
+                                        <i class="bi bi-card-text" style="font-size: 1.0rem; color:white"></i>
+                                    </a>
+                                    <a asp-area="EmployeeRecords" asp-controller="Home" asp-action="AddPersonalInfo" asp-route-id="@item.EmployeeID" title="Edit" class="btn btn-xs btn-primary" style="width:50px">
+                                        <i class="bi bi-pencil-square" style="font-size: 1.0rem;"></i>
+                                    </a>
+                                    <a asp-area="EmployeeRecords" asp-controller="Home" asp-action="Delete" asp-route-id="@item.EmployeeID" title="Delete" class="btn btn-xs btn-danger" style="width:50px">
+                                        <i class="bi bi-trash-fill" style="font-size: 1.0rem; color:white"></i>
+                                    </a>
                                 </td>
                             </tr>
                         }
@@ -73,14 +79,14 @@
                 var nextDisabled = !Model.HasNextPage ? "disabled" : "";
             }
 
-            <a asp-action="Index"
+            <a asp-action="List"
                asp-route-sortOrder="@ViewData["CurrentSort"]"
                asp-route-pageNumber="@(Model.PageIndex - 1)"
                asp-route-currentFilter="@ViewData["CurrentFilter"]"
                class="btn btn-primary @prevDisabled" style="width:100px">
                 Previous
             </a>
-            <a asp-action="Index"
+            <a asp-action="List"
                asp-route-sortOrder="@ViewData["CurrentSort"]"
                asp-route-pageNumber="@(Model.PageIndex + 1)"
                asp-route-currentFilter="@ViewData["CurrentFilter"]"

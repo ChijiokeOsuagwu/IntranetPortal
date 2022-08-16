@@ -1,0 +1,132 @@
+﻿@model IntranetPortal.Areas.AssetManager.Models.AssetUsageViewModel
+@{
+    ViewData["Title"] = "OfficeManager | Equipment Check Out";
+}
+<div>
+    <div class="card" style="min-width:600px">
+        <div class="card-header bg-success">
+            <h4 class="text-white">Equipment Check Out</h4>
+        </div>
+        <div class="card-body bg-secondary">
+            @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bi bi-x-circle"></i>
+                    <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            @if (!String.IsNullOrEmpty(Model.ViewModelSuccessMessage))
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="bi bi-check-circle"></i>
+                    <span class="fw-bold">@Model.ViewModelSuccessMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            @if (!String.IsNullOrEmpty(Model.ViewModelWarningMessage))
+            {
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                    <i class="bi bi-exclamation-circle"></i>
+                    <span class="fw-bold">@Model.ViewModelWarningMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            <form asp-area="AssetManager" asp-controller="Usage" asp-action="CheckOut" method="post">
+                <div class="row">
+                    <div class="col-md-6 mb-1">
+                        <input type="hidden" asp-for="AssetID" />
+                        <input type="hidden" asp-for="AssetTypeID" />
+                        <label asp-for="AssetName" class="form-label text-white fw-bold"></label>
+                        <input asp-for="AssetName" class="form-control fw-bold" readonly="readonly" title="@Model.AssetDescription">
+                        <div><span asp-validation-for="AssetName" class="text-danger"></span></div>
+                    </div>
+                    <div class="col-md-6 mb-1">
+                        <label asp-for="CheckedOutFromLocation" class="form-label text-white fw-bold"></label><span class="text-white">*</span>
+                        <input asp-for="CheckedOutFromLocation" class="form-control fw-bold">
+                        <div><span asp-validation-for="CheckedOutFromLocation" class="text-danger"></span></div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-1">
+                        <label asp-for="UsageStartTime" class="form-label text-white fw-bold"></label><span class="text-white">*</span>
+                        <input asp-for="UsageStartTime" class="form-control fw-bold">
+                        <div><span asp-validation-for="UsageStartTime" class="text-danger"></span></div>
+                    </div>
+                    <div class="col-md-6 mb-1">
+                        <label asp-for="UsageEndTime" class="form-label text-white fw-bold"></label><span class="text-white">*</span>
+                        <input asp-for="UsageEndTime" class="form-control fw-bold">
+                        <div><span asp-validation-for="UsageEndTime" class="text-danger"></span></div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-1">
+                        <label asp-for="Purpose" class="form-label text-white fw-bold"></label><span class="text-white">*</span>
+                        <select asp-for="Purpose" class="form-control fw-bold">
+                            <option value=""> - Select - </option>
+                            <option value="Assignment">For Assignment</option>
+                            <option value="Repair">For Repairs</option>
+                            <option value="Disposal">For Disposal</option>
+                        </select>
+                        <div><span asp-validation-for="Purpose" class="text-danger"></span></div>
+                    </div>
+                    <div class="col-md-6 mb-1">
+                        <label asp-for="UsageLocation" class="form-label text-white fw-bold"></label><span class="text-white">*</span>
+                        <input asp-for="UsageLocation" class="form-control fw-bold">
+                        <div><span asp-validation-for="UsageLocation" class="text-danger"></span></div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12 mb-1">
+                        <label asp-for="UsageDescription" class="form-label text-white fw-bold"></label><span class="text-white">*</span>
+                        <textarea class="form-control fw-bold" name="@Html.NameFor(m => m.UsageDescription)">@Model.UsageDescription</textarea>
+                        <div><span asp-validation-for="UsageDescription" class="text-danger"></span></div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6  mb-1">
+                        <label asp-for="CheckedOutTo" class="form-label text-white fw-bold"></label><span class="text-white">*</span>
+                        <input id="CheckedOutTo" asp-for="CheckedOutTo" class="form-control fw-bold">
+                        <div><span asp-validation-for="CheckedOutTo" class="text-danger"></span></div>
+                    </div>
+                    <div class="col-md-6  mb-1">
+                        <label asp-for="CheckOutCondition" class="form-label text-white fw-bold"></label><span class="text-white">*</span>
+                        <input asp-for="CheckOutCondition" class="form-control fw-bold" readonly="readonly">
+                        <div><span asp-validation-for="CheckOutCondition" class="text-danger"></span></div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12 mb-3">
+                        <label asp-for="CheckedOutComment" class="form-label text-white fw-bold"></label>
+                        <textarea class="form-control fw-bold" name="@Html.NameFor(m => m.CheckedOutComment)">@Model.CheckedOutComment</textarea>
+                        <div><span asp-validation-for="CheckedOutComment" class="text-danger"></span></div>
+                    </div>
+                </div>
+                <div class="row">
+                    <a asp-area="AssetManager" asp-controller="Home" asp-action="Index" class="btn btn-dark ml-2" style="width:100px" title="Return Home">
+                        <span class="text-white">Exit</span>
+                    </a>
+                    <a asp-area="AssetManager" asp-controller="Home" asp-action="AssetList" class="btn btn-dark ml-1" style="width:100px" title="Return to Assets List">
+                        <span class="text-white">Go Back</span>
+                    </a>
+                    @if (!Model.OperationIsCompleted)
+                    {
+                        <a asp-area="AssetManager" asp-controller="Usage" asp-action="CheckOut" asp-route-id="@Model.AssetID" class="btn btn-warning ml-1" style="width:100px" title="Clear">
+                            <span class="text-white">Clear</span>
+                        </a>
+
+                        <button type="submit" class="btn btn-success ml-2" title="Proceed" style="width:200px"><span class="text-white">Check Out</span></button>
+                    }
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+@section Scripts{
+
+    <script src="~/js/js_asm/assets_checkout.js"></script>
+}
+
+
+

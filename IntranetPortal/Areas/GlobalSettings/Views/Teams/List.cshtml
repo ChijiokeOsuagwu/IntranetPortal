@@ -1,0 +1,111 @@
+﻿@model IntranetPortal.Areas.GlobalSettings.Models.TeamListViewModel
+@{
+    ViewData["Title"] = "Global Settings | Teams";
+    Layout = "~/Areas/GlobalSettings/Views/Shared/_GBSLayout.cshtml";
+}
+
+<div class="container">
+    <h4 class="mb-4">Teams List</h4>
+    <hr />
+    <div class="mb-1">
+        <form asp-area="GlobalSettings" asp-controller="Teams" asp-action="List" method="get">
+            <a asp-area="GlobalSettings" asp-controller="Home" asp-action="Index" class="btn btn-dark" style="width:100px" title="Click to Go Back">
+                <span class="text-white">Back</span>
+            </a>
+            <a asp-area="GlobalSettings" asp-controller="Teams" asp-action="AddNew" class="btn btn-success" style="width:200px" title="Click to Add New Team">
+                <span class="text-white">New Team</span>
+            </a>
+            <input type="text" class="border-0 text-secondary fw-bold" style="width:250px" name="searchString" value="@ViewData["CurrentFilter"]" placeholder="  Enter Text to Search..." />
+            <input type="submit" value="Search" class="btn btn-primary" style="width:100px" />
+        </form>
+
+
+        @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-x-circle"></i>
+                <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (!String.IsNullOrEmpty(Model.ViewModelSuccessMessage))
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="bi bi-check-circle"></i>
+                <span class="fw-bold">@Model.ViewModelSuccessMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+    </div>
+    @if (Model == null)
+    {
+        <div class="alert alert-info fade show" role="alert">
+            <i class="bi bi-info-circle"></i>
+            <span class="fw-bold">No record was found.</span>
+        </div>
+    }
+    else if (Model.TeamList.Count < 1)
+    {
+        <div class="alert alert-info fade show" role="alert">
+            <i class="bi bi-info-circle"></i>
+            <span class="fw-bold">No record was found.</span>
+        </div>
+    }
+    else
+    {
+        <div class="row">
+            <div class="table-responsive">
+                <table class="table table-hover table-sm ">
+                    <thead class="table-dark">
+                        <tr>
+                            <th><span class="text-white fw-bold">#</span></th>
+                            <th><span class="text-white fw-bold">Name</span></th>
+                            <th><span class="text-white fw-bold">Description</span></th>
+                            <th><span class="text-white fw-bold">Location</span></th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody class="table-success">
+                        @{
+                            int rowNumber = 0;
+                        }
+                        @foreach (var team in Model.TeamList)
+                        {
+                            rowNumber++;
+                        <tr>
+                            <td>@rowNumber.ToString()</td>
+                            <td>
+                                <span class="fw-bold">@team.TeamName</span>
+                            </td>
+                            <td>
+                                <span class="fw-bold">@team.TeamDescription</span>
+                            </td>
+                            <td>
+                                <span class="fw-bold">@team.TeamLocationName</span>
+                            </td>
+                            <td>
+                                <div class="text-center">
+                                    <a asp-area="GlobalSettings" asp-controller="Teams" asp-action="Delete" asp-route-id="@team.TeamID" title="Delete" class="btn btn-xs btn-danger" style="width:50px">
+                                        <i class="bi bi-trash-fill" style="font-size: 0.7rem; color:white"></i>
+                                    </a>
+                                    <a asp-area="GlobalSettings" asp-controller="Teams" asp-action="Edit" asp-route-id="@team.TeamID" title="Edit" class="btn btn-xs btn-primary" style="width:50px">
+                                        <i class="bi bi-pencil-square" style="font-size: 0.7rem;"></i>
+                                    </a>
+                                    <a asp-area="GlobalSettings" asp-controller="Teams" asp-action="Members" asp-route-id="@team.TeamID" title="Team Members" class="btn btn-xs btn-warning" style="width:50px">
+                                        <i class="bi bi-people-fill" style="font-size: 0.7rem;"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+</div>
+
+
+
+
+

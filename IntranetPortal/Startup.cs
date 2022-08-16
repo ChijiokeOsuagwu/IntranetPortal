@@ -4,15 +4,17 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.EntityFrameworkCore;
 using IntranetPortal.Data;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using IntranetPortal.Configurations;
+using IntranetPortal.Base.Models.SecurityModels;
+using IntranetPortal.Base.Services;
+using Npgsql;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 namespace IntranetPortal
 {
@@ -28,11 +30,17 @@ namespace IntranetPortal
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseSqlServer(
-                    Configuration.GetConnectionString("DefaultConnection")));
-            services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = false)
-                .AddEntityFrameworkStores<ApplicationDbContext>();
+
+            string connectionString = Configuration.GetConnectionString("PortalConnection");
+            services.AddTransient<NpgsqlConnection>(e => new NpgsqlConnection(connectionString));
+            services.AddAuthentication(SecurityConstants.ChxCookieAuthentication).AddCookie(SecurityConstants.ChxCookieAuthentication, options =>
+            {
+                options.Cookie.Name = SecurityConstants.ChxCookieAuthentication;
+                options.LoginPath = "/Home/Login";
+                options.LogoutPath = "/Home/Logout";
+                options.AccessDeniedPath = "/Home/AccessDenied";
+            });
+
             services.AddControllersWithViews();
             services.AddRazorPages();
             services.ConfigureServiceManagers();
@@ -61,9 +69,30 @@ namespace IntranetPortal
 
             app.UseAuthentication();
             app.UseAuthorization();
+            app.UseCookiePolicy();
 
             app.UseEndpoints(endpoints =>
             {
+                endpoints.MapAreaControllerRoute(
+                    name: "AssetManager",
+                areaName: "AssetManager",
+                 pattern: "AssetManager/{controller=Home}/{action=Index}/{id?}");
+
+                endpoints.MapAreaControllerRoute(
+                    name: "Bams",
+                areaName: "Bams",
+                 pattern: "Bams/{controller=Home}/{action=Index}/{id?}");
+
+                endpoints.MapAreaControllerRoute(
+                    name: "PartnerServices",
+                areaName: "PartnerServices",
+                 pattern: "PartnerServices/{controller=Home}/{action=Index}/{id?}");
+
+                endpoints.MapAreaControllerRoute(
+                    name: "UserAdministration",
+                areaName: "UserAdministration",
+                 pattern: "UserAdministration/{controller=Home}/{action=Index}/{id?}");
+
                 endpoints.MapAreaControllerRoute(
                     name: "ContentManager",
                 areaName: "ContentManager",

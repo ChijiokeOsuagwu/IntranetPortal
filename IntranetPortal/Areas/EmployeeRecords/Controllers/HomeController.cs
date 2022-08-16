@@ -9,14 +9,17 @@ using IntranetPortal.Base.Models.GlobalSettingsModels;
 using IntranetPortal.Base.Services;
 using IntranetPortal.Configurations;
 using IntranetPortal.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json;
 
 namespace IntranetPortal.Areas.EmployeeRecords.Controllers
 {
     [Area("EmployeeRecords")]
+    [Authorize]
     public class HomeController : Controller
     {
         private readonly IConfiguration _configuration;
@@ -36,11 +39,13 @@ namespace IntranetPortal.Areas.EmployeeRecords.Controllers
             _dataProtector = dataProtectionProvider.CreateProtector(dataProtectionEncryptionStrings.RouteValuesEncryptionCode);
         }
 
+        [Authorize(Roles = "ERMHMPGVW, XYALLACCZ")]
         public IActionResult index()
         {
             return View();
         }
 
+        [Authorize(Roles = "ERMSTFVWL, XYALLACCZ")]
         public async Task<IActionResult> List(string sortOrder, string currentFilter, string searchString, int? pageNumber)
         {
             ViewData["CurrentSort"] = sortOrder;
@@ -63,11 +68,11 @@ namespace IntranetPortal.Areas.EmployeeRecords.Controllers
 
             if (!String.IsNullOrEmpty(searchString))
             {
-                employees = await _employeeRecordService.GetEmployeesByNameAsync(searchString).ConfigureAwait(false);
+                employees = await _employeeRecordService.GetEmployeesByNameAsync(searchString);
             }
             else
             {
-                employees = await _employeeRecordService.GetAllEmployeesAsync().ConfigureAwait(false);
+                employees = await _employeeRecordService.GetAllEmployeesAsync();
             }
 
             switch (sortOrder)
@@ -81,12 +86,6 @@ namespace IntranetPortal.Areas.EmployeeRecords.Controllers
                 case "unit_desc":
                     employees = employees.OrderByDescending(s => s.UnitName).ToList();
                     break;
-                case "dept":
-                    employees = employees.OrderBy(s => s.DepartmentName).ToList();
-                    break;
-                case "dept_desc":
-                    employees = employees.OrderByDescending(s => s.DepartmentName).ToList();
-                    break;
                 case "loc":
                     employees = employees.OrderBy(s => s.LocationName).ToList();
                     break;
@@ -97,17 +96,18 @@ namespace IntranetPortal.Areas.EmployeeRecords.Controllers
                     employees = employees.OrderBy(s => s.FullName).ToList();
                     break;
             }
-
             int pageSize = 10;
             return View(PaginatedList<Employee>.CreateAsync(employees.AsQueryable(), pageNumber ?? 1, pageSize));
         }
 
+        [Authorize(Roles = "ERMSTFADN, XYALLACCZ")]
         public IActionResult Create()
         {
             Employee model = new Employee();
             return View(model);
         }
 
+        [Authorize(Roles = "ERMSTFVWD, XYALLACCZ")]
         public async Task<IActionResult> Details(string id)
         {
             Employee employee = new Employee();
@@ -116,11 +116,22 @@ namespace IntranetPortal.Areas.EmployeeRecords.Controllers
                 if (!string.IsNullOrEmpty(id))
                 {
                     employee = await _employeeRecordService.GetEmployeesByIdAsync(id);
-                    if(employee != null)
+                    if (employee != null)
                     {
-                        employee.ConfirmationDateFormatted = employee.ConfirmationDate.Value.ToLongDateString();
-                        employee.DateOfLastPromotionFormatted = employee.DateOfLastPromotion.Value.ToLongDateString();
-                        employee.StartUpDateFormatted = employee.StartUpDate.Value.ToLongDateString();
+                        if (employee.ConfirmationDate != null)
+                        {
+                            employee.ConfirmationDateFormatted = employee.ConfirmationDate.Value.ToLongDateString();
+                        }
+
+                        if (employee.DateOfLastPromotion != null)
+                        {
+                            employee.DateOfLastPromotionFormatted = employee.DateOfLastPromotion.Value.ToLongDateString();
+                        }
+
+                        if (employee.StartUpDate != null)
+                        {
+                            employee.StartUpDateFormatted = employee.StartUpDate.Value.ToLongDateString();
+                        }
                     }
                 }
             }
@@ -128,12 +139,88 @@ namespace IntranetPortal.Areas.EmployeeRecords.Controllers
             {
                 ViewBag.ErrorMessage = ex.Message;
             }
+            return View(employee);
+        }
+
+        [Authorize(Roles = "ERMSTFDLT, XYALLACCZ")]
+        public async Task<IActionResult> Delete(string id)
+        {
+            Employee employee = new Employee();
+            try
+            {
+                if (!string.IsNullOrEmpty(id))
+                {
+                    employee = await _employeeRecordService.GetEmployeesByIdAsync(id);
+                    if (employee != null)
+                    {
+                        if (employee.ConfirmationDate != null)
+                        {
+                            employee.ConfirmationDateFormatted = employee.ConfirmationDate.Value.ToLongDateString();
+                        }
+
+                        if (employee.DateOfLastPromotion != null)
+                        {
+                            employee.DateOfLastPromotionFormatted = employee.DateOfLastPromotion.Value.ToLongDateString();
+                        }
+
+                        if (employee.StartUpDate != null)
+                        {
+                            employee.StartUpDateFormatted = employee.StartUpDate.Value.ToLongDateString();
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                ViewBag.ErrorMessage = ex.Message ?? string.Empty;
+            }
 
             return View(employee);
         }
 
+        [Authorize(Roles = "ERMSTFDLT, XYALLACCZ")]
+        public async Task<IActionResult> CompleteDelete(string id)
+        {
+            try
+            {
+                bool IsDeleted = false;
+                if (!string.IsNullOrEmpty(id))
+                {
+                    IsDeleted = await _employeeRecordService.DeleteEmployeeAsync(id);
+                    if (IsDeleted)
+                    {
+                        return RedirectToAction("List");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                ViewBag.ErrorMessage = ex.Message ?? string.Empty;
+            }
+
+            Employee employee = await _employeeRecordService.GetEmployeesByIdAsync(id);
+            if (employee != null)
+            {
+                if (employee.ConfirmationDate != null)
+                {
+                    employee.ConfirmationDateFormatted = employee.ConfirmationDate.Value.ToLongDateString();
+                }
+
+                if (employee.DateOfLastPromotion != null)
+                {
+                    employee.DateOfLastPromotionFormatted = employee.DateOfLastPromotion.Value.ToLongDateString();
+                }
+
+                if (employee.StartUpDate != null)
+                {
+                    employee.StartUpDateFormatted = employee.StartUpDate.Value.ToLongDateString();
+                }
+            }
+            return View("Delete", employee);
+        }
 
         [HttpGet]
+        [Authorize(Roles = "ERMSTFADN, XYALLACCZ")]
         public async Task<IActionResult> AddPersonalInfo(string id)
         {
             PersonInfoViewModel model = new PersonInfoViewModel();
@@ -158,17 +245,16 @@ namespace IntranetPortal.Areas.EmployeeRecords.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "ERMSTFADN, XYALLACCZ")]
         public async Task<IActionResult> AddPersonalInfo(PersonInfoViewModel model)
         {
             if (ModelState.IsValid)
             {
                 bool PersonExists = false;
                 bool succeeded = false;
-
                 try
                 {
                     Person person = model.ConvertToPerson();
-
 
                     if (!string.IsNullOrEmpty(model.PersonID))
                     {
@@ -207,6 +293,7 @@ namespace IntranetPortal.Areas.EmployeeRecords.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "ERMSTFADN, XYALLACCZ")]
         public async Task<IActionResult> AddEmployeeBasicInfo(string id)
         {
             string PersonID = string.Empty;
@@ -220,8 +307,6 @@ namespace IntranetPortal.Areas.EmployeeRecords.Controllers
             PersonName = TempData["PersonName"].ToString();
 
             EmployeeBasicInfoViewModel model = new EmployeeBasicInfoViewModel();
-            //model.EmployeeID = PersonID;
-            //model.EmployeeName = PersonName;
 
             try
             {
@@ -280,6 +365,7 @@ namespace IntranetPortal.Areas.EmployeeRecords.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "ERMSTFADN, XYALLACCZ")]
         public async Task<IActionResult> AddEmployeeBasicInfo(EmployeeBasicInfoViewModel model)
         {
             if (ModelState.IsValid)
@@ -367,8 +453,8 @@ namespace IntranetPortal.Areas.EmployeeRecords.Controllers
             return View(model);
         }
 
-
         [HttpGet]
+        [Authorize(Roles = "ERMSTFADN, XYALLACCZ")]
         public async Task<IActionResult> AddEmployeeNextOfKinInfo(string id)
         {
             string employeeId = string.Empty;
@@ -415,6 +501,7 @@ namespace IntranetPortal.Areas.EmployeeRecords.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "ERMSTFADN, XYALLACCZ")]
         public async Task<IActionResult> AddEmployeeNextOfKinInfo(EmployeeNextOfKinInfoViewModel model)
         {
             if (ModelState.IsValid)
@@ -444,6 +531,7 @@ namespace IntranetPortal.Areas.EmployeeRecords.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "ERMSTFADN, XYALLACCZ")]
         public async Task<IActionResult> AddEmployeeHistoryInfo(string id)
         {
             string employeeId = string.Empty;
@@ -497,6 +585,7 @@ namespace IntranetPortal.Areas.EmployeeRecords.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "ERMSTFADN, XYALLACCZ")]
         public async Task<IActionResult> AddEmployeeHistoryInfo(EmployeeHistoryInfoViewModel model)
         {
             if (ModelState.IsValid)
@@ -529,5 +618,47 @@ namespace IntranetPortal.Areas.EmployeeRecords.Controllers
             return View(model);
         }
 
+        //======================================= Employees Helper Methods ===========================================//
+        #region Employees Helper Methods
+
+        [HttpGet]
+        public JsonResult GetEmployeeNames(string text)
+        {
+            List<string> employees = _employeeRecordService.GetEmployeesByNameAsync(text).Result.Select(x => x.FullName).ToList();
+            return Json(employees);
+        }
+
+        [HttpGet]
+        public JsonResult GetEmployeeParameters(string nm)
+        {
+            Employee employee = new Employee();
+
+            List<Employee> employees = _employeeRecordService.GetEmployeesByNameAsync(nm).Result.ToList();
+           
+            if (employees.Count == 1)
+            {
+                employee = employees.FirstOrDefault();
+            }
+            else
+            {
+                employee = new Employee
+                {
+                    EmployeeID = string.Empty,
+                    //AssetTypeID = -1
+                };
+            }
+
+            string model = JsonConvert.SerializeObject(new 
+            { emp_id = employee.EmployeeID, 
+                emp_name = employee.FullName, 
+                unit_id = employee.UnitID, 
+                dept_id = employee.DepartmentID,
+            station_id = employee.LocationID,
+            }, Formatting.Indented);
+
+            return Json(model);
+        }
+
+        #endregion
     }
 }

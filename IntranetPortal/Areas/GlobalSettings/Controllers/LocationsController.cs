@@ -6,6 +6,7 @@ using IntranetPortal.Areas.GlobalSettings.Models;
 using IntranetPortal.Base.Models.GlobalSettingsModels;
 using IntranetPortal.Base.Services;
 using IntranetPortal.Configurations;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -14,6 +15,7 @@ using Microsoft.Extensions.Configuration;
 namespace IntranetPortal.Areas.GlobalSettings.Controllers
 {
     [Area("GlobalSettings")]
+    [Authorize]
     public class LocationsController : Controller
     {
         private readonly IConfiguration _configuration;
@@ -32,6 +34,8 @@ namespace IntranetPortal.Areas.GlobalSettings.Controllers
 
         //================================= Station Action Methods =====================================================================//
         #region Station Action Methods
+
+        [Authorize(Roles = "GBSSTTVWL, XYALLACCZ")]
         public async Task<IActionResult> Stations()
         {
             LocationsListViewModel model = new LocationsListViewModel();
@@ -41,6 +45,7 @@ namespace IntranetPortal.Areas.GlobalSettings.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "GBSSTTADN, XYALLACCZ")]
         public async Task<IActionResult> AddStation()
         {
             LocationAddViewModel model = new LocationAddViewModel();
@@ -57,6 +62,7 @@ namespace IntranetPortal.Areas.GlobalSettings.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "GBSSTTADN, XYALLACCZ")]
         public async Task<IActionResult> AddStation(LocationAddViewModel model)
         {
             if (ModelState.IsValid)
@@ -88,6 +94,7 @@ namespace IntranetPortal.Areas.GlobalSettings.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "GBSSTTEDT, XYALLACCZ")]
         public async Task<IActionResult> EditStation(int? id)
         {
             Location location = new Location();
@@ -118,6 +125,7 @@ namespace IntranetPortal.Areas.GlobalSettings.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "GBSSTTEDT, XYALLACCZ")]
         public async Task<IActionResult> EditStation(LocationAddViewModel model)
         {
             if (ModelState.IsValid)
@@ -148,6 +156,7 @@ namespace IntranetPortal.Areas.GlobalSettings.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "GBSSTTDLT, XYALLACCZ")]
         public async Task<IActionResult> DeleteStation(int? id)
         {
             Location location = new Location();
@@ -175,6 +184,7 @@ namespace IntranetPortal.Areas.GlobalSettings.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "GBSSTTDLT, XYALLACCZ")]
         public async Task<IActionResult> DeleteStation(LocationAddViewModel model)
         {
             if (model != null)
@@ -196,6 +206,8 @@ namespace IntranetPortal.Areas.GlobalSettings.Controllers
 
         //==================================== Bureau Action Methods =================================================//
         #region Bureaus Action Methods
+
+        [Authorize(Roles = "GBSBURVWL, XYALLACCZ")]
         public async Task<IActionResult> Bureaus()
         {
             LocationsListViewModel model = new LocationsListViewModel();
@@ -206,6 +218,7 @@ namespace IntranetPortal.Areas.GlobalSettings.Controllers
 
 
         [HttpGet]
+        [Authorize(Roles = "GBSBURADN, XYALLACCZ")]
         public async Task<IActionResult> AddBureau()
         {
             LocationAddViewModel model = new LocationAddViewModel();
@@ -222,6 +235,7 @@ namespace IntranetPortal.Areas.GlobalSettings.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "GBSBURADN, XYALLACCZ")]
         public async Task<IActionResult> AddBureau(LocationAddViewModel model)
         {
             if (ModelState.IsValid)
@@ -253,6 +267,7 @@ namespace IntranetPortal.Areas.GlobalSettings.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "GBSBUREDT, XYALLACCZ")]
         public async Task<IActionResult> EditBureau(int? id)
         {
             Location location = new Location();
@@ -283,6 +298,7 @@ namespace IntranetPortal.Areas.GlobalSettings.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "GBSBUREDT, XYALLACCZ")]
         public async Task<IActionResult> EditBureau(LocationAddViewModel model)
         {
             if (ModelState.IsValid)
@@ -314,6 +330,7 @@ namespace IntranetPortal.Areas.GlobalSettings.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "GBSBURDLT, XYALLACCZ")]
         public async Task<IActionResult> DeleteBureau(int? id)
         {
             Location location = new Location();
@@ -344,6 +361,7 @@ namespace IntranetPortal.Areas.GlobalSettings.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "GBSBURDLT, XYALLACCZ")]
         public async Task<IActionResult> DeleteBureau(LocationAddViewModel model)
         {
             if (model != null)
@@ -363,5 +381,16 @@ namespace IntranetPortal.Areas.GlobalSettings.Controllers
         }
 
         #endregion
+
+        //======================================= Locations Helper Methods ===========================================//
+        #region Locations Helper Methods
+        [HttpGet]
+        public JsonResult GetStateNames(string stateName)
+        {
+            List<string> locations = _globalSettingsService.SearchStatesAsync(stateName).Result.Select(x => x.Name).ToList();
+            return Json(locations);
+        }
+        #endregion
+
     }
 }

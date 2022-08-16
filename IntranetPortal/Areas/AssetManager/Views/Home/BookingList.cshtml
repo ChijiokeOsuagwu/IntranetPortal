@@ -1,0 +1,120 @@
+﻿@model IntranetPortal.Areas.AssetManager.Models.AssetReservationListViewModel
+@{
+    ViewData["Title"] = "OfficeManager | Booking List";
+}
+<div class="container">
+    <h4>Booking List</h4>
+    <hr />
+    <div class="mb-1">
+        <div>
+            <a asp-area="" asp-controller="Home" asp-action="Apps" class="btn btn-dark pr-2" style="width:100px" title="Click to Add New Asset Type">
+                <span class="text-white">Exit</span>
+            </a>
+            <a asp-area="AssetManager" asp-controller="Home" asp-action="AssetList" class="btn btn-dark" style="width:100px" title="Click to Go Back">
+                <span class="text-white">Back</span>
+            </a>
+            <a asp-area="AssetManager" asp-controller="Home" asp-action="BookingList" asp-route-id="@ViewBag.AssetID" class="btn btn-info ml-3" style="width:200px" title="Click to Refresh List">
+                <span class="text-white">Refresh</span>
+            </a>
+        </div>
+
+        @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-x-circle"></i>
+                <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (!String.IsNullOrEmpty(Model.ViewModelSuccessMessage))
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="bi bi-check-circle"></i>
+                <span class="fw-bold">@Model.ViewModelSuccessMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+    </div>
+    @if (Model == null)
+    {
+        <div class="alert alert-info fade show" role="alert">
+            <i class="bi bi-info-circle"></i>
+            <span class="fw-bold">No record was found.</span>
+        </div>
+    }
+    else if (Model.AssetReservationList == null || Model.AssetReservationList.Count < 1)
+    {
+        <div class="alert alert-info fade show" role="alert">
+            <i class="bi bi-info-circle"></i>
+            <span class="fw-bold">No record was found.</span>
+        </div>
+    }
+    else
+    {
+        int rownumber = 0;
+        <div class="row">
+            <div class="table-responsive">
+                <table class="table table-hover table-sm ">
+                    <thead class="table-dark">
+                        <tr>
+                            <th><span class="text-white fw-bold">#</span></th>
+                            <th><span class="text-white fw-bold">Equipment</span></th>
+                            <th><span class="text-white fw-bold">Event</span></th>
+                            <th><span class="text-white fw-bold">Starts</span></th>
+                            <th><span class="text-white fw-bold">Status</span></th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody class="table-light">
+                        @foreach (var item in Model.AssetReservationList)
+                        {
+                            rownumber++;
+                            <tr>
+                                <td>
+                                    <span class="fw-bold">@rownumber</span>
+                                </td>
+                                <td>
+                                    <span class="fw-bold" title="@item.AssetDescription">@item.AssetName</span>
+                                </td>
+                                <td>
+                                    <span class="fw-bold" title="@item.EventLocation">@item.EventDescription</span>
+                                </td>
+                                <td title="@item.EventEndTime.Value.ToLongDateString() @item.EventEndTime.Value.ToLongTimeString()">
+                                    @if (item.EventStartTime != null)
+                                    {
+                                        <span class="fw-bold">@item.EventStartTime.Value.ToLongDateString() @item.EventStartTime.Value.ToLongTimeString()</span>
+                                    }
+                                </td>
+                                <td>
+                                    <span class="fw-bold">@item.ReservationStatus </span>
+                                </td>
+                                <td>
+                                    <div class="text-center">
+                                        <a asp-area="AssetManager" asp-controller="Home" asp-action="BookingDetails" asp-route-id="@item.AssetReservationID" title="See Details" class="btn btn-xs btn-dark" style="width:50px">
+                                            <i class="bi bi-card-text" style="font-size: 0.7rem; color:white"></i>
+                                        </a>
+                                        <a asp-area="AssetManager" asp-controller="Home" asp-action="EditBooking" asp-route-id="@item.AssetReservationID" title="Edit" class="btn btn-xs btn-info" style="width:50px">
+                                            <i class="bi bi-pencil-square" style="font-size: 0.7rem; color:white"></i>
+                                        </a>
+                                        <a asp-area="AssetManager" asp-controller="Home" asp-action="DeleteBooking" asp-route-id="@item.AssetReservationID" title="Delete" class="btn btn-xs btn-danger" style="width:50px">
+                                            <i class="bi bi-trash-fill" style="font-size: 0.7rem; color:white"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+</div>
+
+
+
+
+
+
+
+
+

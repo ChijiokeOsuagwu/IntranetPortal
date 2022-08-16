@@ -7,9 +7,9 @@ namespace IntranetPortal.Models
 {
     public class BaseListViewModel : BaseViewModel
     {
-        public string SearchParameter { get; set; }
+        public string sp { get; set; }
         public string SearchParameterValue { get; set; }
-        public int RecordCount { get; set; }
-        public int RecordsPerPage { get; set; }
+        public int rc { get; set; }
+        public int pg { get; set; }
     }
 }

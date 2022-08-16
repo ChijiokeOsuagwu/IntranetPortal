@@ -1,0 +1,113 @@
+﻿
+@model IntranetPortal.Areas.AssetManager.Models.AssetViewModel
+@{
+    ViewData["Title"] = "OfficeManager | Delete Asset";
+}
+<div>
+    <div class="card" style="min-width:600px">
+        <div class="card-header bg-danger">
+            <h4 class="text-white">Delete Asset</h4>
+        </div>
+        <div class="card-body bg-secondary">
+            @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bi bi-x-circle"></i>
+                    <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            @if (!String.IsNullOrEmpty(Model.ViewModelSuccessMessage))
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="bi bi-check-circle"></i>
+                    <span class="fw-bold">@Model.ViewModelSuccessMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            @if (!String.IsNullOrEmpty(Model.ViewModelWarningMessage))
+            {
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                    <i class="bi bi-exclamation-circle"></i>
+                    <span class="fw-bold">@Model.ViewModelWarningMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            <form asp-area="AssetManager" asp-controller="Settings" asp-action="DeleteAsset" method="post">
+                <div class="row">
+                    <div class="col-md-8 mb-1">
+                        <input type="hidden" asp-for="AssetID" />
+                        <label asp-for="AssetName" class="form-label text-white fw-bold"></label>
+                        <input asp-for="AssetName" class="form-control fw-bold" readonly="readonly" />
+                    </div>
+                    <div class="col-md-4 mb-1">
+                        <label asp-for="AssetNumber" class="form-label text-white fw-bold"></label>
+                        <input asp-for="AssetNumber" class="form-control fw-bold" readonly="readonly" />
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12 mb-1">
+                        <label asp-for="AssetDescription" class="form-label text-white fw-bold"></label>
+                        <textarea class="form-control fw-bold" name="@Html.NameFor(m => m.AssetDescription)" readonly="readonly">@Model.AssetDescription</textarea>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6  mb-1">
+                        <input type="hidden" asp-for="AssetCategoryID" />
+                        <label asp-for="AssetTypeName" class="form-label text-white fw-bold"></label>
+                        <input asp-for="AssetTypeName" class="form-control fw-bold" readonly="readonly" />
+                    </div>
+                    <div class="col-md-6  mb-1">
+                        <label asp-for="BaseLocationName" class="form-label text-white fw-bold"></label>
+                        <input asp-for="BaseLocationName" class="form-control fw-bold" readonly="readonly" />
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6  mb-1">
+                        <label asp-for="Condition" class="form-label text-white fw-bold"></label>
+                        <input asp-for="Condition" class="form-control fw-bold" readonly="readonly" />
+                    </div>
+                    <div class="col-md-6  mb-1">
+                        <label asp-for="UsageStatus" class="form-label text-white fw-bold"></label>
+                        <input asp-for="UsageStatus" class="form-control fw-bold" readonly="readonly" />
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-1">
+                        <label asp-for="PurchaseDate" class="form-label text-white fw-bold"></label>
+                        <input asp-for="PurchaseDate" class="form-control fw-bold" readonly="readonly" />
+                    </div>
+                    <div class="col-md-6 mb-1">
+                        <label asp-for="PurchaseAmount" class="form-label text-white fw-bold"></label>
+                        <input asp-for="PurchaseAmount" class="form-control fw-bold" readonly="readonly" />
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="ParentAssetName" class="form-label text-white fw-bold"></label>
+                        <input asp-for="ParentAssetName" class="form-control fw-bold" readonly="readonly" />
+                    </div>
+                    <div class="col-md-6 mb-3">
+
+                    </div>
+                    <div class="row">
+                        <a asp-area="AssetManager" asp-controller="Home" asp-action="Index" class="btn btn-dark ml-2" style="width:100px" title="Return Home">
+                            <span class="text-white">Exit</span>
+                        </a>
+                        <button class="btn btn-dark ml-1" style="width:100px" title="Go Back" onclick="history.back()"><span class="text-white">Go Back</span></button>
+                        @if (!Model.OperationIsCompleted)
+                        {
+                            <button type="submit" class="btn btn-danger ml-2" title="Delete" style="width:200px" onclick="return confirm('Are you sure you want to delete this asset permanently?')"><span class="text-white">Delete</span></button>
+                        }
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+

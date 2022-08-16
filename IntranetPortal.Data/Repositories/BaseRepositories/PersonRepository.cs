@@ -26,10 +26,10 @@ namespace IntranetPortal.Data.Repositories.BaseRepositories
             int rows = 0;
             var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
             StringBuilder sb = new StringBuilder();
-            sb.Append($"INSERT INTO public.gst_prsns(id, title, sname, fname, oname, fullname, sex, phone1,phone2, email, address, ");
-            sb.Append($"mdb, mdt, ctb, ctt, imgp, birthday, birthmonth, birthyear, maritalstatus) VALUES (@id, ");
+            sb.Append($"INSERT INTO public.gst_prsns(id, title, sname, fname, oname, fullname, sex, phone1,phone2, email, ");
+            sb.Append($"address, mdb, mdt, ctb, ctt, imgp, birthday, birthmonth, birthyear, maritalstatus) VALUES (@id, ");
             sb.Append($"@title, @sname, @fname, @oname, @fullname, @sex, @phone1, @phone2, @email, @address, ");
-            sb.Append($"@mdb, @mdt, @ctb, @ctt, @imgp, @birthday, @birthmonth, @birthyear, @maritalstatus );");
+            sb.Append($"@mdb, @mdt, @ctb, @ctt, @imgp, @birthday, @birthmonth, @birthyear, @maritalstatus); ");
             string query = sb.ToString();
             try
             {
@@ -57,7 +57,6 @@ namespace IntranetPortal.Data.Repositories.BaseRepositories
                     var birthmonth = cmd.Parameters.Add("@birthmonth", NpgsqlDbType.Integer);
                     var birthyear = cmd.Parameters.Add("@birthyear", NpgsqlDbType.Integer);
                     var maritalstatus = cmd.Parameters.Add("@maritalstatus", NpgsqlDbType.Text);
-
                     cmd.Prepare();
                     personId.Value = person.PersonID;
                     title.Value = person.Title ?? (object)DBNull.Value;
@@ -79,7 +78,6 @@ namespace IntranetPortal.Data.Repositories.BaseRepositories
                     birthmonth.Value = person.BirthMonth ?? (object)DBNull.Value;
                     birthyear.Value = person.BirthYear ?? (object)DBNull.Value;
                     maritalstatus.Value = person.MaritalStatus ?? (object)DBNull.Value;
-
                     rows = await cmd.ExecuteNonQueryAsync();
                     await conn.CloseAsync();
                 }
@@ -96,7 +94,7 @@ namespace IntranetPortal.Data.Repositories.BaseRepositories
         {
             int rows = 0;
             var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
-            string query = $"DELETE FROM public.gst_prsns WHERE (id = @id);";
+            string query = $"DELETE FROM public.gst_prsns WHERE (LOWER(id) = LOWER(@id));";
             try
             {
                 await conn.OpenAsync();
@@ -134,7 +132,7 @@ namespace IntranetPortal.Data.Repositories.BaseRepositories
             StringBuilder sb = new StringBuilder();
             sb.Append($"UPDATE public.gst_prsns SET title=@title, sname=@sname, fname=@fname, oname=@oname, fullname=@fullname, ");
             sb.Append($"sex=@sex, phone1=@phone1, phone2=@phone2, email=@email, address=@address, mdb=@mdb, mdt=@mdt, imgp=@imgp, ");
-            sb.Append($"birthday=@birthday, birthmonth=@birthmonth, birthyear=@birthyear, maritalstatus=@maritalstatus  ");
+            sb.Append($"birthday=@birthday, birthmonth=@birthmonth, birthyear=@birthyear, maritalstatus=@maritalstatus ");
             sb.Append($"WHERE (id=@id);");
             string query = sb.ToString();
             try
@@ -180,6 +178,7 @@ namespace IntranetPortal.Data.Repositories.BaseRepositories
                     personBirthMonth.Value = person.BirthMonth ?? (object)DBNull.Value;
                     personBirthYear.Value = person.BirthYear ?? (object)DBNull.Value;
                     personMaritalStatus.Value = person.MaritalStatus ?? (object)DBNull.Value;
+
                     rows = await cmd.ExecuteNonQueryAsync();
                     await conn.CloseAsync();
                 }
@@ -212,6 +211,60 @@ namespace IntranetPortal.Data.Repositories.BaseRepositories
                     var personId = cmd.Parameters.Add("@id", NpgsqlDbType.Text);
                     await cmd.PrepareAsync();
                     personId.Value = Id;
+                    using (var reader = await cmd.ExecuteReaderAsync())
+                        while (await reader.ReadAsync())
+                        {
+                            person.PersonID = reader["id"] == DBNull.Value ? string.Empty : (reader["id"]).ToString();
+                            person.Title = reader["title"] == DBNull.Value ? String.Empty : reader["title"].ToString();
+                            person.Surname = reader["sname"] == DBNull.Value ? String.Empty : reader["sname"].ToString();
+                            person.FirstName = reader["fname"] == DBNull.Value ? String.Empty : reader["fname"].ToString();
+                            person.OtherNames = reader["oname"] == DBNull.Value ? String.Empty : reader["oname"].ToString();
+                            person.FullName = reader["fullname"] == DBNull.Value ? String.Empty : reader["fullname"].ToString();
+                            person.Sex = reader["sex"] == DBNull.Value ? String.Empty : reader["sex"].ToString();
+                            person.PhoneNo1 = reader["phone1"] == DBNull.Value ? String.Empty : reader["phone1"].ToString();
+                            person.PhoneNo2 = reader["phone2"] == DBNull.Value ? String.Empty : reader["phone2"].ToString();
+                            person.Email = reader["email"] == DBNull.Value ? String.Empty : reader["email"].ToString();
+                            person.Address = reader["address"] == DBNull.Value ? String.Empty : reader["address"].ToString();
+                            person.ModifiedBy = reader["mdb"] == DBNull.Value ? string.Empty : reader["mdb"].ToString();
+                            person.ModifiedTime = reader["mdt"] == DBNull.Value ? string.Empty : reader["mdt"].ToString();
+                            person.CreatedBy = reader["ctb"] == DBNull.Value ? string.Empty : reader["ctb"].ToString();
+                            person.CreatedTime = reader["ctt"] == DBNull.Value ? string.Empty : reader["ctt"].ToString();
+                            person.BirthDay = reader["birthday"] == DBNull.Value ? 0 : (int)reader["birthday"];
+                            person.BirthMonth = reader["birthmonth"] == DBNull.Value ? 0 : (int)reader["birthmonth"];
+                            person.BirthYear = reader["birthyear"] == DBNull.Value ? 0 : (int)reader["birthyear"];
+                            person.MaritalStatus = reader["maritalstatus"] == DBNull.Value ? string.Empty : reader["maritalstatus"].ToString();
+                        }
+                }
+                await conn.CloseAsync();
+            }
+            catch (Exception ex)
+            {
+                await conn.CloseAsync();
+                throw new Exception(ex.Message);
+            }
+            return person;
+        }
+
+        public async Task<Person> GetPersonByNameAsync(string personName)
+        {
+            Person person = new Person();
+            var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
+            string query = String.Empty;
+            StringBuilder sb = new StringBuilder();
+            if (String.IsNullOrEmpty(personName)) { throw new ArgumentNullException("Required parameter PersonName cannot be null."); }
+            sb.Append($"SELECT id, title, sname, fname, oname, fullname, sex, phone1, phone2, email, ");
+            sb.Append($"address, mdb, mdt, ctb, ctt, imgp, birthday, birthmonth, birthyear, maritalstatus ");
+            sb.Append($"FROM public.gst_prsns WHERE (fullname = @fullname); ");
+            query = sb.ToString();
+            try
+            {
+                await conn.OpenAsync();
+                // Retrieve all rows
+                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+                {
+                    var fullName = cmd.Parameters.Add("@fullname", NpgsqlDbType.Text);
+                    await cmd.PrepareAsync();
+                    fullName.Value = personName;
                     using (var reader = await cmd.ExecuteReaderAsync())
                         while (await reader.ReadAsync())
                         {

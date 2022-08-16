@@ -1,0 +1,94 @@
+﻿@model IntranetPortal.Areas.PartnerServices.Models.ContactListViewModel
+@{
+    ViewData["Title"] = "OfficeManager | Customer Contacts";
+}
+<div class="container">
+    <h4>Customer Contacts</h4>
+    <hr />
+    <div class="mb-1">
+        <form asp-area="PartnerServices" asp-controller="Customers" asp-action="Contacts" method="get">
+            <a asp-area="" asp-controller="Home" asp-action="Apps" class="btn btn-dark pr-2" style="width:100px" title="Exit">
+                <span class="text-white">Exit</span>
+            </a>
+            <a asp-area="PartnerServices" asp-controller="Customers" asp-action="List" class="btn btn-dark" style="width:100px" title="Click to Go Back">
+                <span class="text-white">Back</span>
+            </a>
+            <a asp-area="PartnerServices" asp-controller="Customers" asp-action="AddContact" asp-route-id="@Model.sp" class="btn btn-success" style="width:200px" title="Add New Contact">
+                <span class="text-white">New Contact</span>
+            </a>
+            <select asp-for="sp" asp-items="@ViewBag.CustomersList" class="border-0 fw-bold" style="width:300px">
+                <option value=""> - Select Customer - </option>
+            </select>
+            <input type="submit" value="Search" class="btn btn-dark" style="width:100px" />
+        </form>
+
+        @if (!String.IsNullOrEmpty(ViewBag.ErrorMessage))
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-x-circle"></i>
+                <span class="fw-bold">@ViewBag.ErrorMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+    </div>
+    @if (Model == null || Model.ContactsList == null || Model.ContactsList.Count < 1)
+    {
+        <div class="alert alert-info fade show" role="alert">
+            <i class="bi bi-info-circle"></i>
+            <span class="fw-bold">No record was found.</span>
+        </div>
+    }
+    else
+    {
+        <div class="row">
+            <div class="table-responsive">
+                <table class="table table-hover table-sm ">
+                    <thead class="table-dark">
+                        <tr>
+                            <th><span class="text-white fw-bold">Name</span></th>
+                            <th><span class="text-white fw-bold">Designation</span></th>
+                            <th><span class="text-white fw-bold">Phone No(s)</span></th>
+                            <th><span class="text-white fw-bold">Email</span></th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody class="table-light">
+                        @foreach (var contact in Model.ContactsList)
+                        {
+                        <tr class="p-0">
+                            <td>
+                                <span class="fw-bold">@contact.FullName</span>
+                            </td>
+                            <td>
+                                <span class="fw-bold">@contact.PersonRole</span>
+                            </td>
+                            <td>
+                                <span class="fw-bold">@contact.PhoneNo1</span>
+                                @if (!string.IsNullOrWhiteSpace(contact.PhoneNo2))
+                                {<span class="fw-bold">, @contact.PhoneNo2</span>}
+                            </td>
+                            <td>
+                                <span class="fw-bold">@contact.Email</span>
+                             </td>
+                            <td>
+                                <div class="text-center">
+                                    <a asp-area="PartnerServices" asp-controller="Customers" asp-action="ContactDetails" asp-route-id="@contact.BusinessContactID" title="Details" class="btn btn-xs btn-dark text-white" style="width:50px">
+                                        <i class="bi bi-card-text fw-bolder" style="font-size: 0.7rem;"></i>
+                                    </a>
+                                    <a asp-area="PartnerServices" asp-controller="Customers" asp-action="EditContact" asp-route-id="@contact.BusinessContactID" title="Edit" class="btn btn-xs btn-info text-white" style="width:50px">
+                                        <i class="bi bi-pencil-square fw-bolder" style="font-size: 0.7rem;"></i>
+                                    </a>
+                                    <a asp-area="PartnerServices" asp-controller="Customers" asp-action="DeleteContact" asp-route-id="@contact.BusinessContactID" title="Delete" class="btn btn-xs btn-danger text-white" style="width:50px">
+                                        <i class="bi bi-trash fw-bolder" style="font-size: 0.7rem;"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+</div>
+

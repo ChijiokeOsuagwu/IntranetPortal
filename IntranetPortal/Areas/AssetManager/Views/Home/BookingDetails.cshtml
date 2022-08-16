@@ -1,0 +1,101 @@
+﻿
+
+@model IntranetPortal.Areas.AssetManager.Models.AssetReservationViewModel
+@{
+    ViewData["Title"] = "OfficeManager | Booking Details";
+}
+<div>
+    <div class="card" style="min-width:600px">
+        <div class="card-header bg-dark">
+            <h4 class="text-white">Equipment Booking Details</h4>
+        </div>
+        <div class="card-body bg-secondary">
+            @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bi bi-x-circle"></i>
+                    <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            @if (!String.IsNullOrEmpty(Model.ViewModelSuccessMessage))
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="bi bi-check-circle"></i>
+                    <span class="fw-bold">@Model.ViewModelSuccessMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            @if (!String.IsNullOrEmpty(Model.ViewModelWarningMessage))
+            {
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                    <i class="bi bi-exclamation-circle"></i>
+                    <span class="fw-bold">@Model.ViewModelWarningMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            <form asp-area="AssetManager" asp-controller="Home" asp-action="BookingDetails" method="post">
+                <div class="row">
+                    <div class="col-md-8 mb-2">
+                        <input type="hidden" asp-for="AssetReservationID" />
+                        <input type="hidden" asp-for="AssetID" />
+                        <input type="hidden" asp-for="AssetTypeID" />
+                        <label asp-for="AssetName" class="form-label text-white fw-bold"></label>
+                        <input asp-for="AssetName" class="form-control fw-bold" readonly="readonly">
+                        <div><span asp-validation-for="AssetName" class="text-danger"></span></div>
+                    </div>
+                    <div class="col-md-4 mb-2">
+                        <label asp-for="ReservationStatus" class="form-label text-white fw-bold"></label>
+                        <input asp-for="ReservationStatus" class="form-control fw-bold" readonly="readonly">
+                          <div><span asp-validation-for="ReservationStatus" class="text-danger"></span></div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-2">
+                        <label asp-for="EventDescription" class="form-label text-white fw-bold"></label>
+                        <input asp-for="EventDescription" class="form-control fw-bold" readonly="readonly">
+                        <div><span asp-validation-for="EventDescription" class="text-danger"></span></div>
+                    </div>
+                    <div class="col-md-6  mb-2">
+                        <label asp-for="EventLocation" class="form-label text-white fw-bold"></label>
+                        <input asp-for="EventLocation" class="form-control fw-bold" readonly="readonly">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-2">
+                        <label asp-for="EventStartTimeFormatted" class="form-label text-white fw-bold"></label>
+                        <input asp-for="EventStartTimeFormatted" class="form-control fw-bold" readonly="readonly">
+                    </div>
+                    <div class="col-md-6 mb-2">
+                        <label asp-for="EventEndTimeFormatted" class="form-label text-white fw-bold"></label>
+                        <input asp-for="EventEndTimeFormatted" class="form-control fw-bold" readonly="readonly">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-4">
+                        <label asp-for="ReservedBy" class="form-label text-white fw-bold"></label>
+                        <input asp-for="ReservedBy" class="form-control fw-bold" readonly="readonly">
+                        <div><span asp-validation-for="ReservedBy" class="text-danger"></span></div>
+                    </div>
+                    <div class="col-md-6 mb-4">
+                        <input type="hidden" asp-for="ReservedOn" />
+                        <label asp-for="ReservedOnFormatted" class="form-label text-white fw-bold"></label>
+                        <input asp-for="ReservedOnFormatted" class="form-control fw-bold" readonly="readonly">
+                        <div><span asp-validation-for="ReservedOnFormatted" class="text-danger"></span></div>
+                    </div>
+                </div>
+                <div class="row">
+                    <a asp-area="AssetManager" asp-controller="Home" asp-action="Index" class="btn btn-dark ml-2" style="width:100px" title="Return Home">
+                        <span class="text-white">Exit</span>
+                    </a>
+                    <button class="btn btn-dark ml-1" style="width:100px" title="Return to Bookings" onclick="history.back()"><span class="text-white">Go Back</span></button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+
+
+

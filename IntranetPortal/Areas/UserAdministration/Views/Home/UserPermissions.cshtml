@@ -1,0 +1,95 @@
+﻿@model IntranetPortal.Models.PaginatedList<IntranetPortal.Base.Models.SecurityModels.UserPermission>
+@{
+    ViewData["Title"] = "User Administration | User Permissions";
+}
+<div class="container">
+    <h3 class="mb-4">User Permissions</h3>
+    <hr />
+    <div class="mb-1">
+        <div class="row">
+            <div>
+                <div class="col-md-12">
+                    <a asp-area="UserAdministration" asp-controller="Home" asp-action="Index" class="btn btn-dark" style="width:100px" title="Click to Go Back">
+                        <span class="text-white">Back</span>
+                    </a>
+                    <form asp-area="UserAdministration" asp-controller="Home" asp-action="UserPermissions" method="get">
+                        <div class="form-actions no-color">
+                            <input type="hidden" name="id" value="@ViewData["UserID"]" />
+                            <select asp-items="@ViewBag.ApplicationList" name="searchString" value="@ViewData["CurrentFilter"]" style="width:300px; font-weight:600" class="border-0">
+                                <option value="">- Select Application -</option>
+                            </select>
+                            <input type="submit" value="Refresh" class="btn btn-primary" style="width:200px" />
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-sm table-hover">
+                    <thead>
+                        <tr class="bg-secondary">
+                            <th>
+                                <span class="text-white fw-bold">Application</span>
+                            </th>
+                            <th>
+                                <span class="text-white fw-bold">Permission Description</span>
+                            </th>
+                            <th>
+                                <span class="text-white fw-bold">Status</span>
+                            </th>
+                            <th>
+                                <span class="text-white fw-bold">Action</span>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>
+                                    <span class="text-dark fw-bold">@Html.DisplayFor(modelItem => item.ApplicationName)</span>
+                                </td>
+                                <td>
+                                    <span class="text-dark fw-bold">@Html.DisplayFor(modelItem => item.RoleName)</span>
+                                </td>
+                                <td>
+                                    @if (item.IsGranted)
+                                    {<i title="Access Granted" class="bi bi-check-lg" style="color:green; font-size:20px"></i>}
+                                    else
+                                    {<i title="Access Revoked" class="bi bi-x-lg" style="color:red; font-size:20px"></i>}
+                                </td>
+                                <td>
+                                    @if (item.IsGranted)
+                                    {<button title="Revoke this Permission" class="btn btn-sm btn-outline-danger text-dark fw-bold" style="border-radius:10px; width:75px" id="btn_revoke_@item.RoleID" onclick="revokePermission('@ViewData["UserID"]','@item.RoleID')">Revoke</button>}
+                                    else
+                                    {<button title="Grant this Permission" class="btn btn-sm btn-outline-success text-dark fw-bold" style="border-radius:10px; width:75px" id="btn_grant_@item.RoleID" onclick="grantPermission('@ViewData["UserID"]','@item.RoleID')">Grant</button>}
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            @{
+                var prevDisabled = !Model.HasPreviousPage ? "disabled" : "";
+                var nextDisabled = !Model.HasNextPage ? "disabled" : "";
+            }
+
+            <a asp-action="Index"
+               asp-route-sortOrder="@ViewData["CurrentSort"]"
+               asp-route-pageNumber="@(Model.PageIndex - 1)"
+               asp-route-currentFilter="@ViewData["CurrentFilter"]"
+               class="btn btn-primary @prevDisabled" style="width:100px">
+                Previous
+            </a>
+            <a asp-action="Index"
+               asp-route-sortOrder="@ViewData["CurrentSort"]"
+               asp-route-pageNumber="@(Model.PageIndex + 1)"
+               asp-route-currentFilter="@ViewData["CurrentFilter"]"
+               class="btn btn-primary @nextDisabled" style="width:100px">
+                Next
+            </a>
+        </div>
+    </div>
+</div>
+<script src="~/js/js_uad/user_permissions.js"></script>
+
+

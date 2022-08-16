@@ -1,0 +1,191 @@
+﻿
+@model IntranetPortal.Areas.PartnerServices.Models.BusinessPartnerViewModel
+@{
+    ViewData["Title"] = "OfficeManager | New Customer";
+}
+<div>
+    <div class="card" style="min-width:600px">
+        <div class="card-header bg-warning">
+            <h4 class="text-dark">New Customer</h4>
+        </div>
+        <div class="card-body bg-secondary">
+            @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bi bi-x-circle"></i>
+                    <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            @if (!String.IsNullOrEmpty(Model.ViewModelSuccessMessage))
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="bi bi-check-circle"></i>
+                    <span class="fw-bold">@Model.ViewModelSuccessMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            @if (!String.IsNullOrEmpty(Model.ViewModelWarningMessage))
+            {
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                    <i class="bi bi-exclamation-circle"></i>
+                    <span class="fw-bold">@Model.ViewModelWarningMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            <form asp-area="PartnerServices" asp-controller="Customers" asp-action="AddCustomer" method="post">
+                <div class="row">
+                    <div class="col-md-2 mb-1">
+                        <label asp-for="BusinessNumber" class="form-label text-white fw-bold"></label>
+                        <input asp-for="BusinessNumber" class="form-control fw-bold">
+                        <div><span asp-validation-for="BusinessNumber" class="text-danger"></span></div>
+                    </div>
+                    <div class="col-md-4 mb-1">
+                        <input type="hidden" asp-for="BusinessID" />
+                        <label asp-for="BusinessName" class="form-label text-white fw-bold"></label>
+                        <input asp-for="BusinessName" class="form-control fw-bold">
+                        <div><span asp-validation-for="BusinessName" class="text-danger"></span></div>
+                    </div>
+                    <div class="col-md-2 mb-1">
+                        <label asp-for="BusinessStationID" class="form-label text-white fw-bold"></label>
+                        <select asp-for="BusinessStationID" asp-items="@ViewBag.LocationsList" class="form-control fw-bold">
+                            <option value=""> - Select - </option>
+                        </select>
+                        <div><span asp-validation-for="BusinessStationID" class="text-danger"></span></div>
+                    </div>
+                    <div class="col-md-4 mb-1">
+                        <label asp-for="BusinessType" class="form-label text-white fw-bold"></label>
+                        <select asp-for="BusinessType" asp-items="@ViewBag.IndustryTypesList" class="form-control fw-bold">
+                            <option value=""> - Select - </option>
+                        </select>
+                        <div><span asp-validation-for="BusinessType" class="text-danger"></span></div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4 mb-1">
+                        <label asp-for="BusinessAddress" class="form-label text-white fw-bold"></label>
+                        <input asp-for="BusinessAddress" class="form-control fw-bold">
+                        <div><span asp-validation-for="BusinessAddress" class="text-danger"></span></div>
+                    </div>
+                    <div class="col-md-2 mb-1">
+                        <label asp-for="State" class="form-label text-white fw-bold"></label>
+                        <input asp-for="State" class="form-control fw-bold">
+                        <div><span asp-validation-for="State" class="text-danger"></span></div>
+                    </div>
+                    <div class="col-md-3 mb-1">
+                        <label asp-for="PhoneNo1" class="form-label text-white fw-bold"></label>
+                        <input asp-for="PhoneNo1" class="form-control fw-bold">
+                        <div><span asp-validation-for="PhoneNo1" class="text-danger"></span></div>
+                    </div>
+                    <div class="col-md-3 mb-1">
+                        <label asp-for="PhoneNo2" class="form-label text-white fw-bold"></label>
+                        <input asp-for="PhoneNo2" class="form-control fw-bold">
+                        <div><span asp-validation-for="PhoneNo2" class="text-danger"></span></div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3 mb-1">
+                        <label asp-for="Email1" class="form-label text-white fw-bold"></label>
+                        <input asp-for="Email1" class="form-control fw-bold">
+                        <div><span asp-validation-for="Email1" class="text-danger"></span></div>
+                    </div>
+                    <div class="col-md-3 mb-1">
+                        <label asp-for="Email2" class="form-label text-white fw-bold"></label>
+                        <input asp-for="Email2" class="form-control fw-bold">
+                        <div><span asp-validation-for="Email2" class="text-danger"></span></div>
+                    </div>
+                    <div class="col-md-3 mb-1">
+                        <label asp-for="WebLink1" class="form-label text-white fw-bold"></label>
+                        <input asp-for="WebLink1" class="form-control fw-bold">
+                        <div><span asp-validation-for="WebLink1" class="text-danger"></span></div>
+                    </div>
+                    <div class="col-md-3 mb-1">
+                        <label asp-for="WebLink2" class="form-label text-white fw-bold"></label>
+                        <input asp-for="WebLink2" class="form-control fw-bold">
+                        <div><span asp-validation-for="WebLink2" class="text-danger"></span></div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3 mb-1">
+                        <input type="hidden" asp-for="ContactID" />
+                        <label asp-for="ContactFirstName" class="form-label text-white fw-bold"></label>
+                        <input asp-for="ContactFirstName" class="form-control fw-bold">
+                        <div><span asp-validation-for="ContactFirstName" class="text-danger"></span></div>
+                    </div>
+                    <div class="col-md-3 mb-1">
+                        <label asp-for="ContactSurname" class="form-label text-white fw-bold"></label>
+                        <input asp-for="ContactSurname" class="form-control fw-bold">
+                        <div><span asp-validation-for="ContactSurname" class="text-danger"></span></div>
+                    </div>
+                    <div class="col-md-3 mb-1">
+                        <label asp-for="OtherNames" class="form-label text-white fw-bold"></label>
+                        <input asp-for="OtherNames" class="form-control fw-bold">
+                        <div><span asp-validation-for="OtherNames" class="text-danger"></span></div>
+                    </div>
+                    <div class="col-md-3 mb-1">
+                        <label asp-for="ContactGender" class="form-label text-white fw-bold"></label>
+                        <select asp-for="ContactGender" class="form-control fw-bold">
+                            <option value=""> - Select - </option>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                        </select>
+                        <div><span asp-validation-for="ContactGender" class="text-danger"></span></div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3 mb-3">
+                        <label asp-for="Designation" class="form-label text-white fw-bold"></label>
+                        <input asp-for="Designation" class="form-control fw-bold">
+                        <div><span asp-validation-for="Designation" class="text-danger"></span></div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label asp-for="ContactPhone1" class="form-label text-white fw-bold"></label>
+                        <input asp-for="ContactPhone1" class="form-control fw-bold">
+                        <div><span asp-validation-for="ContactPhone1" class="text-danger"></span></div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label asp-for="ContactPhone2" class="form-label text-white fw-bold"></label>
+                        <input asp-for="ContactPhone2" class="form-control fw-bold">
+                        <div><span asp-validation-for="ContactPhone2" class="text-danger"></span></div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label asp-for="ContactEmail" class="form-label text-white fw-bold"></label>
+                        <input asp-for="ContactEmail" class="form-control fw-bold">
+                        <div><span asp-validation-for="ContactEmail" class="text-danger"></span></div>
+                    </div>
+                </div>
+                <div class="row">
+                    @if (!Model.OperationIsCompleted)
+                    {
+                        <a asp-area="Bams" asp-controller="Home" asp-action="Index" class="btn btn-dark ml-2" style="width:100px" title="Return Home">
+                            <span class="text-white">Exit</span>
+                        </a>
+                        <a asp-area="Bams" asp-controller="Home" asp-action="NewAssignment" class="btn btn-dark ml-1" style="width:100px" title="Go Back">
+                            <span class="text-white">Go Back</span>
+                        </a>
+                        <a asp-area="PartnerServices" asp-controller="Customers" asp-action="AddCustomer" class="btn btn-secondary ml-1" style="width:100px" title="Clear">
+                            <span class="text-white">Clear</span>
+                        </a>
+                        <button type="submit" class="btn btn-success ml-2" title="Save" style="width:200px"><span class="text-white">Save</span></button>
+                    }
+                    else
+                    {
+                        <a asp-area="Bams" asp-controller="Home" asp-action="NewAssignment" asp-route-id="@Model.BusinessID" asp-route-nm="@Model.BusinessName" class="btn btn-success ml-1" style="width:200px" title="Continue">
+                            <span class="text-white">Continue</span>
+                        </a>
+                    }
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+@section Scripts{
+    <script src="~/js/js_ptns/ptns_customers_add.js"></script>
+}
+
+
+
+
+
+
+

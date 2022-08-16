@@ -20,6 +20,10 @@ namespace IntranetPortal.Base.Repositories.EmployeeRecordRepositories
 
         Task<IList<Employee>> GetEmployeesByNameAsync(string employeeName);
 
+        Task<IList<Employee>> GetNonUserEmployeesByNameAsync(string employeeName);
+
+        Task<IList<Employee>> GetAllNonUserEmployeesAsync();
+
         Task<bool> AddEmployeeBasicInfoAsync(EmployeeBasicInfo employeeBasicInfo);
 
         Task<bool> EditEmployeeBasicInfoAsync(EmployeeBasicInfo employeeBasicInfo);
