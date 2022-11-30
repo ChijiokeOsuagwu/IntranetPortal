@@ -27,7 +27,7 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
             StringBuilder sb = new StringBuilder();
             sb.Append("SELECT m.mvt_hst_id, m.asm_asst_id, m.mvt_fr_loc, m.mvt_to_loc, m.mvt_dt, m.mvt_pps, ");
             sb.Append("m.ass_cndt, m.aprv_by, m.mvd_by, m.commnts, m.lggd_by, m.lggd_dt, m.md_by, m.md_dt, ");
-            sb.Append("m.asst_typ_id, m.asst_ctg_id, m.mvt_sts, a.asst_nm, a.asst_ds, a.asst_cndt, t.typ_nm, ");
+            sb.Append("m.asst_typ_id, m.asst_ctg_id, m.mvt_sts, a.asst_nm, a.asst_ds, a.cnd_sts, t.typ_nm, ");
             sb.Append("c.asst_ctgs_nm FROM public.asm_mvt_hst m ");
             sb.Append("INNER JOIN public.asm_stt_asst a ON m.asm_asst_id = a.asst_id ");
             sb.Append("INNER JOIN public.asm_stt_typs t ON m.asst_typ_id = t.typ_id ");
@@ -51,7 +51,8 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
                                 AssetName = reader["asst_nm"] == DBNull.Value ? string.Empty : reader["asst_nm"].ToString(),
                                 AssetDescription = reader["asst_ds"] == DBNull.Value ? string.Empty : reader["asst_ds"].ToString(),
                                 ApprovedBy = reader["aprv_by"] == DBNull.Value ? string.Empty : reader["aprv_by"].ToString(),
-                                AssetCondition = reader["ass_cndt"] == DBNull.Value ? string.Empty : reader["ass_cndt"].ToString(),
+                                AssetConditionDescription = reader["ass_cndt"] == DBNull.Value ? string.Empty : reader["ass_cndt"].ToString(),
+                                AssetConditionStatus = reader["cnd_sts"] == DBNull.Value ? AssetCondition.Unspecified : (AssetCondition)reader["cnd_sts"],
                                 MovedFromLocationName = reader["mvt_fr_loc"] == DBNull.Value ? string.Empty : reader["mvt_fr_loc"].ToString(),
                                 MovedToLocationName = reader["mvt_to_loc"] == DBNull.Value ? string.Empty : reader["mvt_to_loc"].ToString(),
                                 MovedOn = reader["mvt_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["mvt_dt"],
@@ -88,7 +89,7 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
             StringBuilder sb = new StringBuilder();
             sb.Append("SELECT m.mvt_hst_id, m.asm_asst_id, m.mvt_fr_loc, m.mvt_to_loc, m.mvt_dt, m.mvt_pps, ");
             sb.Append("m.ass_cndt, m.aprv_by, m.mvd_by, m.commnts, m.lggd_by, m.lggd_dt, m.md_by, m.md_dt, ");
-            sb.Append("m.asst_typ_id, m.asst_ctg_id, m.mvt_sts, a.asst_nm, a.asst_ds, a.asst_cndt, t.typ_nm, ");
+            sb.Append("m.asst_typ_id, m.asst_ctg_id, m.mvt_sts, a.asst_nm, a.asst_ds, a.cnd_sts, t.typ_nm, ");
             sb.Append("c.asst_ctgs_nm FROM public.asm_mvt_hst m ");
             sb.Append("INNER JOIN public.asm_stt_asst a ON m.asm_asst_id = a.asst_id ");
             sb.Append("INNER JOIN public.asm_stt_typs t ON m.asst_typ_id = t.typ_id ");
@@ -113,7 +114,8 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
                             assetMovement.AssetName = reader["asst_nm"] == DBNull.Value ? string.Empty : reader["asst_nm"].ToString();
                             assetMovement.AssetDescription = reader["asst_ds"] == DBNull.Value ? string.Empty : reader["asst_ds"].ToString();
                             assetMovement.ApprovedBy = reader["aprv_by"] == DBNull.Value ? string.Empty : reader["aprv_by"].ToString();
-                            assetMovement.AssetCondition = reader["ass_cndt"] == DBNull.Value ? string.Empty : reader["ass_cndt"].ToString();
+                            assetMovement.AssetConditionDescription = reader["ass_cndt"] == DBNull.Value ? string.Empty : reader["ass_cndt"].ToString();
+                            assetMovement.AssetConditionStatus = reader["cnd_sts"] == DBNull.Value ? AssetCondition.Unspecified : (AssetCondition)reader["cnd_sts"];
                             assetMovement.MovedFromLocationName = reader["mvt_fr_loc"] == DBNull.Value ? string.Empty : reader["mvt_fr_loc"].ToString();
                             assetMovement.MovedToLocationName = reader["mvt_to_loc"] == DBNull.Value ? string.Empty : reader["mvt_to_loc"].ToString();
                             assetMovement.MovedOn = reader["mvt_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["mvt_dt"];
@@ -149,7 +151,7 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
             StringBuilder sb = new StringBuilder();
             sb.Append("SELECT m.mvt_hst_id, m.asm_asst_id, m.mvt_fr_loc, m.mvt_to_loc, m.mvt_dt, m.mvt_pps, ");
             sb.Append("m.ass_cndt, m.aprv_by, m.mvd_by, m.commnts, m.lggd_by, m.lggd_dt, m.md_by, m.md_dt, ");
-            sb.Append("m.asst_typ_id, m.asst_ctg_id, m.mvt_sts, a.asst_nm, a.asst_ds, a.asst_cndt, t.typ_nm, ");
+            sb.Append("m.asst_typ_id, m.asst_ctg_id, m.mvt_sts, a.asst_nm, a.asst_ds, a.cnd_sts, t.typ_nm, ");
             sb.Append("c.asst_ctgs_nm FROM public.asm_mvt_hst m ");
             sb.Append("INNER JOIN public.asm_stt_asst a ON m.asm_asst_id = a.asst_id ");
             sb.Append("INNER JOIN public.asm_stt_typs t ON m.asst_typ_id = t.typ_id ");
@@ -176,7 +178,8 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
                                 AssetName = reader["asst_nm"] == DBNull.Value ? string.Empty : reader["asst_nm"].ToString(),
                                 AssetDescription = reader["asst_ds"] == DBNull.Value ? string.Empty : reader["asst_ds"].ToString(),
                                 ApprovedBy = reader["aprv_by"] == DBNull.Value ? string.Empty : reader["aprv_by"].ToString(),
-                                AssetCondition = reader["ass_cndt"] == DBNull.Value ? string.Empty : reader["ass_cndt"].ToString(),
+                                AssetConditionDescription = reader["ass_cndt"] == DBNull.Value ? string.Empty : reader["ass_cndt"].ToString(),
+                                AssetConditionStatus = reader["cnd_sts"] == DBNull.Value ? AssetCondition.Unspecified : (AssetCondition)reader["cnd_sts"],
                                 MovedFromLocationName = reader["mvt_fr_loc"] == DBNull.Value ? string.Empty : reader["mvt_fr_loc"].ToString(),
                                 MovedToLocationName = reader["mvt_to_loc"] == DBNull.Value ? string.Empty : reader["mvt_to_loc"].ToString(),
                                 MovedOn = reader["mvt_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["mvt_dt"],
@@ -214,7 +217,7 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
             StringBuilder sb = new StringBuilder();
             sb.Append("SELECT m.mvt_hst_id, m.asm_asst_id, m.mvt_fr_loc, m.mvt_to_loc, m.mvt_dt, m.mvt_pps, ");
             sb.Append("m.ass_cndt, m.aprv_by, m.mvd_by, m.commnts, m.lggd_by, m.lggd_dt, m.md_by, m.md_dt, ");
-            sb.Append("m.asst_typ_id, m.asst_ctg_id, m.mvt_sts, a.asst_nm, a.asst_ds, a.asst_cndt, t.typ_nm, ");
+            sb.Append("m.asst_typ_id, m.asst_ctg_id, m.mvt_sts, a.asst_nm, a.asst_ds, a.cnd_sts, t.typ_nm, ");
             sb.Append("c.asst_ctgs_nm FROM public.asm_mvt_hst m ");
             sb.Append("INNER JOIN public.asm_stt_asst a ON m.asm_asst_id = a.asst_id ");
             sb.Append("INNER JOIN public.asm_stt_typs t ON m.asst_typ_id = t.typ_id ");
@@ -241,7 +244,8 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
                                 AssetName = reader["asst_nm"] == DBNull.Value ? string.Empty : reader["asst_nm"].ToString(),
                                 AssetDescription = reader["asst_ds"] == DBNull.Value ? string.Empty : reader["asst_ds"].ToString(),
                                 ApprovedBy = reader["aprv_by"] == DBNull.Value ? string.Empty : reader["aprv_by"].ToString(),
-                                AssetCondition = reader["ass_cndt"] == DBNull.Value ? string.Empty : reader["ass_cndt"].ToString(),
+                                AssetConditionDescription = reader["ass_cndt"] == DBNull.Value ? string.Empty : reader["ass_cndt"].ToString(),
+                                AssetConditionStatus = reader["cnd_sts"] == DBNull.Value ? AssetCondition.Unspecified : (AssetCondition)reader["cnd_sts"],
                                 MovedFromLocationName = reader["mvt_fr_loc"] == DBNull.Value ? string.Empty : reader["mvt_fr_loc"].ToString(),
                                 MovedToLocationName = reader["mvt_to_loc"] == DBNull.Value ? string.Empty : reader["mvt_to_loc"].ToString(),
                                 MovedOn = reader["mvt_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["mvt_dt"],
@@ -278,7 +282,7 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
             StringBuilder sb = new StringBuilder();
             sb.Append("SELECT m.mvt_hst_id, m.asm_asst_id, m.mvt_fr_loc, m.mvt_to_loc, m.mvt_dt, m.mvt_pps, ");
             sb.Append("m.ass_cndt, m.aprv_by, m.mvd_by, m.commnts, m.lggd_by, m.lggd_dt, m.md_by, m.md_dt, ");
-            sb.Append("m.asst_typ_id, m.asst_ctg_id, m.mvt_sts, a.asst_nm, a.asst_ds, a.asst_cndt, t.typ_nm, ");
+            sb.Append("m.asst_typ_id, m.asst_ctg_id, m.mvt_sts, a.asst_nm, a.asst_ds, a.cnd_sts, t.typ_nm, ");
             sb.Append("c.asst_ctgs_nm FROM public.asm_mvt_hst m ");
             sb.Append("INNER JOIN public.asm_stt_asst a ON m.asm_asst_id = a.asst_id ");
             sb.Append("INNER JOIN public.asm_stt_typs t ON m.asst_typ_id = t.typ_id ");
@@ -306,7 +310,8 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
                                 AssetName = reader["asst_nm"] == DBNull.Value ? string.Empty : reader["asst_nm"].ToString(),
                                 AssetDescription = reader["asst_ds"] == DBNull.Value ? string.Empty : reader["asst_ds"].ToString(),
                                 ApprovedBy = reader["aprv_by"] == DBNull.Value ? string.Empty : reader["aprv_by"].ToString(),
-                                AssetCondition = reader["ass_cndt"] == DBNull.Value ? string.Empty : reader["ass_cndt"].ToString(),
+                                AssetConditionDescription = reader["ass_cndt"] == DBNull.Value ? string.Empty : reader["ass_cndt"].ToString(),
+                                AssetConditionStatus = reader["cnd_sts"] == DBNull.Value ? AssetCondition.Unspecified : (AssetCondition)reader["cnd_sts"],
                                 MovedFromLocationName = reader["mvt_fr_loc"] == DBNull.Value ? string.Empty : reader["mvt_fr_loc"].ToString(),
                                 MovedToLocationName = reader["mvt_to_loc"] == DBNull.Value ? string.Empty : reader["mvt_to_loc"].ToString(),
                                 MovedOn = reader["mvt_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["mvt_dt"],
@@ -346,9 +351,9 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
             StringBuilder sb = new StringBuilder();
             sb.Append("INSERT INTO public.asm_mvt_hst(asm_asst_id, mvt_fr_loc, mvt_to_loc, mvt_dt, ");
             sb.Append("mvt_pps, ass_cndt, aprv_by, mvd_by, commnts, lggd_by, lggd_dt, md_by, ");
-            sb.Append("md_dt, asst_typ_id, asst_ctg_id, mvt_sts) VALUES (@asm_asst_id, @mvt_fr_loc, ");
+            sb.Append("md_dt, asst_typ_id, asst_ctg_id, mvt_sts, cnd_sts) VALUES (@asm_asst_id, @mvt_fr_loc, ");
             sb.Append("@mvt_to_loc, @mvt_dt, @mvt_pps, @ass_cndt, @aprv_by, @mvd_by, @commnts, ");
-            sb.Append("@lggd_by, @lggd_dt, @md_by, @md_dt, @asst_typ_id, @asst_ctg_id, @mvt_sts); ");
+            sb.Append("@lggd_by, @lggd_dt, @md_by, @md_dt, @asst_typ_id, @asst_ctg_id, @mvt_sts, @cnd_sts); ");
             string query = sb.ToString();
             try
             {
@@ -372,13 +377,14 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
                     var asst_ctg_id = cmd.Parameters.Add("@asst_ctg_id", NpgsqlDbType.Integer);
                     var lggd_dt = cmd.Parameters.Add("@lggd_dt", NpgsqlDbType.TimestampTz);
                     var mvt_sts = cmd.Parameters.Add("@mvt_sts", NpgsqlDbType.Text);
+                    var cnd_sts = cmd.Parameters.Add("@cnd_sts", NpgsqlDbType.Integer);
                     cmd.Prepare();
                     asm_asst_id.Value = assetMovement.AssetID;
                     mmvt_fr_loc.Value = assetMovement.MovedFromLocationName;
                     mvt_to_loc.Value = assetMovement.MovedToLocationName;
                     mvt_dt.Value = assetMovement.MovedOn ?? DateTime.Now;
                     mvt_pps.Value = assetMovement.MovementPurpose ?? string.Empty;
-                    ass_cndt.Value = assetMovement.AssetCondition ?? string.Empty;
+                    ass_cndt.Value = assetMovement.AssetConditionDescription ?? string.Empty;
                     mvd_by.Value = assetMovement.SupervisedBy ?? string.Empty;
                     aprv_by.Value = assetMovement.ApprovedBy ?? string.Empty;
                     commnts.Value = assetMovement.Comments ?? string.Empty;
@@ -389,7 +395,7 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
                     asst_ctg_id.Value = assetMovement.AssetCategoryID;
                     lggd_dt.Value = assetMovement.LoggedTime;
                     mvt_sts.Value = assetMovement.MovementStatus == null || assetMovement.MovementStatus == string.Empty ? "Transferred" : assetMovement.MovementStatus;
-
+                    cnd_sts.Value = (int)assetMovement.AssetConditionStatus;
                     rows = await cmd.ExecuteNonQueryAsync();
                     await conn.CloseAsync();
                 }
@@ -411,7 +417,8 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
             sb.Append("mvt_to_loc = @mvt_to_loc, mvt_dt = @mvt_dt, mvt_pps = @mvt_pps, ass_cndt = @ass_cndt, ");
             sb.Append("aprv_by = @aprv_by, mvd_by = @mvd_by, commnts = @commnts, lggd_by = @lggd_by, ");
             sb.Append("lggd_dt = @lggd_dt, md_by = @md_by, md_dt = @md_dt, asst_typ_id = @asst_typ_id, ");
-            sb.Append("asst_ctg_id = @asst_ctg_id, mvt_sts = @mvt_sts WHERE mvt_hst_id = @mvt_hst_id; ");
+            sb.Append("asst_ctg_id = @asst_ctg_id, mvt_sts = @mvt_sts, cnd_sts = @cnd_sts ");
+            sb.Append("WHERE mvt_hst_id = @mvt_hst_id;");
             string query = sb.ToString();
             try
             {
@@ -436,6 +443,7 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
                     var asst_ctg_id = cmd.Parameters.Add("@asst_ctg_id", NpgsqlDbType.Integer);
                     var lggd_dt = cmd.Parameters.Add("@lggd_dt", NpgsqlDbType.TimestampTz);
                     var mvt_sts = cmd.Parameters.Add("@mvt_sts", NpgsqlDbType.Text);
+                    var cnd_sts = cmd.Parameters.Add("@cnd_sts", NpgsqlDbType.Integer);
                     cmd.Prepare();
                     mvt_hst_id.Value = assetMovement.AssetMovementID;
                     asm_asst_id.Value = assetMovement.AssetID;
@@ -443,7 +451,7 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
                     mvt_to_loc.Value = assetMovement.MovedToLocationName;
                     mvt_dt.Value = assetMovement.MovedOn ?? DateTime.Now;
                     mvt_pps.Value = assetMovement.MovementPurpose ?? string.Empty;
-                    ass_cndt.Value = assetMovement.AssetCondition ?? string.Empty;
+                    ass_cndt.Value = assetMovement.AssetConditionDescription ?? string.Empty;
                     mvd_by.Value = assetMovement.SupervisedBy ?? string.Empty;
                     aprv_by.Value = assetMovement.ApprovedBy ?? string.Empty;
                     commnts.Value = assetMovement.Comments ?? string.Empty;
@@ -454,6 +462,8 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
                     asst_ctg_id.Value = assetMovement.AssetCategoryID;
                     lggd_dt.Value = assetMovement.LoggedTime;
                     mvt_sts.Value = assetMovement.MovementStatus;
+                    cnd_sts.Value = (int)assetMovement.AssetConditionStatus;
+
                     rows = await cmd.ExecuteNonQueryAsync();
                     await conn.CloseAsync();
                 }

@@ -14,12 +14,12 @@ namespace IntranetPortal.Helpers
 {
     public class UtilityHelper
     {
-        public IConfiguration _config { get; }
-        public UtilityHelper(IConfiguration configuration)
+        private IConfiguration _config { get; }
+        public  UtilityHelper(IConfiguration configuration)
         {
             _config = configuration;
         }
-        //public static bool IsValidFile(string[] ValidFileTypes, HttpPostedFileBase UploadedFile)
+
         public static bool IsValidFile(string[] ValidFileTypes, IFormFile UploadedFile)
         {
             bool isvalid = false;
@@ -76,7 +76,7 @@ namespace IntranetPortal.Helpers
 
         public bool SendEmailWithSendGrid(EmailModel model)
         {
-            var apiKey = _config.GetSection("AppSettings:SendGrid_API_KEY").Value;
+            var apiKey = _config.GetSection("EmailSettings:SendGrid_API_KEY").Value;
             var client = new SendGridClient(apiKey);
             var from = new EmailAddress("officemanager@channelstv.com", "Channels OfficeManager");
             var subject = model.Subject;

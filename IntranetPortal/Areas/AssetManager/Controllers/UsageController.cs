@@ -78,7 +78,7 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
                 model.AssetTypeID = asset.AssetTypeID;
                 model.AssetTypeName = asset.AssetTypeName;
                 model.CheckedOutFromLocation = asset.CurrentLocation == null || asset.CurrentLocation == "" ? asset.BaseLocationName : asset.CurrentLocation;
-                model.CheckOutCondition = asset.Condition;
+                model.CheckOutCondition = asset.ConditionStatus;
                 model.UsageStartTime = DateTime.Now;
                 model.UsageEndTime = DateTime.Now;
             }
@@ -142,7 +142,6 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
             return View(model);
         }
 
-
         [HttpGet]
         public async Task<IActionResult> EditCheckOut(int id)
         {
@@ -171,7 +170,6 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
             }
             return View(model);
         }
-
 
         [HttpGet]
         public async Task<IActionResult> CheckOutDetails(int id)
@@ -281,7 +279,7 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
                 model.UsageID = assetUsage.UsageID;
                 model.CheckedInFromLocation = assetUsage.UsageLocation;
                 model.CheckedInToLocation = string.Empty;
-                model.CheckedInCondition = string.Empty;
+                model.CheckedInCondition = AssetCondition.Unspecified;
                 model.CheckedInComment = string.Empty;
 
             }
@@ -289,7 +287,7 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
             {
                 model.ViewModelErrorMessage = ex.Message;
             }
-            ViewBag.LocationsList = _globalSettingsService.GetAllLocationsAsync();
+            ViewBag.LocationsList = new SelectList(await _globalSettingsService.GetAllLocationsAsync(),"LocationName","LocationName");
             return View(model);
         }
 

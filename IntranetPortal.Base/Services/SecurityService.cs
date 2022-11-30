@@ -58,6 +58,21 @@ namespace IntranetPortal.Base.Services
             }
             return employeeUsers.ToList();
         }
+        public async Task<IList<EmployeeUser>> SearchEmployeeUsersByNameAsync(string fullName)
+        {
+            List<EmployeeUser> employeeUsers = new List<EmployeeUser>();
+            try
+            {
+                var entities = await _employeeUserRepository.SearchByNameAsync(fullName);
+                employeeUsers = entities.ToList();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return employeeUsers.ToList();
+        }
+
         #endregion
 
         //========================= User Action Methods ======================================================//

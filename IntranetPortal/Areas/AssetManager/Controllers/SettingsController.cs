@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json;
 
 namespace IntranetPortal.Areas.AssetManager.Controllers
 {
@@ -520,7 +521,8 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
                 model.ParentAssetID = asset.ParentAssetID;
                 model.BaseLocationID = asset.BaseLocationID;
                 model.BaseLocationName = asset.BaseLocationName;
-                model.Condition = asset.Condition;
+                model.ConditionDescription = asset.ConditionDescription;
+                model.ConditionStatus = asset.ConditionStatus;
                 model.CreatedBy = asset.CreatedBy;
                 model.CreatedDate = asset.CreatedDate;
                 model.CurrentLocation = asset.CurrentLocation;
@@ -656,7 +658,8 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
                 model.ParentAssetID = asset.ParentAssetID;
                 model.BaseLocationID = asset.BaseLocationID;
                 model.BaseLocationName = asset.BaseLocationName;
-                model.Condition = asset.Condition;
+                model.ConditionDescription = asset.ConditionDescription;
+                model.ConditionStatus = asset.ConditionStatus;
                 model.CreatedBy = asset.CreatedBy;
                 model.CreatedDate = asset.CreatedDate;
                 model.CurrentLocation = asset.CurrentLocation;
@@ -683,7 +686,8 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
             {
                 try
                 {
-                    bool succeeded = await _assetManagerService.DeleteAssetAsync(model.AssetID);
+                    string deletedBy = HttpContext.User.Identity.Name;
+                    bool succeeded = await _assetManagerService.DeleteAssetAsync(model.AssetID, deletedBy);
                     if (succeeded)
                     {
                         return RedirectToAction("Assets", "Settings");
@@ -703,5 +707,47 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
             return View(model);
         }
         #endregion
+
+        //======================== Assets Helper Methods ======================================//
+        #region Assets Helper Methods
+
+        [HttpGet]
+        public JsonResult GetAssetNames(string text)
+        {
+            List<string> assets = _assetManagerService.SearchAssetsByNameAsync(text).Result.Select(x => x.AssetName).ToList();
+            return Json(assets);
+        }
+
+        [HttpGet]
+        public JsonResult GetAssetParameters(string nm)
+        {
+            Asset asset = new Asset();
+
+            asset = _assetManagerService.GetAssetByNameAsync(nm).Result;
+
+            if (asset == null || string.IsNullOrWhiteSpace(asset.AssetName))
+            {
+                asset = new Asset
+                {
+                    AssetID = string.Empty,
+                    AssetName = string.Empty
+                };
+            }
+
+            string model = JsonConvert.SerializeObject(new
+            {
+                asset_id = asset.AssetID,
+                asset_name = asset.AssetName,
+                asset_description = asset.AssetDescription,
+                asset_status = asset.UsageStatus,
+                asset_type_id = asset.AssetTypeID,
+                asset_type_name = asset.AssetTypeName,
+            }, Formatting.Indented);
+            return Json(model);
+        }
+
+        #endregion
+
+
     }
 }

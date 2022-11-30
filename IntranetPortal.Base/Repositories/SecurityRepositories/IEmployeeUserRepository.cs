@@ -10,5 +10,6 @@ namespace IntranetPortal.Base.Repositories.SecurityRepositories
     {
         Task<IList<EmployeeUser>> GetAllAsync();
         Task<IList<EmployeeUser>> GetByNameAsync(string fullName);
+        Task<IList<EmployeeUser>> SearchByNameAsync(string fullName);
     }
 }

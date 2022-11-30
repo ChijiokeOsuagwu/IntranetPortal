@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace IntranetPortal.Base.Services
 {
-    public class AssetManagerService:IAssetManagerService
+    public class AssetManagerService : IAssetManagerService
     {
         private readonly IAssetCategoryRepository _assetCategoryRepository;
         private readonly IAssetTypeRepository _assetTypeRepository;
@@ -89,7 +89,7 @@ namespace IntranetPortal.Base.Services
             try
             {
                 var entities = await _assetCategoryRepository.GetAllAsync();
-                if(entities != null && entities.Count > 0) {assetCategories = entities.ToList(); }
+                if (entities != null && entities.Count > 0) { assetCategories = entities.ToList(); }
             }
             catch (Exception ex)
             {
@@ -105,7 +105,7 @@ namespace IntranetPortal.Base.Services
             try
             {
                 var entity = await _assetCategoryRepository.GetByIdAsync(assetCategoryId);
-                if(entity != null) { assetCategory = entity;}
+                if (entity != null) { assetCategory = entity; }
             }
             catch (Exception ex)
             {
@@ -130,7 +130,7 @@ namespace IntranetPortal.Base.Services
         }
 
         #endregion
-        
+
         //=================== Asset Type Action Methods ==========================//
         #region Asset Type Action Methods
 
@@ -262,13 +262,13 @@ namespace IntranetPortal.Base.Services
             return IsSuccessful;
         }
 
-        public async Task<bool> DeleteAssetAsync(string assetId)
+        public async Task<bool> DeleteAssetAsync(string assetId, string deletedBy)
         {
             if (string.IsNullOrWhiteSpace(assetId)) { throw new ArgumentNullException(nameof(assetId), "Required parameter [AssetID] is missing."); }
             bool IsSuccessful = false;
             try
             {
-                IsSuccessful = await _assetRepository.DeleteAsync(assetId);
+                IsSuccessful = await _assetRepository.DeleteAsync(assetId, deletedBy);
             }
             catch (Exception ex)
             {
@@ -324,12 +324,28 @@ namespace IntranetPortal.Base.Services
             return asset;
         }
 
+        public async Task<Asset> GetAssetByNameAsync(string assetName)
+        {
+            Asset asset = new Asset();
+            if (string.IsNullOrWhiteSpace(assetName)) { throw new ArgumentNullException(nameof(assetName), "The required parameter [assetName] is missing. The request cannot be processed."); }
+            try
+            {
+                var entity = await _assetRepository.GetByNameAsync(assetName);
+                if (entity != null) { asset = entity; }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return asset;
+        }
+
         public async Task<IList<Asset>> SearchAssetsByNameAsync(string assetName)
         {
             List<Asset> assets = new List<Asset>();
             try
             {
-                var entities = await _assetRepository.GetByNameAsync(assetName);
+                var entities = await _assetRepository.SearchByNameAsync(assetName);
                 if (entities != null && entities.Count > 0) { assets = entities.ToList(); }
             }
             catch (Exception ex)
@@ -477,7 +493,7 @@ namespace IntranetPortal.Base.Services
             try
             {
                 var entities = await _assetReservationRepository.GetByAssetIdAsync(assetId);
-                if(entities != null && entities.Count > 0) { assetReservations = entities.ToList(); }
+                if (entities != null && entities.Count > 0) { assetReservations = entities.ToList(); }
             }
             catch (Exception ex)
             {
@@ -582,7 +598,7 @@ namespace IntranetPortal.Base.Services
             }
             return assetUsages;
         }
-        
+
         public async Task<IList<AssetUsage>> GetCurrentAssetUsagesByAssetTypeIdAsync(int assetTypeId)
         {
             List<AssetUsage> assetUsages = new List<AssetUsage>();
@@ -644,20 +660,51 @@ namespace IntranetPortal.Base.Services
                     string usageStatus = "Unavailable";
                     switch (assetUsage.Purpose)
                     {
-                        case "Assignment": usageStatus = "In Use";
+                        case "Assignment":
+                            usageStatus = "In Use";
                             break;
-                        case "Repair": usageStatus = "Unavailable";
+                        case "Repair":
+                            usageStatus = "Unavailable";
                             break;
-                        default: usageStatus = "Unavailable";                            
+                        default:
+                            usageStatus = "Unavailable";
                             break;
                     }
-                     await _assetRepository.UpdateUsageStatusAsync(assetUsage.AssetID, usageStatus, assetUsage.ModifiedBy);
+                    await _assetRepository.UpdateUsageStatusAsync(assetUsage.AssetID, usageStatus, assetUsage.ModifiedBy);
                     await _assetRepository.UpdateCurrentLocationAsync(assetUsage.AssetID, assetUsage.UsageLocation, assetUsage.ModifiedBy);
                     IsSuccessful = true;
                 }
             }
             catch (Exception ex)
             {
+                throw new Exception(ex.Message);
+            }
+            return IsSuccessful;
+        }
+
+        public async Task<bool> CancelCheckOutEquipmentAsync(int assetUsageId, string assetId, string previousLocation, string previousStatus, string modifiedBy)
+        {
+            if (assetUsageId < 1) { throw new ArgumentNullException(nameof(assetUsageId), "Required parameter [AssetUsageID] is missing."); }
+            bool IsSuccessful = false;
+            try
+            {
+                IsSuccessful = await _assetUsageRepository.DeleteAsync(assetUsageId);
+                if (IsSuccessful)
+                {
+                    if (!string.IsNullOrWhiteSpace(previousStatus))
+                    {
+                        await _assetRepository.UpdateUsageStatusAsync(assetId, previousStatus, modifiedBy);
+                    }
+
+                    if(!string.IsNullOrWhiteSpace(previousLocation))
+                    {
+                        await _assetRepository.UpdateCurrentLocationAsync(assetId, previousLocation, modifiedBy);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+
                 throw new Exception(ex.Message);
             }
             return IsSuccessful;
@@ -756,6 +803,23 @@ namespace IntranetPortal.Base.Services
             }
             return assetUsages;
         }
+
+        public async Task<IList<AssetUsage>> GetAssetUsagesCheckedOutByAssetIdAsync(string assetId)
+        {
+            List<AssetUsage> assetUsages = new List<AssetUsage>();
+            if (string.IsNullOrEmpty(assetId)) { throw new ArgumentNullException(nameof(assetId), "The required parameter [AssetID] is missing. The request cannot be processed."); }
+            try
+            {
+                var entities = await _assetUsageRepository.GetCheckedOutByAssetIdAsync(assetId);
+                if (entities != null && entities.Count > 0) { assetUsages = entities.ToList(); }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return assetUsages;
+        }
+
 
         public async Task<IList<AssetUsage>> SearchAssetUsagesByAssetNameAsync(string assetName)
         {
@@ -885,7 +949,7 @@ namespace IntranetPortal.Base.Services
                 bool firstSuccess = await _assetIncidentRepository.EditAsync(assetIncident);
                 if (firstSuccess)
                 {
-                   return await _assetRepository.UpdateAssetConditionAsync(assetIncident.AssetID, assetIncident.AssetCondition, assetIncident.ModifiedBy);
+                    return await _assetRepository.UpdateAssetConditionAsync(assetIncident.AssetID, assetIncident.AssetCondition, assetIncident.ModifiedBy);
                 }
             }
             catch (Exception ex)

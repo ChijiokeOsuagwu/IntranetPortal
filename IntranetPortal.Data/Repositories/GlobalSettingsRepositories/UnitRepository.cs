@@ -164,7 +164,7 @@ namespace IntranetPortal.Data.Repositories.GlobalSettingsRepositories
             StringBuilder sb = new StringBuilder();
             sb.Append($"SELECT unitname, unithd1, unithd2, unitqk, u.deptqk, d.deptname, p1.fullname AS unithd1_name, p2.fullname AS unithd2_name ");
             sb.Append($"FROM public.gst_units u LEFT OUTER JOIN gst_prsns p1 ON u.unithd1 = p1.id LEFT OUTER JOIN gst_prsns p2 ON u.unithd2 = p2.id ");
-            sb.Append($"LEFT OUTER JOIN gst_depts d ON u.deptqk = d.deptqk ORDER BY d.deptname, unitname ASC;");
+            sb.Append($"LEFT OUTER JOIN gst_depts d ON u.deptqk = d.deptqk ORDER BY unitname ASC;");
             query = sb.ToString();
             try
             {

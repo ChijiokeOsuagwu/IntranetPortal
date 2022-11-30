@@ -90,20 +90,28 @@ namespace IntranetPortal.Data.Repositories.BaseRepositories
             return rows > 0;
         }
 
-        public async Task<bool> DeletePersonAsync(string Id)
+        public async Task<bool> DeletePersonAsync(string Id, string deletedBy, string deletedTime)
         {
             int rows = 0;
             var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
-            string query = $"DELETE FROM public.gst_prsns WHERE (LOWER(id) = LOWER(@id));";
+            StringBuilder sb = new StringBuilder();
+            sb.Append("UPDATE public.gst_prsns	SET is_dx = true, dx_by = @dx_by, ");
+            sb.Append("dx_time = @dx_time WHERE (id = @id);");
+            string query = sb.ToString();
             try
             {
                 await conn.OpenAsync();
                 //Delete data
                 using (var cmd = new NpgsqlCommand(query, conn))
                 {
-                    var personId = cmd.Parameters.Add("@id", NpgsqlDbType.Text);
+                    var id = cmd.Parameters.Add("@id", NpgsqlDbType.Text);
+                    var dx_by = cmd.Parameters.Add("@dx_by", NpgsqlDbType.Text);
+                    var dx_time = cmd.Parameters.Add("@dx-time", NpgsqlDbType.Text);
                     cmd.Prepare();
-                    personId.Value = Id;
+                    id.Value = Id;
+                    dx_by.Value = deletedBy;
+                    dx_time.Value = deletedTime;
+
                     rows = await cmd.ExecuteNonQueryAsync();
                     await conn.CloseAsync();
                 }

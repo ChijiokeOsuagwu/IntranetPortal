@@ -65,8 +65,9 @@
                         <div><span asp-validation-for="MovedToLocationID" class="text-danger"></span></div>
                     </div>
                 </div>
+                <input type="hidden" asp-for="AssetConditionStatus" />
+                <input type="hidden" asp-for="AssetConditionDescription" />
                 <div class="row">
-                    <input type="hidden" asp-for="AssetCondition" />
                     <div class="col-md-6 mb-1">
                         <label asp-for="MovementPurpose" class="form-label text-white fw-bold"></label>
                         <textarea class="form-control fw-bold" name="@Html.NameFor(m => m.MovementPurpose)">@Model.MovementPurpose</textarea>

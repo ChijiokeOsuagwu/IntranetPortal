@@ -20,12 +20,12 @@ namespace IntranetPortal.Base.Models.AssetManagerModels
         public string CheckedOutFromLocation { get; set; }
         public string CheckedOutBy { get; set; }
         public DateTime? CheckedOutTime { get; set; }
-        public string CheckOutCondition { get; set; }
+        public AssetCondition CheckOutCondition { get; set; }
         public string CheckedOutTo { get; set; }
         public string CheckedOutComment { get; set; }
         public string CheckedInBy { get; set; }
         public DateTime? CheckedInTime { get; set; }
-        public string CheckedInCondition { get; set; }
+        public AssetCondition CheckedInCondition { get; set; }
         public string CheckedInComment { get; set; }
         public string CheckStatus { get; set; }
         public string ModifiedBy { get; set; }

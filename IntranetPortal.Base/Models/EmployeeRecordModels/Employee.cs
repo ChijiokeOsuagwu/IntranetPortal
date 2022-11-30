@@ -60,18 +60,25 @@ namespace IntranetPortal.Base.Models.EmployeeRecordModels
         public string EmployeeModifiedDate { get; set; }
         public string EmployeeCreatedBy { get; set; }
         public string EmployeeCreatedDate { get; set; }
+        public bool IsDeactivated { get; set; }
+        public string DeactivationTime { get; set; }
+        public string DeactivatedBy { get; set; }
 
         public Person ToPerson()
         {
             Person person = new Person
             {
                 Address = this.Address,
+                BirthDay = BirthDay,
+                BirthMonth = BirthMonth,
+                BirthYear = BirthYear,
                 CreatedBy = this.CreatedBy,
                 CreatedTime = this.CreatedTime,
                 Email = this.Email,
                 FirstName = this.FirstName,
                 FullName = this.FullName,
                 ImagePath = this.ImagePath,
+                MaritalStatus = MaritalStatus,
                 ModifiedBy = this.ModifiedBy,
                 ModifiedTime = this.ModifiedTime,
                 OtherNames = this.OtherNames,

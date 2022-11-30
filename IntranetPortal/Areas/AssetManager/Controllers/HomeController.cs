@@ -55,7 +55,8 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
                 model.ParentAssetID = asset.ParentAssetID;
                 model.BaseLocationID = asset.BaseLocationID;
                 model.BaseLocationName = asset.BaseLocationName;
-                model.Condition = asset.Condition;
+                model.ConditionStatus = asset.ConditionStatus;
+                model.ConditionDescription = asset.ConditionDescription;
                 model.CreatedBy = asset.CreatedBy;
                 model.CreatedDate = asset.CreatedDate;
                 model.CurrentLocation = asset.CurrentLocation;
@@ -94,7 +95,8 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
                 model.ParentAssetID = asset.ParentAssetID;
                 model.BaseLocationID = asset.BaseLocationID;
                 model.BaseLocationName = asset.BaseLocationName;
-                model.Condition = asset.Condition;
+                model.ConditionDescription = asset.ConditionDescription;
+                model.ConditionStatus = asset.ConditionStatus;
                 model.CreatedBy = asset.CreatedBy;
                 model.CreatedDate = asset.CreatedDate;
                 model.CurrentLocation = asset.CurrentLocation;
@@ -407,7 +409,6 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
             return View(model);
         }
 
-
         [HttpPost]
         public async Task<IActionResult> DeleteBooking(AssetReservationViewModel model)
         {
@@ -434,7 +435,6 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
             List<string> assets = _assetManagerService.SearchAssetsByNameAsync(text).Result.Select(x => x.AssetName).ToList();
             return Json(assets);
         }
-
 
         [HttpGet]
         public JsonResult GetAssetParameters(string asn)

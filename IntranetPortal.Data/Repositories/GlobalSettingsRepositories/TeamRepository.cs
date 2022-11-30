@@ -267,7 +267,7 @@ namespace IntranetPortal.Data.Repositories.GlobalSettingsRepositories
             sb.Append("SELECT p.id, p.fullname, p.sex, p.phone1, p.phone2, e.emp_id, e.emp_no_1, e.emp_no_2, e.official_email, ");
             sb.Append("m.tm_mb_id, m.tm_id, m.mbr_id, m.mbr_rl, t.tm_nm, m.tmb_mb, m.tmb_md, m.tmb_cb, m.tmb_cd FROM public.gst_tmbrs m ");
             sb.Append("INNER JOIN public.gst_tms t ON m.tm_id = t.tm_id INNER JOIN public.gst_prsns p ON m.mbr_id = p.id ");
-            sb.Append("INNER JOIN public.erm_emps e ON p.id = e.emp_id ");
+            sb.Append("INNER JOIN public.erm_emp_inf e ON p.id = e.emp_id ");
             sb.Append("WHERE (m.tm_id = @tm_id) ORDER BY fullname;");
             string query = sb.ToString();
             try
@@ -322,7 +322,7 @@ namespace IntranetPortal.Data.Repositories.GlobalSettingsRepositories
             sb.Append("SELECT p.id, p.fullname, p.sex, p.phone1, p.phone2, e.emp_id, e.emp_no_1, e.emp_no_2, e.official_email, ");
             sb.Append("m.tm_mb_id, m.tm_id, m.mbr_id, m.mbr_rl, t.tm_nm, m.tmb_mb, m.tmb_md, m.tmb_cb, m.tmb_cd FROM public.gst_tmbrs m ");
             sb.Append("INNER JOIN public.gst_tms t ON m.tm_id = t.tm_id INNER JOIN public.gst_prsns p ON m.mbr_id = p.id ");
-            sb.Append("INNER JOIN public.erm_emps e ON p.id = e.emp_id WHERE (m.tm_mb_id = @tm_mb_id);");
+            sb.Append("INNER JOIN public.erm_emp_inf e ON p.id = e.emp_id WHERE (m.tm_mb_id = @tm_mb_id);");
             string query = sb.ToString();
             try
             {
@@ -375,7 +375,7 @@ namespace IntranetPortal.Data.Repositories.GlobalSettingsRepositories
             sb.Append("SELECT p.id, p.fullname, p.sex, p.phone1, p.phone2, e.emp_id, e.emp_no_1, e.emp_no_2, e.official_email, m.tm_mb_id, ");
             sb.Append(" m.tm_id, m.mbr_id, m.mbr_rl, t.tm_nm, m.tmb_mb, m.tmb_md, m.tmb_cb, m.tmb_cd FROM public.gst_tmbrs m ");
             sb.Append("INNER JOIN public.gst_tms t ON m.tm_id = t.tm_id INNER JOIN public.gst_prsns p ON m.mbr_id = p.id ");
-            sb.Append("INNER JOIN public.erm_emps e ON p.id = e.emp_id ");
+            sb.Append("INNER JOIN public.erm_emp_inf e ON p.id = e.emp_id ");
             sb.Append("WHERE (m.tm_id = @tm_id) AND (LOWER(fullname) LIKE '%'||LOWER(@fullname)||'%') ORDER BY fullname;");
             string query = sb.ToString();
             try
@@ -431,7 +431,7 @@ namespace IntranetPortal.Data.Repositories.GlobalSettingsRepositories
             var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
             StringBuilder sb = new StringBuilder();
             sb.Append("SELECT p.id, p.fullname, p.sex, p.phone1, p.phone2, e.emp_id, e.emp_no_1, e.emp_no_2, official_email ");
-            sb.Append("FROM public.gst_prsns p INNER JOIN public.erm_emps e ON p.id = e.emp_id ");
+            sb.Append("FROM public.gst_prsns p INNER JOIN public.erm_emp_inf e ON p.id = e.emp_id ");
             sb.Append("WHERE e.emp_id NOT IN (SELECT mbr_id FROM public.gst_tmbrs WHERE tm_id = @tm_id);");
             string query = sb.ToString();
             try

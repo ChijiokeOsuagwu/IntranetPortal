@@ -3,7 +3,7 @@ using IntranetPortal.Base.Repositories.BamsRepositories;
 using IntranetPortal.Base.Repositories.BaseRepositories;
 using IntranetPortal.Base.Repositories.BusinessManagerRepositories;
 using IntranetPortal.Base.Repositories.ContentManagerRepositories;
-using IntranetPortal.Base.Repositories.EmployeeRecordRepositories;
+using IntranetPortal.Base.Repositories.ErmRepository;
 using IntranetPortal.Base.Repositories.GlobalSettingsRepositories;
 using IntranetPortal.Base.Repositories.SecurityRepositories;
 using IntranetPortal.Base.Services;
@@ -12,7 +12,7 @@ using IntranetPortal.Data.Repositories.BamsRepositories;
 using IntranetPortal.Data.Repositories.BaseRepositories;
 using IntranetPortal.Data.Repositories.BusinessManagerRepositories;
 using IntranetPortal.Data.Repositories.ContentManagerRepositories;
-using IntranetPortal.Data.Repositories.EmployeeRecordRepositories;
+using IntranetPortal.Data.Repositories.ErmRepositories;
 using IntranetPortal.Data.Repositories.GlobalSettingsRepositories;
 using IntranetPortal.Data.Repositories.SecurityRepositories;
 using Microsoft.Extensions.DependencyInjection;
@@ -29,7 +29,7 @@ namespace IntranetPortal.Configurations
         {
             services.AddScoped<IPostRepository, PostRepository>();
             services.AddScoped<ILocationRepository, LocationRepository>();
-            services.AddScoped<IEmployeeRepository, EmployeeRepository>();
+            services.AddScoped<IEmployeesRepository, EmployeesRepository>();
             services.AddScoped<IPersonRepository, PersonRepository>();
             services.AddScoped<IDepartmentRepository, DepartmentRepository>();
             services.AddScoped<IUnitRepository, UnitRepository>();
@@ -53,6 +53,12 @@ namespace IntranetPortal.Configurations
             services.AddScoped<IAssignmentEventRepository, AssignmentEventRepository>();
             services.AddScoped<IAssignmentDeploymentRepository, AssignmentDeploymentRepository>();
             services.AddScoped<IBamsSettingsRepository, BamsSettingsRepository>();
+            services.AddScoped<IDeploymentTeamMemberRepository, DeploymentTeamMemberRepository>();
+            services.AddScoped<IDeploymentEquipmentRepository, DeploymentEquipmentRepository>();
+            services.AddScoped<IAssignmentExtensionRepository, AssignmentExtensionRepository>();
+            services.AddScoped<IAssignmentUpdatesRepository, AssignmentUpdatesRepository>();
+            services.AddScoped<IEquipmentGroupsRepository, EquipmentGroupsRepository>();
+            services.AddScoped<IAssetEquipmentGroupRepository, AssetEquipmentGroupRepository>();
         }
 
         public static void ConfigureServiceManagers(this IServiceCollection services)
@@ -60,11 +66,11 @@ namespace IntranetPortal.Configurations
             services.AddScoped<ISecurityService, SecurityService>();
             services.AddScoped<IContentManagerService, ContentManagerService>();
             services.AddScoped<IGlobalSettingsService, GlobalSettingsService>();
-            services.AddScoped<IEmployeeRecordService, EmployeeRecordService>();
             services.AddScoped<IBaseModelService, BaseModelService>();
             services.AddScoped<IAssetManagerService, AssetManagerService>();
             services.AddScoped<IBusinessManagerService, BusinessManagerService>();
             services.AddScoped<IBamsManagerService, BamsManagerService>();
+            services.AddScoped<IErmService, ErmService>();
         }
 
     }

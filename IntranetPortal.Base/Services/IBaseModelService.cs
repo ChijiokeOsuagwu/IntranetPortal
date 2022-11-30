@@ -8,13 +8,17 @@ namespace IntranetPortal.Base.Services
 {
     public interface IBaseModelService
     {
+        //========================================= Utility Service Methods ============================================//
+        #region Utility Service Methods
+        Task<bool> DbConnectionIsOpenAsync();
+        #endregion
         //========================================= Person Action Methods ===========================================//
         #region Person Action Methods
         Task<bool> CreatePersonAsync(Person person);
 
         Task<bool> UpdatePersonAsync(Person person);
 
-        Task<bool> DeletePersonAsync(string personId);
+        Task<bool> DeletePersonAsync(string personId, string deletedBy, string deletedTime);
 
         Task<bool> PersonExistsAsync(string personId);
 
@@ -28,11 +32,17 @@ namespace IntranetPortal.Base.Services
         Task<string> GenerateAutoNumberAsync(string NumberType);
 
         Task<bool> IncrementAutoNumberAsync(string NumberType);
+
+        Task<string> GenerateCodeNumberAsync(AutoNumberType type, string typeCode);
+
+        Task<bool> RegisterCodeNumberAsync(AutoNumberType type);
         #endregion
 
         //========================================= Message Service Methods ==============================================// 
         #region Message Service Methods
-        Task<bool> SendMessageAsync(Message message, List<string> receipientIds = null);
+        Task<bool> SendMessageAsync(Message message, List<string> receipientIds);
+        Task<bool> SendMessageAsync(Message message);
+        Task<bool> AddMessageRecipientAsync(MessageDetail messageDetail);
 
         Task<Message> ReadMessageAsync(int messageDetailId);
 
@@ -46,7 +56,13 @@ namespace IntranetPortal.Base.Services
 
         Task<int> GetTotalMessagesCount(string recipientId);
 
+        Task<bool> DeleteMessageByMessageDetailIDAsync(int messageDetailId);
+
+        Task<bool> DeleteReadMessagesByRecipientIdAsync(string recipientId);
+
+        Task<bool> DeleteUnReadMessagesByRecipientIdAsync(string recipientId);
         #endregion
+
         //========================================== System Application Action Methods ===================================//
         #region System Applications Action Methods 
         Task<List<SystemApplication>> GetSystemApplicationsAsync();

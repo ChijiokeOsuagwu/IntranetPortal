@@ -93,6 +93,8 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
                             model.AssetID = asset.AssetID;
                             model.AssetTypeID = asset.AssetTypeID;
                             model.AssetCategoryID = asset.AssetCategoryID;
+                            model.AssetConditionStatus = asset.ConditionStatus;
+                            model.AssetConditionDescription = asset.ConditionDescription;
                         }
 
                         if (string.IsNullOrWhiteSpace(model.AssetID) || model.AssetTypeID < 1 || model.AssetCategoryID < 1)
@@ -109,7 +111,8 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
                             Asset asset = await _assetManagerService.GetAssetByIdAsync(model.AssetID);
 
                             AssetMovement assetMovement = model.ConvertToAssetMovement();
-                            assetMovement.AssetCondition = asset.Condition;
+                            assetMovement.AssetConditionStatus = asset.ConditionStatus;
+                            assetMovement.AssetConditionDescription = asset.ConditionDescription;
                             assetMovement.LoggedTime = DateTime.Now;
                             assetMovement.LoggedBy = HttpContext.User.Identity.Name;
                             assetMovement.ModifiedBy = HttpContext.User.Identity.Name;
@@ -162,7 +165,8 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
                 model.MovedFromLocationName = assetMovement.MovedFromLocationName;
                 model.MovedToLocationID = assetMovement.MovedToLocationID;
                 model.MovedToLocationName = assetMovement.MovedToLocationName;
-                model.AssetCondition = assetMovement.AssetCondition;
+                model.AssetConditionStatus = assetMovement.AssetConditionStatus;
+                model.AssetConditionDescription = assetMovement.AssetConditionDescription;
                 model.MovementPurpose = assetMovement.MovementPurpose;
                 model.AssetCategoryName = assetMovement.AssetCategoryName;
                 model.Comments = assetMovement.Comments;
@@ -217,6 +221,8 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
                                 model.AssetID = asset.AssetID;
                                 model.AssetTypeID = asset.AssetTypeID;
                                 model.AssetCategoryID = asset.AssetCategoryID;
+                                model.AssetConditionDescription = asset.ConditionDescription;
+                                model.AssetConditionStatus = asset.ConditionStatus;
                             }
 
                             if (string.IsNullOrWhiteSpace(model.AssetID) || model.AssetTypeID < 1 || model.AssetCategoryID < 1)
@@ -277,10 +283,11 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
                 model.MovedFromLocationName = assetMovement.MovedFromLocationName;
                 model.MovedToLocationID = assetMovement.MovedToLocationID;
                 model.MovedToLocationName = assetMovement.MovedToLocationName;
-                model.AssetCondition = assetMovement.AssetCondition;
+                model.AssetConditionStatus = assetMovement.AssetConditionStatus;
+                model.AssetConditionDescription = assetMovement.AssetConditionDescription;
                 model.MovementPurpose = assetMovement.MovementPurpose;
                 model.AssetCategoryName = assetMovement.AssetCategoryName;
-                model.AssetCondition = assetMovement.AssetCondition;
+                model.AssetConditionDescription = assetMovement.AssetConditionDescription;
                 model.Comments = assetMovement.Comments;
                 model.ApprovedBy = assetMovement.ApprovedBy;
                 model.SupervisedBy = assetMovement.SupervisedBy;
@@ -315,10 +322,11 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
                 model.MovedFromLocationName = assetMovement.MovedFromLocationName;
                 model.MovedToLocationID = assetMovement.MovedToLocationID;
                 model.MovedToLocationName = assetMovement.MovedToLocationName;
-                model.AssetCondition = assetMovement.AssetCondition;
+                model.AssetConditionStatus = assetMovement.AssetConditionStatus;
+                model.AssetConditionDescription = assetMovement.AssetConditionDescription;
                 model.MovementPurpose = assetMovement.MovementPurpose;
                 model.AssetCategoryName = assetMovement.AssetCategoryName;
-                model.AssetCondition = assetMovement.AssetCondition;
+                model.AssetConditionDescription = assetMovement.AssetConditionDescription;
                 model.Comments = assetMovement.Comments;
                 model.ApprovedBy = assetMovement.ApprovedBy;
                 model.SupervisedBy = assetMovement.SupervisedBy;

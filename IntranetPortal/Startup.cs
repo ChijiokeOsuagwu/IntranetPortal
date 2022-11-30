@@ -104,6 +104,11 @@ namespace IntranetPortal
                  pattern: "EmployeeRecords/{controller=Home}/{action=Index}/{id?}");
 
                 endpoints.MapAreaControllerRoute(
+                    name: "ERM",
+                areaName: "ERM",
+                 pattern: "ERM/{controller=Home}/{action=Index}/{id?}");
+
+                endpoints.MapAreaControllerRoute(
                     name: "GlobalSettings",
                 areaName: "GlobalSettings",
                  pattern: "GlobalSettings/{controller=Home}/{action=Index}/{id?}");

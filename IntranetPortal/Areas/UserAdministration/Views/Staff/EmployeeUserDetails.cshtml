@@ -2,7 +2,56 @@
 @{
     ViewData["Title"] = "User Administration | User Account Details";
 }
-<div class="card ml-5 mt-5 w-75">
+    <div class="row">
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <div class="container-fluid">
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNavDropdown">
+                    <ul class="navbar-nav">
+                        <li class="nav-item">
+                            <a asp-area="UserAdministration" asp-controller="Home" asp-action="EditUserAccount" asp-route-id="@Model.UserID" title="Edit" class="btn btn-sm btn-light text-dark">
+                                <i class="bi bi-pencil-square fw-bolder" style="font-size: 1.0rem;"></i>&nbsp;<span class="fw-bold" style="font-size: 0.8rem;">Edit</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a asp-area="UserAdministration" asp-controller="Home" asp-action="ResetUserPassword" asp-route-id="@Model.UserID" title="Reset Password" class="btn btn-sm btn-light text-dark">
+                                <i class="bi bi-key-fill fw-bolder" style="font-size: 1.2rem; font-weight:600"></i>&nbsp;<span class="fw-bold" style="font-size: 0.8rem;">Password</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a asp-area="UserAdministration" asp-controller="Home" asp-action="UserPermissions" asp-route-id="@Model.UserID" title="User Permissions" class="btn btn-sm btn-light text-dark">
+                                <i class="bi bi-lock-fill fw-bolder" style="font-size: 1.0rem;"></i>&nbsp;<span class="fw-bold" style="font-size: 0.8rem;">Permissions</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a asp-area="UserAdministration" asp-controller="Staff" asp-action="DeleteUserAccount" asp-route-id="@Model.UserID" title="Delete" class="btn btn-sm btn-light text-dark">
+                                <i class="bi bi-trash fw-bolder" style="font-size: 1.0rem;"></i>&nbsp;<span class="fw-bold" style="font-size: 0.8rem;">Delete</span>
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a asp-area="Bams" asp-controller="Home" asp-action="CloseAssignment" asp-route-id="@Model.UserID" title="Close" class="btn btn-sm btn-light text-dark">
+                                <i class="bi bi-x-octagon fw-bolder" style="font-size: 1.0rem;"></i>&nbsp;<span class="fw-bold" style="font-size: 0.8rem;">Close</span>
+                            </a>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-chat-square-text"></i>&nbsp;<span class="fw-bold" style="font-size: 0.8rem;">Notifications</span>
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                                <li><a class="dropdown-item" asp-area="Bams" asp-controller="Notifications" asp-action="CreateMessage" asp-route-id="@Model.UserID" asp-route-tp="0">New Assignment</a></li>
+                                <li><a class="dropdown-item" asp-area="Bams" asp-controller="Notifications" asp-action="CreateMessage" asp-route-id="@Model.UserID" asp-route-tp="1">Assignment Extended</a></li>
+                                <li><a class="dropdown-item" asp-area="Bams" asp-controller="Notifications" asp-action="CreateMessage" asp-route-id="@Model.UserID" asp-route-tp="2">Assignment Cancelled</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </div>
+<div class="card ml-2 w-75">
     <div class="card-header bg-dark">
         <h4 class="text-white">User Account Details</h4>
     </div>

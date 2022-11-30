@@ -56,13 +56,13 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
                                 UsageLocation = reader["event_loc"] == DBNull.Value ? string.Empty : reader["event_loc"].ToString(),
                                 CheckedInBy = reader["chk_in_by"] == DBNull.Value ? string.Empty : reader["chk_in_by"].ToString(),
                                 CheckedInComment = reader["chk_in_cmt"] == DBNull.Value ? string.Empty : reader["chk_in_cmt"].ToString(),
-                                CheckedInCondition = reader["chk_in_cnd"] == DBNull.Value ? string.Empty : reader["chk_in_cnd"].ToString(),
+                                CheckedInCondition = reader["chk_in_cnd"] == DBNull.Value ? AssetCondition.Unspecified : (AssetCondition)reader["chk_in_cnd"],
                                 CheckedInTime = reader["chk_in_time"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["chk_in_time"],
                                 CheckedOutBy = reader["chk_out_by"] == DBNull.Value ? string.Empty : reader["chk_out_by"].ToString(),
                                 CheckedOutComment = reader["chk_out_cmt"] == DBNull.Value ? string.Empty : reader["chk_out_cmt"].ToString(),
                                 CheckedOutTime = reader["chk_out_time"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["chk_out_time"],
                                 CheckedOutTo = reader["chk_out_to"] == DBNull.Value ? string.Empty : reader["chk_out_to"].ToString(),
-                                CheckOutCondition = reader["chk_out_cnd"] == DBNull.Value ? string.Empty : reader["chk_out_cnd"].ToString(),
+                                CheckOutCondition = reader["chk_out_cnd"] == DBNull.Value ? AssetCondition.Unspecified : (AssetCondition)reader["chk_out_cnd"],
                                 CheckStatus = reader["chk_status"] == DBNull.Value ? string.Empty : reader["chk_status"].ToString(),
                                 AssetTypeID = reader["asst_typ_id"] == DBNull.Value ? 0 : (int)reader["asst_typ_id"],
                                 AssetTypeName = reader["typ_nm"] == DBNull.Value ? string.Empty : reader["typ_nm"].ToString(),
@@ -122,13 +122,13 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
                                 UsageLocation = reader["event_loc"] == DBNull.Value ? string.Empty : reader["event_loc"].ToString(),
                                 CheckedInBy = reader["chk_in_by"] == DBNull.Value ? string.Empty : reader["chk_in_by"].ToString(),
                                 CheckedInComment = reader["chk_in_cmt"] == DBNull.Value ? string.Empty : reader["chk_in_cmt"].ToString(),
-                                CheckedInCondition = reader["chk_in_cnd"] == DBNull.Value ? string.Empty : reader["chk_in_cnd"].ToString(),
+                                CheckedInCondition = reader["chk_in_cnd"] == DBNull.Value ? AssetCondition.Unspecified : (AssetCondition)reader["chk_in_cnd"],
                                 CheckedInTime = reader["chk_in_time"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["chk_in_time"],
                                 CheckedOutBy = reader["chk_out_by"] == DBNull.Value ? string.Empty : reader["chk_out_by"].ToString(),
                                 CheckedOutComment = reader["chk_out_cmt"] == DBNull.Value ? string.Empty : reader["chk_out_cmt"].ToString(),
                                 CheckedOutTime = reader["chk_out_time"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["chk_out_time"],
                                 CheckedOutTo = reader["chk_out_to"] == DBNull.Value ? string.Empty : reader["chk_out_to"].ToString(),
-                                CheckOutCondition = reader["chk_out_cnd"] == DBNull.Value ? string.Empty : reader["chk_out_cnd"].ToString(),
+                                CheckOutCondition = reader["chk_out_cnd"] == DBNull.Value ? AssetCondition.Unspecified : (AssetCondition)reader["chk_out_cnd"],
                                 CheckStatus = reader["chk_status"] == DBNull.Value ? string.Empty : reader["chk_status"].ToString(),
                                 AssetTypeID = reader["asst_typ_id"] == DBNull.Value ? 0 : (int)reader["asst_typ_id"],
                                 AssetTypeName = reader["typ_nm"] == DBNull.Value ? string.Empty : reader["typ_nm"].ToString(),
@@ -189,13 +189,13 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
                                 UsageLocation = reader["event_loc"] == DBNull.Value ? string.Empty : reader["event_loc"].ToString(),
                                 CheckedInBy = reader["chk_in_by"] == DBNull.Value ? string.Empty : reader["chk_in_by"].ToString(),
                                 CheckedInComment = reader["chk_in_cmt"] == DBNull.Value ? string.Empty : reader["chk_in_cmt"].ToString(),
-                                CheckedInCondition = reader["chk_in_cnd"] == DBNull.Value ? string.Empty : reader["chk_in_cnd"].ToString(),
+                                CheckedInCondition = reader["chk_in_cnd"] == DBNull.Value ? AssetCondition.Unspecified : (AssetCondition)reader["chk_in_cnd"],
                                 CheckedInTime = reader["chk_in_time"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["chk_in_time"],
                                 CheckedOutBy = reader["chk_out_by"] == DBNull.Value ? string.Empty : reader["chk_out_by"].ToString(),
                                 CheckedOutComment = reader["chk_out_cmt"] == DBNull.Value ? string.Empty : reader["chk_out_cmt"].ToString(),
                                 CheckedOutTime = reader["chk_out_time"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["chk_out_time"],
                                 CheckedOutTo = reader["chk_out_to"] == DBNull.Value ? string.Empty : reader["chk_out_to"].ToString(),
-                                CheckOutCondition = reader["chk_out_cnd"] == DBNull.Value ? string.Empty : reader["chk_out_cnd"].ToString(),
+                                CheckOutCondition = reader["chk_out_cnd"] == DBNull.Value ? AssetCondition.Unspecified : (AssetCondition)reader["chk_out_cnd"],
                                 CheckStatus = reader["chk_status"] == DBNull.Value ? string.Empty : reader["chk_status"].ToString(),
                                 AssetTypeID = reader["asst_typ_id"] == DBNull.Value ? 0 : (int)reader["asst_typ_id"],
                                 AssetTypeName = reader["typ_nm"] == DBNull.Value ? string.Empty : reader["typ_nm"].ToString(),
@@ -257,13 +257,13 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
                                 UsageLocation = reader["event_loc"] == DBNull.Value ? string.Empty : reader["event_loc"].ToString(),
                                 CheckedInBy = reader["chk_in_by"] == DBNull.Value ? string.Empty : reader["chk_in_by"].ToString(),
                                 CheckedInComment = reader["chk_in_cmt"] == DBNull.Value ? string.Empty : reader["chk_in_cmt"].ToString(),
-                                CheckedInCondition = reader["chk_in_cnd"] == DBNull.Value ? string.Empty : reader["chk_in_cnd"].ToString(),
+                                CheckedInCondition = reader["chk_in_cnd"] == DBNull.Value ? AssetCondition.Unspecified : (AssetCondition)reader["chk_in_cnd"],
                                 CheckedInTime = reader["chk_in_time"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["chk_in_time"],
                                 CheckedOutBy = reader["chk_out_by"] == DBNull.Value ? string.Empty : reader["chk_out_by"].ToString(),
                                 CheckedOutComment = reader["chk_out_cmt"] == DBNull.Value ? string.Empty : reader["chk_out_cmt"].ToString(),
                                 CheckedOutTime = reader["chk_out_time"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["chk_out_time"],
                                 CheckedOutTo = reader["chk_out_to"] == DBNull.Value ? string.Empty : reader["chk_out_to"].ToString(),
-                                CheckOutCondition = reader["chk_out_cnd"] == DBNull.Value ? string.Empty : reader["chk_out_cnd"].ToString(),
+                                CheckOutCondition = reader["chk_out_cnd"] == DBNull.Value ? AssetCondition.Unspecified : (AssetCondition)reader["chk_out_cnd"],
                                 CheckStatus = reader["chk_status"] == DBNull.Value ? string.Empty : reader["chk_status"].ToString(),
                                 AssetTypeID = reader["asst_typ_id"] == DBNull.Value ? 0 : (int)reader["asst_typ_id"],
                                 AssetTypeName = reader["typ_nm"] == DBNull.Value ? string.Empty : reader["typ_nm"].ToString(),
@@ -321,13 +321,13 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
                                 UsageLocation = reader["event_loc"] == DBNull.Value ? string.Empty : reader["event_loc"].ToString(),
                                 CheckedInBy = reader["chk_in_by"] == DBNull.Value ? string.Empty : reader["chk_in_by"].ToString(),
                                 CheckedInComment = reader["chk_in_cmt"] == DBNull.Value ? string.Empty : reader["chk_in_cmt"].ToString(),
-                                CheckedInCondition = reader["chk_in_cnd"] == DBNull.Value ? string.Empty : reader["chk_in_cnd"].ToString(),
+                                CheckedInCondition = reader["chk_in_cnd"] == DBNull.Value ? AssetCondition.Unspecified : (AssetCondition)reader["chk_in_cnd"],
                                 CheckedInTime = reader["chk_in_time"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["chk_in_time"],
                                 CheckedOutBy = reader["chk_out_by"] == DBNull.Value ? string.Empty : reader["chk_out_by"].ToString(),
                                 CheckedOutComment = reader["chk_out_cmt"] == DBNull.Value ? string.Empty : reader["chk_out_cmt"].ToString(),
                                 CheckedOutTime = reader["chk_out_time"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["chk_out_time"],
                                 CheckedOutTo = reader["chk_out_to"] == DBNull.Value ? string.Empty : reader["chk_out_to"].ToString(),
-                                CheckOutCondition = reader["chk_out_cnd"] == DBNull.Value ? string.Empty : reader["chk_out_cnd"].ToString(),
+                                CheckOutCondition = reader["chk_out_cnd"] == DBNull.Value ? AssetCondition.Unspecified : (AssetCondition)reader["chk_out_cnd"],
                                 CheckStatus = reader["chk_status"] == DBNull.Value ? string.Empty : reader["chk_status"].ToString(),
                                 AssetTypeID = reader["asst_typ_id"] == DBNull.Value ? 0 : (int)reader["asst_typ_id"],
                                 AssetTypeName = reader["typ_nm"] == DBNull.Value ? string.Empty : reader["typ_nm"].ToString(),
@@ -383,13 +383,13 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
                             assetUsage.UsageLocation = reader["event_loc"] == DBNull.Value ? string.Empty : reader["event_loc"].ToString();
                             assetUsage.CheckedInBy = reader["chk_in_by"] == DBNull.Value ? string.Empty : reader["chk_in_by"].ToString();
                             assetUsage.CheckedInComment = reader["chk_in_cmt"] == DBNull.Value ? string.Empty : reader["chk_in_cmt"].ToString();
-                            assetUsage.CheckedInCondition = reader["chk_in_cnd"] == DBNull.Value ? string.Empty : reader["chk_in_cnd"].ToString();
+                            assetUsage.CheckedInCondition = reader["chk_in_cnd"] == DBNull.Value ? AssetCondition.Unspecified : (AssetCondition)reader["chk_in_cnd"];
                             assetUsage.CheckedInTime = reader["chk_in_time"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["chk_in_time"];
                             assetUsage.CheckedOutBy = reader["chk_out_by"] == DBNull.Value ? string.Empty : reader["chk_out_by"].ToString();
                             assetUsage.CheckedOutComment = reader["chk_out_cmt"] == DBNull.Value ? string.Empty : reader["chk_out_cmt"].ToString();
                             assetUsage.CheckedOutTime = reader["chk_out_time"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["chk_out_time"];
                             assetUsage.CheckedOutTo = reader["chk_out_to"] == DBNull.Value ? string.Empty : reader["chk_out_to"].ToString();
-                            assetUsage.CheckOutCondition = reader["chk_out_cnd"] == DBNull.Value ? string.Empty : reader["chk_out_cnd"].ToString();
+                            assetUsage.CheckOutCondition = reader["chk_out_cnd"] == DBNull.Value ? AssetCondition.Unspecified : (AssetCondition)reader["chk_out_cnd"];
                             assetUsage.CheckStatus = reader["chk_status"] == DBNull.Value ? string.Empty : reader["chk_status"].ToString();
                             assetUsage.AssetTypeID = reader["asst_typ_id"] == DBNull.Value ? 0 : (int)reader["asst_typ_id"];
                             assetUsage.AssetTypeName = reader["typ_nm"] == DBNull.Value ? string.Empty : reader["typ_nm"].ToString();
@@ -407,7 +407,6 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
             }
             return assetUsage;
         }
-
 
         public async Task<IList<AssetUsage>> GetByAssetIdAsync(string assetId)
         {
@@ -428,7 +427,7 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
                 // Retrieve all rows
                 using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
                 {
-                    var asset_id = cmd.Parameters.Add("@asst_id", NpgsqlDbType.Text);
+                    var asset_id = cmd.Parameters.Add("@asset_id", NpgsqlDbType.Text);
                     await cmd.PrepareAsync();
                     asset_id.Value = assetId;
 
@@ -448,13 +447,13 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
                                 UsageLocation = reader["event_loc"] == DBNull.Value ? string.Empty : reader["event_loc"].ToString(),
                                 CheckedInBy = reader["chk_in_by"] == DBNull.Value ? string.Empty : reader["chk_in_by"].ToString(),
                                 CheckedInComment = reader["chk_in_cmt"] == DBNull.Value ? string.Empty : reader["chk_in_cmt"].ToString(),
-                                CheckedInCondition = reader["chk_in_cnd"] == DBNull.Value ? string.Empty : reader["chk_in_cnd"].ToString(),
+                                CheckedInCondition = reader["chk_in_cnd"] == DBNull.Value ? AssetCondition.Unspecified : (AssetCondition)reader["chk_in_cnd"],
                                 CheckedInTime = reader["chk_in_time"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["chk_in_time"],
                                 CheckedOutBy = reader["chk_out_by"] == DBNull.Value ? string.Empty : reader["chk_out_by"].ToString(),
                                 CheckedOutComment = reader["chk_out_cmt"] == DBNull.Value ? string.Empty : reader["chk_out_cmt"].ToString(),
                                 CheckedOutTime = reader["chk_out_time"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["chk_out_time"],
                                 CheckedOutTo = reader["chk_out_to"] == DBNull.Value ? string.Empty : reader["chk_out_to"].ToString(),
-                                CheckOutCondition = reader["chk_out_cnd"] == DBNull.Value ? string.Empty : reader["chk_out_cnd"].ToString(),
+                                CheckOutCondition = reader["chk_out_cnd"] == DBNull.Value ? AssetCondition.Unspecified : (AssetCondition)reader["chk_out_cnd"],
                                 CheckStatus = reader["chk_status"] == DBNull.Value ? string.Empty : reader["chk_status"].ToString(),
                                 AssetTypeID = reader["asst_typ_id"] == DBNull.Value ? 0 : (int)reader["asst_typ_id"],
                                 AssetTypeName = reader["typ_nm"] == DBNull.Value ? string.Empty : reader["typ_nm"].ToString(),
@@ -474,6 +473,74 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
             }
             return assetUsages;
         }
+
+        public async Task<IList<AssetUsage>> GetCheckedOutByAssetIdAsync(string assetId)
+        {
+            List<AssetUsage> assetUsages = new List<AssetUsage>();
+            if (string.IsNullOrEmpty(assetId)) { throw new ArgumentNullException(nameof(assetId)); }
+            var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
+            StringBuilder sb = new StringBuilder();
+            sb.Append("SELECT u.usg_id, u.asset_id, u.start_date, u.end_date, u.usg_purpose, u.event_ds, u.chk_out_by, u.from_loc, ");
+            sb.Append("u.chk_out_time, u.chk_out_cnd, u.chk_out_to, u.chk_out_cmt, u.chk_in_by, u.chk_in_time, u.chk_in_cnd, ");
+            sb.Append("u.chk_in_cmt, u.asst_typ_id, u.event_loc, a.asst_nm, a.asst_ds, t.typ_nm, u.md_by, u.md_dt, u.chk_status ");
+            sb.Append("FROM public.asm_ass_usg u INNER JOIN public.asm_stt_asst a ON u.asset_id = a.asst_id ");
+            sb.Append("INNER JOIN public.asm_stt_typs t ON u.asst_typ_id = t.typ_id WHERE (u.asset_id = @asset_id) AND ");
+            sb.Append("(u.chk_in_by = '' OR u.chk_in_by = null OR u.chk_in_time = null) ");
+            sb.Append("ORDER BY  u.usg_id DESC;");
+            string query = sb.ToString();
+            try
+            {
+                await conn.OpenAsync();
+                // Retrieve all rows
+                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+                {
+                    var asset_id = cmd.Parameters.Add("@asset_id", NpgsqlDbType.Text);
+                    await cmd.PrepareAsync();
+                    asset_id.Value = assetId;
+
+                    using (var reader = await cmd.ExecuteReaderAsync())
+                        while (await reader.ReadAsync())
+                        {
+                            assetUsages.Add(new AssetUsage()
+                            {
+                                UsageID = reader["usg_id"] == DBNull.Value ? 0 : (int)reader["usg_id"],
+                                AssetID = reader["asset_id"] == DBNull.Value ? string.Empty : reader["asset_id"].ToString(),
+                                AssetName = reader["asst_nm"] == DBNull.Value ? string.Empty : reader["asst_nm"].ToString(),
+                                AssetDescription = reader["asst_ds"] == DBNull.Value ? string.Empty : reader["asst_ds"].ToString(),
+                                UsageStartTime = reader["start_date"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["start_date"],
+                                UsageEndTime = reader["end_date"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["end_date"],
+                                Purpose = reader["usg_purpose"] == DBNull.Value ? string.Empty : reader["usg_purpose"].ToString(),
+                                UsageDescription = reader["event_ds"] == DBNull.Value ? string.Empty : reader["event_ds"].ToString(),
+                                UsageLocation = reader["event_loc"] == DBNull.Value ? string.Empty : reader["event_loc"].ToString(),
+                                CheckedInBy = reader["chk_in_by"] == DBNull.Value ? string.Empty : reader["chk_in_by"].ToString(),
+                                CheckedInComment = reader["chk_in_cmt"] == DBNull.Value ? string.Empty : reader["chk_in_cmt"].ToString(),
+                                CheckedInCondition = reader["chk_in_cnd"] == DBNull.Value ? AssetCondition.Unspecified : (AssetCondition)reader["chk_in_cnd"],
+                                CheckedInTime = reader["chk_in_time"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["chk_in_time"],
+                                CheckedOutBy = reader["chk_out_by"] == DBNull.Value ? string.Empty : reader["chk_out_by"].ToString(),
+                                CheckedOutComment = reader["chk_out_cmt"] == DBNull.Value ? string.Empty : reader["chk_out_cmt"].ToString(),
+                                CheckedOutTime = reader["chk_out_time"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["chk_out_time"],
+                                CheckedOutTo = reader["chk_out_to"] == DBNull.Value ? string.Empty : reader["chk_out_to"].ToString(),
+                                CheckOutCondition = reader["chk_out_cnd"] == DBNull.Value ? AssetCondition.Unspecified : (AssetCondition)reader["chk_out_cnd"],
+                                CheckStatus = reader["chk_status"] == DBNull.Value ? string.Empty : reader["chk_status"].ToString(),
+                                AssetTypeID = reader["asst_typ_id"] == DBNull.Value ? 0 : (int)reader["asst_typ_id"],
+                                AssetTypeName = reader["typ_nm"] == DBNull.Value ? string.Empty : reader["typ_nm"].ToString(),
+                                CheckedOutFromLocation = reader["from_loc"] == DBNull.Value ? string.Empty : reader["from_loc"].ToString(),
+                                ModifiedBy = reader["md_by"] == DBNull.Value ? string.Empty : reader["md_by"].ToString(),
+                                ModifiedTime = reader["md_dt"] == DBNull.Value ? string.Empty : reader["md_dt"].ToString(),
+                            });
+
+                        }
+                }
+                await conn.CloseAsync();
+            }
+            catch (Exception ex)
+            {
+                await conn.CloseAsync();
+                throw new Exception(ex.Message);
+            }
+            return assetUsages;
+        }
+
 
         public async Task<IList<AssetUsage>> GetByAssetNameAsync(string assetName)
         {
@@ -514,13 +581,13 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
                                 UsageLocation = reader["event_loc"] == DBNull.Value ? string.Empty : reader["event_loc"].ToString(),
                                 CheckedInBy = reader["chk_in_by"] == DBNull.Value ? string.Empty : reader["chk_in_by"].ToString(),
                                 CheckedInComment = reader["chk_in_cmt"] == DBNull.Value ? string.Empty : reader["chk_in_cmt"].ToString(),
-                                CheckedInCondition = reader["chk_in_cnd"] == DBNull.Value ? string.Empty : reader["chk_in_cnd"].ToString(),
+                                CheckedInCondition = reader["chk_in_cnd"] == DBNull.Value ? AssetCondition.Unspecified : (AssetCondition)reader["chk_in_cnd"],
                                 CheckedInTime = reader["chk_in_time"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["chk_in_time"],
                                 CheckedOutBy = reader["chk_out_by"] == DBNull.Value ? string.Empty : reader["chk_out_by"].ToString(),
                                 CheckedOutComment = reader["chk_out_cmt"] == DBNull.Value ? string.Empty : reader["chk_out_cmt"].ToString(),
                                 CheckedOutTime = reader["chk_out_time"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["chk_out_time"],
                                 CheckedOutTo = reader["chk_out_to"] == DBNull.Value ? string.Empty : reader["chk_out_to"].ToString(),
-                                CheckOutCondition = reader["chk_out_cnd"] == DBNull.Value ? string.Empty : reader["chk_out_cnd"].ToString(),
+                                CheckOutCondition = reader["chk_out_cnd"] == DBNull.Value ? AssetCondition.Unspecified : (AssetCondition)reader["chk_out_cnd"],
                                 CheckStatus = reader["chk_status"] == DBNull.Value ? string.Empty : reader["chk_status"].ToString(),
                                 AssetTypeID = reader["asst_typ_id"] == DBNull.Value ? 0 : (int)reader["asst_typ_id"],
                                 AssetTypeName = reader["typ_nm"] == DBNull.Value ? string.Empty : reader["typ_nm"].ToString(),
@@ -580,13 +647,13 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
                                 UsageLocation = reader["event_loc"] == DBNull.Value ? string.Empty : reader["event_loc"].ToString(),
                                 CheckedInBy = reader["chk_in_by"] == DBNull.Value ? string.Empty : reader["chk_in_by"].ToString(),
                                 CheckedInComment = reader["chk_in_cmt"] == DBNull.Value ? string.Empty : reader["chk_in_cmt"].ToString(),
-                                CheckedInCondition = reader["chk_in_cnd"] == DBNull.Value ? string.Empty : reader["chk_in_cnd"].ToString(),
+                                CheckedInCondition = reader["chk_in_cnd"] == DBNull.Value ? AssetCondition.Unspecified : (AssetCondition)reader["chk_in_cnd"],
                                 CheckedInTime = reader["chk_in_time"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["chk_in_time"],
                                 CheckedOutBy = reader["chk_out_by"] == DBNull.Value ? string.Empty : reader["chk_out_by"].ToString(),
                                 CheckedOutComment = reader["chk_out_cmt"] == DBNull.Value ? string.Empty : reader["chk_out_cmt"].ToString(),
                                 CheckedOutTime = reader["chk_out_time"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["chk_out_time"],
                                 CheckedOutTo = reader["chk_out_to"] == DBNull.Value ? string.Empty : reader["chk_out_to"].ToString(),
-                                CheckOutCondition = reader["chk_out_cnd"] == DBNull.Value ? string.Empty : reader["chk_out_cnd"].ToString(),
+                                CheckOutCondition = reader["chk_out_cnd"] == DBNull.Value ? AssetCondition.Unspecified : (AssetCondition)reader["chk_out_cnd"],
                                 CheckStatus = reader["chk_status"] == DBNull.Value ? string.Empty : reader["chk_status"].ToString(),
                                 AssetTypeID = reader["asst_typ_id"] == DBNull.Value ? 0 : (int)reader["asst_typ_id"],
                                 AssetTypeName = reader["typ_nm"] == DBNull.Value ? string.Empty : reader["typ_nm"].ToString(),
@@ -605,7 +672,7 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
             }
             return assetUsages;
         }
-       
+
         #endregion
 
         //====================== Asset Usage CRUD Methods Starts Here =======================================//
@@ -634,12 +701,12 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
                     var event_ds = cmd.Parameters.Add("@event_ds", NpgsqlDbType.Text);
                     var chk_out_by = cmd.Parameters.Add("@chk_out_by", NpgsqlDbType.Text);
                     var chk_out_time = cmd.Parameters.Add("@chk_out_time", NpgsqlDbType.TimestampTz);
-                    var chk_out_cnd = cmd.Parameters.Add("@chk_out_cnd", NpgsqlDbType.Text);
+                    var chk_out_cnd = cmd.Parameters.Add("@chk_out_cnd", NpgsqlDbType.Integer);
                     var chk_out_to = cmd.Parameters.Add("@chk_out_to", NpgsqlDbType.Text);
                     var chk_out_cmt = cmd.Parameters.Add("@chk_out_cmt", NpgsqlDbType.Text);
                     var chk_in_by = cmd.Parameters.Add("@chk_in_by", NpgsqlDbType.Text);
                     var chk_in_time = cmd.Parameters.Add("@chk_in_time", NpgsqlDbType.TimestampTz);
-                    var chk_in_cnd = cmd.Parameters.Add("@chk_in_cnd", NpgsqlDbType.Text);
+                    var chk_in_cnd = cmd.Parameters.Add("@chk_in_cnd", NpgsqlDbType.Integer);
                     var chk_in_cmt = cmd.Parameters.Add("@chk_in_cmt", NpgsqlDbType.Text);
                     var asst_typ_id = cmd.Parameters.Add("@asst_typ_id", NpgsqlDbType.Integer);
                     var event_loc = cmd.Parameters.Add("@event_loc", NpgsqlDbType.Text);
@@ -655,12 +722,12 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
                     event_ds.Value = assetUsage.UsageDescription ?? (object)DBNull.Value;
                     chk_out_by.Value = assetUsage.CheckedOutBy ?? (object)DBNull.Value;
                     chk_out_time.Value = assetUsage.CheckedOutTime ?? (object)DBNull.Value;
-                    chk_out_cnd.Value = assetUsage.CheckOutCondition ?? (object)DBNull.Value;
+                    chk_out_cnd.Value = (int)assetUsage.CheckOutCondition;
                     chk_out_to.Value = assetUsage.CheckedOutTo ?? (object)DBNull.Value;
                     chk_out_cmt.Value = assetUsage.CheckedOutComment ?? (object)DBNull.Value;
                     chk_in_by.Value = assetUsage.CheckedInBy ?? (object)DBNull.Value;
                     chk_in_time.Value = assetUsage.CheckedInTime ?? (object)DBNull.Value;
-                    chk_in_cnd.Value = assetUsage.CheckedInCondition ?? (object)DBNull.Value;
+                    chk_in_cnd.Value = (int)assetUsage.CheckedInCondition;
                     chk_in_cmt.Value = assetUsage.CheckedInComment ?? (object)DBNull.Value;
                     asst_typ_id.Value = assetUsage.AssetTypeID;
                     event_loc.Value = assetUsage.UsageLocation ?? (object)DBNull.Value;
@@ -707,12 +774,12 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
                     var event_ds = cmd.Parameters.Add("@event_ds", NpgsqlDbType.Text);
                     var chk_out_by = cmd.Parameters.Add("@chk_out_by", NpgsqlDbType.Text);
                     var chk_out_time = cmd.Parameters.Add("@chk_out_time", NpgsqlDbType.TimestampTz);
-                    var chk_out_cnd = cmd.Parameters.Add("@chk_out_cnd", NpgsqlDbType.Text);
+                    var chk_out_cnd = cmd.Parameters.Add("@chk_out_cnd", NpgsqlDbType.Integer);
                     var chk_out_to = cmd.Parameters.Add("@chk_out_to", NpgsqlDbType.Text);
                     var chk_out_cmt = cmd.Parameters.Add("@chk_out_cmt", NpgsqlDbType.Text);
                     var chk_in_by = cmd.Parameters.Add("@chk_in_by", NpgsqlDbType.Text);
                     var chk_in_time = cmd.Parameters.Add("@chk_in_time", NpgsqlDbType.TimestampTz);
-                    var chk_in_cnd = cmd.Parameters.Add("@chk_in_cnd", NpgsqlDbType.Text);
+                    var chk_in_cnd = cmd.Parameters.Add("@chk_in_cnd", NpgsqlDbType.Integer);
                     var chk_in_cmt = cmd.Parameters.Add("@chk_in_cmt", NpgsqlDbType.Text);
                     var asst_typ_id = cmd.Parameters.Add("@asst_typ_id", NpgsqlDbType.Integer);
                     var event_loc = cmd.Parameters.Add("@event_loc", NpgsqlDbType.Text);
@@ -728,12 +795,12 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
                     event_ds.Value = assetUsage.UsageDescription ?? (object)DBNull.Value;
                     chk_out_by.Value = assetUsage.CheckedOutBy ?? (object)DBNull.Value;
                     chk_out_time.Value = assetUsage.CheckedOutTime ?? (object)DBNull.Value;
-                    chk_out_cnd.Value = assetUsage.CheckOutCondition ?? (object)DBNull.Value;
+                    chk_out_cnd.Value = (int)assetUsage.CheckOutCondition;
                     chk_out_to.Value = assetUsage.CheckedOutTo ?? (object)DBNull.Value;
                     chk_out_cmt.Value = assetUsage.CheckedOutComment ?? (object)DBNull.Value;
                     chk_in_by.Value = assetUsage.CheckedInBy ?? (object)DBNull.Value;
                     chk_in_time.Value = assetUsage.CheckedInTime ?? (object)DBNull.Value;
-                    chk_in_cnd.Value = assetUsage.CheckedInCondition ?? (object)DBNull.Value;
+                    chk_in_cnd.Value = (int)assetUsage.CheckedInCondition;
                     chk_in_cmt.Value = assetUsage.CheckedInComment ?? (object)DBNull.Value;
                     asst_typ_id.Value = assetUsage.AssetTypeID;
                     event_loc.Value = assetUsage.UsageLocation ?? (object)DBNull.Value;

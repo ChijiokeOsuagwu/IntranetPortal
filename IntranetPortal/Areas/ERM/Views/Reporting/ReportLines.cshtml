@@ -1,0 +1,80 @@
+﻿@model IntranetPortal.Areas.ERM.Models.EmployeeReportLineListViewModel
+@{
+    ViewData["Title"] = "Reporting Lines";
+}
+<div class="container">
+    <h3 class="mb-2">Reporting Lines For: @Model.StaffName</h3>
+    <hr />
+    <div class="mb-1">
+        <div class="mb-2">
+            <form asp-area="ERM" asp-controller="Reporting" asp-action="ReportLines" method="get">
+                <a asp-area="ERM" asp-controller="Employees" asp-action="Profile" asp-route-id="@Model.EmployeeID" class="btn btn-dark" style="width:100px" title="Click to Go Back">
+                    <span class="text-white">Back</span>
+                </a>
+                <a asp-area="ERM" asp-controller="Reporting" asp-action="AddReportingLine" asp-route-id="@Model.EmployeeID" class="btn btn-success pr-2" style="width:200px" title="Add Reporting Line">
+                    <span class="text-white">New Reportint Line</span>
+                </a>
+                <select asp-for="sp" class="border-0 fw-bold pl-2" style="width:200px">
+                    <option value="all"> Show All </option>
+                    <option value="active"> Show Current</option>
+                </select>
+                <input type="submit" value="Search" class="btn btn-dark text-white" style="width:200px" />
+            </form>
+        </div>
+        <div class="row">
+            @if (Model == null || Model.EmployeeReportLineList == null || Model.EmployeeReportLineList.Count < 1)
+            {
+                <div class="alert alert-info fade show" role="alert">
+                    <i class="bi bi-info-circle"></i>
+                    <span class="fw-bold">No record was found.</span>
+                </div>
+            }
+            else
+            {
+                <table class="table table-warning table-sm table-hover">
+                    <thead class="table-dark">
+                        <tr>
+                            <th><span class="text-white fw-bolder">Reports To</span></th>
+                            <th><span class="text-white fw-bolder">Role</span></th>
+                            <th><span class="text-white fw-bolder">Team</span></th>
+                            <th><span class="text-white fw-bolder">Unit</span></th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody class="table-warning">
+                        @foreach (var item in Model.EmployeeReportLineList)
+                        {
+                            <tr>
+                                <td class="fw-bold p-2">
+                                    @Html.DisplayFor(modelItem => item.ReportsToEmployeeName)
+                                </td>
+                                <td class="fw-bold p-2">
+                                    @Html.DisplayFor(modelItem => item.ReportsToEmployeeRole)
+                                </td>
+                                <td class="fw-bold p-2">
+                                    @Html.DisplayFor(modelItem => item.TeamName)
+                                </td>
+                                <td class="fw-bold p-2">
+                                    @Html.DisplayFor(modelItem => item.UnitName)
+                                </td>
+                                <td class="fw-bold p-2">
+                                    <a asp-area="ERM" asp-controller="Reporting" asp-action="ReportingLineDetails" asp-route-id="@item.ReportingLineID" title="Details" class="btn btn-xs btn-dark" style="width:30px">
+                                        <i class="bi bi-card-text" style="font-size: 0.8rem; color:white"></i>
+                                    </a>
+                                    <a asp-area="ERM" asp-controller="Reporting" asp-action="EditReportingLine" asp-route-id="@item.ReportingLineID" title="Edit" class="btn btn-xs btn-info" style="width:30px">
+                                        <i class="bi bi-pencil-square" style="font-size: 0.8rem;"></i>
+                                    </a>
+                                    <a asp-area="ERM" asp-controller="Reporting" asp-action="DeleteReportingLine" asp-route-id="@item.ReportingLineID" title="Delete" class="btn btn-xs btn-danger" style="width:30px">
+                                        <i class="bi bi-trash-fill" style="font-size: 0.8rem; color:white"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+        </div>
+    </div>
+</div>
+
+

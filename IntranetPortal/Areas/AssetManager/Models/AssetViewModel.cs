@@ -52,7 +52,10 @@ namespace IntranetPortal.Areas.AssetManager.Models
 
         [Required(ErrorMessage ="Please select Condition.")]
         [Display(Name ="Condition")]
-        public string Condition { get; set; }
+        public AssetCondition ConditionStatus { get; set; }
+
+        [Display(Name="Condition Description")]
+        public string ConditionDescription { get; set; }
 
         [Display(Name ="Operational Location")]
         public string CurrentLocation { get; set; }
@@ -96,7 +99,8 @@ namespace IntranetPortal.Areas.AssetManager.Models
                 ParentAssetID = ParentAssetID,
                 BaseLocationID = BaseLocationID,
                 BaseLocationName = BaseLocationName,
-                Condition = Condition,
+                ConditionStatus = ConditionStatus,
+                ConditionDescription = ConditionDescription,
                 CreatedBy = CreatedBy,
                 CreatedDate = CreatedDate,
                 CurrentLocation = CurrentLocation,
@@ -126,7 +130,8 @@ namespace IntranetPortal.Areas.AssetManager.Models
                 ParentAssetID = ParentAssetID,
                 BaseLocationID = BaseLocationID,
                 BaseLocationName = BaseLocationName,
-                Condition = Condition,
+                ConditionDescription = ConditionDescription,
+                ConditionStatus = ConditionStatus,
                 CreatedBy = CreatedBy,
                 CreatedDate = CreatedDate,
                 CurrentLocation = CurrentLocation,

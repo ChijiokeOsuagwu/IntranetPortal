@@ -1,0 +1,144 @@
+﻿@model IntranetPortal.Areas.BAMS.Models.AssignmentEventViewModel
+@{
+    ViewData["Title"] = "OfficeManager | Edit Assignment";
+}
+<div>
+    <div class="card" style="min-width:600px">
+        <div class="card-header bg-info">
+            <h4 class="text-white">Edit Assignment</h4>
+        </div>
+        <div class="card-body bg-secondary">
+            @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bi bi-x-circle"></i>
+                    <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            @if (!String.IsNullOrEmpty(Model.ViewModelSuccessMessage))
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="bi bi-check-circle"></i>
+                    <span class="fw-bold">@Model.ViewModelSuccessMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            @if (!String.IsNullOrEmpty(Model.ViewModelWarningMessage))
+            {
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                    <i class="bi bi-exclamation-circle"></i>
+                    <span class="fw-bold">@Model.ViewModelWarningMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            <form asp-area="Bams" asp-controller="Home" asp-action="EditAssignment" method="post">
+                <div class="row">
+                    <input type="hidden" asp-for="CustomerID" />
+                    <div class="col-md-6 mb-2">
+                        <label asp-for="CustomerName" class="form-label text-white fw-bold"></label>
+                        <input asp-for="CustomerName" class="form-control fw-bold" placeholder="Enter Text" aria-label="Recipient's username" aria-describedby="button-addon2">
+                        <div><span asp-validation-for="CustomerName" class="text-danger"></span></div>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <label asp-for="StationID" class="form-label text-white fw-bold"></label>
+                        <select asp-for="StationID" asp-items="@ViewBag.LocationsList" class="form-control fw-bold">
+                            <option value=""> - Select - </option>
+                        </select>
+                        <div><span asp-validation-for="StationID" class="text-danger"></span></div>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <label asp-for="EventTypeID" class="form-label text-white fw-bold"></label>
+                        <select asp-for="EventTypeID" asp-items="@ViewBag.EventTypesList" class="form-control fw-bold">
+                            <option value=""> - Select - </option>
+                        </select>
+                        <div><span asp-validation-for="EventTypeID" class="text-danger"></span></div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-2">
+                        <label asp-for="Title" class="form-label text-white fw-bold"></label>
+                        <input asp-for="Title" class="form-control fw-bold">
+                        <div><span asp-validation-for="Title" class="text-danger"></span></div>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <label asp-for="StartTime" class="form-label text-white fw-bold"></label>
+                        <input asp-for="StartTime" class="form-control fw-bold">
+                        <div><span asp-validation-for="StartTime" class="text-danger"></span></div>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <label asp-for="EndTime" class="form-label text-white fw-bold"></label>
+                        <input asp-for="EndTime" class="form-control fw-bold">
+                        <div><span asp-validation-for="EndTime" class="text-danger"></span></div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-2">
+                        <label asp-for="Description" class="form-label text-white fw-bold"></label>
+                        <textarea asp-for="Description" class="form-control fw-bold">@Model.Description</textarea>
+                        <div><span asp-validation-for="Description" class="text-danger"></span></div>
+                    </div>
+                    <div class="col-md-6 mb-2">
+                        <label asp-for="Venue" class="form-label text-white fw-bold"></label>
+                        <textarea asp-for="Venue" class="form-control fw-bold">@Model.Venue</textarea>
+                        <div><span asp-validation-for="Venue" class="text-danger"></span></div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3 mb-3">
+                        <label asp-for="State" class="form-label text-white fw-bold"></label>
+                        <input asp-for="State" class="form-control fw-bold">
+                        <div><span asp-validation-for="State" class="text-danger"></span></div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label asp-for="StatusID" class="form-label text-white fw-bold"></label>
+                        <select asp-for="StatusID" asp-items="@ViewBag.StatusList" class="form-control fw-bold">
+                            <option value=""> - Select - </option>
+                        </select>
+                        <div><span asp-validation-for="StatusID" class="text-danger"></span></div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label asp-for="LiaisonName" class="form-label text-white fw-bold"></label>
+                        <input asp-for="LiaisonName" class="form-control fw-bold">
+                        <div><span asp-validation-for="LiaisonName" class="text-danger"></span></div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label asp-for="LiaisonPhone" class="form-label text-white fw-bold"></label>
+                        <input asp-for="LiaisonPhone" class="form-control fw-bold">
+                        <div><span asp-validation-for="LiaisonPhone" class="text-danger"></span></div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <input asp-for="IsPaid" type="checkbox" class="fw-bold pr-2 pt-2" style="width:15px; height:15px">
+                        <span class="text-white fw-bold pl-1">This is a Paid Assignment</span>
+                        <div><span asp-validation-for="IsPaid" class="text-danger"></span></div>
+                    </div>
+                </div>
+                <div class="row">
+                    <a asp-area="Bams" asp-controller="Home" asp-action="AssignmentLog" class="btn btn-dark ml-2" style="width:100px" title="Return">
+                        <span class="text-white">Exit</span>
+                    </a>
+                    @if (!Model.OperationIsCompleted)
+                    {
+                        <a asp-area="Bams" asp-controller="Home" asp-action="EditAssignment" asp-route-id="@Model.ID" class="btn btn-warning ml-1" style="width:100px" title="Refresh">
+                            <span class="text-white">Refresh</span>
+                        </a>
+                        <button type="submit" class="btn btn-info ml-2" title="Save" style="width:200px"><span class="text-white">Save</span></button>
+                    }
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+@section Scripts{
+    <script src="~/js/js_bams/bams_assignment_new.js"></script>
+}
+
+
+
+
+
+
+
+

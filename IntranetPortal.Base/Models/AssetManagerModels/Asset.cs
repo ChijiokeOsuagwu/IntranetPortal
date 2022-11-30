@@ -17,7 +17,8 @@ namespace IntranetPortal.Base.Models.AssetManagerModels
         public int? BaseLocationID { get; set; }
         public string BaseLocationName { get; set; }
         public string UsageStatus { get; set; }
-        public string Condition { get; set; }
+        public string ConditionDescription { get; set; }
+        public AssetCondition ConditionStatus { get; set; }
         public string CurrentLocation { get; set; }
         public string ParentAssetID { get; set; }
         public string ParentAssetName { get; set; }

@@ -1,0 +1,98 @@
+﻿@model IntranetPortal.Areas.ERM.Models.EmployeeReportLineViewModel
+@{
+    ViewData["Title"] = "OfficeManager | Reporting Line Details";
+}
+<div>
+    <div class="card" style="max-width:800px">
+        <div class="card-header bg-dark">
+            <h4 class="text-white">Reporting Line Details</h4>
+        </div>
+        <div class="card-body bg-secondary">
+            @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bi bi-x-circle"></i>
+                    <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            @if (!String.IsNullOrEmpty(Model.ViewModelSuccessMessage))
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="bi bi-check-circle"></i>
+                    <span class="fw-bold">@Model.ViewModelSuccessMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            @if (!String.IsNullOrEmpty(Model.ViewModelWarningMessage))
+            {
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                    <i class="bi bi-exclamation-circle"></i>
+                    <span class="fw-bold">@Model.ViewModelWarningMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            <form asp-area="ERM" asp-controller="Reporting" asp-action="ReportingLineDetails" method="post">
+                <div class="row">
+                    <input type="hidden" asp-for="EmployeeID" />
+                    <input type="hidden" asp-for="ReportingLineID" />
+                    <div class="col-md-6 mb-2">
+                        <label asp-for="EmployeeName" class="form-label text-white fw-bold"></label>
+                        <div class="input-group">
+                            <input asp-for="EmployeeName" class="form-control fw-bold" readonly="readonly" aria-label="Employee Name" aria-describedby="button-addon2">
+                        </div>
+                        <div><span asp-validation-for="EmployeeName" class="text-danger"></span></div>
+                    </div>
+                    <div class="col-md-6 mb-2">
+                        <label asp-for="ReportsToEmployeeName" class="form-label text-white fw-bold"></label>
+                        <input asp-for="ReportsToEmployeeName" class="form-control fw-bold" readonly="readonly">
+                        <div><span asp-validation-for="ReportsToEmployeeName" class="text-danger"></span></div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-2">
+                        <label asp-for="ReportStartDate" class="form-label text-white fw-bold"></label>
+                        @if (Model.ReportStartDate != null)
+                        {
+                            <label class="form-control fw-bold">@Model.ReportStartDate.Value.ToLongDateString()</label>
+                        }
+                        else
+                        {
+                            <label class="form-control fw-bold"> - </label>
+                        }
+                    </div>
+                    <div class="col-md-6 mb-2">
+                        <label asp-for="ReportEndDate" class="form-label text-white fw-bold"></label>
+                        @if (Model.ReportEndDate != null)
+                        {
+                            <label class="form-control fw-bold">@Model.ReportEndDate.Value.ToLongDateString()</label>
+                        }
+                        else
+                        {
+                            <label class="form-control fw-bold"> - </label>
+                        }
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="TeamName" class="form-label text-white fw-bold"></label>
+                        <input asp-for="TeamName" class="form-control fw-bold" readonly="readonly">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="ReportsToEmployeeRole" class="form-label text-white fw-bold"></label>
+                        <input asp-for="ReportsToEmployeeRole" class="form-control fw-bold" readonly="readonly">
+                        <div><span asp-validation-for="ReportsToEmployeeRole" class="text-danger"></span></div>
+                    </div>
+                </div>
+                <div class="row">
+                    <a asp-area="ERM" asp-controller="Home" asp-action="Index" class="btn btn-dark ml-2" style="width:100px" title="Return Home">
+                        <span class="text-white">Exit</span>
+                    </a>
+                    <a asp-area="ERM" asp-controller="Reporting" asp-action="ReportLines" asp-route-id="@Model.EmployeeID" class="btn btn-dark ml-2" style="width:100px" title="Return Home">
+                        <span class="text-white">Back</span>
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

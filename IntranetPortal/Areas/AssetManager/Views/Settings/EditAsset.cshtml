@@ -33,114 +33,114 @@
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
             }
-            <form enctype="multipart/form-data" asp-area="AssetManager" asp-controller="Settings" asp-action="EditAsset" method="post">
-                <div class="row">
-                    <div class="col-md-8 mb-1">
-                        <input type="hidden" asp-for="AssetID" />
-                        <label asp-for="AssetName" class="form-label text-white fw-bold"></label>
-                        <input asp-for="AssetName" class="form-control fw-bold">
-                        <div><span asp-validation-for="AssetName" class="text-danger"></span></div>
-                    </div>
-                    <div class="col-md-4 mb-1">
-                        <label asp-for="AssetNumber" class="form-label text-white fw-bold"></label>
-                        <input asp-for="AssetNumber" class="form-control fw-bold">
-                        <div><span asp-validation-for="AssetNumber" class="text-danger"></span></div>
-                    </div>
+        <form enctype="multipart/form-data" asp-area="AssetManager" asp-controller="Settings" asp-action="EditAsset" method="post">
+            <div class="row">
+                <div class="col-md-8 mb-1">
+                    <input type="hidden" asp-for="AssetID" />
+                    <label asp-for="AssetName" class="form-label text-white fw-bold"></label>
+                    <input asp-for="AssetName" class="form-control fw-bold">
+                    <div><span asp-validation-for="AssetName" class="text-danger"></span></div>
                 </div>
-                <div class="row">
-                    <div class="col-md-12 mb-1">
-                        <label asp-for="AssetDescription" class="form-label text-white fw-bold"></label>
-                        <textarea class="form-control fw-bold" name="@Html.NameFor(m => m.AssetDescription)">@Model.AssetDescription</textarea>
-                        <div><span asp-validation-for="AssetDescription" class="text-danger"></span></div>
-                    </div>
+                <div class="col-md-4 mb-1">
+                    <label asp-for="AssetNumber" class="form-label text-white fw-bold"></label>
+                    <input asp-for="AssetNumber" class="form-control fw-bold">
+                    <div><span asp-validation-for="AssetNumber" class="text-danger"></span></div>
                 </div>
-                <div class="row">
-                    <div class="col-md-6  mb-1">
-                        <input type="hidden" asp-for="AssetCategoryID" />
-                        <label asp-for="AssetTypeID" class="form-label text-white fw-bold"></label>
-                        <select asp-for="AssetTypeID" asp-items="@ViewBag.TypesList" class="form-control fw-bold">
-                            <option value=""> - Select - </option>
-                        </select>
-                        <div><span asp-validation-for="AssetTypeID" class="text-danger"></span></div>
-                    </div>
-                    <div class="col-md-6  mb-1">
-                        <label asp-for="BaseLocationID" class="form-label text-white fw-bold"></label>
-                        <select asp-for="BaseLocationID" asp-items="@ViewBag.LocationsList" class="form-control fw-bold">
-                            <option value=""> - Select - </option>
-                        </select>
-                        <div><span asp-validation-for="BaseLocationID" class="text-danger"></span></div>
-                    </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12 mb-1">
+                    <label asp-for="AssetDescription" class="form-label text-white fw-bold"></label>
+                    <textarea class="form-control fw-bold" name="@Html.NameFor(m => m.AssetDescription)">@Model.AssetDescription</textarea>
+                    <div><span asp-validation-for="AssetDescription" class="text-danger"></span></div>
                 </div>
-                <div class="row">
-                    <div class="col-md-6  mb-1">
-                        <label asp-for="Condition" class="form-label text-white fw-bold"></label>
-                        <select asp-for="Condition" class="form-control fw-bold">
-                            <option value=""> - Select - </option>
-                            <option value="In Good Condition">In Good Condition</option>
-                            <option value="Faulty (Requires Repairs)">Faulty (Requires Repair)</option>
-                            <option value="Broken & Unfixable">Broken & Unfixable</option>
-                            <option value="Lost or Stolen">Lost or Stolen</option>
-                            <option value="Disposed or Scrapped">Disposed or Scrapped</option>
-                        </select>
-                        <div><span asp-validation-for="Condition" class="text-danger"></span></div>
-                    </div>
-                    <div class="col-md-6  mb-1">
-                        <label asp-for="UsageStatus" class="form-label text-white fw-bold"></label>
-                        <select asp-for="UsageStatus" class="form-control fw-bold">
-                            <option value=""> - Select - </option>
-                            <option value="In Use">In Use</option>
-                            <option value="Available">Available</option>
-                            <option value="Booked">Booked</option>
-                            <option value="Unavailable">Unavailable</option>
-                        </select>
-                        <div><span asp-validation-for="UsageStatus" class="text-danger"></span></div>
-                    </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6  mb-1">
+                    <input type="hidden" asp-for="AssetCategoryID" />
+                    <label asp-for="AssetTypeID" class="form-label text-white fw-bold"></label>
+                    <select asp-for="AssetTypeID" asp-items="@ViewBag.TypesList" class="form-control fw-bold">
+                        <option value=""> - Select - </option>
+                    </select>
+                    <div><span asp-validation-for="AssetTypeID" class="text-danger"></span></div>
                 </div>
-                <div class="row">
-                    <div class="col-md-6 mb-1">
-                        <label asp-for="PurchaseDate" class="form-label text-white fw-bold"></label>
-                        <input asp-for="PurchaseDate" class="form-control fw-bold">
-                        <div><span asp-validation-for="PurchaseDate" class="text-danger"></span></div>
-                    </div>
-                    <div class="col-md-6 mb-1">
-                        <label asp-for="PurchaseAmount" class="form-label text-white fw-bold"></label>
-                        <input asp-for="PurchaseAmount" class="form-control fw-bold">
-                        <div><span asp-validation-for="PurchaseAmount" class="text-danger"></span></div>
-                    </div>
+                <div class="col-md-6  mb-1">
+                    <label asp-for="BaseLocationID" class="form-label text-white fw-bold"></label>
+                    <select asp-for="BaseLocationID" asp-items="@ViewBag.LocationsList" class="form-control fw-bold">
+                        <option value=""> - Select - </option>
+                    </select>
+                    <div><span asp-validation-for="BaseLocationID" class="text-danger"></span></div>
                 </div>
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label asp-for="ParentAssetID" class="form-label text-white fw-bold"></label>
-                        <select asp-for="ParentAssetID" asp-items="@ViewBag.AssetsList" class="form-control fw-bold">
-                            <option value=""> - Select - </option>
-                        </select>
-                        <div><span asp-validation-for="ParentAssetID" class="text-danger"></span></div>
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <input type="hidden" asp-for="OldImagePath" />
-                        <input type="hidden" asp-for="ImagePath" />
-                        <label asp-for="ImageUpload" class="form-label text-white fw-bold"></label>
-                        <input asp-for="ImageUpload" class="form-control fw-bold">
-                        <div><span asp-validation-for="ImageUpload" class="text-danger"></span></div>
-                    </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6  mb-1">
+                    <label asp-for="UsageStatus" class="form-label text-white fw-bold"></label>
+                    <select asp-for="UsageStatus" class="form-control fw-bold">
+                        <option value=""> - Select - </option>
+                        <option value="In Use">In Use</option>
+                        <option value="Available">Available</option>
+                        <option value="Booked">Booked</option>
+                        <option value="Unavailable">Unavailable</option>
+                    </select>
+                    <div><span asp-validation-for="UsageStatus" class="text-danger"></span></div>
                 </div>
-                <div class="row">
-                    <a asp-area="AssetManager" asp-controller="Home" asp-action="Index" class="btn btn-dark ml-2" style="width:100px" title="Return Home">
-                        <span class="text-white">Exit</span>
+                <div class="col-md-6  mb-1">
+                    <label asp-for="ConditionStatus" class="form-label text-white fw-bold"></label>
+                    <select asp-for="ConditionStatus" asp-items="Html.GetEnumSelectList<AssetCondition>()" class="form-control fw-bold" />
+                    <div><span asp-validation-for="ConditionStatus" class="text-danger"></span></div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12 mb-1">
+                    <label asp-for="ConditionDescription" class="form-label text-white fw-bold"></label>
+                    <input class="form-control fw-bold" asp-for="ConditionDescription">
+                    <div><span asp-validation-for="ConditionDescription" class="text-danger"></span></div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6 mb-1">
+                    <label asp-for="PurchaseDate" class="form-label text-white fw-bold"></label>
+                    <input asp-for="PurchaseDate" class="form-control fw-bold">
+                    <div><span asp-validation-for="PurchaseDate" class="text-danger"></span></div>
+                </div>
+                <div class="col-md-6 mb-1">
+                    <label asp-for="PurchaseAmount" class="form-label text-white fw-bold"></label>
+                    <input asp-for="PurchaseAmount" class="form-control fw-bold">
+                    <div><span asp-validation-for="PurchaseAmount" class="text-danger"></span></div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label asp-for="ParentAssetID" class="form-label text-white fw-bold"></label>
+                    <select asp-for="ParentAssetID" asp-items="@ViewBag.AssetsList" class="form-control fw-bold">
+                        <option value=""> - Select - </option>
+                    </select>
+                    <div><span asp-validation-for="ParentAssetID" class="text-danger"></span></div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <input type="hidden" asp-for="OldImagePath" />
+                    <input type="hidden" asp-for="ImagePath" />
+                    <label asp-for="ImageUpload" class="form-label text-white fw-bold"></label>
+                    <input asp-for="ImageUpload" class="form-control fw-bold">
+                    <div><span asp-validation-for="ImageUpload" class="text-danger"></span></div>
+                </div>
+            </div>
+            <div class="row">
+                <a asp-area="AssetManager" asp-controller="Home" asp-action="Index" class="btn btn-dark ml-2" style="width:100px" title="Return Home">
+                    <span class="text-white">Exit</span>
+                </a>
+                <a asp-area="AssetManager" asp-controller="Settings" asp-action="Assets" class="btn btn-dark ml-1" style="width:100px" title="Return to Assets">
+                    <span class="text-white">Go Back</span>
+                </a>
+                @if (!Model.OperationIsCompleted)
+                {
+                    <a asp-area="AssetManager" asp-controller="Settings" asp-action="EditAsset" class="btn btn-warning ml-1" style="width:100px" title="Clear">
+                        <span class="text-white">Clear</span>
                     </a>
-                    <a asp-area="AssetManager" asp-controller="Settings" asp-action="Assets" class="btn btn-dark ml-1" style="width:100px" title="Return to Assets">
-                        <span class="text-white">Go Back</span>
-                    </a>
-                    @if (!Model.OperationIsCompleted)
-                    {
-                        <a asp-area="AssetManager" asp-controller="Settings" asp-action="EditAsset" class="btn btn-warning ml-1" style="width:100px" title="Clear">
-                            <span class="text-white">Clear</span>
-                        </a>
 
-                        <button type="submit" class="btn btn-info ml-2" title="Save" style="width:200px"><span class="text-white">Save Changes</span></button>
-                    }
-                </div>
-            </form>
+                    <button type="submit" class="btn btn-info ml-2" title="Save" style="width:200px"><span class="text-white">Save Changes</span></button>
+                }
+            </div>
+        </form>
         </div>
     </div>
 </div>

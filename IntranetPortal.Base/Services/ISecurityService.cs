@@ -12,6 +12,7 @@ namespace IntranetPortal.Base.Services
         //=================== User Accounts Action Methods =============================================//
         #region User Accounts Action Methods
         Task<IList<EmployeeUser>>  GetEmployeeUsersByNameAsync(string fullName);
+        Task<IList<EmployeeUser>> SearchEmployeeUsersByNameAsync(string fullName);
         Task<IList<EmployeeUser>> GetAllEmployeeUsersAsync();
         Task<IList<ApplicationUser>> GetUsersByLoginId(string loginId);
         Task<IList<ApplicationUser>> GetUsersByUserId(string userId);

@@ -19,6 +19,28 @@ namespace IntranetPortal.Data.Repositories.BaseRepositories
             _config = configuration;
         }
 
+        //=============================== Database Connectivity Test Action Method  ===============================//
+        #region Database Connectivity Test Action Methods
+        public async Task<bool> CheckDatabaseConnectionAsync()
+        {
+            bool IsOpen = false;
+            var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
+            try
+            {
+                await conn.OpenAsync();
+                IsOpen = true;
+                await conn.CloseAsync();
+            }
+            catch (Exception ex)
+            {
+                await conn.CloseAsync();
+                IsOpen = false;
+            }
+            return IsOpen;
+        }
+
+        #endregion
+
         //================================ Auto Number Action Methods ============================================//
         #region Auto Number Action Methods
         public async Task<string> GetAutoNumberAsync(string numberType)
@@ -47,7 +69,6 @@ namespace IntranetPortal.Data.Repositories.BaseRepositories
                 throw new Exception(ex.Message);
             }
             return codeNumber;
-
         }
 
         public async Task<bool> IncrementAutoNumberAsync(string numberType)
@@ -76,6 +97,81 @@ namespace IntranetPortal.Data.Repositories.BaseRepositories
             }
             return rows > 0;
         }
+        
+        public async Task<int> GetNumberCount(AutoNumberType type, int day, int month, int year)
+        {
+            int recordCount = -1;
+            var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
+            StringBuilder sb = new StringBuilder();
+            sb.Append("SELECT COUNT(cdn_rgr_id) FROM public.gst_cdn_rgr ");
+            sb.Append("WHERE(cdn_typ = @cdn_typ AND dd = @dd AND mm = @mm AND yy = @yy);");
+            string query = sb.ToString(); 
+            try
+            {
+                await conn.OpenAsync();
+                // Retrieve all rows
+                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+                {
+                    var cdn_typ = cmd.Parameters.Add("@cdn_typ", NpgsqlDbType.Integer);
+                    var dd = cmd.Parameters.Add("@dd", NpgsqlDbType.Integer);
+                    var mm = cmd.Parameters.Add("@mm", NpgsqlDbType.Integer);
+                    var yy = cmd.Parameters.Add("@yy", NpgsqlDbType.Integer);
+                    await cmd.PrepareAsync();
+                    cdn_typ.Value = Convert.ToInt64(type);
+                    dd.Value = day;
+                    mm.Value = month;
+                    yy.Value = year;
+                    var result = await cmd.ExecuteScalarAsync();
+                    recordCount = Convert.ToInt32(result);
+                }
+                await conn.CloseAsync();
+            }
+            catch (Exception ex)
+            {
+                await conn.CloseAsync();
+                throw new Exception(ex.Message);
+            }
+            return recordCount;
+        }
+
+        public async Task<bool> AddCodeNumberRecord(AutoNumberType type, int day, int month, int year)
+        {
+            int recordCount = -1;
+            var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
+            StringBuilder sb = new StringBuilder();
+            sb.Append("INSERT INTO public.gst_cdn_rgr(cdn_typ, dd, mm, yy, mdt)  ");
+            sb.Append("VALUES (@cdn_typ, @dd, @mm, @yy, @mdt);");
+            string query = sb.ToString();
+            try
+            {
+                await conn.OpenAsync();
+                // Retrieve all rows
+                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+                {
+                    var cdn_typ = cmd.Parameters.Add("@cdn_typ", NpgsqlDbType.Integer);
+                    var dd = cmd.Parameters.Add("@dd", NpgsqlDbType.Integer);
+                    var mm = cmd.Parameters.Add("@mm", NpgsqlDbType.Integer);
+                    var yy = cmd.Parameters.Add("@yy", NpgsqlDbType.Integer);
+                    var mdt = cmd.Parameters.Add("@mdt", NpgsqlDbType.Text);
+                    await cmd.PrepareAsync();
+                    cdn_typ.Value = (int)type;
+                    dd.Value = day;
+                    mm.Value = month;
+                    yy.Value = year;
+                    mdt.Value = $"{DateTime.Now.ToLongDateString()} {DateTime.Now.ToLongTimeString()}";
+                    var result = await cmd.ExecuteNonQueryAsync();
+                    recordCount = (int)result;
+                }
+                await conn.CloseAsync();
+            }
+            catch (Exception ex)
+            {
+                await conn.CloseAsync();
+                throw new Exception(ex.Message);
+            }
+            return recordCount > 0;
+        }
+
         #endregion
 
         //=============================== Messages Action Methods ================================================//
@@ -153,6 +249,56 @@ namespace IntranetPortal.Data.Repositories.BaseRepositories
                     var msg_rcpt_id = cmd.Parameters.Add("@msg_rcpt_id", NpgsqlDbType.Integer);
                     await cmd.PrepareAsync();
                     msg_rcpt_id.Value = messageDetailId;
+
+                    var reader = await cmd.ExecuteReaderAsync();
+                    while (await reader.ReadAsync())
+                    {
+                        message.MessageID = reader["msg_id"] == DBNull.Value ? string.Empty : (reader["msg_id"]).ToString();
+                        message.SentTime = reader["msg_time"] == DBNull.Value ? (DateTime?)null : Convert.ToDateTime(reader["msg_time"]);
+                        message.SentBy = reader["msg_from"] == DBNull.Value ? string.Empty : (reader["msg_from"]).ToString();
+                        message.ActionUrl = reader["msg_url"] == DBNull.Value ? string.Empty : reader["msg_url"].ToString();
+                        message.DeletedTime = reader["time_del"] == DBNull.Value ? string.Empty : reader["time_del"].ToString();
+                        message.IsDeleted = reader["is_del"] == DBNull.Value ? false : (bool)reader["is_del"];
+                        message.IsRead = reader["is_rd"] == DBNull.Value ? false : (bool)reader["is_rd"];
+                        message.MessageBody = reader["msg_bdy"] == DBNull.Value ? string.Empty : reader["msg_bdy"].ToString();
+                        message.MessageDetailID = reader["msg_rcpt_id"] == DBNull.Value ? 0 : (int)reader["msg_rcpt_id"];
+                        message.ReadTime = reader["time_rd"] == DBNull.Value ? string.Empty : reader["time_rd"].ToString();
+                        message.RecipientID = reader["rcpt_id"] == DBNull.Value ? string.Empty : reader["rcpt_id"].ToString();
+                        message.RecipientName = reader["fullname"] == DBNull.Value ? string.Empty : reader["fullname"].ToString();
+                        message.Subject = reader["msg_sbj"] == DBNull.Value ? string.Empty : reader["msg_sbj"].ToString();
+                    }
+                }
+                await conn.CloseAsync();
+            }
+            catch (Exception ex)
+            {
+                await conn.CloseAsync();
+                throw new Exception(ex.Message);
+            }
+            return message;
+        }
+
+        public async Task<Message> GetMessageByMessageIdAsync(string messageId)
+        {
+            Message message = new Message();
+            var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
+            string query = String.Empty;
+            StringBuilder sb = new StringBuilder();
+            sb.Append("SELECT m.msg_id, m.msg_time, m.msg_from, m.msg_sbj, m.msg_bdy, m.msg_url, r.msg_rcpt_id, r.rcpt_id, ");
+            sb.Append("r.is_rd, r.time_rd, r.is_del, r.time_del, r.msg_id, p.fullname FROM public.gst_msgs m ");
+            sb.Append("INNER JOIN public.gst_msgrs r ON m.msg_id = r.msg_id ");
+            sb.Append("INNER JOIN public.gst_prsns p ON r.rcpt_id = p.id ");
+            sb.Append("WHERE (LOWER(m.msg_id) = LOWER(@msg_id));");
+            query = sb.ToString();
+            try
+            {
+                await conn.OpenAsync();
+                // Retrieve all rows
+                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+                {
+                    var msg_id = cmd.Parameters.Add("@msg_id", NpgsqlDbType.Text);
+                    await cmd.PrepareAsync();
+                    msg_id.Value = messageId;
 
                     var reader = await cmd.ExecuteReaderAsync();
                     while (await reader.ReadAsync())
@@ -292,7 +438,7 @@ namespace IntranetPortal.Data.Repositories.BaseRepositories
             return rows > 0;
         }
 
-        public async Task<bool> UpdateMessageDeleteStatusAsync(int messageDetailId)
+        public async Task<bool> UpdateMessageDeleteStatusByMessageDetailIdAsync(int messageDetailId)
         {
             int rows = 0;
             var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
@@ -323,8 +469,41 @@ namespace IntranetPortal.Data.Repositories.BaseRepositories
             return rows > 0;
         }
 
+        public async Task<bool> UpdateMessageDeleteStatusByRecipientIdAsync(string recipientId, bool readStatus)
+        {
+            int rows = 0;
+            var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
+            StringBuilder sb = new StringBuilder();
+            sb.Append("UPDATE public.gst_msgrs SET is_del = true, time_del = @time_del ");
+            sb.Append("WHERE (rcpt_id = @rcpt_id) AND (is_rd = @is_rd);");
+            string query = sb.ToString();
+            try
+            {
+                await conn.OpenAsync();
+                //Insert data
+                using (var cmd = new NpgsqlCommand(query, conn))
+                {
+                    var rcpt_id = cmd.Parameters.Add("@rcpt_id", NpgsqlDbType.Text);
+                    var is_rd = cmd.Parameters.Add("@is_rd", NpgsqlDbType.Boolean);
+                    var timeDeleted = cmd.Parameters.Add("@time_del", NpgsqlDbType.Text);
+                    cmd.Prepare();
+                    rcpt_id.Value = recipientId;
+                    is_rd.Value = readStatus;
+                    timeDeleted.Value = $"{DateTime.UtcNow.ToLongDateString()} {DateTime.UtcNow.ToLongTimeString()} GMT" ?? (object)DBNull.Value; ;
+
+                    rows = await cmd.ExecuteNonQueryAsync();
+                    await conn.CloseAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                await conn.CloseAsync();
+                throw new Exception(ex.Message);
+            }
+            return rows > 0;
+        }
         #endregion
-        
+
         //=============================== Activity History Action methods ======================================//
         #region Activity History Action Methods
         public async Task<bool> InsertActivityHistoryAsync(ActivityHistory activityHistory)

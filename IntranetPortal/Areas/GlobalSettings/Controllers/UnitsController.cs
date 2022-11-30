@@ -21,12 +21,12 @@ namespace IntranetPortal.Areas.GlobalSettings.Controllers
 
         private readonly IConfiguration _configuration;
         private readonly IGlobalSettingsService _globalSettingsService;
-        private readonly IEmployeeRecordService _employeeRecordService;
+        private readonly IErmService _employeeRecordService;
         private readonly IDataProtector _dataProtector;
 
         public UnitsController(IConfiguration configuration,
                                     IGlobalSettingsService globalSettingsService, IDataProtectionProvider dataProtectionProvider,
-                                    IEmployeeRecordService employeeRecordService, DataProtectionEncryptionStrings dataProtectionEncryptionStrings)
+                                    IErmService employeeRecordService, DataProtectionEncryptionStrings dataProtectionEncryptionStrings)
         {
             _configuration = configuration;
             _globalSettingsService = globalSettingsService;

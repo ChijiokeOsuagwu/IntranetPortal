@@ -9,9 +9,8 @@ namespace IntranetPortal.Base.Repositories.AssetManagerRepositories
     public interface IAssetRepository
     {
         Task<Asset> GetByIdAsync(string assetId);
-
-        Task<IList<Asset>> GetByNameAsync(string assetName);
-
+        Task<Asset> GetByNameAsync(string assetName);
+        Task<IList<Asset>> SearchByNameAsync(string assetName);
         Task<IList<Asset>> GetByAssetTypeIdAsync(int assetTypeId);
 
         Task<IList<Asset>> GetByCategoryIdAsync(int assetCategoryId);
@@ -22,7 +21,8 @@ namespace IntranetPortal.Base.Repositories.AssetManagerRepositories
 
         Task<bool> EditAsync(Asset asset);
 
-        Task<bool> DeleteAsync(string assetId);
+        Task<bool> DeleteAsync(string assetId, string deletedBy);
+        Task<bool> DeletePermanentlyAsync(string assetId);
 
         Task<bool> UpdateUsageStatusAsync(string assetId, string newStatus, string modifiedBy);
 

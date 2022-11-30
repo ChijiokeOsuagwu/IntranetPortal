@@ -1,0 +1,119 @@
+﻿
+@model IntranetPortal.Areas.BAMS.Models.DeploymentTeamMemberViewModel
+@{
+    ViewData["Title"] = "OfficeManager | Team Members";
+}
+<div class="container">
+    <h4>Team Members</h4>
+    <hr />
+    <div class="mb-1">
+        @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-x-circle"></i>
+                <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (!String.IsNullOrEmpty(Model.ViewModelWarningMessage))
+        {
+            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                <i class="bi bi-x-circle"></i>
+                <span class="fw-bold">@Model.ViewModelWarningMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (!String.IsNullOrEmpty(Model.ViewModelSuccessMessage))
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="bi bi-check-circle"></i>
+                <span class="fw-bold">@Model.ViewModelSuccessMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        <form asp-area="Bams" asp-controller="Deployment" asp-action="DeploymentTeam" method="post">
+            <a asp-area="Bams" asp-controller="Home" asp-action="index" class="btn btn-dark pr-2" style="width:100px" title="Return to Home Page">
+                <span class="text-white">Exit</span>
+            </a>
+            <a asp-area="Bams" asp-controller="Deployment" asp-action="SelectTeamBatch" asp-route-id="@Model.AssignmentEventID" class="btn btn-dark pr-2" style="width:100px" title="Click to Go Back">
+                <span class="text-white">Back</span>
+            </a>
+            <input type="hidden" asp-for="AssignmentEventID" />
+            <input type="hidden" asp-for="DeploymentID" />
+            <input asp-for="TeamMemberName" class="border-0 fw-bold ml-3" placeholder="Enter Name" style="width:300px">
+            <select asp-for="TeamMemberRole" class="border-0 fw-bold ml-2 mr-2" style="width:250px">
+                <option value="">Select Role</option>
+                <option value="Audio Engineer">Audio Engineer</option>
+                <option value="Cameraman">Cameraman</option>
+                <option value="Director">Director</option>
+                <option value="Driver">Driver</option>
+                <option value="Drone Operator">Drone Operator</option>
+                <option value="Satellite Engineer">Satellite Engineer</option>
+                <option value="Security">Security</option>
+                <option value="Vision Mixer">Vision Mixer</option>
+            </select>
+            <input type="submit" value="Add" class="btn btn-success text-white" style="width:100px" />
+        </form>
+    </div>
+    @if (ViewBag.TeamMembersList == null || ViewBag.TeamMembersList.Count < 1)
+    {
+        <div class="alert alert-info fade show" role="alert">
+            <i class="bi bi-info-circle"></i>
+            <span class="fw-bold">No record was found.</span>
+        </div>
+    }
+    else
+    {
+        int serial_no = 0;
+        <div class="row">
+            <div class="table-responsive">
+                <table class="table table-hover table-sm ">
+                    <thead class="table-dark">
+                        <tr>
+                            <td><span class="text-white fw-bold">#</span></td>
+                            <th><span class="text-white fw-bold">Name</span></th>
+                            <th><span class="text-white fw-bold">Role</span></th>
+                            <th><span class="text-white fw-bold">Unit</span></th>
+                            <th><span class="text-white fw-bold">Station</span></th>
+                            <th>
+                                <a asp-area="Bams" asp-controller="Deployment" asp-action="AssignmentTeamList" asp-route-ed="@Model.AssignmentEventID" asp-route-dd="@Model.DeploymentID" class="btn btn-light" style="width:100px" title="Export To PDF Document" target="_blank">
+                                    <i class="bi bi-file-earmark-pdf-fill"></i> <span class="text-dark">Export</span>
+                                </a>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="table-success">
+                        @foreach (var item in ViewBag.TeamMembersList)
+                        {
+                            <tr>
+                                <td class="p-0">
+                                    <span class="fw-bold text-center">@{serial_no++;}@serial_no</span>
+                                </td>
+                                <td class="p-1">
+                                    <span class="fw-bold text-center">@item.TeamMemberName</span>
+                                </td>
+                                <td class="p-1">
+                                    <span class="fw-bold text-center">@item.TeamMemberRole</span>
+                                </td>
+                                <td class="p-1">
+                                    <span class="fw-bold text-center">@item.TeamMemberUnit</span>
+                                </td>
+                                <td class="p-1">
+                                    <span class="fw-bold text-center">@item.TeamMemberStation</span>
+                                </td>
+                                <td class="p-1">
+                                    <div class="text-center">
+                                        <button class="btn-danger" onclick="removeTeamMember('@item.DeploymentTeamID')" style="width:50px"><i class="bi bi-dash-lg fw-bold" style="font-size: 1.0rem; color:white"></i></button>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+</div>
+@section Scripts{
+    <script src="~/js/js_bams/bams_assignment_new.js"></script>
+}

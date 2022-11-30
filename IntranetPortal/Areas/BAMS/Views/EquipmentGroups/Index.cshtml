@@ -1,0 +1,75 @@
+﻿
+@model IntranetPortal.Areas.BAMS.Models.EquipmentGroupsListViewModel
+@{
+    ViewData["Title"] = "OfficeManager | Equipment Groups";
+}
+<div class="container">
+    <h4>Equipment Groups</h4>
+    <hr />
+    <div class="mb-1">
+        <a asp-area="Bams" asp-controller="Home" asp-action="index" class="btn btn-dark pr-2" style="width:100px" title="Return to Home Page">
+            <span class="text-white">Exit</span>
+        </a>
+        <a asp-area="Bams" asp-controller="EquipmentGroups" asp-action="New" class="btn btn-success pl-4" style="width:200px" title="New Equipment Group">
+            <span class="text-white">New Equipment Group</span>
+        </a>
+
+        @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-x-circle"></i>
+                <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+    </div>
+    @if (Model == null || Model.EquipmentGroupList == null || Model.EquipmentGroupList.Count < 1)
+    {
+        <div class="alert alert-info fade show" role="alert">
+            <i class="bi bi-info-circle"></i>
+            <span class="fw-bold">No record was found.</span>
+        </div>
+    }
+    else
+    {
+        <div class="row">
+            <div class="table-responsive">
+                <table class="table table-hover table-sm ">
+                    <thead class="table-dark">
+                        <tr>
+                            <th><span class="text-white fw-bold">Name</span></th>
+                            <th><span class="text-white fw-bold">Description</span></th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody class="table-success">
+                        @foreach (var item in Model.EquipmentGroupList)
+                        {
+                            <tr>
+                                <td>
+                                    <span class="fw-bold">@item.EquipmentGroupName</span>
+                                </td>
+                                <td>
+                                   <span class="fw-bold">@item.EquipmentGroupDescription</span>
+                                </td>
+                                <td>
+                                    <div class="text-center">
+                                        <a asp-area="Bams" asp-controller="EquipmentGroups" asp-action="EquipmentList" asp-route-id="@item.EquipmentGroupID" title="Equipment List" class="btn btn-xs btn-dark text-white" style="width:40px">
+                                            <i class="bi bi-list-ul fw-bolder" style="font-size: 1.0rem;"></i>
+                                        </a>
+                                        <a asp-area="Bams" asp-controller="EquipmentGroups" asp-action="Edit" asp-route-id="@item.EquipmentGroupID" title="Edit Deployment Batch" class="btn btn-xs btn-info text-white" style="width:40px">
+                                            <i class="bi bi-pencil-square fw-bolder" style="font-size: 1.0rem;"></i>
+                                        </a>
+                                        <a asp-area="Bams" asp-controller="EquipmentGroups" asp-action="Delete" asp-route-id="@item.EquipmentGroupID" title="Delete Deployment Batch" class="btn btn-xs btn-danger text-white" style="width:40px">
+                                            <i class="bi bi-trash fw-bolder" style="font-size: 1.0rem;"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+</div>

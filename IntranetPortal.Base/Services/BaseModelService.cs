@@ -1,6 +1,5 @@
 ﻿using IntranetPortal.Base.Models.BaseModels;
 using IntranetPortal.Base.Repositories.BaseRepositories;
-using IntranetPortal.Base.Repositories.EmployeeRecordRepositories;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -17,6 +16,14 @@ namespace IntranetPortal.Base.Services
             _personRepository = personRepository;
             _utilityRepository = utilityRepository;
         }
+
+        //======================================== Utility Service Methods ==========================================================//
+        #region Utility Service Methods
+        public async Task<bool> DbConnectionIsOpenAsync()
+        {
+            return await _utilityRepository.CheckDatabaseConnectionAsync();
+        }
+        #endregion
 
         //======================================== Person Service Methods ===========================================================//
         #region Person Service Methods
@@ -50,13 +57,13 @@ namespace IntranetPortal.Base.Services
             return PersonIsUpdated;
         }
 
-        public async Task<bool> DeletePersonAsync(string personId)
+        public async Task<bool> DeletePersonAsync(string personId, string deletedBy, string deletedTime)
         {
             bool PersonIsDeleted = false;
             if (string.IsNullOrEmpty(personId)) { throw new ArgumentNullException(nameof(personId), "Required parameter [personId] is missing."); }
             try
             {
-                PersonIsDeleted = await _personRepository.DeletePersonAsync(personId);
+                PersonIsDeleted = await _personRepository.DeletePersonAsync(personId, deletedBy, deletedTime);
             }
             catch (Exception ex)
             {
@@ -145,51 +152,65 @@ namespace IntranetPortal.Base.Services
             return autoNumberUpdated;
         }
 
+        public async Task<string> GenerateCodeNumberAsync(AutoNumberType type, string typeCode)
+        {
+            try
+            {
+                string yy = (DateTime.Now.Year).ToString().Substring(2, 2);
+                string mm = (DateTime.Now.Month).ToString().PadLeft(2, '0');
+                string dd = (DateTime.Now.Day).ToString().PadLeft(2, '0');
+                int recordCount = await _utilityRepository.GetNumberCount(type, DateTime.Now.Day, DateTime.Now.Month, DateTime.Now.Year);
+                string nn = recordCount.ToString().PadLeft(2, '0');
+                return $"{typeCode}{yy}{mm}{dd}{nn}";
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public async Task<bool> RegisterCodeNumberAsync(AutoNumberType type)
+        {
+            try
+            {
+                return await _utilityRepository.AddCodeNumberRecord(type, DateTime.Now.Day, DateTime.Now.Month, DateTime.Now.Year);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+
         #endregion
 
         //=================================== Messages Service Methods ===============================================================//
         #region Messages Service Methods
-        public async Task<bool> SendMessageAsync(Message message, List<string> receipientIds = null)
+        public async Task<bool> SendMessageAsync(Message message, List<string> receipientIds)
         {
             bool MessageIsSent = false;
             if (message == null) { throw new ArgumentNullException(nameof(message), "Required parameter [message] is missing."); }
-
+            if (receipientIds.Count < 1) { throw new ArgumentNullException(nameof(receipientIds)); }
             try
             {
-                string MessageId = Guid.NewGuid().ToString();
-                message.MessageID = MessageId;
-                var firstAdded = await _utilityRepository.AddMessageAsync(message);
-                if (firstAdded)
+                if (string.IsNullOrWhiteSpace(message.MessageID)) { message.MessageID = Guid.NewGuid().ToString(); }
+                string messageId = message.MessageID;
+                var existing_msg = await _utilityRepository.GetMessageByMessageIdAsync(messageId);
+                if (existing_msg == null || string.IsNullOrWhiteSpace(existing_msg.Subject))
                 {
-                    if (receipientIds == null || receipientIds.Count < 1)
-                    {
-                        MessageDetail detail = new MessageDetail
-                        {
-                            MessageID = MessageId,
-                            IsRead = false,
-                            IsDeleted = false,
-                            RecipientID = message.RecipientID,
-                        };
-                        MessageIsSent = await _utilityRepository.AddMessageDetailAsync(detail);
-                    }
-                    else
-                    {
-                        foreach (var Id in receipientIds)
-                        {
-                            MessageDetail detail = new MessageDetail
-                            {
-                                MessageID = MessageId,
-                                IsRead = false,
-                                IsDeleted = false,
-                                RecipientID = Id,
-                            };
-                            MessageIsSent = await _utilityRepository.AddMessageDetailAsync(detail);
-                        }
-                    }
+                    await _utilityRepository.AddMessageAsync(message);
                 }
-                else
+
+                foreach (var Id in receipientIds)
                 {
-                    return false;
+                    MessageDetail detail = new MessageDetail
+                    {
+                        MessageID = messageId,
+                        IsRead = false,
+                        IsDeleted = false,
+                        RecipientID = Id,
+                    };
+                    MessageIsSent = await _utilityRepository.AddMessageDetailAsync(detail);
                 }
             }
             catch (Exception ex)
@@ -198,6 +219,48 @@ namespace IntranetPortal.Base.Services
             }
             return MessageIsSent;
         }
+
+        public async Task<bool> SendMessageAsync(Message message)
+        {
+            bool MessageIsSent = false;
+            if (message == null) { throw new ArgumentNullException(nameof(message), "Required parameter [message] is missing."); }
+            if (string.IsNullOrWhiteSpace(message.MessageID)) { throw new ArgumentNullException(nameof(message.MessageID)); }
+            try
+            {
+                var existing_msg = await _utilityRepository.GetMessageByMessageIdAsync(message.MessageID);
+                if (existing_msg == null || string.IsNullOrWhiteSpace(existing_msg.Subject))
+                {
+                    MessageIsSent = await _utilityRepository.AddMessageAsync(message);
+                }
+                else
+                {
+                    MessageIsSent = true;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return MessageIsSent;
+        }
+
+        public async Task<bool> AddMessageRecipientAsync(MessageDetail messageDetail)
+        {
+            bool MessageIsSent = false;
+            if (messageDetail == null) { throw new ArgumentNullException(nameof(messageDetail)); }
+
+            try
+            {
+                MessageIsSent = await _utilityRepository.AddMessageDetailAsync(messageDetail);
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return MessageIsSent;
+        }
+
 
         public async Task<Message> ReadMessageAsync(int messageDetailId)
         {
@@ -246,6 +309,51 @@ namespace IntranetPortal.Base.Services
         {
             var entities = await _utilityRepository.GetMessagesByReceipientIdAsync(recipientId);
             return entities.Count;
+        }
+
+        public async Task<bool> DeleteMessageByMessageDetailIDAsync(int messageDetailId)
+        {
+            bool IsDeleted = false;
+            if (messageDetailId < 1) { throw new ArgumentNullException(nameof(messageDetailId)); }
+            try
+            {
+                IsDeleted = await _utilityRepository.UpdateMessageDeleteStatusByMessageDetailIdAsync(messageDetailId);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return IsDeleted;
+        }
+
+        public async Task<bool> DeleteReadMessagesByRecipientIdAsync(string recipientId)
+        {
+            bool IsDeleted = false;
+            if (string.IsNullOrWhiteSpace(recipientId)) { throw new ArgumentNullException(nameof(recipientId)); }
+            try
+            {
+                IsDeleted = await _utilityRepository.UpdateMessageDeleteStatusByRecipientIdAsync(recipientId, true);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return IsDeleted;
+        }
+
+        public async Task<bool> DeleteUnReadMessagesByRecipientIdAsync(string recipientId)
+        {
+            bool IsDeleted = false;
+            if (string.IsNullOrWhiteSpace(recipientId)) { throw new ArgumentNullException(nameof(recipientId)); }
+            try
+            {
+                IsDeleted = await _utilityRepository.UpdateMessageDeleteStatusByRecipientIdAsync(recipientId, false);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return IsDeleted;
         }
 
         #endregion

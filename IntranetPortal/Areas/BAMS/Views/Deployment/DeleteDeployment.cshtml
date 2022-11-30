@@ -1,0 +1,106 @@
+﻿@model IntranetPortal.Areas.BAMS.Models.AssignmentDeploymentViewModel
+@{
+    ViewData["Title"] = "OfficeManager | Delete Deployment";
+}
+<div>
+    <div class="card" style="max-width:800px">
+        <div class="card-header bg-danger">
+            <h4 class="text-white">Delete Deployment</h4>
+        </div>
+        <div class="card-body bg-secondary">
+            @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bi bi-x-circle"></i>
+                    <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            @if (!String.IsNullOrEmpty(Model.ViewModelSuccessMessage))
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="bi bi-check-circle"></i>
+                    <span class="fw-bold">@Model.ViewModelSuccessMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            @if (!String.IsNullOrEmpty(Model.ViewModelWarningMessage))
+            {
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                    <i class="bi bi-exclamation-circle"></i>
+                    <span class="fw-bold">@Model.ViewModelWarningMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            <form asp-area="Bams" asp-controller="Deployment" asp-action="DeleteDeployment" method="post">
+                <div class="row">
+                    <input type="hidden" asp-for="AssignmentEventID" />
+                    <input type="hidden" asp-for="DeploymentID" />
+                    <input type="hidden" asp-for="StationID" />
+                    <div class="col-md-6 mb-2">
+                        <label asp-for="DeploymentTitle" class="form-label text-white fw-bold"></label>
+                        <input asp-for="DeploymentTitle" class="form-control fw-bold" readonly="readonly" />
+                        <div><span asp-validation-for="DeploymentTitle" class="text-danger"></span></div>
+                    </div>
+                    <div class="col-md-6 mb-2">
+                        <label asp-for="StationName" class="form-label text-white fw-bold"></label>
+                        <input asp-for="StationName" class="form-control fw-bold" readonly="readonly" />
+                        <div><span asp-validation-for="StationID" class="text-danger"></span></div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-2">
+                        <label asp-for="DepartureTime" class="form-label text-white fw-bold"></label>
+                        @if (Model.DepartureTime != null)
+                        {
+                            <label class="form-control fw-bold">@Model.DepartureTime.Value.ToLongDateString()  @Model.DepartureTime.Value.ToLongTimeString()</label>
+                        }
+                        else
+                        {<label class="form-control fw-bold">[Not Set]</label>}
+                    </div>
+                    <div class="col-md-6 mb-2">
+                        <label asp-for="ArrivalTime" class="form-label text-white fw-bold"></label>
+                        @if (Model.ArrivalTime != null)
+                        {
+                            <label class="form-control fw-bold">@Model.ArrivalTime.Value.ToLongDateString()  @Model.ArrivalTime.Value.ToLongTimeString()</label>
+                        }
+                        else
+                        {<label class="form-control fw-bold">[Not Set]</label>}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <input type="hidden" asp-for="StatusID" />
+                        <label asp-for="StatusDescription" class="form-label text-white fw-bold"></label>
+                        <input asp-for="StatusDescription" class="form-control fw-bold" readonly="readonly" />
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="TeamLeadName" class="form-label text-white fw-bold"></label>
+                        <input asp-for="TeamLeadName" class="form-control fw-bold" readonly="readonly">
+                        <div><span asp-validation-for="TeamLeadName" class="text-danger"></span></div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12 mb-3">
+                        <label asp-for="TeamLeadPhone" class="form-label text-white fw-bold"></label>
+                        <input asp-for="TeamLeadPhone" class="form-control fw-bold" readonly="readonly">
+                        <div><span asp-validation-for="TeamLeadPhone" class="text-danger"></span></div>
+                    </div>
+                </div>
+                <div class="row">
+                    <a asp-area="Bams" asp-controller="Home" asp-action="Index" class="btn btn-dark ml-2" style="width:100px" title="Return Home">
+                        <span class="text-white">Exit</span>
+                    </a>
+                    <a asp-area="Bams" asp-controller="Deployment" asp-action="List" asp-route-id="@Model.AssignmentEventID" class="btn btn-dark ml-2" style="width:100px" title="Go Back">
+                        <span class="text-white">Back</span>
+                    </a>
+                    @if (!Model.OperationIsCompleted)
+                    {
+                        <button type="submit" class="btn btn-danger ml-2" title="Delete Permanently" style="width:200px" onclick="return confirm('Delete Permanently?')"><span class="text-white">Delete</span></button>
+                    }
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+

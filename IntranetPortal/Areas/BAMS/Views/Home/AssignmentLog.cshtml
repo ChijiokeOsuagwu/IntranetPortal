@@ -1,0 +1,101 @@
+﻿
+@model IntranetPortal.Areas.BAMS.Models.ActiveAssignmentListViewModel
+@{
+    ViewData["Title"] = "OfficeManager | Active Assignments";
+}
+<div class="container">
+    <h4>Assignments</h4>
+    <hr />
+    <div class="mb-1">
+        <form asp-area="Bams" asp-controller="Home" asp-action="AssignmentLog" method="get">
+            <a asp-area="Bams" asp-controller="Home" asp-action="Index" class="btn btn-dark pr-2" style="width:100px" title="Click to Go Back">
+                <span class="text-white">Back</span>
+            </a>
+            <a asp-area="Bams" asp-controller="Home" asp-action="NewAssignment" class="btn btn-success pr-4" style="width:200px" title="New Assignment">
+                <span class="text-white">New Assignment</span>
+            </a>
+            <select id="mn" name="mn" class="border-0 fw-bold" value="@ViewData["StartMonth"]" style="width:100px">
+                <option value="0">ALL</option>
+                <option value="1">Jan</option>
+                <option value="2">Feb</option>
+                <option value="3">Mar</option>
+                <option value="4">Apr</option>
+                <option value="5">May</option>
+                <option value="6">Jun</option>
+                <option value="7">Jul</option>
+                <option value="8">Aug</option>
+                <option value="9">Sep</option>
+                <option value="10">Oct</option>
+                <option value="11">Nov</option>
+                <option value="12">Dec</option>
+            </select>
+            <input id="yr" name="yr" class="border-0 fw-bold" value="@ViewData["StartYear"]" style="width:100px">
+            <input type="submit" value="Search" class="btn btn-dark" style="width:100px" />
+        </form>
+            @if (!String.IsNullOrEmpty(ViewBag.ErrorMessage))
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bi bi-x-circle"></i>
+                    <span class="fw-bold">@ViewBag.ErrorMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+    </div>
+    @if (Model == null || Model.AssignmentEventList == null || Model.AssignmentEventList.Count < 1)
+    {
+        <div class="alert alert-info fade show" role="alert">
+            <i class="bi bi-info-circle"></i>
+            <span class="fw-bold">No record was found.</span>
+        </div>
+    }
+    else
+    {
+        <div class="row">
+            <div class="table-responsive">
+                <table class="table table-hover table-sm ">
+                    <thead class="table-dark">
+                        <tr>
+                            <th><span class="text-white fw-bold">Customer</span></th>
+                            <th><span class="text-white fw-bold">Event Title</span></th>
+                            <th><span class="text-white fw-bold">Station</span></th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody class="table-success">
+                        @foreach (var item in Model.AssignmentEventList)
+                        {
+                            <tr class="p-0">
+                                <td>
+                                    <span class="fw-bold">@item.CustomerName</span>
+                                </td>
+                                <td>
+                                    <span class="fw-bold" title="@item.Description">@item.Title</span>
+                                </td>
+                                <td>
+                                    <span class="fw-bold">@item.StationName</span>
+                                </td>
+                                <td>
+                                    <div class="text-center">
+                                        <a asp-area="Bams" asp-controller="Home" asp-action="AssignmentDetails" asp-route-id="@item.ID" title="Select" class="btn btn-sm btn-dark text-white" style="width:100px">
+                                            <span class="fw-bolder">Select</span>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+</div>
+
+
+
+
+
+
+
+
+
+

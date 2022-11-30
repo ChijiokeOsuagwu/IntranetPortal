@@ -16,6 +16,7 @@ namespace IntranetPortal.Base.Repositories.AssetManagerRepositories
         Task<IList<AssetUsage>> GetAllAsync();
         Task<AssetUsage> GetByIdAsync(int assetUsageId);
         Task<IList<AssetUsage>> GetByAssetIdAsync(string assetId);
+        Task<IList<AssetUsage>> GetCheckedOutByAssetIdAsync(string assetId);
         Task<IList<AssetUsage>> GetByAssetNameAsync(string assetName);
         Task<IList<AssetUsage>> GetByAssetTypeIdAsync(int assetTypeId);
 

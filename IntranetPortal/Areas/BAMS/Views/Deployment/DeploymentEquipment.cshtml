@@ -1,0 +1,95 @@
+﻿
+@model IntranetPortal.Areas.BAMS.Models.DeploymentEquipmentViewModel
+@{
+    ViewData["Title"] = "OfficeManager | Batch Equipment";
+}
+<div class="container">
+    <h4>Batch Equipment List</h4>
+    <hr />
+    <div class="mb-1">
+        @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-x-circle"></i>
+                <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (!String.IsNullOrEmpty(Model.ViewModelWarningMessage))
+        {
+            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                <i class="bi bi-x-circle"></i>
+                <span class="fw-bold">@Model.ViewModelWarningMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (!String.IsNullOrEmpty(Model.ViewModelSuccessMessage))
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="bi bi-check-circle"></i>
+                <span class="fw-bold">@Model.ViewModelSuccessMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        <form asp-area="Bams" asp-controller="Deployment" asp-action="DeploymentEquipment" method="post">
+            <a asp-area="Bams" asp-controller="Home" asp-action="index" class="btn btn-dark pr-2" style="width:100px" title="Return to Home Page">
+                <span class="text-white">Exit</span>
+            </a>
+            <a asp-area="Bams" asp-controller="Deployment" asp-action="SelectEquipmentBatch" asp-route-id="@Model.AssignmentEventID" class="btn btn-dark pr-2" style="width:100px" title="Click to Go Back">
+                <span class="text-white">Back</span>
+            </a>
+            <input type="hidden" asp-for="AssignmentEventID" />
+            <input type="hidden" asp-for="DeploymentID" />
+            <input asp-for="AssetName" class="border-0 fw-bold ml-3" placeholder="Enter Equipment Name" style="width:300px">
+            <input type="submit" value="Add" class="btn btn-success text-white" style="width:100px" />
+        </form>
+    </div>
+    @if (ViewBag.EquipmentsList == null || ViewBag.EquipmentsList.Count < 1)
+    {
+        <div class="alert alert-info fade show" role="alert">
+            <i class="bi bi-info-circle"></i>
+            <span class="fw-bold">No record was found.</span>
+        </div>
+    }
+    else
+    {
+        <div class="row">
+            <div class="table-responsive">
+                <table class="table table-hover table-sm ">
+                    <thead class="table-dark">
+                        <tr>
+                            <th><span class="text-white fw-bold">Equipment Name</span></th>
+                            <th><span class="text-white fw-bold">Type</span></th>
+                            <th><span class="text-white fw-bold">Status</span></th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody class="table-success">
+                        @foreach (var item in ViewBag.EquipmentsList)
+                        {
+                            <tr>
+                                <td class="pl-3">
+                                    <span class="fw-bold">@item.AssetName</span>
+                                </td>
+                                <td class="p-1">
+                                    <span class="fw-bold">@item.AssetTypeName</span>
+                                </td>
+                                <td class="p-1">
+                                    <span class="fw-bold">@item.EquipmentDeploymentStatus</span>
+                                </td>
+                                <td class="p-1">
+                                    <div class="text-center">
+                                        <button class="btn-danger" onclick="removeBatchEquipment('@item.ID')" style="width:50px"><i class="bi bi-dash-lg fw-bold" style="font-size: 1.0rem; color:white"></i></button>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+</div>
+@section Scripts{
+    <script src="~/js/js_bams/bams_assignment_new.js"></script>
+}

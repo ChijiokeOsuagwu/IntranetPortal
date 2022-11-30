@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json;
 
 namespace IntranetPortal.Areas.UserAdministration.Controllers
 {
@@ -298,5 +299,45 @@ namespace IntranetPortal.Areas.UserAdministration.Controllers
                 return "failed";
             }
         }
+
+        //======================== Employees Helper Methods ======================================//
+        #region Employees Helper Methods
+
+        [HttpGet]
+        public JsonResult GetNamesOfEmployeeUsers(string text)
+        {
+            List<string> employees = _securityService.GetEmployeeUsersByNameAsync(text).Result.Select(x => x.FullName).ToList();
+            return Json(employees);
+        }
+
+        [HttpGet]
+        public JsonResult GetEmployeeUserParameters(string nm)
+        {
+            EmployeeUser employee = new EmployeeUser();
+
+            employee = _securityService.GetEmployeeUsersByNameAsync(nm).Result.FirstOrDefault();
+
+            if (employee == null)
+            {
+                employee = new EmployeeUser
+                {
+                    UserID = string.Empty,
+                    //AssetTypeID = -1
+                };
+            }
+
+            string model = JsonConvert.SerializeObject(new
+            {
+                usr_id = employee.UserID,
+                usr_login = employee.UserName,
+                usr_name = employee.FullName,
+                unit_id = employee.UnitID,
+                dept_id = employee.DepartmentID,
+                station_id = employee.LocationID,
+            }, Formatting.Indented);
+
+            return Json(model);
+        }
+        #endregion
     }
 }

@@ -28,7 +28,7 @@ namespace IntranetPortal.Areas.AssetManager.Models
         public DateTime? CheckedInTime { get; set; }
 
         [Display(Name = "Condition")]
-        public string CheckedInCondition { get; set; }
+        public AssetCondition CheckedInCondition { get; set; }
 
         [Display(Name = "To Location")]
         [Required]
@@ -36,7 +36,6 @@ namespace IntranetPortal.Areas.AssetManager.Models
 
         [Display(Name = "From Location")]
         public string CheckedInFromLocation { get; set; }
-
 
         [Display(Name = "Comment")]
         [MaxLength(1500, ErrorMessage = "Comment must not exceed 1500 characters.")]
@@ -60,6 +59,7 @@ namespace IntranetPortal.Areas.AssetManager.Models
                 CheckedInTime = CheckedInTime,
                 CheckStatus = CheckStatus,
                 UsageID = UsageID,
+                UsageLocation = CheckedInToLocation,
                 ModifiedBy = ModifiedBy,
                 ModifiedTime = ModifiedTime,
             };

@@ -11,6 +11,9 @@ namespace IntranetPortal.Base.Repositories.BamsRepositories
         Task<AssignmentEvent> GetByIdAsync(int Id);
         Task<IList<AssignmentEvent>> SearchByCustomerNameAsync(string customerName);
         Task<IList<AssignmentEvent>> GetOpenAsync();
+        Task<IList<AssignmentEvent>> GetAllAsync();
+        Task<IList<AssignmentEvent>> GetByYearAsync(int startYear);
+        Task<IList<AssignmentEvent>> GetByYearAndMonthAsync(int startYear, int startMonth);
         Task<bool> AddAsync(AssignmentEvent assignmentEvent);
         Task<bool> EditAsync(AssignmentEvent assignmentEvent);
         Task<bool> DeleteAsync(int assignmentEventId);

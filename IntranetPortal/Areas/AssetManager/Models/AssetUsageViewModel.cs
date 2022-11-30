@@ -64,7 +64,7 @@ namespace IntranetPortal.Areas.AssetManager.Models
         public DateTime? CheckedOutTime { get; set; }
 
         [Display(Name = "Condition")]
-        public string CheckOutCondition { get; set; }
+        public AssetCondition CheckOutCondition { get; set; }
 
         [Display(Name = "Assigned To")]
         [Required]
@@ -82,7 +82,7 @@ namespace IntranetPortal.Areas.AssetManager.Models
         public DateTime? CheckedInTime { get; set; }
 
         [Display(Name = "Condition")]
-        public string CheckedInCondition { get; set; }
+        public AssetCondition CheckedInCondition { get; set; }
 
         [Display(Name = "Comment")]
         [MaxLength(1500, ErrorMessage = "Comment must not exceed 1500 characters.")]
@@ -92,6 +92,8 @@ namespace IntranetPortal.Areas.AssetManager.Models
         public string CheckStatus { get; set; }
         public string ModifiedBy { get; set; }
         public string ModifiedTime { get; set; }
+        public int? AssignmentEventID { get; set; }
+        public int? DeploymentID { get; set; }
 
         public AssetUsage ConvertToAssetUsage()
         {

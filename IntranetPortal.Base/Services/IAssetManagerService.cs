@@ -32,9 +32,10 @@ namespace IntranetPortal.Base.Services
         //==================== Asset Service Methods =========================================================//
         #region Assets Service Methods
         Task<bool> CreateAssetAsync(Asset asset);
-        Task<bool> DeleteAssetAsync(string assetId);
+        Task<bool> DeleteAssetAsync(string assetId, string deletedBy);
         Task<bool> UpdateAssetAsync(Asset asset);
         Task<IList<Asset>> GetAssetsAsync();
+        Task<Asset> GetAssetByNameAsync(string assetName);
         Task<Asset> GetAssetByIdAsync(string assetId);
         Task<IList<Asset>> SearchAssetsByNameAsync(string assetName);
         Task<IList<Asset>> GetAssetsByAssetTypeIdAsync(int assetTypeId);
@@ -63,12 +64,14 @@ namespace IntranetPortal.Base.Services
         //===================== Asset Usage Service Methods ==================================================//
         #region Asset Usage Service Methods
         Task<bool> CheckOutEquipmentAsync(AssetUsage assetUsage);
+        Task<bool> CancelCheckOutEquipmentAsync(int assetUsageId, string assetId, string previousLocation, string previousStatus, string modifiedBy);
         Task<bool> DeleteAssetUsageAsync(int assetUsageId);
         Task<bool> UpdateAssetUsageAsync(AssetUsage assetUsage);
         Task<IList<AssetUsage>> GetAssetUsagesAsync();
         Task<AssetUsage> GetAssetUsageByIdAsync(int assetUsageId);
         Task<IList<AssetUsage>> GetAssetUsagesByAssetTypeIdAsync(int assetTypeId);
         Task<IList<AssetUsage>> GetAssetUsagesByAssetIdAsync(string assetId);
+        Task<IList<AssetUsage>> GetAssetUsagesCheckedOutByAssetIdAsync(string assetId);
         Task<IList<AssetUsage>> SearchAssetUsagesByAssetNameAsync(string assetName);
         Task<IList<AssetUsage>> GetCurrentAssetUsagesAsync();
         Task<IList<AssetUsage>> GetCurrentAssetUsagesByAssetTypeIdAsync(int assetTypeId);

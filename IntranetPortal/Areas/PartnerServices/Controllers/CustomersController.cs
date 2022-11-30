@@ -112,7 +112,7 @@ namespace IntranetPortal.Areas.PartnerServices.Controllers
                                 }
                                 else
                                 {
-                                    await _baseModelService.DeletePersonAsync(person.PersonID);
+                                    await _baseModelService.DeletePersonAsync(person.PersonID, person.CreatedBy, person.CreatedTime);
                                     await _businessManagerService.DeleteBusinessAsync(business.BusinessID);
                                     model.ViewModelErrorMessage = $"Error! Sorry, an error was encountered. Creating New Customer failed.";
                                 }
@@ -139,7 +139,7 @@ namespace IntranetPortal.Areas.PartnerServices.Controllers
                 {
                     if (!string.IsNullOrEmpty(person.PersonID))
                     {
-                        await _baseModelService.DeletePersonAsync(person.PersonID);
+                        await _baseModelService.DeletePersonAsync(person.PersonID, person.CreatedBy, person.CreatedTime);
                     }
                     if (!string.IsNullOrEmpty(business.BusinessID))
                     {
@@ -399,7 +399,7 @@ namespace IntranetPortal.Areas.PartnerServices.Controllers
                             }
                             else
                             {
-                                await _baseModelService.DeletePersonAsync(person.PersonID);
+                                await _baseModelService.DeletePersonAsync(person.PersonID, person.CreatedBy, person.CreatedTime);
                                 model.ViewModelErrorMessage = $"Sorry, an error was encountered. Creating New Contact failed.";
                             }
                         }
@@ -419,7 +419,7 @@ namespace IntranetPortal.Areas.PartnerServices.Controllers
                 {
                     if (!string.IsNullOrEmpty(person.PersonID))
                     {
-                        await _baseModelService.DeletePersonAsync(person.PersonID);
+                        await _baseModelService.DeletePersonAsync(person.PersonID, person.CreatedBy, person.CreatedTime);
                     }
                     model.ViewModelErrorMessage = ex.Message;
                     model.OperationIsCompleted = true;
@@ -592,7 +592,10 @@ namespace IntranetPortal.Areas.PartnerServices.Controllers
                     bool businessContactIsDeleted = await _businessManagerService.DeleteBusinessContactAsync(businessContactId);
                     if (businessContactIsDeleted)
                     {
-                        if (await _baseModelService.DeletePersonAsync(personId))
+                        string deletedBy = HttpContext.User.Identity.Name;
+                        string deletedTime = $"{DateTime.Now.ToLongDateString()} {DateTime.Now.ToLongTimeString()}";
+
+                        if (await _baseModelService.DeletePersonAsync(personId, deletedBy, deletedTime))
                         {
                             return RedirectToAction("Contacts", new { sp = businessId });
                         }

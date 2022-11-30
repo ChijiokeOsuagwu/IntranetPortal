@@ -12,11 +12,13 @@ namespace IntranetPortal.Base.Models.BamsModels
         public string AssignmentEventTitle { get; set; }
         public string AssignmentEventDescription { get; set; }
         public DateTime? DepartureTime { get; set; }
+        public DateTime? ArrivalTime { get; set; }
         public string TeamLeadName { get; set; }
         public string TeamLeadPhone { get; set; }
-        public string ProgressDescription { get; set; }
         public int? StatusID { get; set; }
         public string StatusDescription { get; set; }
+        public int StationID { get; set; }
+        public string StationName { get; set; }
         public string ModifiedBy { get; set; }
         public string ModifiedTime { get; set; }
         public string CreatedBy { get; set; }

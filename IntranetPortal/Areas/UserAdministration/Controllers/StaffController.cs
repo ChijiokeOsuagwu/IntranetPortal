@@ -23,10 +23,10 @@ namespace IntranetPortal.Areas.UserAdministration.Controllers
         private readonly IConfiguration _configuration;
         private readonly ISecurityService _securityService;
         private readonly IGlobalSettingsService _globalSettingsService;
-        private readonly IEmployeeRecordService _employeeRecordService;
+        private readonly IErmService _employeeRecordService;
         private readonly IBaseModelService _baseModelService;
         private readonly IDataProtector _dataProtector;
-        public StaffController(IConfiguration configuration, IGlobalSettingsService globalSettingsService, IEmployeeRecordService employeeRecordService,
+        public StaffController(IConfiguration configuration, IGlobalSettingsService globalSettingsService, IErmService employeeRecordService,
                                     ISecurityService securityService, IDataProtectionProvider dataProtectionProvider, IBaseModelService baseModelService,
                                     DataProtectionEncryptionStrings dataProtectionEncryptionStrings)
         {
@@ -39,13 +39,8 @@ namespace IntranetPortal.Areas.UserAdministration.Controllers
         }
 
         [Authorize(Roles = "UADSTFVWL, XYALLACCZ")]
-        public async Task<IActionResult> UserList(string sortOrder, string currentFilter, string searchString, int? pageNumber)
+        public async Task<IActionResult> UserList(string currentFilter, string searchString, int? pageNumber)
         {
-            ViewData["CurrentSort"] = sortOrder;
-            ViewData["NameSortParm"] = String.IsNullOrEmpty(sortOrder) ? "name_desc" : "";
-            ViewData["UnitSortParm"] = sortOrder == "unit" ? "unit_desc" : "unit";
-            ViewData["DeptSortParm"] = sortOrder == "dept" ? "dept_desc" : "dept";
-            ViewData["LocSortParm"] = sortOrder == "loc" ? "loc_desc" : "loc";
 
             if (searchString != null)
             {
@@ -61,43 +56,9 @@ namespace IntranetPortal.Areas.UserAdministration.Controllers
 
             if (!String.IsNullOrEmpty(searchString))
             {
-                var entities = await _securityService.GetEmployeeUsersByNameAsync(searchString).ConfigureAwait(false);
+                var entities = await _securityService.SearchEmployeeUsersByNameAsync(searchString).ConfigureAwait(false);
                 users = entities.ToList();
             }
-            else
-            {
-                var entities = await _securityService.GetAllEmployeeUsersAsync().ConfigureAwait(false);
-                users = entities.ToList();
-            }
-
-            switch (sortOrder)
-            {
-                case "name_desc":
-                    users = users.OrderByDescending(s => s.FullName).ToList();
-                    break;
-                case "unit":
-                    users = users.OrderBy(s => s.UnitName).ToList();
-                    break;
-                case "unit_desc":
-                    users = users.OrderByDescending(s => s.UnitName).ToList();
-                    break;
-                case "dept":
-                    users = users.OrderBy(s => s.DepartmentName).ToList();
-                    break;
-                case "dept_desc":
-                    users = users.OrderByDescending(s => s.DepartmentName).ToList();
-                    break;
-                case "loc":
-                    users = users.OrderBy(s => s.LocationName).ToList();
-                    break;
-                case "loc_desc":
-                    users = users.OrderByDescending(s => s.LocationName).ToList();
-                    break;
-                default:
-                    users = users.OrderBy(s => s.FullName).ToList();
-                    break;
-            }
-
             int pageSize = 10;
             return View(PaginatedList<EmployeeUser>.CreateAsync(users.AsQueryable(), pageNumber ?? 1, pageSize));
         }
@@ -125,11 +86,11 @@ namespace IntranetPortal.Areas.UserAdministration.Controllers
 
             if (!String.IsNullOrEmpty(searchString))
             {
-                employees = await _employeeRecordService.GetNonUserEmployeesByNameAsync(searchString).ConfigureAwait(false);
+                employees = await _employeeRecordService.GetNonUserEmployeesByNameAsync(searchString);
             }
             else
             {
-                employees = await _employeeRecordService.GetNonUserEmployeesAsync().ConfigureAwait(false);
+                employees = await _employeeRecordService.GetAllNonUserEmployeesAsync();
             }
 
             switch (sortOrder)
@@ -172,7 +133,7 @@ namespace IntranetPortal.Areas.UserAdministration.Controllers
             {
                 if (!string.IsNullOrEmpty(id))
                 {
-                    employee = await _employeeRecordService.GetEmployeesByIdAsync(id);
+                    employee = await _employeeRecordService.GetEmployeeByIdAsync(id);
                     if (employee != null)
                     {
                         if (employee.ConfirmationDate != null)
@@ -213,7 +174,7 @@ namespace IntranetPortal.Areas.UserAdministration.Controllers
                     return RedirectToAction("EmployeeUserDetails", new { id = user.Id });
                 }
 
-                Employee employee = await _employeeRecordService.GetEmployeesByIdAsync(id);
+                Employee employee = await _employeeRecordService.GetEmployeeByIdAsync(id);
                 model.UserID = employee.EmployeeID;
                 model.FullName = employee.FullName;
                 model.EmployeeNumber = employee.EmployeeNo1;
@@ -333,7 +294,7 @@ namespace IntranetPortal.Areas.UserAdministration.Controllers
                         model.UserType = user.UserType;
                     }
 
-                    Employee employee = await _employeeRecordService.GetEmployeesByIdAsync(id);
+                    Employee employee = await _employeeRecordService.GetEmployeeByIdAsync(id);
                     if (employee != null)
                     {
                         model.CompanyName = employee.CompanyName;
@@ -373,7 +334,7 @@ namespace IntranetPortal.Areas.UserAdministration.Controllers
                 model.LoginID = user.UserName;
                 model.EnableLockOut = user.LockoutEnabled;
 
-                Employee employee = await _employeeRecordService.GetEmployeesByIdAsync(id);
+                Employee employee = await _employeeRecordService.GetEmployeeByIdAsync(id);
                 model.UserID = employee.EmployeeID;
                 model.FullName = employee.FullName;
                 model.EmployeeNumber = employee.EmployeeNo1;

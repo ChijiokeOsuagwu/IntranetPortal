@@ -1,0 +1,84 @@
+﻿
+@{
+    ViewData["Title"] = "OfficeManager | Employees Manager";
+}
+
+<link href="~/lib/matrix/dist/css/style.min.css" rel="stylesheet" />
+<div class="my-2">
+    <!-- ============================================================== -->
+    <!-- Cards  -->
+    <!-- ============================================================== -->
+    <div class="row">
+        <div class="col-md-6 col-lg-2 col-xlg-3">
+            <a asp-area="ERM" asp-controller="Employees" asp-action="Search">
+                <div class="card card-hover">
+                    <div class="box bg-light text-center">
+                        <h1 class="font-light text-dark" style="font-size:3em"><i class="bi bi-search"></i></h1>
+                        <h6 class="text-dark">Search</h6>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <!-- Column -->
+        <div class="col-md-6 col-lg-2 col-xlg-3">
+            <a asp-area="EmployeeRecords" asp-controller="Home" asp-action="List">
+                <div class="card card-hover">
+                    <div class="box bg-light text-center">
+                        <h1 class="font-light text-dark" style="font-size:3em"><i class="bi bi-person-lines-fill"></i></h1>
+                        <h6 class="text-dark">List</h6>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <!-- Column -->
+        <div class="col-md-6 col-lg-2 col-xlg-3">
+            <a asp-area="ERM" asp-controller="Employees" asp-action="Create">
+                <div class="card card-hover">
+                    <div class="box bg-light text-center">
+                        <h1 class="font-light text-dark" style="font-size:3em"><i class="bi bi-person-plus-fill"></i></h1>
+                        <h6 class="text-dark">Add New</h6>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <!-- Column -->
+        <div class="col-md-6 col-lg-2 col-xlg-3">
+            <a asp-area="ContentManager" asp-controller="Events" asp-action="Index">
+                <div class="card card-hover">
+                    <div class="box bg-light text-center">
+                        <h1 class="font-light text-dark" style="font-size:3em"><i class="fas fa-chalkboard-teacher"></i></h1>
+                        <h6 class="text-dark">Events</h6>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <!-- Column -->
+        <div class="col-md-6 col-lg-2 col-xlg-3">
+            <a asp-area="ContentManager" asp-controller="Announcements" asp-action="List">
+                <div class="card card-hover">
+                    <div class="box bg-light text-center">
+                        <h1 class="font-light text-dark" style="font-size:3em"><i class="far fa-calendar-alt"></i></h1>
+                        <h6 class="text-dark">Announcements</h6>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <!-- Column -->
+        <div class="col-md-6 col-lg-2 col-xlg-3">
+            <a asp-area="ContentManager" asp-controller="Settings" asp-action="Index">
+                <div class="card card-hover">
+                    <div class="box bg-light text-center">
+                        <h1 class="font-light text-dark" style="font-size:3em"><i class="bi bi-sliders"></i></h1>
+                        <h6 class="text-dark">Advance Settings</h6>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <!-- Column -->
+    </div>
+</div>
+@section Scripts{
+
+}
+
+

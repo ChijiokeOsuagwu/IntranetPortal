@@ -45,8 +45,12 @@ namespace IntranetPortal.Areas.AssetManager.Models
         [MaxLength(5000, ErrorMessage = "Purpose must not exceed 5000 characters.")]
         public string MovementPurpose { get; set; }
 
-        [Display(Name = "Condition")]
-        public string AssetCondition { get; set; }
+        [Required]
+        [Display(Name = "Condition Status")]
+        public AssetCondition AssetConditionStatus{ get; set; }
+
+        [Display(Name="Condition Description")]
+        public string AssetConditionDescription { get; set; }
 
         [Required]
         [Display(Name = "Supervised By")]
@@ -76,7 +80,8 @@ namespace IntranetPortal.Areas.AssetManager.Models
                 ApprovedBy = ApprovedBy,
                 AssetCategoryID = AssetCategoryID,
                 AssetCategoryName = AssetCategoryName,
-                AssetCondition = AssetCondition,
+                AssetConditionStatus = AssetConditionStatus,
+                AssetConditionDescription = AssetConditionDescription,
                 AssetDescription = AssetDescription,
                 AssetID = AssetID,
                 AssetMovementID = AssetMovementID == null ? 0 : AssetMovementID.Value,

@@ -1,0 +1,126 @@
+﻿@model IntranetPortal.Areas.BAMS.Models.AssignmentEventViewModel
+@{
+    ViewData["Title"] = "OfficeManager | Assignment Details";
+}
+<div>
+    <div class="card" style="min-width:600px">
+        <div class="card-header bg-danger">
+            <h4 class="text-white">Delete Assignment</h4>
+        </div>
+        <div class="card-body bg-secondary">
+            @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bi bi-x-circle"></i>
+                    <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            @if (!String.IsNullOrEmpty(Model.ViewModelSuccessMessage))
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="bi bi-check-circle"></i>
+                    <span class="fw-bold">@Model.ViewModelSuccessMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            @if (!String.IsNullOrEmpty(Model.ViewModelWarningMessage))
+            {
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                    <i class="bi bi-exclamation-circle"></i>
+                    <span class="fw-bold">@Model.ViewModelWarningMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            <form asp-area="Bams" asp-controller="Home" asp-action="DeleteAssignment" method="post">
+                <div class="row">
+                    <input type="hidden" asp-for="ID" />
+                    <input type="hidden" asp-for="CustomerID" />
+                    <div class="col-md-6 mb-2">
+                        <label asp-for="CustomerName" class="form-label text-white fw-bold"></label>
+                        <input asp-for="CustomerName" class="form-control fw-bold" readonly="readonly" aria-label="Recipient's username" aria-describedby="button-addon2">
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <label asp-for="StationName" class="form-label text-white fw-bold"></label>
+                        <input asp-for="StationName" class="form-control fw-bold" readonly="readonly">
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <label asp-for="EventTypeName" class="form-label text-white fw-bold"></label>
+                        <input asp-for="EventTypeName" class="form-control fw-bold" readonly="readonly">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-2">
+                        <label asp-for="Title" class="form-label text-white fw-bold"></label>
+                        <input asp-for="Title" class="form-control fw-bold" readonly="readonly">
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <label asp-for="StartTime" class="form-label text-white fw-bold"></label>
+                        <label class="form-control fw-bold">@Model.StartTime.Value.ToLongDateString() @Model.StartTime.Value.ToLongTimeString()</label>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <label asp-for="EndTime" class="form-label text-white fw-bold"></label>
+                        @if (Model.EndTime != null)
+                        {
+                            <label class="form-control fw-bold">@Model.EndTime.Value.ToLongDateString() @Model.EndTime.Value.ToLongTimeString()</label>
+                        }
+                        else
+                        { <label class="form-control fw-bold"> - </label>}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-2">
+                        <label asp-for="Description" class="form-label text-white fw-bold"></label>
+                        <textarea asp-for="Description" class="form-control fw-bold" readonly="readonly">@Model.Description</textarea>
+                    </div>
+                    <div class="col-md-6 mb-2">
+                        <label asp-for="Venue" class="form-label text-white fw-bold"></label>
+                        <textarea asp-for="Venue" class="form-control fw-bold" readonly="readonly">@Model.Venue</textarea>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3 mb-3">
+                        <label asp-for="State" class="form-label text-white fw-bold"></label>
+                        <input asp-for="State" class="form-control fw-bold" readonly="readonly">
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label asp-for="StatusDescription" class="form-label text-white fw-bold"></label>
+                        <input asp-for="StatusDescription" class="form-control fw-bold" readonly="readonly">
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label asp-for="LiaisonName" class="form-label text-white fw-bold"></label>
+                        <input asp-for="LiaisonName" class="form-control fw-bold" readonly="readonly">
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label asp-for="LiaisonPhone" class="form-label text-white fw-bold"></label>
+                        <input asp-for="LiaisonPhone" class="form-control fw-bold" readonly="readonly">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <input asp-for="IsPaid" type="checkbox" class="fw-bold pr-2 pt-2" style="width:15px; height:15px" disabled="disabled">
+                        <span class="text-white fw-bold pl-1">This is a Paid Assignment</span>
+                    </div>
+                </div>
+                <div class="row">
+                    <a asp-area="Bams" asp-controller="Home" asp-action="AssignmentLog" class="btn btn-dark ml-2" style="width:100px" title="Return">
+                        <span class="text-white">Exit</span>
+                    </a>
+                    @if (!Model.OperationIsCompleted || Model.StatusID == 1 || Model.StatusID == 4)
+                    {
+                       <button type="submit" class="btn btn-danger ml-2" title="Delete" style="width:200px" onclick="return confirm('Delete Permanently?')"><span class="text-white">Delete</span></button>
+                    }
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+

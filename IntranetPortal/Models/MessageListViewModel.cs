@@ -8,6 +8,7 @@ namespace IntranetPortal.Models
 {
     public class MessageListViewModel : BaseListViewModel
     {
+        public string MessageRecipientID { get; set; }
         public List<Message> UnreadMessages { get; set; }
         public List<Message> ReadMessages { get; set; }
         public int UnreadMessagesCount { get; set; }

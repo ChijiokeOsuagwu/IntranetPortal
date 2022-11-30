@@ -1,0 +1,100 @@
+﻿@model IntranetPortal.Areas.BAMS.Models.AssignmentExtensionViewModel
+@{
+    ViewData["Title"] = "OfficeManager | New Extension";
+}
+<div>
+    <div class="card" style="min-width:600px">
+        <div class="card-header bg-success">
+            <h4 class="text-white">New Extension</h4>
+        </div>
+        <div class="card-body bg-secondary">
+            @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bi bi-x-circle"></i>
+                    <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            @if (!String.IsNullOrEmpty(Model.ViewModelSuccessMessage))
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="bi bi-check-circle"></i>
+                    <span class="fw-bold">@Model.ViewModelSuccessMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            @if (!String.IsNullOrEmpty(Model.ViewModelWarningMessage))
+            {
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                    <i class="bi bi-exclamation-circle"></i>
+                    <span class="fw-bold">@Model.ViewModelWarningMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            <form asp-area="Bams" asp-controller="Extensions" asp-action="New" method="post">
+                <div class="row">
+                    <input type="hidden" asp-for="AssignmentEventID" />
+                    <div class="col-md-12 mb-2">
+                        <label asp-for="AssignmentEventTitle" class="form-label text-white fw-bold"></label>
+                        <div class="input-group">
+                            <input asp-for="AssignmentEventTitle" class="form-control fw-bold" aria-label="Event Title" aria-describedby="button-addon2" readonly="readonly">
+                        </div>
+                        <div><span asp-validation-for="AssignmentEventTitle" class="text-danger"></span></div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4 mb-2">
+                        <label asp-for="FromTime" class="form-label text-white fw-bold"></label>
+                        <input asp-for="FromTime" class="form-control fw-bold">
+                        <div><span asp-validation-for="FromTime" class="text-danger"></span></div>
+                    </div>
+                    <div class="col-md-4 mb-2">
+                        <label asp-for="ToTime" class="form-label text-white fw-bold"></label>
+                        <input asp-for="ToTime" class="form-control fw-bold">
+                        <div><span asp-validation-for="ToTime" class="text-danger"></span></div>
+                    </div>
+                    <div class="col-md-4 mb-2">
+                        <label asp-for="ExtensionType" class="form-label text-white fw-bold"></label>
+                        <select asp-for="ExtensionType" class="form-control fw-bold">
+                            <option value=""> - Select - </option>
+                            <option value="Free">Free</option>
+                            <option value="Paid">Paid</option>
+                        </select>
+                        <div><span asp-validation-for="ExtensionType" class="text-danger"></span></div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12 mb-2">
+                        <label asp-for="ExtensionReason" class="form-label text-white fw-bold"></label>
+                        <textarea asp-for="ExtensionReason" class="form-control fw-bold">@Model.ExtensionReason</textarea>
+                        <div><span asp-validation-for="ExtensionReason" class="text-danger"></span></div>
+                    </div>
+                </div>
+                <div class="row">
+                    <a asp-area="Bams" asp-controller="Extensions" asp-action="List" asp-route-id="@Model.AssignmentEventID" class="btn btn-dark ml-2" style="width:100px" title="Return">
+                        <span class="text-white">Exit</span>
+                    </a>
+                    @if (!Model.OperationIsCompleted)
+                    {
+                        <a asp-area="Bams" asp-controller="Extensions" asp-action="New" asp-route-id="@Model.AssignmentEventID" class="btn btn-warning ml-1" style="width:100px" title="Clear">
+                            <span class="text-white">Clear</span>
+                        </a>
+                        <button type="submit" class="btn btn-success ml-2" title="Save" style="width:200px"><span class="text-white">Save</span></button>
+                    }
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+@section Scripts{
+    <script src="~/js/js_bams/bams_assignment_new.js"></script>
+}
+
+
+
+
+
+
+
+

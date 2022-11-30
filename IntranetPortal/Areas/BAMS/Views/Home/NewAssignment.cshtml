@@ -64,22 +64,15 @@
                         <input asp-for="Title" class="form-control fw-bold">
                         <div><span asp-validation-for="Title" class="text-danger"></span></div>
                     </div>
-                    <div class="col-md-2 mb-2">
+                    <div class="col-md-3 mb-2">
                         <label asp-for="StartTime" class="form-label text-white fw-bold"></label>
                         <input asp-for="StartTime" class="form-control fw-bold">
                         <div><span asp-validation-for="StartTime" class="text-danger"></span></div>
                     </div>
-                    <div class="col-md-2 mb-2">
+                    <div class="col-md-3 mb-2">
                         <label asp-for="EndTime" class="form-label text-white fw-bold"></label>
                         <input asp-for="EndTime" class="form-control fw-bold">
                         <div><span asp-validation-for="EndTime" class="text-danger"></span></div>
-                    </div>
-                    <div class="col-md-2 mb-2">
-                        <label asp-for="StatusID" class="form-label text-white fw-bold"></label>
-                        <select asp-for="StatusID" asp-items="@ViewBag.StatusList" class="form-control fw-bold">
-                            <option value=""> - Select - </option>
-                        </select>
-                        <div><span asp-validation-for="StatusID" class="text-danger"></span></div>
                     </div>
                 </div>
                 <div class="row">
@@ -95,17 +88,24 @@
                     </div>
                 </div>
                 <div class="row">
-                    <div class="col-md-4 mb-3">
+                    <div class="col-md-3 mb-3">
                         <label asp-for="State" class="form-label text-white fw-bold"></label>
                         <input asp-for="State" class="form-control fw-bold">
                         <div><span asp-validation-for="State" class="text-danger"></span></div>
                     </div>
-                    <div class="col-md-4 mb-3">
+                    <div class="col-md-3 mb-3">
+                        <label asp-for="StatusID" class="form-label text-white fw-bold"></label>
+                        <select asp-for="StatusID" asp-items="@ViewBag.StatusList" class="form-control fw-bold">
+                            <option value=""> - Select - </option>
+                        </select>
+                        <div><span asp-validation-for="StatusID" class="text-danger"></span></div>
+                    </div>
+                    <div class="col-md-3 mb-3">
                         <label asp-for="LiaisonName" class="form-label text-white fw-bold"></label>
                         <input asp-for="LiaisonName" class="form-control fw-bold">
                         <div><span asp-validation-for="LiaisonName" class="text-danger"></span></div>
                     </div>
-                    <div class="col-md-4 mb-3">
+                    <div class="col-md-3 mb-3">
                         <label asp-for="LiaisonPhone" class="form-label text-white fw-bold"></label>
                         <input asp-for="LiaisonPhone" class="form-control fw-bold">
                         <div><span asp-validation-for="LiaisonPhone" class="text-danger"></span></div>
@@ -113,13 +113,13 @@
                 </div>
                 <div class="row">
                     <div class="col-md-4 mb-3">
-                        <input asp-for="IsPaid" type="checkbox" class="fw-bold pr-2 pt-2">
-                        <span class="text-white fw-bold">Is Paid Assignment</span>
+                        <input asp-for="IsPaid" type="checkbox" class="fw-bold pr-2 pt-2" style="width:15px; height:15px">
+                        <span class="text-white fw-bold pl-1">This is a Paid Assignment</span>
                         <div><span asp-validation-for="IsPaid" class="text-danger"></span></div>
                     </div>
                 </div>
                 <div class="row">
-                    <a asp-area="Bams" asp-controller="Home" asp-action="Index" class="btn btn-dark ml-2" style="width:100px" title="Return Home">
+                    <a asp-area="Bams" asp-controller="Home" asp-action="AssignmentLog" class="btn btn-dark ml-2" style="width:100px" title="Return">
                         <span class="text-white">Exit</span>
                     </a>
                     @if (!Model.OperationIsCompleted)

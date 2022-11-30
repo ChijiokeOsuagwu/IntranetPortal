@@ -12,19 +12,21 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="3.1.5" />
+    <PackageReference Include="Select.HtmlToPdf" Version="22.1.0" />
+    <PackageReference Include="Select.HtmlToPdf.NetCore" Version="22.1.0" />
     <PackageReference Include="SendGrid" Version="9.27.0" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Areas\AssetManager\Data\" />
     <Folder Include="Areas\BAMS\Data\" />
     <Folder Include="Areas\ContentManager\Data\" />
-    <Folder Include="Areas\EmployeeRecords\Data\" />
+    <Folder Include="Areas\ERM\Data\" />
     <Folder Include="Areas\GlobalSettings\Data\" />
     <Folder Include="Areas\PartnerServices\Data\" />
     <Folder Include="Areas\UserAdministration\Data\" />
     <Folder Include="wwwroot\uploads\asm\" />
+    <Folder Include="wwwroot\uploads\erm\" />
   </ItemGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\IntranetPortal.Base\IntranetPortal.Base.csproj" />
     <ProjectReference Include="..\IntranetPortal.Data\IntranetPortal.Data.csproj" />

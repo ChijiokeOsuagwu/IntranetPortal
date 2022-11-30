@@ -50,12 +50,12 @@
                     @if (Model.UnreadMessagesCount > 0)
                     {
                         <table class="table table-sm table-hover">
-                            <thead class="table-dark" >
+                            <thead class="table-dark">
                                 <tr>
                                     <th class="p-2 m-0"><span class="text-white fw-bolder">Time Received</span></th>
                                     <th class="p-2 m-0"><span class="text-white fw-bolder">Subject</span></th>
                                     <th class="p-2 m-0">
-                                        <a class="btn btn-xs btn-outline-danger" id="btn-del-unread" style="display:block">
+                                        <a class="btn btn-xs btn-outline-danger" id="btn-del-unread" style="display:block" onclick="deleteUnReadMessages('@Model.MessageRecipientID')">
                                             <i class="bi bi-trash" style="font-size: 0.8rem; color:white"></i>
                                             <span class="text-white">Delete All</span>
                                         </a>
@@ -65,23 +65,23 @@
                             <tbody class="table-info">
                                 @foreach (var msg in Model.UnreadMessages)
                                 {
-                                <tr>
-                                    <td class="p-1 m-0">
-                                        <span class="text-dark">@msg.SentTime.Value.ToLongDateString()</span>&nbsp;
-                                        <span class="text-dark">@msg.SentTime.Value.ToLongTimeString()</span>
-                                    </td>
-                                    <td class="p-1 m-0">
-                                        <span title="@msg.MessageBody" class="text-dark">@msg.Subject</span>
-                                    </td>
-                                    <td class="p-1 m-0">
-                                        <a asp-area="" asp-controller="Home" asp-action="Messages" asp-route-id="@msg.MessageDetailID" title="Read Message" class="btn btn-xs btn-info">
-                                            <i class="bi bi-card-text" style="font-size: 0.8rem; color:white"></i>
-                                        </a>
-                                        <a class="btn btn-xs btn-danger" id="btn-del-msg" title="Delete Message" onclick="alert('Are you sure?')">
-                                            <i class="bi bi-trash" style="font-size: 0.8rem; color:white"></i>
-                                        </a>
-                                    </td>
-                                </tr>
+                                    <tr>
+                                        <td class="p-1 m-0">
+                                            <span class="text-dark">@msg.SentTime.Value.ToLongDateString()</span>&nbsp;
+                                            <span class="text-dark">@msg.SentTime.Value.ToLongTimeString()</span>
+                                        </td>
+                                        <td class="p-1 m-0">
+                                            <span title="@msg.MessageBody" class="text-dark">@msg.Subject</span>
+                                        </td>
+                                        <td class="p-1 m-0">
+                                            <a asp-area="" asp-controller="Home" asp-action="Messages" asp-route-id="@msg.MessageDetailID" title="Read Message" class="btn btn-xs btn-info">
+                                                <i class="bi bi-card-text" style="font-size: 0.8rem; color:white"></i>
+                                            </a>
+                                            <a class="btn btn-xs btn-danger" id="btn-del-msg" title="Delete Message" onclick="deleteMessageByMessageDetailId(@msg.MessageDetailID)">
+                                                <i class="bi bi-trash" style="font-size: 0.8rem; color:white"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
                                 }
                             </tbody>
                         </table>
@@ -108,7 +108,7 @@
                                     <th class="p-2 m-0"><span class="text-white fw-bolder">Time Received</span></th>
                                     <th class="p-2 m-0"><span class="text-white fw-bolder">Subject</span></th>
                                     <th class="p-2 m-0">
-                                        <a class="btn btn-sm btn-outline-danger" id="btn-del-unread" style="display:block">
+                                        <a class="btn btn-sm btn-outline-danger" id="btn-del-unread" style="display:block" onclick="deleteReadMessages('@Model.MessageRecipientID')">
                                             <i class="bi bi-trash" style="font-size: 1.0rem; color:white"></i>
                                             <span class="text-white">Delete All</span>
                                         </a>
@@ -130,7 +130,7 @@
                                             <a asp-area="" asp-controller="Home" asp-action="Messages" asp-route-id="@msg.MessageDetailID" title="Read Message" class="btn btn-xs btn-info" style="width:50px">
                                                 <i class="bi bi-card-text" style="font-size: 0.8rem; color:white"></i>
                                             </a>
-                                            <a class="btn btn-xs btn-danger" id="btn-del-msg" title="Delete Message" style="width:50px" onclick="alert('Are you sure?')">
+                                            <a class="btn btn-xs btn-danger" id="btn-del-msg" title="Delete Message" style="width:50px" onclick="deleteMessageByMessageDetailId(@msg.MessageDetailID)">
                                                 <i class="bi bi-trash" style="font-size: 0.8rem; color:white"></i>
                                             </a>
                                         </td>
@@ -153,3 +153,6 @@
         <div class="tab-pane fade" id="pills-contact" role="tabpanel" aria-labelledby="pills-contact-tab">Contact Content</div>
     </div>
 </div>
+@section Scripts{
+    <script src="~/js/js_utls/utls_messages.js"></script>
+}

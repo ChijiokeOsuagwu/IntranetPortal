@@ -11,11 +11,11 @@
     <hr />
     <div class="row">
         <div class="col-md-6 col-lg-2 col-xlg-3">
-            <a asp-area="Bams" asp-controller="Home" asp-action="ActiveAssignments">
+            <a asp-area="Bams" asp-controller="Home" asp-action="AssignmentLog">
                 <div class="card card-hover">
                     <div class="box bg-light text-center">
-                        <h1 class="font-light text-dark"><i class="bi bi-list-check"></i></h1>
-                        <h6 class="text-dark">Active Assignment</h6>
+                        <h1 class="font-light text-dark"><i class="bi bi-ui-checks"></i></h1>
+                        <h6 class="text-dark">Assignments</h6>
                     </div>
                 </div>
             </a>
@@ -33,53 +33,44 @@
         </div>
         <!-- Column -->
         <div class="col-md-6 col-lg-2 col-xlg-3">
-            <a asp-area="PartnerServices" asp-controller="Suppliers" asp-action="List">
+            <a asp-area="Bams" asp-controller="Home" asp-action="Deployments">
                 <div class="card card-hover">
                     <div class="box bg-light text-center">
-                        <h1 class="font-light text-dark"><i class="bi bi-briefcase-fill"></i></h1>
-                        <h6 class="text-dark">Suppliers</h6>
+                        <h1 class="font-light text-dark"><i class="bi bi-truck"></i></h1>
+                        <h6 class="text-dark">Deployments</h6>
                     </div>
                 </div>
             </a>
         </div>
         <!-- Column -->
         <div class="col-md-6 col-lg-2 col-xlg-3">
-            <a asp-area="PartnerServices" asp-controller="Suppliers" asp-action="List">
-                <div class="card card-hover">
-                    <div class="box bg-light text-center">
-                        <h1 class="font-light text-dark"><i class="bi bi-people-fill"></i></h1>
-                        <h6 class="text-dark">Suppliers Contacts</h6>
-                    </div>
-                </div>
-            </a>
-        </div>
-        <!-- Column -->
-        <div class="col-md-6 col-lg-2 col-xlg-3">
-            <div class="card card-hover">
-                <div class="box bg-light text-center">
-                    <h1 class="font-light text-dark"><i class="fas fa-chalkboard-teacher"></i></h1>
-                    <h6 class="text-dark">Channels Learning</h6>
-                </div>
-            </div>
-        </div>
-        <!-- Column -->
-        <div class="col-md-6 col-lg-2 col-xlg-3">
-            <a asp-area="UserAdministration" asp-controller="Home" asp-action="Index">
+            <a asp-area="Bams" asp-controller="Deployment" asp-action="SelectTeamBatch">
                 <div class="card card-hover">
                     <div class="box bg-light text-center">
                         <h1 class="font-light text-dark"><i class="bi bi-people"></i></h1>
-                        <h6 class="text-dark">User Administration</h6>
+                        <h6 class="text-dark">Crew</h6>
                     </div>
                 </div>
             </a>
         </div>
         <!-- Column -->
         <div class="col-md-6 col-lg-2 col-xlg-3">
-            <a asp-area="GlobalSettings" asp-controller="Home" asp-action="Index">
+            <a asp-area="Bams" asp-controller="Deployment" asp-action="SelectEquipmentBatch">
                 <div class="card card-hover">
                     <div class="box bg-light text-center">
-                        <h1 class="font-light text-dark"><i class="bi bi-sliders"></i></h1>
-                        <h6 class="text-dark">Global Settings</h6>
+                        <h1 class="font-light text-dark"><i class="bi bi-camera-video"></i></h1>
+                        <h6 class="text-dark">Equipment</h6>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <!-- Column -->
+        <div class="col-md-6 col-lg-2 col-xlg-3">
+            <a asp-area="Bams" asp-controller="EquipmentGroups" asp-action="index">
+                <div class="card card-hover">
+                    <div class="box bg-light text-center">
+                        <h1 class="font-light text-dark"><i class="bi bi-layout-wtf"></i></h1>
+                        <h6 class="text-dark">Equipment Groups</h6>
                     </div>
                 </div>
             </a>

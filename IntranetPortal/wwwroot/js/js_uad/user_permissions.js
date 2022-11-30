@@ -51,3 +51,23 @@ function revokePermission(user_id, role_id) {
         }
     })
 }
+
+$(document).ready(function () {
+    $("#SearchString").autocomplete(
+        {
+            minLength: 3,
+            source: function (request, response) {
+                var text = $("#SearchString").val();
+                $.ajax({
+                    type: "GET",
+                    url: "/UserAdministration/Home/GetNamesOfEmployeeUsers?text=" + text,
+                    data: { text: request.term },
+                    success: function (data) {
+                        response($.map(data, function (item) {
+                            return { label: item, value: item }
+                        }))
+                    }
+                })
+            }
+        })
+}

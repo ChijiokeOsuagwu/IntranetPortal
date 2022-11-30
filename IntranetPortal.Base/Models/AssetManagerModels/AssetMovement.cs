@@ -20,7 +20,8 @@ namespace IntranetPortal.Base.Models.AssetManagerModels
         public int? MovedToLocationID { get; set; }
         public string MovedToLocationName { get; set; }
         public string MovementPurpose { get; set; }
-        public string AssetCondition { get; set; }
+        public AssetCondition AssetConditionStatus { get; set; }
+        public string AssetConditionDescription { get; set; }
         public string SupervisedBy { get; set; }
         public string ApprovedBy { get; set; }
         public string Comments { get; set; }

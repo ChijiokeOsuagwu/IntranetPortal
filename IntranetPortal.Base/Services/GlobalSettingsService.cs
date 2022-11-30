@@ -439,7 +439,6 @@ namespace IntranetPortal.Base.Services
 
         #endregion
 
-
         //================================ Team Members Action Methods ==========================//
         #region Team Members Action Methods
 

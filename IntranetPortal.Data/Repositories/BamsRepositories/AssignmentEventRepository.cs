@@ -18,7 +18,7 @@ namespace IntranetPortal.Data.Repositories.BamsRepositories
             _config = configuration;
         }
 
-        //============== AssignmentEvent Action Methods =====================================================//
+        //============== AssignmentEvent Action Methods ==============================//
         #region AssignmentEvents Action Methods
 
         public async Task<AssignmentEvent> GetByIdAsync(int Id)
@@ -42,7 +42,7 @@ namespace IntranetPortal.Data.Repositories.BamsRepositories
                 // Retrieve all rows
                 using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
                 {
-                    var assignment_id = cmd.Parameters.Add("@assgnmt_id", NpgsqlDbType.Text);
+                    var assignment_id = cmd.Parameters.Add("@assgnmt_id", NpgsqlDbType.Integer);
                     await cmd.PrepareAsync();
                     assignment_id.Value = Id;
                     using (var reader = await cmd.ExecuteReaderAsync())
@@ -160,7 +160,7 @@ namespace IntranetPortal.Data.Repositories.BamsRepositories
             sb.Append($"INNER JOIN public.gst_locs l ON a.station_id = l.locqk ");
             sb.Append($"INNER JOIN public.gst_bzns b ON a.evnt_bzns_id = b.bzns_id ");
             sb.Append($"INNER JOIN public.bam_stt_stts s ON a.status_id = s.stts_id ");
-            sb.Append($"WHERE (a.evnt_ends IS NULL) ");
+            sb.Append($"WHERE (a.evnt_ends IS NULL) OR (a.status_id < 3)");
             sb.Append($"ORDER BY a.evnt_starts DESC;");
             string query = sb.ToString();
             try
@@ -210,9 +210,203 @@ namespace IntranetPortal.Data.Repositories.BamsRepositories
             return assignmentEvents;
         }
 
+        public async Task<IList<AssignmentEvent>> GetByYearAsync(int startYear)
+        {
+            IList<AssignmentEvent> assignmentEvents = new List<AssignmentEvent>();
+            var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
+            StringBuilder sb = new StringBuilder();
+            sb.Append($"SELECT a.assgnmt_id, a.assgnmt_tl, a.assgnmt_ds, a.evnt_typ_id, a.evnt_starts, ");
+            sb.Append($"a.evnt_ends, a.station_id, a.evnt_venue, a.evnt_state, a.evnt_bzns_id, ");
+            sb.Append($"a.liaison_nm, a.liaison_phn, a.status_id, a.ispd, a.mdb, a.mdt, a.ctb, ");
+            sb.Append($"a.ctt, t.evnt_typ_ds, l.locname, b.bzns_name, s.stts_nm FROM public.bam_assgnmts a ");
+            sb.Append($"INNER JOIN public.bam_evnt_typs t ON a.evnt_typ_id = t.evnt_typ_id ");
+            sb.Append($"INNER JOIN public.gst_locs l ON a.station_id = l.locqk ");
+            sb.Append($"INNER JOIN public.gst_bzns b ON a.evnt_bzns_id = b.bzns_id ");
+            sb.Append($"INNER JOIN public.bam_stt_stts s ON a.status_id = s.stts_id ");
+            sb.Append($"WHERE (date_part('year', a.evnt_starts) = @year) ");
+            sb.Append($"ORDER BY a.evnt_starts DESC;");
+            string query = sb.ToString();
+            try
+            {
+                await conn.OpenAsync();
+                // Retrieve all rows
+                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+                {
+                    var start_year = cmd.Parameters.Add("@year", NpgsqlDbType.Integer);
+                    await cmd.PrepareAsync();
+                    start_year.Value = startYear;
+                    using (var reader = await cmd.ExecuteReaderAsync())
+                        while (await reader.ReadAsync())
+                        {
+                            assignmentEvents.Add(new AssignmentEvent
+                            {
+                                ID = reader["assgnmt_id"] == DBNull.Value ? (int?)null : (int)reader["assgnmt_id"],
+                                Title = reader["assgnmt_tl"] == DBNull.Value ? string.Empty : reader["assgnmt_tl"].ToString(),
+                                Description = reader["assgnmt_ds"] == DBNull.Value ? string.Empty : reader["assgnmt_ds"].ToString(),
+                                EventTypeID = reader["evnt_typ_id"] == DBNull.Value ? 0 : (int)reader["evnt_typ_id"],
+                                EventTypeName = reader["evnt_typ_ds"] == DBNull.Value ? string.Empty : reader["evnt_typ_ds"].ToString(),
+                                StartTime = reader["evnt_starts"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["evnt_starts"],
+                                EndTime = reader["evnt_ends"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["evnt_ends"],
+                                StationID = reader["station_id"] == DBNull.Value ? 0 : (int)reader["station_id"],
+                                StationName = reader["locname"] == DBNull.Value ? string.Empty : reader["locname"].ToString(),
+                                Venue = reader["evnt_venue"] == DBNull.Value ? string.Empty : reader["evnt_venue"].ToString(),
+                                State = reader["evnt_state"] == DBNull.Value ? string.Empty : reader["evnt_state"].ToString(),
+                                CustomerID = reader["evnt_bzns_id"] == DBNull.Value ? string.Empty : reader["evnt_bzns_id"].ToString(),
+                                CustomerName = reader["bzns_name"] == DBNull.Value ? string.Empty : reader["bzns_name"].ToString(),
+                                LiaisonName = reader["liaison_nm"] == DBNull.Value ? string.Empty : reader["liaison_nm"].ToString(),
+                                LiaisonPhone = reader["liaison_phn"] == DBNull.Value ? string.Empty : reader["liaison_phn"].ToString(),
+                                StatusID = reader["status_id"] == DBNull.Value ? 0 : (int)reader["status_id"],
+                                StatusDescription = reader["stts_nm"] == DBNull.Value ? string.Empty : reader["stts_nm"].ToString(),
+                                IsPaid = reader["ispd"] == DBNull.Value ? false : (bool)reader["ispd"],
+                                ModifiedBy = reader["mdb"] == DBNull.Value ? string.Empty : reader["mdb"].ToString(),
+                                ModifiedTime = reader["mdt"] == DBNull.Value ? string.Empty : reader["mdt"].ToString(),
+                                CreatedBy = reader["ctb"] == DBNull.Value ? string.Empty : reader["ctb"].ToString(),
+                                CreatedTime = reader["ctt"] == DBNull.Value ? string.Empty : reader["ctt"].ToString(),
+                            });
+                        }
+                }
+                await conn.CloseAsync();
+            }
+            catch (Exception ex)
+            {
+                await conn.CloseAsync();
+                throw new Exception(ex.Message);
+            }
+            return assignmentEvents;
+        }
+
+        public async Task<IList<AssignmentEvent>> GetByYearAndMonthAsync(int startYear, int startMonth)
+        {
+            IList<AssignmentEvent> assignmentEvents = new List<AssignmentEvent>();
+            var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
+            StringBuilder sb = new StringBuilder();
+            sb.Append($"SELECT a.assgnmt_id, a.assgnmt_tl, a.assgnmt_ds, a.evnt_typ_id, a.evnt_starts, ");
+            sb.Append($"a.evnt_ends, a.station_id, a.evnt_venue, a.evnt_state, a.evnt_bzns_id, ");
+            sb.Append($"a.liaison_nm, a.liaison_phn, a.status_id, a.ispd, a.mdb, a.mdt, a.ctb, ");
+            sb.Append($"a.ctt, t.evnt_typ_ds, l.locname, b.bzns_name, s.stts_nm FROM public.bam_assgnmts a ");
+            sb.Append($"INNER JOIN public.bam_evnt_typs t ON a.evnt_typ_id = t.evnt_typ_id ");
+            sb.Append($"INNER JOIN public.gst_locs l ON a.station_id = l.locqk ");
+            sb.Append($"INNER JOIN public.gst_bzns b ON a.evnt_bzns_id = b.bzns_id ");
+            sb.Append($"INNER JOIN public.bam_stt_stts s ON a.status_id = s.stts_id ");
+            sb.Append($"WHERE (date_part('year', a.evnt_starts) = @year) ");
+            sb.Append($"AND (date_part('month', a.evnt_starts) = @month) ");
+            sb.Append($"ORDER BY a.evnt_starts DESC;");
+            string query = sb.ToString();
+            try
+            {
+                await conn.OpenAsync();
+                // Retrieve all rows
+                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+                {
+                    var start_year = cmd.Parameters.Add("@year", NpgsqlDbType.Integer);
+                    var start_month = cmd.Parameters.Add("@month", NpgsqlDbType.Integer);
+                    await cmd.PrepareAsync();
+                    start_year.Value = startYear;
+                    start_month.Value = startMonth;
+                    using (var reader = await cmd.ExecuteReaderAsync())
+                        while (await reader.ReadAsync())
+                        {
+                            assignmentEvents.Add(new AssignmentEvent
+                            {
+                                ID = reader["assgnmt_id"] == DBNull.Value ? (int?)null : (int)reader["assgnmt_id"],
+                                Title = reader["assgnmt_tl"] == DBNull.Value ? string.Empty : reader["assgnmt_tl"].ToString(),
+                                Description = reader["assgnmt_ds"] == DBNull.Value ? string.Empty : reader["assgnmt_ds"].ToString(),
+                                EventTypeID = reader["evnt_typ_id"] == DBNull.Value ? 0 : (int)reader["evnt_typ_id"],
+                                EventTypeName = reader["evnt_typ_ds"] == DBNull.Value ? string.Empty : reader["evnt_typ_ds"].ToString(),
+                                StartTime = reader["evnt_starts"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["evnt_starts"],
+                                EndTime = reader["evnt_ends"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["evnt_ends"],
+                                StationID = reader["station_id"] == DBNull.Value ? 0 : (int)reader["station_id"],
+                                StationName = reader["locname"] == DBNull.Value ? string.Empty : reader["locname"].ToString(),
+                                Venue = reader["evnt_venue"] == DBNull.Value ? string.Empty : reader["evnt_venue"].ToString(),
+                                State = reader["evnt_state"] == DBNull.Value ? string.Empty : reader["evnt_state"].ToString(),
+                                CustomerID = reader["evnt_bzns_id"] == DBNull.Value ? string.Empty : reader["evnt_bzns_id"].ToString(),
+                                CustomerName = reader["bzns_name"] == DBNull.Value ? string.Empty : reader["bzns_name"].ToString(),
+                                LiaisonName = reader["liaison_nm"] == DBNull.Value ? string.Empty : reader["liaison_nm"].ToString(),
+                                LiaisonPhone = reader["liaison_phn"] == DBNull.Value ? string.Empty : reader["liaison_phn"].ToString(),
+                                StatusID = reader["status_id"] == DBNull.Value ? 0 : (int)reader["status_id"],
+                                StatusDescription = reader["stts_nm"] == DBNull.Value ? string.Empty : reader["stts_nm"].ToString(),
+                                IsPaid = reader["ispd"] == DBNull.Value ? false : (bool)reader["ispd"],
+                                ModifiedBy = reader["mdb"] == DBNull.Value ? string.Empty : reader["mdb"].ToString(),
+                                ModifiedTime = reader["mdt"] == DBNull.Value ? string.Empty : reader["mdt"].ToString(),
+                                CreatedBy = reader["ctb"] == DBNull.Value ? string.Empty : reader["ctb"].ToString(),
+                                CreatedTime = reader["ctt"] == DBNull.Value ? string.Empty : reader["ctt"].ToString(),
+                            });
+                        }
+                }
+                await conn.CloseAsync();
+            }
+            catch (Exception ex)
+            {
+                await conn.CloseAsync();
+                throw new Exception(ex.Message);
+            }
+            return assignmentEvents;
+        }
+
+        public async Task<IList<AssignmentEvent>> GetAllAsync()
+        {
+            IList<AssignmentEvent> assignmentEvents = new List<AssignmentEvent>();
+            var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
+            StringBuilder sb = new StringBuilder();
+            sb.Append($"SELECT a.assgnmt_id, a.assgnmt_tl, a.assgnmt_ds, a.evnt_typ_id, a.evnt_starts, ");
+            sb.Append($"a.evnt_ends, a.station_id, a.evnt_venue, a.evnt_state, a.evnt_bzns_id, ");
+            sb.Append($"a.liaison_nm, a.liaison_phn, a.status_id, a.ispd, a.mdb, a.mdt, a.ctb, ");
+            sb.Append($"a.ctt, t.evnt_typ_ds, l.locname, b.bzns_name, s.stts_nm FROM public.bam_assgnmts a ");
+            sb.Append($"INNER JOIN public.bam_evnt_typs t ON a.evnt_typ_id = t.evnt_typ_id ");
+            sb.Append($"INNER JOIN public.gst_locs l ON a.station_id = l.locqk ");
+            sb.Append($"INNER JOIN public.gst_bzns b ON a.evnt_bzns_id = b.bzns_id ");
+            sb.Append($"INNER JOIN public.bam_stt_stts s ON a.status_id = s.stts_id ");
+            sb.Append($"ORDER BY a.evnt_starts DESC;");
+            string query = sb.ToString();
+            try
+            {
+                await conn.OpenAsync();
+                // Retrieve all rows
+                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+                {
+                    await cmd.PrepareAsync();
+                    using (var reader = await cmd.ExecuteReaderAsync())
+                        while (await reader.ReadAsync())
+                        {
+                            assignmentEvents.Add(new AssignmentEvent
+                            {
+                                ID = reader["assgnmt_id"] == DBNull.Value ? (int?)null : (int)reader["assgnmt_id"],
+                                Title = reader["assgnmt_tl"] == DBNull.Value ? string.Empty : reader["assgnmt_tl"].ToString(),
+                                Description = reader["assgnmt_ds"] == DBNull.Value ? string.Empty : reader["assgnmt_ds"].ToString(),
+                                EventTypeID = reader["evnt_typ_id"] == DBNull.Value ? 0 : (int)reader["evnt_typ_id"],
+                                EventTypeName = reader["evnt_typ_ds"] == DBNull.Value ? string.Empty : reader["evnt_typ_ds"].ToString(),
+                                StartTime = reader["evnt_starts"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["evnt_starts"],
+                                EndTime = reader["evnt_ends"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["evnt_ends"],
+                                StationID = reader["station_id"] == DBNull.Value ? 0 : (int)reader["station_id"],
+                                StationName = reader["locname"] == DBNull.Value ? string.Empty : reader["locname"].ToString(),
+                                Venue = reader["evnt_venue"] == DBNull.Value ? string.Empty : reader["evnt_venue"].ToString(),
+                                State = reader["evnt_state"] == DBNull.Value ? string.Empty : reader["evnt_state"].ToString(),
+                                CustomerID = reader["evnt_bzns_id"] == DBNull.Value ? string.Empty : reader["evnt_bzns_id"].ToString(),
+                                CustomerName = reader["bzns_name"] == DBNull.Value ? string.Empty : reader["bzns_name"].ToString(),
+                                LiaisonName = reader["liaison_nm"] == DBNull.Value ? string.Empty : reader["liaison_nm"].ToString(),
+                                LiaisonPhone = reader["liaison_phn"] == DBNull.Value ? string.Empty : reader["liaison_phn"].ToString(),
+                                StatusID = reader["status_id"] == DBNull.Value ? 0 : (int)reader["status_id"],
+                                StatusDescription = reader["stts_nm"] == DBNull.Value ? string.Empty : reader["stts_nm"].ToString(),
+                                IsPaid = reader["ispd"] == DBNull.Value ? false : (bool)reader["ispd"],
+                                ModifiedBy = reader["mdb"] == DBNull.Value ? string.Empty : reader["mdb"].ToString(),
+                                ModifiedTime = reader["mdt"] == DBNull.Value ? string.Empty : reader["mdt"].ToString(),
+                                CreatedBy = reader["ctb"] == DBNull.Value ? string.Empty : reader["ctb"].ToString(),
+                                CreatedTime = reader["ctt"] == DBNull.Value ? string.Empty : reader["ctt"].ToString(),
+                            });
+                        }
+                }
+                await conn.CloseAsync();
+            }
+            catch (Exception ex)
+            {
+                await conn.CloseAsync();
+                throw new Exception(ex.Message);
+            }
+            return assignmentEvents;
+        }
         #endregion
 
-        //============== AssignmentEvent CRUD Action Methods =================================================//
+        //============== AssignmentEvent CRUD Action Methods =========================//
         #region AssignmentEvent CRUD Action Methods
         public async Task<bool> AddAsync(AssignmentEvent assignmentEvent)
         {
@@ -258,7 +452,7 @@ namespace IntranetPortal.Data.Repositories.BamsRepositories
                     station_id.Value = assignmentEvent.StationID;
                     evnt_venue.Value = assignmentEvent.Venue;
                     evnt_state.Value = assignmentEvent.State;
-                    evnt_bzns_id.Value = assignmentEvent.CustomerID;
+                    evnt_bzns_id.Value = assignmentEvent.CustomerID ?? (object)DBNull.Value;
                     liaison_nm.Value = assignmentEvent.LiaisonName ?? (object)DBNull.Value;
                     liaison_phn.Value = assignmentEvent.LiaisonPhone ?? (object)DBNull.Value;
                     status_id.Value = assignmentEvent.StatusID;

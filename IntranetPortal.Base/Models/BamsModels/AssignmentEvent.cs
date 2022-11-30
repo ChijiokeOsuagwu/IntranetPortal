@@ -29,4 +29,11 @@ namespace IntranetPortal.Base.Models.BamsModels
         public string CreatedBy { get; set; }
         public string CreatedTime { get; set; }
     }
+
+    public enum AssignmentNotificationType
+    {
+        NewAssignment,
+        EventExtension,
+        EventCancelled
+    }
 }

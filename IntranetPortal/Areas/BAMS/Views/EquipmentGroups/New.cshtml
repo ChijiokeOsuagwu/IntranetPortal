@@ -1,0 +1,67 @@
+﻿@model IntranetPortal.Areas.BAMS.Models.EquipmentGroupsViewModel
+@{
+    ViewData["Title"] = "OfficeManager | New Equipment Group";
+}
+<div>
+    <div class="card" style="max-width:800px">
+        <div class="card-header bg-success">
+            <h4 class="text-white">New Equipment Group</h4>
+        </div>
+        <div class="card-body bg-secondary">
+            @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bi bi-x-circle"></i>
+                    <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            @if (!String.IsNullOrEmpty(Model.ViewModelSuccessMessage))
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="bi bi-check-circle"></i>
+                    <span class="fw-bold">@Model.ViewModelSuccessMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            @if (!String.IsNullOrEmpty(Model.ViewModelWarningMessage))
+            {
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                    <i class="bi bi-exclamation-circle"></i>
+                    <span class="fw-bold">@Model.ViewModelWarningMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            <form asp-area="Bams" asp-controller="EquipmentGroups" asp-action="New" method="post">
+                <div class="row">
+                    <div class="col-md-12 mb-2">
+                        <label asp-for="EquipmentGroupName" class="form-label text-white fw-bold"></label>
+                        <input asp-for="EquipmentGroupName" class="form-control fw-bold">
+                        <div><span asp-validation-for="EquipmentGroupName" class="text-danger"></span></div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12 mb-2">
+                        <label asp-for="EquipmentGroupDescription" class="form-label text-white fw-bold"></label>
+                        <textarea asp-for="EquipmentGroupDescription" class="form-control fw-bold">@Model.EquipmentGroupDescription</textarea>
+                        <div><span asp-validation-for="EquipmentGroupDescription" class="text-danger"></span></div>
+                    </div>
+                </div>
+                <div class="row">
+                    <a asp-area="Bams" asp-controller="EquipmentGroups" asp-action="index" class="btn btn-dark ml-2" style="width:100px" title="Go Back">
+                        <span class="text-white">Back</span>
+                    </a>
+                    @if (!Model.OperationIsCompleted)
+                    {
+                        <a asp-area="Bams" asp-controller="EquipmentGroup" asp-action="New" class="btn btn-warning ml-1" style="width:100px" title="Clear">
+                            <span class="text-white">Clear</span>
+                        </a>
+                        <button type="submit" class="btn btn-success ml-2" title="Save" style="width:200px"><span class="text-white">Save</span></button>
+                    }
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
