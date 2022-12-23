@@ -7,14 +7,11 @@
     <h4>Assignment Updates</h4>
     <hr />
     <div class="mb-1">
-        <a asp-area="Bams" asp-controller="Home" asp-action="index" class="btn btn-dark pr-2" style="width:100px" title="Return to Home Page">
-            <span class="text-white">Exit</span>
-        </a>
         <a asp-area="Bams" asp-controller="Home" asp-action="AssignmentDetails" asp-route-id="@Model.AssignmentEventID" class="btn btn-dark" style="width:100px" title="Click to Go Back">
             <span class="text-white">Back</span>
         </a>
-        <a asp-area="Bams" asp-controller="Extensions" asp-action="New" asp-route-id="@Model.AssignmentEventID" class="btn btn-success pl-4" style="width:200px" title="New Extension">
-            <span class="text-white">New Extension</span>
+        <a asp-area="Bams" asp-controller="Updates" asp-action="New" asp-route-id="@Model.AssignmentEventID" class="btn btn-success pl-4" style="width:200px" title="New Update">
+            <span class="text-white">New Update</span>
         </a>
 
         @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
@@ -35,33 +32,6 @@
         }
     </div>
     <div class="row">
-        <div class="col-md-10">
-            <form asp-area="Bams" asp-controller="Updates" asp-action="List" method="post">
-                <div class="card bg-secondary">
-                    <div class="card-header bg-dark">
-                        <div class="card-title text-white">New Update</div>
-                    </div>
-                    <!-- /.card-header -->
-                    <div class="card-body">
-                        <div>
-                            <input type="hidden" asp-for="AssignmentEventID" />
-                            <label asp-for="UpdateType" class="form-label text-white fw-bold"></label>
-                            <select asp-for="UpdateType" asp-items="@Html.GetEnumSelectList<AssignmentUpdateType>()" class="form-control fw-bold">
-                            </select>
-                            <div><span asp-validation-for="UpdateType" class="text-danger"></span></div>
-                        </div>
-                        <div>
-                            <label asp-for="UpdateDescription" class="form-label text-white fw-bold"></label>
-                            <textarea asp-for="UpdateDescription" class="form-control fw-bold"> @Model.UpdateDescription</textarea>
-                            <div><span asp-validation-for="UpdateDescription" class="text-danger"></span></div>
-                        </div>
-                    </div>
-                    <button type="submit" class="btn btn-dark" title="Save"><span class="text-white">Save</span></button>
-                    <!-- /.card-body -->
-                </div>
-                <!-- /.card -->
-            </form>
-        </div>
         @if (Model != null && Model.AssignmentUpdatesList != null && Model.AssignmentUpdatesList.Count > 0)
         {
             @foreach (var item in Model.AssignmentUpdatesList)
@@ -141,8 +111,13 @@
                 }
             }
         }
+        else
+        {
+            <div class="alert alert-info fade show" role="alert">
+                <i class="bi bi-info-circle"></i>
+                <span class="fw-bold">No record was found.</span>
+            </div>
+        }
     </div>
 </div>
-@section Scripts{
-    <script src="~/js/js_bams/bams_assignment_new.js"></script>
-}
+

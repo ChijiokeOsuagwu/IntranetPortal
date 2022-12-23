@@ -30,6 +30,54 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
             _assetManagerService = assetManagerService;
         }
 
+        public async Task<IActionResult> index(string id = null, int? yr = null, int? mn = null)
+        {
+            IList<AssetMaintenance> assetMaintenanceList = new List<AssetMaintenance>();
+            AssetMaintenanceListViewModel model = new AssetMaintenanceListViewModel();
+            try
+            {
+                if (!string.IsNullOrWhiteSpace(id))
+                {
+                    model.AssetID = id;
+                    if(yr != null && yr.Value > 0)
+                    {
+                        model.yr = yr;
+                        if(mn != null && mn.Value > 0)
+                        {
+                            model.mn = mn;
+                            assetMaintenanceList = await _assetManagerService.GetAssetMaintenancesByAssetIdAndYearAndMonthAsync(id, model.yr.Value, model.mn.Value);
+                        }
+                        else
+                        {
+                            assetMaintenanceList = await _assetManagerService.GetAssetMaintenancesByAssetIdAndYearAsync(id, model.yr.Value);
+                        }
+                    }
+                    else
+                    {
+                        model.yr = DateTime.Now.Year;
+                        if (mn != null && mn.Value > 0)
+                        {
+                            model.mn = mn.Value;
+                            assetMaintenanceList = await _assetManagerService.GetAssetMaintenancesByAssetIdAndYearAndMonthAsync(id, model.yr.Value, model.mn.Value);
+                        }
+                        else
+                        {
+                            assetMaintenanceList = await _assetManagerService.GetAssetMaintenancesByAssetIdAndYearAsync(id, model.yr.Value);
+                        }
+                    }
+                }
+                else
+                {
+                    return RedirectToAction("List");
+                }
+            }
+            catch (Exception ex)
+            {
+                ViewBag.ErrorMessage = ex.Message;
+            }
+            return View(model);
+        }
+
 
         public async Task<IActionResult> List(int? tp = null, int? pg = null)
         {
@@ -59,9 +107,17 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
         }
 
         [HttpGet]
-        public IActionResult AddMaintenance()
+        public async Task<IActionResult> AddMaintenance(string id = null)
         {
             AssetMaintenanceViewModel model = new AssetMaintenanceViewModel();
+            if (!string.IsNullOrWhiteSpace(id))
+            {
+                Asset asset = await _assetManagerService.GetAssetByIdAsync(id);
+                model.AssetID = id;
+                model.AssetName = asset.AssetName;
+                model.AssetTypeID = asset.AssetTypeID;
+                model.AssetCategoryID = asset.AssetCategoryID;
+            }
             return View(model);
         }
 

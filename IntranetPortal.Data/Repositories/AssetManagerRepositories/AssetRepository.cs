@@ -219,7 +219,7 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
             sb.Append("INNER JOIN public.asm_stt_typs t ON s.typ_id = t.typ_id  ");
             sb.Append("INNER JOIN public.asm_stt_ctgs c ON t.ctg_id = c.asst_ctgs_id ");
             sb.Append("INNER JOIN public.gst_locs l ON s.bloc_id = l.locqk ");
-            sb.Append("WHERE (s.typ_id = @typ_id) AND (s.is_del = false);");
+            sb.Append("WHERE (s.typ_id = @typ_id) AND (s.is_del = false) ");
             sb.Append("ORDER BY c.asst_ctgs_nm, t.typ_nm, asst_nm;");
             string query = sb.ToString();
             try
@@ -285,7 +285,7 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
             sb.Append(" INNER JOIN public.asm_stt_typs t ON s.typ_id = t.typ_id ");
             sb.Append("INNER JOIN public.asm_stt_ctgs c ON t.ctg_id = c.asst_ctgs_id ");
             sb.Append("INNER JOIN public.gst_locs l ON s.bloc_id = l.locqk ");
-            sb.Append("WHERE (ctg_id = @ctg_id) AND (s.is_del = false)");
+            sb.Append("WHERE (s.ctg_id = @ctg_id) AND (s.is_del = false)");
             sb.Append("ORDER BY typ_nm, asst_nm;");
             string query = sb.ToString();
             try
@@ -294,9 +294,9 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
                 // Retrieve all rows
                 using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
                 {
-                    var asset_category_id = cmd.Parameters.Add("@asst_category_id", NpgsqlDbType.Integer);
+                    var ctg_id = cmd.Parameters.Add("@ctg_id", NpgsqlDbType.Integer);
                     await cmd.PrepareAsync();
-                    asset_category_id.Value = assetCategoryId;
+                    ctg_id.Value = assetCategoryId;
                     using (var reader = await cmd.ExecuteReaderAsync())
                         while (await reader.ReadAsync())
                         {

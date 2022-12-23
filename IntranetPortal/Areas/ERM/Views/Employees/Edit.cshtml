@@ -63,10 +63,11 @@
                     <label asp-for="Title" class="form-label text-white fw-bold"></label>
                     <select asp-for="Title" class="form-control">
                         <option value="">- Select -</option>
-                        <option value="Mr.">Mr.</option>
-                        <option value="Mrs.">Mrs.</option>
-                        <option value="Dr.">Dr.</option>
-                        <option value="Prof.">Prof.</option>
+                        <option value="Mr">Mr</option>
+                        <option value="Mrs">Mrs</option>
+                        <option value="Ms">Ms</option>
+                        <option value="Dr">Dr</option>
+                        <option value="Prof">Prof</option>
                     </select>
                     <div><span asp-validation-for="Title" class="text-danger"></span></div>
                 </div>
@@ -177,22 +178,22 @@
                     <div><span asp-validation-for="ConfirmationDate" class="text-danger"></span></div>
                 </div>
                 <div class="col-md-3 mb-1">
-                    <label asp-for="CurrentDesignation" class="form-label text-white fw-bold"></label>
-                    <input asp-for="CurrentDesignation" class="form-control">
-                    <div><span asp-validation-for="CurrentDesignation" class="text-danger"></span></div>
-                </div>
-                <div class="col-md-3 mb-1">
                     <label asp-for="DateOfLastPromotion" class="form-label text-white fw-bold"></label>
                     <input asp-for="DateOfLastPromotion" class="form-control">
                     <div><span asp-validation-for="DateOfLastPromotion" class="text-danger"></span></div>
                 </div>
+                <div class="col-md-6 mb-1">
+                    <label asp-for="CurrentDesignation" class="form-label text-white fw-bold"></label>
+                    <input asp-for="CurrentDesignation" class="form-control">
+                    <div><span asp-validation-for="CurrentDesignation" class="text-danger"></span></div>
+                </div>
+            </div>
+            <div class="row">
                 <div class="col-md-3 mb-1">
                     <label asp-for="YearsOfExperience" class="form-label text-white fw-bold"></label>
                     <input asp-for="YearsOfExperience" class="form-control" min="0" max="60">
                     <div><span asp-validation-for="YearsOfExperience" class="text-danger"></span></div>
                 </div>
-            </div>
-            <div class="row">
                 <div class="col-md-3 mb-1">
                     <label asp-for="OfficialEmail" class="form-label text-white fw-bold"></label>
                     <input asp-for="OfficialEmail" class="form-control" placeholder="Official Email">
@@ -203,18 +204,17 @@
                     <input asp-for="Email" class="form-control" placeholder="Personal Email">
                     <div><span asp-validation-for="Email" class="text-danger"></span></div>
                 </div>
-
                 <div class="col-md-3 mb-1">
-                    <label asp-for="StateOfOrigin" class="form-label text-white fw-bold"></label>
-                    <select asp-for="StateOfOrigin" asp-items="@ViewBag.StateList" class="form-control">
+                    <label asp-for="Religion" class="form-label text-white fw-bold"></label>
+                    <select asp-for="Religion" class="form-control">
                         <option value="">- Select -</option>
+                        <option value="Christian">Christian</option>
+                        <option value="Muslim">Muslim</option>
+                        <option value="Traditional">Traditional</option>
+                        <option value="Judaism">Judaism</option>
+                        <option value="Other">Other</option>
                     </select>
-                    <div><span asp-validation-for="StateOfOrigin" class="text-danger"></span></div>
-                </div>
-                <div class="col-md-3 mb-1">
-                    <label asp-for="LgaOfOrigin" class="form-label text-white fw-bold"></label>
-                    <input asp-for="LgaOfOrigin" class="form-control">
-                    <div><span asp-validation-for="LgaOfOrigin" class="text-danger"></span></div>
+                    <div><span asp-validation-for="Religion" class="text-danger"></span></div>
                 </div>
             </div>
             <div class="row">
@@ -226,21 +226,16 @@
                 <div class="col-md-6">
                     <div class="row">
                         <div class="col-md-6 mb-2">
-                            <label asp-for="Religion" class="form-label text-white fw-bold"></label>
-                            <select asp-for="Religion" class="form-control">
+                            <label asp-for="StateOfOrigin" class="form-label text-white fw-bold"></label>
+                            <select asp-for="StateOfOrigin" asp-items="@ViewBag.StateList" class="form-control">
                                 <option value="">- Select -</option>
-                                <option value="Christian">Christian</option>
-                                <option value="Muslim">Muslim</option>
-                                <option value="Traditional">Traditional</option>
-                                <option value="Judaism">Judaism</option>
-                                <option value="Other">Other</option>
                             </select>
-                            <div><span asp-validation-for="Religion" class="text-danger"></span></div>
+                            <div><span asp-validation-for="StateOfOrigin" class="text-danger"></span></div>
                         </div>
                         <div class="col-md-6 mb-2">
-                            <label asp-for="Image" class="form-label text-white fw-bold"></label>
-                            <input asp-for="Image" class="form-control">
-                            <div><span asp-validation-for="Image" class="text-danger"></span></div>
+                            <label asp-for="LgaOfOrigin" class="form-label text-white fw-bold"></label>
+                            <input asp-for="LgaOfOrigin" class="form-control">
+                            <div><span asp-validation-for="LgaOfOrigin" class="text-danger"></span></div>
                         </div>
                     </div>
                     <div class="row">

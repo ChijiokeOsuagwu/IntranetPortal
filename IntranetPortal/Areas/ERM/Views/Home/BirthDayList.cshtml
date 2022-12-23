@@ -1,0 +1,151 @@
+﻿@model IntranetPortal.Areas.ERM.Models.BirthDayListViewModel
+@{
+    ViewData["Title"] = "OfficeManager | BirthDay List";
+}
+<div class="container">
+    <h3 class="mb-1">BirthDay List</h3>
+    <hr />
+    <div class="mb-1">
+        <div class="mb-2">
+            <form asp-area="ERM" asp-controller="Home" asp-action="BirthDayList" method="get">
+                <a asp-area="ERM" asp-controller="Home" asp-action="Index" class="btn btn-dark" style="width:100px" title="Exit">
+                    <span class="text-white">Exit</span>
+                </a>
+                <a asp-area="ERM" asp-controller="Employees" asp-action="Create" class="btn btn-success" style="width:150px" title="Add New Employee">
+                    <span class="text-white pr-2">New Employee</span>
+                </a>
+                <select asp-for="mm" class="border-0 p-2">
+                    <option value="0">Month</option>
+                    <option value="1">January</option>
+                    <option value="2">February</option>
+                    <option value="3">March</option>
+                    <option value="4">April</option>
+                    <option value="5">May</option>
+                    <option value="6">June</option>
+                    <option value="7">July</option>
+                    <option value="8">August</option>
+                    <option value="9">September</option>
+                    <option value="10">October</option>
+                    <option value="11">November</option>
+                    <option value="12">December</option>
+                </select>
+                <select asp-for="dd" class="border-0 p-2">
+                    <option value="0">Day</option>
+                    <option value="1">1st</option>
+                    <option value="2">2nd</option>
+                    <option value="3">3rd</option>
+                    <option value="4">4th</option>
+                    <option value="5">5th</option>
+                    <option value="6">6th</option>
+                    <option value="7">7th</option>
+                    <option value="8">8th</option>
+                    <option value="9">9th</option>
+                    <option value="10">10th</option>
+                    <option value="11">11th</option>
+                    <option value="12">12th</option>
+                    <option value="13">13th</option>
+                    <option value="14">14th</option>
+                    <option value="15">15th</option>
+                    <option value="16">16th</option>
+                    <option value="17">17th</option>
+                    <option value="18">18th</option>
+                    <option value="19">19th</option>
+                    <option value="20">20th</option>
+                    <option value="21">21st</option>
+                    <option value="22">22nd</option>
+                    <option value="23">23rd</option>
+                    <option value="24">24th</option>
+                    <option value="25">25th</option>
+                    <option value="26">26th</option>
+                    <option value="27">27th</option>
+                    <option value="28">28th</option>
+                    <option value="29">29th</option>
+                    <option value="30">30th</option>
+                    <option value="31">31st</option>
+                </select>
+                <input type="submit" value="Show" class="btn btn-dark" style="width:100px" />
+            </form>
+
+            @if (!String.IsNullOrEmpty(ViewBag.ErrorMessage))
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bi bi-x-circle"></i>
+                    <span class="fw-bold">@ViewBag.ErrorMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+        </div>
+        <div class="row">
+            @if (Model == null || Model.EmployeesList == null || Model.EmployeesList.Count < 1)
+            {
+                <div class="alert alert-info fade show" role="alert">
+                    <i class="bi bi-info-circle"></i>
+                    <span class="fw-bold">No record was found.</span>
+                </div>
+            }
+            else
+            {
+                int row_no = 0;
+                string BirthDayFormatted = string.Empty;
+                <table class="table table-sm table-hover">
+                    <thead class="table-dark">
+                        <tr>
+                            <th><span class="text-white fw-bolder">#</span></th>
+
+                            <th><span class="text-white fw-bolder">Date</span></th>
+                            <th>
+                                <span class="text-white fw-bolder">Name</span>
+                            </th>
+                            <th>
+                                <span class="text-white fw-bolder">Designation</span>
+                            </th>
+                            <th>
+                                <span class="text-white fw-bolder">Department</span>
+                            </th>
+                            <th>
+                                <span class="text-white fw-bolder">Location</span>
+                            </th>
+                            <th>
+
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="table-success">
+                        @foreach (var item in Model.EmployeesList)
+                        {
+                            row_no++;
+                            DateTime dateTime = new DateTime(2020, item.BirthMonth.Value, item.BirthDay.Value);
+                            BirthDayFormatted = $"{dateTime.ToString("MMMM")} {item.BirthDay.Value.ToString()}";
+                        <tr>
+                            <td class="p-1">
+                                <span class="fw-bolder">@row_no.ToString()</span>
+                            </td>
+                            <td class="p-1">
+                                <span class="fw-bolder">@BirthDayFormatted</span>
+                            </td>
+                            <td class="p-1">
+                                <span class="fw-bolder">@item.FullName</span>
+                            </td>
+                            <td class="p-1">
+                                <span class="fw-bolder">@item.CurrentDesignation</span>
+                            </td>
+                            <td class="p-1">
+                                <span class="fw-bolder">@item.DepartmentName</span>
+                            </td>
+                            <td class="p-1">
+                                <span class="fw-bolder">@item.LocationName</span>
+                            </td>
+                            <td class="p-1">
+                                <a asp-area="ERM" asp-controller="Employees" asp-action="profile" asp-route-id="@item.EmployeeID" title="Select" class="btn btn-sm btn-dark" style="width:75px">
+                                    <span class="text-white fw-bold">Select</span>
+                                </a>
+                            </td>
+                        </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+
+        </div>
+    </div>
+</div>

@@ -306,7 +306,7 @@ namespace IntranetPortal.Areas.UserAdministration.Controllers
         [HttpGet]
         public JsonResult GetNamesOfEmployeeUsers(string text)
         {
-            List<string> employees = _securityService.GetEmployeeUsersByNameAsync(text).Result.Select(x => x.FullName).ToList();
+            List<string> employees = _securityService.SearchEmployeeUsersByNameAsync(text).Result.Select(x => x.FullName).ToList();
             return Json(employees);
         }
 

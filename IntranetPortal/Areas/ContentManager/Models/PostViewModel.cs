@@ -1,0 +1,51 @@
+﻿using IntranetPortal.Base.Models.ContentManagerModels;
+using IntranetPortal.Models;
+using Microsoft.AspNetCore.Http;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Threading.Tasks;
+
+namespace IntranetPortal.Areas.ContentManager.Models
+{
+    public class PostViewModel:BaseViewModel
+    {
+        public int? PostId { get; set; }
+
+        [Required]
+        [MaxLength(100, ErrorMessage = "Title must not exceed 100 characters.")]
+        [Display(Name = "Title")]
+        public string PostTitle { get; set; }
+
+        [Required]
+        [MaxLength(500, ErrorMessage = "Summary must not exceed 500 characters.")]
+        [Display(Name = "Summary")]
+        public string PostSummary { get; set; }
+
+        public string ImagePath { get; set; }
+
+        [Display(Name="Upload Image")]
+        public IFormFile ImageFile { get; set; }
+
+        [Required]
+        [Display(Name = "Type")]
+        public int PostTypeId { get; set; }
+        public bool EnableComments { get; set; }
+        public bool IsHidden { get; set; }
+
+        public Post ConvertToPost()
+        {
+            return new Post
+            {
+                EnableComment = EnableComments,
+                ImagePath = ImagePath,
+                IsHidden = IsHidden,
+                PostId = PostId == null ? 0 : PostId.Value,
+                PostTitle = PostTitle,
+                PostSummary = PostSummary,
+                PostTypeId = PostTypeId,
+            };
+        }
+    }
+}

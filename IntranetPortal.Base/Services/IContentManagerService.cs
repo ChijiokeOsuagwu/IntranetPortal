@@ -16,6 +16,10 @@ namespace IntranetPortal.Base.Services
         Task<bool> HidePostAsync(int postId);
         Task<Post> GetPostByIdAsync(int postId);
         Task<IList<Post>> GetAllPostsAsync();
+        Task<IList<Post>> GetAllOtherPostsAsync();
+        Task<IList<Post>> GetAllOtherUnhiddenPostsAsync();
+        Task<IList<Post>> GetPostsByPostTypeId(int postTypeId);
+        Task<IList<Post>> SearchPostsByTitle(string postTitle);
         Task<bool> UpdatePostDetailsAsync(int postId, string htmlContent, string modifiedBy, DateTime modifiedDate);
         #endregion
 
@@ -24,6 +28,13 @@ namespace IntranetPortal.Base.Services
         Task<IList<Post>> GetAllBannersAsync();
         Task<IList<Post>> GetUnhiddenBannersAsync();
         #endregion
+
+        //========== Announcements Service Actions ===================//
+        #region Announcements Service Actions
+        Task<IList<Post>> GetAllAnnouncementsAsync();
+        Task<IList<Post>> GetUnhiddenAnnouncementsAsync();
+        #endregion
+
 
         //========== Article Service Actions ===================//
         #region Article Service Actions

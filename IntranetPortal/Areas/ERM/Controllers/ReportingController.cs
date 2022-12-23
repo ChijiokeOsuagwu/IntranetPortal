@@ -77,8 +77,8 @@ namespace IntranetPortal.Areas.ERM.Controllers
                 model.OperationIsCompleted = true;
                 model.ViewModelErrorMessage = $"Sorry an error was encountered. The required parameter [EmployeeID] is missing or has an invalid value.";
             }
-            var teams = _globalSettingsService.GetTeamsAsync().Result.ToList();
-            ViewBag.TeamsList = new SelectList(teams, "TeamID", "TeamName");
+            var teamEntities = await _globalSettingsService.GetTeamsAsync();
+            ViewBag.TeamsList = new SelectList(teamEntities.ToList(), "TeamID", "TeamName");
             return View(model);
         }
 
@@ -91,16 +91,16 @@ namespace IntranetPortal.Areas.ERM.Controllers
                 try
                 {
                     EmployeeReportLine employeeReportLine = model.ConvertToEmployeeReportLine();
-                    Employee employee = await _ermService.GetEmployeeByNameAsync(model.ReportsToEmployeeName);
-                    if (!string.IsNullOrWhiteSpace(employee.EmployeeID))
+                    Employee reportsToEmployee = await _ermService.GetEmployeeByNameAsync(model.ReportsToEmployeeName);
+                    if (!string.IsNullOrWhiteSpace(reportsToEmployee.EmployeeID))
                     {
-                        employeeReportLine.ReportsToEmployeeID = employee.EmployeeID;
-                        employeeReportLine.ReportsToEmployeeName = employee.FullName;
-                        employeeReportLine.UnitID = employee.UnitID;
-                        employeeReportLine.DepartmentID = employee.DepartmentID;
+                        employeeReportLine.ReportsToEmployeeID = reportsToEmployee.EmployeeID;
+                        employeeReportLine.ReportsToEmployeeName = reportsToEmployee.FullName;
+                        employeeReportLine.UnitID = reportsToEmployee.UnitID;
+                        employeeReportLine.DepartmentID = reportsToEmployee.DepartmentID;
                         if (string.IsNullOrWhiteSpace(model.ReportsToEmployeeRole))
                         {
-                            employeeReportLine.ReportsToEmployeeRole = employee.CurrentDesignation;
+                            employeeReportLine.ReportsToEmployeeRole = reportsToEmployee.CurrentDesignation;
                         }
                     }
                     else
@@ -127,8 +127,8 @@ namespace IntranetPortal.Areas.ERM.Controllers
                 model.ViewModelErrorMessage = $"Ooops! It appears some fields have missing or invalid values. Please correct this and try again.";
                 model.OperationIsCompleted = true;
             }
-            var teams = _globalSettingsService.GetTeamsAsync().Result.ToList();
-            ViewBag.TeamsList = new SelectList(teams, "TeamID", "TeamName");
+            var teamEntities = await _globalSettingsService.GetTeamsAsync();
+            ViewBag.TeamsList = new SelectList(teamEntities.ToList(), "TeamID", "TeamName");
             return View(model);
         }
 
@@ -166,8 +166,8 @@ namespace IntranetPortal.Areas.ERM.Controllers
                 model.OperationIsCompleted = true;
                 model.ViewModelErrorMessage = $"Sorry an error was encountered. The required parameter [EmployeeID] is missing or has an invalid value.";
             }
-            var teams = _globalSettingsService.GetTeamsAsync().Result.ToList();
-            ViewBag.TeamsList = new SelectList(teams, "TeamID", "TeamName");
+            var teamEntities = await _globalSettingsService.GetTeamsAsync();
+            ViewBag.TeamsList = new SelectList(teamEntities.ToList(), "TeamID", "TeamName");
             return View(model);
         }
 
@@ -216,8 +216,8 @@ namespace IntranetPortal.Areas.ERM.Controllers
                 model.ViewModelErrorMessage = $"Ooops! It appears some fields have missing or invalid values. Please correct this and try again.";
                 model.OperationIsCompleted = true;
             }
-            var teams = _globalSettingsService.GetTeamsAsync().Result.ToList();
-            ViewBag.TeamsList = new SelectList(teams, "TeamID", "TeamName");
+            var teamEntities = await _globalSettingsService.GetTeamsAsync();
+            ViewBag.TeamsList = new SelectList(teamEntities.ToList(), "TeamID", "TeamName");
             return View(model);
         }
 

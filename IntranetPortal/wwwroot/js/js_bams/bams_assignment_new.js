@@ -114,6 +114,65 @@
 
 });
 
+//======= Script to add new team member to the deployment batch =======//
+function addTeamMember(assignment_id, deployment_id) {
+    var member_name = $("#TeamMemberName").val();
+    var member_role = $("#TeamMemberRole").val();
+        $.ajax({
+            type: 'POST',
+            url: '/BAMS/Deployment/AddTeamMember',
+            dataType: "text",
+            data: { ad:assignment_id, dd:deployment_id, mn:member_name, mr:member_role },
+            success: function (result) {
+                switch (result) {
+                    case "missing":
+                        alert("Sorry, key values are missing. New team member could not be added.");
+                        break;
+                    case "exist":
+                        alert("Sorry, this staff has already been deployed for this Assignment. Please check again.");
+                        break;
+                    case "done":
+                        location.reload();
+                        break;
+                    default:
+                        aler("Sorry, an error was encountered. New team member could not be added.");
+                }
+            },
+            error: function () {
+                alert('Sorry an error was encountered while attempting to add this team member. Please try again.');
+            }
+        })
+}
+
+//======= Script to add new equipment to the deployment batch =======//
+function addEquipment(assignment_id, deployment_id) {
+    var asset_name = $("#AssetName").val();
+   $.ajax({
+        type: 'POST',
+        url: '/BAMS/Deployment/AddEquipment',
+        dataType: "text",
+        data: { ad: assignment_id, dd: deployment_id, an: asset_name },
+        success: function (result) {
+            switch (result) {
+                case "missing":
+                    alert("Sorry, key values are missing. New team member could not be added.");
+                    break;
+                case "exist":
+                    alert("Sorry, this staff has already been deployed for this Assignment. Please check again.");
+                    break;
+                case "done":
+                    location.reload();
+                    break;
+                default:
+                    aler("Sorry, an error was encountered. New team member could not be added.");
+            }
+        },
+        error: function () {
+            alert('Sorry an error was encountered while attempting to add this team member. Please try again.');
+        }
+    })
+}
+
 //======= Script to remove team member from a deployment batch =======//
 function removeTeamMember(team_member_id) {
     if (confirm("Are you sure you want to remove this team member?")) {
@@ -124,8 +183,6 @@ function removeTeamMember(team_member_id) {
         data: { td: team_member_id },
         success: function (result) {
             if (result == "done") {
-                alert('Team Member removed successfully!');
-                console.log(result);
                 location.reload();
             }
             else if (result == "none") {

@@ -56,10 +56,65 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
             return View(PaginatedList<AssetIncident>.CreateAsync(assetIncidentList.AsQueryable(), pg ?? 1, 100));
         }
 
+        public async Task<IActionResult> index(string id, int? yr = null, int? mn = null)
+        {
+            IList<AssetIncident> assetIncidentList = new List<AssetIncident>();
+            AssetIncidentListViewModel model = new AssetIncidentListViewModel();
+            try
+            {
+                if (yr != null && yr.Value > 0)
+                {
+                    if(mn != null && mn.Value > 0)
+                    {
+                        model.yr = yr.Value;
+                        model.mn = mn.Value;
+                        assetIncidentList = await _assetManagerService.GetAssetIncidentsByAssetIdAndYearAndMonthAsync(id, yr.Value, mn.Value);
+                    }
+                    else
+                    {
+                        model.yr = yr.Value;
+                        assetIncidentList = await _assetManagerService.GetAssetIncidentsByAssetIdAndYearAsync(id, yr.Value);
+                    }
+                }
+                else
+                {
+                    if(mn != null && mn.Value > 0)
+                    {
+                        model.yr = DateTime.Now.Year;
+                        model.mn = mn.Value;
+                        assetIncidentList = await _assetManagerService.GetAssetIncidentsByAssetIdAndYearAndMonthAsync(id, DateTime.Now.Year, mn.Value);
+                    }
+                    else
+                    {
+                        model.yr = DateTime.Now.Year;
+                        model.mn = DateTime.Now.Month;
+                        assetIncidentList = await _assetManagerService.GetAssetIncidentsByAssetIdAndYearAndMonthAsync(id, DateTime.Now.Year, DateTime.Now.Month);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                ViewBag.ErrorMessage = ex.Message;
+            }
+
+            return View(model);
+        }
+
         [HttpGet]
-        public IActionResult AddIncident()
+        public async Task<IActionResult> AddIncident(string id = null)
         {
             AssetIncidentViewModel model = new AssetIncidentViewModel();
+            if (!string.IsNullOrWhiteSpace(id))
+            {
+                Asset asset = await _assetManagerService.GetAssetByIdAsync(id);
+                if(asset != null && !string.IsNullOrWhiteSpace(asset.AssetName))
+                {
+                    model.AssetID = asset.AssetID;
+                    model.AssetName = asset.AssetName;
+                    model.AssetTypeID = asset.AssetTypeID;
+                    model.AssetCategoryID = asset.AssetCategoryID;
+                }
+            }
             return View(model);
         }
 

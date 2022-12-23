@@ -1,0 +1,94 @@
+﻿@model IntranetPortal.Models.MessagesListViewModel
+@{
+    ViewData["Title"] = "OfficeManager | Messages";
+    Layout = "~/Views/Shared/_BlueLayout.cshtml";
+}
+<div class="container">
+    <h3 class="mb-3 mt-3">Messages</h3>
+    <hr />
+    <div class="mb-2">
+        <a asp-controller="Home" asp-action="Index" class="btn btn-dark" style="width:100px" title="Click to Go Back">
+            <span class="text-white">Back</span>
+        </a>
+        <a class="btn btn-info" asp-controller="Home" asp-action="MessageList" style="width:100px">
+            <span>All</span>
+            <span class="badge rounded-pill bg-light text-dark fw-bold">
+                @Model.TotalMesssagesCount
+            </span>
+        </a>
+        <a class="btn btn-success" asp-controller="Home" asp-action="MessageList" asp-route-tp="unread" style="width:100px">
+            <span>Unread</span>
+            <span class="badge rounded-pill bg-light text-dark fw-bold">
+                @Model.UnreadMessagesCount
+            </span>
+        </a>
+        <a class="btn btn-warning" asp-controller="Home" asp-action="MessageList" asp-route-tp="read" style="width:100px">
+            <span>Read</span>
+            <span class="badge rounded-pill bg-light text-dark fw-bold">
+                @Model.ReadMessagesCount
+            </span>
+        </a>
+    </div>
+    @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-x-circle"></i>
+            <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    @if (Model.MessageList == null || Model.MessageList.Count < 1)
+    {
+        <div class="alert alert-info fade show" role="alert">
+            <i class="bi bi-info-circle"></i>
+            <span class="fw-bold">No message was found.</span>
+        </div>
+    }
+    else
+    {
+        <div class="accordion" id="accordionExample">
+            @foreach (var i in Model.MessageList)
+            {
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="heading_@i.MessageDetailID">
+
+                        @if (i.IsRead)
+                        {
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse_@i.MessageDetailID" aria-expanded="true" aria-controls="collapse_@i.MessageDetailID">
+                                <i class="bi bi-envelope-open-fill" style="color:red"></i>
+                                &nbsp;&nbsp;<span class="fw-bold">@i.Subject</span>
+                            </button>
+                        }
+                        else
+                        {
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse_@i.MessageDetailID" aria-expanded="true" aria-controls="collapse_@i.MessageDetailID"  onclick="updateReadStatus(@i.MessageDetailID)">
+                                <i class="bi bi-envelope-fill" style="color:blue"></i>
+                                &nbsp;&nbsp;<span class="fw-bold">@i.Subject</span>
+                            </button>
+                        }
+
+                    </h2>
+                    <div id="collapse_@i.MessageDetailID" class="accordion-collapse collapse" aria-labelledby="heading_@i.MessageDetailID" data-bs-parent="#accordionExample">
+                        <div class="accordion-body">
+                            <p class="h5"> @i.MessageBody</p>
+                            <button class="btn-light border-0" title="Delete Message" onclick="deleteMessageByMessageDetailId(@i.MessageDetailID)">
+                                <i class="bi bi-trash fw-bold" style="font-size:1.2rem"></i>
+                            </button>
+                            @if (!string.IsNullOrWhiteSpace(i.ActionUrl))
+                            {
+                                <a class="btn-light text-dark" title="Click to Action" href="@i.ActionUrl">
+                                    <i class="bi bi-box-arrow-up-right fw-bold" style="font-size:1.2rem"></i>
+                                </a>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    <!------------------------------------------------------------------------------------------------------------>
+    <!------------------------------------------------------------------------------------------------------------>
+</div>
+@section Scripts{
+    <script src="~/js/js_utls/utls_messages.js"></script>
+}

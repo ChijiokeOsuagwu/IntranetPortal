@@ -1,0 +1,23 @@
+﻿
+@model IntranetPortal.Areas.AssetManager.Models.AssetViewModel
+@{
+    ViewData["Title"] = "OfficeManager | Show Image";
+}
+<div class="container">
+    <div class="row">
+        <a asp-area="AssetManager" asp-controller="Master" asp-action="Details" asp-route-id="@Model.AssetID" class="btn btn-dark ml-1" style="width:100px" title="Go Back">
+            <span class="text-white">Go Back</span>
+        </a>
+        <hr />
+    </div>
+    <div class="row">
+        @if (!string.IsNullOrEmpty(Model.ImagePath))
+        {
+            <img src="/@Model.ImagePath" class="card-img-top" alt="Asset Image" style="max-width:1200px" />
+        }
+        else
+        {
+            <img src="/img/no_image_placeholder.png" class="card-img-top" alt="Asset Image" style="max-width:600px" />
+        }
+    </div>
+</div>

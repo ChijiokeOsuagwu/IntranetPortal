@@ -52,8 +52,8 @@ namespace IntranetPortal.Base.Services
         Task<AssetReservation> GetAssetReservationByIdAsync(int assetReservationId);
         Task<IList<AssetReservation>> GetAssetReservationsByAssetTypeIdAsync(int assetTypeId);
         Task<IList<AssetReservation>> SearchAssetReservationsByAssetNameAsync(string assetName);
-
-
+        Task<IList<AssetReservation>> GetAssetReservationsByAssetIdAndYearAsync(string assetId, int reservedYear);
+        Task<IList<AssetReservation>> GetAssetReservationsByAssetIdAndYearAndMonthAsync(string assetId, int reservedYear, int reservedMonth);
         Task<IList<AssetReservation>> GetCurrentAssetReservationsByAssetIdAsync(string assetId);
         Task<IList<AssetReservation>> GetCurrentAssetReservationsAsync();
         Task<IList<AssetReservation>> GetCurrentAssetReservationsByAssetTypeIdAsync(int assetTypeId);
@@ -71,6 +71,7 @@ namespace IntranetPortal.Base.Services
         Task<AssetUsage> GetAssetUsageByIdAsync(int assetUsageId);
         Task<IList<AssetUsage>> GetAssetUsagesByAssetTypeIdAsync(int assetTypeId);
         Task<IList<AssetUsage>> GetAssetUsagesByAssetIdAsync(string assetId);
+        Task<IList<AssetUsage>> GetAssetUsagesByAssetIdAndDateAsync(string assetId, int? usageYear = null, int? usageMonth = null);
         Task<IList<AssetUsage>> GetAssetUsagesCheckedOutByAssetIdAsync(string assetId);
         Task<IList<AssetUsage>> SearchAssetUsagesByAssetNameAsync(string assetName);
         Task<IList<AssetUsage>> GetCurrentAssetUsagesAsync();
@@ -88,6 +89,8 @@ namespace IntranetPortal.Base.Services
         Task<AssetIncident> GetAssetIncidentByIdAsync(int assetIncidentId);
         Task<IList<AssetIncident>> GetAssetIncidentsByAssetTypeIdAsync(int assetTypeId);
         Task<IList<AssetIncident>> GetAssetIncidentsByAssetIdAsync(string assetId);
+        Task<IList<AssetIncident>> GetAssetIncidentsByAssetIdAndYearAsync(string assetId, int incidentYear);
+        Task<IList<AssetIncident>> GetAssetIncidentsByAssetIdAndYearAndMonthAsync(string assetId, int incidentYear, int incidentMonth);
         Task<IList<AssetIncident>> SearchAssetIncidentsByAssetNameAsync(string assetName);
         Task<IList<AssetIncident>> GetCurrentAssetIncidentsAsync();
         Task<IList<AssetIncident>> GetCurrentAssetIncidentsByAssetTypeIdAsync(int assetTypeId);
@@ -109,6 +112,8 @@ namespace IntranetPortal.Base.Services
         Task<IList<AssetMaintenance>> GetCurrentAssetMaintenancesByAssetTypeIdAsync(int assetTypeId);
         Task<IList<AssetMaintenance>> GetCurrentAssetMaintenancesByAssetIdAsync(string assetId);
         Task<IList<AssetMaintenance>> SearchCurrentAssetMaintenancesByAssetNameAsync(string assetName);
+        Task<IList<AssetMaintenance>> GetAssetMaintenancesByAssetIdAndYearAsync(string assetId, int maintenanceYear);
+        Task<IList<AssetMaintenance>> GetAssetMaintenancesByAssetIdAndYearAndMonthAsync(string assetId, int maintenanceYear, int maintenanceMonth);
         #endregion
 
         //===================== Asset Movement Service Methods ===============================================//
@@ -121,6 +126,8 @@ namespace IntranetPortal.Base.Services
         Task<IList<AssetMovement>> GetAssetMovementsByAssetTypeIdAsync(int assetTypeId);
         Task<IList<AssetMovement>> GetAssetMovementsByAssetIdAsync(string assetId);
         Task<IList<AssetMovement>> SearchAssetMovementsByAssetNameAsync(string assetName);
+        Task<IList<AssetMovement>> GetAssetMovementsByAssetIdAndYearAsync(string assetId, int movementYear);
+        Task<IList<AssetMovement>> GetAssetMovementsByAssetIdAndYearAndMonthAsync(string assetId, int movementYear, int movementMonth);
         #endregion
     }
 }

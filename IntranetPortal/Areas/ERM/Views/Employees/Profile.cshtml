@@ -16,6 +16,11 @@
                         </a>
                     </li>
                     <li class="nav-item">
+                        <a asp-area="ERM" asp-controller="Employees" asp-action="UploadImage" asp-route-id="@Model.EmployeeID" asp-route-nm="@Model.FullName" title="Upload Image" class="btn btn-sm btn-light text-dark">
+                            <i class="bi bi-file-image fw-bolder" style="font-size: 1.0rem;"></i>&nbsp;<span class="fw-bold" style="font-size: 0.8rem;">Image</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <a asp-area="ERM" asp-controller="Employees" asp-action="NextOfKin" asp-route-id="@Model.EmployeeID" title="Next of Kin" class="btn btn-sm btn-light text-dark">
                             <i class="bi bi-person-check-fill fw-bolder" style="font-size: 1.0rem;"></i>&nbsp;<span class="fw-bold" style="font-size: 0.8rem;">Next of Kin</span>
                         </a>
@@ -86,16 +91,16 @@
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         }
-        <form enctype="multipart/form-data" asp-area="ERM" asp-controller="Employees" asp-action="Create" method="post">
+        <form asp-area="ERM" asp-controller="Employees" asp-action="Profile" method="post">
             <div class="row">
                 <div class="col-md-3 mb-1">
                     @if (!string.IsNullOrWhiteSpace(Model.ImagePath))
                     {
-                        <img src="@Model.ImagePath" class="img-fluid" alt="Employee Image">
+                        <img src="@Model.ImagePath" class="img-fluid" style="height:250px; width:350px" alt="Employee Image">
                     }
                     else
                     {
-                        <img src="~/img/staff.png" class="img-fluid" alt="Employee Image" />
+                        <img src="~/img/staff.png" class="img-fluid" style="height:250px; width:350px" alt="Employee Image" />
                     }
                 </div>
                 <div class="col-md-9 mb-1">

@@ -1,0 +1,102 @@
+﻿@model IntranetPortal.Areas.ContentManager.Models.PostViewModel
+@{
+    ViewData["Title"] = "OfficeManager | Add Post";
+}
+<div>
+    <div class="card" style="min-width:600px">
+        <div class="card-header bg-success">
+            <h4 class="text-white">New Post</h4>
+        </div>
+        <div class="card-body bg-secondary">
+            @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bi bi-x-circle"></i>
+                    <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            @if (!String.IsNullOrEmpty(Model.ViewModelSuccessMessage))
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="bi bi-check-circle"></i>
+                    <span class="fw-bold">@Model.ViewModelSuccessMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            @if (!String.IsNullOrEmpty(Model.ViewModelWarningMessage))
+            {
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                    <i class="bi bi-exclamation-circle"></i>
+                    <span class="fw-bold">@Model.ViewModelWarningMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            <form asp-area="ContentManager" asp-controller="Post" asp-action="Add" method="post">
+                <div class="row">
+                    <div class="col-md-8 mb-1">
+                        <input type="hidden" asp-for="PostId" />
+                        <label asp-for="PostTitle" class="form-label text-white fw-bold"></label><span class="text-white">*</span>
+                        <input asp-for="PostTitle" class="form-control fw-bold">
+                        <div><span asp-validation-for="PostTitle" class="text-danger"></span></div>
+                    </div>
+                    <div class="col-md-4 mb-1">
+                        <label asp-for="PostTypeId" class="form-label text-white fw-bold"></label><span class="text-white">*</span>
+                        <select asp-for="PostTypeId" class="form-control fw-bold">
+                            <option value=""> - Select - </option>
+                            <option value="1">Celebrant</option>
+                            <option value="2">Article</option>
+                            <option value="3">Announcement</option>
+                            <option value="4">Event</option>
+                        </select>
+                        <div><span asp-validation-for="PostTypeId" class="text-danger"></span></div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-8 mb-3">
+                        <label asp-for="PostSummary" class="form-label text-white fw-bold"></label><span class="text-white">*</span>
+                        <textarea asp-for="PostSummary" class="form-control fw-bold" rows="3">@Model.PostSummary</textarea>
+                        <div><span asp-validation-for="PostSummary" class="text-danger"></span></div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="row">
+                            <div class="col-md-12 mb-3">
+                                <label asp-for="ImageFile" class="form-label text-white fw-bold"></label>
+                                <input asp-for="ImageFile" class="form-control fw-bold">
+                                <div><span asp-validation-for="ImageFile" class="text-danger"></span></div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <input type="hidden" asp-for="ImagePath" />
+                            <div class="col-md-6">
+                                <span>@Html.CheckBoxFor(model => model.IsHidden)</span> <span class="fw-bold text-white pl-2" style="font-size:0.8rem">Hide Post</span>
+                            </div>
+                            <div class="col-md-6">
+                                <span>@Html.CheckBoxFor(model => model.EnableComments)</span> <span class="fw-bold text-white pl-2" style="font-size:0.8rem">Enable Comments</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <a asp-area="ContentManager" asp-controller="Home" asp-action="Index" class="btn btn-dark ml-2" style="width:100px" title="Exit">
+                        <span class="text-white">Exit</span>
+                    </a>
+
+                    @if (!Model.OperationIsCompleted)
+                    {
+                        <a asp-area="ContentManager" asp-controller="Posts" asp-action="Add" class="btn btn-warning ml-1" style="width:100px" title="Clear">
+                            <span class="text-white">Clear</span>
+                        </a>
+                        <button type="submit" class="btn btn-success ml-2" title="Save" style="width:200px"><span class="text-white">Save</span></button>
+                    }
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+

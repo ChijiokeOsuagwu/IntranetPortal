@@ -63,7 +63,7 @@
                         @if (ViewData["UnreadMessageCount"] != null)
                         {
                             <li class="nav-item mx-1 my-1">
-                                <a asp-area="" asp-controller="Home" asp-action="Messages" class="btn btn-outline-light position-relative" title="Click to open Message Inbox">
+                                <a asp-area="" asp-controller="Home" asp-action="MessageList" asp-route-tp="unread" class="btn btn-outline-light position-relative" title="Click to open Message Inbox">
                                     <i class="bi bi-envelope-fill"></i>
                                     @if ((int)ViewData["UnreadMessageCount"] > 99)
                                     {

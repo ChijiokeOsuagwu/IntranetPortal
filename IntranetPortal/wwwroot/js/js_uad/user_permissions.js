@@ -9,9 +9,8 @@ function grantPermission(user_id, role_id) {
         data: {usd:user_id, rld:role_id},
         success: function (result) {
             if (result == "granted") {
-                alert('Permission Granted Successfully!');
-                console.log(result);
                 btnGrant.disabled = true;
+                location.reload();
             }
             else{
                 alert('Granting Permission failed!');
@@ -25,7 +24,6 @@ function grantPermission(user_id, role_id) {
     })
 }
 
-
 //===== Function to Revoke the Permission (with PermissionID) from User ========//
 function revokePermission(user_id, role_id) {
     const btnRevoke = document.getElementById("btn_revoke_" + role_id);
@@ -36,13 +34,11 @@ function revokePermission(user_id, role_id) {
         data: { usd: user_id, rld: role_id },
         success: function (result) {
             if (result == "revoked") {
-                alert('Permission Revoked Successfully!');
-                console.log(result);
                 btnRevoke.disabled = true;
+                location.reload();
             }
             else {
                 alert('Revoking Permission failed!');
-                console.log(result);
             }
         },
         error: function () {
@@ -53,6 +49,7 @@ function revokePermission(user_id, role_id) {
 }
 
 $(document).ready(function () {
+    console.log('Web page is ready!')
     $("#SearchString").autocomplete(
         {
             minLength: 3,
@@ -70,4 +67,4 @@ $(document).ready(function () {
                 })
             }
         })
-}
+})

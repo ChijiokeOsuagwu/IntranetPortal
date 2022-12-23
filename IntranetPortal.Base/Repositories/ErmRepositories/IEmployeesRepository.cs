@@ -29,6 +29,28 @@ namespace IntranetPortal.Base.Repositories.ErmRepository
 
         Task<IList<Employee>> GetEmployeesByLocationAsync(int locationId, int deptId, int unitId);
 
+
+        Task<IList<Employee>> GetEmployeesByCompanyCodeAsync(string companyCode);
+
+        Task<IList<Employee>> GetEmployeesByCompanyCodeAsync(string companyCode, int locationId);
+
+        Task<IList<Employee>> GetEmployeesByCompanyCodeAsync(string companyCode, int locationId, int departmentId);
+
+        Task<IList<Employee>> GetEmployeesByCompanyCodeAndUnitAsync(string companyCode, int locationId, int unitId);
+
+        Task<IList<Employee>> GetEmployeesByCompanyCodeAndUnitAsync(string companyCode, int unitId);
+        Task<IList<Employee>> GetEmployeesByCompanyCodeAndDeptAsync(string companyCode, int deptId);
+
+        Task<IList<Employee>> GetEmployeesByLocationAndUnitAsync(int locationId, int unitId);
+
+        Task<IList<Employee>> GetEmployeesByUnitAsync(int unitId);
+
+        Task<IList<Employee>> GetEmployeesByDeptAsync(int deptId);
+
+        Task<IList<Employee>> GetEmployeesByBirthMonthAsync(int birthMonth);
+
+        Task<IList<Employee>> GetEmployeesByBirthMonthAndBirthDayAsync(int birthMonth, int birthDay);
+
         Task<IList<Employee>> GetEmployeesWithoutUserAccountsByNameAsync(string employeeName);
 
         Task<IList<Employee>> GetAllEmployeesWithoutUserAccountsAsync();

@@ -11,6 +11,7 @@ namespace IntranetPortal.Models
         public int NewMessageCount { get; set; }
         public List<Post> Banners { get; set; }
         public List<Post> Announcements { get; set; }
+        public List<Post> PostList { get; set; }
         public List<Post> Celebrants { get; set; }
         public List<Post> Articles { get; set; }
         public List<Post> Events { get; set; }

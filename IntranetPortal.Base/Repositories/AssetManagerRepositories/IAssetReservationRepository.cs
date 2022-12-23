@@ -17,6 +17,10 @@ namespace IntranetPortal.Base.Repositories.AssetManagerRepositories
         Task<IList<AssetReservation>> GetByAssetNameAsync(string assetName);
 
         Task<IList<AssetReservation>> GetByAssetTypeIdAsync(int assetTypeId);
+
+        Task<IList<AssetReservation>> GetByAssetIdAndYearAsync(string assetId, int reservedYear);
+        
+        Task<IList<AssetReservation>> GetByAssetIdAndYearAndMonthAsync(string assetId, int reservedYear, int reservedMonth);
 #endregion
 
         #region Current Asset Reservations Methods

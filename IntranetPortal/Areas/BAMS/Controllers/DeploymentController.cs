@@ -53,7 +53,7 @@ namespace IntranetPortal.Areas.BAMS.Controllers
         {
             AssignmentDeploymentListViewModel model = new AssignmentDeploymentListViewModel();
             model.AssignmentEventID = id;
-            if(id > 0)
+            if (id > 0)
             {
                 var entities = await _bamsManagerService.GetAssignmentDeploymentsByAssignmentEventIdAsync(id);
                 model.AssignmentDeploymentList = entities.ToList();
@@ -115,7 +115,7 @@ namespace IntranetPortal.Areas.BAMS.Controllers
                 AssignmentDeployment deployment = new AssignmentDeployment();
                 try
                 {
-                    if(model != null)
+                    if (model != null)
                     {
                         deployment = model.ConvertToAssignmentDeployment();
                         deployment.CreatedTime = $"{DateTime.UtcNow.ToLongDateString()} {DateTime.UtcNow.ToLongTimeString()} + UTC";
@@ -155,7 +155,7 @@ namespace IntranetPortal.Areas.BAMS.Controllers
         public async Task<IActionResult> EditDeployment(int id)
         {
             AssignmentDeploymentViewModel model = new AssignmentDeploymentViewModel();
-            if(id > 0)
+            if (id > 0)
             {
                 AssignmentDeployment assignmentDeployment = await _bamsManagerService.GetAssignmentDeploymentByIdAsync(id);
                 if (assignmentDeployment != null)
@@ -372,74 +372,135 @@ namespace IntranetPortal.Areas.BAMS.Controllers
             return View(model);
         }
 
-        [HttpPost]
-        public async Task<IActionResult> DeploymentTeam(DeploymentTeamMemberViewModel model)
-        {
-            List<DeploymentTeamMember> teamMembers = new List<DeploymentTeamMember>();
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    DeploymentTeamMember teamMember = model.ConvertToDeploymentTeamMember();
-                    teamMember.ModifiedBy = HttpContext.User.Identity.Name;
-                    teamMember.ModifiedTime = $"{DateTime.UtcNow.ToLongDateString()} {DateTime.UtcNow.ToLongTimeString()} + UTC";
-                    teamMember.CreatedBy = HttpContext.User.Identity.Name;
-                    teamMember.CreatedTime = $"{DateTime.UtcNow.ToLongDateString()} {DateTime.UtcNow.ToLongTimeString()} + UTC";
+        //[HttpPost]
+        //public async Task<IActionResult> DeploymentTeam(DeploymentTeamMemberViewModel model)
+        //{
+        //    List<DeploymentTeamMember> teamMembers = new List<DeploymentTeamMember>();
+        //    if (ModelState.IsValid)
+        //    {
+        //        try
+        //        {
+        //            DeploymentTeamMember teamMember = model.ConvertToDeploymentTeamMember();
+        //            teamMember.ModifiedBy = HttpContext.User.Identity.Name;
+        //            teamMember.ModifiedTime = $"{DateTime.UtcNow.ToLongDateString()} {DateTime.UtcNow.ToLongTimeString()} + UTC";
+        //            teamMember.CreatedBy = HttpContext.User.Identity.Name;
+        //            teamMember.CreatedTime = $"{DateTime.UtcNow.ToLongDateString()} {DateTime.UtcNow.ToLongTimeString()} + UTC";
 
-                    Person person = await _baseModelService.GetPersonbyNameAsync(model.TeamMemberName);
-                    if (person != null && !string.IsNullOrWhiteSpace(person.PersonID))
+        //            Person person = await _baseModelService.GetPersonbyNameAsync(model.TeamMemberName);
+        //            if (person != null && !string.IsNullOrWhiteSpace(person.PersonID))
+        //            {
+        //                teamMember.TeamMemberID = person.PersonID;
+
+        //                var existing_entities = await _bamsManagerService.GetDeploymentTeamMembersByAssignmentEventIdAndPersonIdAsync(model.AssignmentEventID, person.PersonID);
+
+        //                if (existing_entities == null || existing_entities.Count > 0)
+        //                {
+        //                    model.ViewModelWarningMessage = "Sorry, this member has already been deployed for this Assignment.";
+        //                }
+        //                else
+        //                {
+        //                    Employee employee = await _employeeRecordService.GetEmployeeByIdAsync(person.PersonID);
+        //                    if (employee != null)
+        //                    {
+        //                        teamMember.TeamMemberUnit = employee.UnitName;
+        //                        teamMember.TeamMemberStation = employee.LocationName;
+        //                    }
+        //                    bool IsAdded = await _bamsManagerService.CreateDeploymentTeamMemberAsync(teamMember);
+        //                    if (IsAdded)
+        //                    {
+        //                        model.OperationIsSuccessful = true;
+        //                        model.ViewModelSuccessMessage = "New team member added successfully!";
+        //                    }
+        //                    else
+        //                    {
+        //                        model.ViewModelErrorMessage = "Sorry, an error was encountered. New team member could not be added.";
+        //                    }
+        //                }
+        //            }
+        //            else
+        //            {
+        //                model.ViewModelErrorMessage = "Sorry, no record was found for the name you entered. Team Member was not added.";
+        //            }
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            model.ViewModelErrorMessage = ex.Message;
+        //        }
+        //    }
+        //    else
+        //    {
+        //        model.ViewModelErrorMessage = $"Ooops! It appears some fields have missing or invalid values. Please correct this and try again.";
+        //    }
+        //    var entities = await _bamsManagerService.GetDeploymentTeamMembersByDeploymentIdAsync(model.DeploymentID);
+        //    teamMembers = entities.ToList();
+        //    ViewBag.TeamMembersList = teamMembers;
+        //    return View(model);
+        //}
+
+        [HttpPost]
+        public async Task<string> AddTeamMember(int ad, int dd, string mn, string mr)
+        {
+            if (ad < 1 || dd < 1 || string.IsNullOrWhiteSpace(mn) || string.IsNullOrWhiteSpace(mr))
+            {
+                return "missing";
+            }
+            try
+            {
+                DeploymentTeamMember teamMember = new DeploymentTeamMember();
+                teamMember.TeamMemberRole = mr;
+                teamMember.AssignmentEventID = ad;
+                teamMember.DeploymentID = dd;
+                teamMember.ModifiedBy = HttpContext.User.Identity.Name;
+                teamMember.ModifiedTime = $"{DateTime.UtcNow.ToLongDateString()} {DateTime.UtcNow.ToLongTimeString()} + UTC";
+                teamMember.CreatedBy = HttpContext.User.Identity.Name;
+                teamMember.CreatedTime = $"{DateTime.UtcNow.ToLongDateString()} {DateTime.UtcNow.ToLongTimeString()} + UTC";
+
+                Person person = await _baseModelService.GetPersonbyNameAsync(mn);
+                if (person != null && !string.IsNullOrWhiteSpace(person.PersonID))
+                {
+                    teamMember.TeamMemberID = person.PersonID;
+
+                    var existing_entities = await _bamsManagerService.GetDeploymentTeamMembersByAssignmentEventIdAndPersonIdAsync(ad, person.PersonID);
+
+                    if (existing_entities == null || existing_entities.Count > 0)
                     {
-                        teamMember.TeamMemberID = person.PersonID;
-                        
-                        var existing_entities = await _bamsManagerService.GetDeploymentTeamMembersByAssignmentEventIdAndPersonIdAsync(model.AssignmentEventID, person.PersonID);
-                        
-                        if (existing_entities == null || existing_entities.Count > 0)
-                        {
-                            model.ViewModelWarningMessage = "Sorry, this member has already been deployed for this Assignment.";
-                        }
-                        else
-                        {
-                            Employee employee = await _employeeRecordService.GetEmployeeByIdAsync(person.PersonID);
-                            if(employee != null)
-                            {
-                                teamMember.TeamMemberUnit = employee.UnitName;
-                                teamMember.TeamMemberStation = employee.LocationName;
-                            }
-                            bool IsAdded = await _bamsManagerService.CreateDeploymentTeamMemberAsync(teamMember);
-                            if (IsAdded)
-                            {
-                                model.OperationIsSuccessful = true;
-                                model.ViewModelSuccessMessage = "New team member added successfully!";
-                            }
-                            else
-                            {
-                                model.ViewModelErrorMessage = "Sorry, an error was encountered. New team member could not be added.";
-                            }
-                        }
+                        return "exist"; //model.ViewModelWarningMessage = "Sorry, this member has already been deployed for this Assignment.";
                     }
                     else
                     {
-                        model.ViewModelErrorMessage = "Sorry, no record was found for the name you entered. Team Member was not added.";
+                        Employee employee = await _employeeRecordService.GetEmployeeByIdAsync(person.PersonID);
+                        if (employee != null)
+                        {
+                            teamMember.TeamMemberUnit = employee.UnitName;
+                            teamMember.TeamMemberStation = employee.LocationName;
+                        }
+                        bool IsAdded = await _bamsManagerService.CreateDeploymentTeamMemberAsync(teamMember);
+                        if (IsAdded)
+                        {
+                            return "done";
+                        }
+                        else
+                        {
+                            return "error";//model.ViewModelErrorMessage = "Sorry, an error was encountered. New team member could not be added.";
+                        }
                     }
                 }
-                catch (Exception ex)
+                else
                 {
-                    model.ViewModelErrorMessage = ex.Message;
+                    return "none"; //model.ViewModelErrorMessage = "Sorry, no record was found for the name you entered. Team Member was not added.";
                 }
             }
-            else
+            catch (Exception ex)
             {
-                model.ViewModelErrorMessage = $"Ooops! It appears some fields have missing or invalid values. Please correct this and try again.";
+                return "error";
             }
-            var entities = await _bamsManagerService.GetDeploymentTeamMembersByDeploymentIdAsync(model.DeploymentID);
-            teamMembers = entities.ToList();
-            ViewBag.TeamMembersList = teamMembers;
-            return View(model);
         }
 
+
+        [HttpPost]
         public string DeleteTeamMember(int td)
         {
-            if(td > 0)
+            if (td > 0)
             {
                 bool IsDeleted = _bamsManagerService.DeleteDeploymentTeamMemberAsync(td).Result;
                 if (IsDeleted) { return "done"; } else { return "error"; }
@@ -490,8 +551,8 @@ namespace IntranetPortal.Areas.BAMS.Controllers
             stdView.Options.WebPageWidth = 1024;
             var pdf = stdView.ConvertHtmlString(sb.ToString());
             var pdfbytes = pdf.Save();
-            
-            return File(pdfbytes,"application/pdf");
+
+            return File(pdfbytes, "application/pdf");
         }
         #endregion
 
@@ -517,17 +578,17 @@ namespace IntranetPortal.Areas.BAMS.Controllers
         public async Task<IActionResult> DeploymentEquipment(int dd, int ad)
         {
             DeploymentEquipmentViewModel model = new DeploymentEquipmentViewModel();
-            if(TempData["ErrorMessage"] != null)
+            if (TempData["ErrorMessage"] != null)
             {
                 model.ViewModelErrorMessage = TempData["ErrorMessage"].ToString();
             }
 
-            if(TempData["WarningMessage"] != null)
+            if (TempData["WarningMessage"] != null)
             {
                 model.ViewModelWarningMessage = TempData["WarningMessage"].ToString();
             }
 
-            if(TempData["SuccessMessage"] != null)
+            if (TempData["SuccessMessage"] != null)
             {
                 model.ViewModelSuccessMessage = TempData["SuccessMessage"].ToString();
             }
@@ -576,7 +637,7 @@ namespace IntranetPortal.Areas.BAMS.Controllers
                         else
                         {
                             var checkedout_entities = await _assetManagerService.GetAssetUsagesCheckedOutByAssetIdAsync(asset.AssetID);
-                            if(checkedout_entities != null && checkedout_entities.Count > 0)
+                            if (checkedout_entities != null && checkedout_entities.Count > 0)
                             {
                                 string reason = checkedout_entities.FirstOrDefault().Purpose;
                                 model.ViewModelWarningMessage = $"Sorry, this {assetTypeName} is currently Checked Out for {reason}. If you are sure it is currently not in use kindly Check it In before you proceed.";
@@ -611,6 +672,7 @@ namespace IntranetPortal.Areas.BAMS.Controllers
             return View(model);
         }
 
+
         [HttpGet]
         public async Task<IActionResult> DeploymentCheckOut(string id)
         {
@@ -620,8 +682,8 @@ namespace IntranetPortal.Areas.BAMS.Controllers
             int DeploymentID = 0;
             try
             {
-                if(TempData["BatchID"] != null) 
-                { 
+                if (TempData["BatchID"] != null)
+                {
                     DeploymentID = Convert.ToInt32(TempData["BatchID"]);
                     model.DeploymentID = DeploymentID;
                 }
@@ -651,6 +713,22 @@ namespace IntranetPortal.Areas.BAMS.Controllers
                 model.CheckOutCondition = asset.ConditionStatus;
                 model.UsageStartTime = DateTime.Now;
                 model.UsageEndTime = DateTime.Now;
+
+                switch (asset.ConditionStatus)
+                {
+                    case AssetCondition.BeyondRepair:
+                        model.CheckOutConditionFormatted = "Beyond Repair";
+                        break;
+                    case AssetCondition.InGoodCondition:
+                        model.CheckOutConditionFormatted = "In Good Condition";
+                        break;
+                    case AssetCondition.RequiresRepair:
+                        model.CheckOutConditionFormatted = "Requires Repair";
+                        break;
+                    default:
+                        model.CheckOutConditionFormatted = "Unspecified";
+                        break;
+                }
             }
             catch (Exception ex)
             {
@@ -688,7 +766,7 @@ namespace IntranetPortal.Areas.BAMS.Controllers
                     assetUsage.CheckedOutTime = DateTime.Now;
                     assetUsage.CheckedOutBy = HttpContext.User.Identity.Name;
                     assetUsage.CheckStatus = "Checked Out";
-                    
+
 
                     if (await _assetManagerService.CheckOutEquipmentAsync(assetUsage))
                     {
@@ -734,23 +812,27 @@ namespace IntranetPortal.Areas.BAMS.Controllers
             return RedirectToAction("DeploymentEquipment", new { dd = model.DeploymentID, ad = model.AssignmentEventID });
         }
 
-
-        public string DeleteEquipment(int qd)
+        public async Task<string> DeleteEquipment(int qd)
         {
             DeploymentEquipment deployedEquipment = new DeploymentEquipment();
             string modifiedBy = HttpContext.User.Identity.Name;
             if (qd > 0)
             {
-                deployedEquipment = _bamsManagerService.GetDeploymentEquipmentByIdAsync(qd).Result;
+                deployedEquipment = await _bamsManagerService.GetDeploymentEquipmentByIdAsync(qd);
                 if (deployedEquipment == null || string.IsNullOrWhiteSpace(deployedEquipment.AssetID))
                 { return "none"; }
+                int assetUsageId = default;
+                if (deployedEquipment.EquipmentUsageID.HasValue) { assetUsageId = deployedEquipment.EquipmentUsageID.Value; }
+                string previousLocation = deployedEquipment.PreviousLocation;
+                string previousAvailabilityStatus = deployedEquipment.PreviousAvailabilityStatus;
+                string equipmentId = deployedEquipment.AssetID;
                 bool checkOutIsCancelled = false;
-                bool deploymentIsDeleted = _bamsManagerService.DeleteDeploymentEquipmentAsync(qd).Result;
-                if (deploymentIsDeleted) 
+                bool deploymentIsDeleted = await _bamsManagerService.DeleteDeploymentEquipmentAsync(qd);
+                if (deploymentIsDeleted)
                 {
-                    checkOutIsCancelled = _assetManagerService.CancelCheckOutEquipmentAsync(deployedEquipment.EquipmentUsageID.Value, deployedEquipment.AssetID, deployedEquipment.PreviousLocation, deployedEquipment.PreviousAvailabilityStatus, modifiedBy).Result;
-                    return "done";  
-                } 
+                    checkOutIsCancelled = await _assetManagerService.CancelCheckOutEquipmentAsync(assetUsageId, equipmentId, deployedEquipment.PreviousLocation, previousAvailabilityStatus, modifiedBy);
+                    return "done";
+                }
                 else { return "error"; }
             }
             else

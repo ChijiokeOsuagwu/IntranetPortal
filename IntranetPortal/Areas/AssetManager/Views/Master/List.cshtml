@@ -1,49 +1,38 @@
 ﻿@model IntranetPortal.Areas.AssetManager.Models.AssetListViewModel
 @{
-    ViewData["Title"] = "OfficeManager | Assets List";
+    ViewData["Title"] = "OfficeManager | Assets Master List";
 }
 <div class="container">
-    <h4>Assets List</h4>
+    <h4>Assets Master List</h4>
     <hr />
     <div class="mb-1">
-        <form asp-area="AssetManager" asp-controller="Settings" asp-action="Assets" method="get">
+        <form asp-area="AssetManager" asp-controller="Master" asp-action="List" method="get">
             <a asp-area="AssetManager" asp-controller="Home" asp-action="Index" class="btn btn-dark" style="width:100px" title="Click to Go Back">
                 <span class="text-white">Back</span>
             </a>
-            <a asp-area="AssetManager" asp-controller="Settings" asp-action="AddAsset" class="btn btn-success pr-2" style="width:200px" title="Click to Add New Asset Type">
+            <a asp-area="AssetManager" asp-controller="Master" asp-action="AddAsset" class="btn btn-success" style="width:200px" title="Add New Asset">
                 <span class="text-white">New Asset</span>
             </a>
-            <select asp-for="sp" asp-items="@ViewBag.AssetTypesList" class="border-0" style="width:250px">
+            <select asp-for="ct" asp-items="@ViewBag.AssetCategoryList" class="border-0" style="width:200px">
+                <option value="">- Select Category -</option>
+            </select>
+            <select asp-for="tp" asp-items="@ViewBag.AssetTypeList" class="border-0" style="width:200px">
                 <option value="">- Select Type -</option>
             </select>
+            <input asp-for="an" placeholder="Enter Name" class="border-0" style="width:200px" />
             <input type="submit" value="Search" class="btn btn-dark" style="width:100px" />
         </form>
 
-        @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+        @if (!String.IsNullOrEmpty(ViewBag.ErrorMessage))
         {
             <div class="alert alert-danger alert-dismissible fade show" role="alert">
                 <i class="bi bi-x-circle"></i>
-                <span class="fw-bold">@Model.ViewModelErrorMessage</span>
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        }
-        @if (!String.IsNullOrEmpty(Model.ViewModelSuccessMessage))
-        {
-            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                <i class="bi bi-check-circle"></i>
-                <span class="fw-bold">@Model.ViewModelSuccessMessage</span>
+                <span class="fw-bold">@ViewBag.ErrorMessage</span>
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         }
     </div>
-    @if (Model == null)
-    {
-        <div class="alert alert-info fade show" role="alert">
-            <i class="bi bi-info-circle"></i>
-            <span class="fw-bold">No record was found.</span>
-        </div>
-    }
-    else if (Model.AssetList == null || Model.AssetList.Count < 1)
+    @if (Model.AssetList == null || Model.AssetList.Count < 1)
     {
         <div class="alert alert-info fade show" role="alert">
             <i class="bi bi-info-circle"></i>
@@ -64,10 +53,9 @@
                             <th></th>
                         </tr>
                     </thead>
-                    <tbody class="table-warning">
+                    <tbody class="table-light">
                         @foreach (var asset in Model.AssetList)
                         {
-
                             switch (asset.ConditionStatus)
                             {
                                 case AssetCondition.Unspecified:
@@ -92,21 +80,9 @@
                                         </td>
                                         <td>
                                             <div class="text-center">
-                                                <a asp-area="AssetManager" asp-controller="Home" asp-action="AssetDetails" asp-route-id="@asset.AssetID" title="Details" class="btn btn-xs btn-dark text-white" style="width:50px">
-                                                    <i class="bi bi-card-text fw-bolder" style="font-size: 0.7rem;"></i>
+                                                <a asp-area="AssetManager" asp-controller="Master" asp-action="Details" asp-route-id="@asset.AssetID" title="Details" class="btn btn-sm btn-dark text-white" >
+                                                    <span class="text-white fw-bold">Select</span>
                                                 </a>
-                                                @if (asset.UsageStatus == "Available" || asset.UsageStatus == "Booked")
-                                                {
-                                                    <a asp-area="AssetManager" asp-controller="Usage" asp-action="CheckOut" asp-route-id="@asset.AssetID" title="Check Out" class="btn btn-xs btn-danger text-white" style="width:50px">
-                                                        <i class="bi bi-box-arrow-left fw-bolder" style="font-size: 0.7rem;"></i>
-                                                    </a>
-                                                }
-                                                else
-                                                {
-                                                    <a asp-area="AssetManager" asp-controller="Usage" asp-action="CheckOutList" title="Check In" class="btn btn-xs btn-success text-white" style="width:50px">
-                                                        <i class="bi bi-box-arrow-in-right fw-bolder" style="font-size: 0.7rem;"></i>
-                                                    </a>
-                                                }
                                             </div>
                                         </td>
                                     </tr>
@@ -133,21 +109,9 @@
                                         </td>
                                         <td>
                                             <div class="text-center">
-                                                <a asp-area="AssetManager" asp-controller="Home" asp-action="AssetDetails" asp-route-id="@asset.AssetID" title="Details" class="btn btn-xs btn-dark text-white" style="width:50px">
-                                                    <i class="bi bi-card-text fw-bolder" style="font-size: 0.7rem;"></i>
+                                                <a asp-area="AssetManager" asp-controller="Master" asp-action="Details" asp-route-id="@asset.AssetID" title="Details" class="btn btn-sm btn-dark">
+                                                    <span class="text-white fw-bold">Select</span>
                                                 </a>
-                                                @if (asset.UsageStatus == "Available" || asset.UsageStatus == "Booked")
-                                                {
-                                                    <a asp-area="AssetManager" asp-controller="Usage" asp-action="CheckOut" asp-route-id="@asset.AssetID" title="Check Out" class="btn btn-xs btn-danger text-white" style="width:50px">
-                                                        <i class="bi bi-box-arrow-left fw-bolder" style="font-size: 0.7rem;"></i>
-                                                    </a>
-                                                }
-                                                else
-                                                {
-                                                    <a asp-area="AssetManager" asp-controller="Usage" asp-action="CheckOutList" title="Check In" class="btn btn-xs btn-success text-white" style="width:50px">
-                                                        <i class="bi bi-box-arrow-in-right fw-bolder" style="font-size: 0.7rem;"></i>
-                                                    </a>
-                                                }
                                             </div>
                                         </td>
                                     </tr>
@@ -174,21 +138,9 @@
                                         </td>
                                         <td>
                                             <div class="text-center">
-                                                <a asp-area="AssetManager" asp-controller="Home" asp-action="AssetDetails" asp-route-id="@asset.AssetID" title="Details" class="btn btn-xs btn-dark text-white" style="width:50px">
-                                                    <i class="bi bi-card-text fw-bolder" style="font-size: 0.7rem;"></i>
+                                                <a asp-area="AssetManager" asp-controller="Master" asp-action="Details" asp-route-id="@asset.AssetID" title="Details" class="btn btn-sm btn-dark">
+                                                    <span class="text-white fw-bold">Select</span>
                                                 </a>
-                                                @if (asset.UsageStatus == "Available" || asset.UsageStatus == "Booked")
-                                                {
-                                                    <a asp-area="AssetManager" asp-controller="Usage" asp-action="CheckOut" asp-route-id="@asset.AssetID" title="Check Out" class="btn btn-xs btn-danger text-white" style="width:50px">
-                                                        <i class="bi bi-box-arrow-left fw-bolder" style="font-size: 0.7rem;"></i>
-                                                    </a>
-                                                }
-                                                else
-                                                {
-                                                    <a asp-area="AssetManager" asp-controller="Usage" asp-action="CheckOutList" title="Check In" class="btn btn-xs btn-success text-white" style="width:50px">
-                                                        <i class="bi bi-box-arrow-in-right fw-bolder" style="font-size: 0.7rem;"></i>
-                                                    </a>
-                                                }
                                             </div>
                                         </td>
                                     </tr>
@@ -215,21 +167,9 @@
                                         </td>
                                         <td>
                                             <div class="text-center">
-                                                <a asp-area="AssetManager" asp-controller="Home" asp-action="AssetDetails" asp-route-id="@asset.AssetID" title="Details" class="btn btn-xs btn-dark text-white" style="width:50px">
-                                                    <i class="bi bi-card-text fw-bolder" style="font-size: 0.7rem;"></i>
+                                                <a asp-area="AssetManager" asp-controller="Master" asp-action="Details" asp-route-id="@asset.AssetID" title="Details" class="btn btn-sm btn-dark">
+                                                    <span class="text-white fw-bold">Select</span>
                                                 </a>
-                                                @if (asset.UsageStatus == "Available" || asset.UsageStatus == "Booked")
-                                                {
-                                                    <a asp-area="AssetManager" asp-controller="Usage" asp-action="CheckOut" asp-route-id="@asset.AssetID" title="Check Out" class="btn btn-xs btn-danger text-white" style="width:50px">
-                                                        <i class="bi bi-box-arrow-left fw-bolder" style="font-size: 0.7rem;"></i>
-                                                    </a>
-                                                }
-                                                else
-                                                {
-                                                    <a asp-area="AssetManager" asp-controller="Usage" asp-action="CheckOutList" title="Check In" class="btn btn-xs btn-success text-white" style="width:50px">
-                                                        <i class="bi bi-box-arrow-in-right fw-bolder" style="font-size: 0.7rem;"></i>
-                                                    </a>
-                                                }
                                             </div>
                                         </td>
                                     </tr>
@@ -256,21 +196,9 @@
                                         </td>
                                         <td>
                                             <div class="text-center">
-                                                <a asp-area="AssetManager" asp-controller="Home" asp-action="AssetDetails" asp-route-id="@asset.AssetID" title="Details" class="btn btn-xs btn-dark text-white" style="width:50px">
-                                                    <i class="bi bi-card-text fw-bolder" style="font-size: 0.7rem;"></i>
+                                                <a asp-area="AssetManager" asp-controller="Master" asp-action="Details" asp-route-id="@asset.AssetID" title="Details" class="btn btn-sm btn-dark">
+                                                    <span class="text-white fw-bold">Select</span>
                                                 </a>
-                                                @if (asset.UsageStatus == "Available" || asset.UsageStatus == "Booked")
-                                                {
-                                                    <a asp-area="AssetManager" asp-controller="Usage" asp-action="CheckOut" asp-route-id="@asset.AssetID" title="Check Out" class="btn btn-xs btn-danger text-white" style="width:50px">
-                                                        <i class="bi bi-box-arrow-left fw-bolder" style="font-size: 0.7rem;"></i>
-                                                    </a>
-                                                }
-                                                else
-                                                {
-                                                    <a asp-area="AssetManager" asp-controller="Usage" asp-action="CheckOutList" title="Check In" class="btn btn-xs btn-success text-white" style="width:50px">
-                                                        <i class="bi bi-box-arrow-in-right fw-bolder" style="font-size: 0.7rem;"></i>
-                                                    </a>
-                                                }
                                             </div>
                                         </td>
                                     </tr>
@@ -283,6 +211,10 @@
         </div>
     }
 </div>
+@section Scripts{
+    <script src="~/js/js_asm/asm_master_assets.js"></script>
+}
+
 
 
 

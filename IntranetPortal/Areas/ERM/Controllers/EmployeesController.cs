@@ -48,10 +48,148 @@ namespace IntranetPortal.Areas.ERM.Controllers
             if (!string.IsNullOrWhiteSpace(sn))
             {
                 employees = await _ermService.SearchEmployeesByNameAsync(sn);
-                if (employees != null) { ViewBag.EmployeeList = employees; }
+                if (employees != null)
+                {
+                    if (employees.Count == 1)
+                    {
+                        Employee employee = employees.First();
+                        return RedirectToAction("Profile", new { id = employee.EmployeeID });
+                    }
+                    ViewBag.EmployeeList = employees;
+                }
             }
             return View();
         }
+
+
+        [Authorize(Roles = "ERMHMPGVW, XYALLACCZ")]
+        public async Task<IActionResult> List(EmployeeListViewModel model)
+        {
+            List<Employee> employees = new List<Employee>();
+            if (model == null)
+            {
+                model = new EmployeeListViewModel();
+            }
+            else
+            {
+                if (string.IsNullOrWhiteSpace(model.CompanyCode))
+                {
+                    if (model.LocationID != null && model.LocationID > 0)
+                    {
+                        if(model.DepartmentID != null && model.DepartmentID > 0)
+                        {
+                            if(model.UnitID != null && model.UnitID > 0)
+                            {
+                                employees = await _ermService.GetEmployeesByLocationAsync(model.LocationID.Value, model.DepartmentID.Value, model.UnitID.Value);
+                            }
+                            else
+                            {
+                                employees = await _ermService.GetEmployeesByLocationAsync(model.LocationID.Value, model.DepartmentID.Value);
+                            }
+                        }
+                        else
+                        {
+                            if(model.UnitID != null && model.UnitID > 0)
+                            {
+                                employees = await _ermService.GetEmployeesByLocationAndUnitAsync(model.LocationID.Value, model.UnitID.Value);
+                            }
+                            else
+                            {
+                                employees = await _ermService.GetEmployeesByLocationAsync(model.LocationID.Value);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if (model.DepartmentID != null && model.DepartmentID > 0)
+                        {
+                            if (model.UnitID != null && model.UnitID > 0)
+                            {
+                                employees = await _ermService.GetEmployeesByUnitIDAsync(model.UnitID.Value);
+                            }
+                            else
+                            {
+                                employees = await _ermService.GetEmployeesByDepartmentIDAsync(model.DepartmentID.Value);
+                            }
+                        }
+                        else
+                        {
+                            if (model.UnitID != null && model.UnitID > 0)
+                            {
+                                employees = await _ermService.GetEmployeesByUnitIDAsync(model.UnitID.Value);
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    if (model.LocationID != null && model.LocationID > 0)
+                    {
+                        if (model.DepartmentID != null && model.DepartmentID > 0)
+                        {
+                            if (model.UnitID != null && model.UnitID > 0)
+                            {
+                                employees = await _ermService.GetEmployeesByCompanyAndUnitAsync(model.CompanyCode, model.LocationID.Value, model.UnitID.Value);
+                            }
+                            else
+                            {
+                                employees = await _ermService.GetEmployeesByCompanyAndLocationAsync(model.CompanyCode, model.LocationID.Value, model.DepartmentID.Value);
+                            }
+                        }
+                        else
+                        {
+                            if (model.UnitID != null && model.UnitID > 0)
+                            {
+                                employees = await _ermService.GetEmployeesByCompanyAndUnitAsync(model.CompanyCode, model.LocationID.Value, model.UnitID.Value);
+                            }
+                            else
+                            {
+                                employees = await _ermService.GetEmployeesByCompanyAndLocationAsync(model.CompanyCode, model.LocationID.Value);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if (model.DepartmentID != null && model.DepartmentID > 0)
+                        {
+                            if (model.UnitID != null && model.UnitID > 0)
+                            {
+                                employees = await _ermService.GetEmployeesByCompanyAndUnitAsync(model.CompanyCode, model.UnitID.Value);
+                            }
+                            else
+                            {
+                                employees = await _ermService.GetEmployeesByCompanyAndDepartmentAsync(model.CompanyCode, model.DepartmentID.Value);
+                            }
+                        }
+                        else
+                        {
+                            if (model.UnitID != null && model.UnitID > 0)
+                            {
+                                employees = await _ermService.GetEmployeesByCompanyAndUnitAsync(model.CompanyCode, model.UnitID.Value);
+                            }
+                            else
+                            {
+                                employees = await _ermService.GetEmployeesByCompanyAsync(model.CompanyCode);
+                            }
+                        }
+                    }
+                }
+            }
+
+            model.EmployeesList = employees;
+
+            var locations = await _globalSettingsService.GetAllLocationsAsync();
+            var companies = await _globalSettingsService.GetCompaniesAsync();
+            var units = await _globalSettingsService.GetUnitsAsync();
+            var depts = await _globalSettingsService.GetDepartmentsAsync();
+
+            ViewBag.LocationList = new SelectList(locations, "LocationID", "LocationName");
+            ViewBag.CompanyList = new SelectList(companies, "CompanyCode", "CompanyName");
+            ViewBag.DepartmentList = new SelectList(depts, "DepartmentID", "DepartmentName");
+            ViewBag.UnitList = new SelectList(units, "UnitID", "UnitName");
+            return View(model);
+        }
+
 
         [Authorize(Roles = "ERMSTFADN, XYALLACCZ")]
         public async Task<IActionResult> Create()
@@ -87,34 +225,15 @@ namespace IntranetPortal.Areas.ERM.Controllers
                 model.EmployeeID = ID;
                 try
                 {
-                    string uploadsFolder = string.Empty;
-                    string absoluteFilePath = string.Empty;
-                    if (model.Image != null && model.Image.Length > 0)
-                    {
-                        var supportedTypes = new[] { ".jpg", ".jpeg", ".png", ".gif" };
-                        FileInfo fileInfo = new FileInfo(model.Image.FileName);
-                        var fileExt = fileInfo.Extension;
-                        if (!supportedTypes.Contains(fileExt))
-                        {
-                            throw new Exception("Invalid image format. Only images of type jpg, jpeg, png, gif are permitted.");
-                        }
-                        uploadsFolder = "/uploads/erm/" + Guid.NewGuid().ToString() + fileExt;
-                        absoluteFilePath = Path.Combine(_webHostEnvironment.WebRootPath, uploadsFolder);
-                    }
                     Employee employee = model.ConvertToEmployee();
-                    employee.ImagePath = uploadsFolder;
                     employee.ModifiedBy = employee.EmployeeModifiedBy = HttpContext.User.Identity.Name;
-                    employee.ModifiedTime =  employee.EmployeeModifiedBy = $"{DateTime.UtcNow.ToLongDateString()} {DateTime.UtcNow.ToLongTimeString()} + GMT";
-                    employee.CreatedBy =  employee.EmployeeCreatedBy = HttpContext.User.Identity.Name;
+                    employee.ModifiedTime = employee.EmployeeModifiedBy = $"{DateTime.UtcNow.ToLongDateString()} {DateTime.UtcNow.ToLongTimeString()} + GMT";
+                    employee.CreatedBy = employee.EmployeeCreatedBy = HttpContext.User.Identity.Name;
                     employee.CreatedTime = employee.EmployeeCreatedDate = $"{DateTime.UtcNow.ToLongDateString()} {DateTime.UtcNow.ToLongTimeString()} + GMT";
 
                     bool EmployeeIsCreated = await _ermService.CreateEmployeeAsync(employee);
                     if (EmployeeIsCreated)
                     {
-                        if (model.Image != null && !string.IsNullOrWhiteSpace(uploadsFolder))
-                        {
-                            await model.Image.CopyToAsync(new FileStream(absoluteFilePath, FileMode.Create));
-                        }
                         return RedirectToAction("Profile", new { id = model.EmployeeID });
                     }
                     else
@@ -275,7 +394,9 @@ namespace IntranetPortal.Areas.ERM.Controllers
             EmployeeProfileViewModel model = new EmployeeProfileViewModel();
             try
             {
-                Employee employee = await _ermService.GetEmployeeByIdAsync(id);
+                Employee employee = new Employee();
+                employee = await _ermService.GetEmployeeByIdAsync(id);
+
                 model.Address = employee.Address;
                 model.CompanyName = employee.CompanyName;
                 model.CurrentDesignation = employee.CurrentDesignation;
@@ -314,7 +435,7 @@ namespace IntranetPortal.Areas.ERM.Controllers
                 { model.StartUpDateFormatted = $"{employee.StartUpDate.Value.ToLongDateString()}"; }
                 else { model.StartUpDateFormatted = string.Empty; }
 
-                if (employee.BirthDay.HasValue && employee.BirthDay > 0 && employee.BirthMonth.HasValue && employee.BirthMonth > 0)
+                if (employee.BirthDay != null && employee.BirthDay > 0 && employee.BirthMonth != null && employee.BirthMonth > 0)
                 {
                     DateTime dateOfBirth = new DateTime(2020, employee.BirthMonth.Value, employee.BirthDay.Value);
                     model.DateOfBirth = $"{dateOfBirth.ToString("MMMM")} {employee.BirthDay.Value.ToString()}";
@@ -322,15 +443,15 @@ namespace IntranetPortal.Areas.ERM.Controllers
 
                 if (employee.LengthOfService != null && employee.LengthOfService.Value > 0)
                 {
-                    if (employee.LengthOfService.Value < 364) { model.LengthOfServiceFormatted = $"{employee.LengthOfService} days"; }
+                    if (employee.LengthOfService.Value < 365) { model.LengthOfServiceFormatted = $"{employee.LengthOfService} days"; }
                     else
                     {
-                        model.LengthOfServiceFormatted = $"{employee.LengthOfService.Value / 364} years {employee.LengthOfService % 364} days";
+                        model.LengthOfServiceFormatted = $"~ {employee.LengthOfService.Value / 365} years {employee.LengthOfService % 365} days";
                     }
                 }
                 else { model.LengthOfServiceFormatted = "0 days"; }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 StringBuilder sb = new StringBuilder();
                 sb.AppendLine("Sorry an error was encountered while attempting to retrieve the record.");
@@ -409,7 +530,7 @@ namespace IntranetPortal.Areas.ERM.Controllers
             }
             return View(model);
         }
-        
+
         [HttpPost]
         public async Task<IActionResult> Delete(EmployeeProfileViewModel model)
         {
@@ -432,6 +553,101 @@ namespace IntranetPortal.Areas.ERM.Controllers
                 sb.AppendLine("Sorry an error was encountered while attempting to retrieve the record.");
                 sb.Append(ex.Message);
                 model.ViewModelErrorMessage = sb.ToString();
+            }
+            return View(model);
+        }
+
+        public async Task<IActionResult> UploadImage(string id, string nm)
+        {
+            UploadImageViewModel model = new UploadImageViewModel();
+            if (!string.IsNullOrWhiteSpace(id))
+            {
+                Employee employee = await _ermService.GetEmployeeByIdAsync(id);
+                if (employee != null)
+                {
+                    model.OldImagePath = employee.ImagePath;
+                }
+            }
+            model.EmployeeID = id;
+            model.EmployeeName = nm;
+            return View(model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> UploadImage(UploadImageViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                model.ViewModelErrorMessage = "Sorry, image cannot be uploaded. Some key parameters are missing. Please try again.";
+                return View(model);
+            }
+
+            try
+            {
+                string uploadsFolder = null;
+                string absoluteFilePath = null;
+
+                if (model.UploadedImage != null && model.UploadedImage.Length > 0)
+                {
+                    if (model.UploadedImage.Length / (1048576) > 1)
+                    {
+                        model.ViewModelErrorMessage = "Sorry, this image is too large. Image must not exceed 1MB.";
+                        return View(model);
+                    }
+                    var supportedTypes = new[] { ".jpg", ".jpeg", ".png", ".gif" };
+                    FileInfo fileInfo = new FileInfo(model.UploadedImage.FileName);
+                    var fileExt = fileInfo.Extension;
+                    if (!supportedTypes.Contains(fileExt))
+                    {
+                        model.ViewModelErrorMessage = "Sorry, invalid image format. Only images of type jpg, jpeg, png, gif are permitted.";
+                        return View(model);
+                    }
+                    if (!string.IsNullOrWhiteSpace(model.OldImagePath))
+                    {
+                        string newImagePath = model.OldImagePath.Substring(1);
+                        string newImageFilePath = Path.Combine(_webHostEnvironment.WebRootPath, newImagePath);
+                        System.IO.File.Delete(newImageFilePath);
+                    }
+
+                    uploadsFolder = "uploads/erm/" + Guid.NewGuid().ToString() + fileExt; //"_" + model.ImageUpload.FileName;
+                    absoluteFilePath = Path.Combine(_webHostEnvironment.WebRootPath, uploadsFolder);
+                    string uploadFolderPath = Path.Combine(_webHostEnvironment.WebRootPath, "uploads/erm/");
+                    //FileInfo file = new FileInfo(absoluteFilePath);
+                    if (!Directory.Exists(uploadFolderPath))
+                    {
+                        Directory.CreateDirectory(absoluteFilePath);
+                    }
+
+                    await model.UploadedImage.CopyToAsync(new FileStream(absoluteFilePath, FileMode.Create));
+                }
+
+                string employeeId = model.EmployeeID;
+                string imagePath = "/" + uploadsFolder;
+                string updatedBy = HttpContext.User.Identity.Name;
+
+                if (await _ermService.UpdateEmployeeImagePathAsync(employeeId, imagePath, updatedBy))
+                {
+                    model.OperationIsCompleted = true;
+                    model.OperationIsSuccessful = true;
+                    model.ViewModelSuccessMessage = $"Image was uploaded successfully!";
+                }
+                else
+                {
+                    if (!string.IsNullOrEmpty(absoluteFilePath))
+                    {
+                        FileInfo file = new FileInfo(absoluteFilePath);
+                        if (file.Exists)
+                        {
+                            file.Delete();
+                        }
+                    }
+                    model.ViewModelErrorMessage = $"Error! An error was encountered. Image upload failed.";
+                }
+            }
+            catch (Exception ex)
+            {
+                model.ViewModelErrorMessage = ex.Message;
+                model.OperationIsCompleted = true;
             }
             return View(model);
         }

@@ -91,9 +91,10 @@
                         <div><span asp-validation-for="CheckedOutTo" class="text-danger"></span></div>
                     </div>
                     <div class="col-md-6  mb-1">
-                        <label asp-for="CheckOutCondition" class="form-label text-white fw-bold"></label><span class="text-white">*</span>
-                        <input asp-for="CheckOutCondition" class="form-control fw-bold" readonly="readonly">
-                        <div><span asp-validation-for="CheckOutCondition" class="text-danger"></span></div>
+                        <input type="hidden" asp-for="CheckOutCondition" />
+                        <label asp-for="CheckOutConditionFormatted" class="form-label text-white fw-bold"></label><span class="text-white">*</span>
+                        <input asp-for="CheckOutConditionFormatted" class="form-control fw-bold" readonly="readonly">
+                        <div><span asp-validation-for="CheckOutConditionFormatted" class="text-danger"></span></div>
                     </div>
                 </div>
                 <div class="row">

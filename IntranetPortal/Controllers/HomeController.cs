@@ -45,14 +45,17 @@ namespace IntranetPortal.Controllers
             if (await _baseModelService.DbConnectionIsOpenAsync())
             {
                 var bs = await _contentManager.GetUnhiddenBannersAsync();
-                var ts = await _contentManager.GetUnhiddenArticlesAsync();
+                var ts = await _contentManager.GetAllOtherUnhiddenPostsAsync();
+                var an = await _contentManager.GetUnhiddenAnnouncementsAsync();
+
                 if (!string.IsNullOrWhiteSpace(recipientId))
                 {
                     ViewData["UnreadMessageCount"] = await _baseModelService.GetUnreadMessagesCount(recipientId);
                 }
 
                 model.Banners = bs.ToList();
-                model.Articles = ts.ToList();
+                model.PostList = ts.ToList();
+                model.Announcements = an.ToList();
             }
             else { model.ViewModelErrorMessage = $"Connection could not be established with the database. Please try refreshing the page."; }
 
@@ -174,21 +177,33 @@ namespace IntranetPortal.Controllers
             return View();
         }
 
-        public async Task<IActionResult> Messages()
+        public async Task<IActionResult> MessageList(string tp = null)
         {
-            MessageListViewModel model = new MessageListViewModel();
+            MessagesListViewModel model = new MessagesListViewModel();
             var claims = HttpContext.User.Claims.ToList();
             string recipientId = claims?.Where(x => x.Type == ClaimTypes.NameIdentifier).Select(c => c.Value).SingleOrDefault();
 
             model.MessageRecipientID = recipientId;
-            model.ReadMessages = await _baseModelService.GetReadMessages(recipientId);
-            model.UnreadMessages = await _baseModelService.GetUnreadMessages(recipientId);
+            switch (tp)
+            {
+                case "read":
+                    model.MessageList = await _baseModelService.GetReadMessages(recipientId);
+                    break;
+                case "unread":
+                    model.MessageList = await _baseModelService.GetUnreadMessages(recipientId);
+                    break;
+                default:
+                    model.MessageList = await _baseModelService.GetAllMessages(recipientId);
+                    break;
+            }
+            
             model.UnreadMessagesCount = await _baseModelService.GetUnreadMessagesCount(recipientId);
             ViewData["UnreadMessageCount"] = model.UnreadMessagesCount;
             model.ReadMessagesCount = await _baseModelService.GetReadMessagesCount(recipientId);
             model.TotalMesssagesCount = await _baseModelService.GetTotalMessagesCount(recipientId);
             return View(model);
         }
+
 
         [HttpPost]
         public async Task<string> DeleteMessage(int id)
@@ -252,6 +267,28 @@ namespace IntranetPortal.Controllers
                 return "none";
             }
         }
+
+        [HttpPost]
+        public async Task<string> ReadMessage(int id)
+        {
+            if (id > 0)
+            {
+                bool IsRead = await _baseModelService.UpdateReadStatusAsync(id);
+                if (IsRead)
+                {
+                    return "done";
+                }
+                else
+                {
+                    return "failed";
+                }
+            }
+            else
+            {
+                return "none";
+            }
+        }
+
 
         public IActionResult Blank()
         {

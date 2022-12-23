@@ -8,15 +8,24 @@ namespace IntranetPortal.Base.Repositories.ContentManagerRepositories
 {
     public interface IPostRepository
     {
+        #region Posts Action Methods
         Task<bool> AddPostAsync(Post post);
         Task<bool> EditPostAsync(Post post);
         Task<bool> DeletePostAsync(int id);
         Task<Post> GetPostByIdAsync(int id);
-        Task<IList<Post>> GetAllPostsAsync();
+        Task<IList<Post>> GetAllAsync();
+        Task<IList<Post>> GetPostsWithoutBannersAndAnnouncementsAsync();
+        Task<IList<Post>> GetUnhiddenPostsWithoutBannersAndAnnouncementsAsync();
+        Task<IList<Post>> GetByTypeIdAsync(int typeId);
+        Task<IList<Post>> GetByTitleAsync(string postTitle);
+        Task<IList<Post>> GetAllAnnouncementsAsync();
+        Task<IList<Post>> GetUnhiddenAnnouncementsAsync();
+
         Task<PostDetail> GetPostDetailsByIdAsync(int id);
         Task<bool> AddPostDetailAsync(int id, string htmlContent, string modifiedBy, DateTime modifiedDate);
+        #endregion
 
-
+        #region Other Action Methods
         Task<IList<Post>> GetAllBannersAsync();
         Task<IList<Post>> GetUnhiddenBannersAsync();
         Task<IList<Post>> GetAllArticlesAsync();
@@ -24,5 +33,7 @@ namespace IntranetPortal.Base.Repositories.ContentManagerRepositories
         Task<IList<Post>> GetCelebrantsAsync();
         Task<IList<Post>> GetAnnouncementsAsync();
         Task<IList<Post>> GetEventsAsync();
+
+        #endregion
     }
 }

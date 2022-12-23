@@ -340,6 +340,154 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
             return assetMovementList;
         }
 
+        public async Task<IList<AssetMovement>> GetByAssetIdAndYearAsync(string assetId, int movementYear)
+        {
+            List<AssetMovement> assetMovementList = new List<AssetMovement>();
+            if (string.IsNullOrEmpty(assetId)) { throw new ArgumentNullException(nameof(assetId)); }
+            if(movementYear < 1) { throw new ArgumentException(nameof(movementYear)); }
+
+            var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
+            StringBuilder sb = new StringBuilder();
+            sb.Append("SELECT m.mvt_hst_id, m.asm_asst_id, m.mvt_fr_loc, m.mvt_to_loc, m.mvt_dt, m.mvt_pps, ");
+            sb.Append("m.ass_cndt, m.aprv_by, m.mvd_by, m.commnts, m.lggd_by, m.lggd_dt, m.md_by, m.md_dt, ");
+            sb.Append("m.asst_typ_id, m.asst_ctg_id, m.mvt_sts, a.asst_nm, a.asst_ds, a.cnd_sts, t.typ_nm, ");
+            sb.Append("c.asst_ctgs_nm FROM public.asm_mvt_hst m ");
+            sb.Append("INNER JOIN public.asm_stt_asst a ON m.asm_asst_id = a.asst_id ");
+            sb.Append("INNER JOIN public.asm_stt_typs t ON m.asst_typ_id = t.typ_id ");
+            sb.Append("INNER JOIN public.asm_stt_ctgs c ON m.asst_ctg_id = c.asst_ctgs_id ");
+            sb.Append("WHERE (m.asm_asst_id = @asm_asst_id) ");
+            sb.Append("AND ((EXTRACT(YEAR FROM m.mvt_dt))::INTEGER = @yr) ");
+            sb.Append("ORDER BY m.mvt_hst_id DESC;");
+            string query = sb.ToString();
+            try
+            {
+                await conn.OpenAsync();
+                // Retrieve all rows
+                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+                {
+                    var asm_asst_id = cmd.Parameters.Add("@asm_asst_id", NpgsqlDbType.Text);
+                    var yr = cmd.Parameters.Add("@yr", NpgsqlDbType.Integer);
+                    await cmd.PrepareAsync();
+                    asm_asst_id.Value = assetId;
+                    yr.Value = movementYear;
+
+                    using (var reader = await cmd.ExecuteReaderAsync())
+                        while (await reader.ReadAsync())
+                        {
+                            assetMovementList.Add(new AssetMovement()
+                            {
+                                AssetMovementID = reader["mvt_hst_id"] == DBNull.Value ? 0 : (int)reader["mvt_hst_id"],
+                                AssetID = reader["asm_asst_id"] == DBNull.Value ? string.Empty : reader["asm_asst_id"].ToString(),
+                                AssetName = reader["asst_nm"] == DBNull.Value ? string.Empty : reader["asst_nm"].ToString(),
+                                AssetDescription = reader["asst_ds"] == DBNull.Value ? string.Empty : reader["asst_ds"].ToString(),
+                                ApprovedBy = reader["aprv_by"] == DBNull.Value ? string.Empty : reader["aprv_by"].ToString(),
+                                AssetConditionDescription = reader["ass_cndt"] == DBNull.Value ? string.Empty : reader["ass_cndt"].ToString(),
+                                AssetConditionStatus = reader["cnd_sts"] == DBNull.Value ? AssetCondition.Unspecified : (AssetCondition)reader["cnd_sts"],
+                                MovedFromLocationName = reader["mvt_fr_loc"] == DBNull.Value ? string.Empty : reader["mvt_fr_loc"].ToString(),
+                                MovedToLocationName = reader["mvt_to_loc"] == DBNull.Value ? string.Empty : reader["mvt_to_loc"].ToString(),
+                                MovedOn = reader["mvt_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["mvt_dt"],
+                                MovementPurpose = reader["mvt_pps"] == DBNull.Value ? string.Empty : reader["mvt_pps"].ToString(),
+                                MovementStatus = reader["mvt_sts"] == DBNull.Value ? string.Empty : reader["mvt_sts"].ToString(),
+                                LoggedTime = reader["lggd_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["lggd_dt"],
+                                SupervisedBy = reader["mvd_by"] == DBNull.Value ? string.Empty : reader["mvd_by"].ToString(),
+                                Comments = reader["commnts"] == DBNull.Value ? string.Empty : reader["commnts"].ToString(),
+                                LoggedBy = reader["lggd_by"] == DBNull.Value ? string.Empty : reader["lggd_by"].ToString(),
+                                AssetTypeID = reader["asst_typ_id"] == DBNull.Value ? 0 : (int)reader["asst_typ_id"],
+                                AssetTypeName = reader["typ_nm"] == DBNull.Value ? string.Empty : reader["typ_nm"].ToString(),
+                                AssetCategoryID = reader["asst_ctg_id"] == DBNull.Value ? 0 : (int)reader["asst_ctg_id"],
+                                AssetCategoryName = reader["asst_ctgs_nm"] == DBNull.Value ? string.Empty : reader["asst_ctgs_nm"].ToString(),
+                                ModifiedBy = reader["md_by"] == DBNull.Value ? string.Empty : reader["md_by"].ToString(),
+                                ModifiedTime = reader["md_dt"] == DBNull.Value ? string.Empty : reader["md_dt"].ToString(),
+                            });
+
+                        }
+                }
+                await conn.CloseAsync();
+            }
+            catch (Exception ex)
+            {
+                await conn.CloseAsync();
+                throw new Exception(ex.Message);
+            }
+            return assetMovementList;
+        }
+
+        public async Task<IList<AssetMovement>> GetByAssetIdAndYearAndMonthAsync(string assetId, int movementYear, int movementMonth)
+        {
+            List<AssetMovement> assetMovementList = new List<AssetMovement>();
+            if (string.IsNullOrEmpty(assetId)) { throw new ArgumentNullException(nameof(assetId)); }
+            if (movementYear < 1) { throw new ArgumentException(nameof(movementYear)); }
+            if (movementMonth < 1) { throw new ArgumentException(nameof(movementMonth)); }
+
+            var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
+            StringBuilder sb = new StringBuilder();
+            sb.Append("SELECT m.mvt_hst_id, m.asm_asst_id, m.mvt_fr_loc, m.mvt_to_loc, m.mvt_dt, m.mvt_pps, ");
+            sb.Append("m.ass_cndt, m.aprv_by, m.mvd_by, m.commnts, m.lggd_by, m.lggd_dt, m.md_by, m.md_dt, ");
+            sb.Append("m.asst_typ_id, m.asst_ctg_id, m.mvt_sts, a.asst_nm, a.asst_ds, a.cnd_sts, t.typ_nm, ");
+            sb.Append("c.asst_ctgs_nm FROM public.asm_mvt_hst m ");
+            sb.Append("INNER JOIN public.asm_stt_asst a ON m.asm_asst_id = a.asst_id ");
+            sb.Append("INNER JOIN public.asm_stt_typs t ON m.asst_typ_id = t.typ_id ");
+            sb.Append("INNER JOIN public.asm_stt_ctgs c ON m.asst_ctg_id = c.asst_ctgs_id ");
+            sb.Append("WHERE (m.asm_asst_id = @asm_asst_id) ");
+            sb.Append("AND ((EXTRACT(YEAR FROM m.mvt_dt))::INTEGER = @yr) ");
+            sb.Append("AND ((EXTRACT(MONTH FROM m.mvt_dt))::INTEGER = @mn) ");
+            sb.Append("ORDER BY m.mvt_hst_id DESC;");
+            string query = sb.ToString();
+            try
+            {
+                await conn.OpenAsync();
+                // Retrieve all rows
+                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+                {
+                    var asm_asst_id = cmd.Parameters.Add("@asm_asst_id", NpgsqlDbType.Text);
+                    var yr = cmd.Parameters.Add("@yr", NpgsqlDbType.Integer);
+                    var mn = cmd.Parameters.Add("@mn", NpgsqlDbType.Integer);
+                    await cmd.PrepareAsync();
+                    asm_asst_id.Value = assetId;
+                    yr.Value = movementYear;
+                    mn.Value = movementMonth;
+
+                    using (var reader = await cmd.ExecuteReaderAsync())
+                        while (await reader.ReadAsync())
+                        {
+                            assetMovementList.Add(new AssetMovement()
+                            {
+                                AssetMovementID = reader["mvt_hst_id"] == DBNull.Value ? 0 : (int)reader["mvt_hst_id"],
+                                AssetID = reader["asm_asst_id"] == DBNull.Value ? string.Empty : reader["asm_asst_id"].ToString(),
+                                AssetName = reader["asst_nm"] == DBNull.Value ? string.Empty : reader["asst_nm"].ToString(),
+                                AssetDescription = reader["asst_ds"] == DBNull.Value ? string.Empty : reader["asst_ds"].ToString(),
+                                ApprovedBy = reader["aprv_by"] == DBNull.Value ? string.Empty : reader["aprv_by"].ToString(),
+                                AssetConditionDescription = reader["ass_cndt"] == DBNull.Value ? string.Empty : reader["ass_cndt"].ToString(),
+                                AssetConditionStatus = reader["cnd_sts"] == DBNull.Value ? AssetCondition.Unspecified : (AssetCondition)reader["cnd_sts"],
+                                MovedFromLocationName = reader["mvt_fr_loc"] == DBNull.Value ? string.Empty : reader["mvt_fr_loc"].ToString(),
+                                MovedToLocationName = reader["mvt_to_loc"] == DBNull.Value ? string.Empty : reader["mvt_to_loc"].ToString(),
+                                MovedOn = reader["mvt_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["mvt_dt"],
+                                MovementPurpose = reader["mvt_pps"] == DBNull.Value ? string.Empty : reader["mvt_pps"].ToString(),
+                                MovementStatus = reader["mvt_sts"] == DBNull.Value ? string.Empty : reader["mvt_sts"].ToString(),
+                                LoggedTime = reader["lggd_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["lggd_dt"],
+                                SupervisedBy = reader["mvd_by"] == DBNull.Value ? string.Empty : reader["mvd_by"].ToString(),
+                                Comments = reader["commnts"] == DBNull.Value ? string.Empty : reader["commnts"].ToString(),
+                                LoggedBy = reader["lggd_by"] == DBNull.Value ? string.Empty : reader["lggd_by"].ToString(),
+                                AssetTypeID = reader["asst_typ_id"] == DBNull.Value ? 0 : (int)reader["asst_typ_id"],
+                                AssetTypeName = reader["typ_nm"] == DBNull.Value ? string.Empty : reader["typ_nm"].ToString(),
+                                AssetCategoryID = reader["asst_ctg_id"] == DBNull.Value ? 0 : (int)reader["asst_ctg_id"],
+                                AssetCategoryName = reader["asst_ctgs_nm"] == DBNull.Value ? string.Empty : reader["asst_ctgs_nm"].ToString(),
+                                ModifiedBy = reader["md_by"] == DBNull.Value ? string.Empty : reader["md_by"].ToString(),
+                                ModifiedTime = reader["md_dt"] == DBNull.Value ? string.Empty : reader["md_dt"].ToString(),
+                            });
+
+                        }
+                }
+                await conn.CloseAsync();
+            }
+            catch (Exception ex)
+            {
+                await conn.CloseAsync();
+                throw new Exception(ex.Message);
+            }
+            return assetMovementList;
+        }
+
         #endregion
 
         //============== Asset Movement CRUD Methods Starts Here ==========================//

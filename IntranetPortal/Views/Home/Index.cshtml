@@ -4,7 +4,7 @@
     Layout = "~/Views/Shared/_BlueLayout.cshtml";
 }
 <header>
-    @if (Model == null || Model.Banners.Count < 1)
+    @if (Model == null || Model.Banners == null || Model.Banners.Count < 1)
     {
         <div id="carouselExampleCaptions" class="carousel slide" data-bs-ride="carousel">
             <div class="carousel-indicators">
@@ -103,172 +103,129 @@
         </div>
     }
 </header>
+
 <!-- Page Content-->
-<section class="py-3">
-    @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
-    {
+@if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+{
+    <div class="row">
         <div class="alert alert-danger alert-dismissible fade show" role="alert">
             <i class="bi bi-x-circle"></i>
             <span class="fw-bold">@Model.ViewModelErrorMessage</span>
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
-    }
-    @if (Model != null && Model.Announcements != null && Model.Announcements.Count > 0)
-    {
+    </div>
+    <hr class="my-0" />
+}
+@if (Model != null && Model.Announcements != null && Model.Announcements.Count > 0)
+{
+    <section class="py-3">
         <div class="row">
-            <div class="card h-100">
-                <div class="card-header bg-info">
-                    <h4 class="text-white">
-                        <i class="fas fa-exclamation-circle"></i>
-                        Important Notice!
-                    </h4>
-                </div>
-                <div class="card-body bg-light">
-                    <p class="card-text text-white">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Sapiente esse necessitatibus neque.</p>
-                </div>
-            </div>
-        </div>
-        <hr />
-    }
-
-    @if (Model != null && Model.Articles != null && Model.Articles.Count > 0)
-    {
-        <div class="row">
-            <h1 class="mb-4">Articles</h1>
-            @foreach (var article in Model.Articles)
+            @foreach (var announcement in Model.Announcements)
             {
-                <div class="col-lg-4 mb-4 mb-lg-0">
+                <div class="col-lg-4 col-sm-6 mb-4">
                     <div class="card h-100">
-                        <h3 class="card-header">@article.PostTitle</h3>
-                        <div class="card-body">
-                            <p class="card-text">
-                                @article.PostSummary
-                                &nbsp; <a asp-area="" asp-controller="Home" asp-action="Read" asp-route-id="@article.PostId"><span class="text-primary fw-bold">Read More...</span></a>
-                            </p>
+                        <div class="card-header bg-info">
+                            <h4 class="text-white">
+                                <i class="fas fa-exclamation-circle"></i>
+                                Important Notice!
+                            </h4>
+                        </div>
+                        <div class="card-body bg-light">
+                            <p class="card-text text-white">@announcement.PostSummary</p>
                         </div>
                     </div>
                 </div>
             }
         </div>
-    }
-    else
-    {
-        <div class="row">
-            <h1 class="mb-4">Articles</h1>
-            <div class="col-lg-4 mb-4 mb-lg-0">
-                <div class="card h-100">
-                    <h4 class="card-header">Card Title</h4>
-                    <div class="card-body"><p class="card-text">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Reiciendis ipsam eos, nam perspiciatis natus commodi similique totam consectetur praesentium molestiae atque exercitationem ut consequuntur, sed eveniet, magni nostrum sint fuga.</p></div>
-                    <div class="card-footer"><a class="btn btn-primary" href="#!">Learn More</a></div>
-                </div>
-            </div>
-            <div class="col-lg-4 mb-4 mb-lg-0">
-                <div class="card h-100">
-                    <h4 class="card-header">Card Title</h4>
-                    <div class="card-body"><p class="card-text">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Sapiente esse necessitatibus neque.</p></div>
-                    <div class="card-footer"><a class="btn btn-primary" href="#!">Learn More</a></div>
-                </div>
-            </div>
-            <div class="col-lg-4 mb-4 mb-lg-0">
-                <div class="card h-100">
-                    <h4 class="card-header">Card Title</h4>
-                    <div class="card-body"><p class="card-text">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Sapiente esse necessitatibus neque.</p></div>
-                    <div class="card-footer"><a class="btn btn-primary" href="#!">Learn More</a></div>
-                </div>
-            </div>
-        </div>
-    }
-</section>
-<hr class="my-0" />
-<!-- Portfolio Section-->
-<section class="py-5 bg-light">
-    <h2 class="mb-4">Celebrants</h2>
+        <hr class="my-0" />
+    </section>
+}
+<section class="py-2 bg-light">
     <div class="row">
-        <div class="col-lg-4 col-sm-6 mb-4">
-            <div class="card h-100">
-                <a href="#!"><img class="card-img-top" src="~/lib/startbootstrap/img/700x400.png" alt="..." /></a>
-                <div class="card-body">
-                    <h4 class="card-title"><a href="#!">Project One</a></h4>
-                    <p class="card-text">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Amet numquam aspernatur eum quasi sapiente nesciunt? Voluptatibus sit, repellat sequi itaque deserunt, dolores in, nesciunt, illum tempora ex quae? Nihil, dolorem!</p>
+        <!-- Portfolio Section-->
+        @if (Model != null && Model.PostList != null && Model.PostList.Count > 0)
+        {
+            @foreach (var post in Model.PostList)
+            {
+                <div class="col-lg-4 col-sm-6 mb-4">
+                    <div class="card h-100">
+                        @if (!string.IsNullOrWhiteSpace(post.ImagePath))
+                        {
+                            <img class="card-img-top" src="/@post.ImagePath" style="width:700px; height:450px" alt="Post Image" />
+                        }
+                        <div class="card-body">
+                            <h3 class="card-title">@post.PostTitle</h3>
+                            <p class="card-text" style="font-size:1.2rem">@post.PostSummary
+                                <a class="btn btn-light" asp-area="" asp-controller="Home" asp-action="Read" asp-route-id="@post.PostId"><span class="text-secondary">Read More....</span></a>
+                            </p>
+                            
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="col-lg-4 col-sm-6 mb-4">
+                <div class="card h-100">
+                    <a href="#!"><img class="card-img-top" src="~/lib/startbootstrap/img/700x400.png" alt="..." /></a>
+                    <div class="card-body">
+                        <h4 class="card-title"><a href="#!">Project Two</a></h4>
+                        <p class="card-text">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam viverra euismod odio, gravida pellentesque urna varius vitae.</p>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="col-lg-4 col-sm-6 mb-4">
-            <div class="card h-100">
-                <a href="#!"><img class="card-img-top" src="~/lib/startbootstrap/img/700x400.png" alt="..." /></a>
-                <div class="card-body">
-                    <h4 class="card-title"><a href="#!">Project Two</a></h4>
-                    <p class="card-text">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam viverra euismod odio, gravida pellentesque urna varius vitae.</p>
+            <div class="col-lg-4 col-sm-6 mb-4">
+                <div class="card h-100">
+                    <a href="#!"><img class="card-img-top" src="~/lib/startbootstrap/img/700x400.png" alt="..." /></a>
+                    <div class="card-body">
+                        <h4 class="card-title"><a href="#!">Project Two</a></h4>
+                        <p class="card-text">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam viverra euismod odio, gravida pellentesque urna varius vitae.</p>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="col-lg-4 col-sm-6 mb-4">
-            <div class="card h-100">
-                <a href="#!"><img class="card-img-top" src="~/lib/startbootstrap/img/700x400.png" alt="..." /></a>
-                <div class="card-body">
-                    <h4 class="card-title"><a href="#!">Project Three</a></h4>
-                    <p class="card-text">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quos quisquam, error quod sed cumque, odio distinctio velit nostrum temporibus necessitatibus et facere atque iure perspiciatis mollitia recusandae vero vel quam!</p>
+            <div class="col-lg-4 col-sm-6 mb-4">
+                <div class="card h-100">
+                    <a href="#!"><img class="card-img-top" src="~/lib/startbootstrap/img/700x400.png" alt="..." /></a>
+                    <div class="card-body">
+                        <h4 class="card-title"><a href="#!">Project Three</a></h4>
+                        <p class="card-text">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quos quisquam, error quod sed cumque, odio distinctio velit nostrum temporibus necessitatibus et facere atque iure perspiciatis mollitia recusandae vero vel quam!</p>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="col-lg-4 col-sm-6 mb-4">
-            <div class="card h-100">
-                <a href="#!"><img class="card-img-top" src="~/lib/startbootstrap/img/700x400.png" alt="..." /></a>
-                <div class="card-body">
-                    <h4 class="card-title"><a href="#!">Project Four</a></h4>
-                    <p class="card-text">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam viverra euismod odio, gravida pellentesque urna varius vitae.</p>
+            <div class="col-lg-4 col-sm-6 mb-4">
+                <div class="card h-100">
+                    <a href="#!"><img class="card-img-top" src="~/lib/startbootstrap/img/700x400.png" alt="..." /></a>
+                    <div class="card-body">
+                        <h4 class="card-title"><a href="#!">Project Four</a></h4>
+                        <p class="card-text">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam viverra euismod odio, gravida pellentesque urna varius vitae.</p>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="col-lg-4 col-sm-6 mb-4">
-            <div class="card h-100">
-                <a href="#!"><img class="card-img-top" src="~/lib/startbootstrap/img/700x400.png" alt="..." /></a>
-                <div class="card-body">
-                    <h4 class="card-title"><a href="#!">Project Five</a></h4>
-                    <p class="card-text">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam viverra euismod odio, gravida pellentesque urna varius vitae.</p>
+            <div class="col-lg-4 col-sm-6 mb-4">
+                <div class="card h-100">
+                    <a href="#!"><img class="card-img-top" src="~/lib/startbootstrap/img/700x400.png" alt="..." /></a>
+                    <div class="card-body">
+                        <h4 class="card-title"><a href="#!">Project Five</a></h4>
+                        <p class="card-text">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam viverra euismod odio, gravida pellentesque urna varius vitae.</p>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="col-lg-4 col-sm-6 mb-4">
-            <div class="card h-100">
-                <a href="#!"><img class="card-img-top" src="~/lib/startbootstrap/img/700x400.png" alt="..." /></a>
-                <div class="card-body">
-                    <h4 class="card-title"><a href="#!">Project Six</a></h4>
-                    <p class="card-text">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Itaque earum nostrum suscipit ducimus nihil provident, perferendis rem illo, voluptate atque, sit eius in voluptates, nemo repellat fugiat excepturi! Nemo, esse.</p>
+            <div class="col-lg-4 col-sm-6 mb-4">
+                <div class="card h-100">
+                    <a href="#!"><img class="card-img-top" src="~/lib/startbootstrap/img/700x400.png" alt="..." /></a>
+                    <div class="card-body">
+                        <h4 class="card-title"><a href="#!">Project Six</a></h4>
+                        <p class="card-text">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Itaque earum nostrum suscipit ducimus nihil provident, perferendis rem illo, voluptate atque, sit eius in voluptates, nemo repellat fugiat excepturi! Nemo, esse.</p>
+                    </div>
                 </div>
             </div>
-        </div>
+        }
     </div>
 </section>
-<hr class="my-0" />
-<!-- Features Section-->
-<section class="py-5">
-    <div class="row">
-        <div class="col-lg-6">
-            <h2 class="mb-4">Events</h2>
-            <p>The Modern Business template by Start Bootstrap includes:</p>
-            <ul>
-                <li><strong>Bootstrap 4.6.0</strong></li>
-                <li>jQuery 3.5.1</li>
-                <li>Font Awesome 5.15.3</li>
-                <li>Working PHP contact form with validation</li>
-                <li>Unstyled page elements for easy customization</li>
-            </ul>
-            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Corporis, omnis doloremque non cum id reprehenderit, quisquam totam aspernatur tempora minima unde aliquid ea culpa sunt. Reiciendis quia dolorum ducimus unde.</p>
-        </div>
-        <div class="col-lg-6"><img class="img-fluid rounded" src="~/lib/startbootstrap/img/700x450.png" alt="..." /></div>
-    </div>
-</section>
-<hr class="my-0" />
-<!-- Call to Action-->
-<aside class="py-5 bg-light">
-    <div class="container">
-        <div class="row">
-            <div class="col-md-8"><p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Molestias, expedita, saepe, vero rerum deleniti beatae veniam harum neque nemo praesentium cum alias asperiores commodi.</p></div>
-            <div class="col-md-4"><a class="btn btn-lg btn-secondary btn-block" href="#!">Call to Action</a></div>
-        </div>
-    </div>
-</aside>
+
+
+
 
 
 

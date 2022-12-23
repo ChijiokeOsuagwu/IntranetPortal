@@ -43,11 +43,10 @@ namespace IntranetPortal.Base.Services
         Task<bool> SendMessageAsync(Message message, List<string> receipientIds);
         Task<bool> SendMessageAsync(Message message);
         Task<bool> AddMessageRecipientAsync(MessageDetail messageDetail);
-
+        Task<bool> UpdateReadStatusAsync(int messageDetailId);
         Task<Message> ReadMessageAsync(int messageDetailId);
-
+        Task<List<Message>> GetAllMessages(string recipientId);
         Task<List<Message>> GetUnreadMessages(string recipientId);
-
         Task<List<Message>> GetReadMessages(string recipientId);
 
         Task<int> GetUnreadMessagesCount(string recipientId);

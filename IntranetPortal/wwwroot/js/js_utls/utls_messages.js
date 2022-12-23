@@ -81,3 +81,24 @@ function deleteUnReadMessages(msg_recipient_id) {
         })
     }
 }
+
+//======= Script to Update Message Read Status by message detail Id ======================//
+function updateReadStatus(msg_detail_id) {
+    $.ajax({
+        type: 'POST',
+        url: '/Home/ReadMessage',
+        dataType: "text",
+        data: { id: msg_detail_id },
+        success: function (result) {
+            if (result == "done") {
+                console.log("Read Status Updated successfully!")
+            }
+            else {
+                console.log("Updating Read Status failed.")
+            }
+    },
+        error: function () {
+            alert('Sorry an error was encountered while attempting to delete Message. Please try again.');
+        }
+    })
+}

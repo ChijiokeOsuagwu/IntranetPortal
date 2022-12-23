@@ -1,12 +1,9 @@
-﻿
-
-
-@model IntranetPortal.Areas.AssetManager.Models.AssetReservationViewModel
+﻿@model IntranetPortal.Areas.AssetManager.Models.AssetReservationViewModel
 @{
     ViewData["Title"] = "OfficeManager | Delete Booking";
 }
 <div>
-    <div class="card" style="min-width:600px">
+    <div class="card" style="max-width:800px">
         <div class="card-header bg-danger">
             <h4 class="text-white">Delete Equipment Booking</h4>
         </div>
@@ -35,7 +32,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
             }
-            <form asp-area="AssetManager" asp-controller="Home" asp-action="DeleteBooking" method="post">
+            <form asp-area="AssetManager" asp-controller="Bookings" asp-action="Delete" method="post">
                 <div class="row">
                     <div class="col-md-8 mb-2">
                         <input type="hidden" asp-for="AssetReservationID" />

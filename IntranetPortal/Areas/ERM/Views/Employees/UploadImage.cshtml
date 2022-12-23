@@ -1,0 +1,78 @@
+﻿
+@model IntranetPortal.Areas.ERM.Models.UploadImageViewModel
+@{
+    ViewData["Title"] = "OfficeManager | Upload Image";
+}
+<div>
+    <div class="card" style="max-width:600px">
+        <div class="card-header bg-success">
+            <h4 class="text-white">Upload Image</h4>
+        </div>
+        <div class="card-body bg-secondary">
+            @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bi bi-x-circle"></i>
+                    <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            @if (!String.IsNullOrEmpty(Model.ViewModelSuccessMessage))
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="bi bi-check-circle"></i>
+                    <span class="fw-bold">@Model.ViewModelSuccessMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            @if (!String.IsNullOrEmpty(Model.ViewModelWarningMessage))
+            {
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                    <i class="bi bi-exclamation-circle"></i>
+                    <span class="fw-bold">@Model.ViewModelWarningMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            <form enctype="multipart/form-data" asp-area="ERM" asp-controller="Employees" asp-action="UploadImage" method="post">
+                <div class="row">
+                    <input type="hidden" asp-for="EmployeeID" />
+                    <div class="col-md-12 mb-3">
+                        <label asp-for="EmployeeName" class="form-label text-white fw-bold"></label>
+                        <div class="input-group">
+                            <input asp-for="EmployeeName" class="form-control fw-bold" readonly="readonly" aria-label="Employee Name" aria-describedby="button-addon2">
+                        </div>
+                        <div><span asp-validation-for="EmployeeName" class="text-danger"></span></div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12 mb-2">
+                        <input asp-for="UploadedImage" class="form-control fw-bold">
+                        <div><span asp-validation-for="UploadedImage" class="text-danger"></span></div>
+                    </div>
+                </div>
+                <input asp-for="OldImagePath" type="hidden" />
+                <div class="row">
+                    <a asp-area="ERM" asp-controller="Employees" asp-action="Profile" asp-route-id="@Model.EmployeeID" class="btn btn-dark ml-2" style="width:100px" title="Go Back">
+                        <span class="text-white">Back</span>
+                    </a>
+                    @if (!Model.OperationIsCompleted)
+                    {
+                        <button type="submit" class="btn btn-success ml-2" title="Save" style="width:200px"><span class="text-white">Upload</span></button>
+                    }
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+@section Scripts{
+    <script src="~/js/js_erm/erm_reportinglines_add.js"></script>
+}
+
+
+
+
+
+
+
+
+

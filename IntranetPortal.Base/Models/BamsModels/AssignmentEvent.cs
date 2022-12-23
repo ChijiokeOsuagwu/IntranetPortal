@@ -34,6 +34,7 @@ namespace IntranetPortal.Base.Models.BamsModels
     {
         NewAssignment,
         EventExtension,
-        EventCancelled
+        EventCancelled,
+        AssignmentUpdate,
     }
 }

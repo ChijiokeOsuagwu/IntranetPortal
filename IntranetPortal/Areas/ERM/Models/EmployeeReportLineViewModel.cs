@@ -35,10 +35,16 @@ namespace IntranetPortal.Areas.ERM.Models
         [Display(Name = "Ending On:")]
         public DateTime? ReportEndDate { get; set; }
 
-        [Display(Name = "Team:")]
+        [Display(Name = "Team (optional):")]
         public string TeamID { get; set; }
+
+        [Display(Name="Team")]
         public string TeamName { get; set; }
+
+        [Display(Name="Unit")]
         public int? UnitID { get; set; }
+
+        [Display(Name = "Unit")]
         public string UnitName { get; set; }
         public int? DepartmentID { get; set; }
         public string DepartmentName { get; set; }

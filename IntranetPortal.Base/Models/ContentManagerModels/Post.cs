@@ -14,6 +14,7 @@ namespace IntranetPortal.Base.Models.ContentManagerModels
         public string PostDetailsRaw { get; set; }
         public string ImagePath { get; set; }
         public int PostTypeId { get; set; }
+        public string PostTypeName { get; set; }
         public bool EnableComment { get; set; }
         public bool IsHidden { get; set; }
         public bool HasComments { get; set; }

@@ -39,8 +39,17 @@ namespace IntranetPortal.Areas.BAMS.Controllers
             return View(model);
         }
 
+
+        [HttpGet]
+        public IActionResult New(int id)
+        {
+            AssignmentUpdatesViewModel model = new AssignmentUpdatesViewModel();
+            model.AssignmentEventID = id;
+            return View(model);
+        }
+
         [HttpPost]
-        public async Task<IActionResult> List(AssignmentUpdatesListViewModel model)
+        public async Task<IActionResult> New(AssignmentUpdatesViewModel model)
         {
             int assignmentEventId = 0;
             if (ModelState.IsValid)
@@ -49,7 +58,6 @@ namespace IntranetPortal.Areas.BAMS.Controllers
                 AssignmentUpdates assignmentUpdates = new AssignmentUpdates();
                 try
                 {
-                    //assignmentUpdates = model.ConvertToAssignmentExtension();
                     assignmentUpdates.UpdateTime = $"{DateTime.UtcNow.ToLongDateString()} {DateTime.UtcNow.ToLongTimeString()} + UTC";
                     assignmentUpdates.UpdateBy = HttpContext.User.Identity.Name;
                     assignmentUpdates.UpdateType = model.UpdateType;
@@ -64,9 +72,7 @@ namespace IntranetPortal.Areas.BAMS.Controllers
                         model.UpdateType = AssignmentUpdateType.Information;
                         model.OperationIsCompleted = true;
                         model.OperationIsSuccessful = true;
-                        model.ViewModelSuccessMessage = $"Update saved successfully!";
-                        var entities = await _bamsManagerService.GetAssignmentUpdatesByAssignmentEventIdAsync(assignmentEventId);
-                        model.AssignmentUpdatesList = entities.ToList();
+                        model.ViewModelSuccessMessage = $"New Assignment Update saved successfully!";
                     }
                     else
                     {
@@ -84,6 +90,7 @@ namespace IntranetPortal.Areas.BAMS.Controllers
             }
             return View(model);
         }
+
 
         [HttpPost]
         public async Task<string> Delete(int id)

@@ -66,6 +66,9 @@ namespace IntranetPortal.Areas.AssetManager.Models
         [Display(Name = "Condition")]
         public AssetCondition CheckOutCondition { get; set; }
 
+        [Display(Name="Condition")]
+        public string CheckOutConditionFormatted { get; set; }
+
         [Display(Name = "Assigned To")]
         [Required]
         public string CheckedOutTo { get; set; }

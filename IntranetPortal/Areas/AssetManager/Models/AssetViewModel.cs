@@ -22,7 +22,7 @@ namespace IntranetPortal.Areas.AssetManager.Models
         [MaxLength(50, ErrorMessage = "Name must not exceed 50 characters.")]
         public string AssetNumber { get; set; }
 
-        [Display(Name = "Description")]
+        [Display(Name = "Asset Description")]
         [MaxLength(250, ErrorMessage = "Name must not exceed 250 characters.")]
         public string AssetDescription { get; set; }
 
@@ -70,9 +70,16 @@ namespace IntranetPortal.Areas.AssetManager.Models
         [DataType(DataType.Date)]
         public DateTime? PurchaseDate { get; set; }
 
+        [Display(Name="Purchase Date")]
+        public string PurchaseDateFormatted { get; set; }
+
         [Display(Name ="Purchase Amount")]
         [DataType(DataType.Currency)]
         public decimal? PurchaseAmount { get; set; }
+
+        [Display(Name="Purchase Amount")]
+        public string PurchaseAmountFormatted { get; set; }
+
         public long NoOfConfirmedBooking { get; set; }
         public string ImagePath { get; set; }
         public string OldImagePath { get; set; }

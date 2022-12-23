@@ -118,6 +118,22 @@ namespace IntranetPortal.Base.Services
             }
         }
 
+        public async Task<bool> UpdateEmployeeImagePathAsync(string employeeId, string imagePath, string updatedBy)
+        {
+
+            if (string.IsNullOrWhiteSpace(employeeId)) { throw new ArgumentNullException(nameof(employeeId)); }
+            if (string.IsNullOrWhiteSpace(imagePath)) { throw new ArgumentNullException(nameof(imagePath)); }
+
+            try
+            {
+               return await _personRepository.EditPersonImagePathAsync(employeeId,imagePath,updatedBy);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
         public async Task<bool> DeleteEmployeeAsync(string employeeId, string deletedBy, string deletedTime)
         {
             bool personIsDeleted = false;
@@ -219,6 +235,232 @@ namespace IntranetPortal.Base.Services
             }
             return employees;
         }
+
+        public async Task<List<Employee>> GetEmployeesByCompanyAsync(string CompanyID)
+        {
+            List<Employee> employees = new List<Employee>();
+            try
+            {
+                var entities = await _employeesRepository.GetEmployeesByCompanyCodeAsync(CompanyID);
+                employees = entities.ToList();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return employees;
+        }
+
+
+        public async Task<List<Employee>> GetEmployeesByLocationAsync(int LocationID, int DepartmentID, int UnitID)
+        {
+            List<Employee> employees = new List<Employee>();
+            try
+            {
+                var entities = await _employeesRepository.GetEmployeesByLocationAsync(LocationID,DepartmentID,UnitID);
+                employees = entities.ToList();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return employees;
+        }
+
+        public async Task<List<Employee>> GetEmployeesByLocationAsync(int LocationID, int DepartmentID)
+        {
+            List<Employee> employees = new List<Employee>();
+            try
+            {
+                var entities = await _employeesRepository.GetEmployeesByLocationAsync(LocationID, DepartmentID);
+                employees = entities.ToList();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return employees;
+        }
+
+        public async Task<List<Employee>> GetEmployeesByLocationAsync(int LocationID)
+        {
+            List<Employee> employees = new List<Employee>();
+            try
+            {
+                var entities = await _employeesRepository.GetEmployeesByLocationAsync(LocationID);
+                employees = entities.ToList();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return employees;
+        }
+
+        public async Task<List<Employee>> GetEmployeesByLocationAndUnitAsync(int LocationID, int UnitID)
+        {
+            List<Employee> employees = new List<Employee>();
+            try
+            {
+                var entities = await _employeesRepository.GetEmployeesByLocationAndUnitAsync(LocationID, UnitID);
+                employees = entities.ToList();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return employees;
+        }
+
+        public async Task<List<Employee>> GetEmployeesByUnitIDAsync(int UnitID)
+        {
+            List<Employee> employees = new List<Employee>();
+            try
+            {
+                var entities = await _employeesRepository.GetEmployeesByUnitAsync(UnitID);
+                employees = entities.ToList();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return employees;
+        }
+
+        public async Task<List<Employee>> GetEmployeesByDepartmentIDAsync(int DepartmentID)
+        {
+            List<Employee> employees = new List<Employee>();
+            try
+            {
+                var entities = await _employeesRepository.GetEmployeesByDeptAsync(DepartmentID);
+                employees = entities.ToList();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return employees;
+        }
+
+
+
+        public async Task<List<Employee>> GetEmployeesByCompanyAndLocationAsync(string CompanyID, int LocationID, int DepartmentID)
+        {
+            List<Employee> employees = new List<Employee>();
+            try
+            {
+                var entities = await _employeesRepository.GetEmployeesByCompanyCodeAsync(CompanyID, LocationID, DepartmentID);
+                employees = entities.ToList();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return employees;
+        }
+
+        public async Task<List<Employee>> GetEmployeesByCompanyAndLocationAsync(string CompanyID, int LocationID)
+        {
+            List<Employee> employees = new List<Employee>();
+            try
+            {
+                var entities = await _employeesRepository.GetEmployeesByCompanyCodeAsync(CompanyID, LocationID);
+                employees = entities.ToList();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return employees;
+        }
+
+        public async Task<List<Employee>> GetEmployeesByCompanyAndUnitAsync(string CompanyID, int LocationID, int UnitID)
+        {
+            List<Employee> employees = new List<Employee>();
+            try
+            {
+                var entities = await _employeesRepository.GetEmployeesByCompanyCodeAndUnitAsync(CompanyID,LocationID, UnitID);
+                employees = entities.ToList();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return employees;
+        }
+
+        public async Task<List<Employee>> GetEmployeesByCompanyAndUnitAsync(string CompanyID, int UnitID)
+        {
+            List<Employee> employees = new List<Employee>();
+            try
+            {
+                var entities = await _employeesRepository.GetEmployeesByCompanyCodeAndUnitAsync(CompanyID, UnitID);
+                employees = entities.ToList();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return employees;
+        }
+
+        public async Task<List<Employee>> GetEmployeesByCompanyAndDepartmentAsync(string CompanyID, int DepartmentID)
+        {
+            List<Employee> employees = new List<Employee>();
+            try
+            {
+                var entities = await _employeesRepository.GetEmployeesByCompanyCodeAndDeptAsync(CompanyID, DepartmentID);
+                employees = entities.ToList();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return employees;
+        }
+
+        public async Task<List<Employee>> GetEmployeesByBirthDayAsync(int? BirthMonth, int? BirthDay)
+        {
+            List<Employee> employees = new List<Employee>();
+            try
+            {
+                if(BirthMonth != null && BirthMonth > 0)
+                {
+                    if(BirthDay != null && BirthDay.Value > 0)
+                    {
+                        var entities = await _employeesRepository.GetEmployeesByBirthMonthAndBirthDayAsync(BirthMonth.Value, BirthDay.Value);
+                        employees = entities.ToList();
+                    }
+                    else
+                    {
+                        var entities = await _employeesRepository.GetEmployeesByBirthMonthAsync(BirthMonth.Value);
+                        employees = entities.ToList();
+                    }
+                }
+                else
+                {
+                    BirthMonth = DateTime.Now.Month;
+                    if (BirthDay != null && BirthDay.Value > 0)
+                    {
+                        var entities = await _employeesRepository.GetEmployeesByBirthMonthAndBirthDayAsync(BirthMonth.Value, BirthDay.Value);
+                        employees = entities.ToList();
+                    }
+                    else
+                    {
+                        BirthDay = DateTime.Now.Day;
+                        var entities = await _employeesRepository.GetEmployeesByBirthMonthAsync(BirthMonth.Value);
+                        employees = entities.ToList();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return employees;
+        }
+
+
 
         public async Task<List<Employee>> GetAllNonUserEmployeesAsync()
         {

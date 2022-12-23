@@ -447,6 +447,146 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
             return assetIncidents;
         }
 
+        public async Task<IList<AssetIncident>> GetByAssetIdAndYearAsync(string assetId, int incidentYear)
+        {
+            List<AssetIncident> assetIncidents = new List<AssetIncident>();
+            if (string.IsNullOrEmpty(assetId)) { throw new ArgumentNullException(nameof(assetId)); }
+            if(incidentYear < 1) { throw new ArgumentException(nameof(incidentYear)); }
+
+            var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
+            StringBuilder sb = new StringBuilder();
+            sb.Append("SELECT i.incdt_hst_id, i.asm_asst_id, i.incdt_dt, i.incdt_ds, i.asst_cndt, i.action_tkn, i.rcomndatn, i.commnts, ");
+            sb.Append("i.lggd_by, i.md_by, i.md_dt, i.asst_typ_id, i.asst_ctg_id, i.lggd_dt, a.asst_nm, a.asst_ds, a.asst_cndt, ");
+            sb.Append("t.typ_nm, c.asst_ctgs_nm, i.incdt_tl FROM public.asm_incdt_hst i ");
+            sb.Append("INNER JOIN public.asm_stt_asst a ON i.asm_asst_id = a.asst_id ");
+            sb.Append("INNER JOIN public.asm_stt_typs t ON i.asst_typ_id = t.typ_id ");
+            sb.Append("INNER JOIN public.asm_stt_ctgs c ON i.asst_ctg_id = c.asst_ctgs_id ");
+            sb.Append("WHERE (i.asm_asst_id = @asm_asst_id) ");
+            sb.Append("AND ((EXTRACT(YEAR FROM u.start_date))::INTEGER = @yr) ");
+            sb.Append("ORDER BY i.incdt_hst_id DESC;");
+            string query = sb.ToString();
+            try
+            {
+                await conn.OpenAsync();
+                // Retrieve all rows
+                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+                {
+                    var asm_asst_id = cmd.Parameters.Add("@asm_asst_id", NpgsqlDbType.Text);
+                    var yr = cmd.Parameters.Add("@yr", NpgsqlDbType.Integer);
+                    await cmd.PrepareAsync();
+                    asm_asst_id.Value = assetId;
+                    yr.Value = incidentYear;
+                    using (var reader = await cmd.ExecuteReaderAsync())
+                        while (await reader.ReadAsync())
+                        {
+                            assetIncidents.Add(new AssetIncident()
+                            {
+                                AssetIncidentID = reader["incdt_hst_id"] == DBNull.Value ? 0 : (int)reader["incdt_hst_id"],
+                                AssetID = reader["asm_asst_id"] == DBNull.Value ? string.Empty : reader["asm_asst_id"].ToString(),
+                                AssetName = reader["asst_nm"] == DBNull.Value ? string.Empty : reader["asst_nm"].ToString(),
+                                AssetDescription = reader["asst_ds"] == DBNull.Value ? string.Empty : reader["asst_ds"].ToString(),
+                                IncidentTime = reader["incdt_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["incdt_dt"],
+                                LoggedTime = reader["lggd_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["lggd_dt"],
+                                IncidentDescription = reader["incdt_ds"] == DBNull.Value ? string.Empty : reader["incdt_ds"].ToString(),
+                                IncidentTitle = reader["incdt_tl"] == DBNull.Value ? string.Empty : reader["incdt_tl"].ToString(),
+                                AssetCondition = reader["asst_cndt"] == DBNull.Value ? string.Empty : reader["asst_cndt"].ToString(),
+                                ActionTaken = reader["action_tkn"] == DBNull.Value ? string.Empty : reader["action_tkn"].ToString(),
+                                Recommendation = reader["rcomndatn"] == DBNull.Value ? string.Empty : reader["rcomndatn"].ToString(),
+                                Comments = reader["commnts"] == DBNull.Value ? string.Empty : reader["commnts"].ToString(),
+                                LoggedBy = reader["lggd_by"] == DBNull.Value ? string.Empty : reader["lggd_by"].ToString(),
+                                AssetTypeID = reader["asst_typ_id"] == DBNull.Value ? 0 : (int)reader["asst_typ_id"],
+                                AssetTypeName = reader["typ_nm"] == DBNull.Value ? string.Empty : reader["typ_nm"].ToString(),
+                                AssetCategoryID = reader["asst_ctg_id"] == DBNull.Value ? 0 : (int)reader["asst_ctg_id"],
+                                AssetCategoryName = reader["asst_ctgs_nm"] == DBNull.Value ? string.Empty : reader["asst_ctgs_nm"].ToString(),
+                                ModifiedBy = reader["md_by"] == DBNull.Value ? string.Empty : reader["md_by"].ToString(),
+                                ModifiedTime = reader["md_dt"] == DBNull.Value ? string.Empty : reader["md_dt"].ToString(),
+                            });
+
+                        }
+                }
+                await conn.CloseAsync();
+            }
+            catch (Exception ex)
+            {
+                await conn.CloseAsync();
+                throw new Exception(ex.Message);
+            }
+            return assetIncidents;
+        }
+
+        public async Task<IList<AssetIncident>> GetByAssetIdAndYearAndMonthAsync(string assetId, int incidentYear, int incidentMonth)
+        {
+            List<AssetIncident> assetIncidents = new List<AssetIncident>();
+            if (string.IsNullOrEmpty(assetId)) { throw new ArgumentNullException(nameof(assetId)); }
+            if (incidentYear < 1) { throw new ArgumentException(nameof(incidentYear)); }
+            if (incidentMonth < 1) { throw new ArgumentException(nameof(incidentYear)); }
+
+            var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
+            StringBuilder sb = new StringBuilder();
+            sb.Append("SELECT i.incdt_hst_id, i.asm_asst_id, i.incdt_dt, i.incdt_ds, i.asst_cndt, i.action_tkn, i.rcomndatn, i.commnts, ");
+            sb.Append("i.lggd_by, i.md_by, i.md_dt, i.asst_typ_id, i.asst_ctg_id, i.lggd_dt, a.asst_nm, a.asst_ds, a.asst_cndt, ");
+            sb.Append("t.typ_nm, c.asst_ctgs_nm, i.incdt_tl FROM public.asm_incdt_hst i ");
+            sb.Append("INNER JOIN public.asm_stt_asst a ON i.asm_asst_id = a.asst_id ");
+            sb.Append("INNER JOIN public.asm_stt_typs t ON i.asst_typ_id = t.typ_id ");
+            sb.Append("INNER JOIN public.asm_stt_ctgs c ON i.asst_ctg_id = c.asst_ctgs_id ");
+            sb.Append("WHERE (i.asm_asst_id = @asm_asst_id) ");
+            sb.Append("AND ((EXTRACT(YEAR FROM i.incdt_dt))::INTEGER = @yr) ");
+            sb.Append("AND ((EXTRACT(MONTH FROM i.incdt_dt))::INTEGER = @mn) ");
+            sb.Append("ORDER BY i.incdt_hst_id DESC;");
+            string query = sb.ToString();
+            try
+            {
+                await conn.OpenAsync();
+                // Retrieve all rows
+                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+                {
+                    var asm_asst_id = cmd.Parameters.Add("@asm_asst_id", NpgsqlDbType.Text);
+                    var yr = cmd.Parameters.Add("@yr", NpgsqlDbType.Integer);
+                    var mn = cmd.Parameters.Add("@mn", NpgsqlDbType.Integer);
+                    await cmd.PrepareAsync();
+                    asm_asst_id.Value = assetId;
+                    yr.Value = incidentYear;
+                    mn.Value = incidentMonth;
+
+                    using (var reader = await cmd.ExecuteReaderAsync())
+                        while (await reader.ReadAsync())
+                        {
+                            assetIncidents.Add(new AssetIncident()
+                            {
+                                AssetIncidentID = reader["incdt_hst_id"] == DBNull.Value ? 0 : (int)reader["incdt_hst_id"],
+                                AssetID = reader["asm_asst_id"] == DBNull.Value ? string.Empty : reader["asm_asst_id"].ToString(),
+                                AssetName = reader["asst_nm"] == DBNull.Value ? string.Empty : reader["asst_nm"].ToString(),
+                                AssetDescription = reader["asst_ds"] == DBNull.Value ? string.Empty : reader["asst_ds"].ToString(),
+                                IncidentTime = reader["incdt_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["incdt_dt"],
+                                LoggedTime = reader["lggd_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["lggd_dt"],
+                                IncidentDescription = reader["incdt_ds"] == DBNull.Value ? string.Empty : reader["incdt_ds"].ToString(),
+                                IncidentTitle = reader["incdt_tl"] == DBNull.Value ? string.Empty : reader["incdt_tl"].ToString(),
+                                AssetCondition = reader["asst_cndt"] == DBNull.Value ? string.Empty : reader["asst_cndt"].ToString(),
+                                ActionTaken = reader["action_tkn"] == DBNull.Value ? string.Empty : reader["action_tkn"].ToString(),
+                                Recommendation = reader["rcomndatn"] == DBNull.Value ? string.Empty : reader["rcomndatn"].ToString(),
+                                Comments = reader["commnts"] == DBNull.Value ? string.Empty : reader["commnts"].ToString(),
+                                LoggedBy = reader["lggd_by"] == DBNull.Value ? string.Empty : reader["lggd_by"].ToString(),
+                                AssetTypeID = reader["asst_typ_id"] == DBNull.Value ? 0 : (int)reader["asst_typ_id"],
+                                AssetTypeName = reader["typ_nm"] == DBNull.Value ? string.Empty : reader["typ_nm"].ToString(),
+                                AssetCategoryID = reader["asst_ctg_id"] == DBNull.Value ? 0 : (int)reader["asst_ctg_id"],
+                                AssetCategoryName = reader["asst_ctgs_nm"] == DBNull.Value ? string.Empty : reader["asst_ctgs_nm"].ToString(),
+                                ModifiedBy = reader["md_by"] == DBNull.Value ? string.Empty : reader["md_by"].ToString(),
+                                ModifiedTime = reader["md_dt"] == DBNull.Value ? string.Empty : reader["md_dt"].ToString(),
+                            });
+
+                        }
+                }
+                await conn.CloseAsync();
+            }
+            catch (Exception ex)
+            {
+                await conn.CloseAsync();
+                throw new Exception(ex.Message);
+            }
+            return assetIncidents;
+        }
+
+
         public async Task<IList<AssetIncident>> GetByAssetNameAsync(string assetName)
         {
             List<AssetIncident> assetIncidents = new List<AssetIncident>();

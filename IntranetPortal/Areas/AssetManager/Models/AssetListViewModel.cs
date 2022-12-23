@@ -9,6 +9,9 @@ namespace IntranetPortal.Areas.AssetManager.Models
 {
     public class AssetListViewModel:BaseListViewModel
     {
+        public int? tp { get; set; }
+        public int? ct { get; set; }
+        public string an { get; set; }
         public List<Asset> AssetList { get; set; }
     }
 }

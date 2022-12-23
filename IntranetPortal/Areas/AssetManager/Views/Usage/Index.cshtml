@@ -1,0 +1,123 @@
+﻿@model IntranetPortal.Areas.AssetManager.Models.AssetUsageListViewModel
+@{
+    ViewData["Title"] = "OfficeManager | Usage List";
+}
+<div class="container">
+    <h4>Asset Usage History</h4>
+    <hr />
+    <div class="mb-1">
+        <form asp-area="AssetManager" asp-controller="Usage" asp-action="Index" asp-route-id="@Model.AssetID" method="get">
+            <a asp-area="AssetManager" asp-controller="Home" asp-action="Index" class="btn btn-dark pr-2" style="width:100px" title="Click to Add New Asset Type">
+                <span class="text-white">Exit</span>
+            </a>
+            <a asp-area="AssetManager" asp-controller="Master" asp-action="Details" asp-route-id="@Model.AssetID" class="btn btn-dark" style="width:100px" title="Click to Go Back">
+                <span class="text-white">Back</span>
+            </a>
+            <select asp-for="mn" class="border-0" style="width:150px">
+                <option value="0"> All </option>
+                <option value="1">January</option>
+                <option value="2">February</option>
+                <option value="3">March</option>
+                <option value="4">April</option>
+                <option value="5">May</option>
+                <option value="6">June</option>
+                <option value="7">July</option>
+                <option value="8">August</option>
+                <option value="9">September</option>
+                <option value="10">October</option>
+                <option value="11">November</option>
+                <option value="12">December</option>
+            </select>
+            <input asp-for="yr" class="border-0 pl-2 pr-2" style="width:100px" placeholder="yyyy" />
+            <input type="submit" value="Search" class="btn btn-dark" style="width:100px" />
+        </form>
+
+        @if (!String.IsNullOrEmpty(ViewBag.ErrorMessage))
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-x-circle"></i>
+                <span class="fw-bold">@ViewBag.ErrorMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+    </div>
+    @if (Model == null  || Model.AssetUsageList == null  || Model.AssetUsageList.Count < 1)
+    {
+        <div class="alert alert-info fade show" role="alert">
+            <i class="bi bi-info-circle"></i>
+            <span class="fw-bold">No record was found.</span>
+        </div>
+    }
+    else
+    {
+        int rownumber = 0;
+        <div class="row">
+            <div class="table-responsive">
+                <table class="table table-hover table-sm ">
+                    <thead class="table-dark">
+                        <tr>
+                            <th><span class="text-white fw-bold">Status</span></th>
+                            <th><span class="text-white fw-bold">Event</span></th>
+                            <th><span class="text-white fw-bold">End Time</span></th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody class="table-success">
+                        @foreach (var item in Model.AssetUsageList)
+                        {
+                            rownumber++;
+                        <tr>
+                            <td>
+                                <span class="fw-bold" title="Usage Status">@item.CheckStatus </span>
+                            </td>
+                            <td>
+                                <span class="fw-bold" title="@item.UsageLocation">@item.UsageDescription</span>
+                            </td>
+                            <td>
+                                <span class="fw-bold" title="Usage Period">@item.UsageEndTime.Value.ToLongDateString() @item.UsageEndTime.Value.ToLongTimeString() </span>
+                            </td>
+                            <td>
+                                <div class="text-center">
+
+                                    @if (item.CheckStatus == "Checked Out")
+                                    {
+                                        <a asp-area="AssetManager" asp-controller="Usage" asp-action="CheckOutDetails" asp-route-id="@item.UsageID" title="See Details" class="btn btn-xs btn-dark" style="width:50px">
+                                            <i class="bi bi-card-text" style="font-size: 0.7rem; color:white"></i>
+                                        </a>
+                                        <a asp-area="AssetManager" asp-controller="Usage" asp-action="CheckIn" asp-route-id="@item.UsageID" title="Check In" class="btn btn-xs btn-success text-white" style="width:50px">
+                                            <i class="bi bi-box-arrow-in-right fw-bolder" style="font-size: 0.7rem;"></i>
+                                        </a>
+                                        <a asp-area="AssetManager" asp-controller="Usage" asp-action="EditCheckOut" asp-route-id="@item.UsageID" title="Edit" class="btn btn-xs btn-info" style="width:50px">
+                                            <i class="bi bi-pencil-square" style="font-size: 0.7rem; color:white"></i>
+                                        </a>
+                                        <a asp-area="AssetManager" asp-controller="Usage" asp-action="DeleteCheckOut" asp-route-id="@item.UsageID" title="Delete" class="btn btn-xs btn-danger" style="width:50px">
+                                            <i class="bi bi-trash-fill" style="font-size: 0.7rem; color:white"></i>
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <a asp-area="AssetManager" asp-controller="Usage" asp-action="CheckOut" asp-route-id="@item.AssetID" title="Check Out" class="btn btn-xs btn-warning text-white" style="width:50px">
+                                            <i class="bi bi-box-arrow-up-left fw-bolder" style="font-size: 0.7rem;"></i>
+                                        </a>
+                                    }
+
+                                </div>
+                            </td>
+                        </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+</div>
+
+
+
+
+
+
+
+
+
+

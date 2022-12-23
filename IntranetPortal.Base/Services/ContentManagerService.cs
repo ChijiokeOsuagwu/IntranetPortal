@@ -3,6 +3,7 @@ using IntranetPortal.Base.Models.ContentManagerModels;
 using IntranetPortal.Base.Repositories.ContentManagerRepositories;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -50,7 +51,27 @@ namespace IntranetPortal.Base.Services
 
         public async Task<IList<Post>> GetAllPostsAsync()
         {
-            return await _postRepository.GetAllPostsAsync();
+            return await _postRepository.GetAllAsync();
+        }
+
+        public async Task<IList<Post>> GetAllOtherPostsAsync()
+        {
+            return await _postRepository.GetPostsWithoutBannersAndAnnouncementsAsync();
+        }
+
+        public async Task<IList<Post>> GetAllOtherUnhiddenPostsAsync()
+        {
+            return await _postRepository.GetUnhiddenPostsWithoutBannersAndAnnouncementsAsync();
+        }
+
+        public async Task<IList<Post>> GetPostsByPostTypeId (int postTypeId)
+        {
+           return await _postRepository.GetByTypeIdAsync(postTypeId);
+        }
+
+        public async Task<IList<Post>> SearchPostsByTitle(string postTitle)
+        {
+            return await _postRepository.GetByTitleAsync(postTitle);
         }
 
         public async Task<bool> UpdatePostDetailsAsync(int postId, string htmlContent, string modifiedBy, DateTime modifiedDate)
@@ -74,6 +95,20 @@ namespace IntranetPortal.Base.Services
         public async Task<IList<Post>> GetUnhiddenBannersAsync()
         {
             return await _postRepository.GetUnhiddenBannersAsync();
+        }
+
+        #endregion
+
+        //=============== Announcements Action Methods =============================================================//
+        #region Announcements Action Methods
+        public async Task<IList<Post>> GetAllAnnouncementsAsync()
+        {
+            return await _postRepository.GetAllAnnouncementsAsync();
+        }
+
+        public async Task<IList<Post>> GetUnhiddenAnnouncementsAsync()
+        {
+            return await _postRepository.GetUnhiddenAnnouncementsAsync();
         }
 
         #endregion

@@ -261,7 +261,6 @@ namespace IntranetPortal.Base.Services
             return MessageIsSent;
         }
 
-
         public async Task<Message> ReadMessageAsync(int messageDetailId)
         {
             Message message = null;
@@ -279,6 +278,25 @@ namespace IntranetPortal.Base.Services
                 throw new Exception(ex.Message);
             }
             return message;
+        }
+
+        public async Task<bool> UpdateReadStatusAsync(int messageDetailId)
+        {
+           if (messageDetailId < 1) { throw new ArgumentNullException(nameof(messageDetailId), "Required parameter [MessageDetailID] is missing."); }
+            try
+            {
+                return await _utilityRepository.UpdateMessageReadStatusAsync(messageDetailId);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+
+        public async Task<List<Message>> GetAllMessages(string recipientId)
+        {
+            return await _utilityRepository.GetMessagesByReceipientIdAsync(recipientId);
         }
 
         public async Task<List<Message>> GetUnreadMessages(string recipientId)

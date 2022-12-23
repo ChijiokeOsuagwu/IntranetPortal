@@ -6,7 +6,7 @@
 <div class="container">
     <h4>Team Members</h4>
     <hr />
-    <div class="mb-1">
+    <div class="row">
         @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
         {
             <div class="alert alert-danger alert-dismissible fade show" role="alert">
@@ -31,29 +31,29 @@
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         }
-        <form asp-area="Bams" asp-controller="Deployment" asp-action="DeploymentTeam" method="post">
-            <a asp-area="Bams" asp-controller="Home" asp-action="index" class="btn btn-dark pr-2" style="width:100px" title="Return to Home Page">
-                <span class="text-white">Exit</span>
-            </a>
-            <a asp-area="Bams" asp-controller="Deployment" asp-action="SelectTeamBatch" asp-route-id="@Model.AssignmentEventID" class="btn btn-dark pr-2" style="width:100px" title="Click to Go Back">
-                <span class="text-white">Back</span>
-            </a>
-            <input type="hidden" asp-for="AssignmentEventID" />
-            <input type="hidden" asp-for="DeploymentID" />
-            <input asp-for="TeamMemberName" class="border-0 fw-bold ml-3" placeholder="Enter Name" style="width:300px">
-            <select asp-for="TeamMemberRole" class="border-0 fw-bold ml-2 mr-2" style="width:250px">
-                <option value="">Select Role</option>
-                <option value="Audio Engineer">Audio Engineer</option>
-                <option value="Cameraman">Cameraman</option>
-                <option value="Director">Director</option>
-                <option value="Driver">Driver</option>
-                <option value="Drone Operator">Drone Operator</option>
-                <option value="Satellite Engineer">Satellite Engineer</option>
-                <option value="Security">Security</option>
-                <option value="Vision Mixer">Vision Mixer</option>
-            </select>
-            <input type="submit" value="Add" class="btn btn-success text-white" style="width:100px" />
-        </form>
+    <div class="mb-2">
+        <a asp-area="Bams" asp-controller="Home" asp-action="index" class="btn btn-dark pr-2" style="width:75px" title="Return to Home Page">
+            <span class="text-white">Exit</span>
+        </a>
+        <a asp-area="Bams" asp-controller="Deployment" asp-action="SelectTeamBatch" asp-route-id="@Model.AssignmentEventID" class="btn btn-dark" style="width:75px" title="Click to Go Back">
+            <span class="text-white">Back</span>
+        </a>
+        <input asp-for="TeamMemberName" class="border-0 fw-bold" placeholder="Enter Name" style="width:200px">
+        <select asp-for="TeamMemberRole" class="border-0 fw-bold" style="width:200px">
+            <option value="">Select Role</option>
+            <option value="Audio Engineer">Audio Engineer</option>
+            <option value="Cameraman">Cameraman</option>
+            <option value="Director">Director</option>
+            <option value="Driver">Driver</option>
+            <option value="Drone Operator">Drone Operator</option>
+            <option value="Satellite Engineer">Satellite Engineer</option>
+            <option value="Security">Security</option>
+            <option value="Vision Mixer">Vision Mixer</option>
+        </select>
+        <button value="Add" class="btn btn-success text-white" style="width:100px" onclick="addTeamMember(@Model.AssignmentEventID, @Model.DeploymentID)">
+                <span class="text-white fw-bold">Add</span>    
+        </button>
+    </div>
     </div>
     @if (ViewBag.TeamMembersList == null || ViewBag.TeamMembersList.Count < 1)
     {

@@ -62,12 +62,71 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
             return View(PaginatedList<AssetMovement>.CreateAsync(assetMovementList.AsQueryable(), pg ?? 1, 100));
         }
 
+        public async Task<IActionResult> Index(string id, int? yr = null, int? mn = null)
+        {
+            IList<AssetMovement> assetMovementList = new List<AssetMovement>();
+            AssetMovementListViewModel model = new AssetMovementListViewModel();
+            try
+            {
+                if (!string.IsNullOrWhiteSpace(id))
+                {
+                    model.AssetID = id;
+                    if (yr != null && yr.Value > 0)
+                    {
+                        model.yr = yr.Value;
+                        if(mn != null && mn.Value > 0)
+                        {
+                            model.mn = mn.Value;
+                            assetMovementList = await _assetManagerService.GetAssetMovementsByAssetIdAndYearAndMonthAsync(model.AssetID, model.yr.Value, model.mn.Value);
+                        }
+                        else
+                        {
+                            assetMovementList = await _assetManagerService.GetAssetMovementsByAssetIdAndYearAsync(model.AssetID, model.yr.Value);
+                        }
+                    }
+                    else
+                    {
+                        if(mn != null && mn.Value > 0)
+                        {
+                            model.mn = mn.Value;
+                            model.yr = DateTime.Now.Year;
+                            assetMovementList = await _assetManagerService.GetAssetMovementsByAssetIdAndYearAndMonthAsync(model.AssetID, model.yr.Value, model.mn.Value);
+                        }
+                        else
+                        {
+                            model.yr = DateTime.Now.Year;
+                            model.mn = DateTime.Now.Month;
+                            assetMovementList = await _assetManagerService.GetAssetMovementsByAssetIdAndYearAndMonthAsync(model.AssetID, model.yr.Value, model.mn.Value);
+                        }
+                    }
+                }
+                else
+                {
+                    return RedirectToAction("List");
+                }
+            }
+            catch (Exception ex)
+            {
+                ViewBag.ErrorMessage = ex.Message;
+            }
+
+            return View(model);
+        }
+
         [HttpGet]
-        public IActionResult AddMovement()
+        public async Task<IActionResult> AddMovement(string id = null)
         {
             AssetMovementViewModel model = new AssetMovementViewModel();
+            if (!string.IsNullOrWhiteSpace(id))
+            {
+                Asset asset = await _assetManagerService.GetAssetByIdAsync(id);
+                model.AssetID = id;
+                model.AssetName = asset.AssetName;
+                model.AssetTypeID = asset.AssetTypeID;
+                model.AssetCategoryID = asset.AssetCategoryID;
+            }
             model.MovedOn = DateTime.Today;
-             var locations = _globalSettingsService.GetAllLocationsAsync().Result;
+            var locations = _globalSettingsService.GetAllLocationsAsync().Result;
             ViewBag.LocationsList = new SelectList(locations, "LocationID", "LocationName");
             return View(model);
         }

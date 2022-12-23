@@ -1,0 +1,205 @@
+﻿@model IntranetPortal.Areas.AssetManager.Models.AssetViewModel
+@{
+    ViewData["Title"] = "OfficeManager | Asset Details";
+}
+<div>
+    <div class="row">
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <div class="container-fluid">
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNavDropdown">
+                    <ul class="navbar-nav">
+                        <li class="nav-item">
+                            <a asp-area="AssetManager" asp-controller="Master" asp-action="List" title="Go Back" class="btn btn-sm btn-outline-light text-dark">
+                                <i class="bi bi-backspace fw-bolder" style="font-size: 0.8rem;"></i>&nbsp;<span class="fw-bold" style="font-size: 0.8rem;">Back</span>
+                            </a>
+                        </li>
+                        @*<li class="nav-item">
+                            <a asp-area="AssetManager" asp-controller="Master" asp-action="ChangeImage" asp-route-id="@Model.AssetID" asp-route-nm="@Model.AssetName" title="Change Image" class="btn btn-sm btn-light text-dark">
+                                <i class="bi bi-file-image fw-bolder" style="font-size: 1.0rem;"></i>&nbsp;<span class="fw-bold" style="font-size: 0.8rem;">Change Image</span>
+                            </a>
+                        </li>*@
+                        <li class="nav-item">
+                            <a asp-area="AssetManager" asp-controller="Usage" asp-action="Index" asp-route-id="@Model.AssetID" title="Usage List" class="btn btn-sm btn-light text-dark">
+                                <i class="bi bi-journal-text fw-bolder" style="font-size: 1.0rem;"></i>&nbsp;<span class="fw-bold" style="font-size: 0.8rem;">Usage History</span>
+                            </a>
+                        </li>
+                        @if (Model.UsageStatus == "Available")
+                        {
+                            <li class="nav-item">
+                                <a asp-area="AssetManager" asp-controller="Usage" asp-action="CheckOut" asp-route-id="@Model.AssetID" title="Check Out" class="btn btn-sm btn-light text-dark">
+                                    <i class="bi bi-box-arrow-up-left fw-bolder" style="font-size: 1.0rem;"></i>&nbsp;<span class="fw-bold" style="font-size: 0.8rem;">Check Out</span>
+                                </a>
+                            </li>
+                        }
+                        <li class="nav-item">
+                            <a asp-area="AssetManager" asp-controller="Maintenance" asp-action="index" asp-route-id="@Model.AssetID" title="Maintenance" class="btn btn-sm btn-light text-dark">
+                                <i class="bi bi-tools fw-bolder" style="font-size: 1.0rem;"></i>&nbsp;<span class="fw-bold" style="font-size: 0.8rem;">Maintenance</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a asp-area="AssetManager" asp-controller="Incidents" asp-action="index" asp-route-id="@Model.AssetID" title="Incidents" class="btn btn-sm btn-light text-dark">
+                                <i class="bi bi-exclamation-diamond fw-bolder" style="font-size: 1.0rem;"></i>&nbsp;<span class="fw-bold" style="font-size: 0.8rem;">Incidents</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a asp-area="AssetManager" asp-controller="Bookings" asp-action="List" asp-route-id="@Model.AssetID" title="Bookings" class="btn btn-sm btn-light text-dark">
+                                <i class="bi bi-bookmarks fw-bolder" style="font-size: 1.0rem;"></i>&nbsp;<span class="fw-bold" style="font-size: 0.8rem;">Bookings</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a asp-area="AssetManager" asp-controller="Movements" asp-action="index" asp-route-id="@Model.AssetID" title="Transfers" class="btn btn-sm btn-light text-dark">
+                                <i class="bi bi-arrow-left-right fw-bolder" style="font-size: 1.0rem;"></i>&nbsp;<span class="fw-bold" style="font-size: 0.8rem;">Transfers</span>
+                            </a>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <span class="fw-bold" style="font-size: 0.8rem;">More Actions</span>
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                                <li>
+                                    <a asp-area="AssetManager" asp-controller="Master" asp-action="EditAsset" asp-route-id="@Model.AssetID" title="Edit Asset" class="btn btn-sm btn-light text-dark">
+                                        <i class="bi bi-pencil-square fw-bolder" style="font-size: 1.0rem;"></i>&nbsp;<span class="fw-bold" style="font-size: 0.8rem;">Edit</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a asp-area="AssetManager" asp-controller="Master" asp-action="DeleteAsset" asp-route-id="@Model.AssetID" title="Delete" class="btn btn-sm btn-light text-dark">
+                                        <i class="bi bi-trash fw-bolder" style="font-size: 1.0rem;"></i>&nbsp;<span class="fw-bold" style="font-size: 0.8rem;">Delete</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </div>
+    <div class="card">
+        <div class="card-header bg-dark">
+            <h4 class="text-white">Asset Details</h4>
+        </div>
+        <div class="card-body bg-secondary">
+            @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bi bi-x-circle"></i>
+                    <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            @if (!String.IsNullOrEmpty(Model.ViewModelSuccessMessage))
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="bi bi-check-circle"></i>
+                    <span class="fw-bold">@Model.ViewModelSuccessMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            @if (!String.IsNullOrEmpty(Model.ViewModelWarningMessage))
+            {
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                    <i class="bi bi-exclamation-circle"></i>
+                    <span class="fw-bold">@Model.ViewModelWarningMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            <form asp-area="AssetManager" asp-controller="Master" asp-action="Details" method="post">
+                <div class="row">
+                    <div class="col-md-5 mb-1">
+                        <a asp-area="AssetManager" asp-controller="Master" asp-action="ShowImage" asp-route-id="@Model.AssetID" title="Show Large Image">
+                            @if (!string.IsNullOrWhiteSpace(Model.ImagePath))
+                            {
+                                <img src="/@Model.ImagePath" class="img-fluid" style="height:450px; width:550px" alt="Asset Image">
+                            }
+                            else
+                            {
+                                <img src="/img/no_image_placeholder.png" class="img-fluid" style="height:450px; width:550px" alt="Asset Image" />
+                            }
+                        </a>
+                    </div>
+                    <div class="col-md-7 mb-3">
+                        <div class="row">
+                            <div class="col-md-3 mb-1">
+                                <label asp-for="AssetNumber" class="form-label text-white fw-bold"></label>
+                                <input asp-for="AssetNumber" class="form-control fw-bold" readonly="readonly">
+                            </div>
+                            <div class="col-md-9 mb-1">
+                                <input type="hidden" asp-for="AssetID" />
+                                <label asp-for="AssetName" class="form-label text-white fw-bold"></label>
+                                <input asp-for="AssetName" class="form-control fw-bold" readonly="readonly">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4  mb-1">
+                                <label asp-for="AssetTypeName" class="form-label text-white fw-bold"></label>
+                                <input asp-for="AssetTypeName" class="form-control fw-bold" readonly="readonly">
+                            </div>
+                            <div class="col-md-8 mb-1">
+                                <input type="hidden" asp-for="ParentAssetID" />
+                                <label asp-for="ParentAssetName" class="form-label text-white fw-bold"></label>
+                                <input asp-for="ParentAssetName" class="form-control fw-bold" placeholder="Enter Name">
+                                <div><span asp-validation-for="ParentAssetName" class="text-danger"></span></div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-1">
+                                <label asp-for="PurchaseDateFormatted" class="form-label text-white fw-bold"></label>
+                                <input asp-for="PurchaseDateFormatted" class="form-control fw-bold" readonly="readonly">
+                            </div>
+                            <div class="col-md-6 mb-1">
+                                <label asp-for="PurchaseAmountFormatted" class="form-label text-white fw-bold"></label>
+                                <input asp-for="PurchaseAmountFormatted" class="form-control fw-bold" readonly="readonly">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6  mb-1">
+                                <label asp-for="BaseLocationName" class="form-label text-white fw-bold"></label>
+                                <input asp-for="BaseLocationName" class="form-control fw-bold" readonly>
+                            </div>
+                            <div class="col-md-6 mb-1">
+                                <label asp-for="ConditionStatus" class="form-label text-white fw-bold"></label>
+                                @if (Model.ConditionStatus == AssetCondition.BeyondRepair)
+                                {
+                                    <span class="form-control fw-bold text-white bg-danger">Faulty Beyond Repair</span>
+                                }
+                                else if (Model.ConditionStatus == AssetCondition.InGoodCondition)
+                                {
+                                    <span class="form-control fw-bold bg-success text-white">In Good Working Condition</span>
+                                }
+                                else if (Model.ConditionStatus == AssetCondition.RequiresRepair)
+                                {
+                                    <span class="form-control fw-bold bg-warning text-dark">Faulty Requires Repair</span>
+                                }
+                                else
+                                {
+                                    <span class=" form-control fw-bold bg-light text-dark">@Model.ConditionStatus</span>
+                                }
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <label asp-for="ConditionDescription" class="form-label text-white fw-bold"></label>
+                                <input class="form-control fw-bold" asp-for="ConditionDescription" readonly="readonly" />
+                                <div><span asp-validation-for="ConditionDescription" class="text-danger"></span></div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12 mb-1">
+                                <label asp-for="AssetDescription" class="form-label text-white fw-bold"></label>
+                                <textarea rows="4" class="form-control fw-bold" name="@Html.NameFor(m => m.AssetDescription)">@Model.AssetDescription</textarea>
+                                <div><span asp-validation-for="AssetDescription" class="text-danger"></span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+@section Scripts{
+    <script src="~/js/js_asm/asm_master_assets.js"></script>
+}
+
+

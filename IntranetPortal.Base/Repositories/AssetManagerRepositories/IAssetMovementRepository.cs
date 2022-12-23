@@ -13,6 +13,8 @@ namespace IntranetPortal.Base.Repositories.AssetManagerRepositories
         Task<IList<AssetMovement>> GetByAssetIdAsync(string assetId);
         Task<IList<AssetMovement>> GetByAssetNameAsync(string assetName);
         Task<IList<AssetMovement>> GetByAssetTypeIdAsync(int assetTypeId);
+        Task<IList<AssetMovement>> GetByAssetIdAndYearAsync(string assetId, int movementYear);
+        Task<IList<AssetMovement>> GetByAssetIdAndYearAndMonthAsync(string assetId, int movementYear, int movementMonth);
         Task<bool> AddAssetMovementAsync(AssetMovement assetMovement);
         Task<bool> EditAsync(AssetMovement assetMovemente);
         Task<bool> DeleteAsync(int assetMovementId);

@@ -1,12 +1,11 @@
-﻿
-@model IntranetPortal.Areas.AssetManager.Models.AssetReservationViewModel
+﻿@model IntranetPortal.Areas.AssetManager.Models.AssetReservationViewModel
 @{
-    ViewData["Title"] = "OfficeManager | Edit Booking";
+    ViewData["Title"] = "OfficeManager | New Booking";
 }
 <div>
     <div class="card" style="min-width:600px">
-        <div class="card-header bg-info">
-            <h4 class="text-white">Edit Equipment Booking</h4>
+        <div class="card-header bg-success">
+            <h4 class="text-white">New Equipment Booking</h4>
         </div>
         <div class="card-body bg-secondary">
             @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
@@ -33,14 +32,13 @@
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
             }
-            <form asp-area="AssetManager" asp-controller="Home" asp-action="EditBooking" method="post">
+            <form asp-area="AssetManager" asp-controller="Bookings" asp-action="Add" method="post">
                 <div class="row">
                     <div class="col-md-8 mb-2">
-                        <input type="hidden" asp-for="AssetReservationID" />
                         <input type="hidden" asp-for="AssetID" />
                         <input type="hidden" asp-for="AssetTypeID" />
                         <label asp-for="AssetName" class="form-label text-white fw-bold"></label>
-                        <input asp-for="AssetName" class="form-control fw-bold" readonly="readonly">
+                        <input asp-for="AssetName" class="form-control fw-bold" onblur="getAssetParameters()">
                         <div><span asp-validation-for="AssetName" class="text-danger"></span></div>
                     </div>
                     <div class="col-md-4 mb-2">
@@ -86,7 +84,6 @@
                         <div><span asp-validation-for="ReservedBy" class="text-danger"></span></div>
                     </div>
                     <div class="col-md-6 mb-4">
-                        <input type="hidden" asp-for="ReservedOn" />
                         <label asp-for="ReservedOnFormatted" class="form-label text-white fw-bold"></label>
                         <input asp-for="ReservedOnFormatted" class="form-control fw-bold" readonly="readonly">
                         <div><span asp-validation-for="ReservedOnFormatted" class="text-danger"></span></div>
@@ -96,22 +93,24 @@
                     <a asp-area="AssetManager" asp-controller="Home" asp-action="Index" class="btn btn-dark ml-2" style="width:100px" title="Return Home">
                         <span class="text-white">Exit</span>
                     </a>
-                    <a asp-area="AssetManager" asp-controller="Home" asp-action="Bookings" class="btn btn-dark ml-1" style="width:100px" title="Return to Bookings">
+                    <a asp-area="AssetManager" asp-controller="Bookings" asp-action="List" asp-route-id="@Model.AssetID" class="btn btn-dark ml-1" style="width:100px" title="Return to Bookings">
                         <span class="text-white">Go Back</span>
-                    </a>                    @if (!Model.OperationIsCompleted)
+                    </a>
+                    @if (!Model.OperationIsCompleted)
                     {
-                        <a asp-area="AssetManager" asp-controller="Home" asp-action="EditBooking" asp-route-id="@Model.AssetReservationID" class="btn btn-warning ml-1" style="width:100px" title="Clear">
+                        <a asp-area="AssetManager" asp-controller="Bookings" asp-action="Add" asp-route-id="@Model.AssetID" class="btn btn-warning ml-1" style="width:100px" title="Clear">
                             <span class="text-white">Clear</span>
                         </a>
-                        <button type="submit" class="btn btn-success ml-2" title="Save Changes" style="width:200px"><span class="text-white">Save Changes </span></button>
+                        <button type="submit" class="btn btn-success ml-2" title="Save" style="width:200px"><span class="text-white">Save</span></button>
                     }
-
                 </div>
             </form>
         </div>
     </div>
 </div>
-
+@section Scripts{
+    <script src="~/js/js_asm/assets_booking_add_new.js"></script>
+}
 
 
 

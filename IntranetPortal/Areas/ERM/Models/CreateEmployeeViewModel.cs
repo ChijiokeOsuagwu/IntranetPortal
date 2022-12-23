@@ -165,7 +165,7 @@ namespace IntranetPortal.Areas.ERM.Models
             Address = Address,
             Email = Email,
             FirstName = FirstName,
-            FullName = $"{FirstName} {OtherNames} {Surname}",
+            FullName = $"{Title} {FirstName} {OtherNames} {Surname}",
             ModifiedTime = $"{DateTime.UtcNow.ToLongDateString()} {DateTime.UtcNow.ToLongTimeString()}",
             PersonID = PersonID,
             PhoneNo1 = PhoneNo1,
@@ -178,6 +178,7 @@ namespace IntranetPortal.Areas.ERM.Models
             BirthDay = BirthDay,
             BirthMonth = BirthMonth,
             BirthYear = BirthYear,
+            Title = Title,
         };
 
         public Employee ConvertToEmployee()

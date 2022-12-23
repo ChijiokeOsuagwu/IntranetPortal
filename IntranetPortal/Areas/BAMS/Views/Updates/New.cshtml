@@ -1,0 +1,62 @@
+﻿
+@model IntranetPortal.Areas.BAMS.Models.AssignmentUpdatesViewModel
+@{
+    ViewData["Title"] = "OfficeManager | New Update";
+}
+    <div class="container">
+        <h4>New Assignment Update</h4>
+        <hr />
+        <div class="row" style="max-width:800px">
+            <div class="mb-1">
+                @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+                {
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <i class="bi bi-x-circle"></i>
+                        <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                }
+                @if (!String.IsNullOrEmpty(Model.ViewModelSuccessMessage))
+                {
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        <i class="bi bi-x-circle"></i>
+                        <span class="fw-bold">@Model.ViewModelSuccessMessage</span>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                }
+            </div>
+            <div class="col-md-12">
+                <form asp-area="Bams" asp-controller="Updates" asp-action="New" method="post">
+                    <div class="card bg-secondary">
+                        <div class="card-header bg-success">
+                            <div class="card-title text-white">New Update</div>
+                        </div>
+                        <!-- /.card-header -->
+                        <div class="card-body">
+                            <div class="col-md-12 mb-1">
+                                <input type="hidden" asp-for="AssignmentEventID" />
+                                <label asp-for="UpdateType" class="form-label text-white fw-bold"></label>
+                                <select asp-for="UpdateType" asp-items="@Html.GetEnumSelectList<AssignmentUpdateType>()" class="form-control fw-bold">
+                                </select>
+                                <div><span asp-validation-for="UpdateType" class="text-danger"></span></div>
+                            </div>
+                            <div class="col-md-12 mb-3">
+                                <label asp-for="UpdateDescription" class="form-label text-white fw-bold"></label>
+                                <textarea asp-for="UpdateDescription" class="form-control fw-bold"> @Model.UpdateDescription</textarea>
+                                <div><span asp-validation-for="UpdateDescription" class="text-danger"></span></div>
+                            </div>
+                            <div class="row">
+                                <a asp-area="Bams" asp-controller="Updates" asp-action="List" asp-route-id="@Model.AssignmentEventID" class="btn btn-dark" style="width:100px" title="Click to Go Back">
+                                    <span class="text-white">Back</span>
+                                </a>
+                                <button type="submit" class="btn btn-success" title="Save" style="width:200px"><span class="text-white">Save</span></button>
+                            </div>
+                        </div>
+                        <!-- /.card-body -->
+                    </div>
+                    <!-- /.card -->
+                </form>
+            </div>
+        </div>
+    </div>
+

@@ -138,10 +138,13 @@ namespace IntranetPortal.Data.Repositories.BaseRepositories
             int rows = 0;
             var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
             StringBuilder sb = new StringBuilder();
-            sb.Append($"UPDATE public.gst_prsns SET title=@title, sname=@sname, fname=@fname, oname=@oname, fullname=@fullname, ");
-            sb.Append($"sex=@sex, phone1=@phone1, phone2=@phone2, email=@email, address=@address, mdb=@mdb, mdt=@mdt, imgp=@imgp, ");
-            sb.Append($"birthday=@birthday, birthmonth=@birthmonth, birthyear=@birthyear, maritalstatus=@maritalstatus ");
-            sb.Append($"WHERE (id=@id);");
+            sb.Append("UPDATE public.gst_prsns SET title=@title, sname=@sname, ");
+            sb.Append("fname=@fname, oname=@oname, fullname=@fullname, ");
+            sb.Append("sex=@sex, phone1=@phone1, phone2=@phone2, email=@email, ");
+            sb.Append("address=@address, mdb=@mdb, mdt=@mdt, birthday=@birthday, ");
+            sb.Append("birthmonth=@birthmonth, birthyear=@birthyear, ");
+            sb.Append("maritalstatus=@maritalstatus WHERE (id=@id);");
+
             string query = sb.ToString();
             try
             {
@@ -162,7 +165,6 @@ namespace IntranetPortal.Data.Repositories.BaseRepositories
                     var personAddress = cmd.Parameters.Add("@address", NpgsqlDbType.Text);
                     var personModifiedBy = cmd.Parameters.Add("@mdb", NpgsqlDbType.Text);
                     var personModifiedTime = cmd.Parameters.Add("@mdt", NpgsqlDbType.Text);
-                    var personImagePath = cmd.Parameters.Add("@imgp", NpgsqlDbType.Text);
                     var personBirthDay = cmd.Parameters.Add("@birthday", NpgsqlDbType.Integer);
                     var personBirthMonth = cmd.Parameters.Add("@birthmonth", NpgsqlDbType.Integer);
                     var personBirthYear = cmd.Parameters.Add("@birthyear", NpgsqlDbType.Integer);
@@ -179,7 +181,6 @@ namespace IntranetPortal.Data.Repositories.BaseRepositories
                     personPhone2.Value = person.PhoneNo2 ?? (object)DBNull.Value;
                     personEmail.Value = person.Email ?? (object)DBNull.Value;
                     personAddress.Value = person.Address ?? (object)DBNull.Value;
-                    personImagePath.Value = person.ImagePath ?? (object)DBNull.Value;
                     personModifiedBy.Value = person.ModifiedBy ?? (object)DBNull.Value;
                     personModifiedTime.Value = person.ModifiedTime ?? (object)DBNull.Value;
                     personBirthDay.Value = person.BirthDay ?? (object)DBNull.Value;
@@ -198,6 +199,46 @@ namespace IntranetPortal.Data.Repositories.BaseRepositories
             }
             return rows > 0;
         }
+
+        public async Task<bool> EditPersonImagePathAsync(string personId, string imagePath, string updatedBy)
+        {
+            if (string.IsNullOrWhiteSpace(personId)) { throw new ArgumentNullException(nameof(personId)); }
+            if (string.IsNullOrWhiteSpace(imagePath)) { throw new ArgumentNullException(nameof(imagePath)); }
+            int rows = 0;
+            var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
+            StringBuilder sb = new StringBuilder();
+            sb.Append("UPDATE public.gst_prsns SET mdb=@mdb, mdt=@mdt, imgp=@imgp ");
+            sb.Append("WHERE (id=@id);");
+
+            string query = sb.ToString();
+            try
+            {
+                await conn.OpenAsync();
+                //Insert data
+                using (var cmd = new NpgsqlCommand(query, conn))
+                {
+                    var id = cmd.Parameters.Add("@id", NpgsqlDbType.Text);
+                    var mdb = cmd.Parameters.Add("@mdb", NpgsqlDbType.Text);
+                    var mdt = cmd.Parameters.Add("@mdt", NpgsqlDbType.Text);
+                    var imgp = cmd.Parameters.Add("@imgp", NpgsqlDbType.Text);
+                    cmd.Prepare();
+                    id.Value = personId;
+                    mdb.Value = updatedBy ?? (object)DBNull.Value;
+                    mdt.Value = $"{DateTime.Now.ToLongDateString()} {DateTime.Now.ToLongTimeString()}";
+                    imgp.Value = imagePath ?? (object)DBNull.Value;
+
+                    rows = await cmd.ExecuteNonQueryAsync();
+                    await conn.CloseAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                await conn.CloseAsync();
+                throw new Exception(ex.Message);
+            }
+            return rows > 0;
+        }
+
 
         public async Task<Person> GetPersonByIdAsync(string Id)
         {

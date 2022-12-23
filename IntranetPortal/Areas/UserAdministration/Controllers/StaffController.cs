@@ -58,6 +58,11 @@ namespace IntranetPortal.Areas.UserAdministration.Controllers
             {
                 var entities = await _securityService.SearchEmployeeUsersByNameAsync(searchString).ConfigureAwait(false);
                 users = entities.ToList();
+                if(users.Count == 1)
+                {
+                    EmployeeUser user = users.First();
+                    return RedirectToAction("EmployeeUserDetails", new { id = user.UserID});
+                }
             }
             int pageSize = 10;
             return View(PaginatedList<EmployeeUser>.CreateAsync(users.AsQueryable(), pageNumber ?? 1, pageSize));

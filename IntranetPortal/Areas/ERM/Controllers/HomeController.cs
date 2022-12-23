@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using IntranetPortal.Areas.ERM.Models;
 using IntranetPortal.Base.Models.EmployeeRecordModels;
 using IntranetPortal.Base.Services;
 using IntranetPortal.Configurations;
@@ -40,6 +41,24 @@ namespace IntranetPortal.Areas.ERM.Controllers
             return View();
         }
 
+        [Authorize(Roles = "ERMHMPGVW, XYALLACCZ")]
+        public async Task<IActionResult> BirthDayList(int? mm, int? dd)
+        {
+            BirthDayListViewModel model = new BirthDayListViewModel();
+            if((mm == null || mm < 1) && (dd == null || dd < 1)) 
+            { 
+                model.mm = DateTime.Now.Month;
+                model.dd = DateTime.Now.Day;
+            }
+            else
+            {
+                model.mm = mm;
+                model.dd = dd;
+            }
+
+            model.EmployeesList = await _ermService.GetEmployeesByBirthDayAsync(mm, dd);
+            return View(model);
+        }
 
 
         //======================== Employees Helper Methods ======================================//

@@ -1,13 +1,12 @@
 ﻿
-
 @model IntranetPortal.Areas.AssetManager.Models.AssetReservationViewModel
 @{
-    ViewData["Title"] = "OfficeManager | Booking Details";
+    ViewData["Title"] = "OfficeManager | Edit Booking";
 }
 <div>
     <div class="card" style="min-width:600px">
-        <div class="card-header bg-dark">
-            <h4 class="text-white">Equipment Booking Details</h4>
+        <div class="card-header bg-info">
+            <h4 class="text-white">Edit Equipment Booking</h4>
         </div>
         <div class="card-body bg-secondary">
             @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
@@ -34,7 +33,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
             }
-            <form asp-area="AssetManager" asp-controller="Home" asp-action="BookingDetails" method="post">
+            <form asp-area="AssetManager" asp-controller="Bookings" asp-action="Edit" method="post">
                 <div class="row">
                     <div class="col-md-8 mb-2">
                         <input type="hidden" asp-for="AssetReservationID" />
@@ -46,29 +45,38 @@
                     </div>
                     <div class="col-md-4 mb-2">
                         <label asp-for="ReservationStatus" class="form-label text-white fw-bold"></label>
-                        <input asp-for="ReservationStatus" class="form-control fw-bold" readonly="readonly">
-                          <div><span asp-validation-for="ReservationStatus" class="text-danger"></span></div>
+                        <select asp-for="ReservationStatus" class="form-control fw-bold">
+                            <option value=""> - Select - </option>
+                            <option value="UnConfirmed">UnConfirmed</option>
+                            <option value="Confirmed"> Confirmed </option>
+                            <option value="Cancelled">Cancelled</option>
+                            <option value="Elapsed">Elapsed</option>
+                        </select>
+                        <div><span asp-validation-for="ReservationStatus" class="text-danger"></span></div>
                     </div>
                 </div>
                 <div class="row">
                     <div class="col-md-6 mb-2">
                         <label asp-for="EventDescription" class="form-label text-white fw-bold"></label>
-                        <input asp-for="EventDescription" class="form-control fw-bold" readonly="readonly">
+                        <input asp-for="EventDescription" class="form-control fw-bold">
                         <div><span asp-validation-for="EventDescription" class="text-danger"></span></div>
                     </div>
                     <div class="col-md-6  mb-2">
                         <label asp-for="EventLocation" class="form-label text-white fw-bold"></label>
-                        <input asp-for="EventLocation" class="form-control fw-bold" readonly="readonly">
+                        <input asp-for="EventLocation" class="form-control fw-bold">
+                        <div><span asp-validation-for="EventLocation" class="text-danger"></span></div>
                     </div>
                 </div>
                 <div class="row">
                     <div class="col-md-6 mb-2">
-                        <label asp-for="EventStartTimeFormatted" class="form-label text-white fw-bold"></label>
-                        <input asp-for="EventStartTimeFormatted" class="form-control fw-bold" readonly="readonly">
+                        <label asp-for="EventStartTime" class="form-label text-white fw-bold"></label>
+                        <input asp-for="EventStartTime" class="form-control fw-bold">
+                        <div><span asp-validation-for="EventStartTime" class="text-danger"></span></div>
                     </div>
                     <div class="col-md-6 mb-2">
-                        <label asp-for="EventEndTimeFormatted" class="form-label text-white fw-bold"></label>
-                        <input asp-for="EventEndTimeFormatted" class="form-control fw-bold" readonly="readonly">
+                        <label asp-for="EventEndTime" class="form-label text-white fw-bold"></label>
+                        <input asp-for="EventEndTime" class="form-control fw-bold">
+                        <div><span asp-validation-for="EventEndTime" class="text-danger"></span></div>
                     </div>
                 </div>
                 <div class="row">
@@ -88,13 +96,22 @@
                     <a asp-area="AssetManager" asp-controller="Home" asp-action="Index" class="btn btn-dark ml-2" style="width:100px" title="Return Home">
                         <span class="text-white">Exit</span>
                     </a>
-                    <button class="btn btn-dark ml-1" style="width:100px" title="Return to Bookings" onclick="history.back()"><span class="text-white">Go Back</span></button>
+                    <a asp-area="AssetManager" asp-controller="Bookings" asp-action="List" asp-route-id="@Model.AssetID" class="btn btn-dark ml-1" style="width:100px" title="Return to Bookings">
+                        <span class="text-white">Back</span>
+                    </a>                    
+                    @if (!Model.OperationIsCompleted)
+                    {
+                        <a asp-area="AssetManager" asp-controller="Bookings" asp-action="Edit" asp-route-id="@Model.AssetReservationID" class="btn btn-warning ml-1" style="width:100px" title="Clear">
+                            <span class="text-white">Clear</span>
+                        </a>
+                        <button type="submit" class="btn btn-success ml-2" title="Save Changes" style="width:200px"><span class="text-white">Save Changes </span></button>
+                    }
+
                 </div>
             </form>
         </div>
     </div>
 </div>
-
 
 
 

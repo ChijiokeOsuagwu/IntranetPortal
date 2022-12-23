@@ -33,6 +33,49 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
             _globalSettingsService = globalSettingsService;
         }
 
+
+        public async Task<IActionResult> Index(string id, int? yr = null, int? mn = null)
+        {
+            AssetUsageListViewModel model = new AssetUsageListViewModel();
+            IList<AssetUsage> assetUsageList = new List<AssetUsage>();
+            if (string.IsNullOrWhiteSpace(id))
+            {
+                return RedirectToAction("CheckOutList");
+            }
+            else { model.AssetID = id; }
+            try
+            {
+                if (yr > 0)
+                {
+                    model.yr = yr.Value;
+                    if (mn > 0)
+                    {
+                        model.mn = mn.Value;
+                        assetUsageList = await _assetManagerService.GetAssetUsagesByAssetIdAndDateAsync(id, yr.Value, mn.Value);
+                        model.AssetUsageList = assetUsageList.ToList();
+                    }
+                    else
+                    {
+                        assetUsageList = await _assetManagerService.GetAssetUsagesByAssetIdAndDateAsync(id, yr.Value);
+                        model.AssetUsageList = assetUsageList.ToList();
+                    }
+                }
+                else
+                {
+                    model.yr = DateTime.Now.Year;
+                    assetUsageList = await _assetManagerService.GetAssetUsagesByAssetIdAndDateAsync(id,model.yr.Value);
+                    model.AssetUsageList = assetUsageList.ToList();
+                }
+            }
+            catch (Exception ex)
+            {
+                ViewBag.ErrorMessage = ex.Message;
+            }
+
+            return View(model);
+        }
+
+
         public async Task<IActionResult> CheckOutList(int? tp = null, string sp = null, int? pg = null)
         {
             IList<AssetUsage> assetUsageList = new List<AssetUsage>();

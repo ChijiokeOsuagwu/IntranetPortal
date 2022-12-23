@@ -47,20 +47,35 @@ namespace IntranetPortal.Areas.BAMS.Controllers
             AssignmentEvent assignmentEvent = new AssignmentEvent();
             try
             {
+                string eventTitle = "[N/A]";
                 if (id != null)
                 {
                     assignmentEvent = await _bamsManagerService.GetAssignmentEventByIdAsync(id.Value);
+                    if (assignmentEvent != null && !string.IsNullOrWhiteSpace(assignmentEvent.Title))
+                    { eventTitle = assignmentEvent.Title; }
                 }
                 model.MessageType = tp;
                 model.MessageID = Guid.NewGuid().ToString();
                 model.SentBy = "OfficeManager";
                 model.SentTime = DateTime.Now;
-                model.ActionUrl = $"~/Bams/Home/AssignmentDetails/{id}";
+                model.ActionUrl = $"./Bams/Home/AssignmentDetails/{id}";
                 switch (tp)
                 {
                     case 0:
                         model.Subject = "New Live Broadcast Assignment";
                         model.MessageBody = GetNewAssignmentNotificationMessage();
+                        break;
+                    case 1:
+                        model.Subject = "Notice of Assignment Event Extension";
+                        model.MessageBody = GetAssignmentExtensionNotificationMessage(eventTitle);
+                        break;
+                    case 2:
+                        model.Subject = "Notice of Assignment Event Cancellation";
+                        model.MessageBody = GetAssignmentCancellationNotificationMessage(eventTitle);
+                        break;
+                    case 3:
+                        model.Subject = "New Assignment Status Update";
+                        model.MessageBody = GetAssignmentUpdateNotificationMessage(eventTitle);
                         break;
                     default:
                         break;
@@ -96,51 +111,103 @@ namespace IntranetPortal.Areas.BAMS.Controllers
         {
             if (ModelState.IsValid)
             {
-                var employee = await _employeeRecordService.GetEmployeeByNameAsync(model.RecipientName);
-                var assignment = await _bamsManagerService.GetAssignmentEventByIdAsync(model.AssignmentEventID);
-                if (employee == null || string.IsNullOrWhiteSpace(employee.EmployeeID))
+                try
                 {
-                    model.ViewModelErrorMessage = "Sorry, no record was found for the selected recipient.";
-                }
-                else
-                {
-                    model.RecipientID = employee.EmployeeID;
-                    string recipientEmail = employee.OfficialEmail;
-                    string eventVenue = $"{ assignment.Venue} located in { assignment.State} state";
-                    
+                    string previousEndTime = "[N/A]";
+                    string currentEndTime = "[N/A]";
 
-                    MessageDetail md = model.ConvertToMessage();
-
-                    if (await _baseModelService.AddMessageRecipientAsync(md))
+                    var employee = await _employeeRecordService.GetEmployeeByNameAsync(model.RecipientName);
+                    var assignment = await _bamsManagerService.GetAssignmentEventByIdAsync(model.AssignmentEventID);
+                    AssignmentExtension assignmentExtension = new AssignmentExtension();
+                    if (model.MessageType != null && model.MessageType.Value == 2)
                     {
-                        EmailModel email = new EmailModel();
-                        email.RecipientName = model.RecipientName;
-                        email.RecipientEmail = recipientEmail;
-                        email.SenderName = "OfficeManager";
-                        email.SenderEmail = "officemanager@channelstv.com";
-                        switch (model.MessageType)
+                        var entities = await _bamsManagerService.GetAssignmentExtensionsByAssignmentEventIdAsync(assignment.ID.Value);
+                        assignmentExtension = entities.FirstOrDefault();
+                        if (assignmentExtension.FromTime != null)
                         {
-                            case 0:
-                                email.Subject = "New Live Broadcast Assignment";
-                                email.PlainContent = GetNewAssignmentEmailTextMessage(model.RecipientName, "New Live Broadcast Assignment", eventVenue);
-                                email.HtmlContent = GetNewAssignmentEmailHtmlMessage(model.RecipientName, "New Live Broadcast Assignment", eventVenue);
-                                break;
-                            default:
-                                break;
+                            previousEndTime = $"{assignmentExtension.FromTime.Value.ToLongDateString()} {assignmentExtension.FromTime.Value.ToLongTimeString()}";
                         }
 
-                        UtilityHelper _utilityHelper = new UtilityHelper(_configuration);
-                        if(_utilityHelper.SendEmailWithSendGrid(email))
+                        if (assignmentExtension.ToTime != null)
                         {
-                            model.OperationIsSuccessful = true;
-                            model.ViewModelSuccessMessage = "Notification and email message sent successfully!";
-                        }
-                        else
-                        {
-                            model.OperationIsSuccessful = true;
-                            model.ViewModelSuccessMessage = "Email message could not be sent, but the notification was sent successfully.";
+                            currentEndTime = $"{assignmentExtension.ToTime.Value.ToLongDateString()} {assignmentExtension.ToTime.Value.ToLongTimeString()}";
                         }
                     }
+
+                    if (employee == null || string.IsNullOrWhiteSpace(employee.EmployeeID))
+                    {
+                        model.ViewModelErrorMessage = "Sorry, no record was found for the selected recipient.";
+                    }
+                    else
+                    {
+                        model.RecipientID = employee.EmployeeID;
+                        string recipientEmail = employee.OfficialEmail;
+                        string eventVenue = $"{ assignment.Venue} located in { assignment.State} state";
+
+                        string eventStartTime = "[N/A]";
+                        if (assignment.StartTime != null)
+                        {
+                            eventStartTime = $"{assignment.StartTime.Value.ToLongDateString()} {assignment.StartTime.Value.ToLongTimeString()}";
+                        }
+
+                        string eventEndTime = "[N/A]";
+                        if (assignment.EndTime != null)
+                        {
+                            eventEndTime = $"{assignment.EndTime.Value.ToLongDateString()} {assignment.EndTime.Value.ToLongTimeString()}";
+                        }
+
+                        MessageDetail md = model.ConvertToMessage();
+
+                        if (await _baseModelService.AddMessageRecipientAsync(md))
+                        {
+                            EmailModel email = new EmailModel();
+                            email.RecipientName = model.RecipientName;
+                            email.RecipientEmail = recipientEmail;
+                            email.SenderName = "OfficeManager";
+                            email.SenderEmail = "officemanager@channelstv.com";
+                            switch (model.MessageType)
+                            {
+                                case 0:
+                                    email.Subject = "New Live Broadcast Assignment";
+                                    email.PlainContent = GetNewAssignmentEmailTextMessage(model.RecipientName, assignment.Title, eventVenue, eventStartTime, eventEndTime);
+                                    email.HtmlContent = GetNewAssignmentEmailHtmlMessage(model.RecipientName, assignment.Title, eventVenue, eventStartTime, eventEndTime);
+                                    break;
+                                case 1:
+                                    email.Subject = "Notice of Assignment Event Extension";
+                                    email.PlainContent = GetAssignmentExtensionEmailTextMessage(model.RecipientName, assignment.Title, previousEndTime, currentEndTime);
+                                    email.HtmlContent = GetAssignmentExtensionEmailHtmlMessage(model.RecipientName, assignment.Title, previousEndTime, currentEndTime);
+                                    break;
+                                case 2:
+                                    email.Subject = "Notice of Assignment Event Cancellation";
+                                    email.PlainContent = GetAssignmentCancellationEmailTextMessage(model.RecipientName, assignment.Title);
+                                    email.HtmlContent = GetAssignmentCancellationEmailHtmlMessage(model.RecipientName, assignment.Title);
+                                    break;
+                                case 3:
+                                    email.Subject = "New Assignment Status Update";
+                                    email.PlainContent = GetAssignmentUpdateEmailTextMessage(model.RecipientName, assignment.Title);
+                                    email.HtmlContent = GetAssignmentUpdateEmailHtmlMessage(model.RecipientName, assignment.Title);
+                                    break;
+                                default:
+                                    break;
+                            }
+
+                            UtilityHelper _utilityHelper = new UtilityHelper(_configuration);
+                            if (_utilityHelper.SendEmailWithSendGrid(email))
+                            {
+                                model.OperationIsSuccessful = true;
+                                model.ViewModelSuccessMessage = "Notification and email message sent successfully!";
+                            }
+                            else
+                            {
+                                model.OperationIsSuccessful = true;
+                                model.ViewModelSuccessMessage = "Email message could not be sent, but the notification was sent successfully.";
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    model.ViewModelErrorMessage = ex.Message;
                 }
             }
             return View(model);
@@ -148,47 +215,187 @@ namespace IntranetPortal.Areas.BAMS.Controllers
 
         //================== Controller Helper Objects ============================================================//
         #region Controller Helper Objects
-        private string GetNewAssignmentEmailHtmlMessage(string recipient, string title, string venue)
+
+        //================= New Assignment Notification Messages ====================================//
+        private string GetNewAssignmentEmailHtmlMessage(string recipient, string title, string venue, string startTime, string endTime)
         {
             StringBuilder sb = new StringBuilder();
             sb.Append("<html><head></head><body style=\"font - family:sans - serif; font - size:110 %; \">");
             sb.Append($"<div>Dear {recipient},</div><br/><div>I trust this email meets you well.</div><br/>");
-            sb.Append("This is to bring to your notice that a live broadcast event has just been scheduled ");
-            sb.Append($"as follows:<br/><p>Event: &nbsp;&nbsp;<strong>{title}");
-            sb.Append($"</strong><br/>Venue: &nbsp;<strong>{venue}</strong><br/>");
-            sb.Append($"Time: &nbsp;&nbsp;&nbsp;<strong>{DateTime.Now.ToLongDateString()}  ");
-            sb.Append($"{DateTime.Now.ToLongTimeString()}</strong> <br/></p>");
-            sb.Append("You may want to click on the link below or login to OfficeManager for ");
-            sb.Append("your relevant action.</div><br/> <div>Kindly <a href=\"#\"><strong>Click Here ");
-            sb.Append("</strong></a>to action this request.</div><br/><div>Regards</div>");
-            sb.Append("<div><strong>OfficeManager</strong></div></body></html>");
+            sb.Append("<div>This is to bring to your notice that a new live broadcast assignment has just been scheduled ");
+            sb.Append($"as follows:</div><div>Event: &nbsp;&nbsp;<strong>{title}</strong></div>");
+            sb.Append($"<div>Venue: &nbsp;<strong>{venue}</strong></div>");
+            sb.Append($"<div>Starts: &nbsp;&nbsp;&nbsp;<strong>{startTime}</strong></div>");
+            sb.Append($"<div>Ends: &nbsp;&nbsp;&nbsp;<strong>{endTime}</strong></div>");
+            sb.Append("<div>Kindly login to OfficeManager for your relevant action.</div><br/> ");
+            sb.Append("<div>Regards</div>");
+            sb.Append("<div><strong>OfficeManager</strong></div><br/><br/>");
+            sb.Append("<div>[NB: This a system generated email. Please do not reply.]</div>");
+            sb.Append("</body></html>");
             return sb.ToString();
         }
 
-        private string GetNewAssignmentEmailTextMessage(string recipient, string title, string venue)
+        private string GetNewAssignmentEmailTextMessage(string recipient, string title, string venue, string startTime, string endTime)
         {
             StringBuilder sb = new StringBuilder();
             sb.AppendLine($"Dear {recipient},");
-            sb.Append(" I trust this email meets you well.");
-            sb.Append("This is to bring to your notice that a live broadcast assignment ");
+            sb.AppendLine("");
+            sb.AppendLine("I trust this email meets you well.");
+            sb.Append("This is to bring to your notice that a new live broadcast assignment ");
             sb.AppendLine("has just been scheduled as follows:");
-            sb.Append($"Event: {title}");
-            sb.Append($"Venue: {venue}");
-            sb.Append($"Time: {DateTime.Now.ToLongDateString()}  ");
-            sb.Append($"{DateTime.Now.ToLongTimeString()} ");
-            sb.AppendLine("Kindly Click Here for your relevant action.");
+            sb.AppendLine($"Event: {title}");
+            sb.AppendLine($"Venue: {venue}");
+            sb.AppendLine($"Starts: {startTime}");
+            sb.AppendLine($"Ends: {endTime}");
+            sb.AppendLine("Kindly login to OfficeManager for your relevant action.");
+            sb.AppendLine("");
             sb.AppendLine("Regards");
             sb.Append("OfficeManager");
+            sb.Append("[NB: This is a system generated email. Please do not reply.]");
             return sb.ToString();
         }
 
         private string GetNewAssignmentNotificationMessage()
         {
             StringBuilder sb = new StringBuilder();
-            sb.AppendLine("A live broadcast assignment has just been scheduled.");
-            sb.Append("Click on the link below for your relevant action.");
+            sb.AppendLine("A new live broadcast assignment has just been scheduled.");
+            sb.Append("Click on the link below to see the details of this assignment and carry out any relevant actions on it.");
             return sb.ToString();
         }
+
+
+        //================= Assignment Event Extension Notification Messages ====================================//
+        private string GetAssignmentExtensionEmailHtmlMessage(string recipient, string title, string oldTime, string newTime)
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append("<html><head></head><body style=\"font - family:sans - serif; font - size:110 %; \">");
+            sb.Append($"<div>Dear {recipient},</div><br/><div>I trust this email meets you well.</div>");
+            sb.Append("<div>This is to bring to your notice that the schedule of the following assignment event ");
+            sb.Append($"has just been adjusted as follows:</div><div>Event: &nbsp;&nbsp;<strong>{title}</strong></div>");
+            sb.Append($"<div>Previous Closing Time: <strong>{oldTime}</strong></div>");
+            sb.Append($"<div>Current Closing Time: &nbsp;&nbsp;&nbsp;<strong>{newTime}</strong></div>");
+            sb.Append("<div>Kindly login to OfficeManager for your relevant actions.</div><br/> ");
+            sb.Append("<div>Regards</div>");
+            sb.Append("<div><strong>OfficeManager</strong></div><br/><br/>");
+            sb.Append("<div>[NB: This a system generated email. Please do not reply.]</div>");
+            sb.Append("</body></html>");
+            return sb.ToString();
+        }
+
+        private string GetAssignmentExtensionEmailTextMessage(string recipient, string title, string oldTime, string newTime)
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine($"Dear {recipient},");
+            sb.AppendLine("");
+            sb.Append(" I trust this email meets you well.");
+            sb.Append($"This is to bring to your notice that the schedule of the following assignment event ");
+            sb.AppendLine("has just been adjusted as follows:");
+            sb.AppendLine($"Event: {title}");
+            sb.AppendLine($"Previous Closing Time: {oldTime}");
+            sb.AppendLine($"Current Closing Time: {newTime}");
+            sb.AppendLine("Kindly login to OfficeManager for your relevant actions.");
+            sb.AppendLine("");
+            sb.AppendLine("Regards");
+            sb.Append("OfficeManager");
+            sb.Append("[NB: This is a system generated email. Please do not reply.]");
+            return sb.ToString();
+        }
+
+        private string GetAssignmentExtensionNotificationMessage(string eventTitle)
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine($"The following assignment event: [{eventTitle}] has just been extended.");
+            sb.Append("Click on the link below to see the details of this extension and carry out any relevant actions accordingly.");
+            return sb.ToString();
+        }
+
+
+        //================= Assignment Event Cancellation Notification Messages ====================================//
+        private string GetAssignmentCancellationEmailHtmlMessage(string recipient, string title)
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append("<html><head></head><body style=\"font - family:sans - serif; font - size:110 %; \">");
+            sb.Append($"<div>Dear {recipient},</div><br/><div>I trust this email meets you well.</div>");
+            sb.Append("<div>This is to bring to your notice that the following assignment event ");
+            sb.Append($"has just been cancelled.</div><div>Event: &nbsp;&nbsp;<strong>{title}</strong></div>");
+            sb.Append("<div>Kindly login to OfficeManager for your relevant actions.</div><br/> ");
+            sb.Append("<div>Regards</div>");
+            sb.Append("<div><strong>OfficeManager</strong></div><br/><br/>");
+            sb.Append("<div>[NB: This a system generated email. Please do not reply.]</div>");
+            sb.Append("</body></html>");
+            return sb.ToString();
+        }
+
+        private string GetAssignmentCancellationEmailTextMessage(string recipient, string title)
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine($"Dear {recipient},");
+            sb.AppendLine("");
+            sb.Append("I trust this email meets you well.");
+            sb.Append($"This is to bring to your notice that the assignment event ");
+            sb.AppendLine("has just been cancelled.");
+            sb.AppendLine($"Event: {title}");
+            sb.AppendLine("Kindly login to OfficeManager for your relevant actions.");
+            sb.AppendLine("");
+            sb.AppendLine("Regards");
+            sb.Append("OfficeManager");
+            sb.Append("");
+            sb.Append("[NB: This is a system generated email. Please do not reply.]");
+
+            return sb.ToString();
+        }
+
+        private string GetAssignmentCancellationNotificationMessage(string eventTitle)
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine($"This is is to notify you that the following assignment event: [{eventTitle}] has just been cancelled.");
+            sb.Append("Click on the link below for details and carry out any relevant actions accordingly.");
+            return sb.ToString();
+        }
+
+
+        //================= Assignment Update Notification Messages ====================================//
+        private string GetAssignmentUpdateEmailHtmlMessage(string recipient, string title)
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append("<html><head></head><body style=\"font - family:sans - serif; font - size:110 %; \">");
+            sb.Append($"<div>Dear {recipient},</div><br/><div>I trust this email meets you well.</div>");
+            sb.Append("<div>This is to bring to your notice that a new status update has just been logged for the following assignment.</div>");
+            sb.Append($"<div>Event: &nbsp;&nbsp;<strong>{title}</strong></div>");
+            sb.Append("<div>Kindly login to OfficeManager for your relevant actions.</div><br/> ");
+            sb.Append("<div>Regards</div>");
+            sb.Append("<div><strong>OfficeManager</strong></div><br/><br/>");
+            sb.Append("<div>[NB: This a system generated email. Please do not reply.]</div>");
+            sb.Append("</body></html>");
+            return sb.ToString();
+        }
+
+        private string GetAssignmentUpdateEmailTextMessage(string recipient, string title)
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine($"Dear {recipient},");
+            sb.AppendLine("");
+            sb.Append(" I trust this email meets you well.");
+            sb.Append($"This is to bring to your notice that a new status update has just been logged for the following assignment.");
+            sb.AppendLine($"Event: {title}");
+            sb.AppendLine("Kindly login to OfficeManager for your relevant actions.");
+            sb.AppendLine("");
+            sb.AppendLine("Regards");
+            sb.Append("OfficeManager");
+            sb.AppendLine("");
+            sb.Append("[NB: This is a system generated email. Please do not reply.]");
+
+            return sb.ToString();
+        }
+
+        private string GetAssignmentUpdateNotificationMessage(string eventTitle)
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine($"A new status update has just been logged for the following assignment: [{eventTitle}].");
+            sb.Append("Click on the link below for details and carry out any relevant actions accordingly.");
+            return sb.ToString();
+        }
+
         #endregion
     }
 }

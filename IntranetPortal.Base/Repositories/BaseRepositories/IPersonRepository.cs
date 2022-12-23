@@ -11,6 +11,7 @@ namespace IntranetPortal.Base.Repositories.BaseRepositories
         Task<bool> AddPersonAsync(Person person);
         Task<bool> DeletePersonAsync(string Id, string deletedBy, string deletedTime);
         Task<bool> EditPersonAsync(Person person);
+        Task<bool> EditPersonImagePathAsync(string personId, string imagePath, string updatedBy);
         Task<Person> GetPersonByIdAsync(string Id);
         Task<Person> GetPersonByNameAsync(string personName);
         Task<IList<Person>> GetPersonsAsync();

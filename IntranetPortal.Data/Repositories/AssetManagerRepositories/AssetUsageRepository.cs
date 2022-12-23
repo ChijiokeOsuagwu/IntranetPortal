@@ -474,6 +474,146 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
             return assetUsages;
         }
 
+        public async Task<IList<AssetUsage>> GetByAssetIdAndYearAsync(string assetId, int usageYear)
+        {
+            List<AssetUsage> assetUsages = new List<AssetUsage>();
+            if (string.IsNullOrEmpty(assetId)) { throw new ArgumentNullException(nameof(assetId)); }
+            var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
+            StringBuilder sb = new StringBuilder();
+            sb.Append("SELECT u.usg_id, u.asset_id, u.start_date, u.end_date, u.usg_purpose, u.event_ds, u.chk_out_by, u.from_loc, ");
+            sb.Append("u.chk_out_time, u.chk_out_cnd, u.chk_out_to, u.chk_out_cmt, u.chk_in_by, u.chk_in_time, u.chk_in_cnd, ");
+            sb.Append("u.chk_in_cmt, u.asst_typ_id, u.event_loc, a.asst_nm, a.asst_ds, t.typ_nm, u.md_by, u.md_dt, u.chk_status ");
+            sb.Append("FROM public.asm_ass_usg u INNER JOIN public.asm_stt_asst a ON u.asset_id = a.asst_id ");
+            sb.Append("INNER JOIN public.asm_stt_typs t ON u.asst_typ_id = t.typ_id WHERE (u.asset_id = @asset_id) ");
+            sb.Append("AND ((EXTRACT(YEAR FROM u.start_date))::INTEGER = @usage_year) ");
+            sb.Append("ORDER BY  u.usg_id DESC;");
+            string query = sb.ToString();
+            try
+            {
+                await conn.OpenAsync();
+                // Retrieve all rows
+                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+                {
+                    var asset_id = cmd.Parameters.Add("@asset_id", NpgsqlDbType.Text);
+                    var usage_year = cmd.Parameters.Add("@usage_year", NpgsqlDbType.Integer);
+                    await cmd.PrepareAsync();
+                    asset_id.Value = assetId;
+                    usage_year.Value = usageYear;
+
+                    using (var reader = await cmd.ExecuteReaderAsync())
+                        while (await reader.ReadAsync())
+                        {
+                            assetUsages.Add(new AssetUsage()
+                            {
+                                UsageID = reader["usg_id"] == DBNull.Value ? 0 : (int)reader["usg_id"],
+                                AssetID = reader["asset_id"] == DBNull.Value ? string.Empty : reader["asset_id"].ToString(),
+                                AssetName = reader["asst_nm"] == DBNull.Value ? string.Empty : reader["asst_nm"].ToString(),
+                                AssetDescription = reader["asst_ds"] == DBNull.Value ? string.Empty : reader["asst_ds"].ToString(),
+                                UsageStartTime = reader["start_date"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["start_date"],
+                                UsageEndTime = reader["end_date"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["end_date"],
+                                Purpose = reader["usg_purpose"] == DBNull.Value ? string.Empty : reader["usg_purpose"].ToString(),
+                                UsageDescription = reader["event_ds"] == DBNull.Value ? string.Empty : reader["event_ds"].ToString(),
+                                UsageLocation = reader["event_loc"] == DBNull.Value ? string.Empty : reader["event_loc"].ToString(),
+                                CheckedInBy = reader["chk_in_by"] == DBNull.Value ? string.Empty : reader["chk_in_by"].ToString(),
+                                CheckedInComment = reader["chk_in_cmt"] == DBNull.Value ? string.Empty : reader["chk_in_cmt"].ToString(),
+                                CheckedInCondition = reader["chk_in_cnd"] == DBNull.Value ? AssetCondition.Unspecified : (AssetCondition)reader["chk_in_cnd"],
+                                CheckedInTime = reader["chk_in_time"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["chk_in_time"],
+                                CheckedOutBy = reader["chk_out_by"] == DBNull.Value ? string.Empty : reader["chk_out_by"].ToString(),
+                                CheckedOutComment = reader["chk_out_cmt"] == DBNull.Value ? string.Empty : reader["chk_out_cmt"].ToString(),
+                                CheckedOutTime = reader["chk_out_time"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["chk_out_time"],
+                                CheckedOutTo = reader["chk_out_to"] == DBNull.Value ? string.Empty : reader["chk_out_to"].ToString(),
+                                CheckOutCondition = reader["chk_out_cnd"] == DBNull.Value ? AssetCondition.Unspecified : (AssetCondition)reader["chk_out_cnd"],
+                                CheckStatus = reader["chk_status"] == DBNull.Value ? string.Empty : reader["chk_status"].ToString(),
+                                AssetTypeID = reader["asst_typ_id"] == DBNull.Value ? 0 : (int)reader["asst_typ_id"],
+                                AssetTypeName = reader["typ_nm"] == DBNull.Value ? string.Empty : reader["typ_nm"].ToString(),
+                                CheckedOutFromLocation = reader["from_loc"] == DBNull.Value ? string.Empty : reader["from_loc"].ToString(),
+                                ModifiedBy = reader["md_by"] == DBNull.Value ? string.Empty : reader["md_by"].ToString(),
+                                ModifiedTime = reader["md_dt"] == DBNull.Value ? string.Empty : reader["md_dt"].ToString(),
+                            });
+                        }
+                }
+                await conn.CloseAsync();
+            }
+            catch (Exception ex)
+            {
+                await conn.CloseAsync();
+                throw new Exception(ex.Message);
+            }
+            return assetUsages;
+        }
+
+        public async Task<IList<AssetUsage>> GetByAssetIdAndYearAndMonthAsync(string assetId, int usageYear, int usageMonth)
+        {
+            List<AssetUsage> assetUsages = new List<AssetUsage>();
+            if (string.IsNullOrEmpty(assetId)) { throw new ArgumentNullException(nameof(assetId)); }
+            var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
+            StringBuilder sb = new StringBuilder();
+            sb.Append("SELECT u.usg_id, u.asset_id, u.start_date, u.end_date, u.usg_purpose, u.event_ds, u.chk_out_by, u.from_loc, ");
+            sb.Append("u.chk_out_time, u.chk_out_cnd, u.chk_out_to, u.chk_out_cmt, u.chk_in_by, u.chk_in_time, u.chk_in_cnd, ");
+            sb.Append("u.chk_in_cmt, u.asst_typ_id, u.event_loc, a.asst_nm, a.asst_ds, t.typ_nm, u.md_by, u.md_dt, u.chk_status ");
+            sb.Append("FROM public.asm_ass_usg u INNER JOIN public.asm_stt_asst a ON u.asset_id = a.asst_id ");
+            sb.Append("INNER JOIN public.asm_stt_typs t ON u.asst_typ_id = t.typ_id WHERE (u.asset_id = @asset_id) ");
+            sb.Append("AND ((EXTRACT(YEAR FROM u.start_date))::INTEGER = @usage_year) ");
+            sb.Append("AND ((EXTRACT(MONTH FROM u.start_date))::INTEGER = @usage_month) ");
+            sb.Append("ORDER BY u.usg_id DESC;");
+            string query = sb.ToString();
+            try
+            {
+                await conn.OpenAsync();
+                // Retrieve all rows
+                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+                {
+                    var asset_id = cmd.Parameters.Add("@asset_id", NpgsqlDbType.Text);
+                    var usage_year = cmd.Parameters.Add("@usage_year", NpgsqlDbType.Integer);
+                    var usage_month = cmd.Parameters.Add("@usage_month", NpgsqlDbType.Integer);
+                    await cmd.PrepareAsync();
+                    asset_id.Value = assetId;
+                    usage_year.Value = usageYear;
+                    usage_month.Value = usageMonth;
+
+                    using (var reader = await cmd.ExecuteReaderAsync())
+                        while (await reader.ReadAsync())
+                        {
+                            assetUsages.Add(new AssetUsage()
+                            {
+                                UsageID = reader["usg_id"] == DBNull.Value ? 0 : (int)reader["usg_id"],
+                                AssetID = reader["asset_id"] == DBNull.Value ? string.Empty : reader["asset_id"].ToString(),
+                                AssetName = reader["asst_nm"] == DBNull.Value ? string.Empty : reader["asst_nm"].ToString(),
+                                AssetDescription = reader["asst_ds"] == DBNull.Value ? string.Empty : reader["asst_ds"].ToString(),
+                                UsageStartTime = reader["start_date"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["start_date"],
+                                UsageEndTime = reader["end_date"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["end_date"],
+                                Purpose = reader["usg_purpose"] == DBNull.Value ? string.Empty : reader["usg_purpose"].ToString(),
+                                UsageDescription = reader["event_ds"] == DBNull.Value ? string.Empty : reader["event_ds"].ToString(),
+                                UsageLocation = reader["event_loc"] == DBNull.Value ? string.Empty : reader["event_loc"].ToString(),
+                                CheckedInBy = reader["chk_in_by"] == DBNull.Value ? string.Empty : reader["chk_in_by"].ToString(),
+                                CheckedInComment = reader["chk_in_cmt"] == DBNull.Value ? string.Empty : reader["chk_in_cmt"].ToString(),
+                                CheckedInCondition = reader["chk_in_cnd"] == DBNull.Value ? AssetCondition.Unspecified : (AssetCondition)reader["chk_in_cnd"],
+                                CheckedInTime = reader["chk_in_time"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["chk_in_time"],
+                                CheckedOutBy = reader["chk_out_by"] == DBNull.Value ? string.Empty : reader["chk_out_by"].ToString(),
+                                CheckedOutComment = reader["chk_out_cmt"] == DBNull.Value ? string.Empty : reader["chk_out_cmt"].ToString(),
+                                CheckedOutTime = reader["chk_out_time"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["chk_out_time"],
+                                CheckedOutTo = reader["chk_out_to"] == DBNull.Value ? string.Empty : reader["chk_out_to"].ToString(),
+                                CheckOutCondition = reader["chk_out_cnd"] == DBNull.Value ? AssetCondition.Unspecified : (AssetCondition)reader["chk_out_cnd"],
+                                CheckStatus = reader["chk_status"] == DBNull.Value ? string.Empty : reader["chk_status"].ToString(),
+                                AssetTypeID = reader["asst_typ_id"] == DBNull.Value ? 0 : (int)reader["asst_typ_id"],
+                                AssetTypeName = reader["typ_nm"] == DBNull.Value ? string.Empty : reader["typ_nm"].ToString(),
+                                CheckedOutFromLocation = reader["from_loc"] == DBNull.Value ? string.Empty : reader["from_loc"].ToString(),
+                                ModifiedBy = reader["md_by"] == DBNull.Value ? string.Empty : reader["md_by"].ToString(),
+                                ModifiedTime = reader["md_dt"] == DBNull.Value ? string.Empty : reader["md_dt"].ToString(),
+                            });
+
+                        }
+                }
+                await conn.CloseAsync();
+            }
+            catch (Exception ex)
+            {
+                await conn.CloseAsync();
+                throw new Exception(ex.Message);
+            }
+            return assetUsages;
+        }
+
         public async Task<IList<AssetUsage>> GetCheckedOutByAssetIdAsync(string assetId)
         {
             List<AssetUsage> assetUsages = new List<AssetUsage>();
@@ -540,7 +680,6 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
             }
             return assetUsages;
         }
-
 
         public async Task<IList<AssetUsage>> GetByAssetNameAsync(string assetName)
         {
