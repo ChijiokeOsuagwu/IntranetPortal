@@ -360,12 +360,14 @@ namespace IntranetPortal.Data.Repositories.SecurityRepositories
             var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
             string query = String.Empty;
             StringBuilder sb = new StringBuilder();
-            sb.Append($"SELECT a.app_cd, a.app_ds, r.rl_id, r.rl_nm, r.rl_rk, p.usr_pms_id, p.usr_acct_id, ");
-            sb.Append($"CASE WHEN p.usr_pms_id IS NOT NULL THEN true ELSE false END as is_grtd ");
-            sb.Append($"FROM public.sct_usr_apps a INNER JOIN public.sct_usr_rls r ON a.app_cd = r.rl_app ");
-            sb.Append($"LEFT OUTER JOIN public.sct_usr_pms p ON r.rl_id = p.usr_rls_id ");
-            sb.Append($"WHERE (p.usr_acct_id = @usr_id OR p.usr_acct_id IS NULL) AND (a.app_cd = @app_id) ");
-            sb.Append($" AND (a.app_cd != 'SYS') ORDER BY a.app_cd, r.rl_rk;");
+            sb.Append("SELECT r.rl_id, r.rl_nm, r.rl_rk, r.rl_app, p.usr_pms_id, ");
+            sb.Append("p.usr_acct_id, a.app_ds, ");
+            sb.Append("CASE WHEN p.usr_pms_id IS NOT NULL THEN true ELSE false END as is_grtd ");
+            sb.Append("FROM public.sct_usr_rls r ");
+            sb.Append("LEFT OUTER JOIN public.sct_usr_pms p ON r.rl_id = p.usr_rls_id ");
+            sb.Append("LEFT  OUTER JOIN public.sct_usr_apps a ON r.rl_app = a.app_cd ");
+            sb.Append($"WHERE (p.usr_acct_id = @usr_id OR p.usr_acct_id IS NULL) AND (r.rl_app = @app_id) ");
+            sb.Append($"AND (r.rl_app != 'SYS') ORDER BY r.rl_app, r.rl_rk;");
 
             query = sb.ToString();
             try
@@ -388,7 +390,7 @@ namespace IntranetPortal.Data.Repositories.SecurityRepositories
                             UserID = reader["usr_acct_id"] == DBNull.Value ? string.Empty : (reader["usr_acct_id"]).ToString(),
                             RoleID = reader["rl_id"] == DBNull.Value ? string.Empty : (reader["rl_id"]).ToString(),
                             RoleName = reader["rl_nm"] == DBNull.Value ? string.Empty : (reader["rl_nm"]).ToString(),
-                            ApplicationID = reader["app_cd"] == DBNull.Value ? string.Empty : (reader["app_cd"]).ToString(),
+                            ApplicationID = reader["rl_app"] == DBNull.Value ? string.Empty : (reader["rl_app"]).ToString(),
                             ApplicationName = reader["app_ds"] == DBNull.Value ? string.Empty : (reader["app_ds"]).ToString(),
                             IsGranted = reader["is_grtd"] == DBNull.Value ? false : (bool)reader["is_grtd"]
                         });

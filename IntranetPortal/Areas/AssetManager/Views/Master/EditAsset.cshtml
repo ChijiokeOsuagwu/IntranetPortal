@@ -32,7 +32,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
             }
-        <form asp-area="AssetManager" asp-controller="Master" asp-action="AddAsset" method="post">
+        <form asp-area="AssetManager" asp-controller="Master" asp-action="EditAsset" method="post" autocomplete="off">
             <div class="row">
                 <div class="col-md-6 mb-1">
                     <input type="hidden" asp-for="AssetID" />
@@ -100,15 +100,21 @@
                             <div><span asp-validation-for="BaseLocationID" class="text-danger"></span></div>
                         </div>
                         <div class="col-md-6 mb-1">
+                            <input type="hidden" asp-for="BinLocationID" />
+                            <label asp-for="BinLocationName" class="form-label text-white fw-bold"></label>
+                            <input asp-for="BinLocationName" class="form-control fw-bold" placeholder="Enter Name">
+                            <div><span asp-validation-for="BinLocationName" class="text-danger"></span></div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-1">
                             <label asp-for="ConditionStatus" class="form-label text-white fw-bold"></label>
                             <select asp-for="ConditionStatus" asp-items="Html.GetEnumSelectList<AssetCondition>()" class="form-control fw-bold">
                                 <option value=""> - Select - </option>
                             </select>
                             <div><span asp-validation-for="ConditionStatus" class="text-danger"></span></div>
                         </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-12 mb-1">
+                        <div class="col-md-6 mb-1">
                             <input type="hidden" asp-for="ImagePath" />
                             <label asp-for="ImageUpload" class="form-label text-white fw-bold"></label>
                             <input asp-for="ImageUpload" class="form-control fw-bold">

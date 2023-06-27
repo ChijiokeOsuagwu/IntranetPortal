@@ -18,14 +18,19 @@ namespace IntranetPortal.Base.Services
         private readonly IUtilityRepository _utilityRepository;
         private readonly IUserRepository _userRepository;
         private readonly IUserPermissionRepository _userPermissionRepository;
+        private readonly IUserLoginRepository _userLoginRepository;
+        private readonly IRoleRepository _roleRepository;
 
-        public SecurityService(IEmployeeUserRepository employeeUserRepository, IUtilityRepository utilityRepository, 
-                                IUserRepository userRepository, IUserPermissionRepository userPermissionRepository)
+        public SecurityService(IEmployeeUserRepository employeeUserRepository, IUtilityRepository utilityRepository,
+                                IUserRepository userRepository, IUserPermissionRepository userPermissionRepository,
+                                IRoleRepository roleRepository, IUserLoginRepository userLoginRepository)
         {
             _employeeUserRepository = employeeUserRepository;
             _utilityRepository = utilityRepository;
             _userRepository = userRepository;
             _userPermissionRepository = userPermissionRepository;
+            _userLoginRepository = userLoginRepository;
+            _roleRepository = roleRepository;
         }
 
         //========================= Employee User Action Methods =============================================//
@@ -77,7 +82,7 @@ namespace IntranetPortal.Base.Services
 
         //========================= User Action Methods ======================================================//
         #region User Action Methods
-        public async Task<IList<ApplicationUser>> GetUsersByLoginId (string loginId)
+        public async Task<IList<ApplicationUser>> GetUsersByLoginId(string loginId)
         {
             List<ApplicationUser> applicationUsers = new List<ApplicationUser>();
             try
@@ -108,12 +113,12 @@ namespace IntranetPortal.Base.Services
         public async Task<bool> CreateUserAccountAsync(ApplicationUser user)
         {
             bool UserIsAdded = false;
- 
+
             if (user == null) { throw new ArgumentNullException(nameof(user), "The required parameter [user] is missing."); }
             try
             {
                 var entitiesWithSameUsername = await _userRepository.GetUsersByLoginIdAsync(user.UserName);
-                if(entitiesWithSameUsername.Count > 0)
+                if (entitiesWithSameUsername.Count > 0)
                 {
                     throw new Exception("The Login ID you entered already exists.");
                 }
@@ -138,7 +143,7 @@ namespace IntranetPortal.Base.Services
                         ActivityTimeZone = "",
                         ActivityUserFullName = user.CreatedBy,
                     };
-                    return  await _utilityRepository.InsertActivityHistoryAsync(history);
+                    return await _utilityRepository.InsertActivityHistoryAsync(history);
                 }
                 else
                 {
@@ -229,7 +234,7 @@ namespace IntranetPortal.Base.Services
             try
             {
                 var users = await _userRepository.GetUsersByUserIdAsync(userId);
-                if(users != null)
+                if (users != null)
                 {
                     ApplicationUser user = users.FirstOrDefault();
                     PermissionsIsDeleted = await _userPermissionRepository.DeleteUserPermissionByUserIdAsync(userId);
@@ -264,7 +269,7 @@ namespace IntranetPortal.Base.Services
             List<ApplicationUser> applicationUsers = new List<ApplicationUser>();
             try
             {
-                var entities = await _userRepository.GetOtherUsersWithSameLoginIdAsync(userId,loginId);
+                var entities = await _userRepository.GetOtherUsersWithSameLoginIdAsync(userId, loginId);
                 applicationUsers = entities.ToList();
             }
             catch (Exception ex)
@@ -275,6 +280,33 @@ namespace IntranetPortal.Base.Services
         }
         #endregion
 
+        //========================= Role Action Methods ======================================================//
+        #region Role Action Methods
+        public async Task<IList<ApplicationRole>> GetUserRolesUnGrantedByUserIDAsync(string userId, string applicationId = null)
+        {
+            List<ApplicationRole> applicationRoles = new List<ApplicationRole>();
+            try
+            {
+                if (string.IsNullOrEmpty(applicationId))
+                {
+                var entities = await _roleRepository.GetUnGrantedRolesByUserIdAsync(userId);
+                applicationRoles = entities.ToList();
+                }
+                else
+                {
+                    var entities = await _roleRepository.GetUnGrantedRolesByUserIdAndApplicationIdAsync(userId, applicationId);
+                    applicationRoles = entities.ToList();
+                }
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return applicationRoles.ToList();
+        }
+
+        #endregion
         //========================= User Permission Action Methods ===========================================//
         #region User Permission Action Methods
         public async Task<IList<UserPermission>> GetUserPermissionsByUserIdAsync(string userId)
@@ -315,7 +347,7 @@ namespace IntranetPortal.Base.Services
             {
                 var entities = await _userPermissionRepository.GetUserPermissionsByUserIdAsync(userId);
                 permissions = entities.ToList();
-                foreach(var p in permissions)
+                foreach (var p in permissions)
                 {
                     roles.Add(p.RoleID);
                 }
@@ -366,7 +398,7 @@ namespace IntranetPortal.Base.Services
 
             try
             {
-              PermissionsIsGranted = await _userPermissionRepository.AddUserPermissionAsync(userId,roleId,actionBy);
+                PermissionsIsGranted = await _userPermissionRepository.AddUserPermissionAsync(userId, roleId, actionBy);
             }
             catch (Exception ex)
             {
@@ -395,6 +427,102 @@ namespace IntranetPortal.Base.Services
 
         #endregion
 
+        //========================= User Login History Action Methods ========================================//
+        #region UserLoginHistory Action Methods
+        public async Task<bool> UpdateUserLoginHistoryAsync(UserLoginHistory userLoginHistory)
+        {
+            return await _userLoginRepository.AddAsync(userLoginHistory);
+        }
+
+        public async Task<IList<UserLoginHistory>> GetUserLoginHistoryByUserNameAndDateAsync(string UserName, int? LoginYear = null, int? LoginMonth = null, int? LoginDay = null)
+        {
+            List<UserLoginHistory> histories = new List<UserLoginHistory>();
+
+            if (LoginYear != null && LoginYear.Value > 0)
+            {
+                if (LoginMonth != null && LoginMonth.Value > 0)
+                {
+                    if (LoginDay != null && LoginDay.Value > 0)
+                    {
+                        var entities = await _userLoginRepository.GetByUserNameAndYearAndMonthAndDayAsync(UserName, LoginYear.Value, LoginMonth.Value, LoginDay.Value);
+                        if (entities != null) { histories = entities.ToList(); }
+                    }
+                    else
+                    {
+                        var entities = await _userLoginRepository.GetByUserNameAndYearAndMonthAsync(UserName, LoginYear.Value, LoginMonth.Value);
+                        if (entities != null) { histories = entities.ToList(); }
+                    }
+                }
+                else
+                {
+                    var entities = await _userLoginRepository.GetByUserNameAndYearAsync(UserName, LoginYear.Value);
+                    if (entities != null) { histories = entities.ToList(); }
+                }
+            }
+            else
+            {
+                LoginYear = DateTime.Now.Year;
+                if (LoginMonth != null && LoginMonth.Value > 0)
+                {
+                    if (LoginDay != null && LoginDay.Value > 0)
+                    {
+                        var entities = await _userLoginRepository.GetByUserNameAndYearAndMonthAndDayAsync(UserName, LoginYear.Value, LoginMonth.Value, LoginDay.Value);
+                        if (entities != null) { histories = entities.ToList(); }
+                    }
+                    else
+                    {
+                        var entities = await _userLoginRepository.GetByUserNameAndYearAndMonthAsync(UserName, LoginYear.Value, LoginMonth.Value);
+                        if (entities != null) { histories = entities.ToList(); }
+                    }
+                }
+                else
+                {
+                    var entities = await _userLoginRepository.GetByUserNameAndYearAsync(UserName, LoginYear.Value);
+                    if (entities != null) { histories = entities.ToList(); }
+                }
+            }
+            return histories;
+        }
+
+        public async Task<IList<UserLoginHistory>> GetUserLoginHistoryByDateOnlyAsync(int? LoginYear = null, int? LoginMonth = null, int? LoginDay = null)
+        {
+            List<UserLoginHistory> histories = new List<UserLoginHistory>();
+
+            if (LoginYear != null && LoginYear.Value > 0)
+            {
+                if (LoginMonth != null && LoginMonth.Value > 0)
+                {
+                    if (LoginDay != null && LoginDay.Value > 0)
+                    {
+                        var entities = await _userLoginRepository.GetByYearAndMonthAndDayAsync(LoginYear.Value, LoginMonth.Value, LoginDay.Value);
+                        if (entities != null) { histories = entities.ToList(); }
+                    }
+                    else
+                    {
+                        var entities = await _userLoginRepository.GetByYearAndMonthAsync(LoginYear.Value, LoginMonth.Value);
+                        if (entities != null) { histories = entities.ToList(); }
+                    }
+                }
+                else
+                {
+                    LoginMonth = DateTime.Now.Month;
+                    var entities = await _userLoginRepository.GetByYearAndMonthAsync(LoginYear.Value, LoginMonth.Value);
+                    if (entities != null) { histories = entities.ToList(); }
+                }
+            }
+            else
+            {
+                LoginYear = DateTime.Now.Year;
+                LoginMonth = DateTime.Now.Month;
+                LoginDay = DateTime.Now.Day;
+                var entities = await _userLoginRepository.GetByYearAndMonthAndDayAsync(LoginYear.Value, LoginMonth.Value, LoginDay.Value);
+                if (entities != null) { histories = entities.ToList(); }
+            }
+            return histories;
+        }
+
+        #endregion
+
         //========================= Security Cryptography Action Methods =====================================//
         #region Security Cryptography Action Methods
         public string CreatePasswordHash(string plainTextPassword)
@@ -413,7 +541,7 @@ namespace IntranetPortal.Base.Services
           => CreatePasswordHash(plainTextPassword) == hashedPassword;
 
         private const string PasswordSalt = "CGYzqrN4plZekNC35Uxp1Q==";
-        #endregion
+        #endregion  
     }
 
     public class SecurityConstants

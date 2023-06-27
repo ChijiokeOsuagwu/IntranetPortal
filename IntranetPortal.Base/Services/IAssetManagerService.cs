@@ -1,4 +1,5 @@
 ﻿using IntranetPortal.Base.Models.AssetManagerModels;
+using IntranetPortal.Base.Models.SecurityModels;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -8,7 +9,7 @@ namespace IntranetPortal.Base.Services
 {
     public interface IAssetManagerService
     {
-        //==================== Asset Category Service Methods ================================================//
+        //==================== Asset Category Service Methods =======================//
         #region Asset Category Service Methods
         Task<bool> CreateAssetCategoryAsync(AssetCategory assetCategory);
         Task<bool> DeleteAssetCategoryAsync(int assetCategoryId);
@@ -18,18 +19,43 @@ namespace IntranetPortal.Base.Services
         Task<IList<AssetCategory>> SearchAssetCategoriesByNameAsync(string assetCategoryName);
         #endregion
 
-        //==================== Asset Types Service Methods ===================================================//
+        //==================== Asset Class Service Methods ==========================//
+        #region Asset Class Service Methods
+        Task<bool> CreateAssetClassAsync(AssetClass assetClass);
+        Task<bool> DeleteAssetClassAsync(int assetClassId);
+        Task<bool> UpdateAssetClassAsync(AssetClass assetClass);
+        Task<IList<AssetClass>> GetAssetClassesAsync(IEntityPermission entityPermission = null);
+        Task<AssetClass> GetAssetClassByIdAsync(int assetClassId);
+        Task<IList<AssetClass>> GetAssetClassesByCategoryIdAsync(int assetCategoryId, IEntityPermission entityPermission = null);
+        Task<IList<AssetClass>> SearchAssetClassesByNameAsync(string assetClassName, IEntityPermission entityPermission = null);
+        #endregion
+
+        //==================== Asset Types Service Methods ==========================//
         #region Asset Types Service Methods
         Task<bool> CreateAssetTypeAsync(AssetType assetType);
         Task<bool> DeleteAssetTypeAsync(int assetTypeId);
         Task<bool> UpdateAssetTypeAsync(AssetType assetType);
-        Task<IList<AssetType>> GetAssetTypesAsync();
+        Task<IList<AssetType>> GetAssetTypesAsync(IEntityPermission entityPermission = null);
         Task<AssetType> GetAssetTypeByIdAsync(int assetTypeId);
-        Task<IList<AssetType>> SearchAssetTypesByNameAsync(string assetTypeName);
-        Task<IList<AssetType>> GetAssetTypesByCategoryIdAsync(int assetCategoryId);
+        Task<IList<AssetType>> SearchAssetTypesByNameAsync(string assetTypeName, IEntityPermission entityPermission = null);
+        Task<IList<AssetType>> GetAssetTypesByCategoryIdAsync(int assetCategoryId, IEntityPermission entityPermission = null);
+        Task<IList<AssetType>> GetAssetTypesByClassIdAsync(int assetClassId, IEntityPermission entityPermission = null);
         #endregion
 
-        //==================== Asset Service Methods =========================================================//
+        //==================== Asset Bin Location Service Methods ====================//
+        #region Asset Bin Location Service Methods
+        Task<bool> CreateAssetBinLocationAsync(AssetBinLocation assetBinLocation);
+        Task<bool> DeleteAssetBinLocationAsync(int assetBinLocationId);
+        Task<bool> UpdateAssetBinLocationAsync(AssetBinLocation assetBinLocation);
+        Task<IList<AssetBinLocation>> GetAssetBinLocationsAsync(IEntityPermission entityPermission = null);
+        Task<AssetBinLocation> GetAssetBinLocationByIdAsync(int assetBinLocationId);
+        Task<AssetBinLocation> GetAssetBinLocationByNameAsync(string assetBinLocationName, IEntityPermission entityPermission = null);
+        Task<IList<AssetBinLocation>> SearchAssetBinLocationsByNameAsync(string assetBinLocationName, IEntityPermission entityPermission = null);
+
+        Task<IList<AssetBinLocation>> GetAssetBinLocationsByLocationIdAsync(int assetLocationId, IEntityPermission entityPermission);
+        #endregion
+
+        //==================== Asset Service Methods ================================//
         #region Assets Service Methods
         Task<bool> CreateAssetAsync(Asset asset);
         Task<bool> DeleteAssetAsync(string assetId, string deletedBy);
@@ -40,9 +66,11 @@ namespace IntranetPortal.Base.Services
         Task<IList<Asset>> SearchAssetsByNameAsync(string assetName);
         Task<IList<Asset>> GetAssetsByAssetTypeIdAsync(int assetTypeId);
         Task<IList<Asset>> GetAssetsByCategoryIdAsync(int assetCategoryId);
+
+        Task<IList<Asset>> GetAssetsByClassIdAsync(int assetClassId);
         #endregion
 
-        //=================== Asset Reservation Service Methods ==============================================//
+        //=================== Asset Reservation Service Methods ======================//
         #region Asset Reservations Service Methods
         Task<bool> CreateAssetReservationAsync(AssetReservation assetReservation);
         Task<bool> DeleteAssetReservationAsync(int assetReservationId);
@@ -61,7 +89,7 @@ namespace IntranetPortal.Base.Services
 
         #endregion
 
-        //===================== Asset Usage Service Methods ==================================================//
+        //===================== Asset Usage Service Methods ==========================//
         #region Asset Usage Service Methods
         Task<bool> CheckOutEquipmentAsync(AssetUsage assetUsage);
         Task<bool> CancelCheckOutEquipmentAsync(int assetUsageId, string assetId, string previousLocation, string previousStatus, string modifiedBy);
@@ -80,7 +108,7 @@ namespace IntranetPortal.Base.Services
         Task<IList<AssetUsage>> SearchCurrentAssetUsagesByAssetNameAsync(string assetName);
         #endregion
 
-        //===================== Asset Incident Service Methods ===============================================//
+        //===================== Asset Incident Service Methods =======================//
         #region Asset Incident Service Methods
         Task<bool> AddAssetIncidentAsync(AssetIncident assetIncident);
         Task<bool> DeleteAssetIncidentAsync(int assetIncidentId);
@@ -98,7 +126,7 @@ namespace IntranetPortal.Base.Services
         Task<IList<AssetIncident>> SearchCurrentAssetIncidentsByAssetNameAsync(string assetName);
         #endregion
 
-        //===================== Asset Maintenance Service Methods ===============================================//
+        //===================== Asset Maintenance Service Methods ====================//
         #region Asset Maintenance Service Methods
         Task<bool> AddAssetMaintenanceAsync(AssetMaintenance assetMaintenance);
         Task<bool> DeleteAssetMaintenanceAsync(int assetMaintenanceId);
@@ -116,7 +144,7 @@ namespace IntranetPortal.Base.Services
         Task<IList<AssetMaintenance>> GetAssetMaintenancesByAssetIdAndYearAndMonthAsync(string assetId, int maintenanceYear, int maintenanceMonth);
         #endregion
 
-        //===================== Asset Movement Service Methods ===============================================//
+        //===================== Asset Movement Service Methods =======================//
         #region Asset Movement Service Methods
         Task<bool> AddAssetMovementAsync(AssetMovement assetMovement);
         Task<bool> DeleteAssetMovementAsync(int assetMovementId);

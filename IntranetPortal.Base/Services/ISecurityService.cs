@@ -23,7 +23,6 @@ namespace IntranetPortal.Base.Services
         Task<bool> DeleteUserAsync(string userId, string deletedBy);
         #endregion
 
-
         //======================= User Permissions Interface ================================//
         #region User Permissions Interfaces
         Task<IList<UserPermission>> GetUserPermissionsByUserIdAsync(string userId);
@@ -34,6 +33,17 @@ namespace IntranetPortal.Base.Services
 
         Task<bool> GrantPermissionAsync(string userId, string roleId, string actionBy);
         Task<bool> RevokePermissionAsync(string userId, string roleId, string actionBy);
+        #endregion
+
+        //======================= Role Interfaces ============================================//
+        #region Role Interfaces
+        Task<IList<ApplicationRole>> GetUserRolesUnGrantedByUserIDAsync(string userId, string applicationId = null);
+        #endregion
+        //======================= User Login History Action Interfaces
+        #region UserLoginHistory Action Interfaces
+        Task<bool> UpdateUserLoginHistoryAsync(UserLoginHistory userLoginHistory);
+        Task<IList<UserLoginHistory>> GetUserLoginHistoryByUserNameAndDateAsync(string UserName, int? LoginYear = null, int? LoginMonth = null, int? LoginDay = null);
+        Task<IList<UserLoginHistory>> GetUserLoginHistoryByDateOnlyAsync(int? LoginYear = null, int? LoginMonth = null, int? LoginDay = null);
         #endregion
 
         //====================== Security Cryptography Interfaces ==========================//

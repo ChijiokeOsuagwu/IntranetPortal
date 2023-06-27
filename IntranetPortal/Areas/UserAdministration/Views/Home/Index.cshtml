@@ -44,38 +44,15 @@
         </div>
         <!-- Column -->
         <div class="col-md-6 col-lg-2 col-xlg-3">
-            <a asp-area="ContentManager" asp-controller="Events" asp-action="Index">
+            <a asp-area="UserAdministration" asp-controller="Home" asp-action="LoginHistory">
                 <div class="card card-hover">
                     <div class="box bg-light text-center">
-                        <h1 class="font-light text-dark" style="font-size:3em"><i class="fas fa-chalkboard-teacher"></i></h1>
-                        <h6 class="text-dark">Events</h6>
+                        <h1 class="font-light text-dark" style="font-size:3em"><i class="fas fa-user-clock"></i></h1>
+                        <h6 class="text-dark">Activity History</h6>
                     </div>
                 </div>
             </a>
         </div>
-        <!-- Column -->
-        <div class="col-md-6 col-lg-2 col-xlg-3">
-            <a asp-area="ContentManager" asp-controller="Announcements" asp-action="List">
-                <div class="card card-hover">
-                    <div class="box bg-light text-center">
-                        <h1 class="font-light text-dark" style="font-size:3em"><i class="far fa-calendar-alt"></i></h1>
-                        <h6 class="text-dark">Announcements</h6>
-                    </div>
-                </div>
-            </a>
-        </div>
-        <!-- Column -->
-        <div class="col-md-6 col-lg-2 col-xlg-3">
-            <a asp-area="ContentManager" asp-controller="Settings" asp-action="Index">
-                <div class="card card-hover">
-                    <div class="box bg-light text-center">
-                        <h1 class="font-light text-dark" style="font-size:3em"><i class="bi bi-sliders"></i></h1>
-                        <h6 class="text-dark">Advance Settings</h6>
-                    </div>
-                </div>
-            </a>
-        </div>
-        <!-- Column -->
     </div>
 </div>
 @section Scripts{

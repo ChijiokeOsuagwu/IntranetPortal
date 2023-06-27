@@ -24,6 +24,8 @@
     <Folder Include="Areas\GlobalSettings\Data\" />
     <Folder Include="Areas\PartnerServices\Data\" />
     <Folder Include="Areas\UserAdministration\Data\" />
+    <Folder Include="Areas\WKS\Data\" />
+    <Folder Include="Areas\WKS\Views\Shared\" />
     <Folder Include="wwwroot\uploads\asm\" />
     <Folder Include="wwwroot\uploads\erm\" />
   </ItemGroup>

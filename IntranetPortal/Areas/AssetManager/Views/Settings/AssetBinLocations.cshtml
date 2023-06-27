@@ -1,0 +1,102 @@
+﻿@model IntranetPortal.Areas.AssetManager.Models.AssetBinLocationListViewModel
+@{
+    ViewData["Title"] = "OfficeManager | Asset Bin Locations";
+}
+<div class="container">
+    <h4>Bin Locations</h4>
+    <hr />
+    <div class="mb-1">
+        <form asp-area="AssetManager" asp-controller="Settings" asp-action="AssetBinLocations" method="get">
+            <a asp-area="AssetManager" asp-controller="Home" asp-action="Index" class="btn btn-dark" style="width:100px" title="Click to Go Back">
+                <span class="text-white">Back</span>
+            </a>
+            <a asp-area="AssetManager" asp-controller="Settings" asp-action="AddAssetBinLocation" class="btn btn-success" style="width:200px" title="Add New Asset Bin Location">
+                <span class="text-white">New Bin Location</span>
+            </a>
+            <select asp-for="loc" asp-items="@ViewBag.LocationList" class="fw-bold border-0 pr-2 pl-2">
+                <option value=""> - Select Location - </option>
+            </select>
+            <input type="text" class="border-0 text-secondary fw-light" style="width:250px" name="ss" value="@Model.sp" placeholder=" Enter Text to Search..." />
+            <input type="submit" value="Search" class="btn btn-primary" style="width:100px" />
+        </form>
+
+        @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-x-circle"></i>
+                <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (!String.IsNullOrEmpty(Model.ViewModelSuccessMessage))
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="bi bi-check-circle"></i>
+                <span class="fw-bold">@Model.ViewModelSuccessMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+    </div>
+    @if (Model == null || Model.AssetBinLocationList == null || Model.AssetBinLocationList.Count < 1)
+    {
+        <div class="alert alert-info fade show" role="alert">
+            <i class="bi bi-info-circle"></i>
+            <span class="fw-bold">No record was found.</span>
+        </div>
+    }
+    else
+    {
+        <div class="row">
+            <div class="table-responsive">
+                <table class="table table-hover table-sm ">
+                    <thead class="table-dark">
+                        <tr>
+                            <th><span class="text-white fw-bold">#</span></th>
+                            <th><span class="text-white fw-bold">Bin Location</span></th>
+                            <th><span class="text-white fw-bold">Location</span></th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody class="table-success">
+                        @{
+                            int rowNumber = 0;
+                        }
+                        @foreach (var binLocation in Model.AssetBinLocationList)
+                        {
+                            rowNumber++;
+                            <tr>
+                                <td>@rowNumber.ToString()</td>
+                                <td>
+                                    <span class="fw-bold">@binLocation.AssetBinLocationName</span>
+                                </td>
+                                <td>
+                                    <span class="fw-bold">@binLocation.AssetLocationName</span>
+                                </td>
+                                <td>
+                                    <div class="text-center">
+                                        <a asp-area="AssetManager" asp-controller="Settings" asp-action="AssetBinLocationDetails" asp-route-id="@binLocation.AssetBinLocationID" title="Details" class="btn btn-xs btn-dark" style="width:50px">
+                                            <i class="bi bi-card-text" style="font-size: 0.7rem;"></i>
+                                        </a>
+                                        <a asp-area="AssetManager" asp-controller="Settings" asp-action="EditAssetBinLocation" asp-route-id="@binLocation.AssetBinLocationID" title="Edit" class="btn btn-xs btn-primary" style="width:50px">
+                                            <i class="bi bi-pencil-square" style="font-size: 0.7rem; color:white"></i>
+                                        </a>
+                                        <a asp-area="AssetManager" asp-controller="Settings" asp-action="DeleteAssetBinLocation" asp-route-id="@binLocation.AssetBinLocationID" title="Delete" class="btn btn-xs btn-danger" style="width:50px">
+                                            <i class="bi bi-trash-fill" style="font-size: 0.7rem; color:white"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+</div>
+
+
+
+
+
+
+

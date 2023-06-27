@@ -23,7 +23,7 @@ namespace IntranetPortal.Areas.GlobalSettings.Models
         public string LocationType { get; set; }
 
         [MaxLength(100, ErrorMessage = "State cannot be more than 100 characters.")]
-        [Display(Name = "State")]
+        [Display(Name = "State/County/Province")]
         public string State { get; set; }
 
         [MaxLength(100, ErrorMessage = "Country cannot be more than 100 characters.")]

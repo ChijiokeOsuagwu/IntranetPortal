@@ -7,6 +7,7 @@ using IntranetPortal.Base.Models.AssetManagerModels;
 using IntranetPortal.Base.Models.GlobalSettingsModels;
 using IntranetPortal.Base.Services;
 using IntranetPortal.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Configuration;
@@ -15,6 +16,7 @@ using Microsoft.Extensions.Logging;
 namespace IntranetPortal.Areas.AssetManager.Controllers
 {
     [Area("AssetManager")]
+    [Authorize]
     public class MovementsController : Controller
     {
         private readonly ILogger<HomeController> _logger;
@@ -34,7 +36,7 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
             _globalSettingsService = globalSettingsService;
         }
 
-
+        [Authorize(Roles = "AMSMVTVWL, XYALLACCZ")]
         public async Task<IActionResult> List(int? tp = null, int? pg = null)
         {
             IList<AssetMovement> assetMovementList = new List<AssetMovement>();
@@ -62,6 +64,7 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
             return View(PaginatedList<AssetMovement>.CreateAsync(assetMovementList.AsQueryable(), pg ?? 1, 100));
         }
 
+        [Authorize(Roles = "AMSMVTVWL, XYALLACCZ")]
         public async Task<IActionResult> Index(string id, int? yr = null, int? mn = null)
         {
             IList<AssetMovement> assetMovementList = new List<AssetMovement>();
@@ -114,6 +117,7 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "AMSMVTADN, XYALLACCZ")]
         public async Task<IActionResult> AddMovement(string id = null)
         {
             AssetMovementViewModel model = new AssetMovementViewModel();
@@ -132,6 +136,7 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "AMSMVTADN, XYALLACCZ")]
         public async Task<IActionResult> AddMovement(AssetMovementViewModel model)
         {
             if (ModelState.IsValid)
@@ -207,6 +212,7 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "AMSMVTEDT, XYALLACCZ")]
         public async Task<IActionResult> EditMovement(int id)
         {
             AssetMovementViewModel model = new AssetMovementViewModel();
@@ -252,6 +258,7 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "AMSMVTEDT, XYALLACCZ")]
         public async Task<IActionResult> EditMovement(AssetMovementViewModel model)
         {
             if (ModelState.IsValid)
@@ -325,6 +332,7 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "AMSMVTVWD, XYALLACCZ")]
         public async Task<IActionResult> MovementDetails(int id)
         {
             AssetMovementViewModel model = new AssetMovementViewModel();
@@ -364,6 +372,7 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "AMSMVTDLT, XYALLACCZ")]
         public async Task<IActionResult> DeleteMovement(int id)
         {
             AssetMovementViewModel model = new AssetMovementViewModel();
@@ -403,6 +412,7 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "AMSMVTDLT, XYALLACCZ")]
         public async Task<IActionResult> DeleteMovement(AssetMovementViewModel model)
         {
             AssetMovement assetMovement = new AssetMovement();

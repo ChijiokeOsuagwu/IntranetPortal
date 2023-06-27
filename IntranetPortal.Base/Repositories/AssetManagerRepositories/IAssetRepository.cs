@@ -13,6 +13,8 @@ namespace IntranetPortal.Base.Repositories.AssetManagerRepositories
         Task<IList<Asset>> SearchByNameAsync(string assetName);
         Task<IList<Asset>> GetByAssetTypeIdAsync(int assetTypeId);
 
+        Task<IList<Asset>> GetByClassIdAsync(int assetClassId);
+
         Task<IList<Asset>> GetByCategoryIdAsync(int assetCategoryId);
 
         Task<IList<Asset>> GetAllAsync();
@@ -28,7 +30,7 @@ namespace IntranetPortal.Base.Repositories.AssetManagerRepositories
 
         Task<bool> UpdateAssetConditionAsync(string assetId, string assetCondition, string modifiedBy);
 
-        Task<bool> UpdateBaseLocationAsync(string assetId, int baseLocationId, string currentLocation, string modifiedBy);
+        Task<bool> UpdateBaseLocationAsync(string assetId, int baseLocationId, string currentLocation, int? binLocationId, string modifiedBy);
 
         Task<bool> UpdateCurrentLocationAsync(string assetId, string currentLocation, string modifiedBy);
     }

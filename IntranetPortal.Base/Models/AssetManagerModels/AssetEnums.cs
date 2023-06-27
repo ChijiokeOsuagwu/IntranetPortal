@@ -2,8 +2,6 @@
 
 public enum AssetCondition
 { 
-    [Display(Name="Unspecified")]
-    Unspecified,
     [Display(Name="In Good Condition")]
     InGoodCondition,
     [Display(Name="Requires Repairs")]

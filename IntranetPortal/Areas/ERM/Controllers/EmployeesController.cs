@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using IntranetPortal.Areas.ERM.Models;
@@ -392,8 +393,15 @@ namespace IntranetPortal.Areas.ERM.Controllers
         public async Task<IActionResult> Profile(string id)
         {
             EmployeeProfileViewModel model = new EmployeeProfileViewModel();
+
             try
             {
+                if (string.IsNullOrWhiteSpace(id))
+                {
+                    var claims = HttpContext.User.Claims.ToList();
+                    id = claims?.Where(x => x.Type == ClaimTypes.NameIdentifier).Select(c => c.Value).SingleOrDefault();
+                }
+
                 Employee employee = new Employee();
                 employee = await _ermService.GetEmployeeByIdAsync(id);
 

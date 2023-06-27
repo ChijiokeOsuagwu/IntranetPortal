@@ -21,6 +21,12 @@ namespace IntranetPortal.Areas.AssetManager.Models
         public string Description { get; set; }
 
         [Required]
+        [Display(Name = "Class")]
+        public int ClassID { get; set; }
+
+        [Display(Name = "Class")]
+        public string ClassName { get; set; }
+
         [Display(Name="Category")]
         public int CategoryID { get; set; }
 
@@ -34,7 +40,8 @@ namespace IntranetPortal.Areas.AssetManager.Models
                 ID = ID,
                 Name = Name,
                 Description = Description,
-                CategoryID = CategoryID
+                CategoryID = CategoryID,
+                ClassID = ClassID
             };
         }
     }

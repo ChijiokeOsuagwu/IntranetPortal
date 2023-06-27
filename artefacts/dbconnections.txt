@@ -1,0 +1,7 @@
+  "ConnectionStrings": {
+    "PortalConnection": "Server=localhost;Port=5433;Database=cipdb;User Id=postgres;Password=p0stgre$;"
+ },
+
+  "ConnectionStrings": {
+    "PortalConnection": "Server=localhost;Port=5432;Database=cipdb;User Id=postgres;Password=p05gresq!;"
+  },

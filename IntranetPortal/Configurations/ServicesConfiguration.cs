@@ -6,6 +6,7 @@ using IntranetPortal.Base.Repositories.ContentManagerRepositories;
 using IntranetPortal.Base.Repositories.ErmRepository;
 using IntranetPortal.Base.Repositories.GlobalSettingsRepositories;
 using IntranetPortal.Base.Repositories.SecurityRepositories;
+using IntranetPortal.Base.Repositories.WksRepositories;
 using IntranetPortal.Base.Services;
 using IntranetPortal.Data.Repositories.AssetManagerRepositories;
 using IntranetPortal.Data.Repositories.BamsRepositories;
@@ -15,6 +16,7 @@ using IntranetPortal.Data.Repositories.ContentManagerRepositories;
 using IntranetPortal.Data.Repositories.ErmRepositories;
 using IntranetPortal.Data.Repositories.GlobalSettingsRepositories;
 using IntranetPortal.Data.Repositories.SecurityRepositories;
+using IntranetPortal.Data.Repositories.WksRepositories;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
@@ -59,6 +61,12 @@ namespace IntranetPortal.Configurations
             services.AddScoped<IAssignmentUpdatesRepository, AssignmentUpdatesRepository>();
             services.AddScoped<IEquipmentGroupsRepository, EquipmentGroupsRepository>();
             services.AddScoped<IAssetEquipmentGroupRepository, AssetEquipmentGroupRepository>();
+            services.AddScoped<IUserLoginRepository, UserLoginRepository>();
+            services.AddScoped<IAssetBinLocationRepository, AssetBinLocationRepository>();
+            services.AddScoped<IWorkspaceRepository, WorkspaceRepository>();
+            services.AddScoped<IProjectFolderRepository, ProjectFolderRepository>();
+            services.AddScoped<IWorkItemRepository, WorkItemRepository>();
+            services.AddScoped<IAssetClassRepository, AssetClassRepository>();
         }
 
         public static void ConfigureServiceManagers(this IServiceCollection services)
@@ -71,6 +79,7 @@ namespace IntranetPortal.Configurations
             services.AddScoped<IBusinessManagerService, BusinessManagerService>();
             services.AddScoped<IBamsManagerService, BamsManagerService>();
             services.AddScoped<IErmService, ErmService>();
+            services.AddScoped<IWorkspaceService, WorkspaceService>();
         }
 
     }

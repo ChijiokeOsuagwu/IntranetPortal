@@ -32,7 +32,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
             }
-            <form asp-area="Bams" asp-controller="Deployment" asp-action="EditDeployment" method="post">
+            <form asp-area="Bams" asp-controller="Deployment" asp-action="EditDeployment" method="post" autocomplete="off">
                 <div class="row">
                     <input type="hidden" asp-for="AssignmentEventID" />
                     <input type="hidden" asp-for="DeploymentID" />

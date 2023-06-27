@@ -52,7 +52,7 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
                                 AssetDescription = reader["asst_ds"] == DBNull.Value ? string.Empty : reader["asst_ds"].ToString(),
                                 ApprovedBy = reader["aprv_by"] == DBNull.Value ? string.Empty : reader["aprv_by"].ToString(),
                                 AssetConditionDescription = reader["ass_cndt"] == DBNull.Value ? string.Empty : reader["ass_cndt"].ToString(),
-                                AssetConditionStatus = reader["cnd_sts"] == DBNull.Value ? AssetCondition.Unspecified : (AssetCondition)reader["cnd_sts"],
+                                AssetConditionStatus = reader["cnd_sts"] == DBNull.Value ? AssetCondition.InGoodCondition : (AssetCondition)reader["cnd_sts"],
                                 MovedFromLocationName = reader["mvt_fr_loc"] == DBNull.Value ? string.Empty : reader["mvt_fr_loc"].ToString(),
                                 MovedToLocationName = reader["mvt_to_loc"] == DBNull.Value ? string.Empty : reader["mvt_to_loc"].ToString(),
                                 MovedOn = reader["mvt_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["mvt_dt"],
@@ -115,7 +115,7 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
                             assetMovement.AssetDescription = reader["asst_ds"] == DBNull.Value ? string.Empty : reader["asst_ds"].ToString();
                             assetMovement.ApprovedBy = reader["aprv_by"] == DBNull.Value ? string.Empty : reader["aprv_by"].ToString();
                             assetMovement.AssetConditionDescription = reader["ass_cndt"] == DBNull.Value ? string.Empty : reader["ass_cndt"].ToString();
-                            assetMovement.AssetConditionStatus = reader["cnd_sts"] == DBNull.Value ? AssetCondition.Unspecified : (AssetCondition)reader["cnd_sts"];
+                            assetMovement.AssetConditionStatus = reader["cnd_sts"] == DBNull.Value ? AssetCondition.InGoodCondition : (AssetCondition)reader["cnd_sts"];
                             assetMovement.MovedFromLocationName = reader["mvt_fr_loc"] == DBNull.Value ? string.Empty : reader["mvt_fr_loc"].ToString();
                             assetMovement.MovedToLocationName = reader["mvt_to_loc"] == DBNull.Value ? string.Empty : reader["mvt_to_loc"].ToString();
                             assetMovement.MovedOn = reader["mvt_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["mvt_dt"];
@@ -179,7 +179,7 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
                                 AssetDescription = reader["asst_ds"] == DBNull.Value ? string.Empty : reader["asst_ds"].ToString(),
                                 ApprovedBy = reader["aprv_by"] == DBNull.Value ? string.Empty : reader["aprv_by"].ToString(),
                                 AssetConditionDescription = reader["ass_cndt"] == DBNull.Value ? string.Empty : reader["ass_cndt"].ToString(),
-                                AssetConditionStatus = reader["cnd_sts"] == DBNull.Value ? AssetCondition.Unspecified : (AssetCondition)reader["cnd_sts"],
+                                AssetConditionStatus = reader["cnd_sts"] == DBNull.Value ? AssetCondition.InGoodCondition : (AssetCondition)reader["cnd_sts"],
                                 MovedFromLocationName = reader["mvt_fr_loc"] == DBNull.Value ? string.Empty : reader["mvt_fr_loc"].ToString(),
                                 MovedToLocationName = reader["mvt_to_loc"] == DBNull.Value ? string.Empty : reader["mvt_to_loc"].ToString(),
                                 MovedOn = reader["mvt_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["mvt_dt"],
@@ -245,7 +245,7 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
                                 AssetDescription = reader["asst_ds"] == DBNull.Value ? string.Empty : reader["asst_ds"].ToString(),
                                 ApprovedBy = reader["aprv_by"] == DBNull.Value ? string.Empty : reader["aprv_by"].ToString(),
                                 AssetConditionDescription = reader["ass_cndt"] == DBNull.Value ? string.Empty : reader["ass_cndt"].ToString(),
-                                AssetConditionStatus = reader["cnd_sts"] == DBNull.Value ? AssetCondition.Unspecified : (AssetCondition)reader["cnd_sts"],
+                                AssetConditionStatus = reader["cnd_sts"] == DBNull.Value ? AssetCondition.InGoodCondition : (AssetCondition)reader["cnd_sts"],
                                 MovedFromLocationName = reader["mvt_fr_loc"] == DBNull.Value ? string.Empty : reader["mvt_fr_loc"].ToString(),
                                 MovedToLocationName = reader["mvt_to_loc"] == DBNull.Value ? string.Empty : reader["mvt_to_loc"].ToString(),
                                 MovedOn = reader["mvt_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["mvt_dt"],
@@ -311,7 +311,7 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
                                 AssetDescription = reader["asst_ds"] == DBNull.Value ? string.Empty : reader["asst_ds"].ToString(),
                                 ApprovedBy = reader["aprv_by"] == DBNull.Value ? string.Empty : reader["aprv_by"].ToString(),
                                 AssetConditionDescription = reader["ass_cndt"] == DBNull.Value ? string.Empty : reader["ass_cndt"].ToString(),
-                                AssetConditionStatus = reader["cnd_sts"] == DBNull.Value ? AssetCondition.Unspecified : (AssetCondition)reader["cnd_sts"],
+                                AssetConditionStatus = reader["cnd_sts"] == DBNull.Value ? AssetCondition.InGoodCondition : (AssetCondition)reader["cnd_sts"],
                                 MovedFromLocationName = reader["mvt_fr_loc"] == DBNull.Value ? string.Empty : reader["mvt_fr_loc"].ToString(),
                                 MovedToLocationName = reader["mvt_to_loc"] == DBNull.Value ? string.Empty : reader["mvt_to_loc"].ToString(),
                                 MovedOn = reader["mvt_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["mvt_dt"],
@@ -382,7 +382,7 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
                                 AssetDescription = reader["asst_ds"] == DBNull.Value ? string.Empty : reader["asst_ds"].ToString(),
                                 ApprovedBy = reader["aprv_by"] == DBNull.Value ? string.Empty : reader["aprv_by"].ToString(),
                                 AssetConditionDescription = reader["ass_cndt"] == DBNull.Value ? string.Empty : reader["ass_cndt"].ToString(),
-                                AssetConditionStatus = reader["cnd_sts"] == DBNull.Value ? AssetCondition.Unspecified : (AssetCondition)reader["cnd_sts"],
+                                AssetConditionStatus = reader["cnd_sts"] == DBNull.Value ? AssetCondition.InGoodCondition : (AssetCondition)reader["cnd_sts"],
                                 MovedFromLocationName = reader["mvt_fr_loc"] == DBNull.Value ? string.Empty : reader["mvt_fr_loc"].ToString(),
                                 MovedToLocationName = reader["mvt_to_loc"] == DBNull.Value ? string.Empty : reader["mvt_to_loc"].ToString(),
                                 MovedOn = reader["mvt_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["mvt_dt"],
@@ -458,7 +458,7 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
                                 AssetDescription = reader["asst_ds"] == DBNull.Value ? string.Empty : reader["asst_ds"].ToString(),
                                 ApprovedBy = reader["aprv_by"] == DBNull.Value ? string.Empty : reader["aprv_by"].ToString(),
                                 AssetConditionDescription = reader["ass_cndt"] == DBNull.Value ? string.Empty : reader["ass_cndt"].ToString(),
-                                AssetConditionStatus = reader["cnd_sts"] == DBNull.Value ? AssetCondition.Unspecified : (AssetCondition)reader["cnd_sts"],
+                                AssetConditionStatus = reader["cnd_sts"] == DBNull.Value ? AssetCondition.InGoodCondition : (AssetCondition)reader["cnd_sts"],
                                 MovedFromLocationName = reader["mvt_fr_loc"] == DBNull.Value ? string.Empty : reader["mvt_fr_loc"].ToString(),
                                 MovedToLocationName = reader["mvt_to_loc"] == DBNull.Value ? string.Empty : reader["mvt_to_loc"].ToString(),
                                 MovedOn = reader["mvt_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["mvt_dt"],

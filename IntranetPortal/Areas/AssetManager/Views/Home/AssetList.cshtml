@@ -54,47 +54,6 @@
                         {
                             switch (asset.ConditionStatus)
                             {
-                                case AssetCondition.Unspecified:
-                                    <tr class="p-0">
-                                        <td>
-                                            <span class="fw-bold">@asset.AssetNumber</span>
-                                        </td>
-                                        <td>
-                                            <span class="fw-bold" title="@asset.AssetDescription">@asset.AssetName</span>
-                                        </td>
-                                        <td>
-                                            <span class="fw-bold" title="@asset.ConditionDescription">Unspecified</span>
-                                        </td>
-                                        <td>
-                                            <span class="fw-bold">@asset.UsageStatus</span>
-                                            @if (asset.NoOfConfirmedBooking > 0)
-                                            {
-                                                <a asp-area="AssetManager" asp-controller="Home" asp-action="BookingList" asp-route-id="@asset.AssetID" title="This equipment is Booked. Click to view Booking List">
-                                                    <span class="text-white fw-bold"><i class="bi bi-bookmarks-fill ml-2" style="font-size: 1.0rem; color:black"></i></span>
-                                                </a>
-                                            }
-                                        </td>
-                                        <td>
-                                            <div class="text-center">
-                                                <a asp-area="AssetManager" asp-controller="Home" asp-action="AssetDetails" asp-route-id="@asset.AssetID" title="Details" class="btn btn-xs btn-dark text-white" style="width:50px">
-                                                    <i class="bi bi-card-text fw-bolder" style="font-size: 0.7rem;"></i>
-                                                </a>
-                                                @if (asset.UsageStatus == "Available" || asset.UsageStatus == "Booked")
-                                                {
-                                                    <a asp-area="AssetManager" asp-controller="Usage" asp-action="CheckOut" asp-route-id="@asset.AssetID" title="Check Out" class="btn btn-xs btn-danger text-white" style="width:50px">
-                                                        <i class="bi bi-box-arrow-left fw-bolder" style="font-size: 0.7rem;"></i>
-                                                    </a>
-                                                }
-                                                else
-                                                {
-                                                    <a asp-area="AssetManager" asp-controller="Usage" asp-action="CheckOutList" title="Check In" class="btn btn-xs btn-success text-white" style="width:50px">
-                                                        <i class="bi bi-box-arrow-in-right fw-bolder" style="font-size: 0.7rem;"></i>
-                                                    </a>
-                                                }
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    break;
                                 case AssetCondition.InGoodCondition:
                                     <tr class="p-0 table-success">
                                         <td>

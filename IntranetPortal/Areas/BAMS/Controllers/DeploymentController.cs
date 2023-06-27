@@ -12,6 +12,7 @@ using IntranetPortal.Base.Models.BaseModels;
 using IntranetPortal.Base.Models.EmployeeRecordModels;
 using IntranetPortal.Base.Models.PartnerServicesModels;
 using IntranetPortal.Base.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Configuration;
@@ -21,9 +22,9 @@ using SelectPdf;
 namespace IntranetPortal.Areas.BAMS.Controllers
 {
     [Area("BAMS")]
+    [Authorize]
     public class DeploymentController : Controller
     {
-        private readonly ILogger<DeploymentController> _logger;
         private readonly ISecurityService _securityService;
         private readonly IConfiguration _configuration;
         private readonly IBamsManagerService _bamsManagerService;
@@ -49,6 +50,8 @@ namespace IntranetPortal.Areas.BAMS.Controllers
         }
 
         #region Assignment Deployment Action Methods
+
+        [Authorize(Roles = "BAMDPLVWL, XYALLACCZ")]
         public async Task<IActionResult> List(int id)
         {
             AssignmentDeploymentListViewModel model = new AssignmentDeploymentListViewModel();
@@ -61,6 +64,7 @@ namespace IntranetPortal.Areas.BAMS.Controllers
             return View(model);
         }
 
+        [Authorize(Roles = "BAMASGVWD, XYALLACCZ")]
         public async Task<IActionResult> AssignmentDetails(int id)
         {
             AssignmentEventViewModel model = new AssignmentEventViewModel();
@@ -93,6 +97,7 @@ namespace IntranetPortal.Areas.BAMS.Controllers
             return View(model);
         }
 
+        [Authorize(Roles = "BAMDPLADN, XYALLACCZ")]
         public IActionResult NewDeployment(int id)
         {
             AssignmentDeploymentViewModel model = new AssignmentDeploymentViewModel();
@@ -108,6 +113,7 @@ namespace IntranetPortal.Areas.BAMS.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "BAMDPLADN, XYALLACCZ")]
         public async Task<IActionResult> NewDeployment(AssignmentDeploymentViewModel model)
         {
             if (ModelState.IsValid)
@@ -152,6 +158,7 @@ namespace IntranetPortal.Areas.BAMS.Controllers
             return View(model);
         }
 
+        [Authorize(Roles = "BAMDPLEDT, XYALLACCZ")]
         public async Task<IActionResult> EditDeployment(int id)
         {
             AssignmentDeploymentViewModel model = new AssignmentDeploymentViewModel();
@@ -196,6 +203,7 @@ namespace IntranetPortal.Areas.BAMS.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "BAMDPLEDT, XYALLACCZ")]
         public async Task<IActionResult> EditDeployment(AssignmentDeploymentViewModel model)
         {
             if (ModelState.IsValid)
@@ -238,6 +246,7 @@ namespace IntranetPortal.Areas.BAMS.Controllers
             return View(model);
         }
 
+        [Authorize(Roles = "BAMDPLVWD, XYALLACCZ")]
         public async Task<IActionResult> DeploymentDetails(int id)
         {
             AssignmentDeploymentViewModel model = new AssignmentDeploymentViewModel();
@@ -266,6 +275,7 @@ namespace IntranetPortal.Areas.BAMS.Controllers
             return View(model);
         }
 
+        [Authorize(Roles = "BAMDPLDLT, XYALLACCZ")]
         public async Task<IActionResult> DeleteDeployment(int id)
         {
             AssignmentDeploymentViewModel model = new AssignmentDeploymentViewModel();
@@ -295,6 +305,7 @@ namespace IntranetPortal.Areas.BAMS.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "BAMDPLDLT, XYALLACCZ")]
         public async Task<IActionResult> DeleteDeployment(AssignmentDeploymentViewModel model)
         {
             if (ModelState.IsValid)
@@ -337,6 +348,7 @@ namespace IntranetPortal.Areas.BAMS.Controllers
 
         #region Deployment Teams Action Methods
 
+        [Authorize(Roles = "BAMDPLVWL, XYALLACCZ")]
         public async Task<IActionResult> SelectTeamBatch(int? id)
         {
             AssignmentDeploymentListViewModel model = new AssignmentDeploymentListViewModel();
@@ -355,6 +367,7 @@ namespace IntranetPortal.Areas.BAMS.Controllers
             return View(model);
         }
 
+        [Authorize(Roles = "BAMDPTVWL, XYALLACCZ")]
         public async Task<IActionResult> DeploymentTeam(int dd, int ad)
         {
             DeploymentTeamMemberViewModel model = new DeploymentTeamMemberViewModel();
@@ -438,6 +451,7 @@ namespace IntranetPortal.Areas.BAMS.Controllers
         //}
 
         [HttpPost]
+        [Authorize(Roles = "BAMDPTADN, XYALLACCZ")]
         public async Task<string> AddTeamMember(int ad, int dd, string mn, string mr)
         {
             if (ad < 1 || dd < 1 || string.IsNullOrWhiteSpace(mn) || string.IsNullOrWhiteSpace(mr))
@@ -498,6 +512,7 @@ namespace IntranetPortal.Areas.BAMS.Controllers
 
 
         [HttpPost]
+        [Authorize(Roles = "BAMDPTDLT, XYALLACCZ")]
         public string DeleteTeamMember(int td)
         {
             if (td > 0)
@@ -511,6 +526,7 @@ namespace IntranetPortal.Areas.BAMS.Controllers
             }
         }
 
+        [Authorize(Roles = "BAMDPTVWL, XYALLACCZ")]
         public async Task<IActionResult> AssignmentTeamList(int ed, int dd)
         {
             DeploymentTeamMemberViewModel model = new DeploymentTeamMemberViewModel();
@@ -557,6 +573,7 @@ namespace IntranetPortal.Areas.BAMS.Controllers
         #endregion
 
         #region Deployment Equipment Action Methods
+        [Authorize(Roles = "BAMDPLVWL, XYALLACCZ")]
         public async Task<IActionResult> SelectEquipmentBatch(int? id)
         {
             AssignmentDeploymentListViewModel model = new AssignmentDeploymentListViewModel();
@@ -575,6 +592,7 @@ namespace IntranetPortal.Areas.BAMS.Controllers
             return View(model);
         }
 
+        [Authorize(Roles = "BAMDPQVWL, XYALLACCZ")]
         public async Task<IActionResult> DeploymentEquipment(int dd, int ad)
         {
             DeploymentEquipmentViewModel model = new DeploymentEquipmentViewModel();
@@ -608,6 +626,7 @@ namespace IntranetPortal.Areas.BAMS.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "BAMDPQADN, XYALLACCZ")]
         public async Task<IActionResult> DeploymentEquipment(DeploymentEquipmentViewModel model)
         {
             List<DeploymentEquipment> equipments = new List<DeploymentEquipment>();
@@ -672,8 +691,8 @@ namespace IntranetPortal.Areas.BAMS.Controllers
             return View(model);
         }
 
-
         [HttpGet]
+        [Authorize(Roles = "BAMDPQADN, XYALLACCZ")]
         public async Task<IActionResult> DeploymentCheckOut(string id)
         {
             AssetUsageViewModel model = new AssetUsageViewModel();
@@ -741,6 +760,7 @@ namespace IntranetPortal.Areas.BAMS.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "BAMDPQADN, XYALLACCZ")]
         public async Task<IActionResult> DeploymentCheckOut(AssetUsageViewModel model)
         {
             if (ModelState.IsValid)
@@ -812,6 +832,7 @@ namespace IntranetPortal.Areas.BAMS.Controllers
             return RedirectToAction("DeploymentEquipment", new { dd = model.DeploymentID, ad = model.AssignmentEventID });
         }
 
+        [Authorize(Roles = "BAMDPQDLT, XYALLACCZ")]
         public async Task<string> DeleteEquipment(int qd)
         {
             DeploymentEquipment deployedEquipment = new DeploymentEquipment();

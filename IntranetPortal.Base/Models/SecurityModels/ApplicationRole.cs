@@ -13,5 +13,8 @@ namespace IntranetPortal.Base.Models.SecurityModels
         public string NormalizedName { get; set; }
         public string Description { get; set; }
         public string ConcurrencyStamp { get; set; }
+        public string ApplicationID { get; set; }
+        public string ApplicationName { get; set; }
+        public int RoleRank { get; set; }
     }
 }

@@ -55,7 +55,7 @@ namespace IntranetPortal.Data.Repositories.BamsRepositories
                             assetEquipmentGroup.AddedTime = reader["added_time"] == DBNull.Value ? string.Empty : reader["added_time"].ToString();
                             assetEquipmentGroup.AssetTypeID = reader["typ_id"] == DBNull.Value ? 0 : (int)reader["typ_id"];
                             assetEquipmentGroup.AssetTypeName = reader["typ_nm"] == DBNull.Value ? string.Empty : reader["typ_nm"].ToString();
-                            assetEquipmentGroup.ConditionStatus = reader["cnd_sts"] == DBNull.Value ? AssetCondition.Unspecified : (AssetCondition)reader["cnd_sts"];
+                            assetEquipmentGroup.ConditionStatus = reader["cnd_sts"] == DBNull.Value ? AssetCondition.InGoodCondition : (AssetCondition)reader["cnd_sts"];
                             assetEquipmentGroup.CurrentLocation = reader["cur_loc"] == DBNull.Value ? string.Empty : reader["cur_loc"].ToString();
                         }
                 }
@@ -108,7 +108,7 @@ namespace IntranetPortal.Data.Repositories.BamsRepositories
                                 AddedTime = reader["added_time"] == DBNull.Value ? string.Empty : reader["added_time"].ToString(),
                                 AssetTypeID = reader["typ_id"] == DBNull.Value ? 0 : (int)reader["typ_id"],
                                 AssetTypeName = reader["typ_nm"] == DBNull.Value ? string.Empty : reader["typ_nm"].ToString(),
-                                ConditionStatus = reader["cnd_sts"] == DBNull.Value ? AssetCondition.Unspecified : (AssetCondition)reader["cnd_sts"],
+                                ConditionStatus = reader["cnd_sts"] == DBNull.Value ? AssetCondition.InGoodCondition : (AssetCondition)reader["cnd_sts"],
                                 CurrentLocation = reader["cur_loc"] == DBNull.Value ? string.Empty : reader["cur_loc"].ToString(),
                             });
                         }
@@ -165,7 +165,7 @@ namespace IntranetPortal.Data.Repositories.BamsRepositories
                                 AddedTime = reader["added_time"] == DBNull.Value ? string.Empty : reader["added_time"].ToString(),
                                 AssetTypeID = reader["typ_id"] == DBNull.Value ? 0 : (int)reader["typ_id"],
                                 AssetTypeName = reader["typ_nm"] == DBNull.Value ? string.Empty : reader["typ_nm"].ToString(),
-                                ConditionStatus = reader["cnd_sts"] == DBNull.Value ? AssetCondition.Unspecified : (AssetCondition)reader["cnd_sts"],
+                                ConditionStatus = reader["cnd_sts"] == DBNull.Value ? AssetCondition.InGoodCondition : (AssetCondition)reader["cnd_sts"],
                                 CurrentLocation = reader["cur_loc"] == DBNull.Value ? string.Empty : reader["cur_loc"].ToString(),
                             });
                         }

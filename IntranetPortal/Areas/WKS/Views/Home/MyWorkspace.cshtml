@@ -1,0 +1,61 @@
+﻿@model IntranetPortal.Areas.WKS.Models.MyWorkspaceViewModel
+@{
+    ViewData["Title"] = "My Workspace";
+}
+<link href="~/lib/matrix/dist/css/style.min.css" rel="stylesheet" />
+<div class="my-2">
+    <!-- ============================================================== -->
+    <!-- Sales Cards  -->
+    <!-- ============================================================== -->
+    <div class="mb-2">
+        @if (Model != null && Model.OpenWorkspace != null && Model.OpenWorkspace.IsExecutiveManagement)
+        {<h4 class="fw-bold">Executive Management Workspace</h4>}
+        else
+        {<h4 class="fw-bold">My Workspace</h4>}
+    </div>
+    <hr />
+    <div class="pl-3 mb-5">
+        <form asp-area="WKS" asp-controller="Home" asp-action="MyWorkspace" asp-route-sp="@Model.sp" method="get">
+            <a title="Go Back" asp-area="WKS" asp-controller="Home" asp-action="Index" class="btn btn-sm btn-dark pl-2 pr-2">
+                <span class="text-white" style="width:100px">Back</span>
+            </a>
+            <select name="id" value="@Model.WorkspaceID" asp-items="@ViewBag.WorkspaceSelectList" class="border-light border-1 text-info fw-bold" style="width:300px">
+            </select>
+            <select asp-for="sp" value="@Model.sp" class="border-light border-1 pr-2 text-info fw-bold" style="width:150px">
+                <option value="active">Show Active</option>
+                <option value="archived">Show Archived</option>
+                <option value="all">Show All</option>
+            </select>
+            <input type="submit" value="Refresh" class="btn btn-sm btn-info text-white" style="width:100px" />
+        </form>
+    </div>
+    <hr />
+    <div class="row">
+        @if (Model != null && Model.FolderList != null)
+        {
+            foreach (var folder in Model.FolderList)
+            {
+                <!-- Column -->
+                <div class="col-md-4 col-lg-2 col-xlg-1">
+                    <a title="@folder.Description" asp-area="WKS" asp-controller="Projects" asp-action="MyProjects" asp-route-id="@folder.ID">
+                        <div class="card card-hover">
+                            <div class="box bg-light text-center">
+                                @if (folder.IsArchived)
+                                {
+                                    <h1 class="font-light text-secondary"><i class="bi bi-archive" style="font-size:1.5em"></i></h1>
+                                }
+                                else
+                                {
+                                    <h1 class="font-light text-dark"><i class="bi bi-folder" style="font-size:1.5em"></i></h1>
+                                }
+                                <h6 class="text-dark">@folder.Title</h6>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            }
+        }
+    </div>
+</div>
+
+

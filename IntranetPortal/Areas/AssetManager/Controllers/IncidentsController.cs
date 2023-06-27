@@ -6,6 +6,7 @@ using IntranetPortal.Areas.AssetManager.Models;
 using IntranetPortal.Base.Models.AssetManagerModels;
 using IntranetPortal.Base.Services;
 using IntranetPortal.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Configuration;
@@ -14,6 +15,7 @@ using Microsoft.Extensions.Logging;
 namespace IntranetPortal.Areas.AssetManager.Controllers
 {
     [Area("AssetManager")]
+    [Authorize]
     public class IncidentsController : Controller
     {
         private readonly ILogger<IncidentsController> _logger;
@@ -29,6 +31,8 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
             _baseModelService = baseModelService;
             _assetManagerService = assetManagerService;
         }
+
+        [Authorize(Roles = "AMSINCVWL, XYALLACCZ")]
         public async Task<IActionResult> List(int? tp = null, int? pg = null)
         {
             IList<AssetIncident> assetIncidentList = new List<AssetIncident>();
@@ -56,6 +60,7 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
             return View(PaginatedList<AssetIncident>.CreateAsync(assetIncidentList.AsQueryable(), pg ?? 1, 100));
         }
 
+        [Authorize(Roles = "AMSINCVWL, XYALLACCZ")]
         public async Task<IActionResult> index(string id, int? yr = null, int? mn = null)
         {
             IList<AssetIncident> assetIncidentList = new List<AssetIncident>();
@@ -101,6 +106,7 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "AMSINCADN, XYALLACCZ")]
         public async Task<IActionResult> AddIncident(string id = null)
         {
             AssetIncidentViewModel model = new AssetIncidentViewModel();
@@ -119,6 +125,7 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "AMSINCADN, XYALLACCZ")]
         public async Task<IActionResult> AddIncident(AssetIncidentViewModel model)
         {
             if (ModelState.IsValid)
@@ -181,6 +188,7 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "AMSINCEDT, XYALLACCZ")]
         public async Task<IActionResult> EditIncident(int id)
         {
             AssetIncidentViewModel model = new AssetIncidentViewModel();
@@ -213,6 +221,7 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "AMSINCEDT, XYALLACCZ")]
         public async Task<IActionResult> EditIncident(AssetIncidentViewModel model)
         {
             if (ModelState.IsValid)
@@ -285,6 +294,7 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "AMSINCVWD, XYALLACCZ")]
         public async Task<IActionResult> IncidentDetails(int id)
         {
             AssetIncidentViewModel model = new AssetIncidentViewModel();
@@ -317,6 +327,7 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "AMSINCDLT, XYALLACCZ")]
         public async Task<IActionResult> DeleteIncident(int id)
         {
             AssetIncidentViewModel model = new AssetIncidentViewModel();
@@ -350,6 +361,7 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "AMSINCDLT, XYALLACCZ")]
         public async Task<IActionResult> DeleteIncident(AssetIncidentViewModel model)
         {
             AssetIncident assetIncident = new AssetIncident();

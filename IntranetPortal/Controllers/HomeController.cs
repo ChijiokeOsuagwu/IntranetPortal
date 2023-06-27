@@ -21,7 +21,6 @@ namespace IntranetPortal.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
         private readonly ISecurityService _securityService;
         private readonly IConfiguration _configuration;
         private readonly IContentManagerService _contentManager;
@@ -73,6 +72,17 @@ namespace IntranetPortal.Controllers
             return View();
         }
 
+        public async Task<IActionResult> XDB()
+        {
+            var claims = HttpContext.User.Claims.ToList();
+            string recipientId = claims?.Where(x => x.Type == ClaimTypes.NameIdentifier).Select(c => c.Value).SingleOrDefault();
+            if (!string.IsNullOrWhiteSpace(recipientId))
+            {
+                ViewData["UnreadMessageCount"] = await _baseModelService.GetUnreadMessagesCount(recipientId);
+            }
+            return View();
+        }
+
         [HttpGet]
         [AllowAnonymous]
         public IActionResult Login()
@@ -87,83 +97,180 @@ namespace IntranetPortal.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return View(model);
-            }
-
-            string UserName = model.Login;
-            //string PasswordHash = _securityService.CreatePasswordHash(model.Password);
-            bool IsPersistent = model.RememberMe;
-
-            var users = _securityService.GetUsersByLoginId(model.Login).Result;
-            if (users == null || users.Count < 1)
-            {
                 model.ViewModelErrorMessage = "Invalid Login Attempt.";
-                model.OperationIsCompleted = false;
-                model.OperationIsSuccessful = false;
                 return View(model);
             }
-            ApplicationUser user = users.FirstOrDefault();
-            if (user.UserName == model.Login && _securityService.ValidatePassword(model.Password, user.PasswordHash))
+
+            try
             {
+                string UserName = model.Login;
+                //string PasswordHash = _securityService.CreatePasswordHash(model.Password);
+                bool IsPersistent = model.RememberMe;
 
-                var claims = new List<Claim>();
-                if (!string.IsNullOrEmpty(user.FullName)) { claims.Add(new Claim(ClaimTypes.Name, user.FullName)); }
-                if (!string.IsNullOrWhiteSpace(user.Email)) { claims.Add(new Claim(ClaimTypes.Email, user.Email)); }
-                if (!string.IsNullOrWhiteSpace(user.Id)) { claims.Add(new Claim(ClaimTypes.NameIdentifier, user.Id)); }
-                if (!string.IsNullOrWhiteSpace(user.UserType)) { claims.Add(new Claim("UserType", user.UserType)); }
-                if (!string.IsNullOrWhiteSpace(user.CompanyCode)) { claims.Add(new Claim("Company", user.CompanyCode)); }
-
-                var roleList = _securityService.GetUserPermissionListByUserIdAsync(user.Id).Result.ToList();
-                if (roleList != null && roleList.Count > 0)
+                var users = _securityService.GetUsersByLoginId(model.Login).Result;
+                if (users == null || users.Count < 1)
                 {
-                    foreach (var role in roleList)
-                    {
-                        claims.Add(new Claim(ClaimTypes.Role, role));
-                    }
+                    model.ViewModelErrorMessage = "Invalid Login Attempt.";
+                    model.OperationIsCompleted = false;
+                    model.OperationIsSuccessful = false;
+                    return View(model);
                 }
-
-                var authProperties = new AuthenticationProperties
+                ApplicationUser user = users.FirstOrDefault();
+                if (user.UserName == model.Login && _securityService.ValidatePassword(model.Password, user.PasswordHash))
                 {
-                    AllowRefresh = true,
-                    // Refreshing the authentication session should be allowed.
+                    var claims = new List<Claim>();
+                    if (!string.IsNullOrEmpty(user.FullName)) { claims.Add(new Claim(ClaimTypes.Name, user.FullName)); }
+                    if (!string.IsNullOrWhiteSpace(user.Email)) { claims.Add(new Claim(ClaimTypes.Email, user.Email)); }
+                    if (!string.IsNullOrWhiteSpace(user.Id)) { claims.Add(new Claim(ClaimTypes.NameIdentifier, user.Id)); }
+                    if (!string.IsNullOrWhiteSpace(user.UserType)) { claims.Add(new Claim("UserType", user.UserType)); }
+                    if (!string.IsNullOrWhiteSpace(user.CompanyCode)) { claims.Add(new Claim("Company", user.CompanyCode)); }
 
-                    //ExpiresUtc = DateTimeOffset.UtcNow.AddMinutes(10),
-                    // The time at which the authentication ticket expires. A 
-                    // value set here overrides the ExpireTimeSpan option of 
-                    // CookieAuthenticationOptions set with AddCookie.
+                    var roleList = _securityService.GetUserPermissionListByUserIdAsync(user.Id).Result.ToList();
+                    if (roleList != null && roleList.Count > 0)
+                    {
+                        foreach (var role in roleList)
+                        {
+                            claims.Add(new Claim(ClaimTypes.Role, role));
+                        }
+                    }
 
-                    IsPersistent = model.RememberMe
-                    // Whether the authentication session is persisted across 
-                    // multiple requests. When used with cookies, controls
-                    // whether the cookie's lifetime is absolute (matching the
-                    // lifetime of the authentication ticket) or session-based.
+                    var authProperties = new AuthenticationProperties
+                    {
+                        AllowRefresh = true,
+                        // Refreshing the authentication session should be allowed.
 
-                    //IssuedUtc = <DateTimeOffset>,
-                    // The time at which the authentication ticket was issued.
+                        //ExpiresUtc = DateTimeOffset.UtcNow.AddMinutes(10),
+                        // The time at which the authentication ticket expires. A 
+                        // value set here overrides the ExpireTimeSpan option of 
+                        // CookieAuthenticationOptions set with AddCookie.
 
-                    //RedirectUri = <string>
-                    // The full path or absolute URI to be used as an http 
-                    // redirect response value.
-                };
+                        IsPersistent = model.RememberMe
+                        // Whether the authentication session is persisted across 
+                        // multiple requests. When used with cookies, controls
+                        // whether the cookie's lifetime is absolute (matching the
+                        // lifetime of the authentication ticket) or session-based.
 
-                var identity = new ClaimsIdentity(claims, SecurityConstants.ChxCookieAuthentication);
-                ClaimsPrincipal claimsPrincipal = new ClaimsPrincipal(identity);
-                await HttpContext.SignInAsync(SecurityConstants.ChxCookieAuthentication, claimsPrincipal, authProperties);
+                        //IssuedUtc = <DateTimeOffset>,
+                        // The time at which the authentication ticket was issued.
 
-                return RedirectToAction("Index");
+                        //RedirectUri = <string>
+                        // The full path or absolute URI to be used as an http 
+                        // redirect response value.
+                    };
+
+                    var identity = new ClaimsIdentity(claims, SecurityConstants.ChxCookieAuthentication);
+                    ClaimsPrincipal claimsPrincipal = new ClaimsPrincipal(identity);
+                    await HttpContext.SignInAsync(SecurityConstants.ChxCookieAuthentication, claimsPrincipal, authProperties);
+
+                    UserLoginHistory userLoginHistory = new UserLoginHistory
+                    {
+                        LoginIsSucceful = true,
+                        LoginTime = DateTime.UtcNow,
+                        LoginSourceInfo = string.Empty,
+                        LoginUserID = user.Id,
+                        LoginUserName = user.FullName,
+                        UserLoginType = LoginType.LogIn
+                    };
+
+                    await _securityService.UpdateUserLoginHistoryAsync(userLoginHistory);
+
+                    return RedirectToAction("Index");
+                }
+                model.ViewModelErrorMessage = "Invalid Login Attempt.";
+
             }
-            model.ViewModelErrorMessage = "Invalid Login Attempt.";
-            model.OperationIsCompleted = false;
-            model.OperationIsSuccessful = false;
+            catch (Exception)
+            {
+                model.ViewModelErrorMessage = "Login Error!";
+            }
             return View(model);
         }
 
         public async Task<IActionResult> Logout()
         {
+            string userName = HttpContext.User.Identity.Name;
+            string userId = HttpContext.User.Claims.FirstOrDefault(c => c.Type.Contains("nameidentifier")).Value;
+            UserLoginHistory userLoginHistory = new UserLoginHistory
+            {
+                LoginIsSucceful = true,
+                LoginTime = DateTime.UtcNow,
+                LoginSourceInfo = string.Empty,
+                LoginUserID = userId,
+                LoginUserName = userName,
+                UserLoginType = LoginType.LogOut
+            };
+
+            await _securityService.UpdateUserLoginHistoryAsync(userLoginHistory);
+
             await HttpContext.SignOutAsync(SecurityConstants.ChxCookieAuthentication);
             //return RedirectToAction("Index");
             return LocalRedirect("/Home/Index");
         }
+
+        public IActionResult ChangePassword()
+        {
+            ChangePasswordViewModel model = new ChangePasswordViewModel();
+            string userName = HttpContext.User.Identity.Name;
+            string userId = HttpContext.User.Claims.FirstOrDefault(c => c.Type.Contains("nameidentifier")).Value;
+            model.UserID = userId;
+            model.UserFullName = userName;
+            return View(model);
+        }
+
+        [HttpPost]
+        [Authorize]
+        public async Task<IActionResult> ChangePassword(ChangePasswordViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    if (string.IsNullOrEmpty(model.UserID) || string.IsNullOrEmpty(model.NewPassword) || string.IsNullOrEmpty(model.ConfirmPassword))
+                    {
+                        model.OperationIsCompleted = false;
+                        model.OperationIsSuccessful = false;
+                        model.ViewModelErrorMessage = $"Operation could not be completed. Some key form values were not found. Please try again.";
+                        return View(model);
+                    }
+                    else
+                    {
+                        ApplicationUser user = new ApplicationUser
+                        {
+                            Id = model.UserID,
+                            ModifiedBy = HttpContext.User.Identity.Name,
+                            ModifiedTime = $"{DateTime.Now.Date.ToLongDateString()} {DateTime.Now.ToLongTimeString()}",
+                        };
+
+                        user.PasswordHash = _securityService.CreatePasswordHash(model.NewPassword);
+                        bool result = await _securityService.ResetUserPasswordAsync(user);
+                        if (result)
+                        {
+                            model.OperationIsCompleted = true;
+                            model.OperationIsSuccessful = true;
+                            model.ViewModelSuccessMessage = "Password was changed successfully!";
+                            return View(model);
+                        }
+                        else
+                        {
+                            model.ViewModelErrorMessage = $"Sorry, there was a problem. Attempt to change password failed.";
+                            model.OperationIsCompleted = false;
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    model.ViewModelErrorMessage = ex.Message;
+                    model.OperationIsCompleted = true;
+                }
+            }
+            else
+            {
+                model.ViewModelErrorMessage = $"Ooops! It appears some fields have missing or invalid values. Please correct this and try again.";
+                model.OperationIsCompleted = false;
+            }
+            return View(model);
+        }
+
 
         public async Task<IActionResult> Read(int? id)
         {
@@ -196,7 +303,7 @@ namespace IntranetPortal.Controllers
                     model.MessageList = await _baseModelService.GetAllMessages(recipientId);
                     break;
             }
-            
+
             model.UnreadMessagesCount = await _baseModelService.GetUnreadMessagesCount(recipientId);
             ViewData["UnreadMessageCount"] = model.UnreadMessagesCount;
             model.ReadMessagesCount = await _baseModelService.GetReadMessagesCount(recipientId);

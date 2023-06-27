@@ -5,7 +5,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using IntranetPortal.Areas.AssetManager.Models;
 using IntranetPortal.Base.Models.AssetManagerModels;
+using IntranetPortal.Base.Models.EmployeeRecordModels;
 using IntranetPortal.Base.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -15,24 +17,30 @@ using Newtonsoft.Json;
 namespace IntranetPortal.Areas.AssetManager.Controllers
 {
     [Area("AssetManager")]
+    [Authorize]
     public class SettingsController : Controller
     {
         private readonly IConfiguration _configuration;
         private readonly IAssetManagerService _assetManagerService;
         private readonly IGlobalSettingsService _globalSettingsService;
         private readonly IWebHostEnvironment _webHostEnvironment;
+        private readonly IErmService _ermService;
 
         public SettingsController(IConfiguration configuration, IAssetManagerService assetManagerService,
-                                    IGlobalSettingsService globalSettingsService, IWebHostEnvironment webHostingEnvironment)
+                                    IGlobalSettingsService globalSettingsService, IWebHostEnvironment webHostingEnvironment,
+                                    IErmService ermService)
         {
             _configuration = configuration;
             _assetManagerService = assetManagerService;
             _globalSettingsService = globalSettingsService;
             _webHostEnvironment = webHostingEnvironment;
+            _ermService = ermService;
         }
 
         //======================== Asset Category Controller Actions =======================================================//
         #region Asset Category Controller Actions
+
+        [Authorize(Roles = "AMSCTGVWL, XYALLACCZ")]
         public async Task<IActionResult> Categories(string searchString = null)
         {
             AssetCategoryListViewModel model = new AssetCategoryListViewModel();
@@ -51,6 +59,7 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "AMSCTGADN, XYALLACCZ")]
         public IActionResult AddCategory()
         {
             AssetCategoryViewModel model = new AssetCategoryViewModel();
@@ -58,6 +67,7 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "AMSCTGADN, XYALLACCZ")]
         public async Task<IActionResult> AddCategory(AssetCategoryViewModel model)
         {
             if (ModelState.IsValid)
@@ -88,6 +98,7 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "AMSCTGEDT, XYALLACCZ")]
         public async Task<IActionResult> EditCategory(int id)
         {
             AssetCategory category = new AssetCategory();
@@ -107,6 +118,7 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "AMSCTGEDT, XYALLACCZ")]
         public async Task<IActionResult> EditCategory(AssetCategoryViewModel model)
         {
             if (ModelState.IsValid)
@@ -137,6 +149,7 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "AMSCTGDLT, XYALLACCZ")]
         public async Task<IActionResult> DeleteCategory(int id)
         {
             AssetCategory category = new AssetCategory();
@@ -165,6 +178,7 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "AMSCTGDLT, XYALLACCZ")]
         public async Task<IActionResult> DeleteCategory(AssetCategoryViewModel model)
         {
             if (model != null)
@@ -194,39 +208,58 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
 
         //======================== Asset Types Controller Actions =========================================================//
         #region Asset Types Controller Action
-        public async Task<IActionResult> AssetTypes(string searchString = null)
+
+        [Authorize(Roles = "AMSTYPVWL, XYALLACCZ")]
+        public async Task<IActionResult> AssetTypes(int? cd = null, string searchString = null)
         {
             AssetTypeListViewModel model = new AssetTypeListViewModel();
-            IEnumerable<AssetType> typeList;
-            if (string.IsNullOrEmpty(searchString))
+            IEnumerable<AssetType> typeList = new List<AssetType>();
+            if (cd != null && cd.Value > 0)
             {
-                typeList = await _assetManagerService.GetAssetTypesAsync();
+                typeList = await _assetManagerService.GetAssetTypesByClassIdAsync(cd.Value);
             }
-            else
+            else if (!string.IsNullOrEmpty(searchString))
             {
                 typeList = await _assetManagerService.SearchAssetTypesByNameAsync(searchString);
             }
+            else
+            {
+                typeList = await _assetManagerService.GetAssetTypesAsync();
+            }
+
+            ViewBag.cd = cd;
+            var assetClasses = await _assetManagerService.GetAssetClassesAsync();
+            ViewBag.AssetClassesList = new SelectList(assetClasses, "ID", "Name");
+
             ViewData["CurrentFilter"] = searchString;
             model.AssetTypeList = typeList.ToList();
             return View(model);
         }
 
         [HttpGet]
+        [Authorize(Roles = "AMSTYPADN, XYALLACCZ")]
         public async Task<IActionResult> AddAssetType()
         {
             AssetTypeViewModel model = new AssetTypeViewModel();
-            var categories = await _assetManagerService.GetAssetCategoriesAsync();
-            ViewBag.CategoryList = new SelectList(categories, "ID", "Name");
+            var assetClasses = await _assetManagerService.GetAssetClassesAsync();
+            ViewBag.AssetClassesList = new SelectList(assetClasses, "ID", "Name");
             return View(model);
         }
 
         [HttpPost]
+        [Authorize(Roles = "AMSTYPADN, XYALLACCZ")]
         public async Task<IActionResult> AddAssetType(AssetTypeViewModel model)
         {
             if (ModelState.IsValid)
             {
                 try
                 {
+                    AssetClass assetClass = await _assetManagerService.GetAssetClassByIdAsync(model.ClassID);
+                    if (assetClass != null && !string.IsNullOrWhiteSpace(assetClass.Name))
+                    {
+                        model.CategoryID = assetClass.CategoryID;
+                    }
+
                     AssetType assetType = model.ConvertToAssetType();
                     bool succeeded = await _assetManagerService.CreateAssetTypeAsync(assetType);
                     if (succeeded)
@@ -247,12 +280,13 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
                 model.ViewModelErrorMessage = $"Ooops! It appears some fields have missing or invalid values. Please correct this and try again.";
                 model.OperationIsCompleted = true;
             }
-            var categories = await _assetManagerService.GetAssetCategoriesAsync();
-            ViewBag.CategoryList = new SelectList(categories, "ID", "Name");
+            var assetClasses = await _assetManagerService.GetAssetClassesAsync();
+            ViewBag.AssetClassesList = new SelectList(assetClasses, "ID", "Name");
             return View(model);
         }
 
         [HttpGet]
+        [Authorize(Roles = "AMSTYPEDT, XYALLACCZ")]
         public async Task<IActionResult> EditAssetType(int id)
         {
             AssetType assetType = new AssetType();
@@ -270,18 +304,25 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
             {
                 return RedirectToAction("AddAssetType");
             }
-            var categories = await _assetManagerService.GetAssetCategoriesAsync();
-            ViewBag.CategoryList = new SelectList(categories, "ID", "Name");
+            var assetClasses = await _assetManagerService.GetAssetClassesAsync();
+            ViewBag.AssetClassesList = new SelectList(assetClasses, "ID", "Name");
             return View(model);
         }
 
         [HttpPost]
+        [Authorize(Roles = "AMSTYPEDT, XYALLACCZ")]
         public async Task<IActionResult> EditAssetType(AssetTypeViewModel model)
         {
             if (ModelState.IsValid)
             {
                 try
                 {
+                    AssetClass assetClass = await _assetManagerService.GetAssetClassByIdAsync(model.ClassID);
+                    if (assetClass != null && !string.IsNullOrWhiteSpace(assetClass.Name))
+                    {
+                        model.CategoryID = assetClass.CategoryID;
+                    }
+
                     AssetType assetType = model.ConvertToAssetType();
                     bool succeeded = await _assetManagerService.UpdateAssetTypeAsync(assetType);
                     if (succeeded)
@@ -302,12 +343,13 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
                 model.ViewModelErrorMessage = $"Ooops! It appears some fields have missing or invalid values. Please correct this and try again.";
                 model.OperationIsCompleted = true;
             }
-            var categories = await _assetManagerService.GetAssetCategoriesAsync();
-            ViewBag.CategoryList = new SelectList(categories, "ID", "Name");
+            var assetClasses = await _assetManagerService.GetAssetClassesAsync();
+            ViewBag.AssetClassesList = new SelectList(assetClasses, "ID", "Name");
             return View(model);
         }
 
         [HttpGet]
+        [Authorize(Roles = "AMSTYPVWD, XYALLACCZ")]
         public async Task<IActionResult> AssetTypeDetails(int id)
         {
             AssetType assetType = new AssetType();
@@ -328,8 +370,8 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
             return View(model);
         }
 
-
         [HttpGet]
+        [Authorize(Roles = "AMSTYPDLT, XYALLACCZ")]
         public async Task<IActionResult> DeleteAssetType(int id)
         {
             AssetType assetType = new AssetType();
@@ -351,6 +393,7 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "AMSTYPDLT, XYALLACCZ")]
         public async Task<IActionResult> DeleteAssetType(AssetTypeViewModel model)
         {
             if (model != null)
@@ -361,6 +404,416 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
                     if (succeeded)
                     {
                         return RedirectToAction("AssetTypes");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    model.ViewModelErrorMessage = ex.Message;
+                    model.OperationIsCompleted = true;
+                }
+            }
+            else
+            {
+                model.ViewModelErrorMessage = $"Ooops! It appears some fields have missing or invalid values. Please correct this and try again.";
+                model.OperationIsCompleted = true;
+            }
+            return View(model);
+        }
+        #endregion
+
+        //======================== Asset Class Controller Actions =========================================================//
+        #region Asset Class Controller Action
+
+        [Authorize(Roles = "AMSTYPVWL, XYALLACCZ")]
+        public async Task<IActionResult> AssetClasses(int? cd = null, string searchString = null)
+        {
+            AssetClassListViewModel model = new AssetClassListViewModel();
+            IEnumerable<AssetClass> classList = new List<AssetClass>();
+            if (cd != null && cd.Value > 0)
+            {
+                classList = await _assetManagerService.GetAssetClassesByCategoryIdAsync(cd.Value);
+            }
+            else if (!string.IsNullOrEmpty(searchString))
+            {
+                classList = await _assetManagerService.SearchAssetClassesByNameAsync(searchString);
+            }
+
+            ViewBag.cd = cd;
+            var assetCategories = await _assetManagerService.GetAssetCategoriesAsync();
+            ViewBag.AssetCategoriesList = new SelectList(assetCategories, "ID", "Name");
+
+            ViewData["CurrentFilter"] = searchString;
+            model.AssetClassList = classList.ToList();
+            return View(model);
+        }
+
+        [HttpGet]
+        [Authorize(Roles = "AMSTYPADN, XYALLACCZ")]
+        public async Task<IActionResult> AddAssetClass()
+        {
+            AssetClassViewModel model = new AssetClassViewModel();
+            var categories = await _assetManagerService.GetAssetCategoriesAsync();
+            ViewBag.CategoryList = new SelectList(categories, "ID", "Name");
+            return View(model);
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "AMSTYPADN, XYALLACCZ")]
+        public async Task<IActionResult> AddAssetClass(AssetClassViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    AssetClass assetClass = model.ConvertToAssetClass();
+                    bool succeeded = await _assetManagerService.CreateAssetClassAsync(assetClass);
+                    if (succeeded)
+                    {
+                        model.OperationIsCompleted = true;
+                        model.OperationIsSuccessful = true;
+                        model.ViewModelSuccessMessage = $"New Asset Class was created successfully!";
+                    }
+                }
+                catch (Exception ex)
+                {
+                    model.ViewModelErrorMessage = ex.Message;
+                    model.OperationIsCompleted = true;
+                }
+            }
+            else
+            {
+                model.ViewModelErrorMessage = $"Ooops! It appears some fields have missing or invalid values. Please correct this and try again.";
+                model.OperationIsCompleted = true;
+            }
+            var categories = await _assetManagerService.GetAssetCategoriesAsync();
+            ViewBag.CategoryList = new SelectList(categories, "ID", "Name");
+            return View(model);
+        }
+
+        [HttpGet]
+        [Authorize(Roles = "AMSTYPEDT, XYALLACCZ")]
+        public async Task<IActionResult> EditAssetClass(int id)
+        {
+            AssetClass assetClass = new AssetClass();
+            AssetClassViewModel model = new AssetClassViewModel();
+            if (id > 0)
+            {
+                assetClass = await _assetManagerService.GetAssetClassByIdAsync(id);
+                model.ID = assetClass.ID;
+                model.Name = assetClass.Name;
+                model.Description = assetClass.Description;
+                model.CategoryID = assetClass.CategoryID;
+                model.CategoryName = assetClass.CategoryName;
+            }
+            else
+            {
+                return RedirectToAction("AddAssetClass");
+            }
+            var categories = await _assetManagerService.GetAssetCategoriesAsync();
+            ViewBag.CategoryList = new SelectList(categories, "ID", "Name");
+            return View(model);
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "AMSTYPEDT, XYALLACCZ")]
+        public async Task<IActionResult> EditAssetClass(AssetClassViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    AssetClass assetClass = model.ConvertToAssetClass();
+                    bool succeeded = await _assetManagerService.UpdateAssetClassAsync(assetClass);
+                    if (succeeded)
+                    {
+                        model.OperationIsCompleted = true;
+                        model.OperationIsSuccessful = true;
+                        model.ViewModelSuccessMessage = $"Asset Class was updated successfully!";
+                    }
+                }
+                catch (Exception ex)
+                {
+                    model.ViewModelErrorMessage = ex.Message;
+                    model.OperationIsCompleted = true;
+                }
+            }
+            else
+            {
+                model.ViewModelErrorMessage = $"Ooops! It appears some fields have missing or invalid values. Please correct this and try again.";
+                model.OperationIsCompleted = true;
+            }
+            var categories = await _assetManagerService.GetAssetCategoriesAsync();
+            ViewBag.CategoryList = new SelectList(categories, "ID", "Name");
+            return View(model);
+        }
+
+        [HttpGet]
+        [Authorize(Roles = "AMSTYPVWD, XYALLACCZ")]
+        public async Task<IActionResult> AssetClassDetails(int id)
+        {
+            AssetClass assetClass = new AssetClass();
+            AssetClassViewModel model = new AssetClassViewModel();
+            if (id > 0)
+            {
+                assetClass = await _assetManagerService.GetAssetClassByIdAsync(id);
+                model.ID = assetClass.ID;
+                model.Name = assetClass.Name;
+                model.Description = assetClass.Description;
+                model.CategoryID = assetClass.CategoryID;
+                model.CategoryName = assetClass.CategoryName;
+            }
+            else
+            {
+                return RedirectToAction("AssetClasses");
+            }
+            return View(model);
+        }
+
+        [HttpGet]
+        [Authorize(Roles = "AMSTYPDLT, XYALLACCZ")]
+        public async Task<IActionResult> DeleteAssetClass(int id)
+        {
+            AssetClass assetClass = new AssetClass();
+            AssetClassViewModel model = new AssetClassViewModel();
+            if (id > 0)
+            {
+                assetClass = await _assetManagerService.GetAssetClassByIdAsync(id);
+                model.ID = assetClass.ID;
+                model.Name = assetClass.Name;
+                model.Description = assetClass.Description;
+                model.CategoryID = assetClass.CategoryID;
+                model.CategoryName = assetClass.CategoryName;
+            }
+            else
+            {
+                return RedirectToAction("AssetClasses");
+            }
+            return View(model);
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "AMSTYPDLT, XYALLACCZ")]
+        public async Task<IActionResult> DeleteAssetClass(AssetClassViewModel model)
+        {
+            if (model != null)
+            {
+                try
+                {
+                    bool succeeded = await _assetManagerService.DeleteAssetClassAsync(model.ID.Value);
+                    if (succeeded)
+                    {
+                        return RedirectToAction("AssetClasses");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    model.ViewModelErrorMessage = ex.Message;
+                    model.OperationIsCompleted = true;
+                }
+            }
+            else
+            {
+                model.ViewModelErrorMessage = $"Ooops! It appears some fields have missing or invalid values. Please correct this and try again.";
+                model.OperationIsCompleted = true;
+            }
+            return View(model);
+        }
+        #endregion
+
+        //======================== Asset Bin Location Controller Actions =========================================================//
+        #region Asset Bin Location Controller Action
+
+        [Authorize(Roles = "AMSBNLVWL, XYALLACCZ")]
+        public async Task<IActionResult> AssetBinLocations(int? loc = null, string ss = null)
+        {
+            AssetBinLocationListViewModel model = new AssetBinLocationListViewModel();
+            IEnumerable<AssetBinLocation> assetBinLocationList = new List<AssetBinLocation>();
+            Employee employee = new Employee();
+            var entity = await _ermService.GetEmployeeByNameAsync(HttpContext.User.Identity.Name);
+            if (entity != null && !string.IsNullOrWhiteSpace(entity.EmployeeID))
+            {
+                AssetPermission assetPermission = new AssetPermission();
+                assetPermission.LocationId = entity.LocationID;
+                assetPermission.UserId = entity.EmployeeID;
+
+                if (!string.IsNullOrEmpty(ss))
+                {
+                    assetBinLocationList = await _assetManagerService.SearchAssetBinLocationsByNameAsync(ss);
+                }
+                else
+                {
+                    if (loc != null && loc > 0)
+                    {
+                        assetBinLocationList = await _assetManagerService.GetAssetBinLocationsByLocationIdAsync(loc.Value, assetPermission);
+                    }
+                }
+
+            }
+
+            var locations = await _globalSettingsService.GetAllLocationsAsync();
+            ViewBag.LocationList = new SelectList(locations, "LocationID", "LocationName");
+
+            model.loc = loc;
+            model.sp = ss;
+            model.AssetBinLocationList = assetBinLocationList.ToList();
+            return View(model);
+        }
+
+        [HttpGet]
+        [Authorize(Roles = "AMSBNLADN, XYALLACCZ")]
+        public async Task<IActionResult> AddAssetBinLocation()
+        {
+            AssetBinLocationViewModel model = new AssetBinLocationViewModel();
+            var locations = await _globalSettingsService.GetAllLocationsAsync();
+            ViewBag.LocationList = new SelectList(locations, "LocationID", "LocationName");
+            return View(model);
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "AMSBNLADN, XYALLACCZ")]
+        public async Task<IActionResult> AddAssetBinLocation(AssetBinLocationViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    AssetBinLocation assetBinLocation = model.ConvertToAssetBinLocation();
+                    bool succeeded = await _assetManagerService.CreateAssetBinLocationAsync(assetBinLocation);
+                    if (succeeded)
+                    {
+                        model.OperationIsCompleted = true;
+                        model.OperationIsSuccessful = true;
+                        model.ViewModelSuccessMessage = $"New Bin Location was created successfully!";
+                    }
+                }
+                catch (Exception ex)
+                {
+                    model.ViewModelErrorMessage = ex.Message;
+                    model.OperationIsCompleted = true;
+                }
+            }
+            else
+            {
+                model.ViewModelErrorMessage = $"Ooops! It appears some fields have missing or invalid values. Please correct this and try again.";
+                model.OperationIsCompleted = true;
+            }
+            var locations = await _globalSettingsService.GetAllLocationsAsync();
+            ViewBag.LocationList = new SelectList(locations, "LocationID", "LocationName");
+            return View(model);
+        }
+
+        [HttpGet]
+        [Authorize(Roles = "AMSBNLEDT, XYALLACCZ")]
+        public async Task<IActionResult> EditAssetBinLocation(int id)
+        {
+            AssetBinLocation assetBinLocation = new AssetBinLocation();
+            AssetBinLocationViewModel model = new AssetBinLocationViewModel();
+            if (id > 0)
+            {
+                assetBinLocation = await _assetManagerService.GetAssetBinLocationByIdAsync(id);
+                model.AssetBinLocationID = assetBinLocation.AssetBinLocationID;
+                model.AssetBinLocationName = assetBinLocation.AssetBinLocationName;
+                model.AssetBinLocationDescription = assetBinLocation.AssetBinLocationDescription;
+                model.AssetLocationID = assetBinLocation.AssetLocationID;
+            }
+            else
+            {
+                return RedirectToAction("AddAssetBinLocation");
+            }
+            var locations = await _globalSettingsService.GetAllLocationsAsync();
+            ViewBag.LocationList = new SelectList(locations, "LocationID", "LocationName");
+            return View(model);
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "AMSTYPEDT, XYALLACCZ")]
+        public async Task<IActionResult> EditAssetBinLocation(AssetBinLocationViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    AssetBinLocation assetBinLocation = model.ConvertToAssetBinLocation();
+                    bool succeeded = await _assetManagerService.UpdateAssetBinLocationAsync(assetBinLocation);
+                    if (succeeded)
+                    {
+                        model.OperationIsCompleted = true;
+                        model.OperationIsSuccessful = true;
+                        model.ViewModelSuccessMessage = $"Bin Location was updated successfully!";
+                    }
+                }
+                catch (Exception ex)
+                {
+                    model.ViewModelErrorMessage = ex.Message;
+                    model.OperationIsCompleted = true;
+                }
+            }
+            else
+            {
+                model.ViewModelErrorMessage = $"Ooops! It appears some fields have missing or invalid values. Please correct this and try again.";
+                model.OperationIsCompleted = true;
+            }
+            var locations = await _globalSettingsService.GetAllLocationsAsync();
+            ViewBag.LocationList = new SelectList(locations, "LocationID", "LocationName");
+            return View(model);
+        }
+
+        [HttpGet]
+        [Authorize(Roles = "AMSBNLVWD, XYALLACCZ")]
+        public async Task<IActionResult> AssetBinLocationDetails(int id)
+        {
+            AssetBinLocation assetBinLocation = new AssetBinLocation();
+            AssetBinLocationViewModel model = new AssetBinLocationViewModel();
+            if (id > 0)
+            {
+                assetBinLocation = await _assetManagerService.GetAssetBinLocationByIdAsync(id);
+                model.AssetBinLocationID = assetBinLocation.AssetBinLocationID;
+                model.AssetBinLocationName = assetBinLocation.AssetBinLocationName;
+                model.AssetBinLocationDescription = assetBinLocation.AssetBinLocationDescription;
+                model.AssetLocationID = assetBinLocation.AssetLocationID;
+                model.AssetLocationName = assetBinLocation.AssetLocationName;
+            }
+            else
+            {
+                return RedirectToAction("AssetBinLocations");
+            }
+            return View(model);
+        }
+
+        [HttpGet]
+        [Authorize(Roles = "AMSBNLDLT, XYALLACCZ")]
+        public async Task<IActionResult> DeleteAssetBinLocation(int id)
+        {
+            AssetBinLocation assetBinLocation = new AssetBinLocation();
+            AssetBinLocationViewModel model = new AssetBinLocationViewModel();
+            if (id > 0)
+            {
+                assetBinLocation = await _assetManagerService.GetAssetBinLocationByIdAsync(id);
+                model.AssetBinLocationID = assetBinLocation.AssetBinLocationID;
+                model.AssetBinLocationName = assetBinLocation.AssetBinLocationName;
+                model.AssetBinLocationDescription = assetBinLocation.AssetBinLocationDescription;
+                model.AssetLocationID = assetBinLocation.AssetLocationID;
+                model.AssetLocationName = assetBinLocation.AssetLocationName;
+            }
+            else
+            {
+                return RedirectToAction("AssetBinLocations");
+            }
+            return View(model);
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "AMSBNLDLT, XYALLACCZ")]
+        public async Task<IActionResult> DeleteAssetBinLocation(AssetBinLocationViewModel model)
+        {
+            if (model != null)
+            {
+                try
+                {
+                    bool succeeded = await _assetManagerService.DeleteAssetBinLocationAsync(model.AssetBinLocationID.Value);
+                    if (succeeded)
+                    {
+                        return RedirectToAction("AssetBinLocations");
                     }
                 }
                 catch (Exception ex)

@@ -91,7 +91,7 @@ namespace IntranetPortal.Areas.UserAdministration.Controllers
                         ApplicationUser user = new ApplicationUser
                         {
                             Id = model.UserID,
-                            ModifiedBy = "System Administrator",
+                            ModifiedBy = HttpContext.User.Identity.Name,
                             ModifiedTime = $"{DateTime.Now.Date.ToLongDateString()} {DateTime.Now.ToLongTimeString()}",
                         };
 
@@ -175,7 +175,7 @@ namespace IntranetPortal.Areas.UserAdministration.Controllers
                     ApplicationUser user = new ApplicationUser
                     {
                         Id = model.UserID,
-                        ModifiedBy = "System Administrator",
+                        ModifiedBy = HttpContext.User.Identity.Name,
                         UserName = model.LoginID,
                         FullName = model.FullName,
                         LockoutEnabled = model.EnableLockOut,
@@ -299,6 +299,56 @@ namespace IntranetPortal.Areas.UserAdministration.Controllers
                 return "failed";
             }
         }
+
+
+        [Authorize(Roles = "UADPMSVWL, XYALLACCZ")]
+        public async Task<IActionResult> PermissionsList(string id, string ad = null)
+        {
+            string userId = id;
+            ApplicationRolesListViewModel model = new ApplicationRolesListViewModel();
+
+            ViewData["UserID"] = id;
+            ViewData["ApplicationID"] = ad;
+
+            if (!string.IsNullOrWhiteSpace(id))
+            {
+                if( !string.IsNullOrWhiteSpace(ad))
+                {
+                var entities = await _securityService.GetUserRolesUnGrantedByUserIDAsync(userId, ad);
+                model.ApplicationRoleList = entities.ToList();
+                }
+                else
+                {
+                    var entities = await _securityService.GetUserRolesUnGrantedByUserIDAsync(userId);
+                    model.ApplicationRoleList = entities.ToList();
+                }
+            }
+
+            var applications = await _baseModelService.GetSystemApplicationsAsync();
+            ViewBag.ApplicationList = new SelectList(applications, "ApplicationID", "ApplicationName", ad);
+
+            return View(model);
+        }
+
+
+        public async Task<IActionResult> LoginHistory(string nm, int? yy = null, int? mm = null, int? dd = null)
+        {
+            LoginHistoryListViewModel model = new LoginHistoryListViewModel();
+            if (!string.IsNullOrWhiteSpace(nm))
+            {
+                model.UserLoginHistories = await _securityService.GetUserLoginHistoryByUserNameAndDateAsync(nm, yy, mm, dd);
+            }
+            else
+            {
+                model.UserLoginHistories = await _securityService.GetUserLoginHistoryByDateOnlyAsync(yy, mm, dd);
+            }
+            model.nm = nm;
+            model.yy = yy;
+            model.mm = mm;
+            model.dd = dd;
+            return View(model);
+        }
+
 
         //======================== Employees Helper Methods ======================================//
         #region Employees Helper Methods

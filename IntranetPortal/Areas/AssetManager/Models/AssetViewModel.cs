@@ -33,6 +33,12 @@ namespace IntranetPortal.Areas.AssetManager.Models
         [Display(Name = "Type")]
         public string AssetTypeName { get; set; }
 
+        [Display(Name = "Class")]
+        public int AssetClassID { get; set; }
+
+        [Display(Name = "Class")]
+        public string AssetClassName { get; set; }
+
         [Display(Name ="Category")]
         public int AssetCategoryID { get; set; }
 
@@ -43,12 +49,14 @@ namespace IntranetPortal.Areas.AssetManager.Models
         [Display(Name ="Base Location")]
         public int? BaseLocationID { get; set; }
 
-        [Display(Name ="Base Location")]
+        [Display(Name = "Base Location")]
         public string BaseLocationName { get; set; }
 
-        [Required(ErrorMessage ="Please select Status.")]
-        [Display(Name ="Status")]
-        public string UsageStatus { get; set; }
+        [Display(Name = "Bin Location")]
+        public int? BinLocationID { get; set; }
+
+        [Display(Name = "Bin Location")]
+        public string BinLocationName { get; set; }
 
         [Required(ErrorMessage ="Please select Condition.")]
         [Display(Name ="Condition")]
@@ -80,6 +88,9 @@ namespace IntranetPortal.Areas.AssetManager.Models
         [Display(Name="Purchase Amount")]
         public string PurchaseAmountFormatted { get; set; }
 
+        [Display(Name = "Usage Status")]
+        public string UsageStatus { get; set; }
+
         public long NoOfConfirmedBooking { get; set; }
         public string ImagePath { get; set; }
         public string OldImagePath { get; set; }
@@ -97,6 +108,8 @@ namespace IntranetPortal.Areas.AssetManager.Models
             {
                 AssetCategoryID = AssetCategoryID,
                 AssetCategoryName = AssetCategoryName,
+                AssetClassID = AssetClassID,
+                AssetClassName = AssetClassName,
                 AssetDescription = AssetDescription,
                 AssetID = AssetID,
                 AssetName = AssetName,
@@ -106,6 +119,8 @@ namespace IntranetPortal.Areas.AssetManager.Models
                 ParentAssetID = ParentAssetID,
                 BaseLocationID = BaseLocationID,
                 BaseLocationName = BaseLocationName,
+                BinLocationID = BinLocationID,
+                BinLocationName = BinLocationName,
                 ConditionStatus = ConditionStatus,
                 ConditionDescription = ConditionDescription,
                 CreatedBy = CreatedBy,
@@ -118,7 +133,7 @@ namespace IntranetPortal.Areas.AssetManager.Models
                 ParentAssetName = ParentAssetName,
                 PurchaseAmount = PurchaseAmount,
                 PurchaseDate = PurchaseDate,
-                UsageStatus = UsageStatus,
+                UsageStatus = UsageStatus
             };
         }
 
@@ -128,6 +143,8 @@ namespace IntranetPortal.Areas.AssetManager.Models
             {
                 AssetCategoryID = AssetCategoryID,
                 AssetCategoryName = AssetCategoryName,
+                AssetClassID = AssetClassID,
+                AssetClassName = AssetClassName,
                 AssetDescription = AssetDescription,
                 AssetID = AssetID,
                 AssetName = AssetName,
@@ -137,6 +154,8 @@ namespace IntranetPortal.Areas.AssetManager.Models
                 ParentAssetID = ParentAssetID,
                 BaseLocationID = BaseLocationID,
                 BaseLocationName = BaseLocationName,
+                BinLocationID = BinLocationID,
+                BinLocationName = BinLocationName,
                 ConditionDescription = ConditionDescription,
                 ConditionStatus = ConditionStatus,
                 CreatedBy = CreatedBy,
@@ -149,7 +168,7 @@ namespace IntranetPortal.Areas.AssetManager.Models
                 ParentAssetName = ParentAssetName,
                 PurchaseAmount = PurchaseAmount,
                 PurchaseDate = PurchaseDate,
-                UsageStatus = UsageStatus,
+                UsageStatus = UsageStatus
             };
         }
     }

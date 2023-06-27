@@ -1,0 +1,35 @@
+﻿
+
+<table class="table table-hover table-sm ">
+    <thead class="table-dark">
+        <tr>
+            <th class="pl-5"><span class="text-white fw-bold">Title</span></th>
+            <th class="p-2"><span class="text-white fw-bold">Created By</span></th>
+            <th class="p-2"><span class="text-white fw-bold">Date Created</span></th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody class="table-light">
+        @foreach (var workspace in Model.WorkspaceList)
+        {
+            <tr class="table-light">
+                <td class="pl-5">
+                    <span class="fw-bold" title="@workspace.Title">@workspace.Title</span>
+                </td>
+                <td class="p-2">
+                    <span class="fw-bold" title="@workspace.CreatedBy">@workspace.CreatedBy</span>
+                </td>
+                <td class="p-2">
+                    <span class="fw-bold" title="@workspace.CreatedTime.ToLongDateString() @workspace.CreatedTime.ToLongTimeString()">@workspace.CreatedTime.ToLongDateString() @workspace.CreatedTime.ToLongTimeString()</span>
+                </td>
+                <td class="p-2">
+                    <div class="text-center">
+                        <a onclick="showInPopup('@Url.Action("AddOrEditWorkspace","Settings", new { id = workspace.ID }, Context.Request.Scheme)','Edit Workspace')" class="btn btn-sm btn-info text-white" style="width:100px" title="Edit Workspace">
+                            <i class="bi bi-pencil-fill"></i><span> Edit</span>
+                        </a>
+                    </div>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

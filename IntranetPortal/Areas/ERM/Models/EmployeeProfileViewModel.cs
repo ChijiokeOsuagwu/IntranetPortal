@@ -51,7 +51,11 @@ namespace IntranetPortal.Areas.ERM.Models
         public string OfficialEmail { get; set; }
 
         public string EmployeeID { get; set; }
+
+        [Display(Name = "Employee Name")]
         public string EmployeeName { get; set; }
+
+        [Display(Name = "Employee No")]
         public string EmployeeNo1 { get; set; }
 
         [Display(Name = "Custom Code")]

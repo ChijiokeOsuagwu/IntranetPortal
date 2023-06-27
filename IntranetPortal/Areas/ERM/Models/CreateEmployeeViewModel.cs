@@ -18,12 +18,12 @@ namespace IntranetPortal.Areas.ERM.Models
         public string Title { get; set; }
 
         [Required(ErrorMessage = "Surname is required.")]
-        [Display(Name = "Last Name")]
+        [Display(Name = "Last Name*")]
         [MaxLength(100, ErrorMessage = "Surname must not exceed 50 characters.")]
         public string Surname { get; set; }
 
         [Required(ErrorMessage = "First Name is required.")]
-        [Display(Name = "First Name")]
+        [Display(Name = "First Name*")]
         [MaxLength(100, ErrorMessage = "First Name must not exceed 50 characters.")]
         public string FirstName { get; set; }
 
@@ -35,7 +35,7 @@ namespace IntranetPortal.Areas.ERM.Models
         public string FullName { get; set; }
 
         [Required(ErrorMessage = "Gender is required.")]
-        [Display(Name = "Gender")]
+        [Display(Name = "Gender*")]
         public string Sex { get; set; }
 
         [Display(Name = "Phone Number")]
@@ -100,14 +100,14 @@ namespace IntranetPortal.Areas.ERM.Models
         [MaxLength(20, ErrorMessage = "Custom Code must not exceed 20 characters.")]
         public string EmployeeNo2 { get; set; }
 
-        [Display(Name = "Company")]
+        [Display(Name = "Company*")]
         [Required(ErrorMessage = "Company is required.")]
         public string CompanyCode { get; set; }
 
         [Display(Name = "Company")]
         public string CompanyName { get; set; }
 
-        [Display(Name = "Location")]
+        [Display(Name = "Location*")]
         [Required(ErrorMessage = "Location is required.")]
         public int? LocationID { get; set; }
 
@@ -121,7 +121,7 @@ namespace IntranetPortal.Areas.ERM.Models
         public string DepartmentName { get; set; }
 
         [Required(ErrorMessage = "Unit is required.")]
-        [Display(Name = "Unit")]
+        [Display(Name = "Unit*")]
         public int? UnitID { get; set; }
 
         [Display(Name = "Unit")]

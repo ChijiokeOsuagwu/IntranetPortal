@@ -1,9 +1,8 @@
 ﻿@model IntranetPortal.Areas.UserAdministration.Models.EmployeeUserViewModel
 @{
     ViewData["Title"] = "User Administration | Create User Account";
-    //Layout = "~/Areas/GlobalSettings/Views/Shared/_USALayout.cshtml";
 }
-<div class="card ml-5 mt-5 w-75">
+<div class="card" style="max-width:1000px">
     <div class="card-header bg-dark">
         <h4 class="text-white">Create User Account</h4>
     </div>
@@ -32,66 +31,60 @@
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         }
-    <form enctype="multipart/form-data" asp-area="UserAdministration" asp-controller="Staff" asp-action="CreateUserAccount" method="post">
+    <form enctype="multipart/form-data" asp-area="UserAdministration" asp-controller="Staff" asp-action="CreateUserAccount" method="post" autocomplete="off">
         <div class="row">
-            <div class="mb-2">
-                <input type="hidden" asp-for="UserID" />
-                <input type="hidden" asp-for="CompanyCode" />
-                <label asp-for="EmployeeNumber" class="form-label text-white fw-bold"></label>
-                <input asp-for="EmployeeNumber" class="form-control fw-bolder text-success" readonly="readonly">
-            </div>
-        </div>
-        <div class="row">
-            <div class="mb-2">
-                <label asp-for="FullName" class="form-label text-white fw-bold"></label>
-                <input asp-for="FullName" class="form-control fw-bolder text-success" readonly="readonly">
-            </div>
-        </div>
-        <div class="row">
-            <div class="mb-2">
-                <label asp-for="LoginID" class="form-label text-white fw-bold"></label>
-                <input asp-for="LoginID" class="form-control fw-bold">
-                <div><span asp-validation-for="LoginID" class="text-danger"></span></div>
-            </div>
-        </div>
-        <div class="row">
-            <div class="mb-2">
-                <label asp-for="Password" class="form-label text-white fw-bold"></label>
-                <input asp-for="Password" class="form-control fw-bold" >
-                <div><span asp-validation-for="Password" class="text-danger"></span></div>
-            </div>
-        </div>
-        <div class="row">
-            <div class="mb-2">
-                <label asp-for="ConfirmPassword" class="form-label text-white fw-bold"></label>
-                <input asp-for="ConfirmPassword" class="form-control fw-bold" >
-                <div><span asp-validation-for="ConfirmPassword" class="text-danger"></span></div>
-            </div>
-        </div>
-        <div class="row">
-            <div class="mb-3">
+            <input type="hidden" asp-for="UserID" />
+            <input type="hidden" asp-for="CompanyCode" />
+            <div class="col-md-4 mb-2">
                 <label asp-for="EnableLockOut" class="form-label text-white fw-bold"></label>
                 <select asp-for="EnableLockOut" class="form-control fw-bold">
                     <option value="false">Activate User Account immediately.</option>
                     <option value="true">Do not Activate User Account yet.</option>
                 </select>
-                <div><span asp-validation-for="EnableLockOut" class="text-danger"></span></div>
+            </div>
+            <div class="col-md-2 mb-2">
+                <label asp-for="EmployeeNumber" class="form-label text-white fw-bold"></label>
+                <input asp-for="EmployeeNumber" class="form-control fw-bolder text-success" readonly="readonly">
+            </div>
+            <div class="col-md-6 mb-2">
+                <label asp-for="FullName" class="form-label text-white fw-bold"></label>
+                <input asp-for="FullName" class="form-control fw-bolder text-success" readonly="readonly">
             </div>
         </div>
         <div class="row">
-            <a asp-area="UserAdministration" asp-controller="Home" asp-action="Index" class="btn btn-dark" style="width:100px" title="Return to Home Page">
-                <span class="text-white">Exit</span>
-            </a>&nbsp;
-            <a asp-area="UserAdministration" asp-controller="Staff" asp-action="SelectStaff" class="btn btn-dark" style="width:100px" title="Return to Previous">
-                <span class="text-white">Go Back</span>
-            </a>&nbsp;
-            <a asp-area="UserAdministration" asp-controller="Staff" asp-action="CreateUserAccount" asp-route-id="@Model.UserID" class="btn btn-warning" style="width:100px" title="Clear">
-                <span class="text-white">Clear</span>
-            </a>&nbsp;
-            @if (!Model.OperationIsCompleted)
-            {
-                <button type="submit" class="btn btn-primary" title="Save" style="width:200px"><span class="text-white">Save</span></button>
-            }
+            <div class="col-md-4 mb-3">
+                <div><span asp-validation-for="EnableLockOut" class="text-danger"></span></div>
+                <label asp-for="LoginID" class="form-label text-white fw-bold"></label><span class="text-white">*</span>
+                <input asp-for="LoginID" class="form-control fw-bold">
+                <div><span asp-validation-for="LoginID" class="text-danger"></span></div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <label asp-for="Password" class="form-label text-white fw-bold"></label><span class="text-white">*</span>
+                <input asp-for="Password" class="form-control fw-bold">
+                <div><span asp-validation-for="Password" class="text-danger"></span></div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <label asp-for="ConfirmPassword" class="form-label text-white fw-bold"></label><span class="text-white">*</span>
+                <input asp-for="ConfirmPassword" class="form-control fw-bold">
+                <div><span asp-validation-for="ConfirmPassword" class="text-danger"></span></div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <a asp-area="UserAdministration" asp-controller="Home" asp-action="Index" class="btn btn-dark" style="width:100px" title="Return to Home Page">
+                    <span class="text-white">Exit</span>
+                </a>&nbsp;
+                <a asp-area="UserAdministration" asp-controller="Staff" asp-action="SelectStaff" class="btn btn-dark" style="width:100px" title="Return to Previous">
+                    <span class="text-white">Go Back</span>
+                </a>&nbsp;
+                <a asp-area="UserAdministration" asp-controller="Staff" asp-action="CreateUserAccount" asp-route-id="@Model.UserID" class="btn btn-warning" style="width:100px" title="Clear">
+                    <span class="text-white">Clear</span>
+                </a>&nbsp;
+                @if (!Model.OperationIsCompleted)
+                {
+                    <button type="submit" class="btn btn-primary" title="Save" style="width:200px"><span class="text-white">Save</span></button>
+                }
+            </div>
         </div>
     </form>
     </div>

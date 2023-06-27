@@ -59,6 +59,13 @@
                         </div>
                     </div>
                     <div class="row">
+                        <div class="col-md-12 mb-1">
+                            <label asp-for="AssetDescription" class="form-label text-white fw-bold"></label>
+                            <textarea class="form-control fw-bold" name="@Html.NameFor(m => m.AssetDescription)">@Model.AssetDescription</textarea>
+                            <div><span asp-validation-for="AssetDescription" class="text-danger"></span></div>
+                        </div>
+                    </div>
+                    <div class="row">
                         <div class="col-md-4  mb-1">
                             <label asp-for="AssetTypeName" class="form-label text-white fw-bold"></label>
                             <input asp-for="AssetTypeName" class="form-control fw-bold" readonly="readonly">
@@ -81,11 +88,17 @@
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-md-6  mb-1">
+                        <div class="col-md-4  mb-1">
                             <label asp-for="BaseLocationName" class="form-label text-white fw-bold"></label>
                             <input asp-for="BaseLocationName" class="form-control fw-bold" readonly>
                         </div>
-                        <div class="col-md-6 mb-1">
+                        <div class="col-md-4 mb-1">
+                            <input type="hidden" asp-for="BinLocationID" />
+                            <label asp-for="BinLocationName" class="form-label text-white fw-bold"></label>
+                            <input asp-for="BinLocationName" class="form-control fw-bold" readonly="readonly">
+                            <div><span asp-validation-for="BinLocationName" class="text-danger"></span></div>
+                        </div>
+                        <div class="col-md-4 mb-1">
                             <label asp-for="ConditionStatus" class="form-label text-white fw-bold"></label>
                             @if (Model.ConditionStatus == AssetCondition.BeyondRepair)
                             {
@@ -106,16 +119,9 @@
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-md-12 mb-1">
-                            <label asp-for="AssetDescription" class="form-label text-white fw-bold"></label>
-                            <textarea class="form-control fw-bold" name="@Html.NameFor(m => m.AssetDescription)">@Model.AssetDescription</textarea>
-                            <div><span asp-validation-for="AssetDescription" class="text-danger"></span></div>
-                        </div>
-                    </div>
-                    <div class="row">
                         <div class="col-md-12">
                             <label asp-for="ConditionDescription" class="form-label text-white fw-bold"></label>
-                            <textarea class="form-control fw-bold" name="@Html.NameFor(m => m.ConditionDescription)">@Model.ConditionDescription</textarea>
+                            <textarea class="form-control fw-bold" readonly="readonly" name="@Html.NameFor(m => m.ConditionDescription)">@Model.ConditionDescription</textarea>
                             <div><span asp-validation-for="ConditionDescription" class="text-danger"></span></div>
                         </div>
                     </div>

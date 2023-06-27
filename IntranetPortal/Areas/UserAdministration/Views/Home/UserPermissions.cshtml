@@ -9,16 +9,19 @@
         <div class="row">
             <div>
                 <div class="col-md-12">
-                    <a asp-area="UserAdministration" asp-controller="Home" asp-action="Index" class="btn btn-dark" style="width:100px" title="Click to Go Back">
-                        <span class="text-white">Back</span>
-                    </a>
                     <form asp-area="UserAdministration" asp-controller="Home" asp-action="UserPermissions" method="get">
                         <div class="form-actions no-color">
+                            <a asp-area="UserAdministration" asp-controller="Staff" asp-action="EmployeeUserDetails" asp-route-id="@ViewData["UserID"]" class="btn btn-dark" style="width:100px" title="Click to Go Back">
+                                <span class="text-white">Back</span>
+                            </a>
                             <input type="hidden" name="id" value="@ViewData["UserID"]" />
-                            <select asp-items="@ViewBag.ApplicationList" name="searchString" value="@ViewData["CurrentFilter"]" style="width:300px; font-weight:600" class="border-0">
+                            <select asp-items="@ViewBag.ApplicationList" name="searchString" value="@ViewData["CurrentFilter"]" style="width:400px; font-weight:600" class="border-0">
                                 <option value="">- Select Application -</option>
                             </select>
-                            <input type="submit" value="Refresh" class="btn btn-primary" style="width:200px" />
+                            <input type="submit" value="Refresh" class="btn btn-primary mr-2" style="width:200px" />
+                            <a asp-area="UserAdministration" asp-controller="Home" asp-action="PermissionsList" asp-route-id="@ViewData["UserID"]" class="btn btn-success" style="width:150px" title="Grant New Permission">
+                                <span class="text-white">New Permission</span>
+                            </a>
                         </div>
                     </form>
                 </div>

@@ -8,6 +8,7 @@ using IntranetPortal.Base.Models.BamsModels;
 using IntranetPortal.Base.Models.BaseModels;
 using IntranetPortal.Base.Models.PartnerServicesModels;
 using IntranetPortal.Base.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Configuration;
@@ -16,9 +17,9 @@ using Microsoft.Extensions.Logging;
 namespace IntranetPortal.Areas.BAMS.Controllers
 {
     [Area("BAMS")]
+    [Authorize]
     public class HomeController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
         private readonly ISecurityService _securityService;
         private readonly IConfiguration _configuration;
         private readonly IBamsManagerService _bamsManagerService;
@@ -37,11 +38,13 @@ namespace IntranetPortal.Areas.BAMS.Controllers
             _businessManagerService = businessManagerService;
         }
 
+        [Authorize(Roles = "BAMHMPGVW, XYALLACCZ")]
         public IActionResult Index()
         {
             return View();
         }
 
+        [Authorize(Roles = "BAMASGVWL, XYALLACCZ")]
         public async Task<IActionResult> AssignmentLog(int? yr = null, int? mn = null)
         {
             ActiveAssignmentListViewModel model = new ActiveAssignmentListViewModel();
@@ -54,14 +57,7 @@ namespace IntranetPortal.Areas.BAMS.Controllers
             return View(model);
         }
 
-        //public async Task<IActionResult> ActiveAssignments()
-        //{
-        //    ActiveAssignmentListViewModel model = new ActiveAssignmentListViewModel();
-        //    var entities = await _bamsManagerService.GetOpenAssignmentsAsync();
-        //    model.AssignmentEventList = entities.ToList();
-        //    return View(model);
-        //}
-
+        [Authorize(Roles = "BAMASGADN, XYALLACCZ")]
         public IActionResult NewAssignment(string id = null, string nm = null)
         {
             AssignmentEventViewModel model = new AssignmentEventViewModel();
@@ -78,6 +74,7 @@ namespace IntranetPortal.Areas.BAMS.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "BAMASGADN, XYALLACCZ")]
         public async Task<IActionResult> NewAssignment(AssignmentEventViewModel model)
         {
             if (ModelState.IsValid)
@@ -124,6 +121,7 @@ namespace IntranetPortal.Areas.BAMS.Controllers
             return View(model);
         }
 
+        [Authorize(Roles = "BAMASGEDT, XYALLACCZ")]
         public async Task<IActionResult> EditAssignment(int id)
         {
             AssignmentEventViewModel model = new AssignmentEventViewModel();
@@ -175,6 +173,7 @@ namespace IntranetPortal.Areas.BAMS.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "BAMASGEDT, XYALLACCZ")]
         public async Task<IActionResult> EditAssignment(AssignmentEventViewModel model)
         {
             if (ModelState.IsValid)
@@ -219,6 +218,7 @@ namespace IntranetPortal.Areas.BAMS.Controllers
             return View(model);
         }
 
+        [Authorize(Roles = "BAMASGVWD, XYALLACCZ")]
         public async Task<IActionResult> AssignmentDetails(int id)
         {
             AssignmentEventViewModel model = new AssignmentEventViewModel();
@@ -255,6 +255,7 @@ namespace IntranetPortal.Areas.BAMS.Controllers
             return View(model);
         }
 
+        [Authorize(Roles = "BAMASGDLT, XYALLACCZ")]
         public async Task<IActionResult> DeleteAssignment(int id)
         {
             AssignmentEventViewModel model = new AssignmentEventViewModel();
@@ -288,6 +289,7 @@ namespace IntranetPortal.Areas.BAMS.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "BAMASGDLT, XYALLACCZ")]
         public async Task<IActionResult> DeleteAssignment(AssignmentEventViewModel model)
         {
             try
@@ -316,8 +318,8 @@ namespace IntranetPortal.Areas.BAMS.Controllers
             return View(model);
         }
 
-
         [HttpGet]
+        [Authorize(Roles = "BAMASGADN, XYALLACCZ")]
         public async Task<IActionResult> NewCustomer()
         {
             BusinessPartnerViewModel model = new BusinessPartnerViewModel();
@@ -330,6 +332,7 @@ namespace IntranetPortal.Areas.BAMS.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "BAMASGADN, XYALLACCZ")]
         public async Task<IActionResult> NewCustomer(BusinessPartnerViewModel model)
         {
             if (ModelState.IsValid)
@@ -417,6 +420,7 @@ namespace IntranetPortal.Areas.BAMS.Controllers
             return View(model);
         }
 
+        [Authorize(Roles = "BAMDPLVWL, XYALLACCZ")]
         public async Task<IActionResult> Deployments()
         {
             ActiveAssignmentListViewModel model = new ActiveAssignmentListViewModel();

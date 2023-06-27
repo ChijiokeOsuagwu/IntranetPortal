@@ -6,6 +6,7 @@ using IntranetPortal.Areas.AssetManager.Models;
 using IntranetPortal.Base.Models.AssetManagerModels;
 using IntranetPortal.Base.Services;
 using IntranetPortal.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Configuration;
@@ -14,6 +15,7 @@ using Microsoft.Extensions.Logging;
 namespace IntranetPortal.Areas.AssetManager.Controllers
 {
     [Area("AssetManager")]
+    [Authorize]
     public class UsageController : Controller
     {
         private readonly ILogger<UsageController> _logger;
@@ -33,7 +35,7 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
             _globalSettingsService = globalSettingsService;
         }
 
-
+        [Authorize(Roles = "AMSUSGVWL, XYALLACCZ")]
         public async Task<IActionResult> Index(string id, int? yr = null, int? mn = null)
         {
             AssetUsageListViewModel model = new AssetUsageListViewModel();
@@ -75,7 +77,7 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
             return View(model);
         }
 
-
+        [Authorize(Roles = "AMSCHOVWL, XYALLACCZ")]
         public async Task<IActionResult> CheckOutList(int? tp = null, string sp = null, int? pg = null)
         {
             IList<AssetUsage> assetUsageList = new List<AssetUsage>();
@@ -109,6 +111,7 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "AMSCHOADN, XYALLACCZ")]
         public async Task<IActionResult> CheckOut(string id)
         {
             AssetUsageViewModel model = new AssetUsageViewModel();
@@ -133,6 +136,7 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "AMSCHOADN, XYALLACCZ")]
         public async Task<IActionResult> CheckOut(AssetUsageViewModel model)
         {
             if (ModelState.IsValid)
@@ -186,6 +190,7 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "AMSCHOEDT, XYALLACCZ")]
         public async Task<IActionResult> EditCheckOut(int id)
         {
             AssetUsageViewModel model = new AssetUsageViewModel();
@@ -215,6 +220,7 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "AMSCHOVWD, XYALLACCZ")]
         public async Task<IActionResult> CheckOutDetails(int id)
         {
             AssetUsageViewModel model = new AssetUsageViewModel();
@@ -244,6 +250,7 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "AMSCHODLT, XYALLACCZ")]
         public async Task<IActionResult> DeleteCheckOut(int id)
         {
             AssetUsageViewModel model = new AssetUsageViewModel();
@@ -274,6 +281,7 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "AMSCHODLT, XYALLACCZ")]
         public async Task<IActionResult> DeleteCheckOut(AssetUsageViewModel model)
         {
                 AssetUsage assetUsage = new AssetUsage();
@@ -308,6 +316,7 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "AMSCHIADN, XYALLACCZ")]
         public async Task<IActionResult> CheckIn(int id)
         {
             AssetCheckInViewModel model = new AssetCheckInViewModel();
@@ -322,7 +331,7 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
                 model.UsageID = assetUsage.UsageID;
                 model.CheckedInFromLocation = assetUsage.UsageLocation;
                 model.CheckedInToLocation = string.Empty;
-                model.CheckedInCondition = AssetCondition.Unspecified;
+                model.CheckedInCondition = AssetCondition.InGoodCondition;
                 model.CheckedInComment = string.Empty;
 
             }
@@ -335,6 +344,7 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "AMSCHIADN, XYALLACCZ")]
         public async Task<IActionResult> CheckIn(AssetCheckInViewModel model)
         {
             if (ModelState.IsValid)

@@ -6,11 +6,13 @@ using IntranetPortal.Areas.BAMS.Models;
 using IntranetPortal.Base.Models.AssetManagerModels;
 using IntranetPortal.Base.Models.BamsModels;
 using IntranetPortal.Base.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace IntranetPortal.Areas.BAMS.Controllers
 {
     [Area("BAMS")]
+    [Authorize]
     public class EquipmentGroupsController : Controller
     {
         private readonly IBamsManagerService _bamsManagerService;
@@ -23,6 +25,7 @@ namespace IntranetPortal.Areas.BAMS.Controllers
             _assetManagerService = assetManagerService;
         }
 
+        [Authorize(Roles = "BAMEQGVWL, XYALLACCZ")]
         public async Task<IActionResult> Index()
         {
             EquipmentGroupsListViewModel model = new EquipmentGroupsListViewModel();
@@ -38,6 +41,7 @@ namespace IntranetPortal.Areas.BAMS.Controllers
             return View(model);
         }
 
+        [Authorize(Roles = "BAMEQGADN, XYALLACCZ")]
         public IActionResult New()
         {
             EquipmentGroupsViewModel model = new EquipmentGroupsViewModel();
@@ -45,6 +49,7 @@ namespace IntranetPortal.Areas.BAMS.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "BAMEQGADN, XYALLACCZ")]
         public async Task<IActionResult> New(EquipmentGroupsViewModel model)
         {
             if (ModelState.IsValid)
@@ -83,6 +88,7 @@ namespace IntranetPortal.Areas.BAMS.Controllers
             return View(model);
         }
 
+        [Authorize(Roles = "BAMEQGEDT, XYALLACCZ")]
         public async Task<IActionResult> Edit(int id)
         {
             EquipmentGroupsViewModel model = new EquipmentGroupsViewModel();
@@ -108,6 +114,7 @@ namespace IntranetPortal.Areas.BAMS.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "BAMEQGEDT, XYALLACCZ")]
         public async Task<IActionResult> Edit(EquipmentGroupsViewModel model)
         {
             if (ModelState.IsValid)
@@ -146,6 +153,7 @@ namespace IntranetPortal.Areas.BAMS.Controllers
             return View(model);
         }
 
+        [Authorize(Roles = "BAMEQGDLT, XYALLACCZ")]
         public async Task<IActionResult> Delete(int id)
         {
             EquipmentGroupsViewModel model = new EquipmentGroupsViewModel();
@@ -171,6 +179,7 @@ namespace IntranetPortal.Areas.BAMS.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "BAMEQGDLT, XYALLACCZ")]
         public async Task<IActionResult> Delete(EquipmentGroupsViewModel model)
         {
             if (ModelState.IsValid)
@@ -200,6 +209,7 @@ namespace IntranetPortal.Areas.BAMS.Controllers
             return View(model);
         }
 
+        [Authorize(Roles = "BAMEQLVWL, XYALLACCZ")]
         public async Task<IActionResult> EquipmentList(int id)
         {
             AssetEquipmentGroupViewModel model = new AssetEquipmentGroupViewModel();
@@ -217,6 +227,7 @@ namespace IntranetPortal.Areas.BAMS.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "BAMEQLADN, XYALLACCZ")]
         public async Task<IActionResult> EquipmentList(AssetEquipmentGroupViewModel model)
         {
             List<AssetEquipmentGroup> equipments = new List<AssetEquipmentGroup>();
@@ -272,6 +283,7 @@ namespace IntranetPortal.Areas.BAMS.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "BAMEQLDLT, XYALLACCZ")]
         public async Task<string> Remove(int id)
         {
             if (id > 0)

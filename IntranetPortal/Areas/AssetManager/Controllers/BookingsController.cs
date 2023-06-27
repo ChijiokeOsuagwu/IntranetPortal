@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using IntranetPortal.Areas.AssetManager.Models;
 using IntranetPortal.Base.Models.AssetManagerModels;
 using IntranetPortal.Base.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Configuration;
@@ -13,6 +14,7 @@ using Microsoft.Extensions.Logging;
 namespace IntranetPortal.Areas.AssetManager.Controllers
 {
     [Area("AssetManager")]
+    [Authorize]
     public class BookingsController : Controller
     {
 
@@ -33,6 +35,7 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
             _globalSettingsService = globalSettingsService;
         }
 
+        [Authorize(Roles = "AMSBKGVWL, XYALLACCZ")]
         public async Task<IActionResult> Index(string id = null, int? tp = null, string sp = null)
         {
             AssetReservationListViewModel model = new AssetReservationListViewModel();
@@ -83,6 +86,7 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
             }
         }
 
+        [Authorize(Roles = "AMSBKGVWL, XYALLACCZ")]
         public async Task<IActionResult> List(string id = null, int? yr = null, int? mn = null)
         {
             AssetReservationListViewModel model = new AssetReservationListViewModel();
@@ -129,6 +133,7 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "AMSBKGADN, XYALLACCZ")]
         public async Task<IActionResult> Add(string id)
         {
             AssetReservationViewModel model = new AssetReservationViewModel();
@@ -147,6 +152,7 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "AMSBKGADN, XYALLACCZ")]
         public async Task<IActionResult> Add(AssetReservationViewModel model)
         {
             if (ModelState.IsValid)
@@ -198,6 +204,7 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "AMSBKGEDT, XYALLACCZ")]
         public async Task<IActionResult> Edit(int id)
         {
             AssetReservationViewModel model = new AssetReservationViewModel();
@@ -224,6 +231,7 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "AMSBKGEDT, XYALLACCZ")]
         public async Task<IActionResult> Edit(AssetReservationViewModel model)
         {
             if (ModelState.IsValid)
@@ -260,6 +268,7 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "AMSBKGVWD, XYALLACCZ")]
         public async Task<IActionResult> Details(int id)
         {
             AssetReservationViewModel model = new AssetReservationViewModel();
@@ -293,6 +302,7 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "AMSBKGDLT, XYALLACCZ")]
         public async Task<IActionResult> Delete(int id)
         {
             AssetReservationViewModel model = new AssetReservationViewModel();
@@ -326,6 +336,7 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "AMSBKGDLT, XYALLACCZ")]
         public async Task<IActionResult> Delete(AssetReservationViewModel model)
         {
             AssetReservation assetReservation = new AssetReservation();

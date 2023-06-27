@@ -1,0 +1,111 @@
+﻿@model IntranetPortal.Areas.AssetManager.Models.AssetClassListViewModel
+@{
+    ViewData["Title"] = "OfficeManager | Asset Classes";
+}
+<div class="container">
+    <h4>Asset Classes</h4>
+    <hr />
+    <div class="mb-1">
+        <form asp-area="AssetManager" asp-controller="Settings" asp-action="AssetClasses" method="get">
+            <a asp-area="AssetManager" asp-controller="Home" asp-action="Index" class="btn btn-dark" style="width:100px" title="Click to Go Back">
+                <span class="text-white">Back</span>
+            </a>
+            <a asp-area="AssetManager" asp-controller="Settings" asp-action="AddAssetClass" class="btn btn-success" style="width:200px" title="Click to Add New Asset Class">
+                <span class="text-white">New Asset Class</span>
+            </a>
+            <select id="cd" name="cd" asp-items="@ViewBag.AssetCategoriesList" selected="@ViewBag.cd" class="border-0" style="width:250px">
+                <option value="">- Select Category -</option>
+            </select>
+            <input type="text" class="border-0 text-secondary fw-light" style="width:250px" name="searchString" value="@ViewData["CurrentFilter"]" placeholder=" Enter Text to Search..." />
+            <input type="submit" value="Search" class="btn btn-primary" style="width:100px" />
+        </form>
+
+        @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-x-circle"></i>
+                <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (!String.IsNullOrEmpty(Model.ViewModelSuccessMessage))
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="bi bi-check-circle"></i>
+                <span class="fw-bold">@Model.ViewModelSuccessMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+    </div>
+    @if (Model == null)
+    {
+        <div class="alert alert-info fade show" role="alert">
+            <i class="bi bi-info-circle"></i>
+            <span class="fw-bold">No record was found.</span>
+        </div>
+    }
+    else if (Model.AssetClassList.Count < 1)
+    {
+        <div class="alert alert-info fade show" role="alert">
+            <i class="bi bi-info-circle"></i>
+            <span class="fw-bold">No record was found.</span>
+        </div>
+    }
+    else
+    {
+        <div class="row">
+            <div class="table-responsive">
+                <table class="table table-hover table-sm ">
+                    <thead class="table-dark">
+                        <tr>
+                            <th><span class="text-white fw-bold">#</span></th>
+                            <th><span class="text-white fw-bold">Asset Class</span></th>
+                            <th><span class="text-white fw-bold">Asset Category</span></th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody class="table-secondary">
+                        @{
+                            int rowNumber = 0;
+                        }
+                        @foreach (var item in Model.AssetClassList)
+                        {
+                            rowNumber++;
+                            <tr>
+                                <td class="p-2 border-1 border-light">@rowNumber.ToString()</td>
+                                <td class="p-2 border-1 border-light">
+                                    <span class="fw-bold">@item.Name</span>
+                                </td>
+                                <td class="p-2 border-1 border-light">
+                                    <span class="fw-bold">@item.CategoryName</span>
+                                </td>
+                                <td class="p-2 border-1 border-light">
+                                    <div class="text-center">
+                                        <a asp-area="AssetManager" asp-controller="Settings" asp-action="AssetClassDetails" asp-route-id="@item.ID" title="Details" class="btn btn-xs btn-dark" style="width:50px">
+                                            <i class="bi bi-card-text" style="font-size: 0.7rem;"></i>
+                                        </a>
+                                        <a asp-area="AssetManager" asp-controller="Settings" asp-action="EditAssetClass" asp-route-id="@item.ID" title="Edit" class="btn btn-xs btn-primary" style="width:50px">
+                                            <i class="bi bi-pencil-square" style="font-size: 0.7rem; color:white"></i>
+                                        </a>
+                                        <a asp-area="AssetManager" asp-controller="Settings" asp-action="Assets" asp-route-sp="@item.ID" title="Assets" class="btn btn-xs btn-success" style="width:50px">
+                                            <i class="bi bi-list-ul" style="font-size: 0.7rem; color:white"></i>
+                                        </a>
+                                        <a asp-area="AssetManager" asp-controller="Settings" asp-action="DeleteAssetClass" asp-route-id="@item.ID" title="Delete Asset Class" class="btn btn-xs btn-danger" style="width:50px">
+                                            <i class="bi bi-trash-fill" style="font-size: 0.7rem; color:white"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+</div>
+
+
+
+
+
+

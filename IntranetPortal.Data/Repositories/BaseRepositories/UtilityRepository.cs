@@ -48,7 +48,7 @@ namespace IntranetPortal.Data.Repositories.BaseRepositories
             string codeNumber = string.Empty;
             var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
             if (String.IsNullOrEmpty(numberType)) { throw new ArgumentNullException(nameof(numberType), "The required parameter [Number Type] is missing or has an invalid value."); }
-            string query = $"SELECT LPAD(next_no::text, no_length, '0') AS code_no FROM gst_auto_no WHERE (no_type = @no_type)";
+            string query = $"SELECT COALESCE(prefix,'') || LPAD(next_no::text, no_length, '0') AS code_no FROM gst_auto_no WHERE (no_type = @no_type)";
             try
             {
                 await conn.OpenAsync();

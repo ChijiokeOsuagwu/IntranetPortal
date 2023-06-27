@@ -32,7 +32,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
             }
-            <form asp-area="AssetManager" asp-controller="Settings" asp-action="AddAssetType" method="post">
+            <form asp-area="AssetManager" asp-controller="Settings" asp-action="AddAssetType" method="post" autocomplete="off">
                 <div class="row">
                     <div class="col-mb-12 mb-1">
                         <input type="hidden" asp-for="ID" />
@@ -50,8 +50,8 @@
                 </div>
                 <div class="row">
                     <div class="col-md-12  mb-3">
-                        <label asp-for="CategoryID" class="form-label text-white fw-bold"></label>
-                        <select asp-for="CategoryID" asp-items="@ViewBag.CategoryList" class="form-control fw-bold">
+                        <label asp-for="ClassID" class="form-label text-white fw-bold"></label>
+                        <select asp-for="ClassID" asp-items="@ViewBag.AssetClassesList" class="form-control fw-bold">
                             <option value=""></option>
                         </select>
                     </div>

@@ -5,7 +5,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using IntranetPortal.Areas.AssetManager.Models;
 using IntranetPortal.Base.Models.AssetManagerModels;
+using IntranetPortal.Base.Models.EmployeeRecordModels;
 using IntranetPortal.Base.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -15,6 +17,7 @@ using Newtonsoft.Json;
 namespace IntranetPortal.Areas.AssetManager.Controllers
 {
     [Area("AssetManager")]
+    [Authorize]
     public class MasterController : Controller
     {
         private readonly ISecurityService _securityService;
@@ -23,10 +26,12 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
         private readonly IBaseModelService _baseModelService;
         private readonly IGlobalSettingsService _globalSettingsService;
         private readonly IWebHostEnvironment _webHostEnvironment;
+        private readonly IErmService _ermService;
 
         public MasterController(IConfiguration configuration, ISecurityService securityService,
                                 IBaseModelService baseModelService, IAssetManagerService assetManagerService,
-                                IGlobalSettingsService globalSettingsService, IWebHostEnvironment webHostEnvironment)
+                                IGlobalSettingsService globalSettingsService, IWebHostEnvironment webHostEnvironment,
+                                IErmService ermService)
         {
             _configuration = configuration;
             _securityService = securityService;
@@ -34,15 +39,26 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
             _assetManagerService = assetManagerService;
             _globalSettingsService = globalSettingsService;
             _webHostEnvironment = webHostEnvironment;
+            _ermService = ermService;
         }
 
-
+        [Authorize(Roles = "AMSASSVWL, XYALLACCZ")]
         public async Task<IActionResult> List(string an = null, int? tp = null, int? ct = null)
         {
             AssetListViewModel model = new AssetListViewModel();
             IEnumerable<Asset> assetList = new List<Asset>();
             try
             {
+                AssetPermission assetPermission = new AssetPermission();
+                Employee employee = new Employee();
+                string empName = HttpContext.User.Identity.Name;
+                employee = await _ermService.GetEmployeeByNameAsync(empName);
+                if(employee != null && !string.IsNullOrWhiteSpace(employee.EmployeeID))
+                {
+                    assetPermission.UserId = employee.EmployeeID;
+                    assetPermission.LocationId = employee.LocationID;
+                }
+
                 if (!string.IsNullOrWhiteSpace(an))
                 {
                     assetList = await _assetManagerService.SearchAssetsByNameAsync(an);
@@ -53,7 +69,11 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
                 }
                 else if (ct != null && ct.Value > 0)
                 {
-                    assetList = await _assetManagerService.GetAssetsByCategoryIdAsync(ct.Value);
+                    assetList = await _assetManagerService.GetAssetsByClassIdAsync(ct.Value);
+                }
+                else
+                {
+                    assetList = await _assetManagerService.GetAssetsAsync();
                 }
                 model.AssetList = assetList.ToList();
             }
@@ -63,17 +83,19 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
                 assetList = null;
             }
             var assetTypes = await _assetManagerService.GetAssetTypesAsync();
-            var assetCategories = await _assetManagerService.GetAssetCategoriesAsync();
+            var assetClasses = await _assetManagerService.GetAssetClassesAsync();
             ViewBag.AssetTypeList = new SelectList(assetTypes, "ID", "Name");
-            ViewBag.AssetCategoryList = new SelectList(assetCategories, "ID", "Name");
+            ViewBag.AssetClassList = new SelectList(assetClasses, "ID", "Name");
 
             return View(model);
         }
 
         [HttpGet]
+        [Authorize(Roles = "AMSASSADN, XYALLACCZ")]
         public async Task<IActionResult> AddAsset()
         {
             AssetViewModel model = new AssetViewModel();
+            model.ConditionStatus = AssetCondition.InGoodCondition;
             var types = await _assetManagerService.GetAssetTypesAsync();
             var locations = await _globalSettingsService.GetAllLocationsAsync();
 
@@ -83,6 +105,7 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "AMSASSADN, XYALLACCZ")]
         public async Task<IActionResult> AddAsset(AssetViewModel model)
         {
             if (ModelState.IsValid)
@@ -93,6 +116,7 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
                     string absoluteFilePath = null;
                     AssetType assetType = await _assetManagerService.GetAssetTypeByIdAsync(model.AssetTypeID);
                     int categoryId = assetType.CategoryID;
+                    int classId = assetType.ClassID.Value;
 
                     if (model.ImageUpload != null && model.ImageUpload.Length > 0)
                     {
@@ -109,13 +133,37 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
                         await model.ImageUpload.CopyToAsync(new FileStream(absoluteFilePath, FileMode.Create));
                     }
 
+                    if (!string.IsNullOrWhiteSpace(model.BinLocationName))
+                    {
+                        AssetBinLocation binLocation = await _assetManagerService.GetAssetBinLocationByNameAsync(model.BinLocationName);
+                        if (binLocation != null && binLocation.AssetBinLocationID > 0) { model.BinLocationID = binLocation.AssetBinLocationID; }
+                    }
+
                     Asset asset = model.ConvertToAsset();
+                   // asset.BinLocationID = BinLocationID;
+                    asset.UsageStatus = "Available";
                     asset.ImagePath = uploadsFolder;
                     asset.AssetCategoryID = categoryId;
+                    asset.AssetClassID = classId;
                     asset.ModifiedBy = HttpContext.User.Identity.Name;
                     asset.ModifiedDate = $"{DateTime.UtcNow.ToLongDateString()} {DateTime.UtcNow.ToLongTimeString()} + GMT";
                     asset.CreatedBy = HttpContext.User.Identity.Name;
                     asset.CreatedDate = $"{DateTime.UtcNow.ToLongDateString()} {DateTime.UtcNow.ToLongTimeString()} + GMT";
+                    if (string.IsNullOrWhiteSpace(asset.ConditionDescription))
+                    {
+                        switch (asset.ConditionStatus)
+                        {
+                            case AssetCondition.InGoodCondition:
+                                asset.ConditionDescription = "In Good Working Condition";
+                                break;
+                            case AssetCondition.BeyondRepair:
+                                asset.ConditionDescription = "Faulty (Beyond Repair)";
+                                break;
+                            case AssetCondition.RequiresRepair:
+                                asset.ConditionDescription = "Faulty (Requires Repairs)";
+                                break;
+                        }
+                    }
 
                     if (await _assetManagerService.CreateAssetAsync(asset))
                     {
@@ -158,11 +206,17 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "AMSASSEDT, XYALLACCZ")]
         public async Task<IActionResult> EditAsset(string id)
         {
             Asset asset = new Asset();
             AssetViewModel model = new AssetViewModel();
-            if (!string.IsNullOrWhiteSpace(id))
+            if (string.IsNullOrWhiteSpace(id))
+
+            {
+                return RedirectToAction("AddAsset");
+            }
+            else
             {
                 asset = await _assetManagerService.GetAssetByIdAsync(id);
                 model.AssetCategoryID = asset.AssetCategoryID;
@@ -176,6 +230,8 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
                 model.ParentAssetID = asset.ParentAssetID;
                 model.BaseLocationID = asset.BaseLocationID;
                 model.BaseLocationName = asset.BaseLocationName;
+                model.BinLocationID = asset.BinLocationID;
+                model.BinLocationName = asset.BinLocationName;
                 model.ConditionDescription = asset.ConditionDescription;
                 model.ConditionStatus = asset.ConditionStatus;
                 model.CreatedBy = asset.CreatedBy;
@@ -189,11 +245,6 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
                 model.PurchaseAmount = asset.PurchaseAmount;
                 model.PurchaseDate = asset.PurchaseDate;
                 model.UsageStatus = asset.UsageStatus;
-
-            }
-            else
-            {
-                return RedirectToAction("AddAsset");
             }
 
             var types = await _assetManagerService.GetAssetTypesAsync();
@@ -206,6 +257,7 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "AMSASSEDT, XYALLACCZ")]
         public async Task<IActionResult> EditAsset(AssetViewModel model)
         {
             if (ModelState.IsValid)
@@ -216,6 +268,7 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
                     string absoluteFilePath = null;
                     AssetType assetType = await _assetManagerService.GetAssetTypeByIdAsync(model.AssetTypeID);
                     int categoryId = assetType.CategoryID;
+                    int classId = assetType.ClassID.Value;
                     bool ImageChanged = false;
 
                     if (model.ImageUpload != null && model.ImageUpload.Length > 0)
@@ -233,12 +286,18 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
                         absoluteFilePath = Path.Combine(_webHostEnvironment.WebRootPath, uploadsFolder);
                         await model.ImageUpload.CopyToAsync(new FileStream(absoluteFilePath, FileMode.Create));
                         ImageChanged = true;
+                    }
 
+                    if (!string.IsNullOrWhiteSpace(model.BinLocationName))
+                    {
+                        AssetBinLocation binLocation = await _assetManagerService.GetAssetBinLocationByNameAsync(model.BinLocationName);
+                        if (binLocation != null && binLocation.AssetBinLocationID > 0) { model.BinLocationID = binLocation.AssetBinLocationID; }
                     }
 
                     Asset asset = model.ConvertToAsset();
                     asset.ImagePath = uploadsFolder;
                     asset.AssetCategoryID = categoryId;
+                    asset.AssetClassID = classId;
                     asset.ModifiedBy = HttpContext.User.Identity.Name;
                     asset.ModifiedDate = $"{DateTime.UtcNow.ToLongDateString()} {DateTime.UtcNow.ToLongTimeString()} + GMT";
 
@@ -294,6 +353,7 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "AMSASSVWD, XYALLACCZ")]
         public async Task<IActionResult> Details(string id)
         {
             AssetViewModel model = new AssetViewModel();
@@ -311,6 +371,8 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
                 model.ParentAssetID = asset.ParentAssetID;
                 model.BaseLocationID = asset.BaseLocationID;
                 model.BaseLocationName = asset.BaseLocationName;
+                model.BinLocationID = asset.BinLocationID;
+                model.BinLocationName = asset.BinLocationName;
                 model.ConditionDescription = asset.ConditionDescription;
                 model.ConditionStatus = asset.ConditionStatus;
                 model.CreatedBy = asset.CreatedBy;
@@ -333,6 +395,7 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "AMSASSVWD, XYALLACCZ")]
         public async Task<IActionResult> ShowImage(string id)
         {
             Asset asset = new Asset();
@@ -374,6 +437,7 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "AMSASSDLT, XYALLACCZ")]
         public async Task<IActionResult> DeleteAsset(string id)
         {
             AssetViewModel model = new AssetViewModel();
@@ -391,6 +455,8 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
                 model.ParentAssetID = asset.ParentAssetID;
                 model.BaseLocationID = asset.BaseLocationID;
                 model.BaseLocationName = asset.BaseLocationName;
+                model.BinLocationID = asset.BinLocationID;
+                model.BinLocationName = asset.BinLocationName;
                 model.ConditionDescription = asset.ConditionDescription;
                 model.ConditionStatus = asset.ConditionStatus;
                 model.CreatedBy = asset.CreatedBy;
@@ -413,6 +479,7 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "AMSASSDLT, XYALLACCZ")]
         public async Task<IActionResult> DeleteAsset(AssetViewModel model)
         {
             if (model != null)
@@ -423,7 +490,7 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
                     bool succeeded = await _assetManagerService.DeleteAssetAsync(model.AssetID, deletedBy);
                     if (succeeded)
                     {
-                        return RedirectToAction("Assets", "Settings");
+                        return RedirectToAction("List");
                     }
                 }
                 catch (Exception ex)
@@ -441,7 +508,7 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
         }
 
 
-        //======================== Assets Helper Methods ======================================//
+        //=============== Assets Helper Methods ===========================//
         #region Assets Helper Methods
 
         [HttpGet]

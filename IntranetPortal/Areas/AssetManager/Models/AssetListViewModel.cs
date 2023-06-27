@@ -11,6 +11,7 @@ namespace IntranetPortal.Areas.AssetManager.Models
     {
         public int? tp { get; set; }
         public int? ct { get; set; }
+        public int? cl { get; set; }
         public string an { get; set; }
         public List<Asset> AssetList { get; set; }
     }

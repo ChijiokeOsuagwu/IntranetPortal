@@ -12,11 +12,11 @@
                     <a asp-area="UserAdministration" asp-controller="Home" asp-action="Index" class="btn btn-dark" style="width:100px" title="Click to Go Back">
                         <span class="text-white">Back</span>
                     </a>
-                    <a asp-area="UserAdministration" asp-controller="Staff" asp-action="SelectStaff" class="btn btn-success pr-2" style="width:200px" title="Click to Add New Staff User">
+                    <input type="text" class="border-0 ml-1" style="width:300px" id="SearchString" name="SearchString" value="@ViewData["CurrentFilter"]" placeholder="Enter Name ..." />
+                    <input type="submit" value="Search" class="btn btn-primary mr-2" style="width:150px" />
+                    <a asp-area="UserAdministration" asp-controller="Staff" asp-action="SelectStaff" class="btn btn-success" style="width:100px" title="Click to Add New Staff User">
                         <span class="text-white">New User</span>
                     </a>
-                    Enter Name: <input type="text" class="border-0" style="width:300px" id="SearchString" name="SearchString" value="@ViewData["CurrentFilter"]" />
-                    <input type="submit" value="Search" class="btn btn-primary" style="width:100px" />
                 </div>
             </form>
         </div>

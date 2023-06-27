@@ -13,6 +13,9 @@
             <a asp-area="AssetManager" asp-controller="Settings" asp-action="AddAssetType" class="btn btn-success" style="width:200px" title="Click to Add New Asset Type">
                 <span class="text-white">New Asset Type</span>
             </a>
+            <select id="cd" name="cd" asp-items="@ViewBag.AssetClassesList" selected="@ViewBag.cd" class="border-0" style="width:250px">
+                <option value="">- Select Class -</option>
+            </select>
             <input type="text" class="border-0 text-secondary fw-light" style="width:250px" name="searchString" value="@ViewData["CurrentFilter"]" placeholder=" Enter Text to Search..." />
             <input type="submit" value="Search" class="btn btn-primary" style="width:100px" />
         </form>
@@ -57,11 +60,11 @@
                         <tr>
                             <th><span class="text-white fw-bold">#</span></th>
                             <th><span class="text-white fw-bold">Asset Type</span></th>
-                            <th><span class="text-white fw-bold">Asset Category</span></th>
+                            <th><span class="text-white fw-bold">Asset Class</span></th>
                             <th></th>
                         </tr>
                     </thead>
-                    <tbody class="table-success">
+                    <tbody class="table-secondary">
                         @{
                             int rowNumber = 0;
                         }
@@ -69,14 +72,14 @@
                         {
                             rowNumber++;
                             <tr>
-                                <td>@rowNumber.ToString()</td>
-                                <td>
+                                <td class="p-2 border-1 border-light">@rowNumber.ToString()</td>
+                                <td class="p-2 border-1 border-light">
                                     <span class="fw-bold">@type.Name</span>
                                 </td>
-                                <td>
-                                    <span class="fw-bold">@type.CategoryName</span>
+                                <td class="p-2 border-1 border-light">
+                                    <span class="fw-bold">@type.ClassName</span>
                                 </td>
-                                <td>
+                                <td class="p-2 border-1 border-light">
                                     <div class="text-center">
                                         <a asp-area="AssetManager" asp-controller="Settings" asp-action="AssetTypeDetails" asp-route-id="@type.ID" title="Details" class="btn btn-xs btn-dark" style="width:50px">
                                             <i class="bi bi-card-text" style="font-size: 0.7rem;"></i>

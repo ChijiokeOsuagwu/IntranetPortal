@@ -1,0 +1,147 @@
+﻿@model IntranetPortal.Areas.UserAdministration.Models.LoginHistoryListViewModel
+@{
+    ViewData["Title"] = "OfficeManager | Login History";
+}
+<div class="container">
+    <h4>Login Activity History</h4>
+    <hr />
+    <div class="mb-1">
+        <form asp-area="UserAdministration" asp-controller="Home" asp-action="LoginHistory" method="get">
+            <a asp-area="UserAdministration" asp-controller="Home" asp-action="Index" class="btn btn-dark pr-2" style="width:100px" title="Exit">
+                <span class="text-white">Exit</span>
+            </a>
+            <input asp-for="nm" class="border-0 pl-2 pr-2" style="width:300px" placeholder="Enter Name" />
+            <input asp-for="yy" class="border-0 pl-2 pr-2" style="width:100px" placeholder="yyyy" />
+            <select asp-for="mm" class="border-0" style="width:150px">
+                <option value="0"> All </option>
+                <option value="1">January</option>
+                <option value="2">February</option>
+                <option value="3">March</option>
+                <option value="4">April</option>
+                <option value="5">May</option>
+                <option value="6">June</option>
+                <option value="7">July</option>
+                <option value="8">August</option>
+                <option value="9">September</option>
+                <option value="10">October</option>
+                <option value="11">November</option>
+                <option value="12">December</option>
+            </select>
+            <input asp-for="dd" class="border-0 pl-2 pr-2" style="width:50px" placeholder="dd" />
+            <input type="submit" value="Search" class="btn btn-dark" style="width:100px" />
+        </form>
+
+        @if (!String.IsNullOrEmpty(ViewBag.ErrorMessage))
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-x-circle"></i>
+                <span class="fw-bold">@ViewBag.ErrorMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+    </div>
+    @if (Model == null || Model.UserLoginHistories == null || Model.UserLoginHistories.Count < 1)
+    {
+        <div class="alert alert-info fade show" role="alert">
+            <i class="bi bi-info-circle"></i>
+            <span class="fw-bold">No record was found.</span>
+        </div>
+    }
+    else
+    {
+        int rownumber = 0;
+        <div class="row">
+            <div class="table-responsive">
+                <table class="table table-hover table-sm ">
+                    <thead class="table-dark">
+                        <tr>
+                            <th><span class="text-white fw-bold">#</span></th>
+                            <th><span class="text-white fw-bold">User</span></th>
+                            <th><span class="text-white fw-bold">Activity Type</span></th>
+                            <th><span class="text-white fw-bold">Activity Time</span></th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody class="table-success">
+                        @foreach (var item in Model.UserLoginHistories)
+                        {
+                            rownumber++;
+                            @if (item.UserLoginType == LoginType.LogIn)
+                            {
+                                <tr class="bg-success">
+                                    <td class="p-1">
+                                        <span class="fw-bold">@rownumber.ToString()</span>
+                                    </td>
+                                    <td class="p-1">
+                                        <span class="fw-bold" title="activity Time">@item.LoginUserName</span>
+                                    </td>
+                                    <td class="p-1">
+                                        <span class="fw-bold" title="Activity Type">Log In</span>
+                                    </td>
+                                    <td class="p-1">
+                                        <span class="fw-bold" title="activity Time">@item.LoginTimeFormatted</span>
+                                    </td>
+                                    <td class="p-1">
+                                        <div class="text-center">
+                                            <a asp-area="UserAdministration" asp-controller="Home" asp-action="LoginHistoryDetails" asp-route-id="@item.ID" title="See Details" class="btn btn-xs btn-dark" style="width:50px">
+                                                <i class="bi bi-card-text" style="font-size: 0.7rem; color:white"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                            else if (item.UserLoginType == LoginType.LogOut)
+                            {
+                                <tr class="bg-danger">
+                                    <td class="p-1">
+                                        <span class="fw-bold">@rownumber.ToString()</span>
+                                    </td>
+                                    <td class="p-1">
+                                        <span class="fw-bold" title="activity Time">@item.LoginUserName</span>
+                                    </td>
+                                    <td class="p-1">
+                                        <span class="fw-bold" title="Activity Type">Log Out</span>
+                                    </td>
+                                    <td class="p-1">
+                                        <span class="fw-bold" title="activity Time">@item.LoginTimeFormatted</span>
+                                    </td>
+                                    <td class="p-1">
+                                        <div class="text-center">
+                                            <a asp-area="UserAdministration" asp-controller="Home" asp-action="LoginHistoryDetails" asp-route-id="@item.ID" title="See Details" class="btn btn-xs btn-dark" style="width:50px">
+                                                <i class="bi bi-card-text" style="font-size: 0.7rem; color:white"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                            else
+                            {
+                                <tr class="bg-light">
+                                    <td class="p-1">
+                                        <span class="fw-bold">@rownumber.ToString()</span>
+                                    </td>
+                                    <td class="p-1">
+                                        <span class="fw-bold" title="activity Time">@item.LoginUserName</span>
+                                    </td>
+                                    <td class="p-1">
+                                        <span class="fw-bold" title="Activity Type">[N/A]</span>
+                                    </td>
+                                    <td class="p-1">
+                                        <span class="fw-bold" title="activity Time">@item.LoginTimeFormatted</span>
+                                    </td>
+                                    <td class="p-1">
+                                        <div class="text-center">
+                                            <a asp-area="UserAdministration" asp-controller="Home" asp-action="LoginHistoryDetails" asp-route-id="@item.ID" title="See Details" class="btn btn-xs btn-dark" style="width:50px">
+                                                <i class="bi bi-card-text" style="font-size: 0.7rem; color:white"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+</div>

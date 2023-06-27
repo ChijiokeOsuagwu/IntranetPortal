@@ -1,0 +1,82 @@
+﻿@model IntranetPortal.Areas.UserAdministration.Models.ApplicationRolesListViewModel
+@{
+    ViewData["Title"] = "User Administration | User Permissions";
+}
+<div class="container">
+    <h3 class="mb-4">Grant User Permissions</h3>
+    <hr />
+    <div class="mb-1">
+        <div class="row">
+            <div>
+                <div class="col-md-12">
+                    <form asp-area="UserAdministration" asp-controller="Home" asp-action="PermissionsList"  method="get">
+                        <div class="form-actions no-color">
+                            <a asp-area="UserAdministration" asp-controller="Home" asp-action="UserPermissions" asp-route-id="@ViewData["UserID"]" class="btn btn-dark" style="width:100px" title="Click to Go Back">
+                                <span class="text-white">Back</span>
+                            </a>
+                            <input type="hidden" name="id" value="@ViewData["UserID"]" />
+                            <select name="ad" asp-items="@ViewBag.ApplicationList" value="@ViewData["ApplicationID"]" style="width:350px; font-weight:600" class="border-0">
+                                <option value="">- Select Application -</option>
+                            </select>
+                            <input type="submit" value="Refresh" class="btn btn-primary" style="width:200px" />
+                        </div>
+                    </form>
+                </div>
+            </div>
+            @if (!String.IsNullOrEmpty(ViewBag.ErrorMessage))
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bi bi-x-circle"></i>
+                    <span class="fw-bold">@ViewBag.ErrorMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+        </div>
+        @if (Model == null || Model.ApplicationRoleList == null || Model.ApplicationRoleList.Count < 1)
+        {
+            <div class="alert alert-info fade show" role="alert">
+                <i class="bi bi-info-circle"></i>
+                <span class="fw-bold">No record was found.</span>
+            </div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-sm table-hover">
+                    <thead>
+                        <tr class="bg-secondary">
+                            <th>
+                                <span class="text-white fw-bold">Application</span>
+                            </th>
+                            <th>
+                                <span class="text-white fw-bold">Permission Description</span>
+                            </th>
+                            <th>
+                                <span class="text-white fw-bold">Action</span>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.ApplicationRoleList)
+                        {
+                            <tr>
+                                <td>
+                                    <span class="text-dark fw-bold">@Html.DisplayFor(modelItem => item.ApplicationName)</span>
+                                </td>
+                                <td>
+                                    <span class="text-dark fw-bold">@Html.DisplayFor(modelItem => item.Name)</span>
+                                </td>
+                                <td>
+                                    <button title="Grant this Permission" class="btn btn-sm btn-outline-success text-dark fw-bold" style="border-radius:10px; width:75px" id="btn_grant_@item.Id" onclick="grantPermission('@ViewData["UserID"]','@item.Id')">Grant</button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>
+<script src="~/js/js_uad/user_permissions.js"></script>
+
+

@@ -1,5 +1,7 @@
 ﻿using IntranetPortal.Base.Models.AssetManagerModels;
+using IntranetPortal.Base.Models.SecurityModels;
 using IntranetPortal.Base.Repositories.AssetManagerRepositories;
+using IntranetPortal.Data.Repositories.AssetManagerRepositories;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,11 +20,14 @@ namespace IntranetPortal.Base.Services
         private readonly IAssetIncidentRepository _assetIncidentRepository;
         private readonly IAssetMaintenanceRepository _assetMaintenanceRepository;
         private readonly IAssetMovementRepository _assetMovementRepository;
+        private readonly IAssetBinLocationRepository _assetBinLocationRepository;
+        private readonly IAssetClassRepository _assetClassRepository;
 
         public AssetManagerService(IAssetCategoryRepository assetCategoryRepository, IAssetTypeRepository assetTypeRepository,
                                         IAssetRepository assetRepository, IAssetReservationRepository assetReservationRepository,
                                         IAssetUsageRepository assetUsageRepository, IAssetIncidentRepository assetIncidentRepository,
-                                        IAssetMaintenanceRepository assetMaintenanceRepository, IAssetMovementRepository assetMovementRepository)
+                                        IAssetMaintenanceRepository assetMaintenanceRepository, IAssetMovementRepository assetMovementRepository,
+                                        IAssetBinLocationRepository assetBinLocationRepository, IAssetClassRepository assetClassRepository)
         {
             _assetCategoryRepository = assetCategoryRepository;
             _assetTypeRepository = assetTypeRepository;
@@ -32,6 +37,8 @@ namespace IntranetPortal.Base.Services
             _assetIncidentRepository = assetIncidentRepository;
             _assetMaintenanceRepository = assetMaintenanceRepository;
             _assetMovementRepository = assetMovementRepository;
+            _assetBinLocationRepository = assetBinLocationRepository;
+            _assetClassRepository = assetClassRepository;
         }
 
         //=================== Asset Category Action Methods ======================//
@@ -131,6 +138,144 @@ namespace IntranetPortal.Base.Services
 
         #endregion
 
+        //=================== Asset Class Action Methods ======================//
+        #region Asset Class Action Methods
+
+        public async Task<bool> CreateAssetClassAsync(AssetClass assetClass)
+        {
+            if (assetClass == null) { throw new ArgumentNullException(nameof(assetClass), "Required parameter [AssetClass] is missing. The request cannot be processed."); }
+            bool IsSuccessful = false;
+            try
+            {
+                IsSuccessful = await _assetClassRepository.AddAsync(assetClass);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return IsSuccessful;
+        }
+
+        public async Task<bool> DeleteAssetClassAsync(int assetClassId)
+        {
+            if (assetClassId < 1) { throw new ArgumentNullException(nameof(assetClassId), "Required parameter [AssetClassID] is missing."); }
+            bool IsSuccessful = false;
+            try
+            {
+                IsSuccessful = await _assetClassRepository.DeleteAsync(assetClassId);
+            }
+            catch (Exception ex)
+            {
+
+                throw new Exception(ex.Message);
+            }
+            return IsSuccessful;
+        }
+
+        public async Task<bool> UpdateAssetClassAsync(AssetClass assetClass)
+        {
+            if (assetClass == null) { throw new ArgumentNullException(nameof(assetClass), "Required parameter [AssetClass] is missing."); }
+            bool IsSuccessful = false;
+            try
+            {
+                IsSuccessful = await _assetClassRepository.EditAsync(assetClass);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return IsSuccessful;
+        }
+
+        public async Task<IList<AssetClass>> GetAssetClassesAsync(IEntityPermission entityPermission = null)
+        {
+            List<AssetClass> assetClasses = new List<AssetClass>();
+            try
+            {
+                if (entityPermission == null)
+                {
+                    var entities = await _assetClassRepository.GetAllAsync();
+                    if (entities != null && entities.Count > 0) { assetClasses = entities.ToList(); }
+                }
+                else
+                {
+                    var entities = await _assetClassRepository.GetAllAsync(entityPermission);
+                    if (entities != null && entities.Count > 0) { assetClasses = entities.ToList(); }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return assetClasses;
+        }
+
+        public async Task<AssetClass> GetAssetClassByIdAsync(int assetClassId)
+        {
+            AssetClass assetClass = new AssetClass();
+            if (assetClassId < 1) { throw new ArgumentNullException(nameof(assetClassId), "The required parameter [assetClassId] is missing. The request cannot be processed."); }
+            try
+            {
+                var entity = await _assetClassRepository.GetByIdAsync(assetClassId);
+                if (entity != null) { assetClass = entity; }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return assetClass;
+        }
+
+        public async Task<IList<AssetClass>> GetAssetClassesByCategoryIdAsync(int assetCategoryId, IEntityPermission entityPermission = null)
+        {
+            List<AssetClass> assetClasses = new List<AssetClass>();
+            if (assetCategoryId < 1) { throw new ArgumentNullException(nameof(assetCategoryId), "The required parameter [AssetCategoryID] is missing. The request cannot be processed."); }
+            try
+            {
+                if (entityPermission == null)
+                {
+                    var entities = await _assetClassRepository.GetByCategoryIdAsync(assetCategoryId);
+                    if (entities != null && entities.Count > 0) { assetClasses = entities.ToList(); }
+                }
+                else
+                {
+                    var entities = await _assetClassRepository.GetByCategoryIdAsync(assetCategoryId, entityPermission);
+                    if (entities != null && entities.Count > 0) { assetClasses = entities.ToList(); }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return assetClasses;
+        }
+
+        public async Task<IList<AssetClass>> SearchAssetClassesByNameAsync(string assetClassName, IEntityPermission entityPermission = null)
+        {
+            List<AssetClass> assetClasses = new List<AssetClass>();
+            try
+            {
+                if (entityPermission == null)
+                {
+                    var entities = await _assetClassRepository.GetByNameAsync(assetClassName);
+                    if (entities != null && entities.Count > 0) { assetClasses = entities.ToList(); }
+                }
+                else
+                {
+                    var entities = await _assetClassRepository.GetByNameAsync(assetClassName, entityPermission);
+                    if (entities != null && entities.Count > 0) { assetClasses = entities.ToList(); }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return assetClasses;
+        }
+
+        #endregion
+
+
         //=================== Asset Type Action Methods ==========================//
         #region Asset Type Action Methods
 
@@ -180,13 +325,21 @@ namespace IntranetPortal.Base.Services
             return IsSuccessful;
         }
 
-        public async Task<IList<AssetType>> GetAssetTypesAsync()
+        public async Task<IList<AssetType>> GetAssetTypesAsync(IEntityPermission entityPermission = null)
         {
             List<AssetType> assetTypes = new List<AssetType>();
             try
             {
-                var entities = await _assetTypeRepository.GetAllAsync();
-                if (entities != null && entities.Count > 0) { assetTypes = entities.ToList(); }
+                if(entityPermission == null)
+                {
+                    var entities = await _assetTypeRepository.GetAllAsync();
+                    if (entities != null && entities.Count > 0) { assetTypes = entities.ToList(); }
+                }
+                else
+                {
+                    var entities = await _assetTypeRepository.GetAllAsync(entityPermission);
+                    if (entities != null && entities.Count > 0) { assetTypes = entities.ToList(); }
+                }
             }
             catch (Exception ex)
             {
@@ -211,13 +364,22 @@ namespace IntranetPortal.Base.Services
             return assetType;
         }
 
-        public async Task<IList<AssetType>> SearchAssetTypesByNameAsync(string assetTypeName)
+        public async Task<IList<AssetType>> SearchAssetTypesByNameAsync(string assetTypeName, IEntityPermission entityPermission = null)
         {
             List<AssetType> assetTypes = new List<AssetType>();
             try
             {
+                if(entityPermission == null)
+                {
                 var entities = await _assetTypeRepository.GetByNameAsync(assetTypeName);
                 if (entities != null && entities.Count > 0) { assetTypes = entities.ToList(); }
+                }
+                else
+                {
+                    var entities = await _assetTypeRepository.GetByNameAsync(assetTypeName, entityPermission);
+                    if (entities != null && entities.Count > 0) { assetTypes = entities.ToList(); }
+
+                }
             }
             catch (Exception ex)
             {
@@ -226,14 +388,22 @@ namespace IntranetPortal.Base.Services
             return assetTypes;
         }
 
-        public async Task<IList<AssetType>> GetAssetTypesByCategoryIdAsync(int assetCategoryId)
+        public async Task<IList<AssetType>> GetAssetTypesByCategoryIdAsync(int assetCategoryId, IEntityPermission entityPermission = null)
         {
             List<AssetType> assetTypes = new List<AssetType>();
             if (assetCategoryId < 1) { throw new ArgumentNullException(nameof(assetCategoryId), "The required parameter [AssetCategoryID] is missing. The request cannot be processed."); }
             try
             {
-                var entities = await _assetTypeRepository.GetByCategoryIdAsync(assetCategoryId);
-                if (entities != null && entities.Count > 0) { assetTypes = entities.ToList(); }
+                if(entityPermission == null)
+                {
+                    var entities = await _assetTypeRepository.GetByCategoryIdAsync(assetCategoryId);
+                    if (entities != null && entities.Count > 0) { assetTypes = entities.ToList(); }
+                }
+                else
+                {
+                    var entities = await _assetTypeRepository.GetByCategoryIdAsync(assetCategoryId, entityPermission);
+                    if (entities != null && entities.Count > 0) { assetTypes = entities.ToList(); }
+                }
             }
             catch (Exception ex)
             {
@@ -242,6 +412,159 @@ namespace IntranetPortal.Base.Services
             return assetTypes;
         }
 
+        public async Task<IList<AssetType>> GetAssetTypesByClassIdAsync(int assetClassId, IEntityPermission entityPermission = null)
+        {
+            List<AssetType> assetTypes = new List<AssetType>();
+            if (assetClassId < 1) { throw new ArgumentNullException(nameof(assetClassId), "The required parameter [AssetClassID] is missing. The request cannot be processed."); }
+            try
+            {
+                if(entityPermission == null)
+                {
+                    var entities = await _assetTypeRepository.GetByClassIdAsync(assetClassId);
+                    if (entities != null && entities.Count > 0) { assetTypes = entities.ToList(); }
+                }
+                else
+                {
+                    var entities = await _assetTypeRepository.GetByClassIdAsync(assetClassId, entityPermission);
+                    if (entities != null && entities.Count > 0) { assetTypes = entities.ToList(); }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return assetTypes;
+        }
+
+        #endregion
+
+        //=================== Asset Bin Location Action Methods ==========================//
+        #region Asset Bin Location Write Action Methods
+
+        public async Task<bool> CreateAssetBinLocationAsync(AssetBinLocation assetBinLocation)
+        {
+            if (assetBinLocation == null) { throw new ArgumentNullException(nameof(assetBinLocation), "Required parameter [AssetBinLocation] is missing. The request cannot be processed."); }
+            bool IsSuccessful = false;
+            try
+            {
+                IsSuccessful = await _assetBinLocationRepository.AddAsync(assetBinLocation);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return IsSuccessful;
+        }
+
+        public async Task<bool> DeleteAssetBinLocationAsync(int assetBinLocationId)
+        {
+            if (assetBinLocationId < 1) { throw new ArgumentNullException(nameof(assetBinLocationId), "Required parameter [AssetBinLocationID] is missing."); }
+            bool IsSuccessful = false;
+            try
+            {
+                IsSuccessful = await _assetBinLocationRepository.DeleteAsync(assetBinLocationId);
+            }
+            catch (Exception ex)
+            {
+
+                throw new Exception(ex.Message);
+            }
+            return IsSuccessful;
+        }
+
+        public async Task<bool> UpdateAssetBinLocationAsync(AssetBinLocation assetBinLocation)
+        {
+            if (assetBinLocation == null) { throw new ArgumentNullException(nameof(assetBinLocation), "Required parameter [AssetBinLocation] is missing."); }
+            bool IsSuccessful = false;
+            try
+            {
+                IsSuccessful = await _assetBinLocationRepository.EditAsync(assetBinLocation);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return IsSuccessful;
+        }
+        #endregion
+
+        #region Asset Bin Location Read Action Methods
+        public async Task<IList<AssetBinLocation>> GetAssetBinLocationsAsync(IEntityPermission entityPermission = null)
+        {
+            List<AssetBinLocation> assetBinLocations = new List<AssetBinLocation>();
+            try
+            {
+                var entities = await _assetBinLocationRepository.GetAllAsync();
+                if (entities != null && entities.Count > 0) { assetBinLocations = entities.ToList(); }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return assetBinLocations;
+        }
+
+        public async Task<AssetBinLocation> GetAssetBinLocationByIdAsync(int assetBinLocationId)
+        {
+            AssetBinLocation assetBinLocation = new AssetBinLocation();
+            if (assetBinLocationId < 1) { throw new ArgumentNullException(nameof(assetBinLocationId), "The required parameter [assetBinLocationId] is missing. The request cannot be processed."); }
+            try
+            {
+                var entity = await _assetBinLocationRepository.GetByIdAsync(assetBinLocationId);
+                if (entity != null) { assetBinLocation = entity; }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return assetBinLocation;
+        }
+
+        public async Task<AssetBinLocation> GetAssetBinLocationByNameAsync(string assetBinLocationName, IEntityPermission entityPermission = null)
+        {
+            AssetBinLocation assetBinLocation = new AssetBinLocation();
+            try
+            {
+                var entities = await _assetBinLocationRepository.GetByNameAsync(assetBinLocationName);
+                if (entities != null && entities.Count > 0) { assetBinLocation = entities.ToList().FirstOrDefault(); }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return assetBinLocation;
+        }
+
+        public async Task<IList<AssetBinLocation>> SearchAssetBinLocationsByNameAsync(string assetBinLocationName, IEntityPermission entityPermission = null)
+        {
+            List<AssetBinLocation> assetBinLocations = new List<AssetBinLocation>();
+            try
+            {
+                var entities = await _assetBinLocationRepository.SearchByNameAsync(assetBinLocationName);
+                if (entities != null && entities.Count > 0) { assetBinLocations = entities.ToList(); }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return assetBinLocations;
+        }
+
+        public async Task<IList<AssetBinLocation>> GetAssetBinLocationsByLocationIdAsync(int assetLocationId, IEntityPermission entityPermission)
+        {
+            List<AssetBinLocation> assetBinLocations = new List<AssetBinLocation>();
+            if (assetLocationId < 1) { throw new ArgumentNullException(nameof(assetLocationId), "The required parameter [AssetLocationID] is missing. The request cannot be processed."); }
+            try
+            {
+                var entities = await _assetBinLocationRepository.GetByLocationIdAsync(assetLocationId);
+                if (entities != null && entities.Count > 0) { assetBinLocations = entities.ToList(); }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return assetBinLocations;
+        }
         #endregion
 
         //=================== Asset Action Methods ===============================//
@@ -387,6 +710,22 @@ namespace IntranetPortal.Base.Services
             return assets;
         }
 
+        public async Task<IList<Asset>> GetAssetsByClassIdAsync(int assetClassId)
+        {
+            List<Asset> assets = new List<Asset>();
+            if (assetClassId < 1) { throw new ArgumentNullException(nameof(assetClassId), "The required parameter [AssetClassID] is missing. The request cannot be processed."); }
+            try
+            {
+                var entities = await _assetRepository.GetByClassIdAsync(assetClassId);
+                if (entities != null && entities.Count > 0) { assets = entities.ToList(); }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return assets;
+        }
+
         #endregion
 
         //=================== Asset Reservation Action Methods ===================//
@@ -520,7 +859,7 @@ namespace IntranetPortal.Base.Services
         {
             List<AssetReservation> assetReservations = new List<AssetReservation>();
             if (string.IsNullOrEmpty(assetId)) { throw new ArgumentNullException(nameof(assetId), "The required parameter [AssetID] is missing. The request cannot be processed."); }
-            if(reservedYear < 1) { throw new ArgumentException(nameof(reservedYear)); }
+            if (reservedYear < 1) { throw new ArgumentException(nameof(reservedYear)); }
             try
             {
                 var entities = await _assetReservationRepository.GetByAssetIdAndYearAsync(assetId, reservedYear);
@@ -538,7 +877,7 @@ namespace IntranetPortal.Base.Services
             List<AssetReservation> assetReservations = new List<AssetReservation>();
             if (string.IsNullOrEmpty(assetId)) { throw new ArgumentNullException(nameof(assetId), "The required parameter [AssetID] is missing. The request cannot be processed."); }
             if (reservedYear < 1) { throw new ArgumentException(nameof(reservedYear)); }
-            if(reservedMonth < 1) { throw new ArgumentException(nameof(reservedMonth)); }
+            if (reservedMonth < 1) { throw new ArgumentException(nameof(reservedMonth)); }
             try
             {
                 var entities = await _assetReservationRepository.GetByAssetIdAndYearAndMonthAsync(assetId, reservedYear, reservedMonth);
@@ -732,7 +1071,7 @@ namespace IntranetPortal.Base.Services
                         await _assetRepository.UpdateUsageStatusAsync(assetId, previousStatus, modifiedBy);
                     }
 
-                    if(!string.IsNullOrWhiteSpace(previousLocation))
+                    if (!string.IsNullOrWhiteSpace(previousLocation))
                     {
                         await _assetRepository.UpdateCurrentLocationAsync(assetId, previousLocation, modifiedBy);
                     }
@@ -846,9 +1185,9 @@ namespace IntranetPortal.Base.Services
             if (string.IsNullOrEmpty(assetId)) { throw new ArgumentNullException(nameof(assetId), "The required parameter [AssetID] is missing. The request cannot be processed."); }
             try
             {
-                if(usageYear != null && usageYear > 0)
+                if (usageYear != null && usageYear > 0)
                 {
-                    if(usageMonth != null && usageMonth > 0)
+                    if (usageMonth != null && usageMonth > 0)
                     {
                         var entities = await _assetUsageRepository.GetByAssetIdAndYearAndMonthAsync(assetId, usageYear.Value, usageMonth.Value);
                         if (entities != null && entities.Count > 0) { assetUsages = entities.ToList(); }
@@ -861,7 +1200,7 @@ namespace IntranetPortal.Base.Services
                 }
                 else
                 {
-                    if(usageMonth != null & usageMonth > 0 && usageMonth < 13)
+                    if (usageMonth != null & usageMonth > 0 && usageMonth < 13)
                     {
                         int usageYearInt = DateTime.Now.Year;
                         var entities = await _assetUsageRepository.GetByAssetIdAndYearAndMonthAsync(assetId, usageYearInt, usageMonth.Value);
@@ -1117,8 +1456,8 @@ namespace IntranetPortal.Base.Services
         {
             List<AssetIncident> assetIncidents = new List<AssetIncident>();
             if (string.IsNullOrEmpty(assetId)) { throw new ArgumentNullException(nameof(assetId), "The required parameter [AssetID] is missing. The request cannot be processed."); }
-            if(incidentYear < 1) { throw new ArgumentException(nameof(incidentYear)); }
-            
+            if (incidentYear < 1) { throw new ArgumentException(nameof(incidentYear)); }
+
             try
             {
                 var entities = await _assetIncidentRepository.GetByAssetIdAndYearAsync(assetId, incidentYear);
@@ -1340,7 +1679,7 @@ namespace IntranetPortal.Base.Services
         {
             List<AssetMaintenance> assetMaintenanceList = new List<AssetMaintenance>();
             if (string.IsNullOrEmpty(assetId)) { throw new ArgumentNullException(nameof(assetId), "The required parameter [AssetID] is missing. The request cannot be processed."); }
-            if(maintenanceYear < 1) { throw new ArgumentException(nameof(maintenanceYear)); }
+            if (maintenanceYear < 1) { throw new ArgumentException(nameof(maintenanceYear)); }
             try
             {
                 var entities = await _assetMaintenanceRepository.GetByAssetIdAndYearAsync(assetId, maintenanceYear);
@@ -1358,7 +1697,7 @@ namespace IntranetPortal.Base.Services
             List<AssetMaintenance> assetMaintenanceList = new List<AssetMaintenance>();
             if (string.IsNullOrEmpty(assetId)) { throw new ArgumentNullException(nameof(assetId), "The required parameter [AssetID] is missing. The request cannot be processed."); }
             if (maintenanceYear < 1) { throw new ArgumentException(nameof(maintenanceYear)); }
-            if(maintenanceMonth < 1) { throw new ArgumentException(nameof(maintenanceMonth)); }
+            if (maintenanceMonth < 1) { throw new ArgumentException(nameof(maintenanceMonth)); }
             try
             {
                 var entities = await _assetMaintenanceRepository.GetByAssetIdAndYearAndMonthAsync(assetId, maintenanceYear, maintenanceMonth);
@@ -1415,7 +1754,7 @@ namespace IntranetPortal.Base.Services
                 bool firstSuccess = await _assetMovementRepository.AddAssetMovementAsync(assetMovement);
                 if (firstSuccess)
                 {
-                    await _assetRepository.UpdateBaseLocationAsync(assetMovement.AssetID, assetMovement.MovedToLocationID.Value, assetMovement.MovedToLocationName, assetMovement.ModifiedBy);
+                    await _assetRepository.UpdateBaseLocationAsync(assetMovement.AssetID, assetMovement.MovedToLocationID.Value, assetMovement.MovedToLocationName, assetMovement.MovedToBinLocationID, assetMovement.ModifiedBy);
                     IsSuccessful = true;
                 }
             }
@@ -1451,7 +1790,7 @@ namespace IntranetPortal.Base.Services
                 bool firstSuccess = await _assetMovementRepository.EditAsync(assetMovement);
                 if (firstSuccess)
                 {
-                    await _assetRepository.UpdateBaseLocationAsync(assetMovement.AssetID, assetMovement.MovedToLocationID.Value, assetMovement.MovedToLocationName, assetMovement.ModifiedBy);
+                    await _assetRepository.UpdateBaseLocationAsync(assetMovement.AssetID, assetMovement.MovedToLocationID.Value, assetMovement.MovedToLocationName, assetMovement.MovedToBinLocationID, assetMovement.ModifiedBy);
                     IsSuccessful = true;
                 }
             }
@@ -1529,7 +1868,7 @@ namespace IntranetPortal.Base.Services
         {
             List<AssetMovement> assetMovementList = new List<AssetMovement>();
             if (string.IsNullOrEmpty(assetId)) { throw new ArgumentNullException(nameof(assetId), "The required parameter [AssetID] is missing. The request cannot be processed."); }
-            if(movementYear < 1) { throw new ArgumentException(nameof(movementYear)); }
+            if (movementYear < 1) { throw new ArgumentException(nameof(movementYear)); }
             try
             {
                 var entities = await _assetMovementRepository.GetByAssetIdAndYearAsync(assetId, movementYear);

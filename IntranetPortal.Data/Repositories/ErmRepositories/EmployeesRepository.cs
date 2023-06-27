@@ -292,7 +292,7 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
             sb.Append($"LEFT JOIN gst_coys c ON e.coy_id = c.coy_code ");
             sb.Append($"LEFT JOIN gst_depts d ON e.dept_id = d.deptqk ");
             sb.Append($"LEFT JOIN gst_units u ON e.unit_id = u.unitqk ");
-            sb.Append($"WHERE (e.is_dx = false) AND ORDER BY p.fullname;");
+            sb.Append($"WHERE (e.is_dx = false) ORDER BY p.fullname;");
             query = sb.ToString();
             try
             {

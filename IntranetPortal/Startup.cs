@@ -30,7 +30,6 @@ namespace IntranetPortal
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-
             string connectionString = Configuration.GetConnectionString("PortalConnection");
             services.AddTransient<NpgsqlConnection>(e => new NpgsqlConnection(connectionString));
             services.AddAuthentication(SecurityConstants.ChxCookieAuthentication).AddCookie(SecurityConstants.ChxCookieAuthentication, options =>
@@ -73,6 +72,11 @@ namespace IntranetPortal
 
             app.UseEndpoints(endpoints =>
             {
+                endpoints.MapAreaControllerRoute(
+                    name: "WKS",
+                areaName: "WKS",
+                 pattern: "WKS/{controller=Home}/{action=Index}/{id?}");
+
                 endpoints.MapAreaControllerRoute(
                     name: "AssetManager",
                 areaName: "AssetManager",

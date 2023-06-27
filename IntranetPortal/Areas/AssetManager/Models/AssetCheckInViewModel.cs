@@ -15,7 +15,7 @@ namespace IntranetPortal.Areas.AssetManager.Models
         [Required]
         public string AssetID { get; set; }
 
-        [Display(Name = "Equipment")]
+        [Display(Name = "Equipment Name")]
         public string AssetName { get; set; }
 
         public string AssetDescription { get; set; }

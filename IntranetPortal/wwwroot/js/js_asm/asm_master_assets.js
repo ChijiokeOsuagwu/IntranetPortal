@@ -34,6 +34,24 @@
                 })
             }
         })
+
+    $("#BinLocationName").autocomplete(
+        {
+            minLength: 3,
+            source: function (request, response) {
+                var text = $("#BinLocationName").val();
+                $.ajax({
+                    type: "GET",
+                    url: "/AssetManager/Home/GetBinLocationNames",
+                    data: { text: request.term },
+                    success: function (data) {
+                        response($.map(data, function (item) {
+                            return { label: item, value: item }
+                        }))
+                    }
+                })
+            }
+        })
 });
 
 //=============== Script to populate fields with the AssetName retrieved by the autocomplete function ================================//

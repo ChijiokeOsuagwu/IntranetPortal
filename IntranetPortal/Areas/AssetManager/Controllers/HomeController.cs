@@ -11,10 +11,12 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using IntranetPortal.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace IntranetPortal.Areas.AssetManager.Controllers
 {
     [Area("AssetManager")]
+    [Authorize]
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
@@ -31,11 +33,13 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
             _assetManagerService = assetManagerService;
         }
 
+        [Authorize(Roles = "AMSVWHMPG, XYALLACCZ")]
         public IActionResult Index()
         {
             return View();
         }
 
+        [Authorize(Roles = "AMSASSVWL, XYALLACCZ")]
         public async Task<IActionResult> AssetList(int? sp, int? pg = null)
         {
             IEnumerable<Asset> assetList = new List<Asset>();
@@ -94,6 +98,16 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
             string model = JsonConvert.SerializeObject(new { asset_id = asset.AssetID, asset_type_id = asset.AssetTypeID, asset_category_id = asset.AssetCategoryID }, Formatting.Indented);
             return Json(model);
         }
+
+        [HttpGet]
+        public JsonResult GetBinLocationNames(string text)
+        {
+            List<string> binLocations = _assetManagerService.SearchAssetBinLocationsByNameAsync(text).Result.Select(x => x.AssetBinLocationName).ToList();
+            return Json(binLocations);
+        }
+
+
+
         #endregion
     }
 }
