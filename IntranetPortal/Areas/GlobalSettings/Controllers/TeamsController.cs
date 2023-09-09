@@ -6,6 +6,7 @@ using IntranetPortal.Areas.GlobalSettings.Models;
 using IntranetPortal.Base.Models.GlobalSettingsModels;
 using IntranetPortal.Base.Services;
 using IntranetPortal.Configurations;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -14,6 +15,7 @@ using Microsoft.Extensions.Configuration;
 namespace IntranetPortal.Areas.GlobalSettings.Controllers
 {
     [Area("GlobalSettings")]
+    [Authorize]
     public class TeamsController : Controller
     {
         private readonly IConfiguration _configuration;
@@ -32,6 +34,8 @@ namespace IntranetPortal.Areas.GlobalSettings.Controllers
 
         //==================== Teams Controller Actions ====================================================================//
         #region Teams Actions
+
+        [Authorize(Roles = "GBSVWASTT, GBSMGASTT, XYALLACCZ")]
         public async Task<IActionResult> List(string searchString = null)
         {
             TeamListViewModel model = new TeamListViewModel();
@@ -49,6 +53,7 @@ namespace IntranetPortal.Areas.GlobalSettings.Controllers
             return View(model);
         }
 
+        [Authorize(Roles = "GBSMGASTT, XYALLACCZ")]
         [HttpGet]
         public async Task<IActionResult> AddNew()
         {
@@ -59,6 +64,7 @@ namespace IntranetPortal.Areas.GlobalSettings.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "GBSMGASTT, XYALLACCZ")]
         public async Task<IActionResult> AddNew(TeamViewModel model)
         {
             if (ModelState.IsValid)
@@ -92,6 +98,7 @@ namespace IntranetPortal.Areas.GlobalSettings.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "GBSMGASTT, XYALLACCZ")]
         public async Task<IActionResult> Edit(string id)
         {
             Team team = new Team();
@@ -115,6 +122,7 @@ namespace IntranetPortal.Areas.GlobalSettings.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "GBSMGASTT, XYALLACCZ")]
         public async Task<IActionResult> Edit(TeamViewModel model)
         {
             if (ModelState.IsValid)
@@ -148,6 +156,7 @@ namespace IntranetPortal.Areas.GlobalSettings.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "GBSMGASTT, XYALLACCZ")]
         public async Task<IActionResult> Delete(string id)
         {
             Team team = new Team();
@@ -169,6 +178,7 @@ namespace IntranetPortal.Areas.GlobalSettings.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "GBSMGASTT, XYALLACCZ")]
         public async Task<IActionResult> Delete(TeamViewModel model)
         {
             if (model != null)
@@ -198,6 +208,8 @@ namespace IntranetPortal.Areas.GlobalSettings.Controllers
 
         //======================== Team Members Controller Actions ==================================================================//
         #region Team Members Actions
+
+        [Authorize(Roles = "GBSVWASTT, GBSMGASTT, XYALLACCZ")]
         public async Task<IActionResult> Members(string id, string searchString = null)
         {
             TeamMembersListViewModel model = new TeamMembersListViewModel();
@@ -222,6 +234,7 @@ namespace IntranetPortal.Areas.GlobalSettings.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "GBSMGASTT, XYALLACCZ")]
         public async Task<IActionResult> AddMember(string id)
         {
             TeamMemberViewModel model = new TeamMemberViewModel();
@@ -236,6 +249,7 @@ namespace IntranetPortal.Areas.GlobalSettings.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "GBSMGASTT, XYALLACCZ")]
         public async Task<IActionResult> AddMember(TeamMemberViewModel model)
         {
             if (ModelState.IsValid)
@@ -269,6 +283,7 @@ namespace IntranetPortal.Areas.GlobalSettings.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "GBSMGASTT, XYALLACCZ")]
         public async Task<IActionResult> EditMember(int id)
         {
             TeamMemberViewModel model = new TeamMemberViewModel();
@@ -285,6 +300,7 @@ namespace IntranetPortal.Areas.GlobalSettings.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "GBSMGASTT, XYALLACCZ")]
         public async Task<IActionResult> EditMember(TeamMemberViewModel model)
         {
             if (ModelState.IsValid)
@@ -316,6 +332,7 @@ namespace IntranetPortal.Areas.GlobalSettings.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "GBSMGASTT, XYALLACCZ")]
         public async Task<IActionResult> RemoveMember(int id)
         {
             TeamMemberViewModel model = new TeamMemberViewModel();
@@ -332,6 +349,7 @@ namespace IntranetPortal.Areas.GlobalSettings.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "GBSMGASTT, XYALLACCZ")]
         public async Task<IActionResult> RemoveMember(TeamMemberViewModel model)
         {
             if (ModelState.IsValid)

@@ -1,0 +1,143 @@
+﻿@model IntranetPortal.Areas.GlobalSettings.Models.ManageProgramViewModel
+@{
+    ViewData["Title"] = "OfficeManager | Programme Settings";
+}
+<div class="container">
+    <h4>Programme Settings</h4>
+    <hr />
+    <div class="card" style="max-width:1000px">
+        <div class="card-header bg-info">
+            <h4 class="text-white">Manage Programme</h4>
+        </div>
+        <div class="card-body bg-secondary">
+            @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bi bi-x-circle"></i>
+                    <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            @if (!String.IsNullOrEmpty(Model.ViewModelSuccessMessage))
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="bi bi-check-circle"></i>
+                    <span class="fw-bold">@Model.ViewModelSuccessMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            @if (!String.IsNullOrEmpty(Model.ViewModelWarningMessage))
+            {
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                    <i class="bi bi-exclamation-circle"></i>
+                    <span class="fw-bold">@Model.ViewModelWarningMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+        <form asp-area="GlobalSettings" asp-controller="Programs" asp-action="ManageProgram" method="post" autocomplete="off">
+            <div class="row">
+                <div class="col-md-2 mb-2">
+                    <label asp-for="ProgramCode" class="form-label text-white fw-bold"></label>
+                    <input asp-for="ProgramCode" class="form-control fw-bold">
+                    <div><span asp-validation-for="ProgramCode" class="text-danger"></span></div>
+                </div>
+                <div class="col-md-5 mb-2">
+                    <label asp-for="StartTime" class="form-label text-white fw-bold"></label>
+                    <input asp-for="StartTime" class="form-control fw-bold" type="time">
+                    <div><span asp-validation-for="StartTime" class="text-danger"></span></div>
+                </div>
+                <div class="col-md-5 mb-2">
+                    <label asp-for="EndTime" class="form-label text-white fw-bold"></label>
+                    <input asp-for="EndTime" class="form-control fw-bold" type="time">
+                    <div><span asp-validation-for="EndTime" class="text-danger"></span></div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12 mb-2">
+                    <label asp-for="ProgramTitle" class="form-label text-white fw-bold"></label>
+                    <input asp-for="ProgramTitle" class="form-control fw-bold" />
+                    <div><span asp-validation-for="ProgramTitle" class="text-danger"></span></div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12 mb-2">
+                    <label asp-for="ProgramDescription" class="form-label text-white fw-bold"></label>
+                    <textarea asp-for="ProgramDescription" class="form-control fw-bold" rows="2">@Model.ProgramDescription</textarea>
+                    <div><span asp-validation-for="ProgramDescription" class="text-danger"></span></div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-4 mb-2">
+                    <label asp-for="ProgramType" class="form-label text-white fw-bold"></label>
+                    <select asp-for="ProgramType" class="form-control fw-bold">
+                        <option value=""> Select </option>
+                        <option value="Regular"> Regular </option>
+                        <option value="One-Off"> One-Off </option>
+                    </select>
+                    <div><span asp-validation-for="ProgramType" class="text-danger"></span></div>
+                </div>
+                <div class="col-md-4 mb-2">
+                    <label asp-for="ProgramBelt" class="form-label text-white fw-bold"></label>
+                    <select asp-for="ProgramBelt" asp-items="@ViewBag.ProgramBeltList" class="form-control fw-bold">
+                        <option value="">Select</option>
+                    </select>
+                    <div><span asp-validation-for="ProgramBelt" class="text-danger"></span></div>
+                </div>
+                <div class="col-md-4 mb-2">
+                    <label asp-for="Frequency" class="form-label text-white fw-bold"></label>
+                    <select asp-for="Frequency" class="form-control fw-bold">
+                        <option value=""> Select </option>
+                        <option value="1"> Daily </option>
+                        <option value="2"> Weekly </option>
+                        <option value="3"> Monthly </option>
+                        <option value="4"> Quarterly </option>
+                        <option value="5"> Half Yearly </option>
+                        <option value="6"> Yearly </option>
+                    </select>
+                    <div><span asp-validation-for="Frequency" class="text-danger"></span></div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label asp-for="HostStationID" class="form-label text-white fw-bold"></label>
+                    <select asp-for="HostStationID" asp-items="@ViewBag.StationList" class="form-control fw-bold">
+                        <option value="">Select</option>
+                    </select>
+                    <div><span asp-validation-for="HostStationID" class="text-danger"></span></div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label asp-for="Platform" class="form-label text-white fw-bold"></label>
+                    <select asp-for="Platform" asp-items="@ViewBag.ProgramPlatformList" class="form-control fw-bold">
+                        <option value="">Select</option>
+                    </select>
+                    <div><span asp-validation-for="Platform" class="text-danger"></span></div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label asp-for="Status" class="form-label text-white fw-bold"></label>
+                    <select asp-for="Status" class="form-control fw-bold">
+                        <option value=""> Select </option>
+                        <option value="0"> Running </option>
+                        <option value="1"> Suspended </option>
+                        <option value="2"> Discountinued </option>
+                    </select>
+                    <div><span asp-validation-for="Status" class="text-danger"></span></div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                        <a asp-area="GlobalSettings" asp-controller="Programs" asp-action="List" class="btn btn-dark ml-1" style="width:100px" title="Go Back">
+                            <span class="text-white">Back</span>
+                        </a>
+
+                    <a asp-area="GlobalSettings" asp-controller="Programs" asp-action="ManageProgram" asp-route-id="@Model.ProgramID" class="btn btn-warning ml-1" style="width:100px" title="Clear">
+                        <span class="text-white">Clear</span>
+                    </a>
+                    <button type="submit" class="btn btn-info ml-2" title="Save" style="width:200px"><span class="text-white">Save</span></button>
+                </div>
+            </div>
+            <input type="hidden" asp-for="ProgramID" />
+            <input type="hidden" asp-for="HostStationName" />
+           </form>
+        </div>
+    </div>
+</div>

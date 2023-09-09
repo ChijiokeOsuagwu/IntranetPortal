@@ -34,7 +34,7 @@ namespace IntranetPortal.Areas.ContentManager.Controllers
             _dataProtector = dataProtectionProvider.CreateProtector(dataProtectionEncryptionStrings.RouteValuesEncryptionCode);
         }
 
-        [Authorize(Roles = "PCMARTVWL, XYALLACCZ")]
+        [Authorize(Roles = "PCMMGACNT, XYALLACCZ")]
         public async Task<IActionResult> Index()
         {
             ArticlesListViewModel model = new ArticlesListViewModel();
@@ -47,7 +47,7 @@ namespace IntranetPortal.Areas.ContentManager.Controllers
             return View(model);
         }
 
-        [Authorize(Roles = "PCMARTADN, XYALLACCZ")]
+        [Authorize(Roles = "PCMMGACNT, XYALLACCZ")]
         public IActionResult Add()
         {
             ArticlesAddViewModel model = new ArticlesAddViewModel();
@@ -55,7 +55,7 @@ namespace IntranetPortal.Areas.ContentManager.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "PCMARTADN, XYALLACCZ")]
+        [Authorize(Roles = "PCMMGACNT, XYALLACCZ")]
         public async Task<IActionResult> Add(ArticlesAddViewModel model)
         {
             if (ModelState.IsValid)
@@ -108,7 +108,7 @@ namespace IntranetPortal.Areas.ContentManager.Controllers
             return View(model);
         }
 
-        [Authorize(Roles = "PCMARTDLT, XYALLACCZ")]
+        [Authorize(Roles = "PCMMGACNT, XYALLACCZ")]
         public async Task<IActionResult> Delete(string id)
         {
             int PostId = Convert.ToInt32(_dataProtector.Unprotect(id));
@@ -122,7 +122,7 @@ namespace IntranetPortal.Areas.ContentManager.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "PCMARTDLT, XYALLACCZ")]
+        [Authorize(Roles = "PCMMGACNT, XYALLACCZ")]
         public async Task<IActionResult> Delete(ArticlesDeleteViewModel model)
         {
             if (model == null || model.Id < 1)
@@ -151,7 +151,7 @@ namespace IntranetPortal.Areas.ContentManager.Controllers
             return RedirectToAction("Index", "Articles");
         }
 
-        [Authorize(Roles = "PCMARTEDT, XYALLACCZ")]
+        [Authorize(Roles = "PCMMGACNT, XYALLACCZ")]
         public async Task<IActionResult> Edit(string id)
         {
             int PostId = 0;
@@ -169,7 +169,7 @@ namespace IntranetPortal.Areas.ContentManager.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "PCMARTEDT, XYALLACCZ")]
+        [Authorize(Roles = "PCMMGACNT, XYALLACCZ")]
         public async Task<IActionResult> Edit(ArticleEditViewModel model)
         {
             if (ModelState.IsValid)

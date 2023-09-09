@@ -85,5 +85,27 @@ namespace IntranetPortal.Base.Services
         Task<IEnumerable<Employee>> GetNonTeamMembersByTeamIdAsync(string teamId);
 
         #endregion
+
+        #region Program Service Methods
+        
+        //===== Program Write Service Methods ===========//
+        Task<bool> CreateProgramAsync(Programme program);
+        Task<bool> DeleteProgramAsync(int programId);
+        Task<bool> UpdateProgramAsync(Programme program);
+
+        //===== Program Read Service Methods ============//
+        Task<List<Programme>> GetProgramsAsync();
+        Task<Programme> GetProgramAsync(int Id);
+        Task<Programme> GetProgramAsync(string programTitle);
+        Task<List<Programme>> SearchProgramsAsync(string programType = null, string programBelt=null, string programTitle=null);
+
+        //======== Programme Belt Service Methods ==============//
+        Task<List<ProgrammeBelt>> GetProgrammeBeltsAsync();
+
+        //======== Program Platform Service Methods =======================//
+        Task<List<ProgramPlatform>> GetProgramPlatformsAsync();
+
+        #endregion
+
     }
 }

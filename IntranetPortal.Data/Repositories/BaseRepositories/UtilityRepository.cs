@@ -1,4 +1,5 @@
 ﻿using IntranetPortal.Base.Models.BaseModels;
+using IntranetPortal.Base.Models.WksModels;
 using IntranetPortal.Base.Repositories.BaseRepositories;
 using Microsoft.Extensions.Configuration;
 using Npgsql;
@@ -19,7 +20,7 @@ namespace IntranetPortal.Data.Repositories.BaseRepositories
             _config = configuration;
         }
 
-        //=============================== Database Connectivity Test Action Method  ===============================//
+        //=============== Database Connectivity Test Action Method  ===============================//
         #region Database Connectivity Test Action Methods
         public async Task<bool> CheckDatabaseConnectionAsync()
         {
@@ -41,7 +42,7 @@ namespace IntranetPortal.Data.Repositories.BaseRepositories
 
         #endregion
 
-        //================================ Auto Number Action Methods ============================================//
+        //=============== Auto Number Action Methods ============================================//
         #region Auto Number Action Methods
         public async Task<string> GetAutoNumberAsync(string numberType)
         {
@@ -97,7 +98,7 @@ namespace IntranetPortal.Data.Repositories.BaseRepositories
             }
             return rows > 0;
         }
-        
+
         public async Task<int> GetNumberCount(AutoNumberType type, int day, int month, int year)
         {
             int recordCount = -1;
@@ -105,7 +106,7 @@ namespace IntranetPortal.Data.Repositories.BaseRepositories
             StringBuilder sb = new StringBuilder();
             sb.Append("SELECT COUNT(cdn_rgr_id) FROM public.gst_cdn_rgr ");
             sb.Append("WHERE(cdn_typ = @cdn_typ AND dd = @dd AND mm = @mm AND yy = @yy);");
-            string query = sb.ToString(); 
+            string query = sb.ToString();
             try
             {
                 await conn.OpenAsync();
@@ -174,7 +175,7 @@ namespace IntranetPortal.Data.Repositories.BaseRepositories
 
         #endregion
 
-        //=============================== Messages Action Methods ================================================//
+        //=============== Messages Action Methods ================================================//
         #region Messages Action Methods
         public async Task<List<Message>> GetMessagesByReceipientIdAsync(string recipientId)
         {
@@ -504,7 +505,7 @@ namespace IntranetPortal.Data.Repositories.BaseRepositories
         }
         #endregion
 
-        //=============================== Activity History Action methods ======================================//
+        //=============== Activity History Action methods ======================================//
         #region Activity History Action Methods
         public async Task<bool> InsertActivityHistoryAsync(ActivityHistory activityHistory)
         {
@@ -540,7 +541,7 @@ namespace IntranetPortal.Data.Repositories.BaseRepositories
                     await conn.CloseAsync();
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 await conn.CloseAsync();
                 return false; ;
@@ -549,7 +550,107 @@ namespace IntranetPortal.Data.Repositories.BaseRepositories
         }
         #endregion
 
-        //=============================== Applications Action Methods ==========================================//
+        //=============== Entity Activity History Action methods ======================================//
+        #region Entity Activity History Action Methods
+        public async Task<bool> InsertTaskItemActivityHistoryAsync(TaskItemActivityHistory taskItemActivityHistory)
+        {
+            var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
+            int rows = 0;
+            StringBuilder sb = new StringBuilder();
+            sb.Append($"INSERT INTO public.utl_ntt_hst(actv_dsc, ");
+            sb.Append($"actv_dt, actv_by, tsk_itm_id) ");
+            sb.Append($"VALUES (@actv_dsc, @actv_dt, @actv_by, ");
+            sb.Append($"@tsk_itm_id); ");
+            string query = sb.ToString();
+
+            await conn.OpenAsync();
+            //Insert data
+            using (var cmd = new NpgsqlCommand(query, conn))
+            {
+                var actv_dt = cmd.Parameters.Add("@actv_dt", NpgsqlDbType.TimestampTz);
+                var actv_dsc = cmd.Parameters.Add("@actv_dsc", NpgsqlDbType.Text);
+                var actv_by = cmd.Parameters.Add("@actv_by", NpgsqlDbType.Text);
+                var tsk_itm_id = cmd.Parameters.Add("@tsk_itm_id", NpgsqlDbType.Bigint);
+                cmd.Prepare();
+                actv_dt.Value = taskItemActivityHistory.ActivityTime ?? DateTime.UtcNow;
+                actv_dsc.Value = taskItemActivityHistory.ActivityDescription ?? (object)DBNull.Value;
+                actv_by.Value = taskItemActivityHistory.ActivityBy ?? (object)DBNull.Value;
+                tsk_itm_id.Value = taskItemActivityHistory.TaskItemId.Value;
+
+                rows = await cmd.ExecuteNonQueryAsync();
+            }
+            await conn.CloseAsync();
+            return rows > 0;
+        }
+
+        public async Task<bool> InsertTaskListActivityHistoryAsync(TaskListActivityHistory taskListActivityHistory)
+        {
+            var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
+            int rows = 0;
+            StringBuilder sb = new StringBuilder();
+            sb.Append($"INSERT INTO public.utl_ntt_hst(actv_dsc, ");
+            sb.Append($"actv_dt, actv_by, tsk_lst_id) ");
+            sb.Append($"VALUES (@actv_dsc, @actv_dt, @actv_by, ");
+            sb.Append($"@tsk_lst_id); ");
+            string query = sb.ToString();
+
+            await conn.OpenAsync();
+            //Insert data
+            using (var cmd = new NpgsqlCommand(query, conn))
+            {
+                var actv_dt = cmd.Parameters.Add("@actv_dt", NpgsqlDbType.TimestampTz);
+                var actv_dsc = cmd.Parameters.Add("@actv_dsc", NpgsqlDbType.Text);
+                var actv_by = cmd.Parameters.Add("@actv_by", NpgsqlDbType.Text);
+                var tsk_lst_id = cmd.Parameters.Add("@tsk_lst_id", NpgsqlDbType.Integer);
+                cmd.Prepare();
+                actv_dt.Value = taskListActivityHistory.ActivityTime ?? DateTime.UtcNow;
+                actv_dsc.Value = taskListActivityHistory.ActivityDescription ?? (object)DBNull.Value;
+                actv_by.Value = taskListActivityHistory.ActivityBy ?? (object)DBNull.Value;
+                tsk_lst_id.Value = taskListActivityHistory.TaskListId.Value;
+                rows = await cmd.ExecuteNonQueryAsync();
+            }
+            await conn.CloseAsync();
+            return rows > 0;
+        }
+
+        public async Task<List<TaskItemActivityHistory>> GetTaskItemActivityHistoryByTaskItemIdAsync(long taskItemId)
+        {
+            List<TaskItemActivityHistory> history = new List<TaskItemActivityHistory>();
+            var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
+            string query = String.Empty;
+            StringBuilder sb = new StringBuilder();
+            sb.Append("SELECT actv_hst_id, actv_dsc, actv_dt, actv_by, ");
+            sb.Append("tsk_itm_id FROM public.utl_ntt_hst ");
+            sb.Append("WHERE (tsk_itm_id = @tsk_itm_id) ");
+            sb.Append("ORDER BY actv_hst_id DESC;");
+            query = sb.ToString();
+            await conn.OpenAsync();
+            // Retrieve all rows
+            using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+            {
+                var tsk_itm_id = cmd.Parameters.Add("@tsk_itm_id", NpgsqlDbType.Bigint);
+                await cmd.PrepareAsync();
+                tsk_itm_id.Value = taskItemId;
+                var reader = await cmd.ExecuteReaderAsync();
+                while (await reader.ReadAsync())
+                {
+                    history.Add(new TaskItemActivityHistory()
+                    {
+                        ActivityBy = reader["actv_by"] == DBNull.Value ? string.Empty : reader["actv_by"].ToString(),
+                        ActivityDescription = reader["actv_dsc"] == DBNull.Value ? string.Empty : reader["actv_dsc"].ToString(),
+                        ActivityHistoryId = reader["actv_hst_id"] == DBNull.Value ? 0 : (long)reader["actv_hst_id"],
+                        ActivityTime = reader["actv_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["actv_dt"],
+                        TaskItemId = reader["tsk_itm_id"] == DBNull.Value ? (long?)null : (long)reader["tsk_itm_id"],
+                    });
+                }
+            }
+            await conn.CloseAsync();
+            return history;
+        }
+
+        #endregion
+
+        //=============== Applications Action Methods ==========================================//
         #region Applications Action Methods
         public async Task<List<SystemApplication>> GetApplicationsAsync()
         {
@@ -587,7 +688,7 @@ namespace IntranetPortal.Data.Repositories.BaseRepositories
         }
         #endregion
 
-        //=============================== Industry Types Action Methods ==========================================//
+        //=============== Industry Types Action Methods ==========================================//
         #region Industry Types Action Methods
         public async Task<List<IndustryType>> GetIndustryTypesAsync()
         {

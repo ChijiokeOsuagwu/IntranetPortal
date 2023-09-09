@@ -34,15 +34,14 @@ namespace IntranetPortal.Areas.UserAdministration.Controllers
             _dataProtector = dataProtectionProvider.CreateProtector(dataProtectionEncryptionStrings.RouteValuesEncryptionCode);
         }
 
-        [Authorize(Roles = "UADUSRHMP, XYALLACCZ")]
+        [Authorize(Roles = "XYALLACCZ")]
         public IActionResult Index()
         {
             return View();
         }
 
-
         [HttpGet]
-        [Authorize(Roles = "UADPWDRST, XYALLACCZ")]
+        [Authorize(Roles = "XYALLACCZ")]
         public async Task<IActionResult> ResetUserPassword(string id)
         {
             PasswordResetViewModel model = new PasswordResetViewModel();
@@ -72,7 +71,7 @@ namespace IntranetPortal.Areas.UserAdministration.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "UADPWDRST, XYALLACCZ")]
+        [Authorize(Roles = "XYALLACCZ")]
         public async Task<IActionResult> ResetUserPassword(PasswordResetViewModel model)
         {
             if (ModelState.IsValid)
@@ -133,7 +132,7 @@ namespace IntranetPortal.Areas.UserAdministration.Controllers
         }
 
         [HttpGet]
-        [Authorize(Roles = "UADUSREDT, XYALLACCZ")]
+        [Authorize(Roles = "XYALLACCZ")]
         public async Task<IActionResult> EditUserAccount(string id)
         {
             EditUserAccountViewModel model = new EditUserAccountViewModel();
@@ -165,7 +164,7 @@ namespace IntranetPortal.Areas.UserAdministration.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "UADUSREDT, XYALLACCZ")]
+        [Authorize(Roles = "XYALLACCZ")]
         public async Task<IActionResult> EditUserAccount(EditUserAccountViewModel model)
         {
             if (ModelState.IsValid)
@@ -223,7 +222,7 @@ namespace IntranetPortal.Areas.UserAdministration.Controllers
             return View(model);
         }
 
-        [Authorize(Roles = "UADPMSVWL, XYALLACCZ")]
+        [Authorize(Roles = "XYALLACCZ")]
         public async Task<IActionResult> UserPermissions(string id, string sortOrder, string currentFilter, string searchString, int? pageNumber)
         {
             string userId = id;
@@ -255,7 +254,7 @@ namespace IntranetPortal.Areas.UserAdministration.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "UADPMSADN, XYALLACCZ")]
+        [Authorize(Roles = "XYALLACCZ")]
         public string GrantUserPermission(string usd, string rld)
         {
             if(string.IsNullOrWhiteSpace(usd) && string.IsNullOrWhiteSpace(rld)){return "parameter";}
@@ -278,7 +277,7 @@ namespace IntranetPortal.Areas.UserAdministration.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "UADPMSRVK, XYALLACCZ")]
+        [Authorize(Roles = "XYALLACCZ")]
         public string RevokeUserPermission(string usd, string rld)
         {
             if (string.IsNullOrWhiteSpace(usd) || string.IsNullOrWhiteSpace(rld)) { return "parameter"; }
@@ -300,8 +299,7 @@ namespace IntranetPortal.Areas.UserAdministration.Controllers
             }
         }
 
-
-        [Authorize(Roles = "UADPMSVWL, XYALLACCZ")]
+        [Authorize(Roles = "XYALLACCZ")]
         public async Task<IActionResult> PermissionsList(string id, string ad = null)
         {
             string userId = id;
@@ -330,7 +328,7 @@ namespace IntranetPortal.Areas.UserAdministration.Controllers
             return View(model);
         }
 
-
+        [Authorize(Roles = "XYALLACCZ")]
         public async Task<IActionResult> LoginHistory(string nm, int? yy = null, int? mm = null, int? dd = null)
         {
             LoginHistoryListViewModel model = new LoginHistoryListViewModel();

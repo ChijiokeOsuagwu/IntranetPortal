@@ -9,6 +9,7 @@ using IntranetPortal.Base.Models.BaseModels;
 using IntranetPortal.Base.Services;
 using IntranetPortal.Helpers;
 using IntranetPortal.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -41,6 +42,7 @@ namespace IntranetPortal.Areas.BAMS.Controllers
             return View();
         }
 
+        [Authorize(Roles = "BAMSNDNTF, XYALLACCZ")]
         public async Task<IActionResult> CreateMessage(int? id, int? tp)
         {
             CreateMessageViewModel model = new CreateMessageViewModel();
@@ -96,6 +98,7 @@ namespace IntranetPortal.Areas.BAMS.Controllers
             return RedirectToAction("AssignmentDetails", "Home", new { id = id.Value });
         }
 
+        [Authorize(Roles = "BAMSNDNTF, XYALLACCZ")]
         public IActionResult AddRecipient(int id, int t, string m)
         {
             AddRecipientViewModel model = new AddRecipientViewModel();
@@ -107,6 +110,7 @@ namespace IntranetPortal.Areas.BAMS.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "BAMSNDNTF, XYALLACCZ")]
         public async Task<IActionResult> AddRecipient(AddRecipientViewModel model)
         {
             if (ModelState.IsValid)

@@ -32,11 +32,6 @@ namespace IntranetPortal.Areas.WKS.Controllers
             _workspaceService = workspaceService;
         }
 
-        public IActionResult Index()
-        {
-            return View();
-        }
-
         public async Task<IActionResult> MyWorkspace(int? id, string sp = null)
         {
             MyWorkspaceViewModel model = new MyWorkspaceViewModel();
@@ -100,5 +95,67 @@ namespace IntranetPortal.Areas.WKS.Controllers
             return View(model);
         }
 
+        public async Task<IActionResult> ExecutiveWorkspace(int? id, string sp = null)
+        {
+            MyWorkspaceViewModel model = new MyWorkspaceViewModel();
+            bool IsArchived = false;
+            if (!string.IsNullOrWhiteSpace(sp))
+            {
+                switch (sp)
+                {
+                    case "archived":
+                        IsArchived = true;
+                        break;
+                    case "active":
+                        IsArchived = false;
+                        break;
+                    default:
+                        IsArchived = false;
+                        break;
+                }
+            }
+
+            Workspace workspace = new Workspace();
+            model.OwnerID = HttpContext.User.Claims.FirstOrDefault(c => c.Type.Contains("nameidentifier")).Value;
+            if (id == null || id < 1)
+            {
+                if (!String.IsNullOrWhiteSpace(model.OwnerID))
+                {
+                    workspace = await _workspaceService.GetMainWorkspaceAsync(model.OwnerID);
+                    if (workspace != null && workspace.ID > 0)
+                    {
+                        model.OpenWorkspace = workspace;
+                        model.WorkspaceID = workspace.ID;
+                    }
+                    else
+                    {
+                        bool MainWorkspaceIsCreated = await _workspaceService.CreateMainWorkspaceAsync(model.OwnerID);
+                        if (MainWorkspaceIsCreated)
+                        {
+                            workspace = await _workspaceService.GetMainWorkspaceAsync(model.OwnerID);
+                            if (workspace != null && workspace.ID > 0)
+                            {
+                                model.OpenWorkspace = workspace;
+                                model.WorkspaceID = workspace.ID;
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    return RedirectToAction("Logout", "Home", new { Area = "" });
+                }
+            }
+            else
+            {
+                model.OpenWorkspace = await _workspaceService.GetWorkspaceAsync(id.Value);
+                model.WorkspaceID = id.Value;
+            }
+
+            model.WorkspaceList = await _workspaceService.GetWorkspacesByOwnerIdAsync(model.OwnerID);
+            model.FolderList = await _workspaceService.GetProjectFoldersByWorkspaceIDAsync(model.WorkspaceID, IsArchived);
+            ViewBag.WorkspaceSelectList = new SelectList(model.WorkspaceList, "ID", "Title");
+            return View(model);
+        }
     }
 }

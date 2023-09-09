@@ -1,0 +1,322 @@
+﻿@model IntranetPortal.Areas.WKS.Models.SearchEvaluationListsViewModel
+@{
+    ViewData["Title"] = "OfficeManager | Enquiry";
+}
+<div class="container">
+    <h4>Enquiry</h4>
+    <hr />
+    <div class="row">
+        <form asp-area="WKS" asp-controller="Tasks" asp-action="SearchEvaluationLists" method="get">
+            <div class="row">
+                <div class="col-md-2">
+                    <a asp-area="WKS" asp-controller="Tasks" asp-action="index" class="btn btn-dark" style="width:100px" title="Back">
+                        <span class="text-white">Back</span>
+                    </a>
+                </div>
+                <div class="col-md-10 text-end">
+                    <select asp-for="tp" class="border-0" style="width:150px">
+                        <option value=""> Enquiry Type</option>
+                        <option value="tsk"> Task Folders </option>
+                        <option value="evl"> Evaluations</option>
+                    </select>
+                    <input asp-for="sn" class="border-0 ml-2" style="width:300px" placeholder="Enter Staff Name" />
+                    <select asp-for="mm" class="border-0 ml-2" style="width:100px">
+                        <option value="0">All</option>
+                        <option value="1">Jan</option>
+                        <option value="2">Feb</option>
+                        <option value="3">Mar</option>
+                        <option value="4">Apr</option>
+                        <option value="5">May</option>
+                        <option value="6">Jun</option>
+                        <option value="7">Jul</option>
+                        <option value="8">Aug</option>
+                        <option value="9">Sep</option>
+                        <option value="10">Oct</option>
+                        <option value="11">Nov</option>
+                        <option value="12">Dec</option>
+                    </select>
+                    <input asp-for="yy" class="border-0" style="width:100px" type="number" min="2020" max="2060" />
+                    <input type="submit" value="Search" class="btn btn-dark ml-2" style="width:100px" />
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="row">
+        @if (!String.IsNullOrEmpty(ViewBag.ErrorMessage))
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-x-circle"></i>
+                <span class="fw-bold">@ViewBag.ErrorMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+    </div>
+    @if (Model.tp == "evl")
+    {
+        @if (Model == null || Model.EvaluationHeaderList == null || Model.EvaluationHeaderList.Count < 1)
+        {
+            <div class="alert alert-info fade show mt-2" role="alert">
+                <i class="bi bi-info-circle"></i>
+                <span class="fw-bold">No record was found.</span>
+            </div>
+        }
+        else
+        {
+            @if (Model != null && Model.EvaluationHeaderList != null && Model.EvaluationHeaderList.Count > 0)
+            {
+                <div class="row mt-2">
+                    <p><h5>Task Evaluation Records</h5></p>
+                    <div class="table-responsive" style="min-height:500px">
+                        <table class="table table-hover">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th><span class="text-white fw-bold">Task List</span></th>
+                                    <th><span class="text-white fw-bold">Evaluated On</span></th>
+                                    <th><span class="text-white fw-bold">Total</span></th>
+                                    <th><span class="text-white fw-bold">Completed</span></th>
+                                    <th class="p-2"><span class="text-white fw-bold">Uncompleted</span></th>
+                                    <th><span class="text-white fw-bold">Ave.% Comp</span></th>
+                                    <th><span class="text-white fw-bold">Ave. Rating</span></th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody class="table-light">
+                                @foreach (var header in Model.EvaluationHeaderList)
+                                {
+                                    <tr>
+                                        <td>
+                                            <span class="fw-bold ml-1" title="@header.TaskListName">@header.TaskListName</span>
+                                        </td>
+                                        <td>
+                                            @if (header.EvaluationDate != null)
+                                            {
+                                                <span class="fw-bold">@header.EvaluationDate.Value.ToString("yyyy-MMM-dd")</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="fw-bold">[Unspecified]</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            <span class="fw-bold" title="Total Number of Tasks">@header.TotalNumberOfTasks</span>
+                                        </td>
+                                        <td>
+                                            <span class="fw-bold" title="Number of Completed Tasks">@header.NoOfCompletedTasks</span>
+                                        </td>
+                                        <td>
+                                            <span class="fw-bold" title="Number of Uncompleted Tasks">@header.NoOfUncompletedTasks</span>
+                                        </td>
+                                        <td>
+                                            <span class="fw-bold" title="Average % Completion">@header.AveragePercentCompletion %</span>
+                                        </td>
+                                        <td>
+                                            @if (header.AverageQualityRating == 2)
+                                            {
+                                                <h4><span class="badge rounded-pill text-dark fw-bold" style="background-color:#DFFF00; width:100px" title="Poor">Poor</span></h4>
+                                            }
+                                            else if (header.AverageQualityRating == 3)
+                                            {
+                                                <h4><span class="badge rounded-pill text-white fw-bold" style="background-color:#28b463; width:100px" title="Good">Good</span></h4>
+                                            }
+                                            else if (header.AverageQualityRating == 5)
+                                            {
+                                                <h4><span class="badge rounded-pill text-white fw-bold" title="Completed" style="background-color:#7d3c98; width:100px">Excellent</span></h4>
+                                            }
+                                            else if (header.AverageQualityRating == 1)
+                                            {
+                                                <h4><span class="badge rounded-pill text-white fw-bold" style="background-color:#e74c3c; width:100px" title="Very Poor">Very Poor</span></h4>
+                                            }
+                                            else if (header.AverageQualityRating == 4)
+                                            {
+                                                <h4><span class="badge bg-info rounded-pill text-white fw-bold" title="Very Good" style="width:100px">Very Good</span></h4>
+                                            }
+                                        </td>
+                                        <td style="vertical-align:top">
+                                            <!-- Default dropstart button -->
+                                            <div class="btn-group dropstart">
+                                                <button type="button" data-bs-toggle="dropdown" aria-expanded="false" style="border:0px">
+                                                    <span class="fw-bold" style="font-size:1.0rem;"><i class="bi bi-three-dots-vertical"></i></span>
+                                                </button>
+                                                <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton2">
+                                                    <li>
+                                                        <a class="dropdown-item" asp-area="WKS" asp-controller="Tasks" asp-action="SearchEvaluationTasks" asp-route-id="@header.Id">
+                                                            <i class="bi bi-card-checklist"></i> <span>Details</span>
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <a class="dropdown-item" asp-area="WKS" asp-controller="Tasks" asp-action="TaskListNotes" asp-route-id="@header.TaskListId">
+                                                            <i class="bi bi-stickies"></i> <span>View Notes</span>
+                                                        </a>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            }
+        }
+    }
+    else if (Model.tp == "tsk")
+    {
+        @if (Model == null || Model.TaskLists == null || Model.TaskLists.Count < 1)
+        {
+            <div class="alert alert-info fade show" role="alert">
+                <i class="bi bi-info-circle"></i>
+                <span class="fw-bold">No record was found.</span>
+            </div>
+        }
+        else
+        {
+            @if (Model != null && Model.TaskLists != null && Model.TaskLists.Count > 0)
+            {
+                <div class="row mt-2">
+                    <p><h5>Task Folder Records</h5></p>
+                    <div class="table-responsive" style="min-height:500px">
+                        <table class="table table-hover">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th class="p-2"><span class="text-white fw-bold">Name</span></th>
+                                    <th class="p-2"><span class="text-white fw-bold">Owner</span></th>
+                                    <th class="p-2"><span class="text-white fw-bold">Created On</span></th>
+                                    <th class="p-2"><span class="text-white fw-bold">Status</span></th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody class="table-light">
+                                @foreach (var taskList in Model.TaskLists)
+                                {
+                                    <tr>
+                                        <td>
+                                            @if (taskList.IsLocked)
+                                            {
+                                                <i class="bi bi-lock-fill" style="font-size:1.2rem; margin-left:3px;" title="Locked"></i>
+                                            }
+                                            else
+                                            {
+                                                <i class="bi bi-unlock" style="font-size:1.2rem; margin-left:3px;" title="Not Locked"></i>
+                                            }
+                                            <span class="fw-bold ml-1" title="@taskList.Description">@taskList.Name</span>
+                                        </td>
+                                        <td>
+                                            <span class="fw-bold ml-1" title="@taskList.OwnerName">
+                                                <i class="bi bi-person-fill" style="font-size:1.2rem;"></i>
+                                            </span>
+                                        </td>
+                                        <td>
+                                            @if (taskList.CreatedTime != null)
+                                            {
+                                                <span class="fw-bold" title="@taskList.CreatedTime.Value.ToLongDateString() @taskList.CreatedTime.Value.ToLongTimeString() GMT">@taskList.CreatedTime.Value.ToString("yyyy-MMM-dd")</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="fw-bold">[Unspecified]</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            @if (taskList.IsArchived)
+                                            {
+                                                <span class="fw-bold" title="Archived">Archived</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="fw-bold" title="Active">Active</span>
+                                            }
+                                        </td>
+                                        <td style="vertical-align:top">
+                                            <!-- Default dropstart button -->
+                                            <div class="btn-group dropstart">
+                                                <button type="button" data-bs-toggle="dropdown" aria-expanded="false" style="border:0px">
+                                                    <span class="fw-bold" style="font-size:1.0rem;"><i class="bi bi-three-dots-vertical"></i></span>
+                                                </button>
+                                                <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton2">
+                                                    <li>
+                                                        <a class="dropdown-item" asp-area="WKS" asp-controller="Tasks" asp-action="SearchTaskboard" asp-route-id="@taskList.Id">
+                                                            <i class="bi bi-card-checklist"></i> <span>Task List</span>
+                                                        </a>
+                                                    </li>
+                                                    <li><hr class="dropdown-divider"></li>
+                                                    <li>
+                                                        <a class="dropdown-item" asp-area="WKS" asp-controller="Tasks" asp-action="TaskListInfo" asp-route-id="@taskList.Id" title="Details">
+                                                            <i class="bi bi-info-lg"></i>  <span>Details</span>
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <a class="dropdown-item" href="#">
+                                                            <i class="bi bi-stickies"></i> <span>Notes</span>
+                                                        </a>
+                                                        <ul class="dropdown-menu dropdown-menu-dark dropdown-submenu">
+                                                            @if (!taskList.IsArchived)
+                                                            {
+                                                                <li>
+                                                                    <a class="dropdown-item" asp-area="WKS" asp-controller="Tasks" asp-action="AddTaskNote" asp-route-id="0" asp-route-tl="@taskList.Id" asp-route-tp="l" asp-route-src="txb">
+                                                                        <i class="bi bi-sticky"></i> <span>Drop a Note</span>
+                                                                    </a>
+                                                                </li>
+                                                            }
+                                                            <li>
+                                                                <a class="dropdown-item" asp-area="WKS" asp-controller="Tasks" asp-action="TaskListNotes" asp-route-id="@taskList.Id">
+                                                                    <i class="bi bi-stickies"></i> <span>View Notes</span>
+                                                                </a>
+                                                            </li>
+                                                        </ul>
+                                                    </li>
+                                                    @if (!taskList.IsLocked)
+                                                    {
+                                                        <li>
+                                                            <a class="dropdown-item" asp-area="WKS" asp-controller="Tasks" asp-action="ManageTaskList" asp-route-id="@taskList.Id">
+                                                                <i class="bi bi-pencil-fill"></i>  <span>Edit</span>
+                                                            </a>
+                                                        </li>
+
+                                                        <li>
+                                                            <a class="dropdown-item" asp-area="WKS" asp-controller="Tasks" asp-action="DeleteTaskList" asp-route-id="@taskList.Id">
+                                                                <i class="bi bi-trash-fill"></i>  <span>Delete</span>
+                                                            </a>
+                                                        </li>
+                                                    }
+
+                                                    @if (taskList.IsArchived)
+                                                    {
+                                                        <li>
+                                                            <button class="dropdown-item" id="btn_activate_@taskList.Id" onclick="reactivateTaskList('@taskList.Id')">
+                                                                <i class="bi bi-journal-check"></i>  <span>Re-Activate</span>
+                                                            </button>
+                                                        </li>
+                                                    }
+                                                    else
+                                                    {
+                                                        <li>
+                                                            <button class="dropdown-item" id="btn_archive_@taskList.Id" onclick="archiveTaskList('@taskList.Id')">
+                                                                <i class="bi bi-journal-album"></i> <span>Archive</span>
+                                                            </button>
+                                                        </li>
+                                                    }
+                                                </ul>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            }
+        }
+    }
+    else
+    {
+        <div class="alert alert-info alert-dismissible fade show mt-2" role="alert">
+            <i class="bi bi-info-circle"></i>
+            <span class="fw-bold">Please Select an Enquiry Type</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+</div>
+@section Scripts{
+    <script src="~/js/js_wks/wks_tsk_lst.js"></script>
+}
+

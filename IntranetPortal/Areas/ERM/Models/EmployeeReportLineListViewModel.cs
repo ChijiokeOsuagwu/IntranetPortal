@@ -11,6 +11,7 @@ namespace IntranetPortal.Areas.ERM.Models
     {
         public string EmployeeID { get; set; }
         public string StaffName { get; set; }
+        public string Source { get; set; }
         public List<EmployeeReportLine> EmployeeReportLineList { get; set; }
     }
 }

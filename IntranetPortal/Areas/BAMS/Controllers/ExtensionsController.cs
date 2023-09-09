@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using IntranetPortal.Areas.BAMS.Models;
 using IntranetPortal.Base.Models.BamsModels;
 using IntranetPortal.Base.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace IntranetPortal.Areas.BAMS.Controllers
@@ -18,6 +19,8 @@ namespace IntranetPortal.Areas.BAMS.Controllers
         {
             _bamsManagerService = bamsManagerService;
         }
+
+        [Authorize(Roles = "BAMVWDPLS, BAMMGDPLS, XYALLACCZ")]
         public async Task<IActionResult> List(int id)
         {
             AssignmentExtensionListViewModel model = new AssignmentExtensionListViewModel();
@@ -37,6 +40,7 @@ namespace IntranetPortal.Areas.BAMS.Controllers
             return View(model);
         }
 
+        [Authorize(Roles = "BAMVWDPLS, BAMMGDPLS, XYALLACCZ")]
         public async Task<IActionResult> Details(int id)
         {
             AssignmentExtensionViewModel model = new AssignmentExtensionViewModel();
@@ -60,6 +64,7 @@ namespace IntranetPortal.Areas.BAMS.Controllers
             return View(model);
         }
 
+        [Authorize(Roles = "BAMMGDPLS, XYALLACCZ")]
         public async Task<IActionResult> New(int id)
         {
             AssignmentExtensionViewModel model = new AssignmentExtensionViewModel();
@@ -75,6 +80,7 @@ namespace IntranetPortal.Areas.BAMS.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "BAMMGDPLS, XYALLACCZ")]
         public async Task<IActionResult> New(AssignmentExtensionViewModel model)
         {
             if (ModelState.IsValid)
@@ -111,6 +117,7 @@ namespace IntranetPortal.Areas.BAMS.Controllers
             return View(model);
         }
 
+        [Authorize(Roles = "BAMMGDPLS, XYALLACCZ")]
         public async Task<IActionResult> Delete(int id)
         {
             AssignmentExtensionViewModel model = new AssignmentExtensionViewModel();
@@ -131,6 +138,7 @@ namespace IntranetPortal.Areas.BAMS.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "BAMMGDPLS, XYALLACCZ")]
         public async Task<IActionResult> Delete(AssignmentExtensionViewModel model)
         {
             if (ModelState.IsValid)

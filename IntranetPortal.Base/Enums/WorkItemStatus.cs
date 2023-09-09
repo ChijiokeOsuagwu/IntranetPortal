@@ -6,10 +6,7 @@ namespace IntranetPortal.Base.Enums
 {
     public enum WorkItemStatus
     {
-        NotStarted,
-        InProgress,
-        Completed,
-        OnHold,
-        OverDue
+        Open,
+        Closed,
     }
 }

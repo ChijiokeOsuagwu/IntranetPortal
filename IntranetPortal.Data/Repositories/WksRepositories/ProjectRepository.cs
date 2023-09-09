@@ -11,16 +11,16 @@ using System.Threading.Tasks;
 
 namespace IntranetPortal.Data.Repositories.WksRepositories
 {
-    public class WorkItemRepository : IWorkItemRepository
+    public class ProjectRepository:IProjectRepository
     {
         public IConfiguration _config { get; }
-        public WorkItemRepository(IConfiguration configuration)
+        public ProjectRepository(IConfiguration configuration)
         {
             _config = configuration;
         }
 
-        #region Work Item Write Actions
-        public async Task<bool> AddAsync(WorkItem workItem)
+        #region Project Write Actions
+        public async Task<bool> AddAsync(Project project)
         {
             int rows = 0;
             var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
@@ -83,43 +83,43 @@ namespace IntranetPortal.Data.Repositories.WksRepositories
                     var typ_id = cmd.Parameters.Add("@typ_id", NpgsqlDbType.Integer);
                     var mstr_prj_id = cmd.Parameters.Add("@mstr_prj_id", NpgsqlDbType.Integer);
                     cmd.Prepare();
-                    prj_cd.Value = workItem.Code;
-                    prj_ttl.Value = workItem.Title;
-                    prj_dsc.Value = workItem.Description ?? (object)DBNull.Value;
-                    prj_owner_id.Value = workItem.OwnerID;
-                    prj_assigned_to.Value = workItem.AssignedToID;
-                    assigned_dt.Value = workItem.AssignedTime ?? DateTime.UtcNow;
-                    prg_stts.Value = (int)workItem.ProgressStatus;
-                    at_risk.Value = workItem.IsAtRisk;
-                    exp_start_dt.Value = workItem.ExpectedStartTime ?? DateTime.UtcNow;
-                    exp_due_dt.Value = workItem.ExpectedDueTime ?? DateTime.UtcNow;
-                    exp_dur_min.Value = workItem.TotalExpectedDurationInMinutes;
-                    act_dur_min.Value = workItem.TotalActualDurationInMinutes;
-                    prj_prrty.Value = (int)workItem.Priority;
-                    est_cost_fc.Value = workItem.EstimatedCostForeignCurrency;
-                    act_cost_fc.Value = workItem.ActualCostForeignCurrency;
-                    curr_cd_fc.Value = workItem.ForeignCurrencyCode ?? (object)DBNull.Value;
-                    est_cost_lc.Value = workItem.EstimatedCostLocalCurrency;
-                    act_cost_lc.Value = workItem.ActualCostForeignCurrency;
-                    pct_com.Value = workItem.PercentageCompleted;
-                    deliverables.Value = workItem.Deliverables ?? (object)DBNull.Value;
-                    instructions.Value = workItem.Instructions ?? (object)DBNull.Value;
-                    fldr_id.Value = workItem.FolderID;
-                    wksp_id.Value = workItem.WorkspaceID;
-                    has_team.Value = workItem.HasTeam;
-                    is_dlt.Value = workItem.IsDeleted;
-                    dlt_dt.Value = workItem.DeletedTime ?? (object)DBNull.Value;
-                    dlt_by.Value = workItem.DeletedBy ?? (object)DBNull.Value;
-                    mod_by.Value = workItem.LastModifiedBy ?? (object)DBNull.Value;
-                    mod_dt.Value = workItem.LastModifiedTime ?? (object)DBNull.Value;
-                    crt_by.Value = workItem.CreatedBy ?? (object)DBNull.Value;
-                    crt_dt.Value = workItem.CreatedTime ?? (object)DBNull.Value;
-                    unit_id.Value = workItem.UnitID ?? (object)DBNull.Value;
-                    dept_id.Value = workItem.DepartmentID ?? (object)DBNull.Value;
-                    loc_id.Value = workItem.LocationID ?? (object)DBNull.Value;
-                    mstr_id.Value = workItem.MasterWorkItemID ?? (object)DBNull.Value;
-                    typ_id.Value = (int)workItem.ItemType;
-                    mstr_prj_id.Value = workItem.MasterProjectID ?? (object)DBNull.Value;
+                    prj_cd.Value = project.Number;
+                    prj_ttl.Value = project.Title;
+                    prj_dsc.Value = project.Description ?? (object)DBNull.Value;
+                    prj_owner_id.Value = project.OwnerID;
+                    prj_assigned_to.Value = project.AssignedToID;
+                    assigned_dt.Value = project.AssignedTime ?? DateTime.UtcNow;
+                    prg_stts.Value = (int)project.ProgressStatus;
+                    at_risk.Value = project.IsAtRisk;
+                    exp_start_dt.Value = project.ExpectedStartTime ?? DateTime.UtcNow;
+                    exp_due_dt.Value = project.ExpectedDueTime ?? DateTime.UtcNow;
+                    exp_dur_min.Value = project.TotalExpectedDurationInMinutes;
+                    act_dur_min.Value = project.TotalActualDurationInMinutes;
+                    prj_prrty.Value = (int)project.Priority;
+                    est_cost_fc.Value = project.EstimatedCostForeignCurrency;
+                    act_cost_fc.Value = project.ActualCostForeignCurrency;
+                    curr_cd_fc.Value = project.ForeignCurrencyCode ?? (object)DBNull.Value;
+                    est_cost_lc.Value = project.EstimatedCostLocalCurrency;
+                    act_cost_lc.Value = project.ActualCostForeignCurrency;
+                    pct_com.Value = project.PercentageCompleted;
+                    deliverables.Value = project.Deliverables ?? (object)DBNull.Value;
+                    instructions.Value = project.Instructions ?? (object)DBNull.Value;
+                    fldr_id.Value = project.FolderID;
+                    wksp_id.Value = project.WorkspaceID;
+                    has_team.Value = project.HasTeam;
+                    is_dlt.Value = project.IsDeleted;
+                    dlt_dt.Value = project.DeletedTime ?? (object)DBNull.Value;
+                    dlt_by.Value = project.DeletedBy ?? (object)DBNull.Value;
+                    mod_by.Value = project.LastModifiedBy ?? (object)DBNull.Value;
+                    mod_dt.Value = project.LastModifiedTime ?? (object)DBNull.Value;
+                    crt_by.Value = project.CreatedBy ?? (object)DBNull.Value;
+                    crt_dt.Value = project.CreatedTime ?? (object)DBNull.Value;
+                    unit_id.Value = project.UnitID ?? (object)DBNull.Value;
+                    dept_id.Value = project.DepartmentID ?? (object)DBNull.Value;
+                    loc_id.Value = project.LocationID ?? (object)DBNull.Value;
+                    mstr_id.Value = project.MasterWorkItemID ?? (object)DBNull.Value;
+                    typ_id.Value = (int)project.ItemType;
+                    mstr_prj_id.Value = project.MasterProjectID ?? (object)DBNull.Value;
 
                     rows = await cmd.ExecuteNonQueryAsync();
                     await conn.CloseAsync();
@@ -133,7 +133,7 @@ namespace IntranetPortal.Data.Repositories.WksRepositories
             return rows > 0;
         }
 
-        public async Task<bool> AddWorkItemAsync(WorkItem workItem)
+        public async Task<bool> AddWorkItemAsync(Project project)
         {
             int rows = 0;
             var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
@@ -196,43 +196,43 @@ namespace IntranetPortal.Data.Repositories.WksRepositories
                     var typ_id = cmd.Parameters.Add("@typ_id", NpgsqlDbType.Integer);
                     var mstr_prj_id = cmd.Parameters.Add("@mstr_prj_id", NpgsqlDbType.Integer);
                     cmd.Prepare();
-                    wki_cd.Value = workItem.Code;
-                    wki_ttl.Value = workItem.Title;
-                    wki_dsc.Value = workItem.Description ?? (object)DBNull.Value;
-                    wki_owner_id.Value = workItem.OwnerID;
-                    wki_assigned_to.Value = workItem.AssignedToID;
-                    assigned_dt.Value = workItem.AssignedTime ?? DateTime.UtcNow;
-                    prg_stts.Value = (int)workItem.ProgressStatus;
-                    at_risk.Value = workItem.IsAtRisk;
-                    exp_start_dt.Value = workItem.ExpectedStartTime ?? DateTime.UtcNow;
-                    exp_due_dt.Value = workItem.ExpectedDueTime ?? DateTime.UtcNow;
-                    exp_dur_min.Value = workItem.TotalExpectedDurationInMinutes;
-                    act_dur_min.Value = workItem.TotalActualDurationInMinutes;
-                    wki_prrty.Value = (int)workItem.Priority;
-                    est_cost_fc.Value = workItem.EstimatedCostForeignCurrency;
-                    act_cost_fc.Value = workItem.ActualCostForeignCurrency;
-                    curr_cd_fc.Value = workItem.ForeignCurrencyCode ?? (object)DBNull.Value;
-                    est_cost_lc.Value = workItem.EstimatedCostLocalCurrency;
-                    act_cost_lc.Value = workItem.ActualCostForeignCurrency;
-                    pct_com.Value = workItem.PercentageCompleted;
-                    deliverables.Value = workItem.Deliverables ?? (object)DBNull.Value;
-                    instructions.Value = workItem.Instructions ?? (object)DBNull.Value;
-                    fldr_id.Value = workItem.FolderID;
-                    wksp_id.Value = workItem.WorkspaceID;
-                    has_team.Value = workItem.HasTeam;
-                    is_dlt.Value = workItem.IsDeleted;
-                    dlt_dt.Value = workItem.DeletedTime ?? (object)DBNull.Value;
-                    dlt_by.Value = workItem.DeletedBy ?? (object)DBNull.Value;
-                    mod_by.Value = workItem.LastModifiedBy ?? (object)DBNull.Value;
-                    mod_dt.Value = workItem.LastModifiedTime ?? (object)DBNull.Value;
-                    crt_by.Value = workItem.CreatedBy ?? (object)DBNull.Value;
-                    crt_dt.Value = workItem.CreatedTime ?? (object)DBNull.Value;
-                    unit_id.Value = workItem.UnitID ?? (object)DBNull.Value;
-                    dept_id.Value = workItem.DepartmentID ?? (object)DBNull.Value;
-                    loc_id.Value = workItem.LocationID ?? (object)DBNull.Value;
-                    mstr_id.Value = workItem.MasterWorkItemID ?? (object)DBNull.Value;
-                    typ_id.Value = (int)workItem.ItemType;
-                    mstr_prj_id.Value = workItem.MasterProjectID ?? (object)DBNull.Value;
+                    wki_cd.Value = project.Number;
+                    wki_ttl.Value = project.Title;
+                    wki_dsc.Value = project.Description ?? (object)DBNull.Value;
+                    wki_owner_id.Value = project.OwnerID;
+                    wki_assigned_to.Value = project.AssignedToID;
+                    assigned_dt.Value = project.AssignedTime ?? DateTime.UtcNow;
+                    prg_stts.Value = (int)project.ProgressStatus;
+                    at_risk.Value = project.IsAtRisk;
+                    exp_start_dt.Value = project.ExpectedStartTime ?? DateTime.UtcNow;
+                    exp_due_dt.Value = project.ExpectedDueTime ?? DateTime.UtcNow;
+                    exp_dur_min.Value = project.TotalExpectedDurationInMinutes;
+                    act_dur_min.Value = project.TotalActualDurationInMinutes;
+                    wki_prrty.Value = (int)project.Priority;
+                    est_cost_fc.Value = project.EstimatedCostForeignCurrency;
+                    act_cost_fc.Value = project.ActualCostForeignCurrency;
+                    curr_cd_fc.Value = project.ForeignCurrencyCode ?? (object)DBNull.Value;
+                    est_cost_lc.Value = project.EstimatedCostLocalCurrency;
+                    act_cost_lc.Value = project.ActualCostForeignCurrency;
+                    pct_com.Value = project.PercentageCompleted;
+                    deliverables.Value = project.Deliverables ?? (object)DBNull.Value;
+                    instructions.Value = project.Instructions ?? (object)DBNull.Value;
+                    fldr_id.Value = project.FolderID;
+                    wksp_id.Value = project.WorkspaceID;
+                    has_team.Value = project.HasTeam;
+                    is_dlt.Value = project.IsDeleted;
+                    dlt_dt.Value = project.DeletedTime ?? (object)DBNull.Value;
+                    dlt_by.Value = project.DeletedBy ?? (object)DBNull.Value;
+                    mod_by.Value = project.LastModifiedBy ?? (object)DBNull.Value;
+                    mod_dt.Value = project.LastModifiedTime ?? (object)DBNull.Value;
+                    crt_by.Value = project.CreatedBy ?? (object)DBNull.Value;
+                    crt_dt.Value = project.CreatedTime ?? (object)DBNull.Value;
+                    unit_id.Value = project.UnitID ?? (object)DBNull.Value;
+                    dept_id.Value = project.DepartmentID ?? (object)DBNull.Value;
+                    loc_id.Value = project.LocationID ?? (object)DBNull.Value;
+                    mstr_id.Value = project.MasterWorkItemID ?? (object)DBNull.Value;
+                    typ_id.Value = (int)project.ItemType;
+                    mstr_prj_id.Value = project.MasterProjectID ?? (object)DBNull.Value;
 
                     rows = await cmd.ExecuteNonQueryAsync();
                     await conn.CloseAsync();
@@ -246,8 +246,7 @@ namespace IntranetPortal.Data.Repositories.WksRepositories
             return rows > 0;
         }
 
-
-        public async Task<bool> UpdateAsync(WorkItem workItem)
+        public async Task<bool> UpdateAsync(Project project)
         {
             int rows = 0;
             var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
@@ -257,7 +256,7 @@ namespace IntranetPortal.Data.Repositories.WksRepositories
             sb.Append("pct_com=@pct_com, deliverables=@deliverables, instructions=@instructions, ");
             sb.Append("mod_by=@mod_by, mod_dt=@mod_dt, mstr_id=@mstr_id, mstr_prj_id=@mstr_prj_id ");
             sb.Append("WHERE (wki_id=@wki_id);");
-       
+
             string query = sb.ToString();
             try
             {
@@ -278,17 +277,17 @@ namespace IntranetPortal.Data.Repositories.WksRepositories
                     var mstr_id = cmd.Parameters.Add("@mstr_id", NpgsqlDbType.Integer);
                     var mstr_prj_id = cmd.Parameters.Add("@mstr_prj_id", NpgsqlDbType.Integer);
                     cmd.Prepare();
-                    wki_ttl.Value = workItem.Title;
-                    wki_dsc.Value = workItem.Description ?? (object)DBNull.Value;
-                    prg_stts.Value = (int)workItem.ProgressStatus;
-                    at_risk.Value = workItem.IsAtRisk;
-                    wki_prrty.Value = (int)workItem.Priority;
-                    pct_com.Value = workItem.PercentageCompleted;
-                    deliverables.Value = workItem.Deliverables ?? (object)DBNull.Value;
-                    instructions.Value = workItem.Instructions ?? (object)DBNull.Value;
-                    mod_by.Value = workItem.LastModifiedBy ?? (object)DBNull.Value;
-                    mod_dt.Value = workItem.LastModifiedTime ?? (object)DBNull.Value;
-                    mstr_id.Value = workItem.MasterWorkItemID ?? (object)DBNull.Value;
+                    wki_ttl.Value = project.Title;
+                    wki_dsc.Value = project.Description ?? (object)DBNull.Value;
+                    prg_stts.Value = (int)project.ProgressStatus;
+                    at_risk.Value = project.IsAtRisk;
+                    wki_prrty.Value = (int)project.Priority;
+                    pct_com.Value = project.PercentageCompleted;
+                    deliverables.Value = project.Deliverables ?? (object)DBNull.Value;
+                    instructions.Value = project.Instructions ?? (object)DBNull.Value;
+                    mod_by.Value = project.LastModifiedBy ?? (object)DBNull.Value;
+                    mod_dt.Value = project.LastModifiedTime ?? (object)DBNull.Value;
+                    mstr_id.Value = project.MasterWorkItemID ?? (object)DBNull.Value;
 
                     rows = await cmd.ExecuteNonQueryAsync();
                     await conn.CloseAsync();
@@ -302,8 +301,7 @@ namespace IntranetPortal.Data.Repositories.WksRepositories
             return rows > 0;
         }
 
-
-        public async Task<bool> UpdateToDeletedAsync(int workItemId, string deletedBy)
+        public async Task<bool> UpdateToDeletedAsync(int projectId, string deletedBy)
         {
             int rows = 0;
             var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
@@ -321,7 +319,7 @@ namespace IntranetPortal.Data.Repositories.WksRepositories
                     var dlt_by = cmd.Parameters.Add("@dlt_by", NpgsqlDbType.Text);
                     var dlt_on = cmd.Parameters.Add("@dlt_on", NpgsqlDbType.TimestampTz);
                     cmd.Prepare();
-                    wki_id.Value = workItemId;
+                    wki_id.Value = projectId;
                     dlt_by.Value = deletedBy;
                     dlt_on.Value = DateTime.UtcNow;
 
@@ -338,31 +336,31 @@ namespace IntranetPortal.Data.Repositories.WksRepositories
         }
         #endregion
 
-        #region Work Item Read Actions
+        #region Project Read Actions
 
-        public async Task<IList<WorkItem>> GetByIdAsync(int workItemId)
+        public async Task<IList<Project>> GetByIdAsync(int projectId)
         {
-            IList<WorkItem> workItems = new List<WorkItem>();
+            IList<Project> projects = new List<Project>();
             var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
 
             StringBuilder sb = new StringBuilder();
-            sb.Append("SELECT p.wki_id, p.wki_cd, p.wki_ttl, p.wki_dsc, p.wki_owner_id, ");
-            sb.Append("p.wki_assigned_to, p.assigned_dt, p.prg_stts, p.at_risk, ");
+            sb.Append("SELECT p.prj_id, p.prj_cd, p.prj_ttl, p.prj_dsc, p.prj_owner_id, ");
+            sb.Append("p.prj_assigned_to, p.assigned_dt, p.prg_stts, p.at_risk, ");
             sb.Append("p.exp_start_dt, p.exp_due_dt, p.exp_dur_min, p.act_dur_min, ");
-            sb.Append("p.wki_prrty, p.est_cost_fc, p.act_cost_fc, p.curr_cd_fc, p.est_cost_lc, ");
+            sb.Append("p.prj_prrty, p.est_cost_fc, p.act_cost_fc, p.curr_cd_fc, p.est_cost_lc, ");
             sb.Append("p.act_cost_lc, p.pct_com, p.deliverables, p.instructions, p.fldr_id, ");
             sb.Append("p.wksp_id, p.has_team, p.is_dlt, p.dlt_dt, p.dlt_by, p.unit_id, ");
             sb.Append("p.dept_id, p.loc_id, u.unitname, d.deptname, l.locname, s.fullname, ");
             sb.Append("f.title AS fldr_title, w.title AS wksp_title, p.mod_by, ");
-            sb.Append("p.mod_dt, p.crt_by, p.crt_dt FROM public.wkm_wki_inf p ");
+            sb.Append("p.mod_dt, p.crt_by, p.crt_dt FROM public.wkm_prj_inf p ");
             sb.Append("INNER JOIN public.wkm_fdr_inf f ON f.id = p.fldr_id ");
             sb.Append("INNER JOIN public.wkm_wsp_inf w ON w.id = p.wksp_id ");
             sb.Append("LEFT OUTER JOIN public.gst_units u ON u.unitqk = p.unit_id ");
             sb.Append("LEFT OUTER JOIN public.gst_depts d ON d.deptqk = p.dept_id ");
             sb.Append("LEFT OUTER JOIN public.gst_locs l ON l.locqk = p.loc_id ");
             sb.Append("LEFT OUTER JOIN public.gst_prsns s ON s.id = p.prj_assigned_to ");
-            sb.Append("WHERE (p.wki_id = @wki_id) ");
-            sb.Append("ORDER BY p.wki_id;");
+            sb.Append("WHERE (p.prj_id = @prj_id) ");
+            sb.Append("ORDER BY p.prj_id;");
 
             string query = sb.ToString();
             try
@@ -371,29 +369,29 @@ namespace IntranetPortal.Data.Repositories.WksRepositories
                 // Retrieve all rows
                 using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
                 {
-                    var wki_id = cmd.Parameters.Add("@wki_id", NpgsqlDbType.Integer);
+                    var prj_id = cmd.Parameters.Add("@prj_id", NpgsqlDbType.Integer);
                     await cmd.PrepareAsync();
-                    wki_id.Value = workItemId;
+                    prj_id.Value = projectId;
                     using (var reader = await cmd.ExecuteReaderAsync())
                         while (await reader.ReadAsync())
                         {
-                            workItems.Add(new WorkItem
+                            projects.Add(new Project
                             {
-                                ID = reader["wki_id"] == DBNull.Value ? 0 : (int)reader["wki_id"],
-                                Code = reader["wki_cd"] == DBNull.Value ? string.Empty : reader["wki_cd"].ToString(),
-                                Title = reader["wki_ttl"] == DBNull.Value ? string.Empty : reader["wki_ttl"].ToString(),
-                                Description = reader["wki_dsc"] == DBNull.Value ? string.Empty : reader["wki_dsc"].ToString(),
-                                OwnerID = reader["wki_owner_id"] == DBNull.Value ? string.Empty : reader["wki_owner_id"].ToString(),
-                                AssignedToID = reader["wki_assigned_to"] == DBNull.Value ? string.Empty : reader["wki_assigned_to"].ToString(),
+                                ID = reader["prj_id"] == DBNull.Value ? 0 : (int)reader["prj_id"],
+                                Number = reader["prj_cd"] == DBNull.Value ? string.Empty : reader["prj_cd"].ToString(),
+                                Title = reader["prj_ttl"] == DBNull.Value ? string.Empty : reader["prj_ttl"].ToString(),
+                                Description = reader["prj_dsc"] == DBNull.Value ? string.Empty : reader["prj_dsc"].ToString(),
+                                OwnerID = reader["prj_owner_id"] == DBNull.Value ? string.Empty : reader["prj_owner_id"].ToString(),
+                                AssignedToID = reader["prj_assigned_to"] == DBNull.Value ? string.Empty : reader["prj_assigned_to"].ToString(),
                                 AssignedToName = reader["fullname"] == DBNull.Value ? string.Empty : reader["fullname"].ToString(),
                                 AssignedTime = reader["assigned_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["assigned_dt"],
-                                ProgressStatus = reader["prg_stts"] == DBNull.Value ? WorkItemStatus.NotStarted : (WorkItemStatus)reader["prg_stts"],
+                                ProgressStatus = reader["prg_stts"] == DBNull.Value ? WorkItemProgressStatus.NotStarted : (WorkItemProgressStatus)reader["prg_stts"],
                                 IsAtRisk = reader["at_risk"] == DBNull.Value ? false : (bool)reader["at_risk"],
                                 ExpectedStartTime = reader["exp_start_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["exp_start_dt"],
                                 ExpectedDueTime = reader["exp_due_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["exp_due_dt"],
                                 TotalExpectedDurationInMinutes = reader["exp_dur_min"] == DBNull.Value ? 0 : (long)reader["exp_dur_min"],
                                 TotalActualDurationInMinutes = reader["act_dur_min"] == DBNull.Value ? 0 : (long)reader["act_dur_min"],
-                                Priority = reader["wki_prrty"] == DBNull.Value ? WorkItemPriority.Normal : (WorkItemPriority)reader["wki_prrty"],
+                                Priority = reader["prj_prrty"] == DBNull.Value ? WorkItemPriority.Normal : (WorkItemPriority)reader["prj_prrty"],
                                 EstimatedCostForeignCurrency = reader["est_cost_fc"] == DBNull.Value ? 0 : (long)reader["est_cost_fc"],
                                 ActualCostForeignCurrency = reader["act_cost_fc"] == DBNull.Value ? 0 : (long)reader["act_cost_fc"],
                                 ForeignCurrencyCode = reader["curr_cd_fc"] == DBNull.Value ? string.Empty : reader["curr_cd_fc"].ToString(),
@@ -430,12 +428,105 @@ namespace IntranetPortal.Data.Repositories.WksRepositories
                 await conn.CloseAsync();
                 throw new Exception(ex.Message);
             }
-            return workItems;
+            return projects;
         }
 
-        public async Task<IList<WorkItem>> GetByFolderIdAsync(int folderId)
+        public async Task<IList<Project>> GetByNumberAsync(string projectNumber)
         {
-            IList<WorkItem> workItems = new List<WorkItem>();
+            IList<Project> projects = new List<Project>();
+            var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
+
+            StringBuilder sb = new StringBuilder();
+            sb.Append("SELECT p.prj_id, p.prj_cd, p.prj_ttl, p.prj_dsc, p.prj_owner_id, ");
+            sb.Append("p.prj_assigned_to, p.assigned_dt, p.prg_stts, p.at_risk, ");
+            sb.Append("p.exp_start_dt, p.exp_due_dt, p.exp_dur_min, p.act_dur_min, ");
+            sb.Append("p.prj_prrty, p.est_cost_fc, p.act_cost_fc, p.curr_cd_fc, p.est_cost_lc, ");
+            sb.Append("p.act_cost_lc, p.pct_com, p.deliverables, p.instructions, p.fldr_id, ");
+            sb.Append("p.wksp_id, p.has_team, p.is_dlt, p.dlt_dt, p.dlt_by, p.unit_id, ");
+            sb.Append("p.dept_id, p.loc_id, u.unitname, d.deptname, l.locname, s.fullname, ");
+            sb.Append("f.title AS fldr_title, w.title AS wksp_title, p.mod_by, ");
+            sb.Append("p.mod_dt, p.crt_by, p.crt_dt FROM public.wkm_prj_inf p ");
+            sb.Append("INNER JOIN public.wkm_fdr_inf f ON f.id = p.fldr_id ");
+            sb.Append("INNER JOIN public.wkm_wsp_inf w ON w.id = p.wksp_id ");
+            sb.Append("LEFT OUTER JOIN public.gst_units u ON u.unitqk = p.unit_id ");
+            sb.Append("LEFT OUTER JOIN public.gst_depts d ON d.deptqk = p.dept_id ");
+            sb.Append("LEFT OUTER JOIN public.gst_locs l ON l.locqk = p.loc_id ");
+            sb.Append("LEFT OUTER JOIN public.gst_prsns s ON s.id = p.prj_assigned_to ");
+            sb.Append("WHERE (p.prj_cd = @prj_cd) ");
+            sb.Append("ORDER BY p.prj_id;");
+
+            string query = sb.ToString();
+            try
+            {
+                await conn.OpenAsync();
+                // Retrieve all rows
+                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+                {
+                    var prj_cd = cmd.Parameters.Add("@prj_cd", NpgsqlDbType.Text);
+                    await cmd.PrepareAsync();
+                    prj_cd.Value = projectNumber;
+                    using (var reader = await cmd.ExecuteReaderAsync())
+                        while (await reader.ReadAsync())
+                        {
+                            projects.Add(new Project
+                            {
+                                ID = reader["prj_id"] == DBNull.Value ? 0 : (int)reader["prj_id"],
+                                Number = reader["prj_cd"] == DBNull.Value ? string.Empty : reader["prj_cd"].ToString(),
+                                Title = reader["prj_ttl"] == DBNull.Value ? string.Empty : reader["prj_ttl"].ToString(),
+                                Description = reader["prj_dsc"] == DBNull.Value ? string.Empty : reader["prj_dsc"].ToString(),
+                                OwnerID = reader["prj_owner_id"] == DBNull.Value ? string.Empty : reader["prj_owner_id"].ToString(),
+                                AssignedToID = reader["prj_assigned_to"] == DBNull.Value ? string.Empty : reader["prj_assigned_to"].ToString(),
+                                AssignedToName = reader["fullname"] == DBNull.Value ? string.Empty : reader["fullname"].ToString(),
+                                AssignedTime = reader["assigned_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["assigned_dt"],
+                                ProgressStatus = reader["prg_stts"] == DBNull.Value ? WorkItemProgressStatus.NotStarted : (WorkItemProgressStatus)reader["prg_stts"],
+                                IsAtRisk = reader["at_risk"] == DBNull.Value ? false : (bool)reader["at_risk"],
+                                ExpectedStartTime = reader["exp_start_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["exp_start_dt"],
+                                ExpectedDueTime = reader["exp_due_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["exp_due_dt"],
+                                TotalExpectedDurationInMinutes = reader["exp_dur_min"] == DBNull.Value ? 0 : (long)reader["exp_dur_min"],
+                                TotalActualDurationInMinutes = reader["act_dur_min"] == DBNull.Value ? 0 : (long)reader["act_dur_min"],
+                                Priority = reader["prj_prrty"] == DBNull.Value ? WorkItemPriority.Normal : (WorkItemPriority)reader["prj_prrty"],
+                                EstimatedCostForeignCurrency = reader["est_cost_fc"] == DBNull.Value ? 0 : (long)reader["est_cost_fc"],
+                                ActualCostForeignCurrency = reader["act_cost_fc"] == DBNull.Value ? 0 : (long)reader["act_cost_fc"],
+                                ForeignCurrencyCode = reader["curr_cd_fc"] == DBNull.Value ? string.Empty : reader["curr_cd_fc"].ToString(),
+                                EstimatedCostLocalCurrency = reader["est_cost_lc"] == DBNull.Value ? 0 : (long)reader["est_cost_lc"],
+                                ActualCostLocalCurrency = reader["act_cost_lc"] == DBNull.Value ? 0 : (long)reader["act_cost_lc"],
+                                PercentageCompleted = reader["pct_com"] == DBNull.Value ? 0 : (int)reader["pct_com"],
+                                Deliverables = reader["deliverables"] == DBNull.Value ? string.Empty : reader["deliverables"].ToString(),
+                                Instructions = reader["instructions"] == DBNull.Value ? string.Empty : reader["deliverables"].ToString(),
+                                FolderID = reader["fldr_id"] == DBNull.Value ? 0 : (int)reader["fldr_id"],
+                                FolderTitle = reader["fldr_title"] == DBNull.Value ? string.Empty : reader["fldr_title"].ToString(),
+                                WorkspaceID = reader["wksp_id"] == DBNull.Value ? 0 : (int)reader["wksp_id"],
+                                WorkspaceTitle = reader["wksp_title"] == DBNull.Value ? string.Empty : reader["wksp_title"].ToString(),
+                                HasTeam = reader["has_team"] == DBNull.Value ? false : (bool)reader["has_team"],
+                                UnitID = reader["unit_id"] == DBNull.Value ? (int?)null : (int)reader["unit_id"],
+                                UnitName = reader["unitname"] == DBNull.Value ? string.Empty : reader["unitname"].ToString(),
+                                DepartmentID = reader["dept_id"] == DBNull.Value ? (int?)null : (int)reader["dept_id"],
+                                DepartmentName = reader["deptname"] == DBNull.Value ? string.Empty : reader["deptname"].ToString(),
+                                LocationID = reader["loc_id"] == DBNull.Value ? (int?)null : (int)reader["loc_id"],
+                                LocationName = reader["locname"] == DBNull.Value ? string.Empty : reader["locname"].ToString(),
+                                IsDeleted = reader["is_dlt"] == DBNull.Value ? false : (bool)reader["is_dlt"],
+                                DeletedTime = reader["dlt_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["dlt_dt"],
+                                DeletedBy = reader["dlt_by"] == DBNull.Value ? string.Empty : reader["dlt_by"].ToString(),
+                                LastModifiedTime = reader["mod_dt"] == DBNull.Value ? string.Empty : reader["mod_dt"].ToString(),
+                                LastModifiedBy = reader["mod_by"] == DBNull.Value ? string.Empty : reader["mod_by"].ToString(),
+                                CreatedTime = reader["crt_dt"] == DBNull.Value ? string.Empty : reader["crt_dt"].ToString(),
+                                CreatedBy = reader["crt_by"] == DBNull.Value ? string.Empty : reader["crt_by"].ToString(),
+                            });
+                        }
+                }
+                await conn.CloseAsync();
+            }
+            catch (Exception ex)
+            {
+                await conn.CloseAsync();
+                throw new Exception(ex.Message);
+            }
+            return projects;
+        }
+
+        public async Task<IList<Project>> GetByFolderIdAsync(int folderId)
+        {
+            IList<Project> projects = new List<Project>();
             var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
 
             StringBuilder sb = new StringBuilder();
@@ -470,17 +561,17 @@ namespace IntranetPortal.Data.Repositories.WksRepositories
                     using (var reader = await cmd.ExecuteReaderAsync())
                         while (await reader.ReadAsync())
                         {
-                            workItems.Add(new WorkItem
+                            projects.Add(new Project
                             {
                                 ID = reader["prj_id"] == DBNull.Value ? 0 : (int)reader["prj_id"],
-                                Code = reader["prj_cd"] == DBNull.Value ? string.Empty : reader["prj_cd"].ToString(),
+                                Number = reader["prj_cd"] == DBNull.Value ? string.Empty : reader["prj_cd"].ToString(),
                                 Title = reader["prj_ttl"] == DBNull.Value ? string.Empty : reader["prj_ttl"].ToString(),
                                 Description = reader["prj_dsc"] == DBNull.Value ? string.Empty : reader["prj_dsc"].ToString(),
                                 OwnerID = reader["prj_owner_id"] == DBNull.Value ? string.Empty : reader["prj_owner_id"].ToString(),
                                 AssignedToID = reader["prj_assigned_to"] == DBNull.Value ? string.Empty : reader["prj_assigned_to"].ToString(),
                                 AssignedToName = reader["fullname"] == DBNull.Value ? string.Empty : reader["fullname"].ToString(),
                                 AssignedTime = reader["assigned_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["assigned_dt"],
-                                ProgressStatus = reader["prg_stts"] == DBNull.Value ? WorkItemStatus.NotStarted : (WorkItemStatus)reader["prg_stts"],
+                                ProgressStatus = reader["prg_stts"] == DBNull.Value ? WorkItemProgressStatus.NotStarted : (WorkItemProgressStatus)reader["prg_stts"],
                                 IsAtRisk = reader["at_risk"] == DBNull.Value ? false : (bool)reader["at_risk"],
                                 ExpectedStartTime = reader["exp_start_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["exp_start_dt"],
                                 ExpectedDueTime = reader["exp_due_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["exp_due_dt"],
@@ -523,12 +614,12 @@ namespace IntranetPortal.Data.Repositories.WksRepositories
                 await conn.CloseAsync();
                 throw new Exception(ex.Message);
             }
-            return workItems;
+            return projects;
         }
 
-        public async Task<IList<WorkItem>> GetByOwnerIdAsync(string ownerId)
+        public async Task<IList<Project>> GetByOwnerIdAsync(string ownerId)
         {
-            IList<WorkItem> workItems = new List<WorkItem>();
+            IList<Project> projects = new List<Project>();
             var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
 
             StringBuilder sb = new StringBuilder();
@@ -563,17 +654,17 @@ namespace IntranetPortal.Data.Repositories.WksRepositories
                     using (var reader = await cmd.ExecuteReaderAsync())
                         while (await reader.ReadAsync())
                         {
-                            workItems.Add(new WorkItem
+                            projects.Add(new Project
                             {
                                 ID = reader["prj_id"] == DBNull.Value ? 0 : (int)reader["prj_id"],
-                                Code = reader["prj_cd"] == DBNull.Value ? string.Empty : reader["prj_cd"].ToString(),
+                                Number = reader["prj_cd"] == DBNull.Value ? string.Empty : reader["prj_cd"].ToString(),
                                 Title = reader["prj_ttl"] == DBNull.Value ? string.Empty : reader["prj_ttl"].ToString(),
                                 Description = reader["prj_dsc"] == DBNull.Value ? string.Empty : reader["prj_dsc"].ToString(),
                                 OwnerID = reader["prj_owner_id"] == DBNull.Value ? string.Empty : reader["prj_owner_id"].ToString(),
                                 AssignedToID = reader["prj_assigned_to"] == DBNull.Value ? string.Empty : reader["prj_assigned_to"].ToString(),
                                 AssignedToName = reader["fullname"] == DBNull.Value ? string.Empty : reader["fullname"].ToString(),
                                 AssignedTime = reader["assigned_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["assigned_dt"],
-                                ProgressStatus = reader["prg_stts"] == DBNull.Value ? WorkItemStatus.NotStarted : (WorkItemStatus)reader["prg_stts"],
+                                ProgressStatus = reader["prg_stts"] == DBNull.Value ? WorkItemProgressStatus.NotStarted : (WorkItemProgressStatus)reader["prg_stts"],
                                 IsAtRisk = reader["at_risk"] == DBNull.Value ? false : (bool)reader["at_risk"],
                                 ExpectedStartTime = reader["exp_start_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["exp_start_dt"],
                                 ExpectedDueTime = reader["exp_due_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["exp_due_dt"],
@@ -616,12 +707,12 @@ namespace IntranetPortal.Data.Repositories.WksRepositories
                 await conn.CloseAsync();
                 throw new Exception(ex.Message);
             }
-            return workItems;
+            return projects;
         }
 
-        public async Task<IList<WorkItem>> GetByTitleAsync(string workItemTitle)
+        public async Task<IList<Project>> GetByTitleAsync(string projectTitle)
         {
-            IList<WorkItem> workItems = new List<WorkItem>();
+            IList<Project> projects = new List<Project>();
             var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
 
             StringBuilder sb = new StringBuilder();
@@ -652,21 +743,21 @@ namespace IntranetPortal.Data.Repositories.WksRepositories
                 {
                     var prj_ttl = cmd.Parameters.Add("@prj_ttl", NpgsqlDbType.Text);
                     await cmd.PrepareAsync();
-                    prj_ttl.Value = workItemTitle;
+                    prj_ttl.Value = projectTitle;
                     using (var reader = await cmd.ExecuteReaderAsync())
                         while (await reader.ReadAsync())
                         {
-                            workItems.Add(new WorkItem
+                            projects.Add(new Project
                             {
                                 ID = reader["prj_id"] == DBNull.Value ? 0 : (int)reader["prj_id"],
-                                Code = reader["prj_cd"] == DBNull.Value ? string.Empty : reader["prj_cd"].ToString(),
+                                Number = reader["prj_cd"] == DBNull.Value ? string.Empty : reader["prj_cd"].ToString(),
                                 Title = reader["prj_ttl"] == DBNull.Value ? string.Empty : reader["prj_ttl"].ToString(),
                                 Description = reader["prj_dsc"] == DBNull.Value ? string.Empty : reader["prj_dsc"].ToString(),
                                 OwnerID = reader["prj_owner_id"] == DBNull.Value ? string.Empty : reader["prj_owner_id"].ToString(),
                                 AssignedToID = reader["prj_assigned_to"] == DBNull.Value ? string.Empty : reader["prj_assigned_to"].ToString(),
                                 AssignedToName = reader["fullname"] == DBNull.Value ? string.Empty : reader["fullname"].ToString(),
                                 AssignedTime = reader["assigned_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["assigned_dt"],
-                                ProgressStatus = reader["prg_stts"] == DBNull.Value ? WorkItemStatus.NotStarted : (WorkItemStatus)reader["prg_stts"],
+                                ProgressStatus = reader["prg_stts"] == DBNull.Value ? WorkItemProgressStatus.NotStarted : (WorkItemProgressStatus)reader["prg_stts"],
                                 IsAtRisk = reader["at_risk"] == DBNull.Value ? false : (bool)reader["at_risk"],
                                 ExpectedStartTime = reader["exp_start_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["exp_start_dt"],
                                 ExpectedDueTime = reader["exp_due_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["exp_due_dt"],
@@ -709,12 +800,12 @@ namespace IntranetPortal.Data.Repositories.WksRepositories
                 await conn.CloseAsync();
                 throw new Exception(ex.Message);
             }
-            return workItems;
+            return projects;
         }
 
-        public async Task<IList<WorkItem>> SearchByFolderIdAndTitleAsync(int folderId, string workItemTitle)
+        public async Task<IList<Project>> SearchByFolderIdAndTitleAsync(int folderId, string projectTitle)
         {
-            IList<WorkItem> workItems = new List<WorkItem>();
+            IList<Project> projects = new List<Project>();
             var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
 
             StringBuilder sb = new StringBuilder();
@@ -748,21 +839,21 @@ namespace IntranetPortal.Data.Repositories.WksRepositories
                     var prj_ttl = cmd.Parameters.Add("@prj_ttl", NpgsqlDbType.Text);
                     await cmd.PrepareAsync();
                     fldr_id.Value = folderId;
-                    prj_ttl.Value = workItemTitle;
+                    prj_ttl.Value = projectTitle;
                     using (var reader = await cmd.ExecuteReaderAsync())
                         while (await reader.ReadAsync())
                         {
-                            workItems.Add(new WorkItem
+                            projects.Add(new Project
                             {
                                 ID = reader["prj_id"] == DBNull.Value ? 0 : (int)reader["prj_id"],
-                                Code = reader["prj_cd"] == DBNull.Value ? string.Empty : reader["prj_cd"].ToString(),
+                                Number = reader["prj_cd"] == DBNull.Value ? string.Empty : reader["prj_cd"].ToString(),
                                 Title = reader["prj_ttl"] == DBNull.Value ? string.Empty : reader["prj_ttl"].ToString(),
                                 Description = reader["prj_dsc"] == DBNull.Value ? string.Empty : reader["prj_dsc"].ToString(),
                                 OwnerID = reader["prj_owner_id"] == DBNull.Value ? string.Empty : reader["prj_owner_id"].ToString(),
                                 AssignedToID = reader["prj_assigned_to"] == DBNull.Value ? string.Empty : reader["prj_assigned_to"].ToString(),
                                 AssignedToName = reader["fullname"] == DBNull.Value ? string.Empty : reader["fullname"].ToString(),
                                 AssignedTime = reader["assigned_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["assigned_dt"],
-                                ProgressStatus = reader["prg_stts"] == DBNull.Value ? WorkItemStatus.NotStarted : (WorkItemStatus)reader["prg_stts"],
+                                ProgressStatus = reader["prg_stts"] == DBNull.Value ? WorkItemProgressStatus.NotStarted : (WorkItemProgressStatus)reader["prg_stts"],
                                 IsAtRisk = reader["at_risk"] == DBNull.Value ? false : (bool)reader["at_risk"],
                                 ExpectedStartTime = reader["exp_start_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["exp_start_dt"],
                                 ExpectedDueTime = reader["exp_due_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["exp_due_dt"],
@@ -805,12 +896,12 @@ namespace IntranetPortal.Data.Repositories.WksRepositories
                 await conn.CloseAsync();
                 throw new Exception(ex.Message);
             }
-            return workItems;
+            return projects;
         }
 
-        public async Task<IList<WorkItem>> SearchByTitleAsync(string workItemTitle)
+        public async Task<IList<Project>> SearchByTitleAsync(string projectTitle)
         {
-            IList<WorkItem> workItems = new List<WorkItem>();
+            IList<Project> projects = new List<Project>();
             var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
 
             StringBuilder sb = new StringBuilder();
@@ -842,21 +933,21 @@ namespace IntranetPortal.Data.Repositories.WksRepositories
                 {
                     var prj_ttl = cmd.Parameters.Add("@prj_ttl", NpgsqlDbType.Text);
                     await cmd.PrepareAsync();
-                    prj_ttl.Value = workItemTitle;
+                    prj_ttl.Value = projectTitle;
                     using (var reader = await cmd.ExecuteReaderAsync())
                         while (await reader.ReadAsync())
                         {
-                            workItems.Add(new WorkItem
+                            projects.Add(new Project
                             {
                                 ID = reader["prj_id"] == DBNull.Value ? 0 : (int)reader["prj_id"],
-                                Code = reader["prj_cd"] == DBNull.Value ? string.Empty : reader["prj_cd"].ToString(),
+                                Number = reader["prj_cd"] == DBNull.Value ? string.Empty : reader["prj_cd"].ToString(),
                                 Title = reader["prj_ttl"] == DBNull.Value ? string.Empty : reader["prj_ttl"].ToString(),
                                 Description = reader["prj_dsc"] == DBNull.Value ? string.Empty : reader["prj_dsc"].ToString(),
                                 OwnerID = reader["prj_owner_id"] == DBNull.Value ? string.Empty : reader["prj_owner_id"].ToString(),
                                 AssignedToID = reader["prj_assigned_to"] == DBNull.Value ? string.Empty : reader["prj_assigned_to"].ToString(),
                                 AssignedToName = reader["fullname"] == DBNull.Value ? string.Empty : reader["fullname"].ToString(),
                                 AssignedTime = reader["assigned_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["assigned_dt"],
-                                ProgressStatus = reader["prg_stts"] == DBNull.Value ? WorkItemStatus.NotStarted : (WorkItemStatus)reader["prg_stts"],
+                                ProgressStatus = reader["prg_stts"] == DBNull.Value ? WorkItemProgressStatus.NotStarted : (WorkItemProgressStatus)reader["prg_stts"],
                                 IsAtRisk = reader["at_risk"] == DBNull.Value ? false : (bool)reader["at_risk"],
                                 ExpectedStartTime = reader["exp_start_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["exp_start_dt"],
                                 ExpectedDueTime = reader["exp_due_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["exp_due_dt"],
@@ -899,9 +990,8 @@ namespace IntranetPortal.Data.Repositories.WksRepositories
                 await conn.CloseAsync();
                 throw new Exception(ex.Message);
             }
-            return workItems;
+            return projects;
         }
         #endregion
-
     }
 }

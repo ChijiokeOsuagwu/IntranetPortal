@@ -8,6 +8,7 @@ namespace IntranetPortal.Base.Models.WksModels
     public class WorkItem
     {
         public int ID { get; set; }
+        public string Number { get; set; }
         public string Title { get; set; }
         public string Description { get; set; }
         public int? MasterWorkItemID { get; set; }
@@ -19,7 +20,7 @@ namespace IntranetPortal.Base.Models.WksModels
         public string AssignedToID { get; set; }
         public string AssignedToName { get; set; }
         public DateTime? AssignedTime { get; set; }
-        public WorkItemStatus ProgressStatus { get; set; }
+        public WorkItemProgressStatus ProgressStatus { get; set; }
         public string ProgressStatusDescription { get; set; }
         public DateTime? ExpectedStartTime { get; set; }
         public DateTime? ExpectedDueTime { get; set; }
@@ -46,7 +47,6 @@ namespace IntranetPortal.Base.Models.WksModels
         public string DepartmentName { get; set; }
         public int? LocationID { get; set; }
         public string LocationName { get; set; }
-        public string Code { get; set; }
         public bool IsAtRisk { get; set; }
         public string Instructions { get; set; }
         public int FolderID { get; set; }

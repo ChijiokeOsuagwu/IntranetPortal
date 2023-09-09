@@ -32,7 +32,7 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
             _assetManagerService = assetManagerService;
         }
 
-        [Authorize(Roles = "AMSMTNVWL, XYALLACCZ")]
+        [Authorize(Roles = "AMSVWATXN, AMSMGATXN, XYALLACCZ")]
         public async Task<IActionResult> index(string id = null, int? yr = null, int? mn = null)
         {
             IList<AssetMaintenance> assetMaintenanceList = new List<AssetMaintenance>();
@@ -81,7 +81,7 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
             return View(model);
         }
 
-        [Authorize(Roles = "AMSMTNVWL, XYALLACCZ")]
+        [Authorize(Roles = "AMSVWATXN, AMSMGATXN, XYALLACCZ")]
         public async Task<IActionResult> List(int? tp = null, int? pg = null)
         {
             IList<AssetMaintenance> assetMaintenanceList = new List<AssetMaintenance>();
@@ -110,7 +110,7 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
         }
 
         [HttpGet]
-        [Authorize(Roles = "AMSMTNADN, XYALLACCZ")]
+        [Authorize(Roles = "AMSMGATXN, XYALLACCZ")]
         public async Task<IActionResult> AddMaintenance(string id = null)
         {
             AssetMaintenanceViewModel model = new AssetMaintenanceViewModel();
@@ -126,7 +126,7 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "AMSMTNADN, XYALLACCZ")]
+        [Authorize(Roles = "AMSMGATXN, XYALLACCZ")]
         public async Task<IActionResult> AddMaintenance(AssetMaintenanceViewModel model)
         {
             if (ModelState.IsValid)
@@ -189,7 +189,7 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
         }
 
         [HttpGet]
-        [Authorize(Roles = "AMSMTNEDT, XYALLACCZ")]
+        [Authorize(Roles = "AMSMGATXN, XYALLACCZ")]
         public async Task<IActionResult> EditMaintenance(int id)
         {
             AssetMaintenanceViewModel model = new AssetMaintenanceViewModel();
@@ -227,7 +227,7 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "AMSMTNEDT, XYALLACCZ")]
+        [Authorize(Roles = "AMSMGATXN, XYALLACCZ")]
         public async Task<IActionResult> EditMaintenance(AssetMaintenanceViewModel model)
         {
             if (ModelState.IsValid)
@@ -298,7 +298,7 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
         }
 
         [HttpGet]
-        [Authorize(Roles = "AMSMTNVWD, XYALLACCZ")]
+        [Authorize(Roles = "AMSVWATXN, AMSMGATXN, XYALLACCZ")]
         public async Task<IActionResult> MaintenanceDetails(int id)
         {
             AssetMaintenanceViewModel model = new AssetMaintenanceViewModel();
@@ -336,7 +336,7 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
         }
 
         [HttpGet]
-        [Authorize(Roles = "AMSMTNDLT, XYALLACCZ")]
+        [Authorize(Roles = "AMSMGATXN, XYALLACCZ")]
         public async Task<IActionResult> DeleteMaintenance(int id)
         {
             AssetMaintenanceViewModel model = new AssetMaintenanceViewModel();
@@ -374,7 +374,7 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "AMSMTNDLT, XYALLACCZ")]
+        [Authorize(Roles = "AMSMGATXN, XYALLACCZ")]
         public async Task<IActionResult> DeleteMaintenance(AssetMaintenanceViewModel model)
         {
             AssetMaintenance assetMaintenance = new AssetMaintenance();

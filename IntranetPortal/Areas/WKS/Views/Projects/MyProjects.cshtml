@@ -8,9 +8,19 @@
     <hr />
     <div class="mb-1">
         <form asp-area="WKS" asp-controller="Projects" asp-action="MyProjects" asp-route-id="@Model.id" method="get">
-            <a asp-area="WKS" asp-controller="Home" asp-action="Index" class="btn btn-dark" style="width:100px" title="Click to Go Back">
-                <span class="text-white">Back</span>
-            </a>
+            @if (Model.Source == "xws")
+            {
+                <a asp-area="WKS" asp-controller="Home" asp-action="ExecutiveWorkspace" class="btn btn-dark" style="width:100px" title="Click to Go Back">
+                    <span class="text-white">Back</span>
+                </a>
+            }
+            else
+            {
+                <a asp-area="" asp-controller="Home" asp-action="Apps" class="btn btn-dark" style="width:100px" title="Click to Go Back">
+                    <span class="text-white">Back</span>
+                </a>
+            }
+
             <select asp-for="id" asp-items="@ViewBag.FolderSelectList" class="border-0" style="width:250px">
                 <option value="">- ALL -</option>
             </select>
@@ -94,7 +104,7 @@
                                 {
                                     switch (project.ProgressStatus)
                                     {
-                                        case WorkItemStatus.InProgress:
+                                        case WorkItemProgressStatus.InProgress:
                                             <tr>
                                                 <td class="p-2">
                                                     <span class="fw-bold" title="@project.Description">@project.Title</span>
@@ -126,7 +136,7 @@
                                                 </td>
                                             </tr>
                                             break;
-                                        case WorkItemStatus.Completed:
+                                        case WorkItemProgressStatus.Completed:
                                             <tr>
                                                 <td class="p-2">
                                                     <span class="fw-bold" title="@project.Description">@project.Title</span>
@@ -158,7 +168,7 @@
                                                 </td>
                                             </tr>
                                             break;
-                                        case WorkItemStatus.NotStarted:
+                                        case WorkItemProgressStatus.NotStarted:
                                             <tr class="table-light">
                                                 <td class="p-2">
                                                     <span class="fw-bold" title="@project.Description">@project.Title</span>
@@ -190,7 +200,7 @@
                                                 </td>
                                             </tr>
                                             break;
-                                        case WorkItemStatus.OnHold:
+                                        case WorkItemProgressStatus.OnHold:
                                             <tr class="table-secondary">
                                                 <td class="p-2">
                                                     <span class="fw-bold" title="@project.Description">@project.Title</span>

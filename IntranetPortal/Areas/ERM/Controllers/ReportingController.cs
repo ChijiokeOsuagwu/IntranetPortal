@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using IntranetPortal.Areas.ERM.Models;
 using IntranetPortal.Base.Models.BaseModels;
 using IntranetPortal.Base.Models.EmployeeRecordModels;
 using IntranetPortal.Base.Services;
 using IntranetPortal.Configurations;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -15,6 +17,7 @@ using Microsoft.Extensions.Configuration;
 namespace IntranetPortal.Areas.ERM.Controllers
 {
     [Area("ERM")]
+    [Authorize]
     public class ReportingController : Controller
     {
         private readonly IConfiguration _configuration;
@@ -37,40 +40,48 @@ namespace IntranetPortal.Areas.ERM.Controllers
 
         //======================== Employee ReportLines Action Methods =================================//
         #region Employee Report Lines Methods
-        public async Task<IActionResult> ReportLines(string id, string sp)
+
+        public async Task<IActionResult> ReportLines(string id, string sp, string src)
         {
             EmployeeReportLineListViewModel model = new EmployeeReportLineListViewModel();
             model.sp = sp ?? "active";
-            if (!string.IsNullOrWhiteSpace(id))
+            model.Source = src;
+            if (string.IsNullOrWhiteSpace(id))
             {
-                Person staff = await _baseModelService.GetPersonAsync(id);
-                if (staff != null && !string.IsNullOrWhiteSpace(staff.FullName))
-                {
-                    model.StaffName = staff.FullName;
-                }
-                model.EmployeeID = id;
-                if (!string.IsNullOrWhiteSpace(sp) && sp == "active")
-                {
-                    var entities = await _ermService.GetActiveEmployeeReportLinesByEmployeeIdAsync(id);
-                    model.EmployeeReportLineList = entities.ToList();
-                }
-                else
-                {
-                    var entities = await _ermService.GetEmployeeReportLinesByEmployeeIdAsync(id);
-                    model.EmployeeReportLineList = entities.ToList();
-                }
+                var claims = HttpContext.User.Claims.ToList();
+                id = claims?.Where(x => x.Type == ClaimTypes.NameIdentifier).Select(c => c.Value).SingleOrDefault();
+            }
+
+            Person staff = await _baseModelService.GetPersonAsync(id);
+            if (staff != null && !string.IsNullOrWhiteSpace(staff.FullName))
+            {
+                model.StaffName = staff.FullName;
+            }
+            model.EmployeeID = id;
+            if (!string.IsNullOrWhiteSpace(sp) && sp == "active")
+            {
+                var entities = await _ermService.GetActiveEmployeeReportLinesByEmployeeIdAsync(id);
+                model.EmployeeReportLineList = entities.ToList();
+            }
+            else
+            {
+                var entities = await _ermService.GetEmployeeReportLinesByEmployeeIdAsync(id);
+                model.EmployeeReportLineList = entities.ToList();
             }
             return View(model);
         }
 
-        public async Task<IActionResult> AddReportingLine(string id)
+        public async Task<IActionResult> AddReportingLine(string id, string src)
         {
             EmployeeReportLineViewModel model = new EmployeeReportLineViewModel();
+            model.Source = src;
             if (!string.IsNullOrEmpty(id))
             {
                 Person person = await _baseModelService.GetPersonAsync(id);
                 model.EmployeeName = person.FullName;
                 model.EmployeeID = person.PersonID;
+                model.ReportStartDate = DateTime.Today;
+                model.ReportEndDate = new DateTime(2060, 12, 31);
             }
             else
             {
@@ -132,9 +143,10 @@ namespace IntranetPortal.Areas.ERM.Controllers
             return View(model);
         }
 
-        public async Task<IActionResult> EditReportingLine(int id)
+        public async Task<IActionResult> EditReportingLine(int id, string src)
         {
             EmployeeReportLineViewModel model = new EmployeeReportLineViewModel();
+            model.Source = src;
             if (id > 0)
             {
                 EmployeeReportLine employeeReportLine = await _ermService.GetEmployeeReportLineByIdAsync(id);
@@ -221,9 +233,10 @@ namespace IntranetPortal.Areas.ERM.Controllers
             return View(model);
         }
 
-        public async Task<IActionResult> ReportingLineDetails(int id)
+        public async Task<IActionResult> ReportingLineDetails(int id, string src)
         {
             EmployeeReportLineViewModel model = new EmployeeReportLineViewModel();
+            model.Source = src;
             if (id > 0)
             {
                 EmployeeReportLine employeeReportLine = await _ermService.GetEmployeeReportLineByIdAsync(id);

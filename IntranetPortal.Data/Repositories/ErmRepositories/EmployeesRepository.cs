@@ -18,7 +18,7 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
             _config = configuration;
         }
 
-        #region Employees Action Methods
+        #region Employees Read Action Methods
         public async Task<Employee> GetEmployeeByIdAsync(string employeeId)
         {
             if (String.IsNullOrEmpty(employeeId)) { throw new ArgumentNullException(nameof(employeeId), "The required parameter [employeeId] is missing or has in invalid value."); }
@@ -1330,7 +1330,6 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
             return employeeList;
         }
 
-
         public async Task<IList<Employee>> GetEmployeesByLocationAsync(int locationId)
         {
             List<Employee> employeeList = new List<Employee>();
@@ -2112,7 +2111,6 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
             return employeeList;
         }
 
-
         public async Task<IList<Employee>> GetEmployeesByBirthMonthAsync(int birthMonth)
         {
             List<Employee> employeeList = new List<Employee>();
@@ -2373,7 +2371,136 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
             return employeeList;
         }
 
+        public async Task<IList<Employee>> GetAllEmployeesWithoutUserAccountsAsync()
+        {
+            List<Employee> employeeList = new List<Employee>();
+            var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
+            string query = String.Empty;
+            StringBuilder sb = new StringBuilder();
 
+            sb.Append($"SELECT e.emp_id, e.emp_no_1, e.emp_no_2, e.official_email, e.dept_id,  ");
+            sb.Append($"e.unit_id, e.loc_id, e.coy_id, e.is_dx, e.dx_time, e.dx_by, p.id, ");
+            sb.Append($"p.fullname, p.sex, p.phone1, p.phone2, p.is_dx, p.dx_by, p.dx_time, ");
+            sb.Append($"p.imgp, a.usr_id, a.usr_nm, a.usr_typ FROM public.erm_emp_inf e ");
+            sb.Append($"INNER JOIN public.gst_prsns p ON e.emp_id = p.id ");
+            sb.Append($"LEFT OUTER JOIN public.sct_usr_acct a ON p.id = a.usr_id ");
+            sb.Append($"WHERE (e.is_dx = false OR p.is_dx = false) AND (a.usr_id IS NULL) ");
+            sb.Append($"ORDER BY p.fullname;");
+            
+            query = sb.ToString();
+            try
+            {
+                await conn.OpenAsync();
+                // Retrieve all rows
+                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+                {
+                    await cmd.PrepareAsync();
+                    var reader = await cmd.ExecuteReaderAsync();
+                    while (await reader.ReadAsync())
+                    {
+                        employeeList.Add(new Employee()
+                        {
+                            EmployeeID = reader["emp_id"] == DBNull.Value ? string.Empty : (reader["emp_id"]).ToString(),
+                            EmployeeNo1 = reader["emp_no_1"] == DBNull.Value ? string.Empty : (reader["emp_no_1"]).ToString(),
+                            EmployeeNo2 = reader["emp_no_2"] == DBNull.Value ? string.Empty : (reader["emp_no_2"]).ToString(),
+
+                            OfficialEmail = reader["official_email"] == DBNull.Value ? String.Empty : reader["official_email"].ToString(),
+                            CompanyID = reader["coy_id"] == DBNull.Value ? string.Empty : (reader["coy_id"]).ToString(),
+                            DepartmentID = reader["dept_id"] == DBNull.Value ? 0 : (int)(reader["dept_id"]),
+                            UnitID = reader["unit_id"] == DBNull.Value ? 0 : (int)(reader["unit_id"]),
+                            LocationID = reader["loc_id"] == DBNull.Value ? 0 : (int)(reader["loc_id"]),
+
+                            PersonID = reader["id"] == DBNull.Value ? String.Empty : reader["id"].ToString(),
+                            FullName = reader["fullname"] == DBNull.Value ? string.Empty : reader["fullname"].ToString(),
+                            Sex = reader["sex"] == DBNull.Value ? string.Empty : reader["sex"].ToString(),
+                            PhoneNo1 = reader["phone1"] == DBNull.Value ? string.Empty : reader["phone1"].ToString(),
+                            PhoneNo2 = reader["phone2"] == DBNull.Value ? string.Empty : reader["phone2"].ToString(),
+                            ImagePath = reader["imgp"] == DBNull.Value ? string.Empty : reader["imgp"].ToString(),
+                        });
+                    }
+                }
+                await conn.CloseAsync();
+            }
+            catch (Exception ex)
+            {
+
+                await conn.CloseAsync();
+                throw new Exception(ex.Message);
+            }
+            return employeeList;
+        }
+
+        public async Task<IList<Employee>> GetEmployeesWithoutUserAccountsByNameAsync(string employeeName)
+        {
+            List<Employee> employeeList = new List<Employee>();
+            if (string.IsNullOrWhiteSpace(employeeName)) { throw new ArgumentNullException(nameof(employeeName)); }
+            var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
+            string query = String.Empty;
+            StringBuilder sb = new StringBuilder();
+
+            sb.Append("SELECT e.emp_id, e.emp_no_1, e.emp_no_2, e.official_email, e.dept_id, ");
+            sb.Append("e.unit_id, e.loc_id, e.coy_id, e.is_dx, e.dx_time, e.dx_by, p.id, ");
+            sb.Append("p.fullname, p.sex, p.phone1, p.phone2, p.is_dx, p.dx_by, p.dx_time, ");
+            sb.Append("p.fname, p.sname, p.oname, p.imgp, a.usr_id, a.usr_nm, a.usr_typ ");
+            sb.Append("FROM public.erm_emp_inf e ");
+            sb.Append("INNER JOIN public.gst_prsns p ON e.emp_id = p.id ");
+            sb.Append("LEFT OUTER JOIN public.sct_usr_acct a ON p.id = a.usr_id ");
+            sb.Append("WHERE (e.is_dx = false OR p.is_dx = false) AND (a.usr_id IS NULL) ");
+            sb.Append("WHERE(LOWER(p.fname) LIKE '%'||LOWER(@name)||'%') ");
+            sb.Append("OR (LOWER(p.sname) LIKE '%'||LOWER(@name)||'%') ");
+            sb.Append("OR (LOWER(p.oname) LIKE '%'||LOWER(@name)||'%') ");
+            sb.Append("OR (LOWER(p.fullname) LIKE '%'||LOWER(@name)||'%') ");
+            sb.Append("AND (e.is_dx = false OR p.is_dx = false) ");
+            sb.Append("AND (a.usr_id IS NULL) ORDER BY p.fullname;");
+            query = sb.ToString();
+            try
+            {
+                await conn.OpenAsync();
+                // Retrieve all rows
+                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+                {
+                    var name = cmd.Parameters.Add("@name", NpgsqlDbType.Text);
+                    await cmd.PrepareAsync();
+                    name.Value = employeeName;
+
+                    var reader = await cmd.ExecuteReaderAsync();
+                    while (await reader.ReadAsync())
+                    {
+                        employeeList.Add(new Employee()
+                        {
+                            EmployeeID = reader["emp_id"] == DBNull.Value ? string.Empty : (reader["emp_id"]).ToString(),
+                            EmployeeNo1 = reader["emp_no_1"] == DBNull.Value ? string.Empty : (reader["emp_no_1"]).ToString(),
+                            EmployeeNo2 = reader["emp_no_2"] == DBNull.Value ? string.Empty : (reader["emp_no_2"]).ToString(),
+
+                            OfficialEmail = reader["official_email"] == DBNull.Value ? String.Empty : reader["official_email"].ToString(),
+                            CompanyID = reader["coy_id"] == DBNull.Value ? string.Empty : (reader["coy_id"]).ToString(),
+                            DepartmentID = reader["dept_id"] == DBNull.Value ? 0 : (int)(reader["dept_id"]),
+                            UnitID = reader["unit_id"] == DBNull.Value ? 0 : (int)(reader["unit_id"]),
+                            LocationID = reader["loc_id"] == DBNull.Value ? 0 : (int)(reader["loc_id"]),
+
+                            PersonID = reader["id"] == DBNull.Value ? String.Empty : reader["id"].ToString(),
+                            FullName = reader["fullname"] == DBNull.Value ? string.Empty : reader["fullname"].ToString(),
+                            Sex = reader["sex"] == DBNull.Value ? string.Empty : reader["sex"].ToString(),
+                            PhoneNo1 = reader["phone1"] == DBNull.Value ? string.Empty : reader["phone1"].ToString(),
+                            PhoneNo2 = reader["phone2"] == DBNull.Value ? string.Empty : reader["phone2"].ToString(),
+                            ImagePath = reader["imgp"] == DBNull.Value ? string.Empty : reader["imgp"].ToString(),
+                        });
+                    }
+                }
+                await conn.CloseAsync();
+            }
+            catch (Exception ex)
+            {
+
+                await conn.CloseAsync();
+                throw new Exception(ex.Message);
+            }
+            return employeeList;
+        }
+
+        #endregion
+
+        #region Employee Write Action Methods
         public async Task<bool> AddEmployeeAsync(Employee employee)
         {
             int rows = 0;
@@ -2564,7 +2691,7 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
                     var unitId = cmd.Parameters.Add("unit_id", NpgsqlDbType.Integer);
                     var locationId = cmd.Parameters.Add("@loc_id", NpgsqlDbType.Integer);
                     var yearsOfExperience = cmd.Parameters.Add("@yrs_of_experience", NpgsqlDbType.Integer);
-      
+
                     cmd.Prepare();
 
                     employeeId.Value = employee.EmployeeID;
@@ -2604,132 +2731,6 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
             return rows > 0;
         }
 
-        public async Task<IList<Employee>> GetAllEmployeesWithoutUserAccountsAsync()
-        {
-            List<Employee> employeeList = new List<Employee>();
-            var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
-            string query = String.Empty;
-            StringBuilder sb = new StringBuilder();
-
-            sb.Append($"SELECT e.emp_id, e.emp_no_1, e.emp_no_2, e.official_email, e.dept_id,  ");
-            sb.Append($"e.unit_id, e.loc_id, e.coy_id, e.is_dx, e.dx_time, e.dx_by, p.id, ");
-            sb.Append($"p.fullname, p.sex, p.phone1, p.phone2, p.is_dx, p.dx_by, p.dx_time, ");
-            sb.Append($"p.imgp, a.usr_id, a.usr_nm, a.usr_typ FROM public.erm_emp_inf e ");
-            sb.Append($"INNER JOIN public.gst_prsns p ON e.emp_id = p.id ");
-            sb.Append($"LEFT OUTER JOIN public.sct_usr_acct a ON p.id = a.usr_id ");
-            sb.Append($"WHERE (e.is_dx = false OR p.is_dx = false) AND (a.usr_id IS NULL) ");
-            sb.Append($"ORDER BY p.fullname;");
-            
-            query = sb.ToString();
-            try
-            {
-                await conn.OpenAsync();
-                // Retrieve all rows
-                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
-                {
-                    await cmd.PrepareAsync();
-                    var reader = await cmd.ExecuteReaderAsync();
-                    while (await reader.ReadAsync())
-                    {
-                        employeeList.Add(new Employee()
-                        {
-                            EmployeeID = reader["emp_id"] == DBNull.Value ? string.Empty : (reader["emp_id"]).ToString(),
-                            EmployeeNo1 = reader["emp_no_1"] == DBNull.Value ? string.Empty : (reader["emp_no_1"]).ToString(),
-                            EmployeeNo2 = reader["emp_no_2"] == DBNull.Value ? string.Empty : (reader["emp_no_2"]).ToString(),
-
-                            OfficialEmail = reader["official_email"] == DBNull.Value ? String.Empty : reader["official_email"].ToString(),
-                            CompanyID = reader["coy_id"] == DBNull.Value ? string.Empty : (reader["coy_id"]).ToString(),
-                            DepartmentID = reader["dept_id"] == DBNull.Value ? 0 : (int)(reader["dept_id"]),
-                            UnitID = reader["unit_id"] == DBNull.Value ? 0 : (int)(reader["unit_id"]),
-                            LocationID = reader["loc_id"] == DBNull.Value ? 0 : (int)(reader["loc_id"]),
-
-                            PersonID = reader["id"] == DBNull.Value ? String.Empty : reader["id"].ToString(),
-                            FullName = reader["fullname"] == DBNull.Value ? string.Empty : reader["fullname"].ToString(),
-                            Sex = reader["sex"] == DBNull.Value ? string.Empty : reader["sex"].ToString(),
-                            PhoneNo1 = reader["phone1"] == DBNull.Value ? string.Empty : reader["phone1"].ToString(),
-                            PhoneNo2 = reader["phone2"] == DBNull.Value ? string.Empty : reader["phone2"].ToString(),
-                            ImagePath = reader["imgp"] == DBNull.Value ? string.Empty : reader["imgp"].ToString(),
-                        });
-                    }
-                }
-                await conn.CloseAsync();
-            }
-            catch (Exception ex)
-            {
-
-                await conn.CloseAsync();
-                throw new Exception(ex.Message);
-            }
-            return employeeList;
-        }
-
-        public async Task<IList<Employee>> GetEmployeesWithoutUserAccountsByNameAsync(string employeeName)
-        {
-            List<Employee> employeeList = new List<Employee>();
-            if (string.IsNullOrWhiteSpace(employeeName)) { throw new ArgumentNullException(nameof(employeeName)); }
-            var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
-            string query = String.Empty;
-            StringBuilder sb = new StringBuilder();
-
-            sb.Append("SELECT e.emp_id, e.emp_no_1, e.emp_no_2, e.official_email, e.dept_id, ");
-            sb.Append("e.unit_id, e.loc_id, e.coy_id, e.is_dx, e.dx_time, e.dx_by, p.id, ");
-            sb.Append("p.fullname, p.sex, p.phone1, p.phone2, p.is_dx, p.dx_by, p.dx_time, ");
-            sb.Append("p.fname, p.sname, p.oname, p.imgp, a.usr_id, a.usr_nm, a.usr_typ ");
-            sb.Append("FROM public.erm_emp_inf e ");
-            sb.Append("INNER JOIN public.gst_prsns p ON e.emp_id = p.id ");
-            sb.Append("LEFT OUTER JOIN public.sct_usr_acct a ON p.id = a.usr_id ");
-            sb.Append("WHERE (e.is_dx = false OR p.is_dx = false) AND (a.usr_id IS NULL) ");
-            sb.Append("WHERE(LOWER(p.fname) LIKE '%'||LOWER(@name)||'%') ");
-            sb.Append("OR (LOWER(p.sname) LIKE '%'||LOWER(@name)||'%') ");
-            sb.Append("OR (LOWER(p.oname) LIKE '%'||LOWER(@name)||'%') ");
-            sb.Append("OR (LOWER(p.fullname) LIKE '%'||LOWER(@name)||'%') ");
-            sb.Append("AND (e.is_dx = false OR p.is_dx = false) ");
-            sb.Append("AND (a.usr_id IS NULL) ORDER BY p.fullname;");
-            query = sb.ToString();
-            try
-            {
-                await conn.OpenAsync();
-                // Retrieve all rows
-                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
-                {
-                    var name = cmd.Parameters.Add("@name", NpgsqlDbType.Text);
-                    await cmd.PrepareAsync();
-                    name.Value = employeeName;
-
-                    var reader = await cmd.ExecuteReaderAsync();
-                    while (await reader.ReadAsync())
-                    {
-                        employeeList.Add(new Employee()
-                        {
-                            EmployeeID = reader["emp_id"] == DBNull.Value ? string.Empty : (reader["emp_id"]).ToString(),
-                            EmployeeNo1 = reader["emp_no_1"] == DBNull.Value ? string.Empty : (reader["emp_no_1"]).ToString(),
-                            EmployeeNo2 = reader["emp_no_2"] == DBNull.Value ? string.Empty : (reader["emp_no_2"]).ToString(),
-
-                            OfficialEmail = reader["official_email"] == DBNull.Value ? String.Empty : reader["official_email"].ToString(),
-                            CompanyID = reader["coy_id"] == DBNull.Value ? string.Empty : (reader["coy_id"]).ToString(),
-                            DepartmentID = reader["dept_id"] == DBNull.Value ? 0 : (int)(reader["dept_id"]),
-                            UnitID = reader["unit_id"] == DBNull.Value ? 0 : (int)(reader["unit_id"]),
-                            LocationID = reader["loc_id"] == DBNull.Value ? 0 : (int)(reader["loc_id"]),
-
-                            PersonID = reader["id"] == DBNull.Value ? String.Empty : reader["id"].ToString(),
-                            FullName = reader["fullname"] == DBNull.Value ? string.Empty : reader["fullname"].ToString(),
-                            Sex = reader["sex"] == DBNull.Value ? string.Empty : reader["sex"].ToString(),
-                            PhoneNo1 = reader["phone1"] == DBNull.Value ? string.Empty : reader["phone1"].ToString(),
-                            PhoneNo2 = reader["phone2"] == DBNull.Value ? string.Empty : reader["phone2"].ToString(),
-                            ImagePath = reader["imgp"] == DBNull.Value ? string.Empty : reader["imgp"].ToString(),
-                        });
-                    }
-                }
-                await conn.CloseAsync();
-            }
-            catch (Exception ex)
-            {
-
-                await conn.CloseAsync();
-                throw new Exception(ex.Message);
-            }
-            return employeeList;
-        }
 
         #endregion
 
@@ -3053,7 +3054,7 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
             return employeeReportLineList;
         }
 
-        public async Task<IList<EmployeeReportLine>> GetEmployeeReportLinesByReportsToEmployeeIdAsync(string reportsToEmployeeId)
+        public async Task<IList<EmployeeReportLine>> GetEmployeeReportsByReportsToEmployeeIdAsync(string reportsToEmployeeId)
         {
             if (String.IsNullOrEmpty(reportsToEmployeeId)) { throw new ArgumentNullException("The required parameter [ReportsToEmployeeID] has an invalid value."); }
             List<EmployeeReportLine> employeeReportLineList = new List<EmployeeReportLine>();
@@ -3115,7 +3116,7 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
             return employeeReportLineList;
         }
 
-        public async Task<IList<EmployeeReportLine>> GetActiveEmployeeReportLinesByReportsToEmployeeIdAsync(string reportsToEmployeeId)
+        public async Task<IList<EmployeeReportLine>> GetActiveEmployeeReportsByReportsToEmployeeIdAsync(string reportsToEmployeeId)
         {
             if (String.IsNullOrEmpty(reportsToEmployeeId)) { throw new ArgumentNullException("The required parameter [ReportsToEmployeeID] has an invalid value."); }
             List<EmployeeReportLine> employeeReportLineList = new List<EmployeeReportLine>();

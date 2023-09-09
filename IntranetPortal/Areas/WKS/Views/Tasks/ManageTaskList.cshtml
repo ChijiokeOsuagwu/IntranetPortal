@@ -1,0 +1,89 @@
+﻿@model IntranetPortal.Areas.WKS.Models.ManageTaskListViewModel
+@{
+    ViewData["Title"] = "OfficeManager | Manage Task Folders";
+}
+<div class="container">
+    <h4>Manage Task Folders</h4>
+    <hr />
+    <div class="card" style="max-width:800px">
+        <div class="card-header bg-info">
+            @if (Model.IsNew)
+            {
+                <h4 class="text-white">New Task Folder</h4>
+            }
+            else
+            {
+                <h4 class="text-white">Edit Task Folder</h4>
+
+            }
+        </div>
+        <div class="card-body bg-secondary">
+            @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bi bi-x-circle"></i>
+                    <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            @if (!String.IsNullOrEmpty(Model.ViewModelSuccessMessage))
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="bi bi-check-circle"></i>
+                    <span class="fw-bold">@Model.ViewModelSuccessMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            @if (!String.IsNullOrEmpty(Model.ViewModelWarningMessage))
+            {
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                    <i class="bi bi-exclamation-circle"></i>
+                    <span class="fw-bold">@Model.ViewModelWarningMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            <form asp-area="WKS" asp-controller="Tasks" asp-action="ManageTaskList" method="post" autocomplete="off">
+                <div class="col-md-12 mb-2">
+                    <label asp-for="Name" class="form-label text-white fw-bold"></label>
+                    <input asp-for="Name" id="txtListName" class="form-control fw-bold">
+                    <div><span asp-validation-for="Name" class="text-danger"></span></div>
+                </div>
+                <div class="col-md-12 mb-3">
+                    <label asp-for="Description" class="form-label text-white fw-bold"></label>
+                    <textarea class="form-control fw-bold" rows="2" name="@Html.NameFor(m => m.Description)">@Model.Description</textarea>
+                    <div><span asp-validation-for="Description" class="text-danger"></span></div>
+                </div>
+                <div class="col-md-12">
+                    @if (Model.Source == "ttl")
+                    {
+                        <a asp-area="WKS" asp-controller="Tasks" asp-action="TeamTaskList" asp-route-id="@Model.OwnerId" class="btn btn-dark ml-1" style="width:100px" title="Return to Asset List">
+                            <span class="text-white">Back</span>
+                        </a>
+                    }
+                    else
+                    {
+                        <a asp-area="WKS" asp-controller="Tasks" asp-action="TaskList" class="btn btn-dark ml-1" style="width:100px">
+                            <span class="text-white">Back</span>
+                        </a>
+                    }
+
+                    <a asp-area="WKS" asp-controller="Task" asp-action="ManageTaskList" asp-route-id="@Model.Id" class="btn btn-warning ml-1" style="width:100px" title="Clear">
+                        <span class="text-white">Clear</span>
+                    </a>
+                    <button type="submit" class="btn btn-info ml-2" title="Save" style="width:200px"><span class="text-white">Save</span></button>
+                </div>
+                <input type="hidden" asp-for="Id" />
+                <input type="hidden" asp-for="OwnerId" />
+                <input type="hidden" asp-for="IsNew" />
+                <input type="hidden" asp-for="Source" />
+            </form>
+        </div>
+    </div>
+</div>
+@section Scripts{
+    <script type="text/javascript">
+    window.onload = function() {
+    document.getElementById("txtListName").focus();
+    }
+    </script>
+}

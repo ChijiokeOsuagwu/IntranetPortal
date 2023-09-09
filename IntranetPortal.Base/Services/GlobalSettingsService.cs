@@ -16,15 +16,18 @@ namespace IntranetPortal.Base.Services
         private readonly IUnitRepository _unitRepository;
         private readonly ICompanyRepository _companyRepository;
         private readonly ITeamRepository _teamRepository;
+        private readonly IProgramRepository _programRepository;
+
         public GlobalSettingsService(ILocationRepository locationRepository, IDepartmentRepository departmentRepository,
                                         IUnitRepository unitRepository, ICompanyRepository companyRepository,
-                                        ITeamRepository teamRepository)
+                                        ITeamRepository teamRepository, IProgramRepository programRepository)
         {
             _locationRepository = locationRepository;
             _departmentRepository = departmentRepository;
             _unitRepository = unitRepository;
             _companyRepository = companyRepository;
             _teamRepository = teamRepository;
+            _programRepository = programRepository;
         }
 
         //================================= Location Action Methods ====================================//
@@ -547,6 +550,115 @@ namespace IntranetPortal.Base.Services
             return employees;
         }
 
+        #endregion
+
+        #region Programme Action Methods
+
+        //======== Programme Write Service Methods =================//
+        public async Task<bool> CreateProgramAsync(Programme program)
+        {
+            if (program == null) { throw new ArgumentNullException(nameof(program), "Required parameter [Program] is missing. The request cannot be processed."); }
+            var entity = await _programRepository.GetByTitleAsync(program.Title);
+            if (entity != null && entity.Count > 0)
+            {
+                throw new Exception("Double Entry Error! A program with the same title already exists in the system.");
+            }
+            return await _programRepository.AddProgramAsync(program);
+        }
+
+        public async Task<bool> DeleteProgramAsync(int programId)
+        {
+            if (programId < 1) { throw new ArgumentNullException(nameof(programId), "Required parameter [Program ID] is missing."); }
+            return await _programRepository.DeleteProgramAsync(programId);
+        }
+
+        public async Task<bool> UpdateProgramAsync(Programme program)
+        {
+            if (program == null) { throw new ArgumentNullException(nameof(program), "Required parameter [Program] is missing. The request cannot be processed."); }
+            var entity = await _programRepository.GetByTitleAsync(program.Title);
+            if (entity != null && entity.Count > 0 && entity[0].Id != program.Id)
+            {
+                throw new Exception("Double Entry Error! Another program exists in the system with the same title.");
+            }
+            return await _programRepository.EditProgramAsync(program);
+        }
+
+        //============== Programme Read Service Methods ==================//
+        public async Task<List<Programme>> GetProgramsAsync()
+        {
+            var entities = await _programRepository.GetAllAsync();
+            return entities.ToList();
+        }
+
+        public async Task<Programme> GetProgramAsync(int Id)
+        {
+            if (Id < 1) { throw new ArgumentNullException(nameof(Id), "The required parameter [Program ID] is missing. The request cannot be processed."); }
+            return await _programRepository.GetByIdAsync(Id);
+        }
+
+        public async Task<Programme> GetProgramAsync(string programTitle)
+        {
+            Programme program = new Programme();
+            if (string.IsNullOrWhiteSpace(programTitle)) { throw new ArgumentNullException(nameof(programTitle), "The required parameter [Program Title] is missing. The request cannot be processed."); }
+            var entities = await _programRepository.GetByTitleAsync(programTitle);
+            if(entities != null && entities.Count > 0)
+            {
+                program = entities.FirstOrDefault();
+            }
+            return program;
+        }
+
+        public async Task<List<Programme>> SearchProgramsAsync(string programType = null, string programBelt = null, string programTitle = null)
+        {
+            List<Programme> programs = new List<Programme>();
+            if (!string.IsNullOrWhiteSpace(programTitle))
+            {
+                var entities = await _programRepository.SearchByTitleAsync(programTitle);
+                programs = entities.ToList();
+            }
+            else
+            {
+                if (!string.IsNullOrWhiteSpace(programType) && !string.IsNullOrWhiteSpace(programBelt))
+                {
+                    var entities = await _programRepository.GetByProgramTypeAndProgramBeltAsync(programType, programBelt);
+                    programs = entities.ToList();
+                }
+                else if(!string.IsNullOrWhiteSpace(programType) && string.IsNullOrWhiteSpace(programBelt))
+                {
+                    var entities = await _programRepository.GetByProgramTypeAsync(programType);
+                    programs = entities.ToList();
+                }
+                else if (string.IsNullOrWhiteSpace(programType) && !string.IsNullOrWhiteSpace(programBelt))
+                {
+                    var entities = await _programRepository.GetByProgramBeltAsync(programBelt);
+                    programs = entities.ToList();
+                }
+                else
+                {
+                        var entities = await _programRepository.GetAllAsync();
+                        programs = entities.ToList();
+                }
+            }
+            return programs;
+        }
+
+        #endregion
+
+        #region Programme Belt Service Methods
+        public async Task<List<ProgrammeBelt>> GetProgrammeBeltsAsync()
+        {
+            var entities = await _programRepository.GetAllProgrammeBeltsAsync();
+            return entities.ToList();
+        }
+
+        #endregion
+
+        #region Program Platform Service Methods
+        public async Task<List<ProgramPlatform>> GetProgramPlatformsAsync()
+        {
+            var entities = await _programRepository.GetAllProgramPlatformsAsync();
+            return entities.ToList();
+        }
         #endregion
     }
 }

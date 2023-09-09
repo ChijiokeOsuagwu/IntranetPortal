@@ -1,0 +1,129 @@
+﻿@model IntranetPortal.Areas.WKS.Models.EvaluateTaskItemViewModel
+@{
+    ViewData["Title"] = "OfficeManager | Evaluate Task Item";
+}
+<div class="container">
+    <h4>Evaluate Task Item</h4>
+    <hr />
+    <div class="card" style="max-width:800px">
+        <div class="card-header bg-success">
+            <h4 class="text-white">Task Evaluation Form</h4>
+        </div>
+        <div class="card-body bg-secondary">
+            @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bi bi-x-circle"></i>
+                    <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            @if (!String.IsNullOrEmpty(Model.ViewModelSuccessMessage))
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="bi bi-check-circle"></i>
+                    <span class="fw-bold">@Model.ViewModelSuccessMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            @if (!String.IsNullOrEmpty(Model.ViewModelWarningMessage))
+            {
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                    <i class="bi bi-exclamation-circle"></i>
+                    <span class="fw-bold">@Model.ViewModelWarningMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+        <form asp-area="WKS" asp-controller="Tasks" asp-action="EvaluateTaskItem" method="post" autocomplete="off">
+            <div class="row">
+                <div class="col-md-4 mb-2">
+                    <label asp-for="TaskItemNo" class="form-label text-white fw-bold"></label>
+                    <input asp-for="TaskItemNo" class="form-control fw-bold" readonly="readonly">
+                    <div><span asp-validation-for="TaskItemNo" class="text-danger"></span></div>
+                </div>
+                <div class="col-md-8 mb-2">
+                    <label asp-for="TaskOwnerName" class="form-label text-white fw-bold"></label>
+                    <input asp-for="TaskOwnerName" class="form-control fw-bold" readonly="readonly">
+                    <div><span asp-validation-for="TaskOwnerName" class="text-danger"></span></div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12 mb-2">
+                    <label asp-for="TaskItemDescription" class="form-label text-white fw-bold"></label>
+                    <textarea class="form-control fw-bold" rows="2" name="@Html.NameFor(m => m.TaskItemDescription)" readonly="readonly">@Model.TaskItemDescription</textarea>
+                    <div><span asp-validation-for="TaskItemDescription" class="text-danger"></span></div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12 mb-2">
+                    <label asp-for="TaskItemDeliverable" class="form-label text-white fw-bold"></label>
+                    <textarea class="form-control fw-bold" rows="2" name="@Html.NameFor(m => m.TaskItemDeliverable)" readonly="readonly">@Model.TaskItemDeliverable</textarea>
+                    <div><span asp-validation-for="TaskItemDeliverable" class="text-danger"></span></div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12 mb-2">
+                    <label asp-for="EvaluatorsComment" class="form-label text-white fw-bold"></label>
+                    <textarea asp-for="EvaluatorsComment" class="form-control fw-bold" rows="2">@Model.EvaluatorsComment</textarea>
+                    <div><span asp-validation-for="EvaluatorsComment" class="text-danger"></span></div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-2 mb-2">
+                    <label asp-for="PercentageCompletion" class="form-label text-white fw-bold"></label>
+                    <div class="input-group mb-2">
+                        <input type="number" min="0" max="100" asp-for="PercentageCompletion" class="form-control fw-bold" placeholder="Recipient's username" aria-label="Percentage Completion" aria-describedby="basic-addon2">
+                        <span class="input-group-text fw-bold" id="basic-addon2">%</span>
+                    </div>
+                    <div><span asp-validation-for="PercentageCompletion" class="text-danger"></span></div>
+                </div>
+                <div class="col-md-2 mb-2">
+                    <label asp-for="QualityRating" class="form-label text-white fw-bold"></label>
+                    <select asp-for="QualityRating" class="form-control fw-bold">
+                        <option value="5">Excellent</option>
+                        <option value="4">Very Good</option>
+                        <option value="3">Good</option>
+                        <option value="2">Poor</option>
+                        <option value="1">Very Poor</option>
+                    </select>
+                    <div><span asp-validation-for="QualityRating" class="text-danger"></span></div>
+                </div>
+                <div class="col-md-8 text-end">
+                    @if (Model.Source == "sbt")
+                    {
+                        <a asp-area="WKS" asp-controller="Tasks" asp-action="SubmittedTasks" asp-route-id="@Model.TaskListID" class="btn btn-dark pt-3" style="width:100px" title="Go Back">
+                            <span class="text-white">Back</span>
+                        </a>
+                    }
+                    else if (Model.Source == "sbv")
+                    {
+                        <a asp-area="WKS" asp-controller="Tasks" asp-action="SubmittedEvaluations" asp-route-id="@Model.TaskListID" asp-route-ed="@Model.EvaluatorID" asp-route-od="@Model.TaskOwnerID" class="btn btn-dark pt-3" style="width:100px" title="Go Back">
+                            <span class="text-white">Back</span>
+                        </a>
+                    }
+                    else if (Model.Source == "txb")
+                    {
+                        <a asp-area="WKS" asp-controller="Tasks" asp-action="Taskboard" asp-route-id="@Model.TaskListID" class="btn btn-dark pt-3" style="width:100px" title="Go Back">
+                            <span class="text-white">Back</span>
+                        </a>
+                    }
+                    else
+                    {
+                        <a asp-area="WKS" asp-controller="Tasks" asp-action="Index" class="btn btn-dark pt-3" style="width:100px" title="Go Back">
+                            <span class="text-white">Back</span>
+                        </a>
+                    }
+                    <button type="submit" class="btn btn-info ml-2 pt-3" title="Save" style="width:200px"><span class="text-white">Save</span></button>
+                </div>
+            </div>
+            <input type="hidden" asp-for="TaskListID" />
+            <input type="hidden" asp-for="TaskEvaluationHeaderID" />
+            <input type="hidden" asp-for="TaskEvaluationDetailID" />
+            <input type="hidden" asp-for="TaskItemID" />
+            <input type="hidden" asp-for="Source" />
+            <input type="hidden" asp-for="TaskOwnerID" />
+            <input type="hidden" asp-for="EvaluatorID" />
+        </form>
+        </div>
+    </div>
+</div>

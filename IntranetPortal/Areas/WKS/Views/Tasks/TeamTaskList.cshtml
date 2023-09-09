@@ -1,0 +1,389 @@
+﻿@model IntranetPortal.Areas.WKS.Models.TaskListViewModel
+@{
+    ViewData["Title"] = "OfficeManager | Team Task Lists";
+}
+<div class="container">
+    <h4>Team Task Folders</h4>
+    <hr />
+    <div class="row">
+        <form asp-area="WKS" asp-controller="Tasks" asp-action="TeamTaskList" method="get">
+            <div class="row">
+                <div class="col-md-2">
+                    <a asp-area="WKS" asp-controller="Tasks" asp-action="index" class="btn btn-dark" style="width:100px" title="Back">
+                        <span class="text-white">Back</span>
+                    </a>
+                </div>
+                <div class="col-md-8 text-end">
+                    <select asp-for="id" class="border-0" asp-items="@ViewBag.ReportsList" style="min-width:300px">
+                        <option value=""> Select Staff </option>
+                    </select>
+                    <select asp-for="cm" class="border-0" style="width:100px">
+                        <option value="0">All</option>
+                        <option value="1">Jan</option>
+                        <option value="2">Feb</option>
+                        <option value="3">Mar</option>
+                        <option value="4">Apr</option>
+                        <option value="5">May</option>
+                        <option value="6">Jun</option>
+                        <option value="7">Jul</option>
+                        <option value="8">Aug</option>
+                        <option value="9">Sep</option>
+                        <option value="10">Oct</option>
+                        <option value="11">Nov</option>
+                        <option value="12">Dec</option>
+                    </select>
+                    <input asp-for="cy" class="border-0" style="width:100px" type="number" min="2020" max="2060" />
+                    <input type="submit" value="Search" class="btn btn-dark ml-2" style="width:100px" />
+                </div>
+                <div class="col-md-2 text-end">
+
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="row">
+        @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-x-circle"></i>
+                <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+    </div>
+    @if (Model == null || Model.TaskLists == null || Model.TaskLists.Count < 1)
+    {
+        <div class="alert alert-info fade show mt-2" role="alert">
+            <i class="bi bi-info-circle"></i>
+            <span class="fw-bold">No record was found.</span>
+        </div>
+        if (!string.IsNullOrWhiteSpace(Model.id))
+        {
+            <div class="row mt-3">
+                <div class="col-md-6 col-lg-2 col-xlg-3">
+                    <a class="dropdown-item" asp-area="WKS" asp-controller="Tasks" asp-action="ManageTaskList" asp-route-od="@Model.id" asp-route-src="ttl">
+                        <div class="card card-hover">
+                            <div class="box bg-light text-center">
+                                <h1 class="font-light text-dark" title="Create New Task Folder"><i class="bi bi-folder-plus"></i></h1>
+                                <h6 class="text-dark">New Task Folder</h6>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <div class="row mt-5">
+            <div class="col-md-6 col-lg-2 col-xlg-3">
+                <a class="dropdown-item" asp-area="WKS" asp-controller="Tasks" asp-action="ManageTaskList" asp-route-od="@Model.id" asp-route-src="ttl">
+                    <div class="card card-hover">
+                        <div class="box bg-light text-center">
+                            <h1 class="font-light text-dark" title="Create New Task Folder"><i class="bi bi-folder-plus"></i></h1>
+                            <h6 class="text-dark">New Task Folder</h6>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            @foreach (var taskList in Model.TaskLists)
+            {
+                @if (taskList.IsArchived)
+                {
+                    <div class="col-md-6 col-lg-2 col-xlg-3">
+                        <div class="card card-hover">
+                            <div class="box bg-light text-center">
+                                <h1 class="font-light text-dark" title="@taskList.Description"><i class="bi bi-archive"></i></h1>
+                                <h6 class="text-dark">@taskList.Name</h6>
+                                <!-- Default dropstart button -->
+                                <div class="btn-group dropstart">
+                                    <button type="button" data-bs-toggle="dropdown" aria-expanded="false" style="border:0px">
+                                        <span class="fw-bold" style="font-size:1.0rem;"><i class="bi bi-three-dots"></i></span>
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton2">
+                                        <li>
+                                            <a class="dropdown-item" asp-area="WKS" asp-controller="Tasks" asp-action="TeamTaskboard" asp-route-id="@taskList.Id" asp-route-src="ttl">
+                                                <i class="bi bi-folder2-open"></i> <span>Open</span>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item" asp-area="WKS" asp-controller="Tasks" asp-action="TaskListInfo" asp-route-id="@taskList.Id">
+                                                <i class="bi bi-info-circle"></i>  <span>Detail</span>
+                                            </a>
+                                        </li>
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li>
+                                            <a class="dropdown-item" href="#">
+                                                <i class="bi bi-stickies"></i> <span>Notes</span>
+                                            </a>
+                                            <ul class="dropdown-menu dropdown-menu-dark dropdown-submenu">
+                                                <li>
+                                                    <a class="dropdown-item" asp-area="WKS" asp-controller="Tasks" asp-action="TaskListNotes" asp-route-id="@taskList.Id">
+                                                        <i class="bi bi-stickies"></i> <span>View Notes</span>
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    if (taskList.IsLocked)
+                    {
+                        <div class="col-md-6 col-lg-2 col-xlg-3">
+                            <div class="card card-hover">
+                                <div class="box bg-light text-center">
+                                    <h1 class="font-light text-dark" title="@taskList.Description"><i class="bi bi-folder-x"></i></h1>
+                                    <h6 class="text-dark">@taskList.Name</h6>
+                                    <!-- Default dropstart button -->
+                                    <div class="btn-group dropstart">
+                                        <button type="button" data-bs-toggle="dropdown" aria-expanded="false" style="border:0px">
+                                            <span class="fw-bold" style="font-size:1.0rem;"><i class="bi bi-three-dots"></i></span>
+                                        </button>
+                                        <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton2">
+                                            <li>
+                                                <a class="dropdown-item" asp-area="WKS" asp-controller="Tasks" asp-action="TeamTaskboard" asp-route-id="@taskList.Id" asp-route-src="ttl">
+                                                    <i class="bi bi-folder2-open"></i> <span>Open</span>
+                                                </a>
+                                            <li>
+                                            <li>
+                                                <a class="dropdown-item" asp-area="WKS" asp-controller="Tasks" asp-action="TaskListInfo" asp-route-id="@taskList.Id">
+                                                    <i class="bi bi-info-circle"></i>  <span>Detail</span>
+                                                </a>
+                                            </li>
+                                            <li><hr class="dropdown-divider"></li>
+                                            <li>
+                                                <a class="dropdown-item" href="#">
+                                                    <i class="bi bi-stickies"></i> <span>Notes</span>
+                                                </a>
+                                                <ul class="dropdown-menu dropdown-menu-dark dropdown-submenu">
+                                                    <li>
+                                                        <a class="dropdown-item" asp-area="WKS" asp-controller="Tasks" asp-action="AddTaskNote" asp-route-id="0" asp-route-od="@taskList.OwnerId" asp-route-tl="@taskList.Id" asp-route-tp="l" asp-route-src="ttl">
+                                                            <i class="bi bi-sticky"></i> <span>Drop a Note</span>
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <a class="dropdown-item" asp-area="WKS" asp-controller="Tasks" asp-action="TaskListNotes" asp-route-id="@taskList.Id">
+                                                            <i class="bi bi-stickies"></i> <span>View Notes</span>
+                                                        </a>
+                                                    </li>
+                                                </ul>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="col-md-6 col-lg-2 col-xlg-3">
+                            <div class="card card-hover">
+                                <div class="box bg-light text-center">
+                                    <h1 class="font-light text-dark" title="@taskList.Description"><i class="bi bi-folder"></i></h1>
+                                    <h6 class="text-dark">@taskList.Name</h6>
+                                    <!-- Default dropstart button -->
+                                    <div class="btn-group dropstart">
+                                        <button type="button" data-bs-toggle="dropdown" aria-expanded="false" style="border:0px">
+                                            <span class="fw-bold" style="font-size:1.0rem;"><i class="bi bi-three-dots"></i></span>
+                                        </button>
+                                        <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton2">
+                                            <li>
+                                                <a class="dropdown-item" asp-area="WKS" asp-controller="Tasks" asp-action="TeamTaskboard" asp-route-id="@taskList.Id" asp-route-src="ttl">
+                                                    <i class="bi bi-folder2-open"></i> <span>Open</span>
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a class="dropdown-item" asp-area="WKS" asp-controller="Tasks" asp-action="TaskListInfo" asp-route-id="@taskList.Id">
+                                                    <i class="bi bi-info-circle"></i>  <span>Detail</span>
+                                                </a>
+                                            </li>
+                                            <li><hr class="dropdown-divider"></li>
+                                            <li>
+                                                <a class="dropdown-item" href="#">
+                                                    <i class="bi bi-stickies"></i> <span>Notes</span>
+                                                </a>
+                                                <ul class="dropdown-menu dropdown-menu-dark dropdown-submenu">
+                                                    <li>
+                                                        <a class="dropdown-item" asp-area="WKS" asp-controller="Tasks" asp-action="AddTaskNote" asp-route-id="0" asp-route-tl="@taskList.Id" asp-route-tp="l" asp-route-src="txb">
+                                                            <i class="bi bi-sticky"></i> <span>Drop a Note</span>
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <a class="dropdown-item" asp-area="WKS" asp-controller="Tasks" asp-action="TaskListNotes" asp-route-id="@taskList.Id">
+                                                            <i class="bi bi-stickies"></i> <span>View Notes</span>
+                                                        </a>
+                                                    </li>
+                                                </ul>
+                                            </li>
+                                            <li>
+                                                <a class="dropdown-item" asp-area="WKS" asp-controller="Tasks" asp-action="ManageTaskList" asp-route-od="@taskList.OwnerId" asp-route-src="ttl">
+                                                    <i class="bi bi-folder-plus"></i><span>New Folder</span>
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                }
+            }
+        </div>
+
+
+        @*@if (Model != null && Model.TaskLists != null && Model.TaskLists.Count > 0)
+            {
+                <div class="row mt-2">
+                    <div class="table-responsive" style="min-height:500px">
+                        <table class="table table-hover">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th class="p-2"><span class="text-white fw-bold">Name</span></th>
+                                    <th class="p-2"><span class="text-white fw-bold">Owner</span></th>
+                                    <th class="p-2"><span class="text-white fw-bold">Created On</span></th>
+                                    <th class="p-2"><span class="text-white fw-bold">Status</span></th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody class="table-light">
+                                @foreach (var taskList in Model.TaskLists)
+                                {
+                                    <tr>
+                                        <td>
+                                            @if (taskList.IsLocked)
+                                            {
+                                                <i class="bi bi-lock-fill" style="font-size:1.2rem; margin-left:3px;" title="Locked"></i>
+                                            }
+                                            else
+                                            {
+                                                <i class="bi bi-unlock" style="font-size:1.2rem; margin-left:3px;" title="Not Locked"></i>
+                                            }
+                                            <span class="fw-bold ml-1" title="@taskList.Description">@taskList.Name</span>
+                                        </td>
+                                        <td>
+                                            <span class="fw-bold ml-1" title="@taskList.OwnerName">
+                                                <i class="bi bi-person-fill" style="font-size:1.2rem;"></i>
+                                            </span>
+                                        </td>
+                                        <td>
+                                            @if (taskList.CreatedTime != null)
+                                            {
+                                                <span class="fw-bold" title="@taskList.CreatedTime.Value.ToLongDateString() @taskList.CreatedTime.Value.ToLongTimeString() GMT">@taskList.CreatedTime.Value.ToString("yyyy-MMM-dd")</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="fw-bold">[Unspecified]</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            @if (taskList.IsArchived)
+                                            {
+                                                <span class="fw-bold" title="Archived">Archived</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="fw-bold" title="Active">Active</span>
+                                            }
+                                        </td>
+                                        <td style="vertical-align:top">
+                                            <!-- Default dropstart button -->
+                                            <div class="btn-group dropstart">
+                                                <button type="button" data-bs-toggle="dropdown" aria-expanded="false" style="border:0px">
+                                                    <span class="fw-bold" style="font-size:1.0rem;"><i class="bi bi-three-dots-vertical"></i></span>
+                                                </button>
+                                                <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton2">
+                                                    <li>
+                                                        <a class="dropdown-item" asp-area="WKS" asp-controller="Tasks" asp-action="TeamTaskboard" asp-route-id="@taskList.Id">
+                                                            <i class="bi bi-card-checklist"></i> <span>Task Board</span>
+                                                        </a>
+                                                    </li>
+                                                    <li><hr class="dropdown-divider"></li>
+                                                    <li>
+                                                        <a class="dropdown-item" asp-area="WKS" asp-controller="Tasks" asp-action="TaskListInfo" asp-route-id="@taskList.Id" title="Details">
+                                                            <i class="bi bi-info-lg"></i>  <span>Details</span>
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <a class="dropdown-item" href="#">
+                                                            <i class="bi bi-stickies"></i> <span>Notes</span>
+                                                        </a>
+                                                        <ul class="dropdown-menu dropdown-menu-dark dropdown-submenu">
+                                                            @if (!taskList.IsArchived)
+                                                            {
+                                                                <li>
+                                                                    <a class="dropdown-item" asp-area="WKS" asp-controller="Tasks" asp-action="AddTaskNote" asp-route-id="0" asp-route-tl="@taskList.Id" asp-route-tp="l" asp-route-src="txb">
+                                                                        <i class="bi bi-sticky"></i> <span>Drop a Note</span>
+                                                                    </a>
+                                                                </li>
+                                                            }
+                                                            <li>
+                                                                <a class="dropdown-item" asp-area="WKS" asp-controller="Tasks" asp-action="TaskListNotes" asp-route-id="@taskList.Id">
+                                                                    <i class="bi bi-stickies"></i> <span>View Notes</span>
+                                                                </a>
+                                                            </li>
+                                                        </ul>
+                                                    </li>
+                                                    @if (!taskList.IsLocked)
+                                                    {
+                                                        <li>
+                                                            <a class="dropdown-item" asp-area="WKS" asp-controller="Tasks" asp-action="ManageTaskList" asp-route-id="@taskList.Id">
+                                                                <i class="bi bi-pencil-fill"></i>  <span>Edit</span>
+                                                            </a>
+                                                        </li>
+
+                                                        <li>
+                                                            <a class="dropdown-item" asp-area="WKS" asp-controller="Tasks" asp-action="DeleteTaskList" asp-route-id="@taskList.Id">
+                                                                <i class="bi bi-trash-fill"></i>  <span>Delete</span>
+                                                            </a>
+                                                        </li>
+                                                    }
+
+                                                    @if (taskList.IsArchived)
+                                                    {
+                                                        <li>
+                                                            <button class="dropdown-item" id="btn_activate_@taskList.Id" onclick="reactivateTaskList('@taskList.Id')">
+                                                                <i class="bi bi-journal-check"></i>  <span>Re-Activate</span>
+                                                            </button>
+                                                        </li>
+                                                    }
+                                                    else
+                                                    {
+                                                        <li>
+                                                            <button class="dropdown-item" id="btn_archive_@taskList.Id" onclick="archiveTaskList('@taskList.Id')">
+                                                                <i class="bi bi-journal-album"></i> <span>Archive</span>
+                                                            </button>
+                                                        </li>
+                                                    }
+                                                </ul>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            }
+        *@
+    }
+</div>
+@section Scripts{
+    <script src="~/js/js_wks/wks_tsk_lst.js"></script>
+}
+
+
+
+
+
+
+
+
+
+
+

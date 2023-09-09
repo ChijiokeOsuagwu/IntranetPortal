@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using IntranetPortal.Areas.BAMS.Models;
 using IntranetPortal.Base.Models.BamsModels;
 using IntranetPortal.Base.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace IntranetPortal.Areas.BAMS.Controllers
@@ -20,6 +21,7 @@ namespace IntranetPortal.Areas.BAMS.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "BAMVWDPLS, BAMMGDPLS, XYALLACCZ")]
         public async Task<IActionResult> List(int id)
         {
             AssignmentUpdatesListViewModel model = new AssignmentUpdatesListViewModel();
@@ -39,8 +41,8 @@ namespace IntranetPortal.Areas.BAMS.Controllers
             return View(model);
         }
 
-
         [HttpGet]
+        [Authorize(Roles = "BAMMGDPLS, XYALLACCZ")]
         public IActionResult New(int id)
         {
             AssignmentUpdatesViewModel model = new AssignmentUpdatesViewModel();
@@ -49,6 +51,7 @@ namespace IntranetPortal.Areas.BAMS.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "BAMMGDPLS, XYALLACCZ")]
         public async Task<IActionResult> New(AssignmentUpdatesViewModel model)
         {
             int assignmentEventId = 0;
@@ -91,8 +94,8 @@ namespace IntranetPortal.Areas.BAMS.Controllers
             return View(model);
         }
 
-
         [HttpPost]
+        [Authorize(Roles = "BAMMGDPLS, XYALLACCZ")]
         public async Task<string> Delete(int id)
         {
             try

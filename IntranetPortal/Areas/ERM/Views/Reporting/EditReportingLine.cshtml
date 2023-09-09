@@ -32,63 +32,64 @@
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
             }
-            <form asp-area="ERM" asp-controller="Reporting" asp-action="EditReportingLine" method="post">
-                <div class="row">
-                    <input type="hidden" asp-for="EmployeeID" />
-                    <input type="hidden" asp-for="ReportingLineID" />
-                    <div class="col-md-6 mb-2">
-                        <label asp-for="EmployeeName" class="form-label text-white fw-bold"></label>
-                        <div class="input-group">
-                            <input asp-for="EmployeeName" class="form-control fw-bold" readonly="readonly" aria-label="Employee Name" aria-describedby="button-addon2">
-                        </div>
-                        <div><span asp-validation-for="EmployeeName" class="text-danger"></span></div>
+        <form asp-area="ERM" asp-controller="Reporting" asp-action="EditReportingLine" method="post">
+            <div class="row">
+                <input type="hidden" asp-for="EmployeeID" />
+                <input type="hidden" asp-for="ReportingLineID" />
+                <div class="col-md-6 mb-2">
+                    <label asp-for="EmployeeName" class="form-label text-white fw-bold"></label>
+                    <div class="input-group">
+                        <input asp-for="EmployeeName" class="form-control fw-bold" readonly="readonly" aria-label="Employee Name" aria-describedby="button-addon2">
                     </div>
-                    <div class="col-md-6 mb-2">
-                        <input type="hidden" asp-for="ReportsToEmployeeID" />
-                        <label asp-for="ReportsToEmployeeName" class="form-label text-white fw-bold"></label>
-                        <input asp-for="ReportsToEmployeeName" class="form-control fw-bold">
-                        <div><span asp-validation-for="ReportsToEmployeeName" class="text-danger"></span></div>
-                    </div>
+                    <div><span asp-validation-for="EmployeeName" class="text-danger"></span></div>
                 </div>
-                <div class="row">
-                    <div class="col-md-6 mb-2">
-                        <label asp-for="ReportStartDate" class="form-label text-white fw-bold"></label>
-                        <input asp-for="ReportStartDate" class="form-control fw-bold">
-                        <div><span asp-validation-for="ReportStartDate" class="text-danger"></span></div>
-                    </div>
-                    <div class="col-md-6 mb-2">
-                        <label asp-for="ReportEndDate" class="form-label text-white fw-bold"></label>
-                        <input asp-for="ReportEndDate" class="form-control fw-bold">
-                        <div><span asp-validation-for="ReportEndDate" class="text-danger"></span></div>
-                    </div>
+                <div class="col-md-6 mb-2">
+                    <input type="hidden" asp-for="ReportsToEmployeeID" />
+                    <label asp-for="ReportsToEmployeeName" class="form-label text-white fw-bold"></label>
+                    <input asp-for="ReportsToEmployeeName" class="form-control fw-bold">
+                    <div><span asp-validation-for="ReportsToEmployeeName" class="text-danger"></span></div>
                 </div>
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label asp-for="TeamID" class="form-label text-white fw-bold"></label>
-                        <select asp-for="TeamID" asp-items="@ViewBag.TeamsList" class="form-control fw-bold">
-                            <option value=""> - Select - </option>
-                        </select>
-                        <div><span asp-validation-for="TeamID" class="text-danger"></span></div>
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <label asp-for="ReportsToEmployeeRole" class="form-label text-white fw-bold"></label>
-                        <input asp-for="ReportsToEmployeeRole" class="form-control fw-bold">
-                        <div><span asp-validation-for="ReportsToEmployeeRole" class="text-danger"></span></div>
-                    </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6 mb-2">
+                    <label asp-for="ReportStartDate" class="form-label text-white fw-bold"></label>
+                    <input asp-for="ReportStartDate" class="form-control fw-bold">
+                    <div><span asp-validation-for="ReportStartDate" class="text-danger"></span></div>
                 </div>
-                <div class="row">
-                    <a asp-area="ERM" asp-controller="Reporting" asp-action="ReportLines" asp-route-id="@Model.EmployeeID" class="btn btn-dark ml-2" style="width:100px" title="Return Home">
-                        <span class="text-white">Back</span>
+                <div class="col-md-6 mb-2">
+                    <label asp-for="ReportEndDate" class="form-label text-white fw-bold"></label>
+                    <input asp-for="ReportEndDate" class="form-control fw-bold">
+                    <div><span asp-validation-for="ReportEndDate" class="text-danger"></span></div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label asp-for="TeamID" class="form-label text-white fw-bold"></label>
+                    <select asp-for="TeamID" asp-items="@ViewBag.TeamsList" class="form-control fw-bold">
+                        <option value=""> - Select - </option>
+                    </select>
+                    <div><span asp-validation-for="TeamID" class="text-danger"></span></div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label asp-for="ReportsToEmployeeRole" class="form-label text-white fw-bold"></label>
+                    <input asp-for="ReportsToEmployeeRole" class="form-control fw-bold">
+                    <div><span asp-validation-for="ReportsToEmployeeRole" class="text-danger"></span></div>
+                </div>
+            </div>
+            <div class="row">
+                <a asp-area="ERM" asp-controller="Reporting" asp-action="ReportLines" asp-route-id="@Model.EmployeeID" asp-route-src="@Model.Source" class="btn btn-dark ml-2" style="width:100px" title="Return Home">
+                    <span class="text-white">Back</span>
+                </a>
+                @if (!Model.OperationIsCompleted)
+                {
+                    <a asp-area="ERM" asp-controller="Reporting" asp-action="AddReportingLine" asp-route-id="@Model.EmployeeID" class="btn btn-warning ml-1" style="width:100px" title="Clear">
+                        <span class="text-white">Refresh</span>
                     </a>
-                    @if (!Model.OperationIsCompleted)
-                    {
-                        <a asp-area="ERM" asp-controller="Reporting" asp-action="AddReportingLine" asp-route-id="@Model.EmployeeID" class="btn btn-warning ml-1" style="width:100px" title="Clear">
-                            <span class="text-white">Refresh</span>
-                        </a>
-                        <button type="submit" class="btn btn-info ml-2" title="Save Changes" style="width:200px"><span class="text-white">Update</span></button>
-                    }
-                </div>
-            </form>
+                    <button type="submit" class="btn btn-info ml-2" title="Save Changes" style="width:200px"><span class="text-white">Update</span></button>
+                }
+            </div>
+            <input type="hidden" asp-for="Source" />
+        </form>
         </div>
     </div>
 </div>

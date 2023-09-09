@@ -35,13 +35,13 @@ namespace IntranetPortal.Areas.ERM.Controllers
         }
 
 
-        [Authorize(Roles = "ERMHMPGVW, XYALLACCZ")]
+        [Authorize(Roles = "ERMVWAEMR, XYALLACCZ")]
         public IActionResult index()
         {
             return View();
         }
 
-        [Authorize(Roles = "ERMHMPGVW, XYALLACCZ")]
+        [Authorize(Roles = "ERMVWAEMR, XYALLACCZ")]
         public async Task<IActionResult> BirthDayList(int? mm, int? dd)
         {
             BirthDayListViewModel model = new BirthDayListViewModel();
@@ -97,6 +97,14 @@ namespace IntranetPortal.Areas.ERM.Controllers
             }, Formatting.Indented);
 
             return Json(model);
+        }
+
+
+        [HttpGet]
+        public JsonResult GetPersonNames(string text)
+        {
+            List<string> persons = _baseModelService.SearchPersonsByName(text).Result.Select(x => x.FullName).ToList();
+            return Json(persons);
         }
 
         #endregion

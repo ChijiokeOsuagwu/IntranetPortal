@@ -37,7 +37,7 @@
             {
                 <!-- Column -->
                 <div class="col-md-4 col-lg-2 col-xlg-1">
-                    <a title="@folder.Description" asp-area="WKS" asp-controller="Projects" asp-action="MyProjects" asp-route-id="@folder.ID">
+                    <a title="@folder.Description" asp-area="WKS" asp-controller="Projects" asp-action="MyProjects" asp-route-id="@folder.ID" asp-route-src="xws">
                         <div class="card card-hover">
                             <div class="box bg-light text-center">
                                 @if (folder.IsArchived)

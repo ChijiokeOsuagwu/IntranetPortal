@@ -31,19 +31,25 @@ namespace IntranetPortal.Base.Services
         }
 
         #region Employee Service Methods
-        public async Task<bool> CreateEmployeeAsync(Employee employee)
+        public async Task<bool> CreateEmployeeAsync(Employee employee, bool personExists = false)
         {
             if (employee == null) { throw new ArgumentNullException(nameof(employee), "The required parameter [employee] is missing."); }
 
             try
             {
+                bool PersonIsAdded = false;
                 var entity = await _employeesRepository.GetEmployeeByNameAsync(employee.FullName);
                 if (entity != null && !string.IsNullOrWhiteSpace(entity.EmployeeID))
                 {
                     throw new Exception("Sorry, this employee already has a record in the system.");
                 }
-                Person person = employee.ToPerson();
-                bool PersonIsAdded = await _personRepository.AddPersonAsync(person);
+                if (personExists) { PersonIsAdded = true; }
+                else
+                {
+                    Person person = employee.ToPerson();
+                    PersonIsAdded = await _personRepository.AddPersonAsync(person);
+                }
+
                 if (PersonIsAdded)
                 {
                     int day = DateTime.Now.Day;
@@ -574,6 +580,37 @@ namespace IntranetPortal.Base.Services
             }
             return employeeReportLine;
         }
+
+
+        public async Task<List<EmployeeReportLine>> GetActiveEmployeeReportsByEmployeeIdAsync(string reportsToEmployeeId)
+        {
+            List<EmployeeReportLine> employeeReportLines = new List<EmployeeReportLine>();
+            try
+            {
+                var entities = await _employeesRepository.GetActiveEmployeeReportsByReportsToEmployeeIdAsync(reportsToEmployeeId);
+                employeeReportLines = entities.ToList();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return employeeReportLines;
+        }
+        public async Task<List<EmployeeReportLine>> GetEmployeeReportsByReportsToEmployeeIdAsync(string reportsToEmployeeId)
+        {
+            List<EmployeeReportLine> employeeReportLines = new List<EmployeeReportLine>();
+            try
+            {
+                var entities = await _employeesRepository.GetEmployeeReportsByReportsToEmployeeIdAsync(reportsToEmployeeId);
+                employeeReportLines = entities.ToList();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return employeeReportLines;
+        }
+
         #endregion
     }
 }

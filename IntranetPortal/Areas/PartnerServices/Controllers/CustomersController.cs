@@ -8,6 +8,7 @@ using IntranetPortal.Base.Models.BaseModels;
 using IntranetPortal.Base.Models.PartnerServicesModels;
 using IntranetPortal.Base.Services;
 using IntranetPortal.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Configuration;
@@ -16,9 +17,9 @@ using Microsoft.Extensions.Logging;
 namespace IntranetPortal.Areas.PartnerServices.Controllers
 {
     [Area("PartnerServices")]
+    [Authorize]
     public class CustomersController : Controller
     {
-        private readonly ILogger<CustomersController> _logger;
         private readonly ISecurityService _securityService;
         private readonly IConfiguration _configuration;
         private readonly IBusinessManagerService _businessManagerService;
@@ -35,6 +36,7 @@ namespace IntranetPortal.Areas.PartnerServices.Controllers
             _globalSettingsService = globalSettingsService;
         }
 
+        [Authorize(Roles = "BPSVWCUSR, BPSMGCUSR, XYALLACCZ")]
         public async Task<IActionResult> List(string sp = null, int? pg = null)
         {
             IEnumerable<Business> businessList = new List<Business>();
@@ -61,6 +63,7 @@ namespace IntranetPortal.Areas.PartnerServices.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "BPSMGCUSR, XYALLACCZ")]
         public async Task<IActionResult> AddCustomer()
         {
             BusinessPartnerViewModel model = new BusinessPartnerViewModel();
@@ -73,6 +76,7 @@ namespace IntranetPortal.Areas.PartnerServices.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "BPSMGCUSR, XYALLACCZ")]
         public async Task<IActionResult> AddCustomer(BusinessPartnerViewModel model)
         {
             if (ModelState.IsValid)
@@ -163,6 +167,7 @@ namespace IntranetPortal.Areas.PartnerServices.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "BPSMGCUSR, XYALLACCZ")]
         public async Task<IActionResult> Edit(string id)
         {
             BusinessPartnerViewModel model = new BusinessPartnerViewModel();
@@ -199,6 +204,7 @@ namespace IntranetPortal.Areas.PartnerServices.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "BPSMGCUSR, XYALLACCZ")]
         public async Task<IActionResult> Edit(BusinessPartnerViewModel model)
         {
             if (ModelState.IsValid)
@@ -239,6 +245,7 @@ namespace IntranetPortal.Areas.PartnerServices.Controllers
             return View(model);
         }
 
+        [Authorize(Roles = "BPSVWCUSR, BPSMGCUSR, XYALLACCZ")]
         public async Task<IActionResult> Details(string id)
         {
             BusinessPartnerViewModel model = new BusinessPartnerViewModel();
@@ -263,6 +270,7 @@ namespace IntranetPortal.Areas.PartnerServices.Controllers
             return View(model);
         }
 
+        [Authorize(Roles = "BPSMGCUSR, XYALLACCZ")]
         public async Task<IActionResult> Delete(string id)
         {
             BusinessPartnerViewModel model = new BusinessPartnerViewModel();
@@ -288,6 +296,7 @@ namespace IntranetPortal.Areas.PartnerServices.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "BPSMGCUSR, XYALLACCZ")]
         public async Task<IActionResult> Delete(BusinessPartnerViewModel model)
         {
             try
@@ -326,6 +335,7 @@ namespace IntranetPortal.Areas.PartnerServices.Controllers
             }
         }
 
+        [Authorize(Roles = "BPSVWCUSR, BPSMGCUSR, XYALLACCZ")]
         public async Task<IActionResult> Contacts(string sp = null)
         {
             ContactListViewModel model = new ContactListViewModel();
@@ -352,6 +362,7 @@ namespace IntranetPortal.Areas.PartnerServices.Controllers
             return View(model);
         }
 
+        [Authorize(Roles = "BPSMGCUSR, XYALLACCZ")]
         public IActionResult AddContact(string id)
         {
             ContactViewModel model = new ContactViewModel();
@@ -365,6 +376,7 @@ namespace IntranetPortal.Areas.PartnerServices.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "BPSMGCUSR, XYALLACCZ")]
         public async Task<IActionResult> AddContact(ContactViewModel model)
         {
             if (ModelState.IsValid)
@@ -433,6 +445,7 @@ namespace IntranetPortal.Areas.PartnerServices.Controllers
             return View(model);
         }
 
+        [Authorize(Roles = "BPSMGCUSR, XYALLACCZ")]
         public IActionResult EditContact(int id)
         {
             ContactViewModel model = new ContactViewModel();
@@ -463,6 +476,7 @@ namespace IntranetPortal.Areas.PartnerServices.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "BPSMGCUSR, XYALLACCZ")]
         public async Task<IActionResult> EditContact(ContactViewModel model)
         {
             if (ModelState.IsValid)
@@ -509,6 +523,7 @@ namespace IntranetPortal.Areas.PartnerServices.Controllers
             return View(model);
         }
 
+        [Authorize(Roles = "BPSVWCUSR, BPSMGCUSR, XYALLACCZ")]
         public IActionResult ContactDetails(int id)
         {
             ContactViewModel model = new ContactViewModel();
@@ -544,6 +559,7 @@ namespace IntranetPortal.Areas.PartnerServices.Controllers
             return View(model);
         }
 
+        [Authorize(Roles = "BPSMGCUSR, XYALLACCZ")]
         public IActionResult DeleteContact(int id)
         {
             ContactViewModel model = new ContactViewModel();
@@ -580,6 +596,7 @@ namespace IntranetPortal.Areas.PartnerServices.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "BPSMGCUSR, XYALLACCZ")]
         public async Task<IActionResult> DeleteContact(ContactViewModel model)
         {
             if (ModelState.IsValid)

@@ -64,8 +64,8 @@ namespace IntranetPortal.Base.Repositories.ErmRepository
         Task<EmployeeReportLine> GetEmployeeReportLineByIdAsync(int employeeReportLineId);
         Task<IList<EmployeeReportLine>> GetEmployeeReportLinesByEmployeeIdAsync(string employeeId);
         Task<IList<EmployeeReportLine>> GetActiveEmployeeReportLinesByEmployeeIdAsync(string employeeId);
-        Task<IList<EmployeeReportLine>> GetEmployeeReportLinesByReportsToEmployeeIdAsync(string reportsToEmployeeId);
-        Task<IList<EmployeeReportLine>> GetActiveEmployeeReportLinesByReportsToEmployeeIdAsync(string reportsToEmployeeId);
+        Task<IList<EmployeeReportLine>> GetEmployeeReportsByReportsToEmployeeIdAsync(string reportsToEmployeeId);
+        Task<IList<EmployeeReportLine>> GetActiveEmployeeReportsByReportsToEmployeeIdAsync(string reportsToEmployeeId);
         #endregion
 
     }

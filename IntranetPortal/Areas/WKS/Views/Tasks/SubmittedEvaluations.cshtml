@@ -1,0 +1,225 @@
+﻿@using IntranetPortal.Base.Enums
+@model IntranetPortal.Areas.WKS.Models.SubmittedEvaluationsViewModel
+@{
+    ViewData["Title"] = "OfficeManager | Task Evaluations";
+}
+<div class="container">
+    <h4>Task Evaluations</h4>
+    <hr />
+    <div class="row">
+        <div class="col-md-3 mb-1">
+            <a asp-area="WKS" asp-controller="Tasks" asp-action="SubmittedToMe" class="btn btn-dark" style="width:100px" title="Back">
+                <span class="text-white"><i class="bi bi-backspace"></i> Back</span>
+            </a>
+        </div>
+        <div class="col-md-6 mb-1 text-end">
+
+        </div>
+        <div class="col-md-3 mb-1 text-end">
+
+        </div>
+    </div>
+    <div class="row">
+        @if (!String.IsNullOrEmpty(ViewBag.ErrorMessage))
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-x-circle"></i>
+                <span class="fw-bold">@ViewBag.ErrorMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+    </div>
+    @if (Model == null || Model.TaskItemEvaluations == null || Model.TaskItemEvaluations.Count < 1)
+    {
+        <div class="alert alert-info fade show" role="alert">
+            <i class="bi bi-info-circle"></i>
+            <span class="fw-bold">No record was found.</span>
+        </div>
+    }
+    else
+    {
+        @if (Model != null && Model.TaskItemEvaluations != null && Model.TaskItemEvaluations.Count > 0)
+        {
+            <div class="row">
+                <div class="table-responsive" style="min-height:500px;">
+                    <table class="table table-hover">
+                        <thead class="table-dark">
+                            <tr>
+                                <th><span class="text-white fw-bold">#</span></th>
+                                <th><span class="text-white fw-bold">Task Description</span></th>
+                                <th><span class="text-white fw-bold">Approval</span></th>
+                                <th><span class="text-white fw-bold">% Completion</span></th>
+                                <th><span class="text-white fw-bold">Rating</span></th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody class="table-light">
+                            @foreach (var taskItemEvaluation in Model.TaskItemEvaluations)
+                            {
+                            <tr>
+                                <td>
+                                    <span class="fw-bold ml-1" title="@taskItemEvaluation.Number">@taskItemEvaluation.Number</span>
+                                </td>
+                                <td>
+                                    <span class="fw-bold ml-1" title="@taskItemEvaluation.Description">@taskItemEvaluation.Description</span>
+                                </td>
+                                <td>
+                                    @if (taskItemEvaluation.TaskApprovalStatus == ApprovalStatus.Approved)
+                                    {
+                                        <span title="Approved"><i class="bi bi-check-lg" style="font-size:1.2rem; color:#28b463"></i></span>
+                                    }
+                                    else if (taskItemEvaluation.TaskApprovalStatus == ApprovalStatus.Declined)
+                                    {
+                                        <span title="Declined"><i class="bi bi-x-lg" style="font-size:1.2rem; color:#e74c3c"></i></span>
+                                    }
+                                    else if (taskItemEvaluation.TaskApprovalStatus == ApprovalStatus.Pending)
+                                    {
+                                        <span title="Pending"><i class="bi bi-dash-lg" style="font-size:1.2rem; color:#17202a"></i></span>
+                                    }
+                                    else
+                                    {
+                                        <span title="Pending"><i class="bi bi-three-dots" style="font-size:1.2rem; color:#17202a"></i></span>
+                                    }
+                                </td>
+                                <td style="min-width:100px">
+                                    <span class="fw-bold text-dark" title="@taskItemEvaluation.PercentageCompletion.ToString() %">@taskItemEvaluation.PercentageCompletion.ToString() %</span>
+                                </td>
+                                <td>
+                                    @if (taskItemEvaluation.QualityRating == 2)
+                                    {
+                                        <h4><span class="badge rounded-pill text-dark fw-bold" style="background-color:#DFFF00; width:100px" title="Poor">Poor</span></h4>
+                                    }
+                                    else if (taskItemEvaluation.QualityRating == 3)
+                                    {
+                                        <h4><span class="badge rounded-pill text-white fw-bold" style="background-color:#28b463; width:100px" title="Good">Good</span></h4>
+                                    }
+                                    else if (taskItemEvaluation.QualityRating == 5)
+                                    {
+                                        <h4><span class="badge rounded-pill text-white fw-bold" title="Completed" style="background-color:#7d3c98; width:100px">Excellent</span></h4>
+                                    }
+                                    else if (taskItemEvaluation.QualityRating == 1)
+                                    {
+                                        <h4><span class="badge rounded-pill text-white fw-bold" style="background-color:#e74c3c; width:100px" title="Very Poor">Very Poor</span></h4>
+                                    }
+                                    else if (taskItemEvaluation.QualityRating == 4)
+                                    {
+                                        <h4><span class="badge bg-info rounded-pill text-white fw-bold" title="Very Good" style="width:100px">Very Good</span></h4>
+                                    }
+                                </td>
+                                <td style="vertical-align:top">
+                                    <!-- Default dropstart button -->
+                                    <div class="btn-group dropstart">
+                                        <button type="button" data-bs-toggle="dropdown" aria-expanded="false" style="border:0px">
+                                            <span class="fw-bold" style="font-size:1.0rem;"><i class="bi bi-three-dots-vertical"></i></span>
+                                        </button>
+                                        <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton2">
+                                            @if (!taskItemEvaluation.IsCancelled || taskItemEvaluation.TaskStatus == WorkItemStatus.Open)
+                                            {
+                                                <li>
+                                                    <a class="dropdown-item" asp-area="WKS" asp-controller="Tasks" asp-action="EvaluateTaskItem" asp-route-id="@taskItemEvaluation.Id" asp-route-src="sbv" asp-route-hd="@Model.TaskEvaluationHeaderID">
+                                                        <i class="bi bi-list-check"></i>  <span>Evaluate</span>
+                                                    </a>
+                                                </li>
+                                            }
+
+                                            <li>
+                                                <button class="dropdown-item" onclick="closeTaskItem('@taskItemEvaluation.Id')">
+                                                    <i class="bi bi-x-circle"></i> <span>Close</span>
+                                                </button>
+                                            </li>
+                                            <li><hr class="dropdown-divider"></li>
+                                            <li>
+                                                <a class="dropdown-item" asp-area="WKS" asp-controller="Tasks" asp-action="TaskInfo" asp-route-id="@taskItemEvaluation.Id">
+                                                    <i class="bi bi-info-circle"></i> <span>Details</span>
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a class="dropdown-item" href="#">
+                                                    <i class="bi bi-stickies"></i> <span>Notes</span>
+                                                </a>
+                                                <ul class="dropdown-menu dropdown-menu-dark dropdown-submenu">
+
+                                                    <li>
+                                                        <a class="dropdown-item" asp-area="WKS" asp-controller="Tasks" asp-action="AddTaskNote" asp-route-id="@taskItemEvaluation.Id" asp-route-tl="@taskItemEvaluation.TaskListId" asp-route-tp="t" asp-route-src="sbv">
+                                                            <i class="bi bi-sticky"></i> <span>Drop a Note</span>
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <a class="dropdown-item" asp-area="WKS" asp-controller="Tasks" asp-action="TaskItemNotes" asp-route-id="@taskItemEvaluation.Id" asp-route-tl="@taskItemEvaluation.TaskListId" asp-route-src="sbv">
+                                                            <i class="bi bi-stickies"></i> <span>View Notes</span>
+                                                        </a>
+                                                    </li>
+                                                </ul>
+                                            </li>
+                                            <li>
+                                                <a class="dropdown-item" href="#">
+                                                    <i class="bi bi-file-text"></i> <span>History</span>
+                                                </a>
+                                                <ul class="dropdown-menu dropdown-menu-dark dropdown-submenu">
+                                                    <li>
+                                                        <a class="dropdown-item" asp-area="WKS" asp-controller="Tasks" asp-action="TaskItemHistory" asp-route-id="@taskItemEvaluation.Id" asp-route-tl="@taskItemEvaluation.TaskListId">
+                                                            <i class="bi bi-file-text"></i> <span>Activity History</span>
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <a class="dropdown-item" asp-area="WKS" asp-controller="Tasks" asp-action="ScheduleHistory" asp-route-id="@taskItemEvaluation.Id" asp-route-tl="@taskItemEvaluation.TaskListId">
+                                                            <i class="bi bi-file-text"></i> <span>Schedule History</span>
+                                                        </a>
+                                                    </li>
+                                                </ul>
+                                            </li>
+                                            <li><hr class="dropdown-divider"></li>
+                                            <li>
+                                                <a class="dropdown-item" href="#">
+                                                    <i class="bi bi-link-45deg"></i> <span>Link</span>
+                                                </a>
+                                                <ul class="dropdown-menu dropdown-menu-dark dropdown-submenu">
+                                                    <li>
+                                                        <a class="dropdown-item" asp-area="WKS" asp-controller="Tasks" asp-action="LinkProgram" asp-route-id="@taskItemEvaluation.Id" asp-route-tl="@taskItemEvaluation.TaskListId" asp-route-src="sbv">
+                                                            <i class="bi bi-link-45deg"></i> <span>Link Program</span>
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <a class="dropdown-item" asp-area="WKS" asp-controller="Tasks" asp-action="LinkProject" asp-route-id="@taskItemEvaluation.Id" asp-route-tl="@taskItemEvaluation.TaskListId" asp-route-src="sbv">
+                                                            <i class="bi bi-link-45deg"></i> <span>Link Project</span>
+                                                        </a>
+                                                    </li>
+                                                </ul>
+                                            </li>
+                                            <li>
+                                                <button class="dropdown-item" onclick="CancelTaskItem('@taskItemEvaluation.Id')">
+                                                    <i class="bi bi-slash-circle"></i> <span>Cancel</span>
+                                                </button>
+                                            </li>
+                                            <li>
+                                                <button class="dropdown-item" onclick="DeleteTaskItem('@taskItemEvaluation.Id')">
+                                                    <i class="bi bi-trash"></i> <span>Delete</span>
+                                                </button>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </td>
+                            </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        }
+    }
+</div>
+@section Scripts{
+    <script src="~/js/js_wks/wks_tsk_lst.js"></script>
+}
+
+
+
+
+
+
+
+
+
+
+
+

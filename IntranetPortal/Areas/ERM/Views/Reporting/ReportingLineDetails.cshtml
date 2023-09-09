@@ -88,7 +88,7 @@
                     <a asp-area="ERM" asp-controller="Home" asp-action="Index" class="btn btn-dark ml-2" style="width:100px" title="Return Home">
                         <span class="text-white">Exit</span>
                     </a>
-                    <a asp-area="ERM" asp-controller="Reporting" asp-action="ReportLines" asp-route-id="@Model.EmployeeID" class="btn btn-dark ml-2" style="width:100px" title="Return Home">
+                    <a asp-area="ERM" asp-controller="Reporting" asp-action="ReportLines" asp-route-id="@Model.EmployeeID" asp-route-src="@Model.Source" class="btn btn-dark ml-2" style="width:100px" title="Return Home">
                         <span class="text-white">Back</span>
                     </a>
                 </div>

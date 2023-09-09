@@ -18,7 +18,6 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
     [Authorize]
     public class UsageController : Controller
     {
-        private readonly ILogger<UsageController> _logger;
         private readonly ISecurityService _securityService;
         private readonly IConfiguration _configuration;
         private readonly IAssetManagerService _assetManagerService;
@@ -35,7 +34,7 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
             _globalSettingsService = globalSettingsService;
         }
 
-        [Authorize(Roles = "AMSUSGVWL, XYALLACCZ")]
+        [Authorize(Roles = "AMSVWATXN, AMSMGATXN, XYALLACCZ")]
         public async Task<IActionResult> Index(string id, int? yr = null, int? mn = null)
         {
             AssetUsageListViewModel model = new AssetUsageListViewModel();
@@ -77,7 +76,7 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
             return View(model);
         }
 
-        [Authorize(Roles = "AMSCHOVWL, XYALLACCZ")]
+        [Authorize(Roles = "AMSMGATXN, XYALLACCZ")]
         public async Task<IActionResult> CheckOutList(int? tp = null, string sp = null, int? pg = null)
         {
             IList<AssetUsage> assetUsageList = new List<AssetUsage>();
@@ -111,7 +110,7 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
         }
 
         [HttpGet]
-        [Authorize(Roles = "AMSCHOADN, XYALLACCZ")]
+        [Authorize(Roles = "AMSMGATXN, XYALLACCZ")]
         public async Task<IActionResult> CheckOut(string id)
         {
             AssetUsageViewModel model = new AssetUsageViewModel();
@@ -136,7 +135,7 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "AMSCHOADN, XYALLACCZ")]
+        [Authorize(Roles = "AMSMGATXN, XYALLACCZ")]
         public async Task<IActionResult> CheckOut(AssetUsageViewModel model)
         {
             if (ModelState.IsValid)
@@ -190,7 +189,7 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
         }
 
         [HttpGet]
-        [Authorize(Roles = "AMSCHOEDT, XYALLACCZ")]
+        [Authorize(Roles = "AMSMGATXN, XYALLACCZ")]
         public async Task<IActionResult> EditCheckOut(int id)
         {
             AssetUsageViewModel model = new AssetUsageViewModel();
@@ -220,7 +219,7 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
         }
 
         [HttpGet]
-        [Authorize(Roles = "AMSCHOVWD, XYALLACCZ")]
+        [Authorize(Roles = "AMSVWATXN, AMSMGATXN, XYALLACCZ")]
         public async Task<IActionResult> CheckOutDetails(int id)
         {
             AssetUsageViewModel model = new AssetUsageViewModel();
@@ -250,7 +249,7 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
         }
 
         [HttpGet]
-        [Authorize(Roles = "AMSCHODLT, XYALLACCZ")]
+        [Authorize(Roles = "AMSMGATXN, XYALLACCZ")]
         public async Task<IActionResult> DeleteCheckOut(int id)
         {
             AssetUsageViewModel model = new AssetUsageViewModel();
@@ -281,7 +280,7 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "AMSCHODLT, XYALLACCZ")]
+        [Authorize(Roles = "AMSMGATXN, XYALLACCZ")]
         public async Task<IActionResult> DeleteCheckOut(AssetUsageViewModel model)
         {
                 AssetUsage assetUsage = new AssetUsage();
@@ -316,7 +315,7 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
         }
 
         [HttpGet]
-        [Authorize(Roles = "AMSCHIADN, XYALLACCZ")]
+        [Authorize(Roles = "AMSMGATXN, XYALLACCZ")]
         public async Task<IActionResult> CheckIn(int id)
         {
             AssetCheckInViewModel model = new AssetCheckInViewModel();
@@ -344,7 +343,7 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "AMSCHIADN, XYALLACCZ")]
+        [Authorize(Roles = "AMSMGATXN, XYALLACCZ")]
         public async Task<IActionResult> CheckIn(AssetCheckInViewModel model)
         {
             if (ModelState.IsValid)

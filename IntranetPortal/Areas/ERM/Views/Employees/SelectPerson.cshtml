@@ -1,0 +1,89 @@
+﻿@{
+    ViewData["Title"] = "OfficeManager | Search Person";
+}
+<div class="container">
+    <h3 class="mb-1">Search Person</h3>
+    <hr />
+    <div class="mb-1">
+        <div class="mb-2">
+            <form asp-area="ERM" asp-controller="Employees" asp-action="SelectPerson" method="get">
+                <a asp-area="ERM" asp-controller="Home" asp-action="Index" class="btn btn-dark" style="width:100px" title="Exit">
+                    <span class="text-white">Exit</span>
+                </a>
+                <input type="text" class="border-0" style="width:300px" id="pn" name="pn" placeholder="Enter text to search" />
+                <input type="submit" value="Search" class="btn btn-dark" style="width:100px" />
+            </form>
+
+            @if (!String.IsNullOrEmpty(ViewBag.ErrorMessage))
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bi bi-x-circle"></i>
+                    <span class="fw-bold">@ViewBag.ErrorMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+        </div>
+        <div class="row">
+            @if (ViewBag.PersonList == null || ViewBag.PersonList.Count < 1)
+            {
+                <div class="alert alert-info fade show" role="alert">
+                    <i class="bi bi-info-circle"></i>
+                    <span class="fw-bold">No record was found.</span>
+                </div>
+            }
+            else
+            {
+                int row_no = 0;
+                <table class="table table-sm table-hover">
+                    <thead class="table-dark">
+                        <tr>
+                            <th><span class="text-white fw-bolder">#</span></th>
+                            <th>
+                                <span class="text-white fw-bolder">Full Name</span>
+                            </th>
+                            <th>
+                                <span class="text-white fw-bolder">Gender</span>
+                            </th>
+                            <th>
+                                <span class="text-white fw-bolder">Unit</span>
+                            </th>
+                            <th>
+                                <span class="text-white fw-bolder">Location</span>
+                            </th>
+                            <th>
+
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="table-success">
+                        @foreach (var item in ViewBag.PersonList)
+                        {
+                            row_no++;
+                            <tr>
+                                <td>
+                                    <span class="fw-bolder">@row_no</span>
+                                </td>
+                                <td>
+                                    <span class="fw-bolder">@item.FullName</span>
+                                </td>
+                                <td>
+                                    <span class="fw-bolder">@item.Sex</span>
+                                </td>
+                                <td>
+                                    <a asp-area="ERM" asp-controller="Employees" asp-action="Create" asp-route-id="@item.PersonID" title="Select" class="btn btn-sm btn-dark" style="width:75px">
+                                        <span class="text-white fw-bold">Select</span>
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+
+        </div>
+    </div>
+</div>
+@section Scripts{
+    <script src="~/js/js_erm/erm_employees.js"></script>
+}
+

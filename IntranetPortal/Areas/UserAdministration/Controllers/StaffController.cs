@@ -38,7 +38,7 @@ namespace IntranetPortal.Areas.UserAdministration.Controllers
             _dataProtector = dataProtectionProvider.CreateProtector(dataProtectionEncryptionStrings.RouteValuesEncryptionCode);
         }
 
-        [Authorize(Roles = "UADSTFVWL, XYALLACCZ")]
+        [Authorize(Roles = "XYALLACCZ")]
         public async Task<IActionResult> UserList(string currentFilter, string searchString, int? pageNumber)
         {
 
@@ -68,7 +68,7 @@ namespace IntranetPortal.Areas.UserAdministration.Controllers
             return View(PaginatedList<EmployeeUser>.CreateAsync(users.AsQueryable(), pageNumber ?? 1, pageSize));
         }
 
-        [Authorize(Roles = "UADSTFADN, XYALLACCZ")]
+        [Authorize(Roles = "XYALLACCZ")]
         public async Task<IActionResult> SelectStaff(string sortOrder, string currentFilter, string searchString, int? pageNumber)
         {
             ViewData["CurrentSort"] = sortOrder;
@@ -130,7 +130,7 @@ namespace IntranetPortal.Areas.UserAdministration.Controllers
             return View(PaginatedList<Employee>.CreateAsync(employees.AsQueryable(), pageNumber ?? 1, pageSize));
         }
 
-        [Authorize(Roles = "UADUSRVWD, XYALLACCZ")]
+        [Authorize(Roles = "XYALLACCZ")]
         public async Task<IActionResult> ShowDetails(string id)
         {
             Employee employee = new Employee();
@@ -166,7 +166,7 @@ namespace IntranetPortal.Areas.UserAdministration.Controllers
         }
 
         [HttpGet]
-        [Authorize(Roles = "UADSTFADN, XYALLACCZ")]
+        [Authorize(Roles = "XYALLACCZ")]
         public async Task<IActionResult> CreateUserAccount(string id)
         {
             EmployeeUserViewModel model = new EmployeeUserViewModel();
@@ -194,7 +194,7 @@ namespace IntranetPortal.Areas.UserAdministration.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "UADSTFADN, XYALLACCZ")]
+        [Authorize(Roles = "XYALLACCZ")]
         public async Task<IActionResult> CreateUserAccount(EmployeeUserViewModel model)
         {
             if (ModelState.IsValid)
@@ -280,7 +280,7 @@ namespace IntranetPortal.Areas.UserAdministration.Controllers
             return View(model);
         }
 
-        [Authorize(Roles = "UADSTFVWD, XYALLACCZ")]
+        [Authorize(Roles = "XYALLACCZ")]
         public async Task<IActionResult> EmployeeUserDetails(string id)
         {
             EmployeeUserDetailsViewModel model = new EmployeeUserDetailsViewModel();
@@ -323,7 +323,7 @@ namespace IntranetPortal.Areas.UserAdministration.Controllers
         }
 
         [HttpGet]
-        [Authorize(Roles = "UADSTFEDT, XYALLACCZ")]
+        [Authorize(Roles = "XYALLACCZ")]
         public async Task<IActionResult> EditEmployeeUserAccount(string id)
         {
             EmployeeUserViewModel model = new EmployeeUserViewModel();
@@ -355,7 +355,7 @@ namespace IntranetPortal.Areas.UserAdministration.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "UADSTFEDT, XYALLACCZ")]
+        [Authorize(Roles = "XYALLACCZ")]
         public async Task<IActionResult> EditEmployeeUserAccount(EmployeeUserViewModel model)
         {
             if (ModelState.IsValid)
@@ -412,7 +412,7 @@ namespace IntranetPortal.Areas.UserAdministration.Controllers
             return View(model);
         }
 
-        [Authorize(Roles = "UADSTFDLT, XYALLACCZ")]
+        [Authorize(Roles = "XYALLACCZ")]
         public async Task<IActionResult> DeleteUserAccount(string id)
         {
             UserDetailViewModel model = new UserDetailViewModel();
@@ -444,7 +444,7 @@ namespace IntranetPortal.Areas.UserAdministration.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "UADSTFDLT, XYALLACCZ")]
+        [Authorize(Roles = "XYALLACCZ")]
         public async Task<IActionResult> DeleteUserAccount(UserDetailViewModel model)
         {
             try

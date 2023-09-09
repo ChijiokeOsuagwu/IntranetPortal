@@ -29,13 +29,13 @@ namespace IntranetPortal.Areas.ContentManager.Controllers
             _dataProtector = dataProtectionProvider.CreateProtector(dataProtectionEncryptionStrings.RouteValuesEncryptionCode);
         }
 
-        [Authorize(Roles = "PCMVWHMPG, XYALLACCZ")]
+        [Authorize(Roles = "PCMMGACNT, XYALLACCZ")]
         public IActionResult Index()
         {
             return View();
         }
 
-        [Authorize(Roles = "PCMDETADN, XYALLACCZ")]
+        [Authorize(Roles = "PCMMGACNT, XYALLACCZ")]
         public async Task<IActionResult> AddDetails(string id)
         {
             AddPostDetailsViewModel model = new AddPostDetailsViewModel();
@@ -58,7 +58,7 @@ namespace IntranetPortal.Areas.ContentManager.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "PCMDETADN, XYALLACCZ")]
+        [Authorize(Roles = "PCMMGACNT, XYALLACCZ")]
         public async Task<IActionResult> AddDetails(AddPostDetailsViewModel model)
         {
             if (ModelState.IsValid)
@@ -83,7 +83,7 @@ namespace IntranetPortal.Areas.ContentManager.Controllers
 
 
         [HttpPost]
-        [Authorize(Roles = "PCMDETADN, XYALLACCZ")]
+        [Authorize(Roles = "PCMMGACNT, XYALLACCZ")]
         public async Task<string> AddHtmlDetails(string id, string htmlFormat)
         {
             string modifiedBy = "System Administrator";

@@ -79,7 +79,7 @@
                     <a asp-area="ERM" asp-controller="Home" asp-action="Index" class="btn btn-dark ml-2" style="width:100px" title="Return Home">
                         <span class="text-white">Exit</span>
                     </a>
-                    <a asp-area="ERM" asp-controller="Reporting" asp-action="ReportLines" asp-route-id="@Model.EmployeeID" class="btn btn-dark ml-2" style="width:100px" title="Return Home">
+                    <a asp-area="ERM" asp-controller="Reporting" asp-action="ReportLines" asp-route-id="@Model.EmployeeID" asp-route-src="@Model.Source" class="btn btn-dark ml-2" style="width:100px" title="Go Back">
                         <span class="text-white">Back</span>
                     </a>
                     @if (!Model.OperationIsCompleted)
@@ -90,6 +90,7 @@
                         <button type="submit" class="btn btn-success ml-2" title="Save" style="width:200px"><span class="text-white">Save</span></button>
                     }
                 </div>
+                <input type="hidden" asp-for="Source" />
             </form>
         </div>
     </div>

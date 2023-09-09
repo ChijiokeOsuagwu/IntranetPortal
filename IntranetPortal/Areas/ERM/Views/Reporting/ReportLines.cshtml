@@ -8,10 +8,20 @@
     <div class="mb-1">
         <div class="mb-2">
             <form asp-area="ERM" asp-controller="Reporting" asp-action="ReportLines" method="get">
-                <a asp-area="ERM" asp-controller="Employees" asp-action="Profile" asp-route-id="@Model.EmployeeID" class="btn btn-dark" style="width:100px" title="Click to Go Back">
-                    <span class="text-white">Back</span>
-                </a>
-                <a asp-area="ERM" asp-controller="Reporting" asp-action="AddReportingLine" asp-route-id="@Model.EmployeeID" class="btn btn-success pr-2" style="width:200px" title="Add Reporting Line">
+                @if (Model.Source == "hmp")
+                {
+                    <a asp-area="" asp-controller="Home" asp-action="Index" class="btn btn-dark" style="width:100px" title="Click to Go Back">
+                        <span class="text-white">Back</span>
+                    </a>
+                }
+                else
+                {
+                    <a asp-area="ERM" asp-controller="Employees" asp-action="Profile" asp-route-id="@Model.EmployeeID" class="btn btn-dark" style="width:100px" title="Click to Go Back">
+                        <span class="text-white">Back</span>
+                    </a>
+                }
+
+                <a asp-area="ERM" asp-controller="Reporting" asp-action="AddReportingLine" asp-route-id="@Model.EmployeeID" asp-route-src="@Model.Source" class="btn btn-success pr-2" style="width:200px" title="Add Reporting Line">
                     <span class="text-white">New Reportint Line</span>
                 </a>
                 <select asp-for="sp" class="border-0 fw-bold pl-2" style="width:200px">
@@ -58,13 +68,13 @@
                                     @Html.DisplayFor(modelItem => item.UnitName)
                                 </td>
                                 <td class="fw-bold p-2">
-                                    <a asp-area="ERM" asp-controller="Reporting" asp-action="ReportingLineDetails" asp-route-id="@item.ReportingLineID" title="Details" class="btn btn-xs btn-dark" style="width:30px">
+                                    <a asp-area="ERM" asp-controller="Reporting" asp-action="ReportingLineDetails" asp-route-id="@item.ReportingLineID" asp-route-src="@Model.Source" title="Details" class="btn btn-xs btn-dark" style="width:30px">
                                         <i class="bi bi-card-text" style="font-size: 0.8rem; color:white"></i>
                                     </a>
-                                    <a asp-area="ERM" asp-controller="Reporting" asp-action="EditReportingLine" asp-route-id="@item.ReportingLineID" title="Edit" class="btn btn-xs btn-info" style="width:30px">
+                                    <a asp-area="ERM" asp-controller="Reporting" asp-action="EditReportingLine" asp-route-id="@item.ReportingLineID" asp-route-src="@Model.Source" title="Edit" class="btn btn-xs btn-info" style="width:30px">
                                         <i class="bi bi-pencil-square" style="font-size: 0.8rem;"></i>
                                     </a>
-                                    <a asp-area="ERM" asp-controller="Reporting" asp-action="DeleteReportingLine" asp-route-id="@item.ReportingLineID" title="Delete" class="btn btn-xs btn-danger" style="width:30px">
+                                    <a asp-area="ERM" asp-controller="Reporting" asp-action="DeleteReportingLine" asp-route-id="@item.ReportingLineID" asp-route-src="@Model.Source" title="Delete" class="btn btn-xs btn-danger" style="width:30px">
                                         <i class="bi bi-trash-fill" style="font-size: 0.8rem; color:white"></i>
                                     </a>
                                 </td>

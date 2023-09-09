@@ -37,7 +37,7 @@ namespace IntranetPortal.Areas.GlobalSettings.Controllers
         //================================= Units Action Methods =====================================================================//
         #region Unit Action Methods
 
-        [Authorize(Roles = "GBSUNTVWL, XYALLACCZ")]
+        [Authorize(Roles = "GBSVWASTT, GBSMGASTT, XYALLACCZ")]
         public async Task<IActionResult> List()
         {
             UnitListViewModel model = new UnitListViewModel();
@@ -47,7 +47,7 @@ namespace IntranetPortal.Areas.GlobalSettings.Controllers
         }
 
         [HttpGet]
-        [Authorize(Roles = "GBSUNTADN, XYALLACCZ")]
+        [Authorize(Roles = "GBSMGASTT, XYALLACCZ")]
         public async Task<IActionResult> AddNew()
         {
             UnitViewModel model = new UnitViewModel();
@@ -60,7 +60,7 @@ namespace IntranetPortal.Areas.GlobalSettings.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "GBSUNTADN, XYALLACCZ")]
+        [Authorize(Roles = "GBSMGASTT, XYALLACCZ")]
         public async Task<IActionResult> AddNew(UnitViewModel model)
         {
             if (ModelState.IsValid)
@@ -95,7 +95,7 @@ namespace IntranetPortal.Areas.GlobalSettings.Controllers
         }
 
         [HttpGet]
-        [Authorize(Roles = "GBSUNTEDT, XYALLACCZ")]
+        [Authorize(Roles = "GBSMGASTT, XYALLACCZ")]
         public async Task<IActionResult> Edit(int? id)
         {
             Unit unit = new Unit();
@@ -122,7 +122,7 @@ namespace IntranetPortal.Areas.GlobalSettings.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "GBSUNTEDT, XYALLACCZ")]
+        [Authorize(Roles = "GBSMGASTT, XYALLACCZ")]
         public async Task<IActionResult> Edit(UnitViewModel model)
         {
             if (ModelState.IsValid)
@@ -158,7 +158,7 @@ namespace IntranetPortal.Areas.GlobalSettings.Controllers
         }
 
         [HttpGet]
-        [Authorize(Roles = "GBSUNTDLT, XYALLACCZ")]
+        [Authorize(Roles = "GBSMGASTT, XYALLACCZ")]
         public async Task<IActionResult> Delete(int? id)
         {
             Unit unit = new Unit();
@@ -183,7 +183,7 @@ namespace IntranetPortal.Areas.GlobalSettings.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "GBSUNTDLT, XYALLACCZ")]
+        [Authorize(Roles = "GBSMGASTT, XYALLACCZ")]
         public async Task<IActionResult> Delete(UnitViewModel model)
         {
             if (model != null)

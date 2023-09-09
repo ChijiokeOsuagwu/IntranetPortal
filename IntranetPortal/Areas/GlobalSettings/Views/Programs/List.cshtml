@@ -1,0 +1,161 @@
+﻿@using IntranetPortal.Base.Enums
+@model IntranetPortal.Areas.GlobalSettings.Models.ProgramListViewModel
+@{
+    ViewData["Title"] = "OfficeManager | Programme Settings";
+}
+    <div class="container">
+        <h4>Programme Settings</h4>
+        <hr />
+        <div class="row">
+            <div class="col-md-2 mb-1">
+                <a asp-area="GlobalSettings" asp-controller="Home" asp-action="Index" class="btn btn-dark" style="width:100px" title="Back">
+                    <span class="text-white"><i class="bi bi-backspace"></i> Back</span>
+                </a>
+            </div>
+            <div class="col-md-8 mb-1">
+                <form asp-area="GlobalSettings" asp-controller="Programs" asp-action="List" method="get">
+                    <select asp-for="tp" class="border-0 ml-2" style="min-width:100px">
+                        <option value=""> All </option>
+                        <option value="Regular"> Regular </option>
+                        <option value="One-Off"> One-Off </option>
+                    </select>
+                    <select asp-for="bt" asp-items="@ViewBag.ProgramBeltList" class="border-0 ml-2" style="min-width:150px">
+                        <option value="">All</option>
+                    </select>
+                    <input asp-for="st" class="border-0 ml-2" placeholder="Enter Name" style="min-width:300px" />
+                    <input type="submit" value="Search" class="btn btn-dark" style="width:100px" />
+                </form>
+            </div>
+            <div class="col-md-2 mb-1 text-end">
+                <a asp-area="GlobalSettings" asp-controller="Programs" asp-action="ManageProgram" asp-route-id="" class="btn btn-success" title="Add New Programme">
+                    <span class="text-white fw-bold"><i class="bi bi-plus-circle"></i> New Program</span>
+                </a>
+            </div>
+        </div>
+        <div class="row">
+            @if (!String.IsNullOrEmpty(ViewBag.ErrorMessage))
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bi bi-x-circle"></i>
+                    <span class="fw-bold">@ViewBag.ErrorMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+        </div>
+        @if (Model == null || Model.ProgramList == null || Model.ProgramList.Count < 1)
+        {
+            <div class="alert alert-info fade show" role="alert">
+                <i class="bi bi-info-circle"></i>
+                <span class="fw-bold">No record was found.</span>
+            </div>
+        }
+        else
+        {
+            @if (Model != null && Model.ProgramList != null && Model.ProgramList.Count > 0)
+            {
+                <div class="row">
+                    <div class="table-responsive" style="min-height:500px;">
+                        <table class="table table-hover" style="max-width:90pc">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th><span class="text-white fw-bold">Code</span></th>
+                                    <th><span class="text-white fw-bold">Title</span></th>
+                                    <th><span class="text-white fw-bold">Starts</span></th>
+                                    <th><span class="text-white fw-bold">Ends</span></th>
+                                    <th><span class="text-white fw-bold">Status</span></th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody class="table-light">
+                                @foreach (var program in Model.ProgramList)
+                                {
+                                    <tr>
+                                        <td>
+                                            <span class="fw-bold ml-1" title="@program.Code">@program.Code</span>
+                                        </td>
+                                        <td>
+                                            <span class="fw-bold ml-1" title="@program.Title">@program.Title</span>
+                                        </td>
+                                        <td style="min-width:140px">
+                                            @if (program.StartTime != null)
+                                            {
+                                                <span class="fw-bold text-dark" title="@program.StartTime GMT">@program.StartTime GMT</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="fw-bold text-dark" title="[Not Specified]">[Not Specified]</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            @if (program.EndTime != null)
+                                            {
+                                                <span class="fw-bold text-dark" title="@program.EndTime GMT">@program.EndTime GMT</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="fw-bold text-dark" title="[Not Specified]">[Not Specified]</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            @if (program.Status == ProgramStatus.Running)
+                                            {
+                                                <span title="Currently Running"><i class="bi bi-check-lg" style="font-size:1.2rem; color:#28b463"></i></span>
+                                            }
+                                            else if (program.Status == ProgramStatus.Discountinued)
+                                            {
+                                                <span title="Discontinued"><i class="bi bi-x-lg" style="font-size:1.2rem; color:#e74c3c"></i></span>
+                                            }
+                                            else if (program.Status == ProgramStatus.Suspended)
+                                            {
+                                                <span title="Currently Suspended"><i class="bi bi-dash-lg" style="font-size:1.2rem; color:#17202a"></i></span>
+                                            }
+                                            else
+                                            {
+                                                <span title="[Not Available]"><i class="bi bi-three-dots" style="font-size:1.2rem; color:#17202a"></i></span>
+                                            }
+                                        </td>
+                                        <td style="vertical-align:top">
+                                            <!-- Default dropstart button -->
+                                            <div class="btn-group dropstart">
+                                                <button type="button" data-bs-toggle="dropdown" aria-expanded="false" style="border:0px">
+                                                    <span class="fw-bold" style="font-size:1.0rem;"><i class="bi bi-three-dots-vertical"></i></span>
+                                                </button>
+                                                <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton2">
+                                                    <li>
+                                                        <a class="dropdown-item" asp-area="GlobalSettings" asp-controller="Programs" asp-action="Details" asp-route-id="@program.Id">
+                                                            <i class="bi bi-info-circle"></i> <span>Details</span>
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <a class="dropdown-item" asp-area="GlobalSettings" asp-controller="Programs" asp-action="ManageProgram" asp-route-id="@program.Id">
+                                                            <i class="bi bi-pencil-fill"></i>  <span>Edit</span>
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <a class="dropdown-item" asp-area="GlobalSettings" asp-controller="Programs" asp-action="Delete" asp-route-id="@program.Id">
+                                                            <i class="bi bi-trash"></i> <span>Delete</span>
+                                                        </a>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            }
+        }
+    </div>
+
+
+
+
+
+
+
+
+
+
+

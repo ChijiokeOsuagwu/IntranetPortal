@@ -42,7 +42,7 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
             _ermService = ermService;
         }
 
-        [Authorize(Roles = "AMSASSVWL, XYALLACCZ")]
+        [Authorize(Roles = "AMSVWAINF, AMSMGAINF, XYALLACCZ")]
         public async Task<IActionResult> List(string an = null, int? tp = null, int? ct = null)
         {
             AssetListViewModel model = new AssetListViewModel();
@@ -91,7 +91,7 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
         }
 
         [HttpGet]
-        [Authorize(Roles = "AMSASSADN, XYALLACCZ")]
+        [Authorize(Roles = "AMSMGAINF, XYALLACCZ")]
         public async Task<IActionResult> AddAsset()
         {
             AssetViewModel model = new AssetViewModel();
@@ -105,7 +105,7 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "AMSASSADN, XYALLACCZ")]
+        [Authorize(Roles = "AMSMGAINF, XYALLACCZ")]
         public async Task<IActionResult> AddAsset(AssetViewModel model)
         {
             if (ModelState.IsValid)
@@ -206,7 +206,7 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
         }
 
         [HttpGet]
-        [Authorize(Roles = "AMSASSEDT, XYALLACCZ")]
+        [Authorize(Roles = "AMSMGAINF, XYALLACCZ")]
         public async Task<IActionResult> EditAsset(string id)
         {
             Asset asset = new Asset();
@@ -257,7 +257,7 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "AMSASSEDT, XYALLACCZ")]
+        [Authorize(Roles = "AMSMGAINF, XYALLACCZ")]
         public async Task<IActionResult> EditAsset(AssetViewModel model)
         {
             if (ModelState.IsValid)
@@ -353,7 +353,7 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
         }
 
         [HttpGet]
-        [Authorize(Roles = "AMSASSVWD, XYALLACCZ")]
+        [Authorize(Roles = "AMSVWAINF, AMSMGAINF, XYALLACCZ")]
         public async Task<IActionResult> Details(string id)
         {
             AssetViewModel model = new AssetViewModel();
@@ -395,7 +395,7 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
         }
 
         [HttpGet]
-        [Authorize(Roles = "AMSASSVWD, XYALLACCZ")]
+        [Authorize(Roles = "AMSVWAINF, AMSMGAINF, XYALLACCZ")]
         public async Task<IActionResult> ShowImage(string id)
         {
             Asset asset = new Asset();
@@ -437,7 +437,7 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
         }
 
         [HttpGet]
-        [Authorize(Roles = "AMSASSDLT, XYALLACCZ")]
+        [Authorize(Roles = "AMSMGAINF, XYALLACCZ")]
         public async Task<IActionResult> DeleteAsset(string id)
         {
             AssetViewModel model = new AssetViewModel();
@@ -479,7 +479,7 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "AMSASSDLT, XYALLACCZ")]
+        [Authorize(Roles = "AMSMGAINF, XYALLACCZ")]
         public async Task<IActionResult> DeleteAsset(AssetViewModel model)
         {
             if (model != null)

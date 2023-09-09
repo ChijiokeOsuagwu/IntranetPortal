@@ -9,7 +9,7 @@ namespace IntranetPortal.Base.Services
     public interface IErmService
     {
         #region Employee Service Method Interfaces
-        Task<bool> CreateEmployeeAsync(Employee employee);
+        Task<bool> CreateEmployeeAsync(Employee employee, bool personExists = false);
 
         Task<bool> DeleteEmployeeAsync(string employeeId, string deletedBy, string deletedTime);
 
@@ -55,6 +55,12 @@ namespace IntranetPortal.Base.Services
         Task<List<EmployeeReportLine>> GetActiveEmployeeReportLinesByEmployeeIdAsync(string employeeId);
         Task<List<EmployeeReportLine>> GetEmployeeReportLinesByEmployeeIdAsync(string employeeId);
         Task<EmployeeReportLine> GetEmployeeReportLineByIdAsync(int employeeReportLineId);
+
+
+        Task<List<EmployeeReportLine>> GetEmployeeReportsByReportsToEmployeeIdAsync(string reportsToEmployeeId);
+        Task<List<EmployeeReportLine>> GetActiveEmployeeReportsByEmployeeIdAsync(string reportsToEmployeeId);
+
+
         Task<bool> CreateEmployeeReportLineAsync(EmployeeReportLine employeeReportLine);
         Task<bool> UpdateEmployeeReportLineAsync(EmployeeReportLine employeeReportLine);
         Task<bool> DeleteEmployeeReportLineAsync(int employeeReportLineId);

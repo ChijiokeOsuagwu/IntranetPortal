@@ -96,5 +96,7 @@ namespace IntranetPortal.Areas.ERM.Models
 
         [Display(Name="Date Last Promoted")]
         public string DateOfLastPromotionFormatted { get; set; }
+
+        public string Source { get; set; }
     }
 }

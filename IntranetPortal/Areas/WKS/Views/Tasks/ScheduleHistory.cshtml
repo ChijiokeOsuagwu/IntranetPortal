@@ -1,0 +1,77 @@
+﻿@model IntranetPortal.Areas.WKS.Models.ScheduleHistoryViewModel
+@{
+    ViewData["Title"] = "OfficeManager | Schedule History";
+}
+<div class="container">
+    <h4>Schedule Change History</h4>
+    <hr />
+    <div class="mb-2">
+            <a class="btn btn-dark" style="width:100px" title="Click to Go Back" onclick="history.back()">
+                <span class="text-white">Back</span>
+            </a>
+        @if (!String.IsNullOrEmpty(ViewBag.ErrorMessage))
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-x-circle"></i>
+                <span class="fw-bold">@ViewBag.ErrorMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+    </div>
+    @if (Model.TaskTimelineChanges == null || Model.TaskTimelineChanges.Count < 1)
+    {
+        <div class="alert alert-info fade show" role="alert">
+            <i class="bi bi-info-circle"></i>
+            <span class="fw-bold">No record was found.</span>
+        </div>
+    }
+    else
+    {
+        <div class="row">
+            <input type="hidden" asp-for="TaskItemID" />
+            <input type="hidden" asp-for="TaskListID" />
+            <div class="table-responsive">
+                <table class="table table-hover table-sm">
+                    <thead class="table-dark">
+                        <tr>
+                            <th><span class="text-white fw-bold">Expected Start Date Changed From</span></th>
+                            <th><span class="text-white fw-bold">Expected Start Date Changed To</span></th>
+                            <th><span class="text-white fw-bold">Expected Due Date Changed From</span></th>
+                            <th><span class="text-white fw-bold">Expected Due Date Changed To</span></th>
+                            <th><span class="text-white fw-bold">Changed By</span></th>
+                            <th><span class="text-white fw-bold">Date Changed</span></th>
+                        </tr>
+                    </thead>
+                    <tbody class="table-light">
+                        @foreach (var change in Model.TaskTimelineChanges)
+                        {
+                        <tr class="table-light">
+                            <td>
+                                <span class="fw-bold" title="@change.PreviousStartDate">@change.PreviousStartDate.Value.ToLongDateString()  @change.PreviousStartDate.Value.ToLongTimeString() GMT</span>
+                            </td>
+                            <td>
+                                <span class="fw-bold" title="@change.NewStartDate">@change.NewStartDate.Value.ToLongDateString()  @change.NewStartDate.Value.ToLongTimeString() GMT</span>
+                            </td>
+                            <td>
+                                <span class="fw-bold" title="@change.PreviousEndDate">@change.PreviousEndDate.Value.ToLongDateString()  @change.PreviousEndDate.Value.ToLongTimeString() GMT</span>
+                            </td>
+                            <td>
+                                <span class="fw-bold" title="@change.NewEndDate">@change.NewEndDate.Value.ToLongDateString()  @change.NewEndDate.Value.ToLongTimeString() GMT</span>
+                            </td>
+                            <td>
+                                <span class="fw-bold" title="@change.ModifiedTime">@change.ModifiedTime</span>
+                            </td>
+                            <td>
+                                <span class="fw-bold" title="@change.ModifiedBy">@change.ModifiedBy</span>
+                            </td>
+                        </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+</div>
+@section Scripts{
+
+}

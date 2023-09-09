@@ -52,6 +52,37 @@
                 </div>
             </a>
         </div>
+
+
+
+
+
+        <div class="col-md-6 col-lg-2 col-xlg-3">
+            <div class="card card-hover">
+                <div class="box bg-light text-center">
+                    <h1 class="font-light text-dark" style="font-size:3em"><i class="bi bi-person-plus-fill"></i></h1>
+                    <h6 class="text-dark">New Employee</h6>
+                    <!-- Default dropstart button -->
+                    <div class="btn-group dropstart">
+                        <button type="button" data-bs-toggle="dropdown" aria-expanded="false" style="border:0px">
+                            <span class="fw-bold" style="font-size:1.0rem;"><i class="bi bi-three-dots"></i></span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton2">
+                            <li>
+                                <a class="dropdown-item" asp-area="ERM" asp-controller="Employees" asp-action="Create">
+                                    <i class="bi bi-file-earmark"></i> <span>Create New</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" asp-area="ERM" asp-controller="Employees" asp-action="SelectPerson">
+                                    <i class="bi bi-file-earmark-person"></i> <span>Create From Existing</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 @section Scripts{

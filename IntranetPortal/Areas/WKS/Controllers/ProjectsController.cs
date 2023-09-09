@@ -41,9 +41,10 @@ namespace IntranetPortal.Areas.WKS
             return View();
         }
 
-        public async Task<IActionResult> MyProjects(int? id = null, string sp = null)
+        public async Task<IActionResult> MyProjects(string src, int? id = null, string sp = null)
         {
             ProjectListViewModel model = new ProjectListViewModel();
+            model.Source = src;
             try
             {
                 model.OwnerID = HttpContext.User.Claims.FirstOrDefault(c => c.Type.Contains("nameidentifier")).Value;
@@ -108,7 +109,7 @@ namespace IntranetPortal.Areas.WKS
             else
             {
                 model.ID = id.Value;
-                WorkItem project = await _workspaceService.GetWorkItemByIDAsync(id.Value);
+                Project project = await _workspaceService.GetWorkItemByIDAsync(id.Value);
                 model = model.ExtractViewModel(project);
             }
 
@@ -130,7 +131,7 @@ namespace IntranetPortal.Areas.WKS
         [HttpPost]
         public async Task<IActionResult> Manage(ProjectViewModel model)
         {
-            WorkItem project = new WorkItem();
+            Project project = new Project();
             if (ModelState.IsValid)
             {
                 try
@@ -188,7 +189,7 @@ namespace IntranetPortal.Areas.WKS
             ProjectViewModel model = new ProjectViewModel();
             try
             {
-                WorkItem project = await _workspaceService.GetWorkItemByIDAsync(id);
+                Project project = await _workspaceService.GetWorkItemByIDAsync(id);
                 model = model.ExtractViewModel(project);
             }
             catch(Exception ex)

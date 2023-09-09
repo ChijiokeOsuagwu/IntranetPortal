@@ -1,0 +1,105 @@
+﻿@model IntranetPortal.Areas.GlobalSettings.Models.ManageProgramViewModel
+@{
+    ViewData["Title"] = "OfficeManager | Programme Settings";
+}
+<div class="container">
+    <h4>Programme Settings</h4>
+    <hr />
+    <div class="card" style="max-width:1000px">
+        <div class="card-header bg-danger">
+            <h4 class="text-white">Delete Programme</h4>
+        </div>
+        <div class="card-body bg-secondary">
+            @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bi bi-x-circle"></i>
+                    <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            @if (!String.IsNullOrEmpty(Model.ViewModelSuccessMessage))
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="bi bi-check-circle"></i>
+                    <span class="fw-bold">@Model.ViewModelSuccessMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            @if (!String.IsNullOrEmpty(Model.ViewModelWarningMessage))
+            {
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                    <i class="bi bi-exclamation-circle"></i>
+                    <span class="fw-bold">@Model.ViewModelWarningMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            <form asp-area="GlobalSettings" asp-controller="Programs" asp-action="Delete" method="post" autocomplete="off">
+                <div class="row">
+                    <div class="col-md-2 mb-2">
+                        <label asp-for="ProgramCode" class="form-label text-white fw-bold"></label>
+                        <div class="form-control fw-bold">@Model.ProgramCode</div>
+                    </div>
+                    <div class="col-md-5 mb-2">
+                        <label asp-for="StartTime" class="form-label text-white fw-bold"></label>
+                        <div class="form-control fw-bold">@Model.StartTimeFormatted</div>
+                    </div>
+                    <div class="col-md-5 mb-2">
+                        <label asp-for="EndTime" class="form-label text-white fw-bold"></label>
+                        <div class="form-control fw-bold" >@Model.EndTimeFormatted</div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12 mb-2">
+                        <label asp-for="ProgramTitle" class="form-label text-white fw-bold"></label>
+                        <div class="form-control fw-bold">@Model.ProgramTitle</div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12 mb-2">
+                        <label asp-for="ProgramDescription" class="form-label text-white fw-bold"></label>
+                        <textarea class="form-control fw-bold" rows="2" readonly="readonly">@Model.ProgramDescription</textarea>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4 mb-2">
+                        <label asp-for="ProgramType" class="form-label text-white fw-bold"></label>
+                        <div class="form-control fw-bold">@Model.ProgramType</div>
+                    </div>
+                    <div class="col-md-4 mb-2">
+                        <label asp-for="ProgramBelt" class="form-label text-white fw-bold"></label>
+                        <div class="form-control fw-bold">@Model.ProgramBelt</div>
+                    </div>
+                    <div class="col-md-4 mb-2">
+                        <label asp-for="Frequency" class="form-label text-white fw-bold"></label>
+                        <div class="form-control fw-bold">@Model.Frequency</div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label asp-for="HostStationName" class="form-label text-white fw-bold"></label>
+                        <div class="form-control fw-bold">@Model.HostStationName</div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label asp-for="Platform" class="form-label text-white fw-bold"></label>
+                        <div class="form-control fw-bold">@Model.Platform</div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label asp-for="Status" class="form-label text-white fw-bold"></label>
+                        <div class="form-control fw-bold">@Model.Status</div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <a asp-area="GlobalSettings" asp-controller="Programs" asp-action="List" class="btn btn-dark ml-1" style="width:100px" title="Go Back">
+                            <span class="text-white">Back</span>
+                        </a>
+                        <button type="submit" class="btn btn-danger ml-2" title="Delete" style="width:200px" onclick="return confirm('Do you want to permanently delete this record?')"><span class="text-white">Delete</span></button>
+                    </div>
+                </div>
+                <input type="hidden" asp-for="ProgramID" />
+            </form>
+        </div>
+    </div>
+</div>
+

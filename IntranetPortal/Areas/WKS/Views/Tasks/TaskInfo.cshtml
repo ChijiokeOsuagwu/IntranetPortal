@@ -1,0 +1,102 @@
+﻿@model IntranetPortal.Areas.WKS.Models.ManageTaskItemViewModel
+@{
+    ViewData["Title"] = "OfficeManager | Task Details";
+}
+<div class="container">
+    <h4>Manage Task Item</h4>
+    <hr />
+    <div class="card" style="max-width:1000px">
+        <div class="card-header bg-dark">
+            <h4 class="text-white">Task Details</h4>
+        </div>
+        <div class="card-body bg-secondary">
+            @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bi bi-x-circle"></i>
+                    <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            @if (!String.IsNullOrEmpty(Model.ViewModelSuccessMessage))
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="bi bi-check-circle"></i>
+                    <span class="fw-bold">@Model.ViewModelSuccessMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            @if (!String.IsNullOrEmpty(Model.ViewModelWarningMessage))
+            {
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                    <i class="bi bi-exclamation-circle"></i>
+                    <span class="fw-bold">@Model.ViewModelWarningMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            <div class="row">
+                <div class="col-md-2 mb-2">
+                    <label asp-for="Number" class="form-label text-white fw-bold"></label>
+                    <div class="form-control fw-bold">@Model.Number</div>
+                </div>
+                <div class="col-md-5 mb-2">
+                    <label asp-for="ExpectedStartTime" class="form-label text-white fw-bold"></label>
+                    <div class="form-control fw-bold">@Model.ExpectedStartTime.Value.ToLongDateString() @Model.ExpectedStartTime.Value.ToLongTimeString()</div>
+                </div>
+                <div class="col-md-5 mb-2">
+                    <label asp-for="ExpectedDueTime" class="form-label text-white fw-bold"></label>
+                    <div class="form-control fw-bold">@Model.ExpectedDueTime.Value.ToLongDateString() @Model.ExpectedDueTime.Value.ToLongTimeString()</div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12 mb-2">
+                    <label asp-for="Description" class="form-label text-white fw-bold"></label>
+                    <textarea asp-for="Description" class="form-control fw-bold" rows="2" readonly="readonly">@Model.Description</textarea>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12 mb-2">
+                    <label asp-for="Deliverable" class="form-label text-white fw-bold"></label>
+                    <textarea class="form-control fw-bold" rows="3" asp-for="Deliverable" readonly="readonly">@Model.Deliverable</textarea>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-4 mb-2">
+                    <label class="form-label text-white fw-bold">Status</label>
+                    <div class="form-control fw-bold">@Model.TaskStatusDescription</div>
+                </div>
+                <div class="col-md-4 mb-2">
+                    <label class="form-label text-white fw-bold">Progress</label>
+                    <div class="form-control fw-bold">@Model.ProgressStatusDescription</div>
+                </div>
+                <div class="col-md-4 mb-2">
+                    <label class="form-label text-white fw-bold">Approval Status</label>
+                    <div class="form-control fw-bold">@Model.ApprovalStatusDescription</div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label asp-for="TaskListName" class="form-label text-white fw-bold"></label>
+                    <div class="form-control fw-bold">@Model.TaskListName</div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label asp-for="TaskOwnerName" class="form-label text-white fw-bold"></label>
+                    <div class="form-control fw-bold">@Model.TaskOwnerName</div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <button class="btn btn-dark ml-1" style="width:100px" title="Go Back" onclick="history.back()">
+                        <span class="text-white">Back</span>
+                    </button>
+                </div>
+            </div>
+            <input type="hidden" asp-for="Id" />
+            <input type="hidden" asp-for="TaskListId" />
+            <input type="hidden" asp-for="TaskOwnerId" />
+            <input type="hidden" asp-for="MasterTaskId" />
+            <input type="hidden" asp-for="Source" />
+            <input type="hidden" asp-for="SubmissionID" />
+        </div>
+    </div>
+</div>

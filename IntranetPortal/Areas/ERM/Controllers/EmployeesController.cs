@@ -21,6 +21,7 @@ using Microsoft.Extensions.Configuration;
 namespace IntranetPortal.Areas.ERM.Controllers
 {
     [Area("ERM")]
+    [Authorize]
     public class EmployeesController : Controller
     {
         private readonly IConfiguration _configuration;
@@ -42,7 +43,7 @@ namespace IntranetPortal.Areas.ERM.Controllers
             _webHostEnvironment = webHostEnvironment;
         }
 
-        [Authorize(Roles = "ERMHMPGVW, XYALLACCZ")]
+        [Authorize(Roles = "ERMVWAEMR, XYALLACCZ")]
         public async Task<IActionResult> Search(string sn)
         {
             List<Employee> employees = new List<Employee>();
@@ -63,7 +64,7 @@ namespace IntranetPortal.Areas.ERM.Controllers
         }
 
 
-        [Authorize(Roles = "ERMHMPGVW, XYALLACCZ")]
+        [Authorize(Roles = "ERMVWAEMR, XYALLACCZ")]
         public async Task<IActionResult> List(EmployeeListViewModel model)
         {
             List<Employee> employees = new List<Employee>();
@@ -192,10 +193,57 @@ namespace IntranetPortal.Areas.ERM.Controllers
         }
 
 
-        [Authorize(Roles = "ERMSTFADN, XYALLACCZ")]
-        public async Task<IActionResult> Create()
+        [Authorize(Roles = "ERMMGAEMR, XYALLACCZ")]
+        public async Task<IActionResult> SelectPerson(string pn)
+        {
+            Person person = new Person();
+            if (!string.IsNullOrWhiteSpace(pn))
+            {
+                person = await _baseModelService.GetPersonbyNameAsync(pn);
+                if (person != null && !string.IsNullOrWhiteSpace(person.PersonID))
+                {
+                   return RedirectToAction("Create", new { id = person.PersonID });
+                }
+                else
+                {
+                    List<Person> persons = await _baseModelService.SearchPersonsByName(pn);
+                    if(persons != null)
+                    {
+                        ViewBag.PersonList = persons;
+                    }
+                    else
+                    {
+                        ViewBag.ErrorMessage = $"No record was found for the selected person.";
+                    }
+                }
+            }
+            return View();
+        }
+
+
+
+
+        [Authorize(Roles = "ERMMGAEMR, XYALLACCZ")]
+        public async Task<IActionResult> Create(string id = null)
         {
             CreateEmployeeViewModel model = new CreateEmployeeViewModel();
+            if (!string.IsNullOrWhiteSpace(id))
+            {
+                Person person = new Person();
+                person = await _baseModelService.GetPersonAsync(id);
+                model.FirstName = person.FirstName;
+                model.Surname = person.Surname;
+                model.PersonID = person.PersonID;
+                model.EmployeeID = person.PersonID;
+                model.OtherNames = person.OtherNames;
+                model.BirthDay = person.BirthDay;
+                model.BirthMonth = person.BirthMonth;
+                model.BirthYear = person.BirthYear;
+                model.MaritalStatus = person.MaritalStatus;
+                model.PhoneNo1 = person.PhoneNo1;
+                model.PhoneNo2 = person.PhoneNo2;
+                model.Sex = person.Sex;
+            }
             var locations = await _globalSettingsService.GetAllLocationsAsync();
             var companies = await _globalSettingsService.GetCompaniesAsync();
             var states = await _globalSettingsService.GetStatesAsync();
@@ -210,7 +258,7 @@ namespace IntranetPortal.Areas.ERM.Controllers
             return View(model);
         }
 
-        [Authorize(Roles = "ERMSTFADN, XYALLACCZ")]
+        [Authorize(Roles = "ERMMGAEMR, XYALLACCZ")]
         [HttpPost]
         public async Task<IActionResult> Create(CreateEmployeeViewModel model)
         {
@@ -221,18 +269,34 @@ namespace IntranetPortal.Areas.ERM.Controllers
             }
             else
             {
-                string ID = Guid.NewGuid().ToString();
-                model.PersonID = ID;
-                model.EmployeeID = ID;
+                bool EmployeeIsCreated = false;
                 try
                 {
-                    Employee employee = model.ConvertToEmployee();
-                    employee.ModifiedBy = employee.EmployeeModifiedBy = HttpContext.User.Identity.Name;
-                    employee.ModifiedTime = employee.EmployeeModifiedBy = $"{DateTime.UtcNow.ToLongDateString()} {DateTime.UtcNow.ToLongTimeString()} + GMT";
-                    employee.CreatedBy = employee.EmployeeCreatedBy = HttpContext.User.Identity.Name;
-                    employee.CreatedTime = employee.EmployeeCreatedDate = $"{DateTime.UtcNow.ToLongDateString()} {DateTime.UtcNow.ToLongTimeString()} + GMT";
+                    if (string.IsNullOrWhiteSpace(model.PersonID))
+                    {
+                        string ID = Guid.NewGuid().ToString();
+                        model.PersonID = ID;
+                        model.EmployeeID = ID;
 
-                    bool EmployeeIsCreated = await _ermService.CreateEmployeeAsync(employee);
+                        Employee employee = model.ConvertToEmployee();
+                        employee.ModifiedBy = employee.EmployeeModifiedBy = HttpContext.User.Identity.Name;
+                        employee.ModifiedTime = employee.EmployeeModifiedBy = $"{DateTime.UtcNow.ToLongDateString()} {DateTime.UtcNow.ToLongTimeString()} + GMT";
+                        employee.CreatedBy = employee.EmployeeCreatedBy = HttpContext.User.Identity.Name;
+                        employee.CreatedTime = employee.EmployeeCreatedDate = $"{DateTime.UtcNow.ToLongDateString()} {DateTime.UtcNow.ToLongTimeString()} + GMT";
+
+                       EmployeeIsCreated = await _ermService.CreateEmployeeAsync(employee, false);
+                    }
+                    else
+                    {
+                        Employee employee = model.ConvertToEmployee();
+                        employee.ModifiedBy = employee.EmployeeModifiedBy = HttpContext.User.Identity.Name;
+                        employee.ModifiedTime = employee.EmployeeModifiedBy = $"{DateTime.UtcNow.ToLongDateString()} {DateTime.UtcNow.ToLongTimeString()} + GMT";
+                        employee.CreatedBy = employee.EmployeeCreatedBy = HttpContext.User.Identity.Name;
+                        employee.CreatedTime = employee.EmployeeCreatedDate = $"{DateTime.UtcNow.ToLongDateString()} {DateTime.UtcNow.ToLongTimeString()} + GMT";
+
+                        EmployeeIsCreated = await _ermService.CreateEmployeeAsync(employee, true);
+                    }
+
                     if (EmployeeIsCreated)
                     {
                         return RedirectToAction("Profile", new { id = model.EmployeeID });
@@ -263,7 +327,7 @@ namespace IntranetPortal.Areas.ERM.Controllers
         }
 
 
-        [Authorize(Roles = "ERMSTFADN, XYALLACCZ")]
+        [Authorize(Roles = "ERMMGAEMR, XYALLACCZ")]
         public async Task<IActionResult> Edit(string id)
         {
             CreateEmployeeViewModel model = new CreateEmployeeViewModel();
@@ -345,8 +409,7 @@ namespace IntranetPortal.Areas.ERM.Controllers
             return View(model);
         }
 
-
-        [Authorize(Roles = "ERMSTFADN, XYALLACCZ")]
+        [Authorize(Roles = "ERMMGAEMR, XYALLACCZ")]
         [HttpPost]
         public async Task<IActionResult> Edit(CreateEmployeeViewModel model)
         {
@@ -390,10 +453,10 @@ namespace IntranetPortal.Areas.ERM.Controllers
             return View(model);
         }
 
-        public async Task<IActionResult> Profile(string id)
+        public async Task<IActionResult> Profile(string id, string src)
         {
             EmployeeProfileViewModel model = new EmployeeProfileViewModel();
-
+            model.Source = src;
             try
             {
                 if (string.IsNullOrWhiteSpace(id))
@@ -469,6 +532,7 @@ namespace IntranetPortal.Areas.ERM.Controllers
             return View(model);
         }
 
+        [Authorize(Roles = "ERMMGAEMR, XYALLACCZ")]
         public async Task<IActionResult> Delete(string id)
         {
             EmployeeProfileViewModel model = new EmployeeProfileViewModel();
@@ -540,6 +604,7 @@ namespace IntranetPortal.Areas.ERM.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "ERMMGAEMR, XYALLACCZ")]
         public async Task<IActionResult> Delete(EmployeeProfileViewModel model)
         {
             if (string.IsNullOrWhiteSpace(model.EmployeeID))
@@ -565,6 +630,7 @@ namespace IntranetPortal.Areas.ERM.Controllers
             return View(model);
         }
 
+        [Authorize(Roles = "ERMMGAEMR, XYALLACCZ")]
         public async Task<IActionResult> UploadImage(string id, string nm)
         {
             UploadImageViewModel model = new UploadImageViewModel();
@@ -582,6 +648,7 @@ namespace IntranetPortal.Areas.ERM.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "ERMMGAEMR, XYALLACCZ")]
         public async Task<IActionResult> UploadImage(UploadImageViewModel model)
         {
             if (!ModelState.IsValid)
@@ -659,6 +726,5 @@ namespace IntranetPortal.Areas.ERM.Controllers
             }
             return View(model);
         }
-
     }
 }

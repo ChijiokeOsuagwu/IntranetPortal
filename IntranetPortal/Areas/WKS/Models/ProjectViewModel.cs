@@ -36,7 +36,7 @@ namespace IntranetPortal.Areas.WKS.Models
         [Display(Name="Assign To")]
         public string AssignedToName { get; set; }
         public DateTime? AssignedTime { get; set; }
-        public WorkItemStatus ProgressStatus { get; set; }
+        public WorkItemProgressStatus ProgressStatus { get; set; }
 
         [Display(Name="Start Date")]
         [DataType(DataType.Date)]
@@ -86,9 +86,9 @@ namespace IntranetPortal.Areas.WKS.Models
         public string LastModifiedTime { get; set; }
         public string LastModifiedBy { get; set; }
 
-        public WorkItem ConvertToProject()
+        public Project ConvertToProject()
         {
-            return new WorkItem
+            return new Project
             {
                 ActualCostForeignCurrency = this.ActualCostForeignCurrency,
                 ActualDurationInDays = this.ActualDurationInDays,
@@ -98,7 +98,7 @@ namespace IntranetPortal.Areas.WKS.Models
                 AssignedTime = this.AssignedTime,
                 AssignedToID = this.AssignedToID,
                 AssignedToName = this.AssignedToName,
-                Code = this.Code,
+                Number = this.Code,
                 CreatedBy = this.CreatedBy,
                 CreatedTime = this.CreatedTime,
                 Deliverables = this.Deliverables,
@@ -140,7 +140,7 @@ namespace IntranetPortal.Areas.WKS.Models
             };
         }
 
-        public ProjectViewModel ExtractViewModel(WorkItem project)
+        public ProjectViewModel ExtractViewModel(Project project)
         {
             return new ProjectViewModel
             {
@@ -152,7 +152,7 @@ namespace IntranetPortal.Areas.WKS.Models
                 AssignedTime = project.AssignedTime,
                 AssignedToID = project.AssignedToID,
                 AssignedToName = project.AssignedToName,
-                Code = project.Code,
+                Code = project.Number,
                 CreatedBy = project.CreatedBy,
                 CreatedTime = project.CreatedTime,
                 Deliverables = project.Deliverables,

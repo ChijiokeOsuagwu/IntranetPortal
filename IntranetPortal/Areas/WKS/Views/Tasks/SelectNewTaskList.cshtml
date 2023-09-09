@@ -1,0 +1,68 @@
+﻿@model IntranetPortal.Areas.WKS.Models.ReassignTaskViewModel
+@{
+    ViewData["Title"] = "OfficeManager | Select Task Folders";
+}
+<div class="container">
+    <h4>Select Folder</h4>
+    <hr />
+    <div class="row">
+        @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-x-circle"></i>
+                <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+    </div>
+
+    @if (Model == null || ViewBag.ActiveTaskLists == null || ViewBag.ActiveTaskLists.Count < 1)
+    {
+        <div class="alert alert-info fade show" role="alert">
+            <i class="bi bi-info-circle"></i>
+            <span class="fw-bold">No record was found.</span>
+        </div>
+    }
+    else
+    {
+        @if (Model != null && ViewBag.ActiveTaskLists != null && ViewBag.ActiveTaskLists.Count > 0)
+        {
+            <div class="row mt-5">
+                @foreach (var taskList in ViewBag.ActiveTaskLists)
+                {
+                    @if (taskList.IsLocked)
+                    {
+                        <div class="col-md-6 col-lg-2 col-xlg-3">
+                            <a asp-area="WKS" asp-controller="Tasks" asp-action="ReassignTaskItem" asp-route-id="@Model.TaskItemID" asp-route-tl="@taskList.Id" asp-route-od="@Model.NewTaskOwnerID" asp-route-src="@Model.Source">
+                                <div class="card card-hover">
+                                    <div class="box bg-light text-center">
+                                        <h1 class="font-light text-dark" title="@taskList.Description"><i class="bi bi-folder-x"></i></h1>
+                                        <h6 class="text-dark">@taskList.Name</h6>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="col-md-6 col-lg-2 col-xlg-3">
+                            <a asp-area="WKS" asp-controller="Tasks" asp-action="ReassignTaskItem" asp-route-id="@Model.TaskItemID" asp-route-tl="@taskList.Id" asp-route-od="@Model.NewTaskOwnerID" asp-route-src="@Model.Source">
+                                <div class="card card-hover">
+                                    <div class="box bg-light text-center">
+                                        <h1 class="font-light text-dark" title="@taskList.Description"><i class="bi bi-folder"></i></h1>
+                                        <h6 class="text-dark">@taskList.Name</h6>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                    }
+                }
+            </div>
+        }
+    }
+</div>
+@section Scripts{
+    <script src="~/js/js_wks/wks_tsk_lst.js"></script>
+}
+
+

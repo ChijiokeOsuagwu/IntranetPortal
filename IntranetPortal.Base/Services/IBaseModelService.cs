@@ -1,4 +1,6 @@
-﻿using IntranetPortal.Base.Models.BaseModels;
+﻿using IntranetPortal.Base.Enums;
+using IntranetPortal.Base.Models.BaseModels;
+using IntranetPortal.Base.Models.WksModels;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -25,6 +27,8 @@ namespace IntranetPortal.Base.Services
         Task<Person> GetPersonAsync(string personId);
 
         Task<Person> GetPersonbyNameAsync(string personName);
+
+        Task<List<Person>> SearchPersonsByName(string personName);
         #endregion
 
         //========================================= AutoNumber Action Methods ===========================================//
@@ -67,9 +71,15 @@ namespace IntranetPortal.Base.Services
         Task<List<SystemApplication>> GetSystemApplicationsAsync();
         #endregion
 
-        //================================== Industry Type Service Methods ======================================================//
+        //================================== Industry Type Service Methods ===============================================//
         #region Industry Types Service Methods
         Task<List<IndustryType>> GetIndustryTypesAsync();
+        #endregion
+
+        //================================= Entity Activity History Service Methods =======================================//
+        #region Entity Activity History Service Methods
+        Task<bool> AddEntityActivityHistoryAsync(EntityActivityHistory entityActivityHistory, EntityType entityType);
+        Task<List<TaskItemActivityHistory>> GetTaskItemActivityHistory(long taskItemId);
         #endregion
 
     }

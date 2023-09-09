@@ -209,7 +209,7 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
         //======================== Asset Types Controller Actions =========================================================//
         #region Asset Types Controller Action
 
-        [Authorize(Roles = "AMSTYPVWL, XYALLACCZ")]
+        [Authorize(Roles = "AMSVWASTT, AMSMGASTT, XYALLACCZ")]
         public async Task<IActionResult> AssetTypes(int? cd = null, string searchString = null)
         {
             AssetTypeListViewModel model = new AssetTypeListViewModel();
@@ -237,7 +237,7 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
         }
 
         [HttpGet]
-        [Authorize(Roles = "AMSTYPADN, XYALLACCZ")]
+        [Authorize(Roles = "AMSMGASTT, XYALLACCZ")]
         public async Task<IActionResult> AddAssetType()
         {
             AssetTypeViewModel model = new AssetTypeViewModel();
@@ -247,7 +247,7 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "AMSTYPADN, XYALLACCZ")]
+        [Authorize(Roles = "AMSMGASTT, XYALLACCZ")]
         public async Task<IActionResult> AddAssetType(AssetTypeViewModel model)
         {
             if (ModelState.IsValid)
@@ -286,7 +286,7 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
         }
 
         [HttpGet]
-        [Authorize(Roles = "AMSTYPEDT, XYALLACCZ")]
+        [Authorize(Roles = "AMSMGASTT, XYALLACCZ")]
         public async Task<IActionResult> EditAssetType(int id)
         {
             AssetType assetType = new AssetType();
@@ -310,7 +310,7 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "AMSTYPEDT, XYALLACCZ")]
+        [Authorize(Roles = "AMSMGASTT, XYALLACCZ")]
         public async Task<IActionResult> EditAssetType(AssetTypeViewModel model)
         {
             if (ModelState.IsValid)
@@ -349,7 +349,7 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
         }
 
         [HttpGet]
-        [Authorize(Roles = "AMSTYPVWD, XYALLACCZ")]
+        [Authorize(Roles = "AMSVWASTT, AMSMGASTT, XYALLACCZ")]
         public async Task<IActionResult> AssetTypeDetails(int id)
         {
             AssetType assetType = new AssetType();
@@ -371,7 +371,7 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
         }
 
         [HttpGet]
-        [Authorize(Roles = "AMSTYPDLT, XYALLACCZ")]
+        [Authorize(Roles = "AMSMGASTT, XYALLACCZ")]
         public async Task<IActionResult> DeleteAssetType(int id)
         {
             AssetType assetType = new AssetType();
@@ -393,7 +393,7 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "AMSTYPDLT, XYALLACCZ")]
+        [Authorize(Roles = "AMSMGASTT, XYALLACCZ")]
         public async Task<IActionResult> DeleteAssetType(AssetTypeViewModel model)
         {
             if (model != null)
@@ -424,7 +424,7 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
         //======================== Asset Class Controller Actions =========================================================//
         #region Asset Class Controller Action
 
-        [Authorize(Roles = "AMSTYPVWL, XYALLACCZ")]
+        [Authorize(Roles = "AMSVWASTT, AMSMGASTT, XYALLACCZ")]
         public async Task<IActionResult> AssetClasses(int? cd = null, string searchString = null)
         {
             AssetClassListViewModel model = new AssetClassListViewModel();
@@ -448,7 +448,7 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
         }
 
         [HttpGet]
-        [Authorize(Roles = "AMSTYPADN, XYALLACCZ")]
+        [Authorize(Roles = "AMSMGASTT, XYALLACCZ")]
         public async Task<IActionResult> AddAssetClass()
         {
             AssetClassViewModel model = new AssetClassViewModel();
@@ -458,7 +458,7 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "AMSTYPADN, XYALLACCZ")]
+        [Authorize(Roles = "AMSMGASTT, XYALLACCZ")]
         public async Task<IActionResult> AddAssetClass(AssetClassViewModel model)
         {
             if (ModelState.IsValid)
@@ -491,7 +491,7 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
         }
 
         [HttpGet]
-        [Authorize(Roles = "AMSTYPEDT, XYALLACCZ")]
+        [Authorize(Roles = "AMSMGASTT, XYALLACCZ")]
         public async Task<IActionResult> EditAssetClass(int id)
         {
             AssetClass assetClass = new AssetClass();
@@ -515,7 +515,7 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "AMSTYPEDT, XYALLACCZ")]
+        [Authorize(Roles = "AMSMGASTT, XYALLACCZ")]
         public async Task<IActionResult> EditAssetClass(AssetClassViewModel model)
         {
             if (ModelState.IsValid)
@@ -548,7 +548,7 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
         }
 
         [HttpGet]
-        [Authorize(Roles = "AMSTYPVWD, XYALLACCZ")]
+        [Authorize(Roles = "AMSVWASTT, AMSMGASTT, XYALLACCZ")]
         public async Task<IActionResult> AssetClassDetails(int id)
         {
             AssetClass assetClass = new AssetClass();
@@ -570,7 +570,7 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
         }
 
         [HttpGet]
-        [Authorize(Roles = "AMSTYPDLT, XYALLACCZ")]
+        [Authorize(Roles = "AMSMGASTT, XYALLACCZ")]
         public async Task<IActionResult> DeleteAssetClass(int id)
         {
             AssetClass assetClass = new AssetClass();
@@ -592,7 +592,7 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "AMSTYPDLT, XYALLACCZ")]
+        [Authorize(Roles = "AMSMGASTT, XYALLACCZ")]
         public async Task<IActionResult> DeleteAssetClass(AssetClassViewModel model)
         {
             if (model != null)
@@ -623,7 +623,7 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
         //======================== Asset Bin Location Controller Actions =========================================================//
         #region Asset Bin Location Controller Action
 
-        [Authorize(Roles = "AMSBNLVWL, XYALLACCZ")]
+        [Authorize(Roles = "AMSVWASTT, AMSMGASTT, XYALLACCZ")]
         public async Task<IActionResult> AssetBinLocations(int? loc = null, string ss = null)
         {
             AssetBinLocationListViewModel model = new AssetBinLocationListViewModel();
@@ -660,7 +660,7 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
         }
 
         [HttpGet]
-        [Authorize(Roles = "AMSBNLADN, XYALLACCZ")]
+        [Authorize(Roles = "AMSMGASTT, XYALLACCZ")]
         public async Task<IActionResult> AddAssetBinLocation()
         {
             AssetBinLocationViewModel model = new AssetBinLocationViewModel();
@@ -670,7 +670,7 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "AMSBNLADN, XYALLACCZ")]
+        [Authorize(Roles = "AMSMGASTT, XYALLACCZ")]
         public async Task<IActionResult> AddAssetBinLocation(AssetBinLocationViewModel model)
         {
             if (ModelState.IsValid)
@@ -703,7 +703,7 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
         }
 
         [HttpGet]
-        [Authorize(Roles = "AMSBNLEDT, XYALLACCZ")]
+        [Authorize(Roles = "AMSMGASTT, AXYALLACCZ")]
         public async Task<IActionResult> EditAssetBinLocation(int id)
         {
             AssetBinLocation assetBinLocation = new AssetBinLocation();
@@ -726,7 +726,7 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "AMSTYPEDT, XYALLACCZ")]
+        [Authorize(Roles = "AMSMGASTT, XYALLACCZ")]
         public async Task<IActionResult> EditAssetBinLocation(AssetBinLocationViewModel model)
         {
             if (ModelState.IsValid)
@@ -759,7 +759,7 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
         }
 
         [HttpGet]
-        [Authorize(Roles = "AMSBNLVWD, XYALLACCZ")]
+        [Authorize(Roles = "AMSVWASTT, AMSMGASTT, XYALLACCZ")]
         public async Task<IActionResult> AssetBinLocationDetails(int id)
         {
             AssetBinLocation assetBinLocation = new AssetBinLocation();
@@ -781,7 +781,7 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
         }
 
         [HttpGet]
-        [Authorize(Roles = "AMSBNLDLT, XYALLACCZ")]
+        [Authorize(Roles = "AMSMGASTT, XYALLACCZ")]
         public async Task<IActionResult> DeleteAssetBinLocation(int id)
         {
             AssetBinLocation assetBinLocation = new AssetBinLocation();
@@ -803,7 +803,7 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "AMSBNLDLT, XYALLACCZ")]
+        [Authorize(Roles = "AMSMGASTT, XYALLACCZ")]
         public async Task<IActionResult> DeleteAssetBinLocation(AssetBinLocationViewModel model)
         {
             if (model != null)

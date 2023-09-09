@@ -11,7 +11,7 @@ namespace IntranetPortal.Areas.GlobalSettings.Controllers
     [Authorize]
     public class HomeController : Controller
     {
-        [Authorize(Roles = "GBSVWHMPG, XYALLACCZ")]
+        [Authorize(Roles = "GBSVWASTT, GBSMGASTT, XYALLACCZ")]
         public IActionResult Index()
         {
             return View();

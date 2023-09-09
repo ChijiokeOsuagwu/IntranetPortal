@@ -1,0 +1,109 @@
+﻿@model IntranetPortal.Areas.WKS.Models.ManageTaskItemViewModel
+@{
+    ViewData["Title"] = "OfficeManager | Manage Task Item";
+}
+<div class="container">
+    <h4>Manage Task Item</h4>
+    <hr />
+    <div class="card" style="max-width:1000px">
+        <div class="card-header bg-info">
+            <h4 class="text-white">Edit Task</h4>
+        </div>
+        <div class="card-body bg-secondary">
+            @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bi bi-x-circle"></i>
+                    <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            @if (!String.IsNullOrEmpty(Model.ViewModelSuccessMessage))
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="bi bi-check-circle"></i>
+                    <span class="fw-bold">@Model.ViewModelSuccessMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            @if (!String.IsNullOrEmpty(Model.ViewModelWarningMessage))
+            {
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                    <i class="bi bi-exclamation-circle"></i>
+                    <span class="fw-bold">@Model.ViewModelWarningMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+        <form asp-area="WKS" asp-controller="Tasks" asp-action="EditTaskItem" method="post" autocomplete="off">
+            <div class="row">
+                <div class="col-md-2 mb-2">
+                    <label asp-for="Number" class="form-label text-white fw-bold"></label>
+                    <input asp-for="Number" class="form-control fw-bold" readonly="readonly">
+                    <div><span asp-validation-for="Number" class="text-danger"></span></div>
+                </div>
+                <div class="col-md-5 mb-2">
+                    <label asp-for="ExpectedStartTime" class="form-label text-white fw-bold"></label>
+                    <input asp-for="ExpectedStartTime" class="form-control fw-bold">
+                    <div><span asp-validation-for="ExpectedStartTime" class="text-danger"></span></div>
+                </div>
+                <div class="col-md-5 mb-2">
+                    <label asp-for="ExpectedDueTime" class="form-label text-white fw-bold"></label>
+                    <input asp-for="ExpectedDueTime" class="form-control fw-bold">
+                    <div><span asp-validation-for="ExpectedDueTime" class="text-danger"></span></div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12 mb-2">
+                    <textarea class="form-control fw-bold" rows="2" asp-for="Description">@Model.Description</textarea>
+                    <div><span asp-validation-for="Description" class="text-danger"></span></div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12 mb-3">
+                    <textarea class="form-control fw-bold" rows="3" asp-for="Deliverable">@Model.Deliverable</textarea>
+                    <div><span asp-validation-for="Deliverable" class="text-danger"></span></div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    @if (Model.Source == "sbt")
+                    {
+                        <a asp-area="WKS" asp-controller="Tasks" asp-action="SubmittedTasks" asp-route-id="@Model.TaskListId" asp-route-sd="@Model.SubmissionID" class="btn btn-dark ml-1" style="width:100px" title="Go Back">
+                            <span class="text-white">Back</span>
+                        </a>
+                    }
+                    else if (Model.Source == "txb")
+                    {
+                        <a asp-area="WKS" asp-controller="Tasks" asp-action="Taskboard" asp-route-id="@Model.TaskListId" class="btn btn-dark ml-1" style="width:100px" title="Go Back">
+                            <span class="text-white">Back</span>
+                        </a>
+                    }
+                    else if (Model.Source == "ttb")
+                    {
+                        <a asp-area="WKS" asp-controller="Tasks" asp-action="TeamTaskboard" asp-route-id="@Model.TaskListId" class="btn btn-dark ml-1" style="width:100px" title="Go Back">
+                            <span class="text-white">Back</span>
+                        </a>
+                    }
+                    else
+                    {
+                        <a asp-area="WKS" asp-controller="Tasks" asp-action="Index" class="btn btn-dark ml-1" style="width:100px" title="Go Back">
+                            <span class="text-white">Back</span>
+                        </a>
+                    }
+
+                    <a asp-area="WKS" asp-controller="Task" asp-action="EditTaskItem" asp-route-id="@Model.Id" asp-route-src="@Model.Source" class="btn btn-warning ml-1" style="width:100px" title="Clear">
+                        <span class="text-white">Clear</span>
+                    </a>
+                    <button type="submit" class="btn btn-info ml-2" title="Save" style="width:200px"><span class="text-white">Save</span></button>
+                </div>
+            </div>
+            <input type="hidden" asp-for="Id" />
+            <input type="hidden" asp-for="TaskListId" />
+            <input type="hidden" asp-for="TaskOwnerId" />
+            <input type="hidden" asp-for="MasterTaskId" />
+            <input type="hidden" asp-for="Source" />
+            <input type="hidden" asp-for="SubmissionID" />
+        </form>
+        </div>
+    </div>
+</div>

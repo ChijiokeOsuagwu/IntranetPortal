@@ -65,8 +65,16 @@ namespace IntranetPortal.Configurations
             services.AddScoped<IAssetBinLocationRepository, AssetBinLocationRepository>();
             services.AddScoped<IWorkspaceRepository, WorkspaceRepository>();
             services.AddScoped<IProjectFolderRepository, ProjectFolderRepository>();
-            services.AddScoped<IWorkItemRepository, WorkItemRepository>();
+            services.AddScoped<IProjectRepository, ProjectRepository>();
             services.AddScoped<IAssetClassRepository, AssetClassRepository>();
+            services.AddScoped<ITaskListRepository, TaskListRepository>();
+            services.AddScoped<ITaskItemRepository, TaskItemRepository>();
+            services.AddScoped<ITaskTimelineRepository, TaskTimelineRepository>();
+            services.AddScoped<ITaskSubmissionRepository, TaskSubmissionRepository>();
+            services.AddScoped<IProgramRepository, ProgramRepository>();
+            services.AddScoped<ITaskEvaluationHeaderRepository, TaskEvaluationHeaderRepository>();
+            services.AddScoped<ITaskEvaluationDetailRepository, TaskEvaluationDetailRepository>();
+            services.AddScoped<ITaskItemEvaluationRepository, TaskItemEvaluationRepository>();
         }
 
         public static void ConfigureServiceManagers(this IServiceCollection services)

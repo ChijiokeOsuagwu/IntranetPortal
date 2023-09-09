@@ -14,6 +14,7 @@ namespace IntranetPortal.Base.Repositories.BaseRepositories
         Task<bool> EditPersonImagePathAsync(string personId, string imagePath, string updatedBy);
         Task<Person> GetPersonByIdAsync(string Id);
         Task<Person> GetPersonByNameAsync(string personName);
+        Task<IList<Person>> SearchPersonsByNameAsync(string personName);
         Task<IList<Person>> GetPersonsAsync();
     }
 }

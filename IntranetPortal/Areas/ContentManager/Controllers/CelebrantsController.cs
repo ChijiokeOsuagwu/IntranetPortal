@@ -34,7 +34,7 @@ namespace IntranetPortal.Areas.ContentManager.Controllers
             _dataProtector = dataProtectionProvider.CreateProtector(dataProtectionEncryptionStrings.RouteValuesEncryptionCode);
         }
 
-        [Authorize(Roles = "PCMCELVWL, XYALLACCZ")]
+        [Authorize(Roles = "PCMMGACNT, XYALLACCZ")]
         public IActionResult Index()
         {
             CelebrantsListViewModel model = new CelebrantsListViewModel();
@@ -42,7 +42,7 @@ namespace IntranetPortal.Areas.ContentManager.Controllers
             return View(model);
         }
 
-        [Authorize(Roles = "PCMCELADN, XYALLACCZ")]
+        [Authorize(Roles = "PCMMGACNT, XYALLACCZ")]
         public IActionResult Add()
         {
             CelebrantsAddViewModel model = new CelebrantsAddViewModel();
@@ -50,7 +50,7 @@ namespace IntranetPortal.Areas.ContentManager.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "PCMCELADN, XYALLACCZ")]
+        [Authorize(Roles = "PCMMGACNT, XYALLACCZ")]
         public async Task<IActionResult> Add(CelebrantsAddViewModel model)
         {
             if (ModelState.IsValid)
@@ -101,7 +101,7 @@ namespace IntranetPortal.Areas.ContentManager.Controllers
             return View(model);
         }
 
-        [Authorize(Roles = "PCMCELDLT, XYALLACCZ")]
+        [Authorize(Roles = "PCMMGACNT, XYALLACCZ")]
         public async Task<IActionResult> Delete(string id)
         {
             int PostId = Convert.ToInt32(_dataProtector.Unprotect(id));
@@ -115,7 +115,7 @@ namespace IntranetPortal.Areas.ContentManager.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "PCMCELDLT, XYALLACCZ")]
+        [Authorize(Roles = "PCMMGACNT, XYALLACCZ")]
         public async Task<IActionResult> Delete(CelebrantsDeleteViewModel model)
         {
             if (model == null || model.Id < 1)
@@ -144,7 +144,7 @@ namespace IntranetPortal.Areas.ContentManager.Controllers
             return RedirectToAction("Index", "Celebrants");
         }
 
-        [Authorize(Roles = "PCMCELEDT, XYALLACCZ")]
+        [Authorize(Roles = "PCMMGACNT, XYALLACCZ")]
         public async Task<IActionResult> Edit(string id)
         {
             int PostId = 0;
@@ -162,7 +162,7 @@ namespace IntranetPortal.Areas.ContentManager.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "PCMCELEDT, XYALLACCZ")]
+        [Authorize(Roles = "PCMMGACNT, XYALLACCZ")]
         public async Task<IActionResult> Edit(CelebrantEditViewModel model)
         {
             if (ModelState.IsValid)

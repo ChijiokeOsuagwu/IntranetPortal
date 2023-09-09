@@ -1,4 +1,5 @@
 ﻿using IntranetPortal.Base.Models.BaseModels;
+using IntranetPortal.Base.Models.WksModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,6 +26,13 @@ namespace IntranetPortal.Base.Repositories.BaseRepositories
         //=========================== Activity History Action Methods ========================//
         #region Activity History Action Methods
         Task<bool> InsertActivityHistoryAsync(ActivityHistory activityHistory);
+        #endregion
+
+        //=========================== Entity Activity History Action Methods ==================//
+        #region Entity Activity History Action Methods
+        Task<bool> InsertTaskItemActivityHistoryAsync(TaskItemActivityHistory taskItemActivityHistory);
+        Task<bool> InsertTaskListActivityHistoryAsync(TaskListActivityHistory taskListActivityHistory);
+        Task<List<TaskItemActivityHistory>> GetTaskItemActivityHistoryByTaskItemIdAsync(long taskItemId);
         #endregion
 
         //=========================== System Applications Action Methods =====================//

@@ -1,7 +1,10 @@
-﻿using IntranetPortal.Base.Models.BaseModels;
+﻿using IntranetPortal.Base.Enums;
+using IntranetPortal.Base.Models.BaseModels;
+using IntranetPortal.Base.Models.WksModels;
 using IntranetPortal.Base.Repositories.BaseRepositories;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -115,6 +118,17 @@ namespace IntranetPortal.Base.Services
                 throw new Exception(ex.Message);
             }
             if (person != null && !string.IsNullOrEmpty(person.PersonID)) { return true; } else { return false; }
+        }
+
+        public async Task<List<Person>> SearchPersonsByName(string personName)
+        {
+            List<Person> personList = new List<Person>();
+            var entities = await _personRepository.SearchPersonsByNameAsync(personName);
+            if(entities != null && entities.Count > 0)
+            {
+                personList = entities.ToList();
+            }
+            return personList;
         }
 
         #endregion
@@ -408,6 +422,43 @@ namespace IntranetPortal.Base.Services
             }
             return industryTypes;
         }
+        #endregion
+
+        //================================= Entity Activity History Service Methods =============================================//
+        #region Entity Activity History Service Methods
+        public async Task<bool> AddEntityActivityHistoryAsync(EntityActivityHistory entityActivityHistory, EntityType entityType)
+        {
+            bool IsAdded = false;
+            switch (entityType)
+            {
+                case EntityType.TaskItem:
+                    TaskItemActivityHistory taskItemHistory = entityActivityHistory.ConvertToTaskItemActivityHistory();
+                    IsAdded = await _utilityRepository.InsertTaskItemActivityHistoryAsync(taskItemHistory);
+                    break;
+                case EntityType.TaskList:
+                    TaskListActivityHistory taskListHistory = entityActivityHistory.ConvertToTaskListActivityHistory();
+                    IsAdded = await _utilityRepository.InsertTaskListActivityHistoryAsync(taskListHistory);
+                    break;
+                default:
+                    break;
+            }
+            return IsAdded;
+        }
+        
+        public async Task<List<TaskItemActivityHistory>> GetTaskItemActivityHistory(long taskItemId)
+        {
+            List<TaskItemActivityHistory> history = new List<TaskItemActivityHistory>();
+            try
+            {
+                history = await _utilityRepository.GetTaskItemActivityHistoryByTaskItemIdAsync(taskItemId);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return history;
+        }
+
         #endregion
     }
 }
