@@ -221,8 +221,6 @@ namespace IntranetPortal.Areas.ERM.Controllers
         }
 
 
-
-
         [Authorize(Roles = "ERMMGAEMR, XYALLACCZ")]
         public async Task<IActionResult> Create(string id = null)
         {

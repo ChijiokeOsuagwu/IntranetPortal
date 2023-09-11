@@ -23,12 +23,13 @@ namespace IntranetPortal.Base.Repositories.ErmRepository
 
         Task<IList<Employee>> GetEmployeesByNameAsync(string employeeName);
 
+        Task<IList<Employee>> GetOtherEmployeesByNameAsync(string employeeId, string otherEmployeeName);
+
         Task<IList<Employee>> GetEmployeesByLocationAsync(int locationId);
 
         Task<IList<Employee>> GetEmployeesByLocationAsync(int locationId, int deptId);
 
         Task<IList<Employee>> GetEmployeesByLocationAsync(int locationId, int deptId, int unitId);
-
 
         Task<IList<Employee>> GetEmployeesByCompanyCodeAsync(string companyCode);
 

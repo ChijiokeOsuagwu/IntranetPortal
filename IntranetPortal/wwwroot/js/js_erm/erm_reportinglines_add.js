@@ -1,12 +1,14 @@
 ﻿$(document).ready(function () {
+
     $("#ReportsToEmployeeName").autocomplete(
         {
             minLength: 3,
             source: function (request, response) {
                 var text = $("#ReportsToEmployeeName").val();
+                var emp_id = $("#EmployeeID").val();
                 $.ajax({
                     type: "GET",
-                    url: "/ERM/Home/GetEmployeeNames?text=" + text,
+                    url: "/ERM/Home/GetOtherEmployeeNames?text=" + text+"&emp="+emp_id,
                     data: { text: request.term },
                     success: function (data) {
                         response($.map(data, function (item) {

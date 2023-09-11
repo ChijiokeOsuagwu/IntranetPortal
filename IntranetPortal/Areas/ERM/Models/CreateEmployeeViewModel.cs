@@ -183,10 +183,20 @@ namespace IntranetPortal.Areas.ERM.Models
 
         public Employee ConvertToEmployee()
         {
+            string formattedTitle = string.Empty;
+            string formattedFirstName = string.Empty;
+            string formattedSurname = string.Empty;
+            string formattedOthernames = string.Empty;
+            if (!string.IsNullOrWhiteSpace(Title)) { formattedTitle = Title.ToUpper(); }
+            if (!string.IsNullOrWhiteSpace(FirstName)) { formattedFirstName = FirstName.ToUpper(); }
+            if (!string.IsNullOrWhiteSpace(Surname)) { formattedSurname = Surname.ToUpper(); }
+            if (!string.IsNullOrWhiteSpace(OtherNames)) { formattedOthernames = OtherNames.ToUpper(); }
+
+
             return new Employee
             {
                 EmployeeID = EmployeeID ?? PersonID,
-                FullName = $"{Title} {FirstName} {OtherNames} {Surname}",
+                FullName = $"{formattedTitle} {formattedFirstName} {formattedOthernames} {formattedSurname}",
                 EmployeeNo1 = EmployeeNo1,
                 EmployeeNo2 = EmployeeNo2,
                 CompanyID = CompanyCode,
@@ -214,16 +224,16 @@ namespace IntranetPortal.Areas.ERM.Models
                 BirthMonth = BirthMonth,
                 BirthYear = BirthYear,
                 DateOfBirth = DateOfBirth,
-                FirstName = FirstName,
+                FirstName = formattedFirstName,
                 GeoPoliticalRegion = GeoPoliticalRegion,
                 ImagePath = ImagePath,
-                OtherNames = OtherNames,
+                OtherNames = formattedOthernames,
                 PersonID = PersonID  ?? EmployeeID,
                 PhoneNo1 = PhoneNo1,
                 PhoneNo2 = PhoneNo2,
                 Sex = Sex,
-                Surname = Surname,
-                Title = Title,
+                Surname = formattedSurname,
+                Title = formattedTitle,
                 UnitName = UnitName,
             };
         }

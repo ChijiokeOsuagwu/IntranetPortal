@@ -227,6 +227,23 @@ namespace IntranetPortal.Base.Services
             return employees;
         }
 
+
+        public async Task<List<Employee>> SearchOtherEmployeesByNameAsync(string employeeId, string otherEmployeeName)
+        {
+            List<Employee> employees = new List<Employee>();
+            try
+            {
+                var entities = await _employeesRepository.GetOtherEmployeesByNameAsync(employeeId, otherEmployeeName);
+                if (entities != null) { employees = entities.ToList(); }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return employees;
+        }
+
+
         public async Task<List<Employee>> GetAllEmployeesAsync()
         {
             List<Employee> employees = new List<Employee>();

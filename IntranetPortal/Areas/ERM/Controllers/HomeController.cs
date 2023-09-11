@@ -101,6 +101,14 @@ namespace IntranetPortal.Areas.ERM.Controllers
 
 
         [HttpGet]
+        public JsonResult GetOtherEmployeeNames(string text, string emp)
+        {
+            List<string> employees = _ermService.SearchOtherEmployeesByNameAsync(emp,text).Result.Select(x => x.FullName).ToList();
+            return Json(employees);
+        }
+
+
+        [HttpGet]
         public JsonResult GetPersonNames(string text)
         {
             List<string> persons = _baseModelService.SearchPersonsByName(text).Result.Select(x => x.FullName).ToList();

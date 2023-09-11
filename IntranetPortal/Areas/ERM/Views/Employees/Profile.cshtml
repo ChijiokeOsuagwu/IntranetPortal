@@ -24,13 +24,14 @@
                             </a>
                         }
                     </li>
-                    <li class="nav-item">
-                        <a asp-area="ERM" asp-controller="Reporting" asp-action="ReportLines" asp-route-id="@Model.EmployeeID" title="Reporting Line" class="btn btn-sm btn-light text-dark">
-                            <i class="bi bi-file-earmark-person fw-bolder" style="font-size: 0.8rem;"></i>&nbsp;<span class="fw-bold" style="font-size: 0.8rem;">Reporting Line</span>
-                        </a>
-                    </li>
                     @if (User.IsInRole("XYALLACCZ") || User.IsInRole("ERMMGAEMR"))
                     {
+                        <li class="nav-item">
+                            <a asp-area="ERM" asp-controller="Reporting" asp-action="ReportLines" asp-route-id="@Model.EmployeeID" title="Reporting Line" class="btn btn-sm btn-light text-dark">
+                                <i class="bi bi-file-earmark-person fw-bolder" style="font-size: 0.8rem;"></i>&nbsp;<span class="fw-bold" style="font-size: 0.8rem;">Reporting Line</span>
+                            </a>
+                        </li>
+
                         <li class="nav-item">
                             <a title="Next of Kin" class="btn btn-sm btn-light text-dark">
                                 <i class="bi bi-person-check-fill fw-bolder" style="font-size: 1.0rem;"></i>&nbsp;<span class="fw-bold" style="font-size: 0.8rem;">Next of Kin</span>

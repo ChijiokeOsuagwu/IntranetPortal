@@ -23,6 +23,9 @@ namespace IntranetPortal.Base.Services
 
         Task<List<Employee>> SearchEmployeesByNameAsync(string employeeName);
 
+        Task<List<Employee>> SearchOtherEmployeesByNameAsync(string employeeId, string otherEmployeeName);
+
+
         Task<List<Employee>> GetAllEmployeesAsync();
 
         Task<List<Employee>> GetEmployeesByCompanyAsync(string CompanyID);
