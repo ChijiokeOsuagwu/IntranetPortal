@@ -1,0 +1,267 @@
+﻿@model IntranetPortal.Areas.PMS.Models.AppraisalSchedulesListViewModel
+<div class="container">
+    <h3 class="mb-1"> Schedules for @Model.ReviewSessionName</h3>
+    <hr />
+    <div class="mb-1">
+        <div class="mb-3">
+            <div class="card">
+                <div class="card-header bg-dark">
+                    <span class="text-white fw-bolder" style="font-size:1.2rem">Search Schedules</span>
+                </div>
+                <div class="card-body" style="background-color:#D8D8D8">
+                    <form asp-area="PMS" asp-controller="Settings" asp-action="AppraisalSchedules" method="post">
+                        <div class="row">
+                            <div class="col-md-3 mb-2">
+                                <input type="hidden" asp-for="ReviewSessionId" />
+                                <label asp-for="ScheduleTypeId" class="form-label text-dark fw-bold"></label>
+                                <select asp-for="ScheduleTypeId" class="form-control">
+                                    <option value="0"> - All - </option>
+                                    <option value="1">A Location</option>
+                                    <option value="2">A Department</option>
+                                    <option value="3">A Unit</option>
+                                    <option value="4">An Employee</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3 mb-2">
+                                <label asp-for="ActivityTypeId" class="form-label text-dark fw-bold"></label>
+                                <select asp-for="ActivityTypeId" class="form-control">
+                                    <option value="0"> - All - </option>
+                                    <option value="1">Contract Definition Only</option>
+                                    <option value="2">Performance Evaluation Only</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3 mb-2">
+                                <label asp-for="StartDate" class="form-label text-dark fw-bold"></label>
+                                <input asp-for="StartDate" class="form-control" placeholder="mm/dd/yyyy">
+                            </div>
+                            <div class="col-md-3 mb-2">
+                                <label asp-for="EndDate" class="form-label text-dark fw-bold"></label>
+                                <input asp-for="EndDate" class="form-control" placeholder="mm/dd/yyyy">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-3 mb-3">
+                                <label asp-for="LocationId" class="form-label text-dark fw-bold"></label>
+                                <select asp-for="LocationId" asp-items="@ViewBag.LocationList" class="form-control">
+                                    <option value="0"> - All - </option>
+                                </select>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label asp-for="DepartmentId" class="form-label text-dark fw-bold"></label>
+                                <select asp-for="DepartmentId" asp-items="@ViewBag.DepartmentList" class="form-control">
+                                    <option value=""> - All - </option>
+                                </select>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label asp-for="UnitId" class="form-label text-dark fw-bold"></label>
+                                <select asp-for="UnitId" asp-items="@ViewBag.UnitList" class="form-control">
+                                    <option value=""> - All - </option>
+                                </select>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label asp-for="EmployeeName" class="form-label text-dark fw-bold"></label>
+                                <input asp-for="EmployeeName" class="form-control" placeholder="Start Typing...." />
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-2 mb-2">
+                                <a asp-area="PMS" asp-controller="Settings" asp-action="ShowReviewSession" asp-route-id="@Model.ReviewSessionId" title="Go Back" class="btn btn-dark" style="width:100px">
+                                    <i class="bi bi-backspace fw-bolder" style="font-size: 1.0rem;"></i>&nbsp;<span class="fw-bold" style="font-size: 0.8rem;">Back</span>
+                                </a>
+                            </div>
+                            <div class="col-md-4 mb-2">
+                                <div class="dropdown">
+                                    <button class="btn btn-outline-success dropdown-toggle" style="width:250px" type="button" id="dropdownNewSchedule" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <span class="fw-bold">Create Schedule</span>
+                                    </button>
+                                    <ul class="dropdown-menu" aria-labelledby="dropdownNewSchedule">
+                                        <li>
+                                            <a class="dropdown-item" asp-area="PMS" asp-controller="Settings" asp-action="NewAppraisalSchedule" asp-route-id="@Model.ReviewSessionId" asp-route-tp="0">
+                                                <span class="fw-bold" style="font-size: 1.0rem;">For Everyone</span>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item" asp-area="PMS" asp-controller="Settings" asp-action="NewAppraisalSchedule" asp-route-id="@Model.ReviewSessionId" asp-route-tp="1">
+                                                <span class="fw-bold" style="font-size: 1.0rem;">For a Location</span>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item" asp-area="PMS" asp-controller="Settings" asp-action="NewAppraisalSchedule" asp-route-id="@Model.ReviewSessionId" asp-route-tp="2">
+                                                <span class="fw-bold" style="font-size: 1.0rem;">For a Department</span>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item" asp-area="PMS" asp-controller="Settings" asp-action="NewAppraisalSchedule" asp-route-id="@Model.ReviewSessionId" asp-route-tp="3">
+                                                <span class="fw-bold" style="font-size: 1.0rem;">For a Unit</span>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item" asp-area="PMS" asp-controller="Settings" asp-action="NewAppraisalSchedule" asp-route-id="@Model.ReviewSessionId" asp-route-tp="4">
+                                                <span class="fw-bold" style="font-size: 1.0rem;">For an Employee</span>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-2 text-end">
+                                <input type="submit" value="Show Schedules" class="btn btn-dark" style="width:200px" />
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bi bi-x-circle"></i>
+                    <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+        </div>
+        <hr />
+        <div class="row">
+            @if (Model == null || Model.SessionScheduleList == null || Model.SessionScheduleList.Count < 1)
+            {
+                <div class="alert alert-info fade show" role="alert">
+                    <i class="bi bi-info-circle"></i>
+                    <span class="fw-bold">No record was found.</span>
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-sm table-hover">
+                        <thead class="table-dark">
+                            <tr>
+                                <th><span class="text-white fw-bolder"> </span></th>
+                                <th><span class="text-white fw-bolder">Activity </span></th>
+                                <th>
+                                    <span class="text-white fw-bolder">Type</span>
+                                </th>
+                                <th>
+                                    <span class="text-white fw-bolder">Ends On</span>
+                                </th>
+                                <th>
+                                    <span class="text-white fw-bolder">Status</span>
+                                </th>
+                                <th>
+
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody class="table-light">
+                            @foreach (var item in Model.SessionScheduleList)
+                            {
+                                if (item.IsCancelled)
+                                {
+                                    <tr style="background-color: #fadad4">
+                                        <td class="p-2" title="Cancelled">
+                                            <i class="bi bi-x-square text-danger fw-bolder" style="font-size:1.2rem"></i>
+                                        </td>
+                                        <td class="p-2">
+                                            @switch (item.ActivityType)
+                                            {
+                                                case IntranetPortal.Base.Enums.SessionActivityType.AllActivities:
+                                                    <span class="fw-bolder">All Activities</span>
+                                                    break;
+                                                case IntranetPortal.Base.Enums.SessionActivityType.ContractDefinitionOnly:
+                                                    <span class="fw-bolder">Contract Definition Only</span>
+                                                    break;
+                                                case IntranetPortal.Base.Enums.SessionActivityType.PerformanceEvaluationOnly:
+                                                    <span class="fw-bolder">Performance Evaluation Only</span>
+                                                    break;
+                                                default:
+                                                    <span class="fw-bolder">All Activities</span>
+                                                    break;
+                                            }
+                                        </td>
+                                        <td class="p-2">
+                                            <span class="fw-bolder">@item.ScheduleType</span>
+                                        </td>
+                                        <td class="p-2">
+                                            <span class="fw-bolder">@item.ScheduleEndTime.Value.ToLongDateString()</span>
+                                        </td>
+                                        <td class="p-2">
+                                            <span class="fw-bolder">@item.ScheduleStatus </span>
+                                        </td>
+                                        <td class="p-2 text-end">
+                                            <div class="dropdown">
+                                                <button class="btn btn-sm btn-dark dropdown-toggle" type="button" id="dropdownSelectAction" data-bs-toggle="dropdown" aria-expanded="false">
+                                                    <span class="text-white fw-bold">Select Action</span>
+                                                </button>
+                                                <ul class="dropdown-menu" aria-labelledby="dropdownSelectAction">
+                                                    <li>
+                                                        <a class="dropdown-item" asp-area="PMS" asp-controller="Settings" asp-action="AppraisalScheduleInfo" asp-route-id="@item.SessionScheduleId" title="Details">Details</a>
+                                                    </li>
+                                                    <li>
+                                                        <a class="dropdown-item" asp-area="PMS" asp-controller="Settings" asp-action="CancelAppraisalSchedule" asp-route-id="@item.SessionScheduleId" title="Cancel">Cancel</a>
+                                                    </li>
+                                                    <li>
+                                                        <a class="dropdown-item" asp-area="PMS" asp-controller="Settings" asp-action="DeleteAppraisalSchedule" asp-route-id="@item.SessionScheduleId" title="Delete">Delete</a>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                                else
+                                {
+                                    <tr style="background-color:#bdfba7">
+                                        <td class="p-2" title="Valid">
+                                            <i class="bi bi-check2-square text-success fw-bolder" style="font-size:1.5rem"></i>
+                                        </td>
+                                        <td class="p-2">
+                                            @switch (item.ActivityType)
+                                            {
+                                                case IntranetPortal.Base.Enums.SessionActivityType.AllActivities:
+                                                    <span class="fw-bolder">All Activities</span>
+                                                    break;
+                                                case IntranetPortal.Base.Enums.SessionActivityType.ContractDefinitionOnly:
+                                                    <span class="fw-bolder">Contract Definition Only</span>
+                                                    break;
+                                                case IntranetPortal.Base.Enums.SessionActivityType.PerformanceEvaluationOnly:
+                                                    <span class="fw-bolder">Performance Evaluation Only</span>
+                                                    break;
+                                                default:
+                                                    <span class="fw-bolder">All Activities</span>
+                                                    break;
+                                            }
+                                        </td>
+                                        <td class="p-2">
+                                            <span class="fw-bolder">@item.ScheduleType</span>
+                                        </td>
+                                        <td class="p-2">
+                                            <span class="fw-bolder">@item.ScheduleEndTime.Value.ToLongDateString()</span>
+                                        </td>
+                                        <td class="p-2">
+                                            <span class="fw-bolder">@item.ScheduleStatus </span>
+                                        </td>
+                                        <td class="p-2 text-end">
+                                            <div class="dropdown">
+                                                <button class="btn btn-sm btn-dark dropdown-toggle" type="button" id="dropdownSelectAction" data-bs-toggle="dropdown" aria-expanded="false">
+                                                    <span class="text-white fw-bold">Select Action</span>
+                                                </button>
+                                                <ul class="dropdown-menu" aria-labelledby="dropdownSelectAction">
+                                                    <li>
+                                                        <a class="dropdown-item" asp-area="PMS" asp-controller="Settings" asp-action="AppraisalScheduleInfo" asp-route-id="@item.SessionScheduleId" title="Details">Details</a>
+                                                    </li>
+                                                    <li>
+                                                        <a class="dropdown-item" asp-area="PMS" asp-controller="Settings" asp-action="CancelAppraisalSchedule" asp-route-id="@item.SessionScheduleId" title="Cancel">Cancel</a>
+                                                    </li>
+                                                    <li>
+                                                        <a class="dropdown-item" asp-area="PMS" asp-controller="Settings" asp-action="DeleteAppraisalSchedule" asp-route-id="@item.SessionScheduleId" title="Delete">Delete</a>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+</div>

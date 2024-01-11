@@ -34,8 +34,12 @@ namespace IntranetPortal.Base.Services
         public async Task<bool> UpdatePostAsync(Post post)
         {
             if (post == null) { throw new ArgumentNullException(nameof(post), "Required parameter [post] is missing."); }
-            post.PostTypeId = (int)PostType.Banner;
-            return await _postRepository.EditPostAsync(post);
+            //post.PostTypeId = (int)PostType.Banner;
+            if (!string.IsNullOrWhiteSpace(post.ImagePath))
+            {
+                return await _postRepository.EditPostAsync(post);
+            }
+            return await _postRepository.EditPostWithoutImageAsync(post);
         }
         public async Task<bool> HidePostAsync(int postId)
         {

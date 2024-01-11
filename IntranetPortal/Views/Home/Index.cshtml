@@ -151,12 +151,12 @@
                     <div class="card h-100">
                         @if (!string.IsNullOrWhiteSpace(post.ImagePath))
                         {
-                            <img class="card-img-top" src="/@post.ImagePath" style="width:700px; height:450px" alt="Post Image" />
+                            <img class="card-img-top" src="/@post.ImagePath" style="max-width:400px; max-height:250px" alt="Post Image" />
                         }
                         <div class="card-body">
                             <h3 class="card-title">@post.PostTitle</h3>
                             <p class="card-text" style="font-size:1.2rem">@post.PostSummary
-                                <a class="btn btn-light" asp-area="" asp-controller="Home" asp-action="Read" asp-route-id="@post.PostId"><span class="text-secondary">Read More....</span></a>
+                                <a class="btn btn-light" asp-area="" asp-controller="Home" asp-action="Read" asp-route-id="@post.PostId"><span class="text-secondary">[Read Full Article]</span></a>
                             </p>
                             
                         </div>
@@ -164,7 +164,7 @@
                 </div>
             }
         }
-        else
+        @*else
         {
             <div class="col-lg-4 col-sm-6 mb-4">
                 <div class="card h-100">
@@ -220,7 +220,7 @@
                     </div>
                 </div>
             </div>
-        }
+        }*@
     </div>
 </section>
 

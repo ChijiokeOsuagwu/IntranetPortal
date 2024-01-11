@@ -1,4 +1,5 @@
-﻿using IntranetPortal.Base.Models.BaseModels;
+﻿using IntranetPortal.Base.Models.AssetManagerModels;
+using IntranetPortal.Base.Models.BaseModels;
 using IntranetPortal.Base.Models.SecurityModels;
 using IntranetPortal.Base.Repositories.BaseRepositories;
 using IntranetPortal.Base.Repositories.SecurityRepositories;
@@ -20,10 +21,12 @@ namespace IntranetPortal.Base.Services
         private readonly IUserPermissionRepository _userPermissionRepository;
         private readonly IUserLoginRepository _userLoginRepository;
         private readonly IRoleRepository _roleRepository;
+        private readonly IEntityPermissionRepository _entityPermissionRepository;
 
         public SecurityService(IEmployeeUserRepository employeeUserRepository, IUtilityRepository utilityRepository,
                                 IUserRepository userRepository, IUserPermissionRepository userPermissionRepository,
-                                IRoleRepository roleRepository, IUserLoginRepository userLoginRepository)
+                                IRoleRepository roleRepository, IUserLoginRepository userLoginRepository,
+                                IEntityPermissionRepository entityPermissionRepository)
         {
             _employeeUserRepository = employeeUserRepository;
             _utilityRepository = utilityRepository;
@@ -31,9 +34,10 @@ namespace IntranetPortal.Base.Services
             _userPermissionRepository = userPermissionRepository;
             _userLoginRepository = userLoginRepository;
             _roleRepository = roleRepository;
+            _entityPermissionRepository = entityPermissionRepository;
         }
 
-        //========================= Employee User Action Methods =============================================//
+        //============= Employee User Action Methods ==================//
         #region Employee User Action Methods
         public async Task<IList<EmployeeUser>> GetAllEmployeeUsersAsync()
         {
@@ -80,7 +84,7 @@ namespace IntranetPortal.Base.Services
 
         #endregion
 
-        //========================= User Action Methods ======================================================//
+        //============= User Action Methods ===========================//
         #region User Action Methods
         public async Task<IList<ApplicationUser>> GetUsersByLoginId(string loginId)
         {
@@ -280,7 +284,7 @@ namespace IntranetPortal.Base.Services
         }
         #endregion
 
-        //========================= Role Action Methods ======================================================//
+        //============= Role Action Methods ===========================//
         #region Role Action Methods
         public async Task<IList<ApplicationRole>> GetUserRolesUnGrantedByUserIDAsync(string userId, string applicationId = null)
         {
@@ -307,7 +311,8 @@ namespace IntranetPortal.Base.Services
         }
 
         #endregion
-        //========================= User Permission Action Methods ===========================================//
+        
+        //============= User Permission Action Methods =================//
         #region User Permission Action Methods
         public async Task<IList<UserPermission>> GetUserPermissionsByUserIdAsync(string userId)
         {
@@ -427,7 +432,7 @@ namespace IntranetPortal.Base.Services
 
         #endregion
 
-        //========================= User Login History Action Methods ========================================//
+        //============= User Login History Action Methods ==============//
         #region UserLoginHistory Action Methods
         public async Task<bool> UpdateUserLoginHistoryAsync(UserLoginHistory userLoginHistory)
         {
@@ -523,7 +528,7 @@ namespace IntranetPortal.Base.Services
 
         #endregion
 
-        //========================= Security Cryptography Action Methods =====================================//
+        //============= Security Cryptography Action Methods ===========//
         #region Security Cryptography Action Methods
         public string CreatePasswordHash(string plainTextPassword)
         {
@@ -541,7 +546,30 @@ namespace IntranetPortal.Base.Services
           => CreatePasswordHash(plainTextPassword) == hashedPassword;
 
         private const string PasswordSalt = "CGYzqrN4plZekNC35Uxp1Q==";
-        #endregion  
+        #endregion
+
+        //============= Asset Permissions Action Methods ===============//
+        #region Asset Permissions Action Methods
+        public async Task<IList<AssetPermission>> GetAssetPermissionsByUserIdAsync(string userId)
+        {
+            List<AssetPermission> assetPermissions = new List<AssetPermission>();
+            var entities = await _entityPermissionRepository.GetAssetPermissionsByUserIdAsync(userId);
+            assetPermissions = entities.ToList();
+            return assetPermissions;
+        }
+
+        public async Task<bool> GrantAssetPermissionAsync(AssetPermission assetPermission)
+        {
+                return await _entityPermissionRepository.AddAssetPermissionAsync(assetPermission);
+        }
+
+        public async Task<bool> RevokeAssetPermissionAsync(int assetPermissionId)
+        {
+            return   await _entityPermissionRepository.DeleteAssetPermissionAsync(assetPermissionId);
+        }
+
+
+        #endregion
     }
 
     public class SecurityConstants

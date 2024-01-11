@@ -13,6 +13,7 @@ namespace IntranetPortal.Base.Repositories.GlobalSettingsRepositories
         Task<bool> EditLocationAsync(Location location);
         Task<Location> GetLocationByIdAsync(int Id);
         Task<Location> GetLocationByNameAsync(string locationName);
+        Task<IList<Location>> GetLocationsByUserIdAsync(string userId);
         Task<IList<Location>> GetLocationsAsync();
         Task<IList<Location>> GetOnlyStationsAsync();
         Task<IList<Location>> GetOnlyBureausAsync();

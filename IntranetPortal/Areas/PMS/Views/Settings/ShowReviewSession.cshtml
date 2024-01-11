@@ -1,0 +1,147 @@
+﻿@model IntranetPortal.Areas.PMS.Models.ManageReviewSessionViewModel
+<div>
+    <h3>Appraisal Session Information</h3>
+    <hr />
+    <div class="row">
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <div class="container-fluid">
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNavDropdown">
+                    <ul class="navbar-nav">
+                        <li class="nav-item">
+                            <a asp-area="PMS" asp-controller="Settings" asp-action="ReviewSessions" title="Go Back" class="btn btn-sm btn-outline-light text-dark">
+                                <i class="bi bi-backspace fw-bolder" style="font-size: 1.0rem;"></i>&nbsp;<span class="fw-bold ml-1" style="font-size: 1.0rem;">Back</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a asp-area="PMS" asp-controller="Settings" asp-action="ManageReviewSession" asp-route-id="@Model.Id" title="Edit Session" class="btn btn-sm btn-light text-dark">
+                                <i class="bi bi-pencil-square fw-bolder" style="font-size: 1.0rem;"></i><span class="fw-bold ml-1" style="font-size: 1.0rem;">Edit</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a asp-area="PMS" asp-controller="Settings" asp-action="DeleteReviewSession" asp-route-id="@Model.Id" title="Edit Session" class="btn btn-sm btn-light text-dark">
+                                <i class="bi bi-trash fw-bolder" style="font-size: 1.0rem;"></i><span class="fw-bold ml-1" style="font-size: 1.0rem;">Delete</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a asp-area="PMS" asp-Controller="Settings" asp-action="AppraisalGradeSettings" asp-route-id="@Model.Id" title="Change Image" class="btn btn-sm btn-light text-dark">
+                                <i class="bi bi-percent fw-bolder" style="font-size: 1.0rem;"></i><span class="fw-bold ml-1" style="font-size: 1.0rem;">Appraisal Grades</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a asp-area="PMS" asp-controller="Settings" asp-action="AppraisalSchedules" asp-route-id="@Model.Id" title="Appraisal Schedules" class="btn btn-sm btn-light text-dark">
+                                <i class="bi bi-calendar4-week fw-bolder" style="font-size: 1.2rem"></i><span class="fw-bold ml-1" style="font-size: 1.0rem;">Appraisal Schedules</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </div>
+    <div class="card mt-1">
+        <div class="card-header bg-dark">
+            <h4 class="text-white">Appraisal Session Information</h4>
+        </div>
+        <div class="card-body bg-secondary">
+            @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bi bi-x-circle"></i>
+                    <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            @if (!String.IsNullOrEmpty(Model.ViewModelSuccessMessage))
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="bi bi-check-circle"></i>
+                    <span class="fw-bold">@Model.ViewModelSuccessMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            @if (!String.IsNullOrEmpty(Model.ViewModelWarningMessage))
+            {
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                    <i class="bi bi-exclamation-circle"></i>
+                    <span class="fw-bold">@Model.ViewModelWarningMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            <form asp-area="PMS" asp-controller="Settings" asp-action="ManageReviewSession" method="post" autocomplete="off">
+                <div class="row">
+                    <div class="col-md-6 mb-2">
+                        <input type="hidden" asp-for="Id" />
+                        <label asp-for="Name" class="form-label text-white fw-bold"></label>
+                        <input asp-for="Name" class="form-control" placeholder="Title">
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <label asp-for="ReviewYearName" class="form-label text-white fw-bold"></label>
+                        <input asp-for="ReviewYearName" class="form-control" readonly="readonly" />
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <label asp-for="IsActive" class="form-label text-white fw-bold"></label>
+                        @if (Model.IsActive == 0)
+                        {
+                            <div>
+                                <i class="bi bi-lock-fill fw-bold" style="font-size:1.2rem; color:red;"></i>
+                                <span class="text-white fw-bold ml-1">Closed</span>
+                            </div>
+                        }
+                        else
+                        {
+                            <div>
+                                <i class="bi bi-unlock-fill fw-bold" style="font-size:1.2rem; color:green;"></i>
+                                <span class="text-white fw-bold ml-1">Open</span>
+                            </div>
+                        }
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3 mb-3">
+                        <label asp-for="ReviewTypeName" class="form-label text-white fw-bold"></label>
+                        <input asp-for="ReviewTypeName" class="form-control" readonly="readonly" />
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label asp-for="StartDate" class="form-label text-white fw-bold"></label>
+                        <input asp-for="StartDateFormatted" class="form-control" readonly="readonly" />
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label asp-for="EndDate" class="form-label text-white fw-bold"></label>
+                        <input asp-for="EndDateFormatted" class="form-control" readonly="readonly" />
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label asp-for="TotalCombinedScore" class="form-label text-white fw-bold"></label>
+                        <input asp-for="TotalCombinedScore" class="form-control" readonly="readonly" />
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3 mb-3">
+                        <label asp-for="MinNoOfCompetencies" class="form-label text-white fw-bold"></label>
+                        <input asp-for="MinNoOfCompetencies" class="form-control" readonly="readonly" />
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label asp-for="MaxNoOfCompetencies" class="form-label text-white fw-bold"></label>
+                        <input asp-for="MaxNoOfCompetencies" class="form-control" readonly="readonly" />
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label asp-for="TotalCompetencyScore" class="form-label text-white fw-bold"></label>
+                        <input asp-for="TotalCompetencyScore" class="form-control" readonly="readonly" />
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label asp-for="TotalKpaScore" class="form-label text-white fw-bold"></label>
+                        <input asp-for="TotalKpaScore" class="form-control" readonly="readonly" />
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12 mb-3">
+                        <a asp-area="PMS" asp-controller="Settings" asp-action="ReviewSessions" class="btn btn-dark" style="width:100px" title="Back">
+                            <span class="text-white">Back</span>
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

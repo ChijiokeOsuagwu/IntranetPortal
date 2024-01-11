@@ -14,11 +14,8 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
         Task<bool> DeleteAsync(int assetClassId);
         Task<bool> EditAsync(AssetClass assetClass);
         Task<IList<AssetClass>> GetAllAsync();
-        Task<IList<AssetClass>> GetAllAsync(IEntityPermission entityPermission);
         Task<IList<AssetClass>> GetByCategoryIdAsync(int assetCategoryId);
-        Task<IList<AssetClass>> GetByCategoryIdAsync(int assetCategoryId, IEntityPermission entityPermission);
         Task<AssetClass> GetByIdAsync(int assetClassId);
         Task<IList<AssetClass>> GetByNameAsync(string className);
-        Task<IList<AssetClass>> GetByNameAsync(string className, IEntityPermission entityPermission);
     }
 }

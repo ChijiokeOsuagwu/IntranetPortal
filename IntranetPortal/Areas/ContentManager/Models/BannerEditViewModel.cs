@@ -22,11 +22,11 @@ namespace IntranetPortal.Areas.ContentManager.Models
         [Display(Name = "Banner Caption")]
         public string Summary { get; set; }
 
-        [Required]
         [Display(Name = "Upload Banner Image")]
         public IFormFile BannerImage { get; set; }
         public bool EnableComments { get; set; }
         public bool IsHidden { get; set; }
         public string ImagePath { get; set; }
+        public string OldImagePath { get; set; }
     }
 }

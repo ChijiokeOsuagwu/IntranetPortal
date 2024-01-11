@@ -54,6 +54,8 @@ namespace IntranetPortal.Base.Repositories.ErmRepository
 
         Task<IList<Employee>> GetEmployeesWithoutUserAccountsByNameAsync(string employeeName);
 
+        Task<int> GetEmployeesCountByStartUpDateAsync(int startUpYear, int startUpMonth, int startUpDay);
+
         Task<IList<Employee>> GetAllEmployeesWithoutUserAccountsAsync();
 
         #endregion

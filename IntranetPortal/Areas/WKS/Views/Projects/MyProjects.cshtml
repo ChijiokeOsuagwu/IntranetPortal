@@ -4,42 +4,46 @@
     ViewData["Title"] = "OfficeManager | My Projects";
 }
 <div class="container">
-    <h4>My Projects</h4>
+    <h4>@Model.FolderName</h4>
     <hr />
     <div class="mb-1">
         <form asp-area="WKS" asp-controller="Projects" asp-action="MyProjects" asp-route-id="@Model.id" method="get">
-            @if (Model.Source == "xws")
-            {
-                <a asp-area="WKS" asp-controller="Home" asp-action="ExecutiveWorkspace" class="btn btn-dark" style="width:100px" title="Click to Go Back">
-                    <span class="text-white">Back</span>
-                </a>
-            }
-            else
-            {
-                <a asp-area="" asp-controller="Home" asp-action="Apps" class="btn btn-dark" style="width:100px" title="Click to Go Back">
-                    <span class="text-white">Back</span>
-                </a>
-            }
-
-            <select asp-for="id" asp-items="@ViewBag.FolderSelectList" class="border-0" style="width:250px">
-                <option value="">- ALL -</option>
-            </select>
-            <input asp-for="sp" placeholder="Enter Project Title to search" class="border-0" style="width:200px" />
-            <input type="submit" value="Search" class="btn btn-dark pr-3" style="width:100px" />
-            <a asp-area="WKS" asp-controller="Projects" asp-action="Manage" asp-route-fd="@Model.id" class="btn btn-success" style="width:200px" title="Add New Project">
-                <i class="bi bi-plus-lg text-white fw-bold"></i>  <span class="text-white ml-2">New Project</span>
-            </a>
-        </form>
-
-        @if (!String.IsNullOrEmpty(ViewBag.ErrorMessage))
-        {
-            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                <i class="bi bi-x-circle"></i>
-                <span class="fw-bold">@ViewBag.ErrorMessage</span>
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            <div class="row">
+                <div class="col-md-2">
+                    @if (Model.Source == "xws")
+                    {
+                        <a asp-area="WKS" asp-controller="Home" asp-action="ExecutiveWorkspace" class="btn btn-dark" style="width:100px" title="Click to Go Back">
+                            <span class="text-white">Back</span>
+                        </a>
+                    }
+                    else
+                    {
+                        <a asp-area="WKS" asp-controller="Home" asp-action="ExecutiveWorkspace" class="btn btn-dark" style="width:100px" title="Click to Go Back">
+                            <span class="text-white">Back</span>
+                        </a>
+                    }
+                </div>
+                <div class="col-md-6 text-end">
+                    <input asp-for="sp" placeholder="Enter Title " class="border-0" style="width:300px" />
+                    <input type="submit" value="Search" class="btn btn-dark" style="width:100px">
+                </div>
+                <div class="col-md-4 text-end">
+                    <a asp-area="WKS" asp-controller="Projects" asp-action="Manage" asp-route-fd="@Model.id" class="btn btn-success" style="width:150px" title="Add New Project">
+                        <i class="bi bi-plus-lg text-white fw-bold"></i>  <span class="text-white ml-2">New Project</span>
+                    </a>
+                </div>
             </div>
-        }
+        </form>
     </div>
+
+    @if (!String.IsNullOrEmpty(ViewBag.ErrorMessage))
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-x-circle"></i>
+            <span class="fw-bold">@ViewBag.ErrorMessage</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
     @if (Model.ProjectList == null || Model.ProjectList.Count < 1)
     {
         <div class="alert alert-info fade show" role="alert">
@@ -52,16 +56,16 @@
         @if (Model != null && Model.ProjectList != null && Model.ProjectList.Count > 0)
         {
             <div class="row mt-3">
-                <div class="table-responsive">
+                <div class="table-responsive" style="min-height:300px">
                     <table class="table table-hover table-sm ">
                         <thead class="table-dark">
                             <tr>
-                                <th class="p-2"><span class="text-white fw-bold">Title</span></th>
-                                <th class="p-2"><span class="text-white fw-bold">Status</span></th>
-                                <th class="p-2"><span class="text-white fw-bold">Assigned To</span></th>
-                                <th class="p-2"><span class="text-white fw-bold">Due Date</span></th>
-                                <th class="p-2"><span class="text-white fw-bold">Folder</span></th>
-                                <th></th>
+                                <th class="text-center"><span class="text-white fw-bold">#</span></th>
+                                <th class="text-center"><span class="text-white fw-bold">Project Title</span></th>
+                                <th class="text-center"><span class="text-white fw-bold">Status</span></th>
+                                <th class="text-center"><span class="text-white fw-bold">Assigned To</span></th>
+                                <th class="text-center"><span class="text-white fw-bold">Due Date</span></th>
+                                <th class="text-center"></th>
                             </tr>
                         </thead>
                         <tbody class="table-light">
@@ -70,32 +74,79 @@
                                 if (project.ExpectedDueTime.Value < DateTime.UtcNow)
                                 {
                                     <tr>
-                                        <td class="p-2">
+                                        <td class="text-center">
+                                            <span class="fw-bold" title="@project.Number">@project.Number</span>
+                                        </td>
+                                        <td class="text-center">
                                             <span class="fw-bold" title="@project.Description">@project.Title</span>
                                         </td>
-                                        <td class="p-2" title="Over Due">
-                                            <span class="badge rounded-pill fw-bold text-white" style="font-size: 1.0rem; background-color: #943126; width:150px">Over Due</span>
+                                        <td class="text-center" title="Over Due">
+                                            <span class="badge rounded-pill fw-bold text-white" style="background-color: #943126; width:100px">Over Due</span>
                                         </td>
-                                        <td class="p-2" title="@project.AssignedToName">
-                                            <i class="bi bi-person fw-bold" title="@project.AssignedToName" style="font-size: 1.2rem;"></i>
+                                        <td class="text-center" title="@project.AssignedToName">
+                                            <i class="bi bi-person fw-bold" title="@project.AssignedToName" style="font-size: 1.4rem;"></i>
                                         </td>
-                                        <td class="p-2">
-                                            <span class="fw-bold">@project.ExpectedDueTime.Value.ToString("dddd, dd MMMM yyyy")</span>
+                                        <td class="text-center" title="@project.ExpectedDueTime.Value.ToLongDateString()">
+                                            <span class="fw-bold">@project.ExpectedDueTime.Value.ToString("dd-MM-yyyy")</span>
                                         </td>
-                                        <td class="p-2">
-                                            <span class="fw-bold" title="@project.FolderTitle">@project.FolderTitle</span>
-                                        </td>
-                                        <td class="p-2">
-                                            <div class="text-center">
-                                                <a asp-area="WKS" asp-controller="Projects" asp-action="ProjectInfo" asp-route-id="@project.ID" title="Details" class="btn btn-sm btn-dark">
-                                                    <i class="bi bi-info-lg"></i>  <span>Details</span>
-                                                </a>
-                                                <a asp-area="WKS" asp-controller="Projects" asp-action="Manage" asp-route-id="@project.ID" class="btn btn-sm btn-info text-white" style="width:75px" title="Edit Folder">
-                                                    <i class="bi bi-pencil-fill"></i>  <span>Edit</span>
-                                                </a>
-                                                <a asp-area="WKS" asp-controller="Projects" asp-action="Delete" asp-route-id="@project.ID" class="btn btn-sm btn-danger text-white" style="width:75px" title="Delete Folder">
-                                                    <i class="bi bi-trash-fill"></i>  <span>Delete</span>
-                                                </a>
+                                        <td>
+                                            <!-- Default dropstart button -->
+                                            <div class="btn-group dropstart">
+                                                <button type="button" data-bs-toggle="dropdown" aria-expanded="false" style="border:0px">
+                                                    <span class="fw-bold" style="font-size:1.0rem;"><i class="bi bi-three-dots-vertical"></i></span>
+                                                </button>
+                                                <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton2">
+
+                                                    <li>
+                                                        <a class="dropdown-item" asp-area="WKS" asp-controller="Projects" asp-action="ProjectInfo" asp-route-id="@project.ID" title="Details">
+                                                            <i class="bi bi-info-lg"></i>  <span>Details</span>
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <a class="dropdown-item" asp-area="WKS" asp-controller="Projects" asp-action="Manage" asp-route-id="@project.ID" title="Edit Folder">
+                                                            <i class="bi bi-pencil-fill"></i>  <span>Edit</span>
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <a class="dropdown-item" asp-area="WKS" asp-controller="Projects" asp-action="MoreInfo" asp-route-id="@project.ID" title="Add More Info">
+                                                            <i class="bi bi-trash-fill"></i>  <span>More Info</span>
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <a class="dropdown-item" href="#">
+                                                            <i class="bi bi-file-text"></i> <span>History</span>
+                                                        </a>
+                                                        <ul class="dropdown-menu dropdown-menu-dark dropdown-submenu">
+                                                            <li>
+                                                                <a class="dropdown-item" asp-area="WKS" asp-controller="Tasks" asp-action="TaskItemHistory" asp-route-id="" asp-route-tl="">
+                                                                    <i class="bi bi-file-text"></i> <span>Activity History</span>
+                                                                </a>
+                                                            </li>
+                                                            <li>
+                                                                <a class="dropdown-item" asp-area="WKS" asp-controller="Tasks" asp-action="ScheduleHistory" asp-route-id="" asp-route-tl="">
+                                                                    <i class="bi bi-file-text"></i> <span>Schedule History</span>
+                                                                </a>
+                                                            </li>
+                                                        </ul>
+                                                    </li>
+                                                    <li>
+                                                        <a class="dropdown-item" href="#">
+                                                            <i class="bi bi-stickies"></i> <span>Notes</span>
+                                                        </a>
+                                                        <ul class="dropdown-menu dropdown-menu-dark dropdown-submenu">
+                                                            <li>
+                                                                <a class="dropdown-item" asp-area="WKS" asp-controller="Tasks" asp-action="TaskItemNotes" asp-route-id="" asp-route-tl="" asp-route-src="txb">
+                                                                    <i class="bi bi-stickies"></i> <span>View Notes</span>
+                                                                </a>
+                                                            </li>
+                                                        </ul>
+                                                    </li>
+                                                    <li>
+                                                        <button class="dropdown-item" onclick="DeleteTaskItem('')">
+                                                            <i class="bi bi-trash"></i> <span>Delete</span>
+                                                        </button>
+                                                    </li>
+                                                </ul>
                                             </div>
                                         </td>
                                     </tr>
@@ -106,160 +157,380 @@
                                     {
                                         case WorkItemProgressStatus.InProgress:
                                             <tr>
-                                                <td class="p-2">
+                                                <td class="text-center">
+                                                    <span class="fw-bold" title="@project.Number">@project.Number</span>
+                                                </td>
+                                                <td class="text-center">
                                                     <span class="fw-bold" title="@project.Description">@project.Title</span>
                                                 </td>
-                                                <td class="p-2">
+                                                <td class="text-center">
                                                     <span title="In Progress" class="badge rounded-pill fw-bold text-white" style="font-size: 1.0rem; background-color:#2ecc71; width:150px">In Progress</span>
                                                 </td>
-                                                <td class="p-2" title="@project.AssignedToName">
-                                                    <i class="bi bi-person fw-bold" title="@project.AssignedToName" style="font-size: 1.2rem;"></i>
+                                                <td class="text-center" title="@project.AssignedToName">
+                                                    <i class="bi bi-person fw-bold" title="@project.AssignedToName" style="font-size: 1.4rem;"></i>
                                                 </td>
-                                                <td class="p-2">
-                                                    <span class="fw-bold">@project.ExpectedDueTime.Value.ToString("dddd, dd MMMM yyyy")</span>
+                                                <td class="text-center" title="@project.ExpectedDueTime.Value.ToLongDateString()">
+                                                    <span class="fw-bold">@project.ExpectedDueTime.Value.ToString("dd-MM-yyyy")</span>
                                                 </td>
-                                                <td class="p-2">
-                                                    <span class="fw-bold" title="@project.FolderTitle">@project.FolderTitle</span>
-                                                </td>
-                                                <td class="p-2">
-                                                    <div class="text-center">
-                                                        <a asp-area="WKS" asp-controller="Projects" asp-action="ProjectInfo" asp-route-id="@project.ID" title="Details" class="btn btn-sm btn-dark">
-                                                            <i class="bi bi-info-lg"></i>  <span>Details</span>
-                                                        </a>
-                                                        <a asp-area="WKS" asp-controller="Projects" asp-action="Manage" asp-route-id="@project.ID" class="btn btn-sm btn-info text-white" style="width:75px" title="Edit Folder">
-                                                            <i class="bi bi-pencil-fill"></i>  <span>Edit</span>
-                                                        </a>
-                                                        <a asp-area="WKS" asp-controller="Projects" asp-action="Delete" asp-route-id="@project.ID" class="btn btn-sm btn-danger text-white" style="width:75px" title="Delete Folder">
-                                                            <i class="bi bi-trash-fill"></i>  <span>Delete</span>
-                                                        </a>
+                                                <td>
+                                                    <!-- Default dropstart button -->
+                                                    <div class="btn-group dropstart">
+                                                        <button type="button" data-bs-toggle="dropdown" aria-expanded="false" style="border:0px">
+                                                            <span class="fw-bold" style="font-size:1.0rem;"><i class="bi bi-three-dots-vertical"></i></span>
+                                                        </button>
+                                                        <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton2">
+
+                                                            <li>
+                                                                <a class="dropdown-item" asp-area="WKS" asp-controller="Projects" asp-action="ProjectInfo" asp-route-id="@project.ID" title="Details">
+                                                                    <i class="bi bi-info-lg"></i>  <span>Details</span>
+                                                                </a>
+                                                            </li>
+                                                            <li>
+                                                                <a class="dropdown-item" asp-area="WKS" asp-controller="Projects" asp-action="Manage" asp-route-id="@project.ID" title="Edit Folder">
+                                                                    <i class="bi bi-pencil-fill"></i>  <span>Edit</span>
+                                                                </a>
+                                                            </li>
+                                                            <li>
+                                                                <a class="dropdown-item" asp-area="WKS" asp-controller="Projects" asp-action="MoreInfo" asp-route-id="@project.ID" title="Add More Info">
+                                                                    <i class="bi bi-trash-fill"></i>  <span>More Info</span>
+                                                                </a>
+                                                            </li>
+                                                            <li>
+                                                                <a class="dropdown-item" asp-area="WKS" asp-controller="Projects" asp-action="Delete" asp-route-id="@project.ID" title="Delete Folder">
+                                                                    <i class="bi bi-trash-fill"></i>  <span>Delete</span>
+                                                                </a>
+                                                            </li>
+                                                            <li>
+                                                                <a class="dropdown-item" href="#">
+                                                                    <i class="bi bi-file-text"></i> <span>History</span>
+                                                                </a>
+                                                                <ul class="dropdown-menu dropdown-menu-dark dropdown-submenu">
+                                                                    <li>
+                                                                        <a class="dropdown-item" asp-area="WKS" asp-controller="Tasks" asp-action="TaskItemHistory" asp-route-id="" asp-route-tl="">
+                                                                            <i class="bi bi-file-text"></i> <span>Activity History</span>
+                                                                        </a>
+                                                                    </li>
+                                                                    <li>
+                                                                        <a class="dropdown-item" asp-area="WKS" asp-controller="Tasks" asp-action="ScheduleHistory" asp-route-id="" asp-route-tl="">
+                                                                            <i class="bi bi-file-text"></i> <span>Schedule History</span>
+                                                                        </a>
+                                                                    </li>
+                                                                </ul>
+                                                            </li>
+                                                            <li>
+                                                                <a class="dropdown-item" href="#">
+                                                                    <i class="bi bi-stickies"></i> <span>Notes</span>
+                                                                </a>
+                                                                <ul class="dropdown-menu dropdown-menu-dark dropdown-submenu">
+                                                                    <li>
+                                                                        <a class="dropdown-item" asp-area="WKS" asp-controller="Tasks" asp-action="TaskItemNotes" asp-route-id="" asp-route-tl="" asp-route-src="txb">
+                                                                            <i class="bi bi-stickies"></i> <span>View Notes</span>
+                                                                        </a>
+                                                                    </li>
+                                                                </ul>
+                                                            </li>
+                                                            <li>
+                                                                <button class="dropdown-item" onclick="DeleteTaskItem('')">
+                                                                    <i class="bi bi-trash"></i> <span>Delete</span>
+                                                                </button>
+                                                            </li>
+                                                        </ul>
                                                     </div>
                                                 </td>
                                             </tr>
                                             break;
                                         case WorkItemProgressStatus.Completed:
                                             <tr>
-                                                <td class="p-2">
+                                                <td class="text-center">
+                                                    <span class="fw-bold" title="@project.Number">@project.Number</span>
+                                                </td>
+                                                <td class="text-center">
                                                     <span class="fw-bold" title="@project.Description">@project.Title</span>
                                                 </td>
-                                                <td class="p-2">
+                                                <td class="text-center">
                                                     <span title="Completed" class="badge rounded-pill fw-bold text-dark" style="font-size: 1.0rem; background-color: #8e44ad; width:150px">Completed</span>
                                                 </td>
-                                                <td class="p-2" title="@project.AssignedToName">
-                                                    <i class="bi bi-person fw-bold" title="@project.AssignedToName" style="font-size: 1.2rem;"></i>
+                                                <td class="text-center" title="@project.AssignedToName">
+                                                    <i class="bi bi-person fw-bold" title="@project.AssignedToName" style="font-size: 1.4rem;"></i>
                                                 </td>
-                                                <td class="p-2">
-                                                    <span class="fw-bold">@project.ExpectedDueTime.Value.ToString("dddd, dd MMMM yyyy")</span>
+                                                <td class="text-center" title="@project.ExpectedDueTime.Value.ToLongDateString()">
+                                                    <span class="fw-bold">@project.ExpectedDueTime.Value.ToString("dd-MM-yyyy")</span>
                                                 </td>
-                                                <td class="p-2">
-                                                    <span class="fw-bold" title="@project.FolderTitle">@project.FolderTitle</span>
-                                                </td>
-                                                <td class="p-2">
-                                                    <div class="text-center">
-                                                        <a asp-area="WKS" asp-controller="Projects" asp-action="ProjectInfo" asp-route-id="@project.ID" title="Details" class="btn btn-sm btn-dark">
-                                                            <i class="bi bi-info-lg"></i>  <span>Details</span>
-                                                        </a>
-                                                        <a asp-area="WKS" asp-controller="Projects" asp-action="Manage" asp-route-id="@project.ID" class="btn btn-sm btn-info text-white" style="width:75px" title="Edit Folder">
-                                                            <i class="bi bi-pencil-fill"></i>  <span>Edit</span>
-                                                        </a>
-                                                        <a asp-area="WKS" asp-controller="Projects" asp-action="Delete" asp-route-id="@project.ID" class="btn btn-sm btn-danger text-white" style="width:75px" title="Delete Folder">
-                                                            <i class="bi bi-trash-fill"></i>  <span>Delete</span>
-                                                        </a>
+                                                <td>
+                                                    <!-- Default dropstart button -->
+                                                    <div class="btn-group dropstart">
+                                                        <button type="button" data-bs-toggle="dropdown" aria-expanded="false" style="border:0px">
+                                                            <span class="fw-bold" style="font-size:1.0rem;"><i class="bi bi-three-dots-vertical"></i></span>
+                                                        </button>
+                                                        <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton2">
+
+                                                            <li>
+                                                                <a class="dropdown-item" asp-area="WKS" asp-controller="Projects" asp-action="ProjectInfo" asp-route-id="@project.ID" title="Details">
+                                                                    <i class="bi bi-info-lg"></i>  <span>Details</span>
+                                                                </a>
+                                                            </li>
+                                                            <li>
+                                                                <a class="dropdown-item" asp-area="WKS" asp-controller="Projects" asp-action="Manage" asp-route-id="@project.ID" title="Edit Folder">
+                                                                    <i class="bi bi-pencil-fill"></i>  <span>Edit</span>
+                                                                </a>
+                                                            </li>
+                                                            <li>
+                                                                <a class="dropdown-item" asp-area="WKS" asp-controller="Projects" asp-action="MoreInfo" asp-route-id="@project.ID" title="Add More Info">
+                                                                    <i class="bi bi-trash-fill"></i>  <span>More Info</span>
+                                                                </a>
+                                                            </li>
+                                                            <li>
+                                                                <a class="dropdown-item" asp-area="WKS" asp-controller="Projects" asp-action="Delete" asp-route-id="@project.ID" title="Delete Folder">
+                                                                    <i class="bi bi-trash-fill"></i>  <span>Delete</span>
+                                                                </a>
+                                                            </li>
+                                                            <li>
+                                                                <a class="dropdown-item" href="#">
+                                                                    <i class="bi bi-file-text"></i> <span>History</span>
+                                                                </a>
+                                                                <ul class="dropdown-menu dropdown-menu-dark dropdown-submenu">
+                                                                    <li>
+                                                                        <a class="dropdown-item" asp-area="WKS" asp-controller="Tasks" asp-action="TaskItemHistory" asp-route-id="" asp-route-tl="">
+                                                                            <i class="bi bi-file-text"></i> <span>Activity History</span>
+                                                                        </a>
+                                                                    </li>
+                                                                    <li>
+                                                                        <a class="dropdown-item" asp-area="WKS" asp-controller="Tasks" asp-action="ScheduleHistory" asp-route-id="" asp-route-tl="">
+                                                                            <i class="bi bi-file-text"></i> <span>Schedule History</span>
+                                                                        </a>
+                                                                    </li>
+                                                                </ul>
+                                                            </li>
+                                                            <li>
+                                                                <a class="dropdown-item" href="#">
+                                                                    <i class="bi bi-stickies"></i> <span>Notes</span>
+                                                                </a>
+                                                                <ul class="dropdown-menu dropdown-menu-dark dropdown-submenu">
+                                                                    <li>
+                                                                        <a class="dropdown-item" asp-area="WKS" asp-controller="Tasks" asp-action="TaskItemNotes" asp-route-id="" asp-route-tl="" asp-route-src="txb">
+                                                                            <i class="bi bi-stickies"></i> <span>View Notes</span>
+                                                                        </a>
+                                                                    </li>
+                                                                </ul>
+                                                            </li>
+                                                            <li>
+                                                                <button class="dropdown-item" onclick="DeleteTaskItem('')">
+                                                                    <i class="bi bi-trash"></i> <span>Delete</span>
+                                                                </button>
+                                                            </li>
+                                                        </ul>
                                                     </div>
                                                 </td>
                                             </tr>
                                             break;
                                         case WorkItemProgressStatus.NotStarted:
                                             <tr class="table-light">
-                                                <td class="p-2">
+                                                <td class="text-center">
+                                                    <span class="fw-bold" title="@project.Number">@project.Number</span>
+                                                </td>
+                                                <td class="text-center">
                                                     <span class="fw-bold" title="@project.Description">@project.Title</span>
                                                 </td>
-                                                <td class="p-2">
-                                                    <span title="Not Started" class="badge rounded-pill fw-bold text-dark" style="font-size: 1.0rem; background-color:#DFFF00; width:150px" >Not Started</span>
+                                                <td class="text-center">
+                                                    <span title="Not Started" class="badge rounded-pill fw-bold text-dark" style="font-size:0.8rem; background-color:#DFFF00; width:100px">Not Started</span>
                                                 </td>
-                                                <td class="p-2" title="@project.AssignedToName">
-                                                    <i class="bi bi-person fw-bold" title="@project.AssignedToName" style="font-size: 1.2rem;"></i>
+                                                <td class="text-center" title="@project.AssignedToName">
+                                                    <i class="bi bi-person-fill fw-bold" title="@project.AssignedToName" style="font-size: 1.4rem;"></i>
                                                 </td>
-                                                <td class="p-2">
-                                                    <span class="fw-bold">@project.ExpectedDueTime.Value.ToString("dddd, dd MMMM yyyy")</span>
+                                                <td class="text-center" title="@project.ExpectedDueTime.Value.ToLongDateString()">
+                                                    <span class="fw-bold">@project.ExpectedDueTime.Value.ToString("dd-MM-yyyy")</span>
                                                 </td>
-                                                <td class="p-2">
-                                                    <span class="fw-bold" title="@project.FolderTitle">@project.FolderTitle</span>
-                                                </td>
-                                                <td class="p-2">
-                                                    <div class="text-center">
-                                                        <a asp-area="WKS" asp-controller="Projects" asp-action="ProjectInfo" asp-route-id="@project.ID" title="Details" class="btn btn-sm btn-dark">
-                                                            <i class="bi bi-info-lg"></i>  <span>Details</span>
-                                                        </a>
-                                                        <a asp-area="WKS" asp-controller="Projects" asp-action="Manage" asp-route-id="@project.ID" class="btn btn-sm btn-info text-white" style="width:75px" title="Edit Folder">
-                                                            <i class="bi bi-pencil-fill"></i>  <span>Edit</span>
-                                                        </a>
-                                                        <a asp-area="WKS" asp-controller="Projects" asp-action="Delete" asp-route-id="@project.ID" class="btn btn-sm btn-danger text-white" style="width:75px" title="Delete Folder">
-                                                            <i class="bi bi-trash-fill"></i>  <span>Delete</span>
-                                                        </a>
+                                                <td>
+                                                    <!-- Default dropstart button -->
+                                                    <div class="btn-group dropstart">
+                                                        <button type="button" data-bs-toggle="dropdown" aria-expanded="false" style="border:0px">
+                                                            <span class="fw-bold" style="font-size:1.0rem;"><i class="bi bi-three-dots-vertical"></i></span>
+                                                        </button>
+                                                        <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton2">
+
+                                                            <li>
+                                                                <a class="dropdown-item" asp-area="WKS" asp-controller="Projects" asp-action="ProjectInfo" asp-route-id="@project.ID" title="Details">
+                                                                    <i class="bi bi-info-lg"></i>  <span>Details</span>
+                                                                </a>
+                                                            </li>
+                                                            <li>
+                                                                <a class="dropdown-item" asp-area="WKS" asp-controller="Projects" asp-action="Manage" asp-route-id="@project.ID" title="Edit Folder">
+                                                                    <i class="bi bi-pencil-fill"></i>  <span>Edit</span>
+                                                                </a>
+                                                            </li>
+                                                            <li>
+                                                                <a class="dropdown-item" asp-area="WKS" asp-controller="Projects" asp-action="MoreInfo" asp-route-id="@project.ID" title="Add More Info">
+                                                                    <i class="bi bi-trash-fill"></i>  <span>More Info</span>
+                                                                </a>
+                                                            </li>
+                                                            <li>
+                                                                <a class="dropdown-item" asp-area="WKS" asp-controller="Projects" asp-action="Delete" asp-route-id="@project.ID" title="Delete Folder">
+                                                                    <i class="bi bi-trash-fill"></i>  <span>Delete</span>
+                                                                </a>
+                                                            </li>
+                                                            <li>
+                                                                <a class="dropdown-item" href="#">
+                                                                    <i class="bi bi-file-text"></i> <span>History</span>
+                                                                </a>
+                                                                <ul class="dropdown-menu dropdown-menu-dark dropdown-submenu">
+                                                                    <li>
+                                                                        <a class="dropdown-item" asp-area="WKS" asp-controller="Tasks" asp-action="TaskItemHistory" asp-route-id="" asp-route-tl="">
+                                                                            <i class="bi bi-file-text"></i> <span>Activity History</span>
+                                                                        </a>
+                                                                    </li>
+                                                                    <li>
+                                                                        <a class="dropdown-item" asp-area="WKS" asp-controller="Tasks" asp-action="ScheduleHistory" asp-route-id="" asp-route-tl="">
+                                                                            <i class="bi bi-file-text"></i> <span>Schedule History</span>
+                                                                        </a>
+                                                                    </li>
+                                                                </ul>
+                                                            </li>
+                                                            <li>
+                                                                <a class="dropdown-item" href="#">
+                                                                    <i class="bi bi-stickies"></i> <span>Notes</span>
+                                                                </a>
+                                                                <ul class="dropdown-menu dropdown-menu-dark dropdown-submenu">
+                                                                    <li>
+                                                                        <a class="dropdown-item" asp-area="WKS" asp-controller="Tasks" asp-action="TaskItemNotes" asp-route-id="" asp-route-tl="" asp-route-src="txb">
+                                                                            <i class="bi bi-stickies"></i> <span>View Notes</span>
+                                                                        </a>
+                                                                    </li>
+                                                                </ul>
+                                                            </li>
+                                                            <li>
+                                                                <button class="dropdown-item" onclick="DeleteTaskItem('')">
+                                                                    <i class="bi bi-trash"></i> <span>Delete</span>
+                                                                </button>
+                                                            </li>
+                                                        </ul>
                                                     </div>
                                                 </td>
                                             </tr>
                                             break;
                                         case WorkItemProgressStatus.OnHold:
                                             <tr class="table-secondary">
-                                                <td class="p-2">
+                                                <td class="text-center">
+                                                    <span class="fw-bold" title="@project.Number">@project.Number</span>
+                                                </td>
+                                                <td class="text-center">
                                                     <span class="fw-bold" title="@project.Description">@project.Title</span>
                                                 </td>
-                                                <td class="p-2">
-                                                    <span title="On Hold" class="badge rounded-pill fw-bold text-dark" style="font-size: 1.0rem; background-color:#212f3d; width:150px" >On Hold</span>
+                                                <td class="text-center">
+                                                    <span title="On Hold" class="badge rounded-pill fw-bold text-dark" style="font-size: 1.0rem; background-color:#212f3d; width:150px">On Hold</span>
                                                 </td>
-                                                <td class="p-2" title="@project.AssignedToName">
-                                                    <i class="bi bi-person fw-bold" title="@project.AssignedToName" style="font-size: 1.2rem;"></i>
+                                                <td class="text-center" title="@project.AssignedToName">
+                                                    <i class="bi bi-person fw-bold" title="@project.AssignedToName" style="font-size: 1.4rem;"></i>
                                                 </td>
-                                                <td class="p-2">
-                                                    <span class="fw-bold">@project.ExpectedDueTime.Value.ToString("dddd, dd MMMM yyyy")</span>
+                                                <td class="text-center" title="@project.ExpectedDueTime.Value.ToLongDateString()">
+                                                    <span class="fw-bold">@project.ExpectedDueTime.Value.ToString("dd-MM-yyyy")</span>
                                                 </td>
-                                                <td class="p-2">
-                                                    <span class="fw-bold" title="@project.FolderTitle">@project.FolderTitle</span>
-                                                </td>
-                                                <td class="p-2">
-                                                    <div class="text-center">
-                                                        <a asp-area="WKS" asp-controller="Projects" asp-action="ProjectInfo" asp-route-id="@project.ID" title="Details" class="btn btn-sm btn-dark">
-                                                            <i class="bi bi-info-lg"></i>  <span>Details</span>
-                                                        </a>
-                                                        <a asp-area="WKS" asp-controller="Projects" asp-action="Manage" asp-route-id="@project.ID" class="btn btn-sm btn-info text-white" style="width:75px" title="Edit Folder">
-                                                            <i class="bi bi-pencil-fill"></i>  <span>Edit</span>
-                                                        </a>
-                                                        <a asp-area="WKS" asp-controller="Projects" asp-action="Delete" asp-route-id="@project.ID" class="btn btn-sm btn-danger text-white" style="width:75px" title="Delete Folder">
-                                                            <i class="bi bi-trash-fill"></i>  <span>Delete</span>
-                                                        </a>
+                                                <td class="text-center">
+                                                    <!-- Default dropstart button -->
+                                                    <div class="btn-group dropstart">
+                                                        <button type="button" data-bs-toggle="dropdown" aria-expanded="false" style="border:0px">
+                                                            <span class="fw-bold" style="font-size:1.0rem;"><i class="bi bi-three-dots-vertical"></i></span>
+                                                        </button>
+                                                        <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton2">
+                                                            <li>
+                                                                <a class="dropdown-item" asp-area="WKS" asp-controller="Projects" asp-action="ProjectInfo" asp-route-id="@project.ID" title="Details">
+                                                                    <i class="bi bi-info-lg"></i>  <span>Details</span>
+                                                                </a>
+                                                            </li>
+                                                            <li>
+                                                                <a class="dropdown-item" asp-area="WKS" asp-controller="Projects" asp-action="Manage" asp-route-id="@project.ID" title="Edit Folder">
+                                                                    <i class="bi bi-pencil-fill"></i>  <span>Edit</span>
+                                                                </a>
+                                                            </li>
+                                                            <li>
+                                                                <a class="dropdown-item" asp-area="WKS" asp-controller="Projects" asp-action="MoreInfo" asp-route-id="@project.ID" title="Add More Info">
+                                                                    <i class="bi bi-trash-fill"></i>  <span>More Info</span>
+                                                                </a>
+                                                            </li>
+                                                            <li>
+                                                                <a class="dropdown-item" asp-area="WKS" asp-controller="Projects" asp-action="Delete" asp-route-id="@project.ID" title="Delete Folder">
+                                                                    <i class="bi bi-trash-fill"></i>  <span>Delete</span>
+                                                                </a>
+                                                            </li>
+                                                            <li>
+                                                                <a class="dropdown-item" href="#">
+                                                                    <i class="bi bi-file-text"></i> <span>History</span>
+                                                                </a>
+                                                                <ul class="dropdown-menu dropdown-menu-dark dropdown-submenu">
+                                                                    <li>
+                                                                        <a class="dropdown-item" asp-area="WKS" asp-controller="Tasks" asp-action="TaskItemHistory" asp-route-id="" asp-route-tl="">
+                                                                            <i class="bi bi-file-text"></i> <span>Activity History</span>
+                                                                        </a>
+                                                                    </li>
+                                                                    <li>
+                                                                        <a class="dropdown-item" asp-area="WKS" asp-controller="Tasks" asp-action="ScheduleHistory" asp-route-id="" asp-route-tl="">
+                                                                            <i class="bi bi-file-text"></i> <span>Schedule History</span>
+                                                                        </a>
+                                                                    </li>
+                                                                </ul>
+                                                            </li>
+                                                            <li>
+                                                                <a class="dropdown-item" href="#">
+                                                                    <i class="bi bi-stickies"></i> <span>Notes</span>
+                                                                </a>
+                                                                <ul class="dropdown-menu dropdown-menu-dark dropdown-submenu">
+                                                                    <li>
+                                                                        <a class="dropdown-item" asp-area="WKS" asp-controller="Tasks" asp-action="TaskItemNotes" asp-route-id="" asp-route-tl="" asp-route-src="txb">
+                                                                            <i class="bi bi-stickies"></i> <span>View Notes</span>
+                                                                        </a>
+                                                                    </li>
+                                                                </ul>
+                                                            </li>
+                                                        </ul>
                                                     </div>
                                                 </td>
                                             </tr>
                                             break;
                                         default:
                                             <tr class="table-light">
-                                                <td class="p-2">
+                                                <td class="text-center">
+                                                    <span class="fw-bold" title="@project.Number">@project.Number</span>
+                                                </td>
+                                                <td class="text-center">
                                                     <span class="fw-bold" title="@project.Description">@project.Title</span>
                                                 </td>
-                                                <td class="p-2">
+                                                <td class="text-center">
                                                     <i title="In Progress" class="badge rounded-pill fw-bold text-white" style="font-size: 1.2rem; background-color: #27ae60; width:150px" />
                                                 </td>
-                                                <td class="p-2" title="@project.AssignedToName">
-                                                    <i class="bi bi-person fw-bold" title="@project.AssignedToName" style="font-size: 1.2rem;"></i>
+                                                <td class="text-center" title="@project.AssignedToName">
+                                                    <i class="bi bi-person fw-bold" title="@project.AssignedToName" style="font-size: 1.4rem;"></i>
                                                 </td>
-                                                <td class="p-2">
-                                                    <span class="fw-bold">@project.ExpectedDueTime.Value.ToString("dddd, dd MMMM yyyy")</span>
+                                                <td title="@project.ExpectedDueTime.Value.ToLongDateString()">
+                                                    <span class="fw-bold">@project.ExpectedDueTime.Value.ToString("dd-MM-yyyy")</span>
                                                 </td>
-                                                <td class="p-2">
-                                                    <span class="fw-bold" title="@project.FolderTitle">@project.FolderTitle</span>
-                                                </td>
-                                                <td class="p-2">
-                                                    <div class="text-center">
-                                                        <a asp-area="WKS" asp-controller="Projects" asp-action="ProjectInfo" asp-route-id="@project.ID" title="Details" class="btn btn-sm btn-dark">
-                                                            <i class="bi bi-info-lg"></i>  <span>Details</span>
-                                                        </a>
-                                                        <a asp-area="WKS" asp-controller="Projects" asp-action="Manage" asp-route-id="@project.ID" class="btn btn-sm btn-info text-white" style="width:75px" title="Edit Folder">
-                                                            <i class="bi bi-pencil-fill"></i>  <span>Edit</span>
-                                                        </a>
-                                                        <a asp-area="WKS" asp-controller="Projects" asp-action="Delete" asp-route-id="@project.ID" class="btn btn-sm btn-danger text-white" style="width:75px" title="Delete Folder">
-                                                            <i class="bi bi-trash-fill"></i>  <span>Delete</span>
-                                                        </a>
+                                                <td class="text-center">
+                                                    <!-- Default dropstart button -->
+                                                    <div class="btn-group dropstart">
+                                                        <button type="button" data-bs-toggle="dropdown" aria-expanded="false" style="border:0px">
+                                                            <span class="fw-bold" style="font-size:1.0rem;"><i class="bi bi-three-dots-vertical"></i></span>
+                                                        </button>
+                                                        <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton2">
+
+                                                            <li>
+                                                                <a class="dropdown-item" asp-area="WKS" asp-controller="Projects" asp-action="ProjectInfo" asp-route-id="@project.ID" title="Details" class="btn btn-sm btn-dark">
+                                                                    <i class="bi bi-info-lg"></i>  <span>Details</span>
+                                                                </a>
+                                                            </li>
+                                                            <li>
+                                                                <a class="dropdown-item" asp-area="WKS" asp-controller="Projects" asp-action="Manage" asp-route-id="@project.ID" class="btn btn-sm btn-info text-white" style="width:75px" title="Edit Folder">
+                                                                    <i class="bi bi-pencil-fill"></i>  <span>Edit</span>
+                                                                </a>
+                                                            </li>
+                                                            <li>
+                                                                <a class="dropdown-item" asp-area="WKS" asp-controller="Projects" asp-action="MoreInfo" asp-route-id="@project.ID" title="Add More Info">
+                                                                    <i class="bi bi-trash-fill"></i>  <span>More Info</span>
+                                                                </a>
+                                                            </li>
+                                                            <li>
+                                                                <a class="dropdown-item" asp-area="WKS" asp-controller="Projects" asp-action="Delete" asp-route-id="@project.ID" class="btn btn-sm btn-danger text-white" style="width:75px" title="Delete Folder">
+                                                                    <i class="bi bi-trash-fill"></i>  <span>Delete</span>
+                                                                </a>
+                                                            </li>
+                                                        </ul>
                                                     </div>
                                                 </td>
                                             </tr>

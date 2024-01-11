@@ -1,4 +1,5 @@
-﻿using IntranetPortal.Base.Models.SecurityModels;
+﻿using IntranetPortal.Base.Models.AssetManagerModels;
+using IntranetPortal.Base.Models.SecurityModels;
 //using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
@@ -9,7 +10,7 @@ namespace IntranetPortal.Base.Services
 {
     public interface ISecurityService
     {
-        //=================== User Accounts Action Methods =============================================//
+        //================ User Accounts Action Methods ==================//
         #region User Accounts Action Methods
         Task<IList<EmployeeUser>>  GetEmployeeUsersByNameAsync(string fullName);
         Task<IList<EmployeeUser>> SearchEmployeeUsersByNameAsync(string fullName);
@@ -23,7 +24,7 @@ namespace IntranetPortal.Base.Services
         Task<bool> DeleteUserAsync(string userId, string deletedBy);
         #endregion
 
-        //======================= User Permissions Interface ================================//
+        //=============== User Permissions Interface =====================//
         #region User Permissions Interfaces
         Task<IList<UserPermission>> GetUserPermissionsByUserIdAsync(string userId);
         Task<IList<string>> GetUserPermissionListByUserIdAsync(string userId);
@@ -35,21 +36,28 @@ namespace IntranetPortal.Base.Services
         Task<bool> RevokePermissionAsync(string userId, string roleId, string actionBy);
         #endregion
 
-        //======================= Role Interfaces ============================================//
+        //=============== Role Interfaces ================================//
         #region Role Interfaces
         Task<IList<ApplicationRole>> GetUserRolesUnGrantedByUserIDAsync(string userId, string applicationId = null);
         #endregion
-        //======================= User Login History Action Interfaces
+        //=============== User Login History Action Interfaces
         #region UserLoginHistory Action Interfaces
         Task<bool> UpdateUserLoginHistoryAsync(UserLoginHistory userLoginHistory);
         Task<IList<UserLoginHistory>> GetUserLoginHistoryByUserNameAndDateAsync(string UserName, int? LoginYear = null, int? LoginMonth = null, int? LoginDay = null);
         Task<IList<UserLoginHistory>> GetUserLoginHistoryByDateOnlyAsync(int? LoginYear = null, int? LoginMonth = null, int? LoginDay = null);
         #endregion
 
-        //====================== Security Cryptography Interfaces ==========================//
+        //=============== Security Cryptography Interfaces ==============//
         #region Security Cryptography Interfaces
         string CreatePasswordHash(string plainTextPassword);
         bool ValidatePassword(string plainTextPassword, string hashedPassword);
+        #endregion
+
+        //=============== Asset Permissions Interfaces =================//
+        #region Asset Permissions Interfaces
+        Task<IList<AssetPermission>> GetAssetPermissionsByUserIdAsync(string userId);
+        Task<bool> GrantAssetPermissionAsync(AssetPermission assetPermission);
+        Task<bool> RevokeAssetPermissionAsync(int assetPermissionId);
         #endregion
     }
 }

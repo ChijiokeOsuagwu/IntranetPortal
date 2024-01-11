@@ -19,7 +19,7 @@ namespace IntranetPortal.Data.Repositories.BaseRepositories
         }
 
         //============= Persons Action Methods =====================================//
-        #region Persons Action Methods
+        #region Persons Write Action Methods
 
         public async Task<bool> AddPersonAsync(Person person)
         {
@@ -238,8 +238,9 @@ namespace IntranetPortal.Data.Repositories.BaseRepositories
             }
             return rows > 0;
         }
+        #endregion
 
-
+        #region Persons Read Action Methods
         public async Task<Person> GetPersonByIdAsync(string Id)
         {
             Person person = new Person();
@@ -459,6 +460,65 @@ namespace IntranetPortal.Data.Repositories.BaseRepositories
             await conn.CloseAsync();
             return personList;
         }
+
+        public async Task<IList<Person>> SearchNonEmployeePersonsByNameAsync(string personName)
+        {
+            List<Person> personList = new List<Person>();
+            var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
+            string query = String.Empty;
+            StringBuilder sb = new StringBuilder();
+
+            sb.Append("SELECT p.id, title, sname, fname, oname, fullname, sex, phone1, phone2, email, ");
+            sb.Append("address, mdb, mdt, ctb, ctt, imgp, birthday, birthmonth, birthyear, maritalstatus ");
+            sb.Append("FROM public.gst_prsns p ");
+            sb.Append("LEFT OUTER JOIN public.erm_emp_inf e ON p.id = e.emp_id ");
+            sb.Append("WHERE (e.emp_id IS NULL) ");
+            sb.Append("AND (LOWER(fname) LIKE '%'||LOWER(@name)||'%') ");
+            sb.Append("OR (LOWER(sname) LIKE '%'||LOWER(@name)||'%') ");
+            sb.Append("OR (LOWER(oname) LIKE '%'||LOWER(@name)||'%') ");
+            sb.Append("OR (LOWER(fullname) LIKE '%'||LOWER(@name)||'%') ");
+            sb.Append("ORDER BY fullname ASC;");
+            query = sb.ToString();
+
+            await conn.OpenAsync();
+            // Retrieve all rows
+            using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+            {
+                var name = cmd.Parameters.Add("@name", NpgsqlDbType.Text);
+                await cmd.PrepareAsync();
+                name.Value = personName;
+
+                var reader = await cmd.ExecuteReaderAsync();
+                while (await reader.ReadAsync())
+                {
+                    personList.Add(new Person()
+                    {
+                        PersonID = reader["id"] == DBNull.Value ? string.Empty : (reader["id"]).ToString(),
+                        Title = reader["title"] == DBNull.Value ? String.Empty : reader["title"].ToString(),
+                        Surname = reader["sname"] == DBNull.Value ? String.Empty : reader["sname"].ToString(),
+                        FirstName = reader["fname"] == DBNull.Value ? String.Empty : reader["fname"].ToString(),
+                        OtherNames = reader["oname"] == DBNull.Value ? String.Empty : reader["oname"].ToString(),
+                        FullName = reader["fullname"] == DBNull.Value ? String.Empty : reader["fullname"].ToString(),
+                        Sex = reader["sex"] == DBNull.Value ? String.Empty : reader["sex"].ToString(),
+                        PhoneNo1 = reader["phone1"] == DBNull.Value ? String.Empty : reader["phone1"].ToString(),
+                        PhoneNo2 = reader["phone2"] == DBNull.Value ? String.Empty : reader["phone2"].ToString(),
+                        Email = reader["email"] == DBNull.Value ? String.Empty : reader["email"].ToString(),
+                        Address = reader["address"] == DBNull.Value ? String.Empty : reader["address"].ToString(),
+                        ModifiedBy = reader["mdb"] == DBNull.Value ? string.Empty : reader["mdb"].ToString(),
+                        ModifiedTime = reader["mdt"] == DBNull.Value ? string.Empty : reader["mdt"].ToString(),
+                        CreatedBy = reader["ctb"] == DBNull.Value ? string.Empty : reader["ctb"].ToString(),
+                        CreatedTime = reader["ctt"] == DBNull.Value ? string.Empty : reader["ctt"].ToString(),
+                        BirthDay = reader["birthday"] == DBNull.Value ? 0 : (int)reader["birthday"],
+                        BirthMonth = reader["birthmonth"] == DBNull.Value ? 0 : (int)reader["birthmonth"],
+                        BirthYear = reader["birthyear"] == DBNull.Value ? 0 : (int)reader["birthyear"],
+                        MaritalStatus = reader["maritalstatus"] == DBNull.Value ? string.Empty : reader["maritalstatus"].ToString(),
+                    });
+                }
+            }
+            await conn.CloseAsync();
+            return personList;
+        }
+
 
 
         #endregion

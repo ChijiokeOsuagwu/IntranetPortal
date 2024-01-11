@@ -5,18 +5,15 @@ using System.Text;
 using System.Threading.Tasks;
 using IntranetPortal.Areas.AssetManager.Models;
 using IntranetPortal.Areas.BAMS.Models;
-using IntranetPortal.Areas.PartnerServices.Models;
 using IntranetPortal.Base.Models.AssetManagerModels;
 using IntranetPortal.Base.Models.BamsModels;
 using IntranetPortal.Base.Models.BaseModels;
 using IntranetPortal.Base.Models.EmployeeRecordModels;
-using IntranetPortal.Base.Models.PartnerServicesModels;
 using IntranetPortal.Base.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
 using SelectPdf;
 
 namespace IntranetPortal.Areas.BAMS.Controllers
@@ -705,8 +702,7 @@ namespace IntranetPortal.Areas.BAMS.Controllers
                 {
                     if (model.AssetTypeID < 1 || string.IsNullOrEmpty(model.AssetID))
                     {
-                        var assets = await _assetManagerService.SearchAssetsByNameAsync(model.AssetName);
-                        asset = assets.ToList().FirstOrDefault();
+                        asset = await _assetManagerService.GetAssetByNameAsync(model.AssetName);
                     }
                     else
                     {

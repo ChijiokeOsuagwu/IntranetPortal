@@ -62,7 +62,8 @@ namespace IntranetPortal.Base.Services
                         year = employee.StartUpDate.Value.Year;
                     }
                     
-                    int recordCount = await _utilityRepository.GetNumberCount(AutoNumberType.EmployeeNumber, day, month, year);
+                   // int recordCount = await _utilityRepository.GetNumberCount(AutoNumberType.EmployeeNumber, day, month, year);
+                    int recordCount = await _employeesRepository.GetEmployeesCountByStartUpDateAsync(year, month, day);
                     string yy = year.ToString().Substring(2, 2);
                     string mm = month.ToString().PadLeft(2, '0');
                     string dd = day.ToString().PadLeft(2, '0');
@@ -70,18 +71,17 @@ namespace IntranetPortal.Base.Services
 
                     employee.EmployeeNo1 = $"{employee.CompanyID}{yy}{mm}{dd}{nn}";
 
-                    State state = await _locationRepository.GetStateByNameAsync(employee.StateOfOrigin);
-                    if (state != null) { employee.GeoPoliticalRegion = state.Region; }
+                    if (!string.IsNullOrWhiteSpace(employee.StateOfOrigin))
+                    {
+                        State state = await _locationRepository.GetStateByNameAsync(employee.StateOfOrigin);
+                        if (state != null) { employee.GeoPoliticalRegion = state.Region; }
+                    }
 
                     Unit unit = await _unitRepository.GetUnitByIdAsync(employee.UnitID.Value);
                     if (unit != null) { employee.DepartmentID = unit.DepartmentID; }
 
                     bool EmployeeIsAdded = await _employeesRepository.AddEmployeeAsync(employee);
-                    if (EmployeeIsAdded & !string.IsNullOrWhiteSpace(nn))
-                    {
-                        await _utilityRepository.AddCodeNumberRecord(AutoNumberType.EmployeeNumber, DateTime.Now.Day, DateTime.Now.Month, DateTime.Now.Year);
-                    }
-                    return EmployeeIsAdded;
+                     return EmployeeIsAdded;
                 }
                 else
                 {
@@ -104,8 +104,11 @@ namespace IntranetPortal.Base.Services
                 bool PersonIsUpdated = await _personRepository.EditPersonAsync(person);
                 if (PersonIsUpdated)
                 {
-                    State state = await _locationRepository.GetStateByNameAsync(employee.StateOfOrigin);
-                    if (state != null) { employee.GeoPoliticalRegion = state.Region; }
+                    if (!string.IsNullOrWhiteSpace(employee.StateOfOrigin))
+                    {
+                        State state = await _locationRepository.GetStateByNameAsync(employee.StateOfOrigin);
+                        if (state != null) { employee.GeoPoliticalRegion = state.Region; }
+                    }
 
                     Unit unit = await _unitRepository.GetUnitByIdAsync(employee.UnitID.Value);
                     if (unit != null) { employee.DepartmentID = unit.DepartmentID; }

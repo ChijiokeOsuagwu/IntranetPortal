@@ -402,7 +402,12 @@ namespace IntranetPortal.Base.Services
             }
         }
 
-        public async Task<Project> GetWorkItemByIDAsync(int projectID)
+        public async Task<bool> UpdateProjectMoreInfoAsync(int projectId, string instructions, string deliverables, string modifiedBy)
+        {
+            return await _projectRepository.UpdateMoreProjectInfoAsync(projectId, instructions, deliverables, modifiedBy);
+        }
+
+        public async Task<Project> GetProjectByIDAsync(int projectID)
         {
             Project project = new Project();
             try
@@ -417,7 +422,7 @@ namespace IntranetPortal.Base.Services
             return project;
         }
 
-        public async Task<Project> GetWorkItemByCodeAsync(string projectCode)
+        public async Task<Project> GetProjectByCodeAsync(string projectCode)
         {
             Project project = new Project();
             try
@@ -431,7 +436,7 @@ namespace IntranetPortal.Base.Services
             }
             return project;
         }
-        public async Task<List<Project>> GetWorkItemsByFolderIDAsync(int FolderID)
+        public async Task<List<Project>> GetProjectsByFolderIDAsync(int FolderID)
         {
             List<Project> projects = new List<Project>();
             try

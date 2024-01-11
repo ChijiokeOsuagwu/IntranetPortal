@@ -16,6 +16,7 @@ namespace IntranetPortal.Base.Services
         Task<bool> UpdateLocationAsync(Location location);
         Task<Location> GetLocationByIdAsync(int locationId);
         Task<Location> GetLocationByNameAsync(string locationName);
+        Task<IList<Location>> GetAllLocationsAsync(string userId);
         Task<IList<Location>> GetAllLocationsAsync();
         Task<IList<Location>> GetStationsAsync();
         Task<IList<Location>> GetBureausAsync();

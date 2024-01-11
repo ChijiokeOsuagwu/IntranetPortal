@@ -5,9 +5,11 @@ using System.Text;
 
 namespace IntranetPortal.Base.Models.AssetManagerModels
 {
-    public class AssetPermission : IEntityPermission
+    public class AssetPermission : EntityPermission
     {
-        public string UserId { get; set; }
-        public int? LocationId { get; set; }
+        public int AssetDivisionID { get; set; }
+        public string AssetDivisionName { get; set; }
+        public int LocationID { get; set; }
+        public string LocationName { get; set; }
     }
 }

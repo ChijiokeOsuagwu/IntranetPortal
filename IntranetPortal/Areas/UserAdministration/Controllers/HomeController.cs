@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using IntranetPortal.Areas.UserAdministration.Models;
+using IntranetPortal.Base.Models.AssetManagerModels;
 using IntranetPortal.Base.Models.SecurityModels;
 using IntranetPortal.Base.Services;
 using IntranetPortal.Configurations;
 using IntranetPortal.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.DataProtection;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Configuration;
@@ -25,12 +25,17 @@ namespace IntranetPortal.Areas.UserAdministration.Controllers
         private readonly ISecurityService _securityService;
         private readonly IDataProtector _dataProtector;
         private readonly IBaseModelService _baseModelService;
+        private readonly IGlobalSettingsService _globalSettingsService;
+        private readonly IAssetManagerService _assetManagerService;
         public HomeController(IConfiguration configuration, ISecurityService securityService, IDataProtectionProvider dataProtectionProvider,
-                               DataProtectionEncryptionStrings dataProtectionEncryptionStrings, IBaseModelService baseModelService)
+                               DataProtectionEncryptionStrings dataProtectionEncryptionStrings, IBaseModelService baseModelService,
+                               IGlobalSettingsService globalSettingsService, IAssetManagerService assetManagerService)
         {
             _configuration = configuration;
             _securityService = securityService;
             _baseModelService = baseModelService;
+            _globalSettingsService = globalSettingsService;
+            _assetManagerService = assetManagerService;
             _dataProtector = dataProtectionProvider.CreateProtector(dataProtectionEncryptionStrings.RouteValuesEncryptionCode);
         }
 
@@ -40,6 +45,7 @@ namespace IntranetPortal.Areas.UserAdministration.Controllers
             return View();
         }
 
+        #region User Account Controller Action Methods
         [HttpGet]
         [Authorize(Roles = "XYALLACCZ")]
         public async Task<IActionResult> ResetUserPassword(string id)
@@ -347,8 +353,86 @@ namespace IntranetPortal.Areas.UserAdministration.Controllers
             return View(model);
         }
 
+        #endregion
 
-        //======================== Employees Helper Methods ======================================//
+        #region Asset Permission Controller Actions
+
+        [Authorize(Roles = "XYALLACCZ")]
+        public async Task<IActionResult> GrantUserAssetPermission(string id)
+        {
+            AssetPermissionViewModel model = new AssetPermissionViewModel();
+            model.UserID = id;
+            var assetDivisionEntities = await _assetManagerService.GetAssetDivisionsAsync();
+            if(assetDivisionEntities != null && assetDivisionEntities.Count > 0)
+            {
+                ViewBag.AssetDivisionList = new SelectList(assetDivisionEntities, "ID", "Name");
+            }
+            return View(model);
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "XYALLACCZ")]
+        public async Task<IActionResult> GrantUserAssetPermission(AssetPermissionViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    AssetPermission assetPermission = model.ConvertToAssetPermission();
+                    AssetDivision assetDivision = await _assetManagerService.GetAssetDivisionByIdAsync(assetPermission.AssetDivisionID);
+                    if(assetDivision != null) { assetPermission.LocationID = assetDivision.LocationID.Value; }
+                    bool PermissionIsGranted = await _securityService.GrantAssetPermissionAsync(assetPermission);
+
+                    if (PermissionIsGranted)
+                    {
+                       return RedirectToAction("AssetsPermissions","Staff", new { id=assetPermission.UserID });
+                    }
+                    else
+                    {
+                        model.OperationIsCompleted = false;
+                        model.OperationIsSuccessful = false;
+                        model.ViewModelErrorMessage = $"Sorry, an error was encountered. New Asset Permission could not be granted. Please try again.";
+                    }
+                }
+                catch (Exception ex)
+                {
+                    model.ViewModelErrorMessage = ex.Message;
+                    model.OperationIsCompleted = true;
+                }
+            }
+            else
+            {
+                model.ViewModelErrorMessage = $"Ooops! It appears some fields have missing or invalid values. Please correct this and try again.";
+                model.OperationIsCompleted = false;
+            }
+            return View(model);
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "XYALLACCZ")]
+        public string RevokeUserAssetPermission(int assetPermissionId)
+        {
+            if (assetPermissionId < 1) { return "parameter"; }
+            try
+            {
+                if (_securityService.RevokeAssetPermissionAsync(assetPermissionId).Result)
+                {
+                    return "revoked";
+                }
+                else
+                {
+                    return "failed";
+                }
+            }
+            catch
+            {
+                return "failed";
+            }
+        }
+
+        #endregion
+
+        //========== Employees Helper Methods =========//
         #region Employees Helper Methods
 
         [HttpGet]

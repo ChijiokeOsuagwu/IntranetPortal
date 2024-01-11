@@ -12,6 +12,7 @@ namespace IntranetPortal.Areas.WKS.Models
         public string OwnerID { get; set; }
         public int? id { get; set; }
         public string Source { get; set; }
+        public string FolderName { get; set; }
         public List<Project> ProjectList { get; set; }
     }
 }

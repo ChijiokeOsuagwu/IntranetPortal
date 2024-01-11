@@ -11,8 +11,13 @@ namespace IntranetPortal.Base.Repositories.WksRepositories
     {
         IConfiguration _config { get; }
 
+        #region Project Write Action Methods
         Task<bool> AddAsync(Project project);
         Task<bool> UpdateAsync(Project project);
+        Task<bool> UpdateMoreProjectInfoAsync(int projectId, string instructions, string deliverables, string modifiedBy);
+        #endregion
+
+        #region Project Read Action Methods
         Task<IList<Project>> GetByFolderIdAsync(int folderId);
         Task<IList<Project>> GetByIdAsync(int projectId);
         Task<IList<Project>> GetByNumberAsync(string projectNumber);
@@ -21,5 +26,6 @@ namespace IntranetPortal.Base.Repositories.WksRepositories
         Task<IList<Project>> SearchByFolderIdAndTitleAsync(int folderId, string projectTitle);
         Task<IList<Project>> SearchByTitleAsync(string projectTitle);
         Task<bool> UpdateToDeletedAsync(int folderId, string deletedBy);
+        #endregion
     }
 }

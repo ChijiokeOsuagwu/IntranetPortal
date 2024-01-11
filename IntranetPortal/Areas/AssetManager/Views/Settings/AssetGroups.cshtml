@@ -1,0 +1,98 @@
+﻿@model IntranetPortal.Areas.AssetManager.Models.AssetGroupListViewModel
+@{
+    ViewData["Title"] = "OfficeManager | Asset Groups";
+}
+<div class="container">
+    <h4>Asset Groups</h4>
+    <hr />
+    <div class="mb-1">
+        <form asp-area="AssetManager" asp-controller="Settings" asp-action="AssetGroups" method="get">
+            <a asp-area="AssetManager" asp-controller="Home" asp-action="Index" class="btn btn-dark mr-3" style="width:100px" title="Click to Go Back">
+                <span class="text-white">Back</span>
+            </a>
+            <select id="cd" name="cd" asp-items="@ViewBag.AssetClassesList" selected="@ViewBag.cd" class="border-0 mr-2" style="width:300px">
+                <option value="">- Select Class -</option>
+            </select>
+            <input type="text" class="border-0 text-secondary fw-light mr-2" style="width:300px" name="searchString" value="@ViewData["CurrentFilter"]" placeholder=" Enter Text to Search..." />
+            <input type="submit" value="Search" class="btn btn-primary mr-3" style="width:100px" />
+            <a asp-area="AssetManager" asp-controller="Settings" asp-action="AddAssetGroup" class="btn btn-success" style="width:200px" title="Click to Add New Asset Group">
+                <span class="text-white">New Asset Group</span>
+            </a>
+        </form>
+
+        @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-x-circle"></i>
+                <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (!String.IsNullOrEmpty(Model.ViewModelSuccessMessage))
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="bi bi-check-circle"></i>
+                <span class="fw-bold">@Model.ViewModelSuccessMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+    </div>
+    @if (Model == null || Model.AssetGroupList == null || Model.AssetGroupList.Count < 1)
+    {
+        <div class="alert alert-info fade show" role="alert">
+            <i class="bi bi-info-circle"></i>
+            <span class="fw-bold">No record was found.</span>
+        </div>
+    }
+    else
+    {
+        <div class="row">
+            <div class="table-responsive">
+                <table class="table table-hover table-sm ">
+                    <thead class="table-dark">
+                        <tr>
+                            <th><span class="text-white fw-bold">#</span></th>
+                            <th><span class="text-white fw-bold">Group Name</span></th>
+                            <th><span class="text-white fw-bold">Asset Class</span></th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody class="table-secondary">
+                        @{
+                            int rowNumber = 0;
+                        }
+                        @foreach (var group in Model.AssetGroupList)
+                        {
+                            rowNumber++;
+                            <tr>
+                                <td class="p-2 border-1 border-light">@rowNumber.ToString()</td>
+                                <td class="p-2 border-1 border-light">
+                                    <span class="fw-bold">@group.GroupName</span>
+                                </td>
+                                <td class="p-2 border-1 border-light">
+                                    <span class="fw-bold">@group.ClassName</span>
+                                </td>
+                                <td class="p-2 border-1 border-light">
+                                    <div class="text-center">
+                                        <a asp-area="AssetManager" asp-controller="Settings" asp-action="AssetGroupDetails" asp-route-id="@group.GroupID" title="Details" class="btn btn-xs btn-dark" style="width:50px">
+                                            <i class="bi bi-card-text" style="font-size: 0.7rem;"></i>
+                                        </a>
+                                        <a asp-area="AssetManager" asp-controller="Settings" asp-action="EditAssetGroup" asp-route-id="@group.GroupID" title="Edit" class="btn btn-xs btn-primary" style="width:50px">
+                                            <i class="bi bi-pencil-square" style="font-size: 0.7rem; color:white"></i>
+                                        </a>
+                                        <a asp-area="AssetManager" asp-controller="Settings" asp-action="Assets" asp-route-sp="@group.GroupID" title="Asset Types" class="btn btn-xs btn-success" style="width:50px">
+                                            <i class="bi bi-list-ul" style="font-size: 0.7rem; color:white"></i>
+                                        </a>
+                                        <a asp-area="AssetManager" asp-controller="Settings" asp-action="DeleteAssetGroup" asp-route-id="@group.GroupID" title="Delete Asset Group" class="btn btn-xs btn-danger" style="width:50px">
+                                            <i class="bi bi-trash-fill" style="font-size: 0.7rem; color:white"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+</div>

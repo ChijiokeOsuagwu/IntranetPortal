@@ -11,6 +11,7 @@ namespace IntranetPortal.Base.Repositories.ContentManagerRepositories
         #region Posts Action Methods
         Task<bool> AddPostAsync(Post post);
         Task<bool> EditPostAsync(Post post);
+        Task<bool> EditPostWithoutImageAsync(Post post);
         Task<bool> DeletePostAsync(int id);
         Task<Post> GetPostByIdAsync(int id);
         Task<IList<Post>> GetAllAsync();

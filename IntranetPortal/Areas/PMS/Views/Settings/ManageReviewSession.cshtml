@@ -1,0 +1,121 @@
+﻿
+@model IntranetPortal.Areas.PMS.Models.ManageReviewSessionViewModel
+<h3>Appraisal Session</h3>
+<hr />
+<div class="card mt-1">
+    <div class="card-header bg-success">
+        <h4 class="text-white">Manage Appraisal Session</h4>
+    </div>
+    <div class="card-body bg-secondary">
+        @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-x-circle"></i>
+                <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (!String.IsNullOrEmpty(Model.ViewModelSuccessMessage))
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="bi bi-check-circle"></i>
+                <span class="fw-bold">@Model.ViewModelSuccessMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (!String.IsNullOrEmpty(Model.ViewModelWarningMessage))
+        {
+            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                <i class="bi bi-exclamation-circle"></i>
+                <span class="fw-bold">@Model.ViewModelWarningMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        <form asp-area="PMS" asp-controller="Settings" asp-action="ManageReviewSession" method="post" autocomplete="off">
+            <div class="row">
+                <div class="col-md-6 mb-2">
+                    <input type="hidden" asp-for="Id" />
+                    <label asp-for="Name" class="form-label text-white fw-bold"></label>
+                    <input asp-for="Name" class="form-control" placeholder="Title">
+                    <div><span asp-validation-for="Name" class="text-danger"></span></div>
+                </div>
+                <div class="col-md-3 mb-2">
+                    <label asp-for="ReviewYearId" class="form-label text-white fw-bold"></label>
+                    <select asp-for="ReviewYearId" asp-items="@ViewBag.PerformanceYearsList" class="form-control">
+                        <option value=""> Year </option>
+                    </select>
+                    <div><span asp-validation-for="ReviewYearId" class="text-danger"></span></div>
+                </div>
+                <div class="col-md-3 mb-2">
+                    <label asp-for="IsActive" class="form-label text-white fw-bold"></label>
+                    <select asp-for="IsActive" class="form-control">
+                        <option value="1">Open</option>
+                        <option value="0">Close</option>
+                    </select>
+                    <div><span asp-validation-for="IsActive" class="text-danger"></span></div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-3 mb-3">
+                    <label asp-for="ReviewTypeId" class="form-label text-white fw-bold"></label>
+                    <select asp-for="ReviewTypeId" asp-items="@ViewBag.ReviewTypesList" class="form-control">
+                        <option value=""> Type </option>
+                    </select>
+                    <div><span asp-validation-for="ReviewTypeId" class="text-danger"></span></div>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label asp-for="StartDate" class="form-label text-white fw-bold"></label>
+                    <input asp-for="StartDate" class="form-control" placeholder="Other Names">
+                    <div><span asp-validation-for="StartDate" class="text-danger"></span></div>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label asp-for="EndDate" class="form-label text-white fw-bold"></label>
+                    <input asp-for="EndDate" class="form-control" placeholder="Other Names">
+                    <div><span asp-validation-for="EndDate" class="text-danger"></span></div>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label asp-for="TotalCombinedScore" class="form-label text-white fw-bold"></label>
+                    <input asp-for="TotalCombinedScore" class="form-control" min="0" max="200" step="100" />
+                    <div><span asp-validation-for="TotalCombinedScore" class="text-danger"></span></div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-3 mb-3">
+                    <label asp-for="MinNoOfCompetencies" class="form-label text-white fw-bold"></label>
+                    <input asp-for="MinNoOfCompetencies" class="form-control" min="0" max="30">
+                    <div><span asp-validation-for="MinNoOfCompetencies" class="text-danger"></span></div>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label asp-for="MaxNoOfCompetencies" class="form-label text-white fw-bold"></label>
+                    <input asp-for="MaxNoOfCompetencies" class="form-control" min="0" max="30">
+                    <div><span asp-validation-for="MaxNoOfCompetencies" class="text-danger"></span></div>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label asp-for="TotalCompetencyScore" class="form-label text-white fw-bold"></label>
+                    <input asp-for="TotalCompetencyScore" class="form-control" min="0" max="100" step="5">
+                    <div><span asp-validation-for="TotalCompetencyScore" class="text-danger"></span></div>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label asp-for="TotalKpaScore" class="form-label text-white fw-bold"></label>
+                    <input asp-for="TotalKpaScore" class="form-control" min="0" max="100" step="5" />
+                    <div><span asp-validation-for="TotalKpaScore" class="text-danger"></span></div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12 mb-3 text-end">
+                    <a asp-area="PMS" asp-controller="Settings" asp-action="ReviewSessions" asp-route-id="@Model.ReviewYearId" class="btn btn-dark" style="width:100px" title="Back">
+                        <span class="text-white">Back</span>
+                    </a>
+                    <a asp-area="PMS" asp-controller="Settings" asp-action="ManageReviewSession" asp-route-id="@Model.Id" class="btn btn-warning" style="width:100px" title="Clear">
+                        <span class="text-white">Clear</span>
+                    </a>
+                    @if (!Model.OperationIsSuccessful)
+                    {
+                        <button type="submit" class="btn btn-success" title="Save" style="width:200px"><span class="text-white">Save</span></button>
+                    }
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+

@@ -14,10 +14,11 @@ namespace IntranetPortal.Base.Repositories.AssetManagerRepositories
         Task<bool> AddAsync(AssetBinLocation assetBinLocation);
         Task<bool> DeleteAsync(int assetBinLocationId);
         Task<bool> EditAsync(AssetBinLocation assetBinLocation);
-        Task<IList<AssetBinLocation>> GetAllAsync();
+        Task<IList<AssetBinLocation>> GetAllAsync(string userId);
         Task<AssetBinLocation> GetByIdAsync(int assetBinLocationId);
-        Task<IList<AssetBinLocation>> GetByLocationIdAsync(int locationId);
+        Task<IList<AssetBinLocation>> GetByLocationIdAsync(int locationId, string userId);
         Task<IList<AssetBinLocation>> GetByNameAsync(string assetBinLocationName);
-        Task<IList<AssetBinLocation>> SearchByNameAsync(string assetBinLocationName);
+        Task<IList<AssetBinLocation>> GetByNameAsync(string assetBinLocationName, string userId);
+        Task<IList<AssetBinLocation>> SearchByNameAsync(string assetBinLocationName, string userId);
     }
 }

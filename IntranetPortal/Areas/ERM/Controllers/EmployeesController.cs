@@ -465,60 +465,66 @@ namespace IntranetPortal.Areas.ERM.Controllers
 
                 Employee employee = new Employee();
                 employee = await _ermService.GetEmployeeByIdAsync(id);
-
-                model.Address = employee.Address;
-                model.CompanyName = employee.CompanyName;
-                model.CurrentDesignation = employee.CurrentDesignation;
-                model.DepartmentName = employee.DepartmentName;
-                model.Email = employee.Email;
-                model.EmployeeID = employee.EmployeeID;
-                model.EmployeeNo1 = employee.EmployeeNo1;
-                model.EmployeeNo2 = employee.EmployeeNo2;
-                model.EmploymentStatus = employee.EmploymentStatus;
-                model.FullName = employee.FullName;
-                model.GeoPoliticalRegion = employee.GeoPoliticalRegion;
-                model.ImagePath = employee.ImagePath;
-                model.JobGrade = employee.JobGrade;
-                model.LgaOfOrigin = employee.LgaOfOrigin;
-                model.LocationName = employee.LocationName;
-                model.MaritalStatus = employee.MaritalStatus;
-                model.OfficialEmail = employee.OfficialEmail;
-                model.PersonID = employee.PersonID;
-                model.PhoneNo1 = employee.PhoneNo1;
-                model.PhoneNo2 = employee.PhoneNo2;
-                model.PlaceOfEngagement = employee.PlaceOfEngagement;
-                model.Religion = employee.Religion;
-                model.Sex = employee.Sex;
-                model.StateOfOrigin = employee.StateOfOrigin;
-                model.UnitName = employee.UnitName;
-
-                if (employee.ConfirmationDate != null && employee.ConfirmationDate.HasValue)
-                { model.ConfirmationDateFormatted = $"{employee.ConfirmationDate.Value.ToLongDateString()}"; }
-                else { model.ConfirmationDateFormatted = string.Empty; }
-
-                if (employee.DateOfLastPromotion != null && employee.DateOfLastPromotion.HasValue)
-                { model.DateOfLastPromotionFormatted = $"{employee.DateOfLastPromotion.Value.ToLongDateString()}"; }
-                else { model.DateOfLastPromotionFormatted = string.Empty; }
-
-                if (employee.StartUpDate != null && employee.StartUpDate.HasValue)
-                { model.StartUpDateFormatted = $"{employee.StartUpDate.Value.ToLongDateString()}"; }
-                else { model.StartUpDateFormatted = string.Empty; }
-
-                if (employee.BirthDay != null && employee.BirthDay > 0 && employee.BirthMonth != null && employee.BirthMonth > 0)
+                if(employee != null)
                 {
-                    DateTime dateOfBirth = new DateTime(2020, employee.BirthMonth.Value, employee.BirthDay.Value);
-                    model.DateOfBirth = $"{dateOfBirth.ToString("MMMM")} {employee.BirthDay.Value.ToString()}";
-                }
+                    model.Address = employee.Address;
+                    model.CompanyName = employee.CompanyName;
+                    model.CurrentDesignation = employee.CurrentDesignation;
+                    model.DepartmentName = employee.DepartmentName;
+                    model.Email = employee.Email;
+                    model.EmployeeID = employee.EmployeeID;
+                    model.EmployeeNo1 = employee.EmployeeNo1;
+                    model.EmployeeNo2 = employee.EmployeeNo2;
+                    model.EmploymentStatus = employee.EmploymentStatus;
+                    model.FullName = employee.FullName;
+                    model.GeoPoliticalRegion = employee.GeoPoliticalRegion;
+                    model.ImagePath = employee.ImagePath;
+                    model.JobGrade = employee.JobGrade;
+                    model.LgaOfOrigin = employee.LgaOfOrigin;
+                    model.LocationName = employee.LocationName;
+                    model.MaritalStatus = employee.MaritalStatus;
+                    model.OfficialEmail = employee.OfficialEmail;
+                    model.PersonID = employee.PersonID;
+                    model.PhoneNo1 = employee.PhoneNo1;
+                    model.PhoneNo2 = employee.PhoneNo2;
+                    model.PlaceOfEngagement = employee.PlaceOfEngagement;
+                    model.Religion = employee.Religion;
+                    model.Sex = employee.Sex;
+                    model.StateOfOrigin = employee.StateOfOrigin;
+                    model.UnitName = employee.UnitName;
 
-                if (employee.LengthOfService != null && employee.LengthOfService.Value > 0)
-                {
-                    if (employee.LengthOfService.Value < 365) { model.LengthOfServiceFormatted = $"{employee.LengthOfService} days"; }
-                    else
+                    if (employee.ConfirmationDate != null && employee.ConfirmationDate.HasValue)
+                    { model.ConfirmationDateFormatted = $"{employee.ConfirmationDate.Value.ToLongDateString()}"; }
+                    else { model.ConfirmationDateFormatted = string.Empty; }
+
+                    if (employee.DateOfLastPromotion != null && employee.DateOfLastPromotion.HasValue)
+                    { model.DateOfLastPromotionFormatted = $"{employee.DateOfLastPromotion.Value.ToLongDateString()}"; }
+                    else { model.DateOfLastPromotionFormatted = string.Empty; }
+
+                    if (employee.StartUpDate != null && employee.StartUpDate.HasValue)
+                    { model.StartUpDateFormatted = $"{employee.StartUpDate.Value.ToLongDateString()}"; }
+                    else { model.StartUpDateFormatted = string.Empty; }
+
+                    if (employee.BirthDay != null && employee.BirthDay > 0 && employee.BirthMonth != null && employee.BirthMonth > 0)
                     {
-                        model.LengthOfServiceFormatted = $"~ {employee.LengthOfService.Value / 365} years {employee.LengthOfService % 365} days";
+                        DateTime dateOfBirth = new DateTime(2020, employee.BirthMonth.Value, employee.BirthDay.Value);
+                        model.DateOfBirth = $"{dateOfBirth.ToString("MMMM")} {employee.BirthDay.Value.ToString()}";
                     }
+
+                    if (employee.LengthOfService != null && employee.LengthOfService.Value > 0)
+                    {
+                        if (employee.LengthOfService.Value < 365) { model.LengthOfServiceFormatted = $"{employee.LengthOfService} days"; }
+                        else
+                        {
+                            model.LengthOfServiceFormatted = $"~ {employee.LengthOfService.Value / 365} years {employee.LengthOfService % 365} days";
+                        }
+                    }
+                    else { model.LengthOfServiceFormatted = "0 days"; }
                 }
-                else { model.LengthOfServiceFormatted = "0 days"; }
+                else
+                {
+                    model.ViewModelErrorMessage = "No profile record was found for the selected staff.";
+                }
             }
             catch (Exception ex)
             {

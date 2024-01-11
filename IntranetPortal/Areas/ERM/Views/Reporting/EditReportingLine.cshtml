@@ -64,18 +64,25 @@
             </div>
             <div class="row">
                 <div class="col-md-6 mb-3">
+                    <label asp-for="ReportingLineType" class="form-label text-white fw-bold"></label>
+                    <select asp-for="ReportingLineType" class="form-control fw-bold">
+                        <option value=""> - Select - </option>
+                        <option value="LINE MANAGER"> LINE MANAGER </option>
+                        <option value="ALT. LINE MANAGER"> ALT. LINE MANAGER </option>
+                        <option value="SUPERVISOR"> SUPERVISOR </option>
+                        <option value="TEAM LEAD"> TEAM LEAD</option>
+                    </select>
+                    <div><span asp-validation-for="ReportingLineType" class="text-danger"></span></div>
+                </div>
+                <div class="col-md-6 mb-3">
                     <label asp-for="TeamID" class="form-label text-white fw-bold"></label>
                     <select asp-for="TeamID" asp-items="@ViewBag.TeamsList" class="form-control fw-bold">
                         <option value=""> - Select - </option>
                     </select>
                     <div><span asp-validation-for="TeamID" class="text-danger"></span></div>
                 </div>
-                <div class="col-md-6 mb-3">
-                    <label asp-for="ReportsToEmployeeRole" class="form-label text-white fw-bold"></label>
-                    <input asp-for="ReportsToEmployeeRole" class="form-control fw-bold">
-                    <div><span asp-validation-for="ReportsToEmployeeRole" class="text-danger"></span></div>
-                </div>
             </div>
+            
             <div class="row">
                 <a asp-area="ERM" asp-controller="Reporting" asp-action="ReportLines" asp-route-id="@Model.EmployeeID" asp-route-src="@Model.Source" class="btn btn-dark ml-2" style="width:100px" title="Return Home">
                     <span class="text-white">Back</span>

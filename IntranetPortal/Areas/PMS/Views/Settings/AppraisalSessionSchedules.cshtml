@@ -1,0 +1,120 @@
+﻿
+@model IntranetPortal.Areas.PMS.Models.AppraisalSchedulesListViewModel
+<div class="container">
+    <h3 class="mb-1"> Schedules for @Model.ReviewSessionName</h3>
+    <hr />
+    <div class="mb-1">
+        <a class="btn btn-sm btn-dark" asp-area="PMS" asp-controller="Process" asp-action="MyAppraisalSteps" asp-route-id="@Model.ReviewSessionId" title="Go Back"><span class="text-white fw-bold">Back</span></a>
+        <div class="row mt-2">
+            @if (Model == null || Model.SessionScheduleList == null || Model.SessionScheduleList.Count < 1)
+            {
+                <div class="alert alert-info fade show" role="alert">
+                    <i class="bi bi-info-circle"></i>
+                    <span class="fw-bold">No record was found.</span>
+                </div>
+            }
+            else
+            {
+                <table class="table table-sm table-hover">
+                    <thead class="table-dark">
+                        <tr>
+                            <th><span class="text-white fw-bolder"> </span></th>
+                            <th><span class="text-white fw-bolder">Activity </span></th>
+                            <th>
+                                <span class="text-white fw-bolder">Type</span>
+                            </th>
+                            <th>
+                                <span class="text-white fw-bolder">Ends On</span>
+                            </th>
+                            <th>
+                                <span class="text-white fw-bolder">Status</span>
+                            </th>
+                            <th>
+
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="table-light">
+                        @foreach (var item in Model.SessionScheduleList)
+                        {
+                            if (item.IsCancelled)
+                            {
+                                <tr style="background-color: #fadad4">
+                                    <td class="p-2" title="Cancelled">
+                                        <i class="bi bi-x-square text-danger fw-bolder" style="font-size:1.2rem"></i>
+                                    </td>
+                                    <td class="p-2">
+                                        @switch (item.ActivityType)
+                                        {
+                                            case IntranetPortal.Base.Enums.SessionActivityType.AllActivities:
+                                                <span class="fw-bolder">All Activities</span>
+                                                break;
+                                            case IntranetPortal.Base.Enums.SessionActivityType.ContractDefinitionOnly:
+                                                <span class="fw-bolder">Contract Definition Only</span>
+                                                break;
+                                            case IntranetPortal.Base.Enums.SessionActivityType.PerformanceEvaluationOnly:
+                                                <span class="fw-bolder">Performance Evaluation Only</span>
+                                                break;
+                                            default:
+                                                <span class="fw-bolder">All Activities</span>
+                                                break;
+                                        }
+                                    </td>
+                                    <td class="p-2">
+                                        <span class="fw-bolder">@item.ScheduleType</span>
+                                    </td>
+                                    <td class="p-2">
+                                        <span class="fw-bolder">@item.ScheduleEndTime.Value.ToLongDateString()</span>
+                                    </td>
+                                    <td class="p-2">
+                                        <span class="fw-bolder">@item.ScheduleStatus </span>
+                                    </td>
+                                    <td class="p-2 text-end">
+                                        <a class="btn btn-sm btn-dark" asp-controller="PMS" asp-action="AppraisalScheduleInfo" asp-route-id="@item.SessionScheduleId" title="Details">Details</a>
+                                    </td>
+                                </tr>
+                            }
+                            else
+                            {
+                                <tr style="background-color:#bdfba7">
+                                    <td class="p-2" title="Valid">
+                                        <i class="bi bi-check2-square text-success fw-bolder" style="font-size:1.5rem"></i>
+                                    </td>
+                                    <td class="p-2">
+                                        @switch (item.ActivityType)
+                                        {
+                                            case IntranetPortal.Base.Enums.SessionActivityType.AllActivities:
+                                                <span class="fw-bolder">All Activities</span>
+                                                break;
+                                            case IntranetPortal.Base.Enums.SessionActivityType.ContractDefinitionOnly:
+                                                <span class="fw-bolder">Contract Definition Only</span>
+                                                break;
+                                            case IntranetPortal.Base.Enums.SessionActivityType.PerformanceEvaluationOnly:
+                                                <span class="fw-bolder">Performance Evaluation Only</span>
+                                                break;
+                                            default:
+                                                <span class="fw-bolder">All Activities</span>
+                                                break;
+                                        }
+                                    </td>
+                                    <td class="p-2">
+                                        <span class="fw-bolder">@item.ScheduleType</span>
+                                    </td>
+                                    <td class="p-2">
+                                        <span class="fw-bolder">@item.ScheduleEndTime.Value.ToLongDateString()</span>
+                                    </td>
+                                    <td class="p-2">
+                                        <span class="fw-bolder">@item.ScheduleStatus </span>
+                                    </td>
+                                    <td class="p-2 text-end">
+                                        <a class="btn btn-sm btn-dark" asp-controller="PMS" asp-action="AppraisalScheduleInfo" asp-route-id="@item.SessionScheduleId" title="Details">Details</a>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            }
+        </div>
+    </div>
+</div>

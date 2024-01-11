@@ -1,0 +1,71 @@
+﻿@model IntranetPortal.Areas.UserAdministration.Models.AssetPermissionsListViewModel
+@{
+    ViewData["Title"] = "User Administration | Asset Permissions";
+}
+<div class="container">
+    <h3 class="mb-4">Asset & Equipment Permissions</h3>
+    <hr />
+    <div class="mb-1">
+        <div class="row mb-2">
+            <div class="col-md-3">
+                <a asp-area="UserAdministration" asp-controller="Staff" asp-action="EmployeeUserDetails" asp-route-id="@Model.id" class="btn btn-dark" style="width:100px" title="Click to Go Back">
+                    <span class="text-white">Back</span>
+                </a>
+            </div>
+            <div class="col-md-9">
+                <a asp-area="UserAdministration" asp-controller="Home" asp-action="GrantUserAssetPermission" asp-route-id="@Model.id" class="btn btn-success" style="width:150px" title="Grant New Permission">
+                    <span class="text-white">New Permission</span>
+                </a>
+            </div>
+            </div>
+        <div class="row">
+            @if (Model == null || Model.AssetPermissionList == null || Model.AssetPermissionList.Count < 1)
+            {
+                <div class="alert alert-info fade show" role="alert">
+                    <i class="bi bi-info-circle"></i>
+                    <span class="fw-bold">No record was found.</span>
+                </div>
+            }
+            else
+            {
+                int row_number = 0;
+                <div class="table-responsive">
+                    <table class="table table-sm table-hover">
+                        <thead>
+                            <tr class="bg-dark">
+                                <th>
+                                    <span class="text-white fw-bold">Location</span>
+                                </th>
+                                <th>
+                                    <span class="text-white fw-bold">Control Unit</span>
+                                </th>
+                                <th>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.AssetPermissionList)
+                            {
+                                row_number++;
+                                <tr>
+                                    <td>
+                                        <span class="text-dark fw-bold">@row_number.ToString()</span>
+                                    </td>
+                                    <td>
+                                        <span class="text-dark fw-bold">@item.AssetDivisionName)</span>
+                                    </td>
+                                    <td>
+                                        <button title="Revoke this Permission" class="btn btn-sm btn-outline-danger text-dark fw-bold" style="border-radius:10px; width:75px" onclick="revokeAssetPermission(@item.ID)">Revoke</button>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+<script src="~/js/js_uad/user_permissions.js"></script>
+
+

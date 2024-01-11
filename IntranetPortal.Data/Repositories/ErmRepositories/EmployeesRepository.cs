@@ -27,25 +27,25 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
             string query = String.Empty;
             StringBuilder sb = new StringBuilder();
 
-            sb.Append($"SELECT e.emp_id, e.emp_no_1, e.emp_no_2, e.start_up_date, ");
-            sb.Append($"e.yrs_of_experience, e.start_up_designation, e.place_of_engagement, ");
-            sb.Append($"e.confirmation_date, e.current_designation, e.job_grade, e.employment_status, ");
-            sb.Append($"e.date_of_last_promotion, e.official_email, e.state_of_origin, e.dx_by, ");
-            sb.Append($"e.lga_of_origin, e.religion, e.geo_political_region, e.next_of_kin_name, ");
-            sb.Append($"e.next_of_kin_relationship, e.modified_by, e.modified_date, e.is_dx, e.dx_time, ");
-            sb.Append($"e.created_by, e.created_date, e.next_of_kin_address, e.next_of_kin_phone, ");
-            sb.Append($"e.next_of_kin_email, e.dept_id, e.unit_id, e.loc_id, e.coy_id, p.id, p.title, ");
-            sb.Append($"p.sname, p.fname, p.oname, p.fullname, p.sex, p.phone1, p.phone2,");
-            sb.Append($"p.email AS personal_email, p.address, p.mdb, p.mdt, p.ctb, p.ctt, ");
-            sb.Append($"p.imgp, p.birthday, p.birthmonth, p.birthyear, p.maritalstatus, l.locname, ");
-            sb.Append($"l.loctype, l.lochq1, l.lochq2, l.locmb, l.locmd, l.loccb, l.loccd, l.locctr, ");
-            sb.Append($"l.locst, l.locqk, c.coy_code, c.coy_name, d.deptname, d.depthd1, d.depthd2, ");
-            sb.Append($"d.deptqk, u.unitname, u.unithd1, u.unithd2, u.unitqk ");
-            sb.Append($"FROM erm_emp_inf e JOIN gst_prsns p ON e.emp_id = p.id ");
-            sb.Append($"LEFT JOIN gst_locs l ON e.loc_id = l.locqk ");
-            sb.Append($"LEFT JOIN gst_coys c ON e.coy_id = c.coy_code ");
-            sb.Append($"LEFT JOIN gst_depts d ON e.dept_id = d.deptqk ");
-            sb.Append($"LEFT JOIN gst_units u ON e.unit_id = u.unitqk ");
+            sb.Append("SELECT e.emp_id, e.emp_no_1, e.emp_no_2, e.start_up_date, ");
+            sb.Append("e.yrs_of_experience, e.start_up_designation, e.place_of_engagement, ");
+            sb.Append("e.confirmation_date, e.current_designation, e.job_grade, e.employment_status, ");
+            sb.Append("e.date_of_last_promotion, e.official_email, e.state_of_origin, e.dx_by, ");
+            sb.Append("e.lga_of_origin, e.religion, e.geo_political_region, e.next_of_kin_name, ");
+            sb.Append("e.next_of_kin_relationship, e.modified_by, e.modified_date, e.is_dx, e.dx_time, ");
+            sb.Append("e.created_by, e.created_date, e.next_of_kin_address, e.next_of_kin_phone, ");
+            sb.Append("e.next_of_kin_email, e.dept_id, e.unit_id, e.loc_id, e.coy_id, p.id, p.title, ");
+            sb.Append("p.sname, p.fname, p.oname, p.fullname, p.sex, p.phone1, p.phone2,");
+            sb.Append("p.email AS personal_email, p.address, p.mdb, p.mdt, p.ctb, p.ctt, ");
+            sb.Append("p.imgp, p.birthday, p.birthmonth, p.birthyear, p.maritalstatus, l.locname, ");
+            sb.Append("l.loctype, l.lochq1, l.lochq2, l.locmb, l.locmd, l.loccb, l.loccd, l.locctr, ");
+            sb.Append("l.locst, l.locqk, c.coy_code, c.coy_name, d.deptname, d.depthd1, d.depthd2, ");
+            sb.Append("d.deptqk, u.unitname, u.unithd1, u.unithd2, u.unitqk ");
+            sb.Append("FROM erm_emp_inf e JOIN gst_prsns p ON e.emp_id = p.id ");
+            sb.Append("LEFT JOIN gst_locs l ON e.loc_id = l.locqk ");
+            sb.Append("LEFT JOIN gst_coys c ON e.coy_id = c.coy_code ");
+            sb.Append("LEFT JOIN gst_depts d ON e.dept_id = d.deptqk ");
+            sb.Append("LEFT JOIN gst_units u ON e.unit_id = u.unitqk ");
             sb.Append("WHERE(LOWER(e.emp_id) = LOWER(@emp_id)) AND (e.is_dx = false);");
             query = sb.ToString();
             try
@@ -72,7 +72,7 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
                             employee.JobGrade = reader["job_grade"] == DBNull.Value ? String.Empty : reader["job_grade"].ToString();
                             employee.EmploymentStatus = reader["employment_status"] == DBNull.Value ? String.Empty : reader["employment_status"].ToString();
                             employee.DateOfLastPromotion = reader["date_of_last_promotion"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["date_of_last_promotion"];
-                            employee.LengthOfService = reader["start_up_date"] == DBNull.Value ? 0 : (int)((DateTime.Now - (DateTime)reader["start_up_date"]).TotalDays);
+                            employee.LengthOfService = reader["start_up_date"] == DBNull.Value ? 0 : (int)(DateTime.Now - (DateTime)reader["start_up_date"]).TotalDays;
                             employee.OfficialEmail = reader["official_email"] == DBNull.Value ? String.Empty : reader["official_email"].ToString();
                             employee.StateOfOrigin = reader["state_of_origin"] == DBNull.Value ? String.Empty : reader["state_of_origin"].ToString();
                             employee.LgaOfOrigin = reader["lga_of_origin"] == DBNull.Value ? String.Empty : reader["lga_of_origin"].ToString();
@@ -103,9 +103,9 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
                             employee.FullName = reader["fullname"] == DBNull.Value ? string.Empty : reader["fullname"].ToString();
                             employee.Sex = reader["sex"] == DBNull.Value ? string.Empty : reader["sex"].ToString();
                             employee.MaritalStatus = reader["maritalstatus"] == DBNull.Value ? String.Empty : reader["maritalstatus"].ToString();
-                            employee.BirthDay = reader["birthday"] == DBNull.Value ? 0 : (int)reader["birthday"];
-                            employee.BirthMonth = reader["birthmonth"] == DBNull.Value ? 0 : (int)reader["birthmonth"];
-                            employee.BirthYear = reader["birthyear"] == DBNull.Value ? 0 : (int)reader["birthyear"];
+                            employee.BirthDay = reader["birthday"] == DBNull.Value ? (int?)null : (int)reader["birthday"];
+                            employee.BirthMonth = reader["birthmonth"] == DBNull.Value ? (int?)null : (int)reader["birthmonth"];
+                            employee.BirthYear = reader["birthyear"] == DBNull.Value ? (int?)null : (int)reader["birthyear"];
                             employee.PhoneNo1 = reader["phone1"] == DBNull.Value ? string.Empty : reader["phone1"].ToString();
                             employee.PhoneNo2 = reader["phone2"] == DBNull.Value ? string.Empty : reader["phone2"].ToString();
                             employee.Email = reader["personal_email"] == DBNull.Value ? string.Empty : reader["personal_email"].ToString();
@@ -1729,7 +1729,7 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
             List<Employee> employeeList = new List<Employee>();
             if (locationId < 1) { throw new ArgumentNullException(nameof(locationId)); }
             if (deptId < 1) { throw new ArgumentNullException(nameof(deptId)); }
-            if(unitId < 1) { throw new ArgumentNullException(nameof(unitId)); }
+            if (unitId < 1) { throw new ArgumentNullException(nameof(unitId)); }
             var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
             string query = String.Empty;
             StringBuilder sb = new StringBuilder();
@@ -2506,6 +2506,44 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
             return employeeList;
         }
 
+        public async Task<int> GetEmployeesCountByStartUpDateAsync(int startUpYear, int startUpMonth, int startUpDay)
+        {
+            int employeeCount = 0;
+            if (startUpYear < 1) { throw new ArgumentNullException(nameof(startUpYear)); }
+            if (startUpMonth < 1) { throw new ArgumentNullException(nameof(startUpMonth)); }
+            if (startUpDay < 1) { throw new ArgumentNullException(nameof(startUpDay)); }
+
+            var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
+            string query = String.Empty;
+            StringBuilder sb = new StringBuilder();
+
+            sb.Append("SELECT COUNT (emp_id) as no_count ");
+            sb.Append("FROM erm_emp_inf ");
+            sb.Append("WHERE (date_part('year', start_up_date) = @start_up_year) ");
+            sb.Append("AND (date_part('month', start_up_date) = @start_up_month) ");
+            sb.Append("AND (date_part('day', start_up_date) = @start_up_day); ");
+
+            query = sb.ToString();
+
+            await conn.OpenAsync();
+            // Retrieve all rows
+            using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+            {
+                var start_up_year = cmd.Parameters.Add("@start_up_year", NpgsqlDbType.Integer);
+                var start_up_month = cmd.Parameters.Add("@start_up_month", NpgsqlDbType.Integer);
+                var start_up_day = cmd.Parameters.Add("@start_up_day", NpgsqlDbType.Integer);
+                await cmd.PrepareAsync();
+                start_up_year.Value = startUpYear;
+                start_up_month.Value = startUpMonth;
+                start_up_day.Value = startUpDay;
+
+                var no_count = await cmd.ExecuteScalarAsync();
+                employeeCount = Convert.ToInt32(no_count);
+            }
+            await conn.CloseAsync();
+            return employeeCount;
+        }
+
         public async Task<IList<Employee>> GetAllEmployeesWithoutUserAccountsAsync()
         {
             List<Employee> employeeList = new List<Employee>();
@@ -2513,15 +2551,19 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
             string query = String.Empty;
             StringBuilder sb = new StringBuilder();
 
-            sb.Append($"SELECT e.emp_id, e.emp_no_1, e.emp_no_2, e.official_email, e.dept_id,  ");
-            sb.Append($"e.unit_id, e.loc_id, e.coy_id, e.is_dx, e.dx_time, e.dx_by, p.id, ");
-            sb.Append($"p.fullname, p.sex, p.phone1, p.phone2, p.is_dx, p.dx_by, p.dx_time, ");
-            sb.Append($"p.imgp, a.usr_id, a.usr_nm, a.usr_typ FROM public.erm_emp_inf e ");
-            sb.Append($"INNER JOIN public.gst_prsns p ON e.emp_id = p.id ");
-            sb.Append($"LEFT OUTER JOIN public.sct_usr_acct a ON p.id = a.usr_id ");
-            sb.Append($"WHERE (e.is_dx = false OR p.is_dx = false) AND (a.usr_id IS NULL) ");
-            sb.Append($"ORDER BY p.fullname;");
-            
+            sb.Append("SELECT e.emp_id, e.emp_no_1, e.emp_no_2, e.official_email, e.dept_id,  ");
+            sb.Append("e.unit_id, e.loc_id, e.coy_id, e.is_dx, e.dx_time, e.dx_by, p.id, ");
+            sb.Append("p.fullname, p.sex, p.phone1, p.phone2, p.is_dx, p.dx_by, p.dx_time, ");
+            sb.Append("p.imgp, a.usr_id, a.usr_nm, a.usr_typ, u.unitname, d.deptname, ");
+            sb.Append("l.locname FROM public.erm_emp_inf e ");
+            sb.Append("INNER JOIN public.gst_prsns p ON e.emp_id = p.id ");
+            sb.Append("INNER JOIN public.gst_units u ON e.unit_id = u.unitqk ");
+            sb.Append("INNER JOIN public.gst_depts d ON e.dept_id = d.deptqk ");
+            sb.Append("INNER JOIN public.gst_locs l ON e.loc_id = l.locqk ");
+            sb.Append("LEFT OUTER JOIN public.sct_usr_acct a ON p.id = a.usr_id ");
+            sb.Append("WHERE (e.is_dx = false OR p.is_dx = false) AND (a.usr_id IS NULL) ");
+            sb.Append("ORDER BY p.fullname;");
+
             query = sb.ToString();
             try
             {
@@ -2551,6 +2593,10 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
                             PhoneNo1 = reader["phone1"] == DBNull.Value ? string.Empty : reader["phone1"].ToString(),
                             PhoneNo2 = reader["phone2"] == DBNull.Value ? string.Empty : reader["phone2"].ToString(),
                             ImagePath = reader["imgp"] == DBNull.Value ? string.Empty : reader["imgp"].ToString(),
+
+                            LocationName = reader["locname"] == DBNull.Value ? string.Empty : reader["locname"].ToString(),
+                            DepartmentName = reader["deptname"] == DBNull.Value ? string.Empty : reader["deptname"].ToString(),
+                            UnitName = reader["unitname"] == DBNull.Value ? string.Empty : reader["unitname"].ToString(),
                         });
                     }
                 }
@@ -2576,17 +2622,19 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
             sb.Append("SELECT e.emp_id, e.emp_no_1, e.emp_no_2, e.official_email, e.dept_id, ");
             sb.Append("e.unit_id, e.loc_id, e.coy_id, e.is_dx, e.dx_time, e.dx_by, p.id, ");
             sb.Append("p.fullname, p.sex, p.phone1, p.phone2, p.is_dx, p.dx_by, p.dx_time, ");
-            sb.Append("p.fname, p.sname, p.oname, p.imgp, a.usr_id, a.usr_nm, a.usr_typ ");
-            sb.Append("FROM public.erm_emp_inf e ");
+            sb.Append("p.fname, p.sname, p.oname, p.imgp, a.usr_id, a.usr_nm, a.usr_typ, ");
+            sb.Append("u.unitname, d.deptname, l.locname FROM public.erm_emp_inf e ");
             sb.Append("INNER JOIN public.gst_prsns p ON e.emp_id = p.id ");
+            sb.Append("INNER JOIN public.gst_units u ON e.unit_id = u.unitqk ");
+            sb.Append("INNER JOIN public.gst_depts d ON e.dept_id = d.deptqk ");
+            sb.Append("INNER JOIN public.gst_locs l ON e.loc_id = l.locqk ");
             sb.Append("LEFT OUTER JOIN public.sct_usr_acct a ON p.id = a.usr_id ");
             sb.Append("WHERE (e.is_dx = false OR p.is_dx = false) AND (a.usr_id IS NULL) ");
-            sb.Append("WHERE(LOWER(p.fname) LIKE '%'||LOWER(@name)||'%') ");
+            sb.Append("AND ((LOWER(p.fname) LIKE '%'||LOWER(@name)||'%') ");
             sb.Append("OR (LOWER(p.sname) LIKE '%'||LOWER(@name)||'%') ");
             sb.Append("OR (LOWER(p.oname) LIKE '%'||LOWER(@name)||'%') ");
-            sb.Append("OR (LOWER(p.fullname) LIKE '%'||LOWER(@name)||'%') ");
-            sb.Append("AND (e.is_dx = false OR p.is_dx = false) ");
-            sb.Append("AND (a.usr_id IS NULL) ORDER BY p.fullname;");
+            sb.Append("OR (LOWER(p.fullname) LIKE '%'||LOWER(@name)||'%')) ");
+            sb.Append("ORDER BY p.fullname;");
             query = sb.ToString();
             try
             {
@@ -2619,6 +2667,10 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
                             PhoneNo1 = reader["phone1"] == DBNull.Value ? string.Empty : reader["phone1"].ToString(),
                             PhoneNo2 = reader["phone2"] == DBNull.Value ? string.Empty : reader["phone2"].ToString(),
                             ImagePath = reader["imgp"] == DBNull.Value ? string.Empty : reader["imgp"].ToString(),
+
+                            LocationName = reader["locname"] == DBNull.Value ? string.Empty : reader["locname"].ToString(),
+                            DepartmentName = reader["deptname"] == DBNull.Value ? string.Empty : reader["deptname"].ToString(),
+                            UnitName = reader["unitname"] == DBNull.Value ? string.Empty : reader["unitname"].ToString(),
                         });
                     }
                 }
@@ -2873,12 +2925,26 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
         public async Task<bool> AddEmployeeReportLineAsync(EmployeeReportLine employeeReportLine)
         {
             int rows = 0;
+            DateTime _startDate = DateTime.Now.Date;
+            DateTime _endDate = new DateTime(2060, 12, 31);
+            if(employeeReportLine.ReportStartDate != null)
+            {
+                _startDate = employeeReportLine.ReportStartDate.Value;
+            }
+
+            if (employeeReportLine.ReportEndDate != null)
+            {
+                _endDate = employeeReportLine.ReportEndDate.Value;
+            }
+
             var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
             StringBuilder sb = new StringBuilder();
-            sb.Append($"INSERT INTO public.erm_emp_rpts(emp_id, rpt_emp_id, rpt_emp_rl, ");
-            sb.Append($"rpt_sts, rpt_nds, team_id, unit_id, dept_id, mdb, mdt, ctb, ctt) ");
-            sb.Append($"VALUES (@emp_id, @rpt_emp_id, @rpt_emp_rl, @rpt_sts, @rpt_nds, ");
-            sb.Append($"@team_id, @unit_id, @dept_id, @mdb, @mdt, @ctb, @ctt); ");
+            sb.Append("INSERT INTO public.erm_emp_rpts(emp_id, rpt_emp_id,");
+            sb.Append("rpt_sts, rpt_nds, team_id,  rpt_emp_rl, ");
+            sb.Append("unit_id, dept_id, mdb, mdt, ctb, ctt, rpt_typ) ");
+            sb.Append("VALUES (@emp_id, @rpt_emp_id, @rpt_sts, @rpt_nds, ");
+            sb.Append("@team_id, @rpt_emp_rl, @unit_id, @dept_id, ");
+            sb.Append("@mdb, @mdt, @ctb, @ctt, @rpt_typ); ");
             string query = sb.ToString();
             try
             {
@@ -2892,18 +2958,19 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
                     var rpt_sts = cmd.Parameters.Add("@rpt_sts", NpgsqlDbType.Date);
                     var rpt_nds = cmd.Parameters.Add("@rpt_nds", NpgsqlDbType.Date);
                     var team_id = cmd.Parameters.Add("@team_id", NpgsqlDbType.Text);
-                    var unit_id = cmd.Parameters.Add("unit_id", NpgsqlDbType.Integer);
+                    var unit_id = cmd.Parameters.Add("@unit_id", NpgsqlDbType.Integer);
                     var dept_id = cmd.Parameters.Add("@dept_id", NpgsqlDbType.Integer);
                     var mdb = cmd.Parameters.Add("@mdb", NpgsqlDbType.Text);
                     var mdt = cmd.Parameters.Add("@mdt", NpgsqlDbType.Text);
                     var ctb = cmd.Parameters.Add("@ctb", NpgsqlDbType.Text);
                     var ctt = cmd.Parameters.Add("@ctt", NpgsqlDbType.Text);
+                    var rpt_typ = cmd.Parameters.Add("@rpt_typ", NpgsqlDbType.Text);
                     cmd.Prepare();
                     emp_id.Value = employeeReportLine.EmployeeID;
                     rpt_emp_id.Value = employeeReportLine.ReportsToEmployeeID;
-                    rpt_emp_rl.Value = employeeReportLine.ReportsToEmployeeRole ?? "Supervisor";
-                    rpt_sts.Value = employeeReportLine.ReportStartDate ?? (object)DBNull.Value;
-                    rpt_nds.Value = employeeReportLine.ReportEndDate ?? (object)DBNull.Value;
+                    rpt_emp_rl.Value = employeeReportLine.ReportsToEmployeeRole ?? (object)DBNull.Value;
+                    rpt_sts.Value = _startDate.Date;
+                    rpt_nds.Value = _endDate.Date;
                     team_id.Value = employeeReportLine.TeamID ?? (object)DBNull.Value;
                     unit_id.Value = employeeReportLine.UnitID ?? (object)DBNull.Value;
                     dept_id.Value = employeeReportLine.DepartmentID ?? (object)DBNull.Value;
@@ -2911,6 +2978,7 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
                     mdt.Value = employeeReportLine.ModifiedTime ?? (object)DBNull.Value;
                     ctb.Value = employeeReportLine.CreatedBy ?? (object)DBNull.Value;
                     ctt.Value = employeeReportLine.CreatedTime ?? (object)DBNull.Value;
+                    rpt_typ.Value = employeeReportLine.ReportingLineType ?? "SUPERVISOR";
 
                     rows = await cmd.ExecuteNonQueryAsync();
                     await conn.CloseAsync();
@@ -2960,7 +3028,8 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
             sb.Append($"UPDATE public.erm_emp_rpts	SET emp_id = @emp_id, rpt_emp_id = @rpt_emp_id, ");
             sb.Append($"rpt_emp_rl = @rpt_emp_rl, rpt_sts = @rpt_sts, rpt_nds = @rpt_nds, ");
             sb.Append($"team_id = @team_id, unit_id = @unit_id, dept_id = @dept_id, ");
-            sb.Append($"mdb = @mdb, mdt = @mdt WHERE (rpt_id = @rpt_id); ");
+            sb.Append($"mdb = @mdb, mdt = @mdt, rpt_typ = @rpt_typ ");
+            sb.Append("WHERE (rpt_id = @rpt_id);  ");
             string query = sb.ToString();
             try
             {
@@ -2979,6 +3048,7 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
                     var dept_id = cmd.Parameters.Add("@dept_id", NpgsqlDbType.Integer);
                     var mdb = cmd.Parameters.Add("@mdb", NpgsqlDbType.Text);
                     var mdt = cmd.Parameters.Add("@mdt", NpgsqlDbType.Text);
+                    var rpt_typ = cmd.Parameters.Add("@rpt_typ", NpgsqlDbType.Text);
                     cmd.Prepare();
                     rpt_id.Value = employeeReportLine.ReportingLineID;
                     emp_id.Value = employeeReportLine.EmployeeID;
@@ -2991,6 +3061,7 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
                     dept_id.Value = employeeReportLine.DepartmentID ?? (object)DBNull.Value;
                     mdb.Value = employeeReportLine.ModifiedBy ?? (object)DBNull.Value;
                     mdt.Value = employeeReportLine.ModifiedTime ?? (object)DBNull.Value;
+                    rpt_typ.Value = employeeReportLine.ReportingLineType ?? "SUPERVISOR";
 
                     rows = await cmd.ExecuteNonQueryAsync();
                     await conn.CloseAsync();
@@ -3012,7 +3083,7 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
             string query = String.Empty;
             StringBuilder sb = new StringBuilder();
 
-            sb.Append($"SELECT r.rpt_id, r.emp_id, r.rpt_emp_id, r.rpt_emp_rl, r.rpt_sts, ");
+            sb.Append($"SELECT r.rpt_id, r.emp_id, r.rpt_emp_id, r.rpt_emp_rl, r.rpt_sts, r.rpt_typ, ");
             sb.Append($"r.rpt_nds, r.team_id, r.unit_id, r.dept_id, r.mdb, r.mdt, r.ctb, r.ctt, ");
             sb.Append($"p1.fullname AS emp_name, p2.fullname AS rpt_emp_name, t.tm_nm, u.unitname, ");
             sb.Append($"d.deptname FROM public.erm_emp_rpts r ");
@@ -3036,6 +3107,7 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
                         while (await reader.ReadAsync())
                         {
                             employeeReportLine.ReportingLineID = reader["rpt_id"] == DBNull.Value ? 0 : (int)reader["rpt_id"];
+                            employeeReportLine.ReportingLineType = reader["rpt_typ"] == DBNull.Value ? string.Empty : reader["rpt_typ"].ToString();
                             employeeReportLine.EmployeeID = reader["emp_id"] == DBNull.Value ? string.Empty : (reader["emp_id"]).ToString();
                             employeeReportLine.ReportsToEmployeeID = reader["rpt_emp_id"] == DBNull.Value ? string.Empty : (reader["rpt_emp_id"]).ToString();
                             employeeReportLine.ReportsToEmployeeRole = reader["rpt_emp_rl"] == DBNull.Value ? string.Empty : (reader["rpt_emp_rl"]).ToString();
@@ -3071,7 +3143,7 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
             List<EmployeeReportLine> employeeReportLineList = new List<EmployeeReportLine>();
             var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
             StringBuilder sb = new StringBuilder();
-            sb.Append($"SELECT r.rpt_id, r.emp_id, r.rpt_emp_id, r.rpt_emp_rl, r.rpt_sts, ");
+            sb.Append($"SELECT r.rpt_id, r.emp_id, r.rpt_emp_id, r.rpt_emp_rl, r.rpt_sts, r.rpt_typ, ");
             sb.Append($"r.rpt_nds, r.team_id, r.unit_id, r.dept_id, r.mdb, r.mdt, r.ctb, r.ctt, ");
             sb.Append($"p1.fullname AS emp_name, p2.fullname AS rpt_emp_name, t.tm_nm, u.unitname, ");
             sb.Append($"d.deptname FROM public.erm_emp_rpts r ");
@@ -3098,6 +3170,7 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
                         {
                             ReportingLineID = reader["rpt_id"] == DBNull.Value ? 0 : (int)reader["rpt_id"],
                             EmployeeID = reader["emp_id"] == DBNull.Value ? string.Empty : (reader["emp_id"]).ToString(),
+                            ReportingLineType = reader["rpt_typ"] == DBNull.Value ? string.Empty : reader["rpt_typ"].ToString(),
                             ReportsToEmployeeID = reader["rpt_emp_id"] == DBNull.Value ? string.Empty : (reader["rpt_emp_id"]).ToString(),
                             ReportsToEmployeeRole = reader["rpt_emp_rl"] == DBNull.Value ? string.Empty : (reader["rpt_emp_rl"]).ToString(),
                             ReportStartDate = reader["rpt_sts"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["rpt_sts"],
@@ -3133,7 +3206,7 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
             List<EmployeeReportLine> employeeReportLineList = new List<EmployeeReportLine>();
             var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
             StringBuilder sb = new StringBuilder();
-            sb.Append($"SELECT r.rpt_id, r.emp_id, r.rpt_emp_id, r.rpt_emp_rl, r.rpt_sts, ");
+            sb.Append($"SELECT r.rpt_id, r.emp_id, r.rpt_emp_id, r.rpt_emp_rl, r.rpt_sts, r.rpt_typ, ");
             sb.Append($"r.rpt_nds, r.team_id, r.unit_id, r.dept_id, r.mdb, r.mdt, r.ctb, r.ctt, ");
             sb.Append($"p1.fullname AS emp_name, p2.fullname AS rpt_emp_name, t.tm_nm, u.unitname, ");
             sb.Append($"d.deptname FROM public.erm_emp_rpts r ");
@@ -3160,6 +3233,7 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
                         {
                             ReportingLineID = reader["rpt_id"] == DBNull.Value ? 0 : (int)reader["rpt_id"],
                             EmployeeID = reader["emp_id"] == DBNull.Value ? string.Empty : (reader["emp_id"]).ToString(),
+                            ReportingLineType = reader["rpt_typ"] == DBNull.Value ? string.Empty : reader["rpt_typ"].ToString(),
                             ReportsToEmployeeID = reader["rpt_emp_id"] == DBNull.Value ? string.Empty : (reader["rpt_emp_id"]).ToString(),
                             ReportsToEmployeeRole = reader["rpt_emp_rl"] == DBNull.Value ? string.Empty : (reader["rpt_emp_rl"]).ToString(),
                             ReportStartDate = reader["rpt_sts"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["rpt_sts"],
@@ -3195,7 +3269,7 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
             List<EmployeeReportLine> employeeReportLineList = new List<EmployeeReportLine>();
             var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
             StringBuilder sb = new StringBuilder();
-            sb.Append($"SELECT r.rpt_id, r.emp_id, r.rpt_emp_id, r.rpt_emp_rl, r.rpt_sts, ");
+            sb.Append($"SELECT r.rpt_id, r.emp_id, r.rpt_emp_id, r.rpt_emp_rl, r.rpt_sts, r.rpt_typ, ");
             sb.Append($"r.rpt_nds, r.team_id, r.unit_id, r.dept_id, r.mdb, r.mdt, r.ctb, r.ctt, ");
             sb.Append($"p1.fullname AS emp_name, p2.fullname AS rpt_emp_name, t.tm_nm, u.unitname, ");
             sb.Append($"d.deptname FROM public.erm_emp_rpts r ");
@@ -3222,6 +3296,7 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
                         {
                             ReportingLineID = reader["rpt_id"] == DBNull.Value ? 0 : (int)reader["rpt_id"],
                             EmployeeID = reader["emp_id"] == DBNull.Value ? string.Empty : (reader["emp_id"]).ToString(),
+                            ReportingLineType = reader["rpt_typ"] == DBNull.Value ? string.Empty : reader["rpt_typ"].ToString(),
                             ReportsToEmployeeID = reader["rpt_emp_id"] == DBNull.Value ? string.Empty : (reader["rpt_emp_id"]).ToString(),
                             ReportsToEmployeeRole = reader["rpt_emp_rl"] == DBNull.Value ? string.Empty : (reader["rpt_emp_rl"]).ToString(),
                             ReportStartDate = reader["rpt_sts"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["rpt_sts"],
@@ -3257,7 +3332,7 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
             List<EmployeeReportLine> employeeReportLineList = new List<EmployeeReportLine>();
             var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
             StringBuilder sb = new StringBuilder();
-            sb.Append($"SELECT r.rpt_id, r.emp_id, r.rpt_emp_id, r.rpt_emp_rl, r.rpt_sts, ");
+            sb.Append($"SELECT r.rpt_id, r.emp_id, r.rpt_emp_id, r.rpt_emp_rl, r.rpt_sts, r.rpt_typ, ");
             sb.Append($"r.rpt_nds, r.team_id, r.unit_id, r.dept_id, r.mdb, r.mdt, r.ctb, r.ctt, ");
             sb.Append($"p1.fullname AS emp_name, p2.fullname AS rpt_emp_name, t.tm_nm, u.unitname, ");
             sb.Append($"d.deptname FROM public.erm_emp_rpts r ");
@@ -3284,6 +3359,7 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
                         {
                             ReportingLineID = reader["rpt_id"] == DBNull.Value ? 0 : (int)reader["rpt_id"],
                             EmployeeID = reader["emp_id"] == DBNull.Value ? string.Empty : (reader["emp_id"]).ToString(),
+                            ReportingLineType = reader["rpt_typ"] == DBNull.Value ? string.Empty : reader["rpt_typ"].ToString(),
                             ReportsToEmployeeID = reader["rpt_emp_id"] == DBNull.Value ? string.Empty : (reader["rpt_emp_id"]).ToString(),
                             ReportsToEmployeeRole = reader["rpt_emp_rl"] == DBNull.Value ? string.Empty : (reader["rpt_emp_rl"]).ToString(),
                             ReportStartDate = reader["rpt_sts"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["rpt_sts"],

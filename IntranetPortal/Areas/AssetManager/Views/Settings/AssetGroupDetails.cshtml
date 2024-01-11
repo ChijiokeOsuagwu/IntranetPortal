@@ -1,0 +1,70 @@
+﻿@model IntranetPortal.Areas.AssetManager.Models.AssetGroupViewModel
+@{
+    ViewData["Title"] = "OfficeManager | Asset Group Details";
+}
+<div>
+    <div class="card" style="width:600px">
+        <div class="card-header bg-dark">
+            <h4 class="text-white">Asset Group Details</h4>
+        </div>
+        <div class="card-body bg-secondary">
+            @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bi bi-x-circle"></i>
+                    <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            @if (!String.IsNullOrEmpty(Model.ViewModelSuccessMessage))
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="bi bi-check-circle"></i>
+                    <span class="fw-bold">@Model.ViewModelSuccessMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            @if (!String.IsNullOrEmpty(Model.ViewModelWarningMessage))
+            {
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                    <i class="bi bi-exclamation-circle"></i>
+                    <span class="fw-bold">@Model.ViewModelWarningMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+        <form asp-area="AssetManager" asp-controller="Settings" asp-action="AssetGroupDetails">
+            <div class="row">
+                <div class="col-mb-12 mb-1">
+                    <input type="hidden" asp-for="GroupID" />
+                    <label asp-for="GroupName" class="form-label text-white fw-bold"></label>
+                    <input asp-for="GroupName" class="form-control fw-bold" readonly="readonly">
+                    <div><span asp-validation-for="GroupName" class="text-danger"></span></div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12  mb-3">
+                    <label asp-for="ClassName" class="form-label text-white fw-bold"></label>
+                    <input asp-for="ClassName" class="form-control fw-bold" readonly="readonly">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12  mb-3">
+                    <label asp-for="CategoryName" class="form-label text-white fw-bold"></label>
+                    <input asp-for="CategoryName" class="form-control fw-bold" readonly="readonly">
+                </div>
+            </div>
+            <div class="row">
+                <a asp-area="AssetManager" asp-controller="Home" asp-action="Index" class="btn btn-dark ml-2" style="width:100px" title="Return to Asset Manager Home">
+                    <span class="text-white">Exit</span>
+                </a>
+                <a asp-area="AssetManager" asp-controller="Settings" asp-action="AssetGroups" class="btn btn-dark ml-1" style="width:100px" title="Return to Asset Groups">
+                    <span class="text-white">Go Back</span>
+                </a>
+            </div>
+        </form>
+        </div>
+    </div>
+</div>
+
+
+

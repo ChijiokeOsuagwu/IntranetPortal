@@ -163,6 +163,7 @@ namespace IntranetPortal.Areas.ContentManager.Controllers
             var banner = await _contentManager.GetPostByIdAsync(PostId);
             model.Id = banner.PostId;
             model.ImagePath = banner.ImagePath;
+            model.OldImagePath = banner.ImagePath;
             model.Summary = banner.PostSummary;
             model.Title = banner.PostTitle;
             model.EnableComments = banner.EnableComment;
@@ -179,7 +180,7 @@ namespace IntranetPortal.Areas.ContentManager.Controllers
             {
                 Post post = new Post();
                 string absoluteFilePath = string.Empty;
-                string uploadsFolder = string.Empty;
+                string uploadedFilePath = string.Empty;
 
                 if (model.BannerImage != null)
                 {
@@ -191,18 +192,24 @@ namespace IntranetPortal.Areas.ContentManager.Controllers
                         model.ViewModelErrorMessage = "Sorry, invalid image format. Only images of type jpg, jpeg, png, gif are permitted.";
                         return View(model);
                     }
-                    uploadsFolder = "uploads/cms/" + Guid.NewGuid().ToString() + "_" + model.BannerImage.FileName;
-                    absoluteFilePath = Path.Combine(_webHostEnvironment.WebRootPath, uploadsFolder);
+                    uploadedFilePath = "uploads/cms/" + Guid.NewGuid().ToString() + "_" + model.BannerImage.FileName;
+                    absoluteFilePath = Path.Combine(_webHostEnvironment.WebRootPath, uploadedFilePath);
                     await model.BannerImage.CopyToAsync(new FileStream(absoluteFilePath, FileMode.Create));
+
+                    FileInfo oldFile = new FileInfo(Path.Combine(_webHostEnvironment.WebRootPath, model.OldImagePath));
+                    if (oldFile.Exists)
+                    {
+                        oldFile.Delete();
+                    }
                 }
 
                 post.IsHidden = model.IsHidden;
                 post.PostSummary = model.Summary;
                 post.PostTypeId = (int)PostType.Banner;
                 post.ModifiedDate = DateTime.UtcNow;
-                post.ModifiedBy = HttpContext.User.Identity.Name ?? "System Administrator";
+                post.ModifiedBy = HttpContext.User.Identity.Name ?? "Unknown";
                 post.PostTitle = model.Title;
-                post.ImagePath = uploadsFolder;
+                post.ImagePath = uploadedFilePath;
                 post.EnableComment = model.EnableComments;
 
                 if (await _contentManager.UpdatePostAsync(post))

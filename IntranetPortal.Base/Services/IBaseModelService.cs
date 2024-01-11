@@ -29,6 +29,9 @@ namespace IntranetPortal.Base.Services
         Task<Person> GetPersonbyNameAsync(string personName);
 
         Task<List<Person>> SearchPersonsByName(string personName);
+
+        Task<List<Person>> SearchNonEmployeePersonsByName(string personName);
+
         #endregion
 
         //========================================= AutoNumber Action Methods ===========================================//

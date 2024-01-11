@@ -1,4 +1,23 @@
-﻿
+﻿$(document).ready(function () {
+    $("#ss").autocomplete(
+        {
+            minLength: 3,
+            source: function (request, response) {
+                var text = $("#ss").val();
+                $.ajax({
+                    type: "GET",
+                    url: "/UserAdministration/Home/GetNamesOfEmployeeUsers?text=" + text,
+                    data: { text: request.term },
+                    success: function (data) {
+                        response($.map(data, function (item) {
+                            return { label: item, value: item }
+                        }))
+                    }
+                })
+            }
+        })
+})
+
 //======= Script to Grant the Permission (with RoleID) to User (with UserID) =======//
 function grantPermission(user_id, role_id) {
     const btnGrant = document.getElementById("btn_grant_" + role_id);
@@ -6,13 +25,13 @@ function grantPermission(user_id, role_id) {
         type: 'POST',
         url: '/UserAdministration/Home/GrantUserPermission',
         dataType: "text",
-        data: {usd:user_id, rld:role_id},
+        data: { usd: user_id, rld: role_id },
         success: function (result) {
             if (result == "granted") {
                 btnGrant.disabled = true;
                 location.reload();
             }
-            else{
+            else {
                 alert('Granting Permission failed!');
                 console.log(result);
             }
@@ -24,7 +43,7 @@ function grantPermission(user_id, role_id) {
     })
 }
 
-//===== Function to Revoke the Permission (with PermissionID) from User ========//
+//===== Function to Revoke User Permission (with PermissionID) from User ========//
 function revokePermission(user_id, role_id) {
     const btnRevoke = document.getElementById("btn_revoke_" + role_id);
     $.ajax({
@@ -48,23 +67,23 @@ function revokePermission(user_id, role_id) {
     })
 }
 
-$(document).ready(function () {
-    console.log('Web page is ready!')
-    $("#SearchString").autocomplete(
-        {
-            minLength: 3,
-            source: function (request, response) {
-                var text = $("#SearchString").val();
-                $.ajax({
-                    type: "GET",
-                    url: "/UserAdministration/Home/GetNamesOfEmployeeUsers?text=" + text,
-                    data: { text: request.term },
-                    success: function (data) {
-                        response($.map(data, function (item) {
-                            return { label: item, value: item }
-                        }))
-                    }
-                })
+//===== Function to Revoke User Asset Permission (with AssetPermissionID) from User ========//
+function revokeAssetPermission(asset_permission_id) {
+    $.ajax({
+        type: 'POST',
+        url: '/UserAdministration/Home/RevokeUserAssetPermission',
+        dataType: "text",
+        data: { assetPermissionId: asset_permission_id },
+        success: function (result) {
+            if (result == "revoked") {
+                location.reload();
             }
-        })
-})
+            else {
+                alert('Revoking Permission failed!');
+            }
+        },
+        error: function () {
+            alert('Sorry Permission was not Revoked.');
+        }
+    })
+}

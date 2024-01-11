@@ -105,102 +105,120 @@
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
             }
-            <form asp-area="AssetManager" asp-controller="Master" asp-action="Details" method="post">
-                <div class="row">
-                    <div class="col-md-5 mb-1">
-                        <a asp-area="AssetManager" asp-controller="Master" asp-action="ShowImage" asp-route-id="@Model.AssetID" title="Show Large Image">
-                            @if (!string.IsNullOrWhiteSpace(Model.ImagePath))
+        <form asp-area="AssetManager" asp-controller="Master" asp-action="Details" method="post">
+            <div class="row">
+                <div class="col-md-4 mb-2">
+                    <input type="hidden" asp-for="AssetCategoryID" />
+                    <label asp-for="AssetCategoryName" class="form-label text-white fw-bold"></label>
+                    <input asp-for="AssetCategoryName" class="form-control fw-bold"  readonly="readonly">
+                </div>
+                <div class="col-md-4 mb-2">
+                    <input type="hidden" asp-for="AssetCategoryID" />
+                    <input type="hidden" asp-for="AssetClassID" />
+                    <label asp-for="AssetClassName" class="form-label text-white fw-bold"></label>
+                    <input asp-for="AssetClassName" class="form-control fw-bold"  readonly="readonly">
+                </div>
+                <div class="col-md-4 mb-2">
+                    <input type="hidden" asp-for="AssetGroupID" />
+                    <label asp-for="AssetGroupName" class="form-label text-white fw-bold"></label>
+                    <input asp-for="AssetGroupName" class="form-control fw-bold"  readonly="readonly">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-5 mb-1">
+                    <a asp-area="AssetManager" asp-controller="Master" asp-action="ShowImage" asp-route-id="@Model.AssetID" title="Show Large Image">
+                        @if (!string.IsNullOrWhiteSpace(Model.ImagePath))
+                        {
+                            <img src="/@Model.ImagePath" class="img-fluid" style="height:450px; width:550px" alt="Asset Image">
+                        }
+                        else
+                        {
+                            <img src="/img/no_image_placeholder.png" class="img-fluid" style="height:450px; width:550px" alt="Asset Image" />
+                        }
+                    </a>
+                </div>
+                <div class="col-md-7 mb-3">
+                    <div class="row">
+                        <div class="col-md-3 mb-1">
+                            <label asp-for="AssetNumber" class="form-label text-white fw-bold"></label>
+                            <input asp-for="AssetNumber" class="form-control fw-bold" readonly="readonly">
+                        </div>
+                        <div class="col-md-9 mb-1">
+                            <input type="hidden" asp-for="AssetID" />
+                            <label asp-for="AssetName" class="form-label text-white fw-bold"></label>
+                            <input asp-for="AssetName" class="form-control fw-bold" readonly="readonly">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12 mb-1">
+                            <label asp-for="AssetDescription" class="form-label text-white fw-bold"></label>
+                            <textarea rows="4" class="form-control fw-bold" readonly="readonly" name="@Html.NameFor(m => m.AssetDescription)">@Model.AssetDescription</textarea>
+                            <div><span asp-validation-for="AssetDescription" class="text-danger"></span></div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4  mb-1">
+                            <label asp-for="AssetTypeName" class="form-label text-white fw-bold"></label>
+                            <input asp-for="AssetTypeName" class="form-control fw-bold" readonly="readonly">
+                        </div>
+                        <div class="col-md-8 mb-1">
+                            <input type="hidden" asp-for="ParentAssetID" />
+                            <label asp-for="ParentAssetName" class="form-label text-white fw-bold"></label>
+                            <input asp-for="ParentAssetName" class="form-control fw-bold" readonly="readonly">
+                            <div><span asp-validation-for="ParentAssetName" class="text-danger"></span></div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-1">
+                            <label asp-for="PurchaseDateFormatted" class="form-label text-white fw-bold"></label>
+                            <input asp-for="PurchaseDateFormatted" class="form-control fw-bold" readonly="readonly">
+                        </div>
+                        <div class="col-md-6 mb-1">
+                            <label asp-for="PurchaseAmountFormatted" class="form-label text-white fw-bold"></label>
+                            <input asp-for="PurchaseAmountFormatted" class="form-control fw-bold" readonly="readonly">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6  mb-1">
+                            <label asp-for="BaseLocationName" class="form-label text-white fw-bold"></label>
+                            <input asp-for="BaseLocationName" class="form-control fw-bold" readonly="readonly">
+                        </div>
+                        <div class="col-md-6 mb-1">
+                            <input type="hidden" asp-for="BinLocationID" />
+                            <label asp-for="BinLocationName" class="form-label text-white fw-bold"></label>
+                            <input asp-for="BinLocationName" class="form-control fw-bold" readonly="readonly">
+                            <div><span asp-validation-for="BinLocationName" class="text-danger"></span></div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-1">
+                            <label asp-for="ConditionStatus" class="form-label text-white fw-bold"></label>
+                            @if (Model.ConditionStatus == AssetCondition.BeyondRepair)
                             {
-                                <img src="/@Model.ImagePath" class="img-fluid" style="height:450px; width:550px" alt="Asset Image">
+                                <span class="form-control fw-bold text-white bg-danger">Faulty Beyond Repair</span>
+                            }
+                            else if (Model.ConditionStatus == AssetCondition.InGoodCondition)
+                            {
+                                <span class="form-control fw-bold bg-success text-white">In Good Working Condition</span>
+                            }
+                            else if (Model.ConditionStatus == AssetCondition.RequiresRepair)
+                            {
+                                <span class="form-control fw-bold bg-warning text-dark">Faulty Requires Repair</span>
                             }
                             else
                             {
-                                <img src="/img/no_image_placeholder.png" class="img-fluid" style="height:450px; width:550px" alt="Asset Image" />
+                                <span class=" form-control fw-bold bg-light text-dark">@Model.ConditionStatus</span>
                             }
-                        </a>
-                    </div>
-                    <div class="col-md-7 mb-3">
-                        <div class="row">
-                            <div class="col-md-3 mb-1">
-                                <label asp-for="AssetNumber" class="form-label text-white fw-bold"></label>
-                                <input asp-for="AssetNumber" class="form-control fw-bold" readonly="readonly">
-                            </div>
-                            <div class="col-md-9 mb-1">
-                                <input type="hidden" asp-for="AssetID" />
-                                <label asp-for="AssetName" class="form-label text-white fw-bold"></label>
-                                <input asp-for="AssetName" class="form-control fw-bold" readonly="readonly">
-                            </div>
                         </div>
-                        <div class="row">
-                            <div class="col-md-12 mb-1">
-                                <label asp-for="AssetDescription" class="form-label text-white fw-bold"></label>
-                                <textarea rows="4" class="form-control fw-bold" readonly="readonly" name="@Html.NameFor(m => m.AssetDescription)">@Model.AssetDescription</textarea>
-                                <div><span asp-validation-for="AssetDescription" class="text-danger"></span></div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-4  mb-1">
-                                <label asp-for="AssetTypeName" class="form-label text-white fw-bold"></label>
-                                <input asp-for="AssetTypeName" class="form-control fw-bold" readonly="readonly">
-                            </div>
-                            <div class="col-md-8 mb-1">
-                                <input type="hidden" asp-for="ParentAssetID" />
-                                <label asp-for="ParentAssetName" class="form-label text-white fw-bold"></label>
-                                <input asp-for="ParentAssetName" class="form-control fw-bold" readonly="readonly">
-                                <div><span asp-validation-for="ParentAssetName" class="text-danger"></span></div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6 mb-1">
-                                <label asp-for="PurchaseDateFormatted" class="form-label text-white fw-bold"></label>
-                                <input asp-for="PurchaseDateFormatted" class="form-control fw-bold" readonly="readonly">
-                            </div>
-                            <div class="col-md-6 mb-1">
-                                <label asp-for="PurchaseAmountFormatted" class="form-label text-white fw-bold"></label>
-                                <input asp-for="PurchaseAmountFormatted" class="form-control fw-bold" readonly="readonly">
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6  mb-1">
-                                <label asp-for="BaseLocationName" class="form-label text-white fw-bold"></label>
-                                <input asp-for="BaseLocationName" class="form-control fw-bold" readonly="readonly">
-                            </div>
-                            <div class="col-md-6 mb-1">
-                                <input type="hidden" asp-for="BinLocationID" />
-                                <label asp-for="BinLocationName" class="form-label text-white fw-bold"></label>
-                                <input asp-for="BinLocationName" class="form-control fw-bold" readonly="readonly">
-                                <div><span asp-validation-for="BinLocationName" class="text-danger"></span></div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6 mb-1">
-                                <label asp-for="ConditionStatus" class="form-label text-white fw-bold"></label>
-                                @if (Model.ConditionStatus == AssetCondition.BeyondRepair)
-                                {
-                                    <span class="form-control fw-bold text-white bg-danger">Faulty Beyond Repair</span>
-                                }
-                                else if (Model.ConditionStatus == AssetCondition.InGoodCondition)
-                                {
-                                    <span class="form-control fw-bold bg-success text-white">In Good Working Condition</span>
-                                }
-                                else if (Model.ConditionStatus == AssetCondition.RequiresRepair)
-                                {
-                                    <span class="form-control fw-bold bg-warning text-dark">Faulty Requires Repair</span>
-                                }
-                                else
-                                {
-                                    <span class=" form-control fw-bold bg-light text-dark">@Model.ConditionStatus</span>
-                                }
-                            </div>
-                            <div class="col-md-6 mb-1">
-                                <label asp-for="ConditionDescription" class="form-label text-white fw-bold"></label>
-                                <input class="form-control fw-bold" asp-for="ConditionDescription" readonly="readonly" />
-                                <div><span asp-validation-for="ConditionDescription" class="text-danger"></span></div>
-                            </div>
+                        <div class="col-md-6 mb-1">
+                            <label asp-for="ConditionDescription" class="form-label text-white fw-bold"></label>
+                            <input class="form-control fw-bold" asp-for="ConditionDescription" readonly="readonly" />
+                            <div><span asp-validation-for="ConditionDescription" class="text-danger"></span></div>
                         </div>
                     </div>
                 </div>
-            </form>
+            </div>
+        </form>
         </div>
     </div>
 </div>

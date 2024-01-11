@@ -109,10 +109,7 @@ namespace IntranetPortal.Areas.ERM.Controllers
                         employeeReportLine.ReportsToEmployeeName = reportsToEmployee.FullName;
                         employeeReportLine.UnitID = reportsToEmployee.UnitID;
                         employeeReportLine.DepartmentID = reportsToEmployee.DepartmentID;
-                        if (string.IsNullOrWhiteSpace(model.ReportsToEmployeeRole))
-                        {
-                            employeeReportLine.ReportsToEmployeeRole = reportsToEmployee.CurrentDesignation;
-                        }
+                        employeeReportLine.ReportsToEmployeeRole = reportsToEmployee.CurrentDesignation;
                     }
                     else
                     {
@@ -161,7 +158,8 @@ namespace IntranetPortal.Areas.ERM.Controllers
                     model.ReportStartDate = employeeReportLine.ReportStartDate;
                     model.ReportsToEmployeeID = employeeReportLine.ReportsToEmployeeID;
                     model.ReportsToEmployeeName = employeeReportLine.ReportsToEmployeeName;
-                    model.ReportsToEmployeeRole = employeeReportLine.ReportsToEmployeeRole;
+                    model.ReportingLineType = employeeReportLine.ReportingLineType;
+                    //model.ReportsToEmployeeRole = employeeReportLine.ReportsToEmployeeRole;
                     model.TeamID = employeeReportLine.TeamID;
                     model.TeamName = employeeReportLine.TeamName;
                     model.UnitID = employeeReportLine.UnitID;
@@ -199,10 +197,7 @@ namespace IntranetPortal.Areas.ERM.Controllers
                         employeeReportLine.ReportsToEmployeeName = employee.FullName;
                         employeeReportLine.UnitID = employee.UnitID;
                         employeeReportLine.DepartmentID = employee.DepartmentID;
-                        if (string.IsNullOrWhiteSpace(model.ReportsToEmployeeRole))
-                        {
-                            employeeReportLine.ReportsToEmployeeRole = employee.CurrentDesignation;
-                        }
+                        employeeReportLine.ReportsToEmployeeRole = employee.CurrentDesignation;
                     }
                     else
                     {
@@ -251,7 +246,8 @@ namespace IntranetPortal.Areas.ERM.Controllers
                     model.ReportStartDate = employeeReportLine.ReportStartDate;
                     model.ReportsToEmployeeID = employeeReportLine.ReportsToEmployeeID;
                     model.ReportsToEmployeeName = employeeReportLine.ReportsToEmployeeName;
-                    model.ReportsToEmployeeRole = employeeReportLine.ReportsToEmployeeRole;
+                    model.ReportingLineType = employeeReportLine.ReportingLineType;
+                    //model.ReportsToEmployeeRole = employeeReportLine.ReportsToEmployeeRole;
                     model.TeamID = employeeReportLine.TeamID;
                     model.TeamName = employeeReportLine.TeamName;
                     model.UnitID = employeeReportLine.UnitID;
@@ -286,6 +282,7 @@ namespace IntranetPortal.Areas.ERM.Controllers
                     model.ReportsToEmployeeID = employeeReportLine.ReportsToEmployeeID;
                     model.ReportsToEmployeeName = employeeReportLine.ReportsToEmployeeName;
                     model.ReportsToEmployeeRole = employeeReportLine.ReportsToEmployeeRole;
+                    model.ReportingLineType = employeeReportLine.ReportingLineType;
                     model.TeamID = employeeReportLine.TeamID;
                     model.TeamName = employeeReportLine.TeamName;
                     model.UnitID = employeeReportLine.UnitID;

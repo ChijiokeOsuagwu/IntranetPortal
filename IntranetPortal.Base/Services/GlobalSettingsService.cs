@@ -62,6 +62,21 @@ namespace IntranetPortal.Base.Services
             return await _locationRepository.GetLocationByNameAsync(locationName);
         }
 
+        public async Task<IList<Location>> GetAllLocationsAsync(string userId)
+        {
+            List<Location> locations = new List<Location>();
+                var entities = await _locationRepository.GetLocationsByUserIdAsync(userId);
+                if (entities != null)
+                {
+                    foreach (var item in entities)
+                    {
+                        item.LocationDescription = $"{item.LocationName} ({item.LocationType})";
+                        locations.Add(item);
+                    }
+                }
+            return locations;
+        }
+
         public async Task<IList<Location>> GetAllLocationsAsync()
         {
             List<Location> locations = new List<Location>();

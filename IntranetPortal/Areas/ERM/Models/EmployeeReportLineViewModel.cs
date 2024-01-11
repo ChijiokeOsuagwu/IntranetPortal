@@ -13,6 +13,10 @@ namespace IntranetPortal.Areas.ERM.Models
         public int? ReportingLineID { get; set; }
 
         [Required]
+        [Display(Name = "Reports To As:")]
+        public string ReportingLineType { get; set; }
+
+        [Required]
         public string EmployeeID { get; set; }
 
         [Display(Name = "Employee Name")]
@@ -24,7 +28,7 @@ namespace IntranetPortal.Areas.ERM.Models
         [Display(Name = "Reports To:")]
         public string ReportsToEmployeeName { get; set; }
 
-        [Display(Name = "Team Role")]
+        [Display(Name = "Designation:")]
         public string ReportsToEmployeeRole { get; set; }
 
         [DataType(DataType.Date)]
@@ -68,6 +72,7 @@ namespace IntranetPortal.Areas.ERM.Models
                 ModifiedTime = ModifiedTime,
                 ReportEndDate = ReportEndDate == null ? (DateTime?)null : ReportEndDate.Value,
                 ReportingLineID = ReportingLineID == null ? 0 : ReportingLineID.Value,
+                ReportingLineType = ReportingLineType,
                 ReportStartDate = ReportStartDate == null ? (DateTime?)null : ReportStartDate.Value,
                 ReportsToEmployeeID = ReportsToEmployeeID,
                 ReportsToEmployeeName = ReportsToEmployeeName,

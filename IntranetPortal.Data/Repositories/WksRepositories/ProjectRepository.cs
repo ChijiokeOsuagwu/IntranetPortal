@@ -133,6 +133,116 @@ namespace IntranetPortal.Data.Repositories.WksRepositories
             return rows > 0;
         }
 
+        public async Task<bool> UpdateAsync(Project project)
+        {
+            int rows = 0;
+            var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
+            StringBuilder sb = new StringBuilder();
+            sb.Append("UPDATE public.wkm_prj_inf  SET prj_ttl=@prj_ttl, ");
+            sb.Append("prj_dsc=@prj_dsc, prj_assigned_to=@prj_assigned_to, ");
+            sb.Append("assigned_dt=@assigned_dt, exp_start_dt=@exp_start_dt, ");
+            sb.Append("exp_due_dt=@exp_due_dt, exp_dur_min=@exp_dur_min, ");
+            sb.Append("act_dur_min=@act_dur_min, prj_prrty=@prj_prrty, ");
+            sb.Append("mod_by=@mod_by, mod_dt=@mod_dt, unit_id=@unit_id, ");
+            sb.Append("dept_id=@dept_id, loc_id=@loc_id ");
+            sb.Append("WHERE prj_id=@prj_id; ");
+
+            string query = sb.ToString();
+            try
+            {
+                await conn.OpenAsync();
+                //Insert data
+                using (var cmd = new NpgsqlCommand(query, conn))
+                {
+                    var prj_id = cmd.Parameters.Add("@prj_id", NpgsqlDbType.Integer);
+                    var prj_ttl = cmd.Parameters.Add("@prj_ttl", NpgsqlDbType.Text);
+                    var prj_dsc = cmd.Parameters.Add("@prj_dsc", NpgsqlDbType.Text);
+                    var prj_assigned_to = cmd.Parameters.Add("@prj_assigned_to", NpgsqlDbType.Text);
+                    var assigned_dt = cmd.Parameters.Add("@assigned_dt", NpgsqlDbType.TimestampTz);
+                    var exp_start_dt = cmd.Parameters.Add("@exp_start_dt", NpgsqlDbType.TimestampTz);
+                    var exp_due_dt = cmd.Parameters.Add("@exp_due_dt", NpgsqlDbType.TimestampTz);
+                    var exp_dur_min = cmd.Parameters.Add("@exp_dur_min", NpgsqlDbType.Integer);
+                    var act_dur_min = cmd.Parameters.Add("@act_dur_min", NpgsqlDbType.Integer);
+                    var prj_prrty = cmd.Parameters.Add("@prj_prrty", NpgsqlDbType.Integer);
+                    var mod_by = cmd.Parameters.Add("@mod_by", NpgsqlDbType.Text);
+                    var mod_dt = cmd.Parameters.Add("@mod_dt", NpgsqlDbType.Text);
+                    var unit_id = cmd.Parameters.Add("@unit_id", NpgsqlDbType.Integer);
+                    var dept_id = cmd.Parameters.Add("@dept_id", NpgsqlDbType.Integer);
+                    var loc_id = cmd.Parameters.Add("@loc_id", NpgsqlDbType.Integer);
+                    cmd.Prepare();
+                    prj_id.Value = project.ID;
+                    prj_ttl.Value = project.Title;
+                    prj_dsc.Value = project.Description ?? (object)DBNull.Value;
+                    prj_assigned_to.Value = project.AssignedToID;
+                    assigned_dt.Value = project.AssignedTime ?? DateTime.UtcNow;
+                    exp_start_dt.Value = project.ExpectedStartTime ?? DateTime.UtcNow;
+                    exp_due_dt.Value = project.ExpectedDueTime ?? DateTime.UtcNow;
+                    exp_dur_min.Value = project.TotalExpectedDurationInMinutes;
+                    act_dur_min.Value = project.TotalActualDurationInMinutes;
+                    prj_prrty.Value = (int)project.Priority;
+                    mod_by.Value = project.LastModifiedBy ?? (object)DBNull.Value;
+                    mod_dt.Value = project.LastModifiedTime ?? (object)DBNull.Value;
+                    unit_id.Value = project.UnitID ?? (object)DBNull.Value;
+                    dept_id.Value = project.DepartmentID ?? (object)DBNull.Value;
+                    loc_id.Value = project.LocationID ?? (object)DBNull.Value;
+
+                    rows = await cmd.ExecuteNonQueryAsync();
+                    await conn.CloseAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                await conn.CloseAsync();
+                throw new Exception(ex.Message);
+            }
+            return rows > 0;
+        }
+
+        public async Task<bool> UpdateMoreProjectInfoAsync(int projectId, string instructions, string deliverables, string modifiedBy)
+        {
+            int rows = 0;
+            var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
+            StringBuilder sb = new StringBuilder();
+            sb.Append("UPDATE public.wkm_prj_inf ");
+            sb.Append("SET deliverables = @delvs, ");
+            sb.Append("instructions = @instxns, ");
+            sb.Append("mod_by = @mod_by, mod_dt = @mod_dt ");
+            sb.Append("WHERE prj_id = @prj_id; ");
+
+            string query = sb.ToString();
+            try
+            {
+                await conn.OpenAsync();
+                //Insert data
+                using (var cmd = new NpgsqlCommand(query, conn))
+                {
+                    var prj_id = cmd.Parameters.Add("@prj_id", NpgsqlDbType.Integer);
+                    var delvs = cmd.Parameters.Add("@delvs", NpgsqlDbType.Text);
+                    var instxns = cmd.Parameters.Add("@instxns", NpgsqlDbType.Text);
+                    var mod_by = cmd.Parameters.Add("@mod_by", NpgsqlDbType.Text);
+                    var mod_dt = cmd.Parameters.Add("@mod_dt", NpgsqlDbType.Text);
+                    cmd.Prepare();
+                    prj_id.Value = projectId;
+                    delvs.Value = deliverables ?? (object)DBNull.Value;
+                    instxns.Value = instructions ?? (object)DBNull.Value;
+                    mod_by.Value = modifiedBy ?? (object)DBNull.Value;
+                    mod_dt.Value = $"{DateTime.Now.ToLongDateString()} {DateTime.Now.ToLongTimeString()} WAT";
+
+                    rows = await cmd.ExecuteNonQueryAsync();
+                    await conn.CloseAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                await conn.CloseAsync();
+                throw new Exception(ex.Message);
+            }
+            return rows > 0;
+        }
+
+
+
+
         public async Task<bool> AddWorkItemAsync(Project project)
         {
             int rows = 0;
@@ -246,62 +356,7 @@ namespace IntranetPortal.Data.Repositories.WksRepositories
             return rows > 0;
         }
 
-        public async Task<bool> UpdateAsync(Project project)
-        {
-            int rows = 0;
-            var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
-            StringBuilder sb = new StringBuilder();
-            sb.Append("UPDATE public.wkm_wki_inf SET wki_ttl=@wki_ttl, wki_dsc=@wki_dsc, ");
-            sb.Append("prg_stts=@prg_stts, at_risk=@at_risk, wki_prrty=@wki_prrty, ");
-            sb.Append("pct_com=@pct_com, deliverables=@deliverables, instructions=@instructions, ");
-            sb.Append("mod_by=@mod_by, mod_dt=@mod_dt, mstr_id=@mstr_id, mstr_prj_id=@mstr_prj_id ");
-            sb.Append("WHERE (wki_id=@wki_id);");
-
-            string query = sb.ToString();
-            try
-            {
-                await conn.OpenAsync();
-                //Insert data
-                using (var cmd = new NpgsqlCommand(query, conn))
-                {
-                    var wki_ttl = cmd.Parameters.Add("@wki_ttl", NpgsqlDbType.Text);
-                    var wki_dsc = cmd.Parameters.Add("@wki_dsc", NpgsqlDbType.Text);
-                    var prg_stts = cmd.Parameters.Add("@prg_stts", NpgsqlDbType.Integer);
-                    var at_risk = cmd.Parameters.Add("@at_risk", NpgsqlDbType.Boolean);
-                    var wki_prrty = cmd.Parameters.Add("@wki_prrty", NpgsqlDbType.Integer);
-                    var pct_com = cmd.Parameters.Add("@pct_com", NpgsqlDbType.Integer);
-                    var deliverables = cmd.Parameters.Add("@deliverables", NpgsqlDbType.Text);
-                    var instructions = cmd.Parameters.Add("@instructions", NpgsqlDbType.Text);
-                    var mod_by = cmd.Parameters.Add("@mod_by", NpgsqlDbType.Text);
-                    var mod_dt = cmd.Parameters.Add("@mod_dt", NpgsqlDbType.TimestampTz);
-                    var mstr_id = cmd.Parameters.Add("@mstr_id", NpgsqlDbType.Integer);
-                    var mstr_prj_id = cmd.Parameters.Add("@mstr_prj_id", NpgsqlDbType.Integer);
-                    cmd.Prepare();
-                    wki_ttl.Value = project.Title;
-                    wki_dsc.Value = project.Description ?? (object)DBNull.Value;
-                    prg_stts.Value = (int)project.ProgressStatus;
-                    at_risk.Value = project.IsAtRisk;
-                    wki_prrty.Value = (int)project.Priority;
-                    pct_com.Value = project.PercentageCompleted;
-                    deliverables.Value = project.Deliverables ?? (object)DBNull.Value;
-                    instructions.Value = project.Instructions ?? (object)DBNull.Value;
-                    mod_by.Value = project.LastModifiedBy ?? (object)DBNull.Value;
-                    mod_dt.Value = project.LastModifiedTime ?? (object)DBNull.Value;
-                    mstr_id.Value = project.MasterWorkItemID ?? (object)DBNull.Value;
-
-                    rows = await cmd.ExecuteNonQueryAsync();
-                    await conn.CloseAsync();
-                }
-            }
-            catch (Exception ex)
-            {
-                await conn.CloseAsync();
-                throw new Exception(ex.Message);
-            }
-            return rows > 0;
-        }
-
-        public async Task<bool> UpdateToDeletedAsync(int projectId, string deletedBy)
+         public async Task<bool> UpdateToDeletedAsync(int projectId, string deletedBy)
         {
             int rows = 0;
             var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));

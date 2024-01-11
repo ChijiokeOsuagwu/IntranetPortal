@@ -11,14 +11,14 @@
                 <a asp-area="ContentManager" asp-controller="Home" asp-action="Index" class="btn btn-dark" style="width:100px" title="Back">
                     <span class="text-white">Back</span>
                 </a>
-                <a asp-area="ContentManager" asp-controller="Posts" asp-action="Add" class="btn btn-success" style="width:150px" title="Add New Employee">
-                    <span class="text-white pr-2">New Post</span>
-                </a>
-                <select asp-for="pt" asp-items="@Html.GetEnumSelectList<IntranetPortal.Base.Enums.PostType>()" class="border-0" style="width:200px">
+                <select asp-for="pt" asp-items="@Html.GetEnumSelectList<IntranetPortal.Base.Enums.PostType>()" class="border-0 ml-3" style="width:200px">
                     <option value="">- ALL -</option>
                 </select>
-                <input asp-for="ss" class="border-0" placeholder="Enter Title" style="width:250px">
-                <input type="submit" value="Show" class="btn btn-dark" style="width:100px" />
+                <input asp-for="ss" class="border-0" placeholder="Enter Title" style="width:300px">
+                <input type="submit" value="Search" class="btn btn-dark" style="width:100px" />
+                <a asp-area="ContentManager" asp-controller="Posts" asp-action="Add" class="btn btn-info ml-3" style="width:150px" title="Add New Post">
+                    <span class="text-white pr-2">New Post</span>
+                </a>
             </form>
 
             @if (!String.IsNullOrEmpty(ViewBag.ErrorMessage))
@@ -54,39 +54,59 @@
                             </th>
                         </tr>
                     </thead>
-                    <tbody class="table-success">
+                    <tbody class="table-light">
                         @foreach (var item in Model.PostList)
                         {
                             row_no++;
-                        <tr>
-                            <td class="p-1">
-                                <span class="fw-bolder">@row_no.ToString()</span>
-                            </td>
-                            <td class="p-1">
-                                <span class="fw-bolder">@item.PostTitle</span>
-                            </td>
-                            <td class="p-1">
-                                @if (item.IsHidden)
-                                {
-                                    <i class="bi bi-eye-slash" style="font-size:1.0rem; font-weight:900; color:red"></i>
-                                }
-                                else
-                                {
-                                    <i class="bi bi-eye" style="font-size:1.0rem; font-weight:900; color:green"></i>
-                                }
-                            </td>
-                            <td class="p-1">
-                                <span class="fw-bolder">@item.PostTypeName</span>
-                            </td>
-                            <td class="p-1">
-                                <span class="fw-bolder">@item.CreatedDate.Value.ToLongDateString()</span>
-                            </td>
-                            <td class="p-1">
-                                <a asp-area="ContentManager" asp-controller="Posts" asp-action="Show" asp-route-id="@item.PostId" title="Select" class="btn btn-sm btn-dark">
-                                    <span class="text-white fw-bold">Select</span>
-                                </a>
-                            </td>
-                        </tr>
+                            <tr>
+                                <td class="p-1">
+                                    <span class="fw-bolder">@row_no.ToString()</span>
+                                </td>
+                                <td class="p-1">
+                                    <span class="fw-bolder">@item.PostTitle</span>
+                                </td>
+                                <td class="p-1">
+                                    @if (item.IsHidden)
+                                    {
+                                        <i class="bi bi-eye-slash" style="font-size:1.0rem; font-weight:900; color:red"></i>
+                                    }
+                                    else
+                                    {
+                                        <i class="bi bi-eye" style="font-size:1.0rem; font-weight:900; color:green"></i>
+                                    }
+                                </td>
+                                <td class="p-1">
+                                    <span class="fw-bolder">@item.PostTypeName</span>
+                                </td>
+                                <td class="p-1">
+                                    <span class="fw-bolder">@item.CreatedDate.Value.ToLongDateString()</span>
+                                </td>
+                                <td class="p-1">
+                                    <!-- Default dropstart button -->
+                                    <div class="btn-group dropstart">
+                                        <button type="button" data-bs-toggle="dropdown" aria-expanded="false" style="border:0px">
+                                            <span class="fw-bold bg-light" style="font-size:1.0rem;"><i class="bi bi-three-dots"></i></span>
+                                        </button>
+                                        <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton2">
+                                            <li>
+                                                <a class="dropdown-item" asp-area="ContentManager" asp-controller="Posts" asp-action="Show" asp-route-id="@item.PostId" title="Select">
+                                                    <i class="bi bi-card-text"></i> <span>Read</span>
+                                                </a>
+                                            <li>
+                                            <li>
+                                                <a class="dropdown-item" asp-area="ContentManager" asp-controller="Posts" asp-action="Edit" asp-route-id="@item.PostId" title="Edit">
+                                                    <i class="bi bi-pencil-fill"></i> <span>Edit</span>
+                                                </a>
+                                            <li>
+                                            <li>
+                                                <button class="dropdown-item" onclick="deletePost(@item.PostId)">
+                                                    <i class="bi bi-trash-fill"></i> <span>Delete</span>
+                                                </button>
+                                            <li>
+                                        </ul>
+                                    </div>
+                                </td>
+                            </tr>
                         }
                     </tbody>
                 </table>
@@ -95,3 +115,6 @@
         </div>
     </div>
 </div>
+@section Scripts{
+    <script src="~/js/pcm_script.js"></script>
+}

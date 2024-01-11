@@ -12,6 +12,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using IntranetPortal.Models;
 using Microsoft.AspNetCore.Authorization;
+using IntranetPortal.Base.Models.EmployeeRecordModels;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication;
 
 namespace IntranetPortal.Areas.AssetManager.Controllers
 {
@@ -24,34 +27,45 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
         private readonly IConfiguration _configuration;
         private readonly IAssetManagerService _assetManagerService;
         private readonly IBaseModelService _baseModelService;
+        private readonly IErmService _ermService;
+
         public HomeController(IConfiguration configuration, ISecurityService securityService,
-                                IBaseModelService baseModelService, IAssetManagerService assetManagerService)
+                                IBaseModelService baseModelService, IAssetManagerService assetManagerService,
+                                IErmService ermService)
         {
             _configuration = configuration;
             _securityService = securityService;
             _baseModelService = baseModelService;
             _assetManagerService = assetManagerService;
+            _ermService = ermService;
         }
 
-        [Authorize(Roles = "AMSVWHMPG, XYALLACCZ")]
         public IActionResult Index()
         {
             return View();
         }
 
-        [Authorize(Roles = "AMSASSVWL, XYALLACCZ")]
+        [Authorize(Roles = "AMSVWAINF, AMSVWATXN, AMSVWASTT, XYALLACCZ")]
         public async Task<IActionResult> AssetList(int? sp, int? pg = null)
         {
             IEnumerable<Asset> assetList = new List<Asset>();
             try
             {
+                var claims = HttpContext.User.Claims.ToList();
+                string userId = claims?.Where(x => x.Type == ClaimTypes.NameIdentifier).Select(c => c.Value).SingleOrDefault();
+                if(string.IsNullOrWhiteSpace(userId))
+                {
+                    await HttpContext.SignOutAsync(SecurityConstants.ChxCookieAuthentication);
+                    return LocalRedirect("/Home/Login");
+                }
+
                 if (sp > 0)
                 {
-                    assetList = await _assetManagerService.GetAssetsByAssetTypeIdAsync(sp.Value);
+                    assetList = await _assetManagerService.GetAssetsByAssetTypeIdAsync(sp.Value, userId);
                 }
                 else
                 {
-                    assetList = await _assetManagerService.GetAssetsAsync();
+                    assetList = await _assetManagerService.GetAssetsAsync(userId);
                 }
             }
             catch (Exception ex)
@@ -67,21 +81,42 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
             return View(PaginatedList<Asset>.CreateAsync(assetList.AsQueryable(), pg ?? 1, 100));
         }
 
-       //=============================== Helper Methods ====================================================================//
+       //=============== Helper Methods =================//
         #region Helper Methods
         [HttpGet]
         public JsonResult GetAssetNames(string text)
         {
-            List<string> assets = _assetManagerService.SearchAssetsByNameAsync(text).Result.Select(x => x.AssetName).ToList();
+            var claims = HttpContext.User.Claims.ToList();
+            string userId = claims?.Where(x => x.Type == ClaimTypes.NameIdentifier).Select(c => c.Value).SingleOrDefault();
+            if (string.IsNullOrWhiteSpace(userId))
+            {
+                return Json(null);
+            }
+            List<string> assets = _assetManagerService.SearchAssetsByNameAsync(text, userId).Result.Select(x => x.AssetName).ToList();
             return Json(assets);
         }
 
         [HttpGet]
+        public JsonResult GetAssetTypes(string text)
+        {
+            List<string> asset_types = _assetManagerService.SearchAssetTypesByNameAsync(text).Result.Select(x => x.Name).ToList();
+            return Json(asset_types);
+        }
+
+
+        [HttpGet]
         public JsonResult GetAssetParameters(string asn)
         {
+            var claims = HttpContext.User.Claims.ToList();
+            string userId = claims?.Where(x => x.Type == ClaimTypes.NameIdentifier).Select(c => c.Value).SingleOrDefault();
+            if (string.IsNullOrWhiteSpace(userId))
+            {
+                return Json(null);
+            }
+
             Asset asset = new Asset();
 
-            List<Asset> assets = _assetManagerService.SearchAssetsByNameAsync(asn).Result.ToList();
+            List<Asset> assets = _assetManagerService.SearchAssetsByNameAsync(asn, userId).Result.ToList();
 
             if (assets.Count == 1)
             {
@@ -102,11 +137,16 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
         [HttpGet]
         public JsonResult GetBinLocationNames(string text)
         {
-            List<string> binLocations = _assetManagerService.SearchAssetBinLocationsByNameAsync(text).Result.Select(x => x.AssetBinLocationName).ToList();
-            return Json(binLocations);
+            Employee employee = new Employee();
+            var entity = _ermService.GetEmployeeByNameAsync(HttpContext.User.Identity.Name).Result;
+            if (entity != null && !string.IsNullOrWhiteSpace(entity.EmployeeID))
+            {
+                string UserID = entity.EmployeeID;
+                List<string> binLocations = _assetManagerService.SearchAssetBinLocationsByNameAsync(text, UserID).Result.Select(x => x.AssetBinLocationName).ToList();
+                return Json(binLocations);
+            }
+            return null;
         }
-
-
 
         #endregion
     }

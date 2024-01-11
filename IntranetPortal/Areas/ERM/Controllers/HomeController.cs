@@ -111,7 +111,7 @@ namespace IntranetPortal.Areas.ERM.Controllers
         [HttpGet]
         public JsonResult GetPersonNames(string text)
         {
-            List<string> persons = _baseModelService.SearchPersonsByName(text).Result.Select(x => x.FullName).ToList();
+            List<string> persons = _baseModelService.SearchNonEmployeePersonsByName(text).Result.Select(x => x.FullName).ToList();
             return Json(persons);
         }
 

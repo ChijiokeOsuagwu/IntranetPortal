@@ -62,14 +62,18 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
             return assetBinLocation;
         }
 
-        public async Task<IList<AssetBinLocation>> SearchByNameAsync(string assetBinLocationName)
+        public async Task<IList<AssetBinLocation>> SearchByNameAsync(string assetBinLocationName, string userId)
         {
             List<AssetBinLocation> assetBinLocationList = new List<AssetBinLocation>();
             var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
             StringBuilder sb = new StringBuilder();
             sb.Append("SELECT bnloc_id, bnloc_nm, bnloc_ds, loc_id, l.locname ");
             sb.Append("FROM public.asm_stt_bnlcs b INNER JOIN gst_locs l ON b.loc_id = l.locqk ");
-            sb.Append($"WHERE(LOWER(bnloc_nm) LIKE '%'||LOWER(@bnloc_nm)||'%') ORDER BY bnloc_nm;");
+            sb.Append($"WHERE(LOWER(bnloc_nm) LIKE '%'||LOWER(@bnloc_nm)||'%') ");
+            sb.Append("AND loc_id IN (SELECT loc_id FROM public.sct_ntt_pms ");
+            sb.Append("WHERE ntt_typ=0 AND usr_acct_id = @usr_id) ");
+            sb.Append("ORDER BY bnloc_nm; ");
+
             string query = sb.ToString();
             try
             {
@@ -78,8 +82,10 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
                 using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
                 {
                     var bnloc_nm = cmd.Parameters.Add("@bnloc_nm", NpgsqlDbType.Text);
+                    var usr_id = cmd.Parameters.Add("@usr_id", NpgsqlDbType.Text);
                     await cmd.PrepareAsync();
                     bnloc_nm.Value = assetBinLocationName;
+                    usr_id.Value = userId;
                     using (var reader = await cmd.ExecuteReaderAsync())
                         while (await reader.ReadAsync())
                         {
@@ -89,52 +95,6 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
                                 AssetBinLocationName = reader["bnloc_nm"] == DBNull.Value ? String.Empty : reader["bnloc_nm"].ToString(),
                                 AssetBinLocationDescription = reader["bnloc_ds"] == DBNull.Value ? String.Empty : reader["bnloc_ds"].ToString(),
 
-                                AssetLocationID = reader["loc_id"] == DBNull.Value ? 0 : (int)reader["loc_id"],
-                                AssetLocationName = reader["locname"] == DBNull.Value ? String.Empty : reader["locname"].ToString(),
-                            });
-                        }
-                }
-                await conn.CloseAsync();
-            }
-            catch (Exception ex)
-            {
-                await conn.CloseAsync();
-                throw new Exception(ex.Message);
-            }
-            return assetBinLocationList;
-        }
-
-        public async Task<IList<AssetBinLocation>> SearchByNameAsync(string assetBinLocationName, IEntityPermission entityPermission)
-        {
-            List<AssetBinLocation> assetBinLocationList = new List<AssetBinLocation>();
-            var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
-            StringBuilder sb = new StringBuilder();
-            sb.Append("SELECT bnloc_id, bnloc_nm, bnloc_ds, loc_id, l.locname ");
-            sb.Append("FROM public.asm_stt_bnlcs b INNER JOIN gst_locs l ON b.loc_id = l.locqk ");
-            sb.Append("WHERE(LOWER(bnloc_nm) LIKE '%'||LOWER(@bnloc_nm)||'%') ");
-            sb.Append("AND loc_id IN (SELECT loc_id FROM public.sct_entt_pms ");
-            sb.Append("WHERE usr_id = @usr_id) ");
-            sb.Append("ORDER BY bnloc_nm;");
-            string query = sb.ToString();
-            try
-            {
-                await conn.OpenAsync();
-                // Retrieve all rows
-                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
-                {
-                    var bnloc_nm = cmd.Parameters.Add("@bnloc_nm", NpgsqlDbType.Text);
-                    var usr_id = cmd.Parameters.Add("@usr_id", NpgsqlDbType.Integer);
-                    await cmd.PrepareAsync();
-                    bnloc_nm.Value = assetBinLocationName;
-                    usr_id.Value = entityPermission.UserId;
-                    using (var reader = await cmd.ExecuteReaderAsync())
-                        while (await reader.ReadAsync())
-                        {
-                            assetBinLocationList.Add(new AssetBinLocation()
-                            {
-                                AssetBinLocationID = reader["bnloc_id"] == DBNull.Value ? 0 : (int)reader["bnloc_id"],
-                                AssetBinLocationName = reader["bnloc_nm"] == DBNull.Value ? String.Empty : reader["bnloc_nm"].ToString(),
-                                AssetBinLocationDescription = reader["bnloc_ds"] == DBNull.Value ? String.Empty : reader["bnloc_ds"].ToString(),
                                 AssetLocationID = reader["loc_id"] == DBNull.Value ? 0 : (int)reader["loc_id"],
                                 AssetLocationName = reader["locname"] == DBNull.Value ? String.Empty : reader["locname"].ToString(),
                             });
@@ -177,7 +137,6 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
                                 AssetBinLocationID = reader["bnloc_id"] == DBNull.Value ? 0 : (int)reader["bnloc_id"],
                                 AssetBinLocationName = reader["bnloc_nm"] == DBNull.Value ? String.Empty : reader["bnloc_nm"].ToString(),
                                 AssetBinLocationDescription = reader["bnloc_ds"] == DBNull.Value ? String.Empty : reader["bnloc_ds"].ToString(),
-
                                 AssetLocationID = reader["loc_id"] == DBNull.Value ? 0 : (int)reader["loc_id"],
                                 AssetLocationName = reader["locname"] == DBNull.Value ? String.Empty : reader["locname"].ToString(),
                             });
@@ -193,7 +152,7 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
             return assetBinLocationList;
         }
 
-        public async Task<IList<AssetBinLocation>> GetByNameAsync(string assetBinLocationName, IEntityPermission entityPermission)
+        public async Task<IList<AssetBinLocation>> GetByNameAsync(string assetBinLocationName, string userId)
         {
             List<AssetBinLocation> assetBinLocationList = new List<AssetBinLocation>();
             var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
@@ -201,8 +160,8 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
             sb.Append("SELECT bnloc_id, bnloc_nm, bnloc_ds, loc_id, l.locname ");
             sb.Append("FROM public.asm_stt_bnlcs b INNER JOIN gst_locs l ON b.loc_id = l.locqk ");
             sb.Append($"WHERE(LOWER(bnloc_nm) = LOWER(@bnloc_nm)) ");
-            sb.Append("AND loc_id IN (SELECT loc_id FROM public.sct_entt_pms ");
-            sb.Append("WHERE usr_id = @usr_id) ");
+            sb.Append("AND loc_id IN (SELECT loc_id FROM public.sct_ntt_pms ");
+            sb.Append("WHERE ntt_typ=0 AND usr_acct_id = @usr_id) ");
             sb.Append("ORDER BY bnloc_nm;");
             string query = sb.ToString();
             try
@@ -215,7 +174,7 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
                     var usr_id = cmd.Parameters.Add("@usr_id", NpgsqlDbType.Text);
                     await cmd.PrepareAsync();
                     bnloc_nm.Value = assetBinLocationName;
-                    usr_id.Value = entityPermission.UserId;
+                    usr_id.Value = userId;
                     using (var reader = await cmd.ExecuteReaderAsync())
                         while (await reader.ReadAsync())
                         {
@@ -224,7 +183,6 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
                                 AssetBinLocationID = reader["bnloc_id"] == DBNull.Value ? 0 : (int)reader["bnloc_id"],
                                 AssetBinLocationName = reader["bnloc_nm"] == DBNull.Value ? String.Empty : reader["bnloc_nm"].ToString(),
                                 AssetBinLocationDescription = reader["bnloc_ds"] == DBNull.Value ? String.Empty : reader["bnloc_ds"].ToString(),
-
                                 AssetLocationID = reader["loc_id"] == DBNull.Value ? 0 : (int)reader["loc_id"],
                                 AssetLocationName = reader["locname"] == DBNull.Value ? String.Empty : reader["locname"].ToString(),
                             });
@@ -240,58 +198,16 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
             return assetBinLocationList;
         }
 
-        public async Task<IList<AssetBinLocation>> GetByLocationIdAsync(int locationId)
+        public async Task<IList<AssetBinLocation>> GetByLocationIdAsync(int locationId, string userId)
         {
             List<AssetBinLocation> assetBinLocationList = new List<AssetBinLocation>();
             var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
             StringBuilder sb = new StringBuilder();
             sb.Append("SELECT bnloc_id, bnloc_nm, bnloc_ds, loc_id, l.locname ");
-            sb.Append("FROM public.asm_stt_bnlcs b INNER JOIN gst_locs l ON b.loc_id = l.locqk ");
-            sb.Append("WHERE (loc_id = @loc_id) ORDER BY bnloc_nm;");
-            string query = sb.ToString();
-            try
-            {
-                await conn.OpenAsync();
-                // Retrieve all rows
-                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
-                {
-                    var loc_id = cmd.Parameters.Add("@loc_id", NpgsqlDbType.Integer);
-                    await cmd.PrepareAsync();
-                    loc_id.Value = locationId;
-                    using (var reader = await cmd.ExecuteReaderAsync())
-                        while (await reader.ReadAsync())
-                        {
-                            assetBinLocationList.Add(new AssetBinLocation()
-                            {
-                                AssetBinLocationID = reader["bnloc_id"] == DBNull.Value ? 0 : (int)reader["bnloc_id"],
-                                AssetBinLocationName = reader["bnloc_nm"] == DBNull.Value ? String.Empty : reader["bnloc_nm"].ToString(),
-                                AssetBinLocationDescription = reader["bnloc_ds"] == DBNull.Value ? String.Empty : reader["bnloc_ds"].ToString(),
-
-                                AssetLocationID = reader["loc_id"] == DBNull.Value ? 0 : (int)reader["loc_id"],
-                                AssetLocationName = reader["locname"] == DBNull.Value ? String.Empty : reader["locname"].ToString(),
-                            });
-                        }
-                }
-                await conn.CloseAsync();
-            }
-            catch (Exception ex)
-            {
-                await conn.CloseAsync();
-                throw new Exception(ex.Message);
-            }
-            return assetBinLocationList;
-        }
-
-        public async Task<IList<AssetBinLocation>> GetByLocationIdAsync(int locationId, IEntityPermission entityPermission)
-        {
-            List<AssetBinLocation> assetBinLocationList = new List<AssetBinLocation>();
-            var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
-            StringBuilder sb = new StringBuilder();
-            sb.Append("SELECT bnloc_id, bnloc_nm, bnloc_ds, loc_id, l.locname ");
-            sb.Append("FROM public.asm_stt_bnlcs b INNER JOIN gst_locs l ON b.loc_id = l.locqk ");
-            sb.Append("WHERE (loc_id = @loc_id) ");
-            sb.Append("AND loc_id IN (SELECT loc_id FROM public.sct_entt_pms ");
-            sb.Append("WHERE usr_id = @usr_id) ORDER BY bnloc_nm;");
+            sb.Append("FROM public.asm_stt_bnlcs b INNER JOIN gst_locs l ON ");
+            sb.Append("b.loc_id = l.locqk WHERE (loc_id = @loc_id) ");
+            sb.Append("AND loc_id IN (SELECT loc_id FROM public.sct_ntt_pms ");
+            sb.Append("WHERE ntt_typ=0 AND usr_acct_id = @usr_id) ORDER BY bnloc_nm;");
             string query = sb.ToString();
             try
             {
@@ -303,7 +219,7 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
                     var usr_id = cmd.Parameters.Add("@usr_id", NpgsqlDbType.Text);
                     await cmd.PrepareAsync();
                     loc_id.Value = locationId;
-                    usr_id.Value = entityPermission.UserId;
+                    usr_id.Value = userId;
                     using (var reader = await cmd.ExecuteReaderAsync())
                         while (await reader.ReadAsync())
                         {
@@ -328,56 +244,15 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
             return assetBinLocationList;
         }
 
-
-        public async Task<IList<AssetBinLocation>> GetAllAsync()
+        public async Task<IList<AssetBinLocation>> GetAllAsync(string userId)
         {
             List<AssetBinLocation> assetBinLocationList = new List<AssetBinLocation>();
             var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
             StringBuilder sb = new StringBuilder();
             sb.Append("SELECT bnloc_id, bnloc_nm, bnloc_ds, loc_id, l.locname ");
             sb.Append("FROM public.asm_stt_bnlcs b INNER JOIN gst_locs l ON b.loc_id = l.locqk ");
-            sb.Append("ORDER BY locname, bloc_nm;");
-            string query = sb.ToString();
-            try
-            {
-                await conn.OpenAsync();
-                // Retrieve all rows
-                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
-                {
-                    await cmd.PrepareAsync();
-                    var reader = await cmd.ExecuteReaderAsync();
-                    while (await reader.ReadAsync())
-                    {
-                        assetBinLocationList.Add(new AssetBinLocation()
-                        {
-                            AssetBinLocationID = reader["bnloc_id"] == DBNull.Value ? 0 : (int)reader["bnloc_id"],
-                            AssetBinLocationName = reader["bnloc_nm"] == DBNull.Value ? String.Empty : reader["bnloc_nm"].ToString(),
-                            AssetBinLocationDescription = reader["bnloc_ds"] == DBNull.Value ? String.Empty : reader["bnloc_ds"].ToString(),
-
-                            AssetLocationID = reader["loc_id"] == DBNull.Value ? 0 : (int)reader["loc_id"],
-                            AssetLocationName = reader["locname"] == DBNull.Value ? String.Empty : reader["locname"].ToString(),
-                        });
-                    }
-                }
-                await conn.CloseAsync();
-            }
-            catch (Exception ex)
-            {
-                await conn.CloseAsync();
-                throw new Exception(ex.Message);
-            }
-            return assetBinLocationList;
-        }
-
-        public async Task<IList<AssetBinLocation>> GetAllAsync(IEntityPermission entityPermission)
-        {
-            List<AssetBinLocation> assetBinLocationList = new List<AssetBinLocation>();
-            var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
-            StringBuilder sb = new StringBuilder();
-            sb.Append("SELECT bnloc_id, bnloc_nm, bnloc_ds, loc_id, l.locname ");
-            sb.Append("FROM public.asm_stt_bnlcs b INNER JOIN gst_locs l ON b.loc_id = l.locqk ");
-            sb.Append("WHERE loc_id IN (SELECT loc_id FROM public.sct_entt_pms ");
-            sb.Append("WHERE usr_id = @usr_id) ");
+            sb.Append("WHERE loc_id IN (SELECT loc_id FROM public.sct_ntt_pms ");
+            sb.Append("WHERE ntt_typ=0 AND usr_acct_id = @usr_id) ");
             sb.Append("ORDER BY locname, bloc_nm;");
             string query = sb.ToString();
             try
@@ -388,7 +263,7 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
                 {
                     var usr_id = cmd.Parameters.Add("@usr_id", NpgsqlDbType.Text);
                     await cmd.PrepareAsync();
-                    usr_id.Value = entityPermission.UserId;
+                    usr_id.Value = userId;
 
                     var reader = await cmd.ExecuteReaderAsync();
                     while (await reader.ReadAsync())

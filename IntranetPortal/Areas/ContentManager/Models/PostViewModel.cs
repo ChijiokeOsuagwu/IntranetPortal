@@ -25,7 +25,8 @@ namespace IntranetPortal.Areas.ContentManager.Models
 
         public string ImagePath { get; set; }
 
-        [Display(Name="Upload Image")]
+        [Display(Name="Upload Image (Less than 1MB)")]
+        [Required]
         public IFormFile ImageFile { get; set; }
 
         [Required]
@@ -33,6 +34,10 @@ namespace IntranetPortal.Areas.ContentManager.Models
         public int PostTypeId { get; set; }
         public bool EnableComments { get; set; }
         public bool IsHidden { get; set; }
+        public string PostDetails { get; set; }
+
+        [Display(Name = "Enter Full Article Below:")]
+        public string PostDetailsRaw { get; set; }
 
         public Post ConvertToPost()
         {
@@ -45,6 +50,8 @@ namespace IntranetPortal.Areas.ContentManager.Models
                 PostTitle = PostTitle,
                 PostSummary = PostSummary,
                 PostTypeId = PostTypeId,
+                PostDetails = PostDetails,
+                PostDetailsRaw = PostDetailsRaw
             };
         }
     }

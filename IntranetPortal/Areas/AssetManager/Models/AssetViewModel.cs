@@ -14,7 +14,7 @@ namespace IntranetPortal.Areas.AssetManager.Models
         public string AssetID { get; set; }
 
         [Required]
-        [Display(Name ="Name")]
+        [Display(Name ="Name*")]
         [MaxLength(100, ErrorMessage ="Name must not exceed 100 characters.")]
         public string AssetName { get; set; }
 
@@ -26,19 +26,28 @@ namespace IntranetPortal.Areas.AssetManager.Models
         [MaxLength(250, ErrorMessage = "Name must not exceed 250 characters.")]
         public string AssetDescription { get; set; }
 
-        [Required(ErrorMessage ="Please select Type.")]
-        [Display(Name = "Type")]
+        [Required(ErrorMessage ="Invalid Asset Type.")]
+        [Display(Name = "Type*")]
         public int AssetTypeID { get; set; }
 
-        [Display(Name = "Type")]
+        [Display(Name = "Type*")]
         public string AssetTypeName { get; set; }
 
-        [Display(Name = "Class")]
+        [Required(ErrorMessage = "Invalid Asset Group.")]
+        [Display(Name = "Group*")]
+        public int? AssetGroupID { get; set; }
+
+        [Display(Name = "Group*")]
+        public string AssetGroupName { get; set; }
+
+        [Required(ErrorMessage = "Invalid Asset Class.")]
+        [Display(Name = "Class*")]
         public int AssetClassID { get; set; }
 
-        [Display(Name = "Class")]
+        [Display(Name = "Class*")]
         public string AssetClassName { get; set; }
 
+        [Required(ErrorMessage = "Invalid Asset Category.")]
         [Display(Name ="Category")]
         public int AssetCategoryID { get; set; }
 
@@ -57,6 +66,10 @@ namespace IntranetPortal.Areas.AssetManager.Models
 
         [Display(Name = "Bin Location")]
         public string BinLocationName { get; set; }
+
+        [Required(ErrorMessage = "Please select the Control Unit.")]
+        [Display(Name = "Control Unit*")]
+        public int AssetDivisionID { get; set; }
 
         [Required(ErrorMessage ="Please select Condition.")]
         [Display(Name ="Condition")]
@@ -110,7 +123,10 @@ namespace IntranetPortal.Areas.AssetManager.Models
                 AssetCategoryName = AssetCategoryName,
                 AssetClassID = AssetClassID,
                 AssetClassName = AssetClassName,
+                AssetGroupID = AssetGroupID,
+                AssetGroupName = AssetGroupName,
                 AssetDescription = AssetDescription,
+                AssetDivisionID = AssetDivisionID,
                 AssetID = AssetID,
                 AssetName = AssetName,
                 AssetNumber = AssetNumber,
@@ -141,34 +157,35 @@ namespace IntranetPortal.Areas.AssetManager.Models
         {
             return new AssetViewModel()
             {
-                AssetCategoryID = AssetCategoryID,
-                AssetCategoryName = AssetCategoryName,
-                AssetClassID = AssetClassID,
-                AssetClassName = AssetClassName,
-                AssetDescription = AssetDescription,
-                AssetID = AssetID,
-                AssetName = AssetName,
-                AssetNumber = AssetNumber,
-                AssetTypeID = AssetTypeID,
-                AssetTypeName = AssetTypeName,
-                ParentAssetID = ParentAssetID,
-                BaseLocationID = BaseLocationID,
-                BaseLocationName = BaseLocationName,
-                BinLocationID = BinLocationID,
-                BinLocationName = BinLocationName,
-                ConditionDescription = ConditionDescription,
-                ConditionStatus = ConditionStatus,
-                CreatedBy = CreatedBy,
-                CreatedDate = CreatedDate,
-                CurrentLocation = CurrentLocation,
-                ImagePath = ImagePath,
-                ModifiedBy = ModifiedBy,
-                ModifiedDate = ModifiedDate,
-                OldImagePath = ImagePath,
-                ParentAssetName = ParentAssetName,
-                PurchaseAmount = PurchaseAmount,
-                PurchaseDate = PurchaseDate,
-                UsageStatus = UsageStatus
+                AssetCategoryID = asset.AssetCategoryID,
+                AssetCategoryName = asset.AssetCategoryName,
+                AssetClassID = asset.AssetClassID ?? 0,
+                AssetClassName = asset.AssetClassName,
+                AssetDescription = asset.AssetDescription,
+                AssetDivisionID = asset.AssetDivisionID ?? 0,
+                AssetID = asset.AssetID,
+                AssetName = asset.AssetName,
+                AssetNumber = asset.AssetNumber,
+                AssetTypeID = asset.AssetTypeID,
+                AssetTypeName = asset.AssetTypeName,
+                ParentAssetID = asset.ParentAssetID,
+                BaseLocationID = asset.BaseLocationID,
+                BaseLocationName = asset.BaseLocationName,
+                BinLocationID = asset.BinLocationID,
+                BinLocationName = asset.BinLocationName,
+                ConditionDescription = asset.ConditionDescription,
+                ConditionStatus = asset.ConditionStatus,
+                CreatedBy = asset.CreatedBy,
+                CreatedDate = asset.CreatedDate,
+                CurrentLocation = asset.CurrentLocation,
+                ImagePath = asset.ImagePath,
+                ModifiedBy = asset.ModifiedBy,
+                ModifiedDate = asset.ModifiedDate,
+                OldImagePath = asset.ImagePath,
+                ParentAssetName = asset.ParentAssetName,
+                PurchaseAmount = asset.PurchaseAmount,
+                PurchaseDate = asset.PurchaseDate,
+                UsageStatus = asset.UsageStatus
             };
         }
     }

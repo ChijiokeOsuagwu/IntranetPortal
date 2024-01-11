@@ -34,7 +34,7 @@
             }
             <form asp-area="AssetManager" asp-controller="Settings" asp-action="EditAssetType" method="post">
                 <div class="row">
-                    <div class="col-mb-12 mb-1">
+                    <div class="col-mb-12 mb-2">
                         <input type="hidden" asp-for="ID" />
                         <label asp-for="Name" class="form-label text-white fw-bold"></label>
                         <input asp-for="Name" class="form-control fw-bold">
@@ -42,7 +42,7 @@
                     </div>
                 </div>
                 <div class="row">
-                    <div class="col-mb-12 mb-1">
+                    <div class="col-mb-12 mb-2">
                         <label asp-for="Description" class="form-label text-white fw-bold"></label>
                         <input asp-for="Description" class="form-control fw-bold">
                         <div><span asp-validation-for="Description" class="text-danger"></span></div>
@@ -50,8 +50,8 @@
                 </div>
                 <div class="row">
                     <div class="col-md-12  mb-3">
-                        <label asp-for="ClassID" class="form-label text-white fw-bold"></label>
-                        <select asp-for="ClassID" asp-items="@ViewBag.AssetClassesList" class="form-control fw-bold">
+                        <label asp-for="GroupID" class="form-label text-white fw-bold"></label>
+                        <select asp-for="GroupID" asp-items="@ViewBag.AssetGroupsList" class="form-control fw-bold">
                             <option value=""></option>
                         </select>
                     </div>

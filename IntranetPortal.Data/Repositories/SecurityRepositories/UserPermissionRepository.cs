@@ -18,6 +18,7 @@ namespace IntranetPortal.Data.Repositories.SecurityRepositories
             _config = configuration;
         }
 
+        #region User Permission Write Action Methods
         public async Task<bool> AddUserPermissionAsync(string userId, string roleId, string modifiedBy)
         {
             int rows = 0;
@@ -143,7 +144,10 @@ namespace IntranetPortal.Data.Repositories.SecurityRepositories
             }
             return rows > 0;
         }
+        #endregion
 
+
+        #region User Permissions Read Action Methods
         public async Task<IList<UserPermission>> GetUserPermissionsByUserIdAsync(string userId)
         {
             if (String.IsNullOrEmpty(userId)) { throw new ArgumentNullException("The required parameter [User ID] is null or has an invalid value."); }
@@ -405,5 +409,6 @@ namespace IntranetPortal.Data.Repositories.SecurityRepositories
             }
             return permissionList;
         }
+        #endregion
     }
 }

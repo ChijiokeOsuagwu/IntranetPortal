@@ -1,0 +1,969 @@
+﻿
+@model IntranetPortal.Areas.PMS.Models.MyAppraisalStepsViewModel
+<div class="container">
+    <h4 class="mb-1">@Model.ReviewSessionName for @Model.AppraiseeName</h4>
+    <hr />
+    <div class="row">
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <div class="container-fluid">
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNavDropdown">
+                    <ul class="navbar-nav">
+                        <li class="nav-item">
+                            <a asp-area="PMS" asp-controller="Process" asp-action="MyAppraisalSessions" title="Go Back" class="btn btn-sm btn-outline-light text-dark">
+                                <i class="bi bi-backspace fw-bolder" style="font-size: 1.0rem;"></i>&nbsp;<span class="fw-bold ml-1" style="font-size: 0.9rem;">Back</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a asp-area="PMS" asp-controller="Settings" asp-action="ReviewSessionInfo" asp-route-id="@Model.ReviewSessionId" title="Show Information" class="btn btn-sm btn-light text-dark">
+                                <i class="bi bi-info-lg fw-bolder" style="font-size: 1.0rem;"></i><span class="fw-bold ml-1" style="font-size: 0.9rem;">Details</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a asp-area="PMS" asp-Controller="Settings" asp-action="AppraisalGradesInfo" asp-route-id="@Model.ReviewSessionId" title="Appraisal Grade Settings" class="btn btn-sm btn-light text-dark">
+                                <i class="bi bi-percent fw-bolder" style="font-size: 1.0rem;"></i><span class="fw-bold ml-1" style="font-size: 0.9rem;">Appraisal Grades</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a asp-area="PMS" asp-controller="Settings" asp-action="AppraisalSessionSchedules" asp-route-id="@Model.ReviewSessionId" title="Appraisal Schedules" class="btn btn-sm btn-light text-dark">
+                                <i class="bi bi-calendar4-week fw-bolder" style="font-size: 1.0rem"></i><span class="fw-bold ml-1" style="font-size: 0.9rem;">Appraisal Schedules</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a asp-area="PMS" asp-controller="Process" asp-action="AppraisalNotes" asp-route-id="@Model.ReviewHeaderId" asp-route-sp="stp" title="Appraisal Notes" class="btn btn-sm btn-light text-dark">
+                                <i class="bi bi-journals fw-bolder" style="font-size: 1.0rem"></i><span class="fw-bold ml-1" style="font-size: 0.9rem;">Notes</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a asp-area="PMS" asp-controller="Process" asp-action="AppraisalActivities" asp-route-id="@Model.ReviewHeaderId" asp-route-sp="stp" title="Appraisal Activity History" class="btn btn-sm btn-light text-dark">
+                                <i class="bi bi-journals fw-bolder" style="font-size: 1.0rem"></i><span class="fw-bold ml-1" style="font-size: 0.9rem;">History</span>
+                            </a>
+                        </li>
+                        @if ((Model.IsActive) && (Model.AllActivitiesScheduled || Model.PerformanceEvaluationScheduled))
+                        {
+                            @*<li class="nav-item">
+                                    <a asp-controller="PMS" asp-action="MoveToPreviousStep" asp-route-id="@Model.ReviewHeaderId" title="Return to Previous Step" class="btn btn-sm btn-light text-dark">
+                                        <i class="bi bi-arrow-90deg-up fw-bolder" style="font-size: 1.0rem"></i><span class="fw-bold ml-1" style="font-size: 0.9rem;">Return To Previous</span>
+                                    </a>
+                                </li>*@
+                        }
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </div>
+    <div class="mb-1">
+        <input type="hidden" asp-for="ReviewHeaderId" />
+        <div>
+            @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bi bi-x-circle"></i>
+                    <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+
+            @if (!String.IsNullOrEmpty(Model.ViewModelWarningMessage))
+            {
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                    <i class="bi bi-exclamation-circle"></i>
+                    <span class="fw-bold">@Model.ViewModelWarningMessage</span>
+                </div>
+            }
+        </div>
+        <div class="row">
+            @if (Model == null || Model.AppraisalStageList == null || Model.AppraisalStageList.Count < 1)
+            {
+                <div class="alert alert-info fade show" role="alert">
+                    <i class="bi bi-info-circle"></i>
+                    <span class="fw-bold">No record was found.</span>
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table border-0">
+                        <thead style="background-color:#273746">
+                            <tr>
+                                <th colspan="3">
+                                    <span class="text-white fw-bolder" style="font-size:1.1rem">Follow the Steps below to Complete the Appraisal</span>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody style="background-color:#ebedef">
+                            <tr>
+                                <td colspan="3" style="background-color: #17a589; padding:4px">
+                                    <span class="text-white fw-bolder" style="font-size:1.0rem">1st Phase: Performance Contract Definition</span>
+                                </td>
+                            </tr>
+
+                            @foreach (var item in Model.AppraisalStageList)
+                            {
+                                if (item.ReviewStageId == 1)
+                                {
+                                    if (Model.CurrentReviewStageId < 1)
+                                    {
+                                        <tr style="border-bottom:2px solid #abb2b9">
+                                            <td style="min-width:120px">
+                                                <i title="Start Here" class="bi bi-arrow-return-right" style="font-size:1.3rem; font-weight:bolder; color:#17202a"></i>
+                                                <span class="text-dark fw-bolder ml-1" style="font-size:1.0rem; min-width:100px">Step 1</span>
+                                            </td>
+                                            <td>
+                                                <div>
+                                                    <span class="text-dark fw-bold" style="font-size:1.0rem">
+                                                        Welcome @Model.AppraiseeName. It appears you are yet to begin this appraisal session.
+                                                        You can start by entering your Performance Goal for the Period under review.
+                                                    </span>
+                                                </div>
+                                            </td>
+                                            <td class="p-2 text-end">
+                                                @if ((Model.IsActive) && (Model.AllActivitiesScheduled || Model.ContractDefinitionScheduled))
+                                                {
+                                                    <a asp-controller="PMS" asp-action="CreatePerformanceGoals" asp-route-id="@Model.ReviewSessionId" asp-route-ad="@Model.AppraiseeId" title="Create Performance Goal" class="btn btn-sm btn-dark" style="width:100px">
+                                                        <span class="text-white fw-bold">Start</span>
+                                                    </a>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                    else if (Model.CurrentReviewStageId == 1)
+                                    {
+                                        <tr style="border-bottom:2px solid #abb2b9">
+                                            <td style="min-width:120px">
+                                                <i title="You are Here" class="bi bi-arrow-return-right" style="font-size:1.5rem; font-weight:bolder; color:#17202a"></i>
+                                                <span class="text-dark fw-bolder" style="font-size:1.0rem">Step 1</span>
+                                            </td>
+                                            <td>
+                                                <div>
+                                                    <span class="text-dark fw-bold" style="font-size:1.0rem">
+                                                        Definition of Performance Goal - (On Going)
+                                                    </span>
+                                                </div>
+                                            </td>
+                                            <td class="p-2 text-end">
+                                                @if ((Model.IsActive) && (Model.AllActivitiesScheduled || Model.ContractDefinitionScheduled))
+                                                {
+                                                    <a asp-controller="PMS" asp-action="ManagePerformanceGoal" asp-route-id="@Model.ReviewHeaderId" title="Continue" class="btn btn-sm btn-info" style="width:100px">
+                                                        <span class="text-white fw-bold">Edit</span>
+                                                    </a>
+                                                    <a asp-controller="PMS" asp-action="MoveToNextStep" asp-route-id="@Model.ReviewHeaderId" title="Move to Next Step" class="btn btn-sm btn-dark" style="width:100px">
+                                                        <span class="text-white fw-bold">Next</span>
+                                                    </a>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                    else if (Model.CurrentReviewStageId > 1)
+                                    {
+                                        <tr style="border-bottom: 2px solid #abb2b9">
+                                            <td style="min-width:120px">
+                                                <i title="Completed" class="bi bi-check-lg" style="font-size:1.5rem; font-weight:bolder; color:#239b56"></i>
+                                                <span class="text-dark fw-bolder ml-1" style="font-size:1.0rem">Step 1</span>
+                                            </td>
+                                            <td>
+                                                <span class="text-dark fw-bold" style="font-size:1.0rem">
+                                                    Definition of Performance Goal(s) - (Completed)
+                                                </span>
+                                            </td>
+                                            <td class="p-2 text-end">
+                                                <a asp-controller="PMS" asp-action="ShowPerformanceGoal" asp-route-id="@Model.ReviewHeaderId" title="View Performance Goal" class="btn btn-sm btn-dark" style="width:150px">
+                                                    <span class="text-white fw-bold">View Goal(s)</span>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+
+                                if (item.ReviewStageId == 2)
+                                {
+                                    if (Model.CurrentReviewStageId > 2)
+                                    {
+                                        <tr style="border-bottom:2px solid #abb2b9">
+                                            <td style="min-width:120px">
+                                                <i title="Completed" class="bi bi-check-lg" style="font-size:1.5rem; font-weight:bolder; color:#239b56"></i>
+                                                <span class="text-dark fw-bolder ml-1" style="font-size:1.0rem">Step 2</span>
+                                            </td>
+                                            <td>
+                                                <div>
+                                                    <span class="text-dark fw-bold" style="font-size:1.0rem">
+                                                        Setting Up of Key Performance Areas (KPAs) - (Completed)
+                                                    </span>
+                                                </div>
+                                            </td>
+                                            <td class="p-2 text-end">
+                                                <a asp-controller="PMS" asp-action="ShowAppraisalKpas" asp-route-id="@Model.ReviewHeaderId" title="Create Performance Goal" class="btn btn-sm btn-dark" style="width:150px">
+                                                    <span class="text-white fw-bold">View KPAs</span>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    }
+                                    else if (Model.CurrentReviewStageId == 2)
+                                    {
+                                        <tr style="border-bottom:2px solid #abb2b9">
+                                            <td style="min-width:120px">
+                                                <i title="You are Here" class="bi bi-arrow-return-right" style="font-size:1.5rem; font-weight:bolder; color:#17202a"></i>
+                                                <span class="text-dark fw-bolder" style="font-size:1.0rem">Step 2</span>
+                                            </td>
+                                            <td>
+                                                <div>
+                                                    <span class="text-dark fw-bold" style="font-size:1.0rem">
+                                                        Setting Up of Key Performance Areas (KPAs) - (On Going)
+                                                    </span>
+                                                </div>
+                                            </td>
+                                            <td class="p-2 text-end">
+                                                @if ((Model.IsActive) && (Model.AllActivitiesScheduled || Model.ContractDefinitionScheduled))
+                                                {
+                                                    <a asp-controller="PMS" asp-action="AppraisalKpas" asp-route-id="@Model.ReviewHeaderId" title="Continue" class="btn btn-sm btn-info" style="width:100px">
+                                                        <span class="text-white fw-bold">Continue</span>
+                                                    </a>
+                                                    <a asp-controller="PMS" asp-action="MoveToNextStep" asp-route-id="@Model.ReviewHeaderId" title="Move to the Next Step" class="btn btn-sm btn-dark" style="width:100px">
+                                                        <span class="text-white fw-bold">Next</span>
+                                                    </a>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                    else if (Model.CurrentReviewStageId < 2)
+                                    {
+                                        <tr style="border-bottom:2px solid #abb2b9">
+                                            <td style="min-width:120px">
+                                                <i title="Not Started" class="bi bi-plus-lg" style="font-size:1.3rem; font-weight:bolder; color:#17202a"></i>
+                                                <span class="text-dark fw-bolder ml-1" style="font-size:1.0rem">Step 2</span>
+                                            </td>
+                                            <td>
+                                                <span class="text-dark fw-bold" style="font-size:1.0rem">
+                                                    Setting Up of Key Performance Areas (KPAs) - (Not Started)
+                                                </span>
+                                            </td>
+                                            <td class="p-2 text-end">
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+
+                                if (item.ReviewStageId == 3)
+                                {
+                                    if (Model.CurrentReviewStageId > 3)
+                                    {
+                                        <tr style="border-bottom:2px solid #abb2b9">
+                                            <td style="min-width:120px">
+                                                <i title="Completed" class="bi bi-check-lg" style="font-size:1.5rem; font-weight:bolder; color:#239b56"></i>
+                                                <span class="text-dark fw-bolder ml-1" style="font-size:1.0rem">Step 3</span>
+                                            </td>
+                                            <td>
+                                                <div>
+                                                    <span class="text-dark fw-bold" style="font-size:1.0rem">
+                                                        Setting Up of Competencies - (Completed)
+                                                    </span>
+                                                </div>
+                                            </td>
+                                            <td class="p-2 text-end">
+                                                <a asp-controller="PMS" asp-action="ShowAppraisalCompetencies" asp-route-id="@Model.ReviewHeaderId" title="View Appraisal Competencies" class="btn btn-sm btn-dark" style="width:150px">
+                                                    <span class="text-white fw-bold">View Competencies</span>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    }
+                                    else if (Model.CurrentReviewStageId == 3)
+                                    {
+                                        <tr style="border-bottom:2px solid #abb2b9">
+                                            <td style="min-width:120px">
+                                                <i title="You are Here" class="bi bi-arrow-return-right" style="font-size:1.5rem; font-weight:bolder; color:#17202a"></i>
+                                                <span class="text-dark fw-bolder" style="font-size:1.0rem">Step 3</span>
+                                            </td>
+                                            <td>
+                                                <div>
+                                                    <span class="text-dark fw-bold" style="font-size:1.0rem">
+                                                        Setting Up of Competencies - (On Going)
+                                                    </span>
+                                                </div>
+                                            </td>
+                                            <td class="p-2 text-end">
+                                                @if ((Model.IsActive) && (Model.AllActivitiesScheduled || Model.ContractDefinitionScheduled))
+                                                {
+                                                    <a asp-controller="PMS" asp-action="AppraisalCompetencies" asp-route-id="@Model.ReviewHeaderId" title="Select" class="btn btn-sm btn-success" style="width:100px">
+                                                        <span class="text-white fw-bold">Continue</span>
+                                                    </a>
+                                                    <a asp-controller="PMS" asp-action="MoveToNextStep" asp-route-id="@Model.ReviewHeaderId" title="Move to the Next Step" class="btn btn-sm btn-dark" style="width:100px">
+                                                        <span class="text-white fw-bold">Next</span>
+                                                    </a>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                    else if (Model.CurrentReviewStageId < 3)
+                                    {
+                                        <tr style="border-bottom:2px solid #abb2b9">
+                                            <td style="min-width:120px">
+                                                <i title="Not Started" class="bi bi-plus-lg" style="font-size:1.3rem; font-weight:bolder; color:#17202a"></i>
+                                                <span class="text-dark fw-bolder" style="font-size:1.0rem">Step 3</span>
+                                            </td>
+                                            <td>
+                                                <span class="text-dark fw-bold" style="font-size:1.0rem">
+                                                    Setting Up of Competencies (Not Started)
+                                                </span>
+                                            </td>
+                                            <td class="p-2 text-end">
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+
+                                if (item.ReviewStageId == 4)
+                                {
+                                    if (Model.CurrentReviewStageId > 4)
+                                    {
+                                        <tr style="border-bottom:2px solid #abb2b9">
+                                            <td style="min-width:120px">
+                                                <i title="Completed" class="bi bi-check-lg" style="font-size:1.5rem; font-weight:bolder; color:#239b56"></i>
+                                                <span class="text-dark fw-bolder ml-1" style="font-size:1.0rem">Step 4</span>
+                                            </td>
+                                            <td>
+                                                <div>
+                                                    <span class="text-dark fw-bold" style="font-size:1.0rem">
+                                                        Setting Up of Career Deveopment Goal(s) - (Completed)
+                                                    </span>
+                                                </div>
+                                            </td>
+                                            <td class="p-1 text-end">
+                                                <a asp-controller="PMS" asp-action="ShowAppraisalCdgs" asp-route-id="@Model.ReviewHeaderId" title="Show Career Development Goals" class="btn btn-sm btn-dark" style="width:150px">
+                                                    <span class="text-white fw-bold">View CDGs</span>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    }
+                                    else if (Model.CurrentReviewStageId == 4)
+                                    {
+                                        <tr style="border-bottom:2px solid #abb2b9">
+                                            <td style="min-width:120px">
+                                                <i title="You are Here" class="bi bi-arrow-return-right" style="font-size:1.5rem; font-weight:bolder; color:#17202a"></i>
+                                                <span class="text-dark fw-bolder" style="font-size:1.0rem">Step 4</span>
+                                            </td>
+                                            <td>
+                                                <div>
+                                                    <span class="text-dark fw-bold" style="font-size:1.0rem">
+                                                        Setting Up of Career Development Goal(s) - (On Going)
+                                                    </span>
+                                                </div>
+                                            </td>
+                                            <td class="p-2 text-end">
+                                                @if ((Model.IsActive) && (Model.AllActivitiesScheduled || Model.ContractDefinitionScheduled))
+                                                {
+                                                    <a asp-controller="PMS" asp-action="AppraisalCdgs" asp-route-id="@Model.ReviewHeaderId" title="Continue" class="btn btn-sm btn-success" style="width:100px">
+                                                        <span class="text-white fw-bold">Continue</span>
+                                                    </a>
+                                                    <a asp-controller="PMS" asp-action="MoveToNextStep" asp-route-id="@Model.ReviewHeaderId" title="Move to the Next Step" class="btn btn-sm btn-dark" style="width:100px">
+                                                        <span class="text-white fw-bold">Next</span>
+                                                    </a>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                    else if (Model.CurrentReviewStageId < 4)
+                                    {
+                                        <tr style="border-bottom:2px solid #abb2b9">
+                                            <td style="min-width:120px">
+                                                <i title="Not Started" class="bi bi-plus-lg" style="font-size:1.3rem; font-weight:bolder; color:#17202a"></i>
+                                                <span class="text-dark fw-bolder" style="font-size:1.0rem">Step 4</span>
+                                            </td>
+                                            <td>
+                                                <span class="text-dark fw-bold" style="font-size:1.0rem">
+                                                    Setting Up of Career Development Goal(s) (Not Started)
+                                                </span>
+                                            </td>
+                                            <td class="p-1 text-end">
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+
+                                if (item.ReviewStageId == 5)
+                                {
+                                    if (Model.CurrentReviewStageId > 5)
+                                    {
+                                        <tr style="border-bottom:2px solid #abb2b9">
+                                            <td style="min-width:120px">
+                                                <i title="Completed" class="bi bi-check-lg" style="font-size:1.5rem; font-weight:bolder; color:#239b56"></i>
+                                                <span class="text-dark fw-bolder ml-1" style="font-size:1.0rem">Step 5</span>
+                                            </td>
+                                            <td>
+                                                <div>
+                                                    <span class="text-dark fw-bold" style="font-size:1.0rem">
+                                                        Performance Contract Review and Approvals - (Completed)
+                                                    </span>
+                                                </div>
+                                            </td>
+                                            <td class="p-1 text-end">
+                                                <a asp-controller="PMS" asp-action="ShowAppraisalApprovals" asp-route-id="@Model.ReviewHeaderId" title="View Approval History" class="btn btn-sm btn-dark" style="width:150px">
+                                                    <span class="text-white fw-bold">View Approvals</span>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    }
+                                    else if (Model.CurrentReviewStageId == 5)
+                                    {
+                                        <tr style="border-bottom:2px solid #abb2b9">
+                                            <td style="min-width:120px">
+                                                <i title="You are Here" class="bi bi-arrow-return-right" style="font-size:1.5rem; font-weight:bolder; color:#17202a"></i>
+                                                <span class="text-dark fw-bolder" style="font-size:1.0rem">Step 5</span>
+                                            </td>
+                                            <td>
+                                                <div>
+                                                    <span class="text-dark fw-bold" style="font-size:1.0rem">
+                                                        Performance Contract Review and Approvals - (On Going)
+                                                    </span>
+                                                </div>
+                                            </td>
+                                            <td class="p-2 text-end">
+                                                <a asp-controller="PMS" asp-action="ShowAppraisalApprovals" asp-route-id="@Model.ReviewHeaderId" title="View Approval History" class="btn btn-sm btn-info" style="width:150px">
+                                                    <span class="text-white fw-bold">View Approvals</span>
+                                                </a>
+                                                @if ((Model.IsActive) && (Model.AllActivitiesScheduled || Model.ContractDefinitionScheduled))
+                                                {
+                                                    <a asp-controller="PMS" asp-action="AppraisalSubmissionHistory" asp-route-id="@Model.ReviewHeaderId" title="Submit" class="btn btn-sm btn-success" style="width:100px">
+                                                        <span class="text-white fw-bold">Submit</span>
+                                                    </a>
+                                                    <a asp-controller="PMS" asp-action="MoveToNextStep" asp-route-id="@Model.ReviewHeaderId" title="Move to the Next Step" class="btn btn-sm btn-dark" style="width:100px">
+                                                        <span class="text-white fw-bold">Next</span>
+                                                    </a>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                    else if (Model.CurrentReviewStageId < 5)
+                                    {
+                                        <tr style="border-bottom:2px solid #abb2b9">
+                                            <td style="min-width:120px">
+                                                <i title="Not Started" class="bi bi-plus-lg" style="font-size:1.3rem; font-weight:bolder; color:#17202a"></i>
+                                                <span class="text-dark fw-bolder" style="font-size:1.0rem">Step 5</span>
+                                            </td>
+                                            <td>
+                                                <span class="text-dark fw-bold" style="font-size:1.0rem">
+                                                    Performance Contract Review and Approvals - (Not Started)
+                                                </span>
+                                            </td>
+                                            <td class="p-1 text-end">
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+
+                                if (item.ReviewStageId == 6)
+                                {
+                                    if (Model.CurrentReviewStageId > 6)
+                                    {
+                                        <tr style="border-bottom:2px solid #abb2b9">
+                                            <td style="min-width:120px">
+                                                <i title="Completed" class="bi bi-check-lg" style="font-size:1.5rem; font-weight:bolder; color:#239b56"></i>
+                                                <span class="text-dark fw-bolder ml-1" style="font-size:1.0rem">Step 6</span>
+                                            </td>
+                                            <td>
+                                                <div>
+                                                    <span class="text-dark fw-bold" style="font-size:1.0rem">
+                                                        Performance Contract Agreement & Sign-Off - (Completed)
+                                                    </span>
+                                                </div>
+                                            </td>
+                                            <td class="p-1 text-end">
+                                                <a asp-controller="PMS" asp-action="ShowAppraiseeAgreement" asp-route-id="@Model.ReviewHeaderId" title="View Appraisee Agreement" class="btn btn-sm btn-dark" style="width:150px">
+                                                    <span class="text-white fw-bold">View Agreement</span>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    }
+                                    else if (Model.CurrentReviewStageId == 6)
+                                    {
+                                        <tr style="border-bottom:2px solid #abb2b9">
+                                            <td style="min-width:120px">
+                                                <i title="You are Here" class="bi bi-arrow-return-right" style="font-size:1.5rem; font-weight:bolder; color:#17202a"></i>
+                                                <span class="text-dark fw-bolder" style="font-size:1.0rem">Step 6</span>
+                                            </td>
+                                            <td>
+                                                <div>
+                                                    <span class="text-dark fw-bold" style="font-size:1.0rem">
+                                                        Performance Contract Agreement & Sign-Off - (On Going)
+                                                    </span>
+                                                </div>
+                                            </td>
+                                            <td class="p-2 text-end">
+                                                @if ((Model.IsActive) && (Model.AllActivitiesScheduled || Model.ContractDefinitionScheduled))
+                                                {
+                                                    <a asp-controller="PMS" asp-action="AcceptContract" asp-route-id="@Model.ReviewHeaderId" title="Agree & Sign Off" class="btn btn-sm btn-info" style="width:150px">
+                                                        <span class="text-white fw-bold">Agree & Sign Off</span>
+                                                    </a>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                    else if (Model.CurrentReviewStageId < 6)
+                                    {
+                                        <tr style="border-bottom:2px solid #abb2b9">
+                                            <td style="min-width:120px">
+                                                <i title="Not Started" class="bi bi-plus-lg" style="font-size:1.3rem; font-weight:bolder; color:#17202a"></i>
+                                                <span class="text-dark fw-bolder" style="font-size:1.0rem">Step 6</span>
+                                            </td>
+                                            <td>
+                                                <span class="text-dark fw-bold" style="font-size:1.0rem">
+                                                    Performance Contract Agreement & Sign-Off - (Not Started)
+                                                </span>
+                                            </td>
+                                            <td class="p-1 text-end">
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+
+                                if (item.ReviewStageId == 7)
+                                {
+                                    if (Model.CurrentReviewStageId > 7)
+                                    {
+                                        <tr style="border-bottom:2px solid #abb2b9">
+                                            <td style="min-width:120px">
+                                                <i title="Completed" class="bi bi-tag" style="font-size:1.5rem; font-weight:bolder; color:#239b56"></i>
+                                            </td>
+                                            <td>
+                                                <div>
+                                                    <span class="text-dark fw-bold" style="font-size:1.0rem">
+                                                        Performance Contract Definition Completed Successfully.
+                                                    </span>
+                                                </div>
+                                            </td>
+                                            <td class="p-1 text-end">
+                                                <a asp-controller="PMS" asp-action="ShowContractInfo" asp-route-id="@Model.ReviewHeaderId" asp-route-sd="@Model.AppraiseeId" title="View Performance Contract" class="btn btn-sm btn-dark" style="width:150px">
+                                                    <span class="text-white fw-bold">View Contract</span>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="3" style="background-color: #17a589; padding:4px">...</td>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="3" style="background-color:#5b2c6f; padding:4px">
+                                                <span class="text-white fw-bolder" style="font-size:1.0rem">2nd Phase: Performance Evaluation</span>
+                                            </td>
+                                        </tr>
+
+                                    }
+                                    else if (Model.CurrentReviewStageId == 7)
+                                    {
+                                        <tr style="border-bottom:2px solid #abb2b9">
+                                            <td style="min-width:120px">
+                                                <i title="Completed" class="bi bi-tag" style="font-size:1.5rem; font-weight:bolder; color:#239b56"></i>
+                                            </td>
+                                            <td>
+                                                <div>
+                                                    <span class="text-dark fw-bold" style="font-size:1.0rem">
+                                                        Performance Contract Definition Completed Successfully.
+                                                    </span>
+                                                </div>
+                                            </td>
+                                            <td class="p-1 text-end">
+                                                <a asp-controller="PMS" asp-action="ShowContractInfo" asp-route-id="@Model.ReviewHeaderId" asp-route-sd="@Model.AppraiseeId" title="View Performance Contract" class="btn btn-sm btn-dark" style="width:150px">
+                                                    <span class="text-white fw-bold">View Contract</span>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="3" style="background-color: #17a589; padding:4px">...</td>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="3" style="background-color:#5b2c6f; padding:4px">
+                                                <span class="text-white fw-bolder" style="font-size:1.0rem">2nd Phase: Performance Evaluation</span>
+                                            </td>
+                                        </tr>
+                                        <tr style="border-bottom:2px solid #abb2b9">
+                                            <td style="min-width:120px">
+                                            </td>
+                                            <td>
+                                                <div>
+                                                    <span class="text-dark fw-bold" style="font-size:1.0rem">
+                                                        Start Performance Evaluation.
+                                                    </span>
+                                                </div>
+                                            </td>
+                                            <td class="p-1 text-end">
+                                                <a asp-controller="PMS" asp-action="MoveToNextStep" asp-route-id="@Model.ReviewHeaderId" title="Move to the Next Step" class="btn btn-sm btn-dark" style="width:100px">
+                                                    <span class="text-white fw-bold">Start</span>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    }
+                                    else
+                                    {
+                                        <tr style="border-bottom:2px solid #abb2b9">
+                                            <td style="min-width:120px">
+                                                <i title="Completed" class="bi bi-tag" style="font-size:1.5rem; font-weight:bolder; color:#239b56"></i>
+                                            </td>
+                                            <td>
+                                                <div>
+                                                    <span class="text-dark fw-bold" style="font-size:1.0rem">
+                                                        End of Performance Contract Definition Phase - (Not Reached)
+                                                    </span>
+                                                </div>
+                                            </td>
+                                            <td class="p-1 text-end">
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="3" style="background-color: #17a589; padding:4px">...</td>
+                                        </tr>
+                                    }
+                                }
+
+                                if (item.ReviewStageId == 8)
+                                {
+                                    if (Model.CurrentReviewStageId < 8)
+                                    {
+                                        <tr style="border-bottom:2px solid #abb2b9">
+                                            <td style="min-width:120px">
+                                                <i title="Start Here" class="bi bi-plus-lg" style="font-size:1.5rem; font-weight:bolder; color:#17202a"></i>
+                                                <span class="text-dark fw-bolder ml-1" style="font-size:1.0rem; min-width:100px">Step 7</span>
+                                            </td>
+                                            <td>
+                                                <div>
+                                                    <span class="text-dark fw-bold" style="font-size:1.0rem">
+                                                        Self Evaluation - (Not Started)
+                                                    </span>
+                                                </div>
+                                            </td>
+                                            <td class="p-2 text-end">
+                                            </td>
+                                        </tr>
+                                    }
+                                    else if (Model.CurrentReviewStageId == 8)
+                                    {
+                                        <tr style="border-bottom:2px solid #abb2b9">
+                                            <td style="min-width:120px">
+                                                <i title="You are Here" class="bi bi-arrow-return-right" style="font-size:1.5rem; font-weight:bolder; color:#17202a"></i>
+                                                <span class="text-dark fw-bolder" style="font-size:1.0rem">Step 7</span>
+                                            </td>
+                                            <td>
+                                                <div>
+                                                    <span class="text-dark fw-bold" style="font-size:1.0rem">
+                                                        Self Evaluation - (On Going)
+                                                    </span>
+                                                </div>
+                                            </td>
+                                            <td class="p-2 text-end">
+                                                @if ((Model.IsActive) && (Model.AllActivitiesScheduled || Model.PerformanceEvaluationScheduled))
+                                                {
+                                                    <a asp-controller="PMS" asp-action="KpaEvaluationList" asp-route-id="@Model.ReviewHeaderId" asp-route-ad="@Model.AppraiseeId" title="KPA Evaluation List" class="btn btn-sm btn-success" style="width:100px">
+                                                        <span class="text-white fw-bold">Continue</span>
+                                                    </a>
+                                                    <a asp-controller="PMS" asp-action="MoveToNextStep" asp-route-id="@Model.ReviewHeaderId" asp-route-ad="@Model.AppraiseeId" title="Move to the Next Step" class="btn btn-sm btn-dark" style="width:100px">
+                                                        <span class="text-white fw-bold">Next</span>
+                                                    </a>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                    else if (Model.CurrentReviewStageId > 8)
+                                    {
+                                        <tr style="border-bottom:2px solid #abb2b9">
+                                            <td style="min-width:120px">
+                                                <i title="Completed" class="bi bi-check-lg" style="font-size:1.5rem; font-weight:bolder; color:#239b56"></i>
+                                                <span class="text-dark fw-bolder ml-1" style="font-size:1.0rem">Step 7</span>
+                                            </td>
+                                            <td>
+                                                <span class="text-dark fw-bold" style="font-size:1.0rem">
+                                                    Self Evaluation - (Completed)
+                                                </span>
+                                            </td>
+                                            <td class="p-2 text-end">
+                                                <a asp-controller="PMS" asp-action="EvaluationResult" asp-route-id="@Model.ReviewHeaderId" asp-route-ad="@Model.AppraiseeId" title="View Evaluation Result" class="btn btn-sm btn-dark" style="width:150px">
+                                                    <span class="text-white fw-bold">View Result</span>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+
+                                if (item.ReviewStageId == 9)
+                                {
+                                    if (Model.CurrentReviewStageId < 9)
+                                    {
+                                        <tr style="border-bottom:2px solid #abb2b9">
+                                            <td style="min-width:120px">
+                                                <i title="Start Here" class="bi bi-plus-lg" style="font-size:1.5rem; font-weight:bolder; color:#17202a"></i>
+                                                <span class="text-dark fw-bolder ml-1" style="font-size:1.0rem; min-width:100px">Step 8</span>
+                                            </td>
+                                            <td>
+                                                <div>
+                                                    <span class="text-dark fw-bold" style="font-size:1.0rem">
+                                                        Final Evaluation - (Not Started)
+                                                    </span>
+                                                </div>
+                                            </td>
+                                            <td class="p-2 text-end">
+                                            </td>
+                                        </tr>
+                                    }
+                                    else if (Model.CurrentReviewStageId == 9)
+                                    {
+                                        <tr style="border-bottom:2px solid #abb2b9">
+                                            <td style="min-width:120px">
+                                                <i title="You are Here" class="bi bi-arrow-return-right" style="font-size:1.5rem; font-weight:bolder; color:#17202a"></i>
+                                                <span class="text-dark fw-bolder" style="font-size:1.0rem">Step 8</span>
+                                            </td>
+                                            <td>
+                                                <div>
+                                                    <span class="text-dark fw-bold" style="font-size:1.0rem">
+                                                        Final Evaluation - (On Going)
+                                                    </span>
+                                                </div>
+                                            </td>
+                                            <td class="p-2 text-end">
+                                                <a asp-controller="PMS" asp-action="ShowEvaluations" asp-route-id="@Model.ReviewHeaderId" title="View Evaluations" class="btn btn-sm btn-dark" style="width:150px">
+                                                    <span class="text-white fw-bold">View Results</span>
+                                                </a>
+
+                                                @if ((Model.IsActive) && (Model.AllActivitiesScheduled || Model.PerformanceEvaluationScheduled))
+                                                {
+                                                    <a asp-controller="PMS" asp-action="SubmitAppraisal" asp-route-id="@Model.ReviewHeaderId" title="Submit for Evaluation" class="btn btn-sm btn-success" style="width:100px">
+                                                        <span class="text-white fw-bold">Submit</span>
+                                                    </a>
+                                                    <a asp-controller="PMS" asp-action="MoveToNextStep" asp-route-id="@Model.ReviewHeaderId" title="Move to the Next Step" class="btn btn-sm btn-dark" style="width:100px">
+                                                        <span class="text-white fw-bold">Next</span>
+                                                    </a>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                    else if (Model.CurrentReviewStageId > 9)
+                                    {
+                                        <tr style="border-bottom:2px solid #abb2b9">
+                                            <td style="min-width:120px">
+                                                <i title="Completed" class="bi bi-check-lg" style="font-size:1.5rem; font-weight:bolder; color:#239b56"></i>
+                                                <span class="text-dark fw-bolder ml-1" style="font-size:1.0rem">Step 8</span>
+                                            </td>
+                                            <td>
+                                                <span class="text-dark fw-bold" style="font-size:1.0rem">
+                                                    Final Evaluation - (Completed)
+                                                </span>
+                                            </td>
+                                            <td class="p-2 text-end">
+                                                <a asp-controller="PMS" asp-action="ShowEvaluations" asp-route-id="@Model.ReviewHeaderId" title="View Evaluations" class="btn btn-sm btn-dark" style="width:150px">
+                                                    <span class="text-white fw-bold">View Evaluations</span>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+
+                                if (item.ReviewStageId == 10)
+                                {
+                                    if (Model.CurrentReviewStageId > 10)
+                                    {
+                                        <tr style="border-bottom:2px solid #abb2b9">
+                                            <td style="min-width:120px">
+                                                <i title="Completed" class="bi bi-check-lg" style="font-size:1.5rem; font-weight:bolder; color:#239b56"></i>
+                                                <span class="text-dark fw-bolder ml-1" style="font-size:1.0rem">Step 9</span>
+                                            </td>
+                                            <td>
+                                                <div>
+                                                    <span class="text-dark fw-bold" style="font-size:1.0rem">
+                                                        Evaluation Result Approvals - (Completed)
+                                                    </span>
+                                                </div>
+                                            </td>
+                                            <td class="p-1 text-end">
+                                                <a asp-controller="PMS" asp-action="ShowAppraisalApprovals" asp-route-id="@Model.ReviewHeaderId" title="View Approval History" class="btn btn-sm btn-dark" style="width:150px">
+                                                    <span class="text-white fw-bold">View Approvals</span>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    }
+                                    else if (Model.CurrentReviewStageId == 10)
+                                    {
+                                        <tr style="border-bottom:2px solid #abb2b9">
+                                            <td style="min-width:120px">
+                                                <i title="You are Here" class="bi bi-arrow-return-right" style="font-size:1.5rem; font-weight:bolder; color:#17202a"></i>
+                                                <span class="text-dark fw-bolder" style="font-size:1.0rem">Step 9</span>
+                                            </td>
+                                            <td>
+                                                <div>
+                                                    <span class="text-dark fw-bold" style="font-size:1.0rem">
+                                                        Evaluation Result Approvals - (On Going)
+                                                    </span>
+                                                </div>
+                                            </td>
+                                            <td class="p-2 text-end">
+                                                <a asp-controller="PMS" asp-action="ShowAppraisalApprovals" asp-route-id="@Model.ReviewHeaderId" title="View Approval History" class="btn btn-sm btn-dark" style="width:150px">
+                                                    <span class="text-white fw-bold">View Approvals</span>
+                                                </a>
+                                                @if ((Model.IsActive) && (Model.AllActivitiesScheduled || Model.PerformanceEvaluationScheduled))
+                                                {
+                                                    <a asp-controller="PMS" asp-action="AppraisalSubmissionHistory" asp-route-id="@Model.ReviewHeaderId" title="Submit" class="btn btn-sm btn-success" style="width:75px">
+                                                        <span class="text-white fw-bold">Submit</span>
+                                                    </a>
+                                                    <a asp-controller="PMS" asp-action="MoveToNextStep" asp-route-id="@Model.ReviewHeaderId" title="Move to the Next Step" class="btn btn-sm btn-dark" style="width:100px">
+                                                        <span class="text-white fw-bold">Next</span>
+                                                    </a>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                    else if (Model.CurrentReviewStageId < 10)
+                                    {
+                                        <tr style="border-bottom:2px solid #abb2b9">
+                                            <td style="min-width:120px">
+                                                <i title="Not Started" class="bi bi-plus-lg" style="font-size:1.3rem; font-weight:bolder; color:#17202a"></i>
+                                                <span class="text-dark fw-bolder" style="font-size:1.0rem">Step 9</span>
+                                            </td>
+                                            <td>
+                                                <span class="text-dark fw-bold" style="font-size:1.0rem">
+                                                    Evaluation Result Approvals - (Not Started)
+                                                </span>
+                                            </td>
+                                            <td class="p-1 text-end">
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+
+                                if (item.ReviewStageId == 11)
+                                {
+                                    if (Model.CurrentReviewStageId > 11)
+                                    {
+                                        <tr style="border-bottom:2px solid #abb2b9">
+                                            <td style="min-width:120px">
+                                                <i title="Completed" class="bi bi-check-lg" style="font-size:1.5rem; font-weight:bolder; color:#239b56"></i>
+                                                <span class="text-dark fw-bolder ml-1" style="font-size:1.0rem">Step 10</span>
+                                            </td>
+                                            <td>
+                                                <div>
+                                                    <span class="text-dark fw-bold" style="font-size:1.0rem">
+                                                        Evaluation Result Sign-Off - (Completed)
+                                                    </span>
+                                                </div>
+                                            </td>
+                                            <td class="p-1 text-end">
+                                                <a asp-controller="PMS" asp-action="ShowEvaluationSignOff" asp-route-id="@Model.ReviewHeaderId" title="Show Sign Off Copy" class="btn btn-sm btn-dark" style="width:150px">
+                                                    <span class="text-white fw-bold">View Sign Off </span>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    }
+                                    else if (Model.CurrentReviewStageId == 11)
+                                    {
+                                        <tr style="border-bottom:2px solid #abb2b9">
+                                            <td style="min-width:120px">
+                                                <i title="You are Here" class="bi bi-arrow-return-right" style="font-size:1.5rem; font-weight:bolder; color:#17202a"></i>
+                                                <span class="text-dark fw-bolder" style="font-size:1.0rem">Step 10</span>
+                                            </td>
+                                            <td>
+                                                <div>
+                                                    <span class="text-dark fw-bold" style="font-size:1.0rem">
+                                                        Evaluation Result Sign-Off - (On Going)
+                                                    </span>
+                                                </div>
+                                            </td>
+                                            <td class="p-2 text-end">
+                                                @if ((Model.IsActive) && (Model.AllActivitiesScheduled || Model.PerformanceEvaluationScheduled))
+                                                {
+                                                    <a asp-controller="PMS" asp-action="AcceptEvaluation" asp-route-id="@Model.ReviewHeaderId" title="Agree & Sign Off" class="btn btn-sm btn-info" style="width:150px">
+                                                        <span class="text-white fw-bold">Sign Off</span>
+                                                    </a>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                    else if (Model.CurrentReviewStageId < 11)
+                                    {
+                                        <tr style="border-bottom:2px solid #abb2b9">
+                                            <td style="min-width:120px">
+                                                <i title="Not Started" class="bi bi-plus-lg" style="font-size:1.3rem; font-weight:bolder; color:#17202a"></i>
+                                                <span class="text-dark fw-bolder" style="font-size:1.0rem">Step 10</span>
+                                            </td>
+                                            <td>
+                                                <span class="text-dark fw-bold" style="font-size:1.0rem">
+                                                    Evaluation Result Sign-Off - (Not Started)
+                                                </span>
+                                            </td>
+                                            <td class="p-1 text-end">
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+
+                                if (item.ReviewStageId == 12)
+                                {
+                                    if (Model.CurrentReviewStageId >= 12)
+                                    {
+                                        <tr style="border-bottom:2px solid #abb2b9">
+                                            <td style="min-width:120px">
+                                                <i title="Completed" class="bi bi-tag" style="font-size:1.5rem; font-weight:bolder; color:#239b56"></i>
+                                            </td>
+                                            <td>
+                                                <div>
+                                                    <span class="text-dark fw-bold" style="font-size:1.0rem">
+                                                        Performance Evaluation Completed Successfully.
+                                                    </span>
+                                                </div>
+                                            </td>
+                                            <td class="p-1 text-end">
+                                                <a asp-controller="PMS" asp-action="ShowSelectedResult" asp-route-id="@Model.ReviewHeaderId" title="View Evaluation Result" class="btn btn-sm btn-dark" style="width:150px">
+                                                    <span class="text-white fw-bold">View Result</span>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="3" style="background-color: #17a589; padding:4px">...</td>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="3" style="background-color:#273746; padding:4px">
+                                                <span class="text-white fw-bolder" style="font-size:1.1rem">Feed Back on Performance Evaluation</span>
+                                            </td>
+                                        </tr>
+                                        <tr style="border-bottom:2px solid #abb2b9">
+                                            <td style="min-width:120px">
+                                            </td>
+                                            <td>
+                                                <div>
+                                                    <span class="text-dark fw-bold" style="font-size:1.0rem">
+                                                        Complete Feedback Form
+                                                    </span>
+                                                </div>
+                                            </td>
+                                            <td class="p-1 text-end">
+                                                <a asp-controller="PMS" asp-action="ManageFeedback" asp-route-id="@Model.ReviewHeaderId" asp-route-sd="@Model.ReviewSessionId" title="Complete Feed Back Form" class="btn btn-sm btn-dark" style="width:150px">
+                                                    <span class="text-white fw-bold">Go</span>
+                                                </a>
+                                            </td>
+                                        </tr>
+
+                                    }
+                                    else
+                                    {
+                                        <tr style="border-bottom:2px solid #abb2b9">
+                                            <td style="min-width:120px">
+                                                <i title="Completed" class="bi bi-tag" style="font-size:1.5rem; font-weight:bolder; color:#239b56"></i>
+                                            </td>
+                                            <td>
+                                                <div>
+                                                    <span class="text-dark fw-bold" style="font-size:1.0rem">
+                                                        End of Performance Contract Definition Phase - (Not Reached)
+                                                    </span>
+                                                </div>
+                                            </td>
+                                            <td class="p-1 text-end">
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="3" style="background-color: #17a589; padding:4px">...</td>
+                                        </tr>
+                                    }
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+
+        </div>
+    </div>
+</div>

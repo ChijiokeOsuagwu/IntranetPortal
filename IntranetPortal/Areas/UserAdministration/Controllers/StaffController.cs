@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using IntranetPortal.Areas.UserAdministration.Models;
+using IntranetPortal.Base.Models.AssetManagerModels;
 using IntranetPortal.Base.Models.EmployeeRecordModels;
 using IntranetPortal.Base.Models.SecurityModels;
 using IntranetPortal.Base.Services;
@@ -12,6 +13,7 @@ using IntranetPortal.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Configuration;
 
 namespace IntranetPortal.Areas.UserAdministration.Controllers
@@ -38,96 +40,42 @@ namespace IntranetPortal.Areas.UserAdministration.Controllers
             _dataProtector = dataProtectionProvider.CreateProtector(dataProtectionEncryptionStrings.RouteValuesEncryptionCode);
         }
 
+        #region Employee User Controller Actions
         [Authorize(Roles = "XYALLACCZ")]
-        public async Task<IActionResult> UserList(string currentFilter, string searchString, int? pageNumber)
+        public async Task<IActionResult> UserList(string ss)
         {
+            EmployeeUserListViewModel model = new EmployeeUserListViewModel();
+            model.ss = ss;
 
-            if (searchString != null)
+            if (!string.IsNullOrEmpty(ss))
             {
-                pageNumber = 1;
-            }
-            else
-            {
-                searchString = currentFilter;
-            }
-
-            ViewData["CurrentFilter"] = searchString;
-            List<EmployeeUser> users = new List<EmployeeUser>();
-
-            if (!String.IsNullOrEmpty(searchString))
-            {
-                var entities = await _securityService.SearchEmployeeUsersByNameAsync(searchString).ConfigureAwait(false);
-                users = entities.ToList();
-                if(users.Count == 1)
+                var entities = await _securityService.SearchEmployeeUsersByNameAsync(ss);
+                model.EmployeeUsers = entities.ToList();
+                if(model.EmployeeUsers.Count == 1)
                 {
-                    EmployeeUser user = users.First();
+                    EmployeeUser user = model.EmployeeUsers.First();
                     return RedirectToAction("EmployeeUserDetails", new { id = user.UserID});
                 }
             }
-            int pageSize = 10;
-            return View(PaginatedList<EmployeeUser>.CreateAsync(users.AsQueryable(), pageNumber ?? 1, pageSize));
+            return View(model);
         }
 
         [Authorize(Roles = "XYALLACCZ")]
-        public async Task<IActionResult> SelectStaff(string sortOrder, string currentFilter, string searchString, int? pageNumber)
+        public async Task<IActionResult> SelectStaff(string ss)
         {
-            ViewData["CurrentSort"] = sortOrder;
-            ViewData["NameSortParm"] = String.IsNullOrEmpty(sortOrder) ? "name_desc" : "";
-            ViewData["UnitSortParm"] = sortOrder == "unit" ? "unit_desc" : "unit";
-            ViewData["DeptSortParm"] = sortOrder == "dept" ? "dept_desc" : "dept";
-            ViewData["LocSortParm"] = sortOrder == "loc" ? "loc_desc" : "loc";
+            SelectStaffListViewModel model = new SelectStaffListViewModel();
 
-            if (searchString != null)
+            model.ss = ss;
+            if (!string.IsNullOrEmpty(ss))
             {
-                pageNumber = 1;
+                model.Employees = await _employeeRecordService.GetNonUserEmployeesByNameAsync(ss);
             }
             else
             {
-                searchString = currentFilter;
+                model.Employees = await _employeeRecordService.GetAllNonUserEmployeesAsync();
             }
 
-            ViewData["CurrentFilter"] = searchString;
-            List<Employee> employees = new List<Employee>();
-
-            if (!String.IsNullOrEmpty(searchString))
-            {
-                employees = await _employeeRecordService.GetNonUserEmployeesByNameAsync(searchString);
-            }
-            else
-            {
-                employees = await _employeeRecordService.GetAllNonUserEmployeesAsync();
-            }
-
-            switch (sortOrder)
-            {
-                case "name_desc":
-                    employees = employees.OrderByDescending(s => s.FullName).ToList();
-                    break;
-                case "unit":
-                    employees = employees.OrderBy(s => s.UnitName).ToList();
-                    break;
-                case "unit_desc":
-                    employees = employees.OrderByDescending(s => s.UnitName).ToList();
-                    break;
-                case "dept":
-                    employees = employees.OrderBy(s => s.DepartmentName).ToList();
-                    break;
-                case "dept_desc":
-                    employees = employees.OrderByDescending(s => s.DepartmentName).ToList();
-                    break;
-                case "loc":
-                    employees = employees.OrderBy(s => s.LocationName).ToList();
-                    break;
-                case "loc_desc":
-                    employees = employees.OrderByDescending(s => s.LocationName).ToList();
-                    break;
-                default:
-                    employees = employees.OrderBy(s => s.FullName).ToList();
-                    break;
-            }
-
-            int pageSize = 10;
-            return View(PaginatedList<Employee>.CreateAsync(employees.AsQueryable(), pageNumber ?? 1, pageSize));
+            return View(model);
         }
 
         [Authorize(Roles = "XYALLACCZ")]
@@ -471,5 +419,23 @@ namespace IntranetPortal.Areas.UserAdministration.Controllers
                 return View(model);
             }
         }
+        #endregion
+
+        #region Assets & Equipment Permission Controller Actions
+        [Authorize(Roles = "XYALLACCZ")]
+        public async Task<IActionResult> AssetsPermissions(string id)
+        {
+            AssetPermissionsListViewModel model = new AssetPermissionsListViewModel();
+            model.id = id;
+
+            if (!string.IsNullOrEmpty(id))
+            {
+                var entities = await _securityService.GetAssetPermissionsByUserIdAsync(id);
+                model.AssetPermissionList = entities.ToList();
+            }
+            return View(model);
+        }
+        #endregion
+
     }
 }

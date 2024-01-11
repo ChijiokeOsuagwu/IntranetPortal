@@ -1,0 +1,110 @@
+﻿
+@model IntranetPortal.Areas.PMS.Models.ManageAppraisalScheduleViewModel
+<h3 class="mb-1">Appraisal Schedules</h3>
+<hr />
+<div class="card mt-1" style="max-width:800px">
+    <div class="card-header bg-warning">
+        <h4 class="text-white">Cancel Appraisal Schedule</h4>
+    </div>
+    <div class="card-body bg-secondary">
+        @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-x-circle"></i>
+                <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (!String.IsNullOrEmpty(Model.ViewModelSuccessMessage))
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="bi bi-check-circle"></i>
+                <span class="fw-bold">@Model.ViewModelSuccessMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (!String.IsNullOrEmpty(Model.ViewModelWarningMessage))
+        {
+            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                <i class="bi bi-exclamation-circle"></i>
+                <span class="fw-bold">@Model.ViewModelWarningMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        <form asp-area="PMS" asp-controller="Settings" asp-action="CancelAppraisalSchedule" method="post" autocomplete="off">
+            <div class="row">
+                <div class="col-md-12 mb-3">
+                    <input type="hidden" asp-for="SessionScheduleId" />
+                    <input type="hidden" asp-for="ReviewSessionId" />
+                    <input type="hidden" asp-for="ScheduleTypeId" />
+                    <label asp-for="ActivityTypeId" class="form-label text-white fw-bold"></label>
+                    <div class="form-control"><span class="text-dark fw-bold">@Model.ActivityTypeDescription</span></div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label asp-for="ScheduleStartTime" class="form-label text-white fw-bold"></label>
+                    <div class="form-control"><span class="text-dark fw-bold">@Model.ScheduleStartTime.Value.ToLongDateString() @Model.ScheduleStartTime.Value.ToLongTimeString()</span></div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label asp-for="ScheduleEndTime" class="form-label text-white fw-bold"></label>
+                    <div class="form-control"><span class="text-dark fw-bold">@Model.ScheduleEndTime.Value.ToLongDateString() @Model.ScheduleEndTime.Value.ToLongTimeString()</span></div>
+                </div>
+            </div>
+            @switch (Model.ScheduleTypeId)
+            {
+                case 1:
+                    <div class="row">
+                        <div class="col-md-12">
+                            <label asp-for="ScheduleLocationId" class="form-label text-white fw-bold"></label>
+                            <div><span class="text-dark fw-bold">@Model.ScheduleLocationName</span></div>
+                        </div>
+                    </div>
+                    break;
+                case 2:
+                    <div class="row">
+                        <div class="col-md-12">
+                            <label asp-for="ScheduleDepartmentId" class="form-label text-white fw-bold"></label>
+                            <div><span class="text-dark fw-bold">@Model.ScheduleDepartmentName</span></div>
+                        </div>
+                    </div>
+                    break;
+                case 3:
+                    <div class="row">
+                        <div class="col-md-12">
+                            <label asp-for="ScheduleUnitId" class="form-label text-white fw-bold"></label>
+                            <div><span class="text-dark fw-bold">@Model.ScheduleUnitName</span></div>
+                        </div>
+                    </div>
+                    break;
+                case 4:
+                    <div class="row">
+                        <div class="col-md-12">
+                            <label asp-for="ScheduleEmployeeName" class="form-label text-white fw-bold"></label>
+                            <div><span class="text-dark fw-bold">@Model.ScheduleEmployeeName</span></div>
+                        </div>
+                    </div>
+                    break;
+                default:
+                    <div class="row mb-3">
+                        <div class="col-md-12 pt-2 pb-2">
+                            <i class="bi bi-check2-square" style="font-size:1.3rem; color:white"></i>
+                            <span class="text-white fw-bold ml-2" style="font-size:1.0rem">Scheduled for Everyone</span>
+                        </div>
+                    </div>
+                    break;
+            }
+            <div class="row mt-3">
+                <div class="col-md-12">
+                    <a asp-area="PMS" asp-controller="Settings" asp-action="AppraisalSchedules" asp-route-id="@Model.ReviewSessionId" class="btn btn-dark" style="width:100px" title="Exit">
+                        <span class="text-white">Exit</span>
+                    </a>
+                    @if (!Model.OperationIsSuccessful)
+                    {
+                        <button type="submit" class="btn btn-warning" title="Cancel Schedule" style="width:200px" onclick="return confirm('This Appraisal Schedule will be cancelled. Do you want to proceed?')"><span class="text-white">Cancel Schedule</span></button>
+                    }
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

@@ -88,7 +88,7 @@ namespace IntranetPortal.Areas.ContentManager.Controllers
                 string uploadsFolder = null;
                 string absoluteFilePath = null;
 
-                if (model.ImageFile != null & model.ImageFile.Length > 0)
+                if (model.ImageFile != null && model.ImageFile.Length > 0)
                 {
                     var supportedTypes = new[] { ".jpg", ".jpeg", ".png", ".gif" };
                     FileInfo fileInfo = new FileInfo(model.ImageFile.FileName);
@@ -99,11 +99,12 @@ namespace IntranetPortal.Areas.ContentManager.Controllers
                         return View(model);
                     }
 
-                    if(fileInfo.Length / (1048576) > 1)
-                    {
-                        model.ViewModelErrorMessage = "Sorry, this image is too large. Image size must not exceed 1MB.";
-                        return View(model);
-                    }
+                    //if(fileInfo.Length / (1048576) > 1)
+                    //{
+                    //    model.ViewModelErrorMessage = "Sorry, this image is too large. Image size must not exceed 1MB.";
+                    //    return View(model);
+                    //}
+
                     uploadsFolder = "uploads/cms/" + Guid.NewGuid().ToString() + "_" + model.ImageFile.FileName;
                     absoluteFilePath = Path.Combine(_webHostEnvironment.WebRootPath, uploadsFolder);
                     await model.ImageFile.CopyToAsync(new FileStream(absoluteFilePath, FileMode.Create));
@@ -112,6 +113,8 @@ namespace IntranetPortal.Areas.ContentManager.Controllers
                 {
                     PostTitle = model.PostTitle,
                     ImagePath = uploadsFolder,
+                    PostDetails = model.PostDetails,
+                    PostDetailsRaw = model.PostDetailsRaw,
                     EnableComment = model.EnableComments,
                     IsHidden = model.IsHidden,
                     PostSummary = model.PostSummary,
@@ -124,7 +127,8 @@ namespace IntranetPortal.Areas.ContentManager.Controllers
 
                 if (await _contentManager.CreatePostAsync(post))
                 {
-                    model.ViewModelSuccessMessage = $"Congratulations! New Post was added successfully.";
+                    //model.ViewModelSuccessMessage = $"Congratulations! New Post was added successfully.";
+                    return RedirectToAction("List", "Posts");
                 }
                 else
                 {
@@ -187,28 +191,29 @@ namespace IntranetPortal.Areas.ContentManager.Controllers
         {
             int PostId = 0;
             if (id > 0) { PostId = id; }
-            PostViewModel model = new PostViewModel();
+            PostEditViewModel model = new PostEditViewModel();
             var post = await _contentManager.GetPostByIdAsync(PostId);
             model.PostId = post.PostId;
             model.ImagePath = post.ImagePath;
+            model.OldImagePath = post.ImagePath;
             model.PostSummary = post.PostSummary;
             model.PostTitle = post.PostTitle;
             model.EnableComments = post.EnableComment;
             model.IsHidden = post.IsHidden;
             model.PostTypeId = (int)post.PostTypeId;
-            //model.Id = article.PostId;
+            model.PostDetailsRaw = post.PostDetailsRaw;
             return View(model);
         }
 
         [HttpPost]
         [Authorize(Roles = "PCMMGACNT, XYALLACCZ")]
-        public async Task<IActionResult> Edit(PostViewModel model)
+        public async Task<IActionResult> Edit(PostEditViewModel model)
         {
             if (ModelState.IsValid)
             {
                 Post post = new Post();
                 string absoluteFilePath = string.Empty;
-                string uploadsFolder = string.Empty;
+                string uploadedFilePath = string.Empty;
 
                 if (model.ImageFile != null && model.ImageFile.Length > 0)
                 {
@@ -221,14 +226,15 @@ namespace IntranetPortal.Areas.ContentManager.Controllers
                         return View(model);
                     }
 
-                    if (fileInfo.Length / (1048576) > 1)
-                    {
-                        model.ViewModelErrorMessage = "Sorry, this image is too large. Image size must not exceed 1MB.";
-                        return View(model);
-                    }
-                    uploadsFolder = "uploads/cms/" + Guid.NewGuid().ToString() + "_" + model.ImageFile.FileName;
-                    absoluteFilePath = Path.Combine(_webHostEnvironment.WebRootPath, uploadsFolder);
+                    uploadedFilePath = "uploads/cms/" + Guid.NewGuid().ToString() + "_" + model.ImageFile.FileName;
+                    absoluteFilePath = Path.Combine(_webHostEnvironment.WebRootPath, uploadedFilePath);
                     await model.ImageFile.CopyToAsync(new FileStream(absoluteFilePath, FileMode.Create));
+
+                    FileInfo oldFile = new FileInfo(Path.Combine(_webHostEnvironment.WebRootPath, model.OldImagePath));
+                    if (oldFile.Exists)
+                    {
+                        oldFile.Delete();
+                    }
                 }
 
                 post.IsHidden = model.IsHidden;
@@ -237,13 +243,14 @@ namespace IntranetPortal.Areas.ContentManager.Controllers
                 post.ModifiedDate = DateTime.UtcNow;
                 post.ModifiedBy = HttpContext.User.Identity.Name ?? string.Empty;
                 post.PostTitle = model.PostTitle;
-                post.ImagePath = uploadsFolder;
+                post.ImagePath = uploadedFilePath;
                 post.EnableComment = model.EnableComments;
-
+                post.PostDetailsRaw = model.PostDetailsRaw;
+                post.PostId = model.PostId.Value;
 
                 if (await _contentManager.UpdatePostAsync(post))
                 {
-                    model.ViewModelSuccessMessage = $"Congratulations! Post was updated successfully.";
+                    return RedirectToAction("List", "Posts");
                 }
                 else
                 {
@@ -258,5 +265,28 @@ namespace IntranetPortal.Areas.ContentManager.Controllers
             return View(model);
         }
 
+
+        #region Helper Controller Action Methods
+        public string DeletePost(int id)
+        {
+            if (id < 1) { return "parameter error"; }
+            string actionBy = HttpContext.User.Identity.Name;
+            try
+            {
+                if(_contentManager.DeletePostAsync(id).Result)
+                {
+                    return "success";
+                }
+                else
+                {
+                    return "method failure";
+                }
+            }
+            catch
+            {
+                return "service error";
+            }
+        }
+        #endregion
     }
 }

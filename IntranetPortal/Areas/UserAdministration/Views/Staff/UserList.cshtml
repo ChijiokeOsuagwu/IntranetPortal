@@ -1,6 +1,6 @@
-﻿@model IntranetPortal.Models.PaginatedList<IntranetPortal.Base.Models.SecurityModels.EmployeeUser>
+﻿@model IntranetPortal.Areas.UserAdministration.Models.EmployeeUserListViewModel
 @{
-    ViewData["Title"] = "User Administration | User List";
+ ViewData["Title"] = "User Administration | User List";
 }
 <div class="container">
     <h3 class="mb-4">User List</h3>
@@ -12,7 +12,7 @@
                     <a asp-area="UserAdministration" asp-controller="Home" asp-action="Index" class="btn btn-dark" style="width:100px" title="Click to Go Back">
                         <span class="text-white">Back</span>
                     </a>
-                    <input type="text" class="border-0 ml-1" style="width:300px" id="SearchString" name="SearchString" value="@ViewData["CurrentFilter"]" placeholder="Enter Name ..." />
+                    <input asp-for="ss" class="border-0 ml-1" style="width:300px" placeholder="Enter Name ..." />
                     <input type="submit" value="Search" class="btn btn-primary mr-2" style="width:150px" />
                     <a asp-area="UserAdministration" asp-controller="Staff" asp-action="SelectStaff" class="btn btn-success" style="width:100px" title="Click to Add New Staff User">
                         <span class="text-white">New User</span>
@@ -22,7 +22,7 @@
         </div>
         <div class="row">
 
-            @if (Model == null || Model.Count < 1)
+            @if (Model == null || Model.EmployeeUsers == null || Model.EmployeeUsers.Count < 1)
             {
                 <div class="alert alert-info fade show" role="alert">
                     <i class="bi bi-info-circle"></i>
@@ -50,7 +50,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach (var item in Model)
+                        @foreach (var item in Model.EmployeeUsers)
                         {
                             <tr>
                                 <td>

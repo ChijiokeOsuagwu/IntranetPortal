@@ -15,6 +15,7 @@ namespace IntranetPortal.Base.Repositories.BaseRepositories
         Task<Person> GetPersonByIdAsync(string Id);
         Task<Person> GetPersonByNameAsync(string personName);
         Task<IList<Person>> SearchPersonsByNameAsync(string personName);
+        Task<IList<Person>> SearchNonEmployeePersonsByNameAsync(string personName);
         Task<IList<Person>> GetPersonsAsync();
     }
 }

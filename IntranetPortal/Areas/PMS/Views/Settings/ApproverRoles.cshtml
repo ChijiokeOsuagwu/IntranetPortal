@@ -1,0 +1,104 @@
+﻿@model IntranetPortal.Areas.PMS.Models.ApprovalRolesListViewModel
+<div class="container">
+    <h3 class="mb-1">Approver Role Settings</h3>
+    <hr />
+    <div class="mb-1">
+        <div class="mb-2">
+            <form asp-area="PMS" asp-controller="Settings" asp-action="ApprovalRoles" method="get" autocomplete="off">
+                <a asp-area="PMS" asp-controller="Settings" asp-action="Index" class="btn btn-dark" style="width:100px" title="Back">
+                    <span class="text-white">Back</span>
+                </a>
+                <a asp-area="PMS" asp-controller="Settings" asp-action="ManageApproverRole" asp-route-id="0" class="btn btn-success" style="width:200px" title="Add New Approver Role">
+                    <span class="text-white">New Role</span>
+                </a>
+            </form>
+
+            @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bi bi-x-circle"></i>
+                    <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+        </div>
+        <div class="row">
+            @if (Model == null || Model.ApprovalRoleList == null || Model.ApprovalRoleList.Count < 1)
+            {
+                <div class="alert alert-info fade show" role="alert">
+                    <i class="bi bi-info-circle"></i>
+                    <span class="fw-bold">No record was found.</span>
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-sm table-hover">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>
+                                    <span class="text-white fw-bolder">Role</span>
+                                </th>
+                                <th class="text-center">
+                                    <span class="text-white fw-bolder">Approves Contract</span>
+                                </th>
+                                <th class="text-center">
+                                    <span class="text-white fw-bolder">Approves Result</span>
+                                </th>
+                                <th>
+
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody class="table-light">
+                            @foreach (var item in Model.ApprovalRoleList)
+                            {
+                                <tr>
+                                    <td class="p-2">
+                                        <span class="fw-bolder">@item.ApprovalRoleName</span>
+                                    </td>
+                                    @if (item.MustApproveContract)
+                                    {
+                                        <td class="p-2 text-center">
+                                            <span class="fw-bolder"><i class="bi bi-check-square" style="color:#229954; font-size:1.2rem"></i></span>
+                                        </td>
+                                    }
+                                    else
+                                    {
+                                        <td class="p-2 text-center">
+                                            <span class="fw-bolder"><i class="bi bi-x-square" style="color:#cb4335; font-size:1.2rem"></i></span>
+                                        </td>
+                                    }
+                                    @if (item.MustApproveEvaluation)
+                                    {
+                                        <td class="p-2 text-center">
+                                            <span class="fw-bolder"><i class="bi bi-check-square" style="color:#229954; font-size:1.2rem"></i></span>
+                                        </td>
+                                    }
+                                    else
+                                    {
+                                        <td class="p-2 text-center">
+                                            <span class="fw-bolder"><i class="bi bi-x-square" style="color:#cb4335; font-size:1.2rem"></i></span>
+                                        </td>
+                                    }
+
+                                    <td class="p-2 text-end">
+                                        <a asp-area="PMS" asp-controller="Settings" asp-action="ManageApproverRole" asp-route-id="@item.ApprovalRoleId" title="Edit" class="btn btn-sm btn-info" style="width:75px">
+                                            <span class="text-white fw-bold">Edit</span>
+                                        </a>
+                                        <a asp-area="PMS" asp-controller="Settings" asp-action="DeleteApproverRole" asp-route-id="@item.ApprovalRoleId" title="Delete" class="btn btn-sm btn-danger" style="width:75px">
+                                            <span class="text-white fw-bold">Delete</span>
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+
+        </div>
+    </div>
+</div>
+
+

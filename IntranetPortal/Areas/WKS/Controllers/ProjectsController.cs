@@ -51,6 +51,12 @@ namespace IntranetPortal.Areas.WKS
                 if (id != null && id > 0)
                 {
                     model.id = id.Value;
+                    ProjectFolder folder = await _workspaceService.GetProjectFolderAsync(id.Value);
+                    if(folder != null)
+                    {
+                        model.FolderName = folder.Title;
+                    }
+
                     if (!string.IsNullOrWhiteSpace(sp))
                     {
                         var entities = await _workspaceService.SearchProjectsAsync(id.Value, sp);
@@ -58,7 +64,7 @@ namespace IntranetPortal.Areas.WKS
                     }
                     else
                     {
-                        var entities = await _workspaceService.GetWorkItemsByFolderIDAsync(id.Value);
+                        var entities = await _workspaceService.GetProjectsByFolderIDAsync(id.Value);
                         model.ProjectList = entities;
                     }
                 }
@@ -73,8 +79,8 @@ namespace IntranetPortal.Areas.WKS
                 model.ViewModelErrorMessage = ex.Message;
             }
 
-            var folderList = await _workspaceService.GetProjectFoldersByOwnerIDAsync(model.OwnerID);
-            ViewBag.FolderSelectList = new SelectList(folderList, "ID", "Title");
+            //var folderList = await _workspaceService.GetProjectFoldersByOwnerIDAsync(model.OwnerID);
+            //ViewBag.FolderSelectList = new SelectList(folderList, "ID", "Title");
             return View(model);
         }
 
@@ -109,21 +115,12 @@ namespace IntranetPortal.Areas.WKS
             else
             {
                 model.ID = id.Value;
-                Project project = await _workspaceService.GetWorkItemByIDAsync(id.Value);
+                Project project = await _workspaceService.GetProjectByIDAsync(id.Value);
                 model = model.ExtractViewModel(project);
             }
 
             var folderList = await _workspaceService.GetProjectFoldersByOwnerIDAsync(model.OwnerID);
             ViewBag.FolderSelectList = new SelectList(folderList, "ID", "Title");
-
-            var locationList = await _globalSettingsService.GetAllLocationsAsync();
-            ViewBag.LocationSelectList = new SelectList(locationList, "LocationID", "LocationName");
-
-            var departmentList = await _globalSettingsService.GetDepartmentsAsync();
-            ViewBag.DepartmentSelectList = new SelectList(departmentList, "DepartmentID", "DepartmentName");
-
-            var unitList = await _globalSettingsService.GetUnitsAsync();
-            ViewBag.UnitSelectList = new SelectList(unitList, "UnitID", "UnitName");
 
             return View(model);
         }
@@ -143,13 +140,22 @@ namespace IntranetPortal.Areas.WKS
                         Employee emp = new Employee();
                         emp = await _ermService.GetEmployeeByNameAsync(model.AssignedToName);
                         project.AssignedToID = emp.EmployeeID;
+                        project.UnitID = emp.UnitID;
+                        project.DepartmentID = emp.DepartmentID;
+                        project.LocationID = emp.LocationID;
                     }
 
                     if (project.ID > 0)
                     {
                         project.LastModifiedBy = actionBy;
                         project.LastModifiedTime = $"{DateTime.UtcNow.ToLongDateString()} {DateTime.UtcNow.ToLongTimeString()}";
-                        //bool IsUpdated = _workspaceService.Updae
+                        bool IsUpdated = await _workspaceService.UpdateProjectAsync(project);
+                        if (IsUpdated)
+                        {
+                            //model.ViewModelSuccessMessage = "New Project was added successfully!";
+                            //model.OperationIsSuccessful = true;
+                            return RedirectToAction("MyProjects", new { id = project.FolderID });
+                        }
                     }
                     else
                     {
@@ -158,8 +164,9 @@ namespace IntranetPortal.Areas.WKS
                         bool IsAdded = await _workspaceService.CreateProjectAsync(project);
                         if (IsAdded)
                         {
-                            model.ViewModelSuccessMessage = "New Project was added successfully!";
-                            model.OperationIsSuccessful = true;
+                            //model.ViewModelSuccessMessage = "New Project was added successfully!";
+                            //model.OperationIsSuccessful = true;
+                            return RedirectToAction("MyProjects", new { id = project.FolderID });
                         }
                     }
                 }
@@ -172,15 +179,6 @@ namespace IntranetPortal.Areas.WKS
             var folderList = await _workspaceService.GetProjectFoldersByOwnerIDAsync(model.OwnerID);
             ViewBag.FolderSelectList = new SelectList(folderList, "ID", "Title");
 
-            var locationList = await _globalSettingsService.GetAllLocationsAsync();
-            ViewBag.LocationSelectList = new SelectList(locationList, "LocationID", "LocationName");
-
-            var departmentList = await _globalSettingsService.GetDepartmentsAsync();
-            ViewBag.DepartmentSelectList = new SelectList(departmentList, "DepartmentID", "DepartmentName");
-
-            var unitList = await _globalSettingsService.GetUnitsAsync();
-            ViewBag.UnitSelectList = new SelectList(unitList, "UnitID", "UnitName");
-
             return View(model);
         }
 
@@ -189,7 +187,7 @@ namespace IntranetPortal.Areas.WKS
             ProjectViewModel model = new ProjectViewModel();
             try
             {
-                Project project = await _workspaceService.GetWorkItemByIDAsync(id);
+                Project project = await _workspaceService.GetProjectByIDAsync(id);
                 model = model.ExtractViewModel(project);
             }
             catch(Exception ex)
@@ -197,6 +195,48 @@ namespace IntranetPortal.Areas.WKS
                 model.ViewModelErrorMessage = ex.Message;
             }
 
+            return View(model);
+        }
+
+        public async Task<IActionResult> MoreInfo(int id)
+        {
+            ProjectMoreInfoViewModel model = new ProjectMoreInfoViewModel();
+
+            if (id > 0)
+            {
+                Project project = await _workspaceService.GetProjectByIDAsync(id);
+                model.ProjectID = project.ID;
+                model.FolderID = project.FolderID;
+                model.Deliverables = project.Deliverables;
+                model.Instructions = project.Instructions;
+            }
+            else
+            {
+                model.ViewModelErrorMessage = "Sorry, no record was found for the selected Project.";
+            }
+
+            return View(model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> MoreInfo(ProjectMoreInfoViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    string modifiedBy = HttpContext.User.Identity.Name;
+                    bool IsUpdated = await _workspaceService.UpdateProjectMoreInfoAsync(model.ProjectID, model.Instructions, model.Deliverables, modifiedBy);
+                        if (IsUpdated)
+                        {
+                            return RedirectToAction("MyProjects", new { id = model.FolderID });
+                        }
+                }
+                catch (Exception ex)
+                {
+                    model.ViewModelErrorMessage = ex.Message;
+                }
+            }
             return View(model);
         }
 

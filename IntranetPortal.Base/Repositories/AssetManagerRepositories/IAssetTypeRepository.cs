@@ -9,19 +9,21 @@ namespace IntranetPortal.Base.Repositories.AssetManagerRepositories
 {
     public interface IAssetTypeRepository
     {
+        #region Asset Type Read Action Methods
         Task<AssetType> GetByIdAsync(int assetTypeId);
         Task<IList<AssetType>> GetByNameAsync(string typeName);
-        Task<IList<AssetType>> GetByNameAsync(string typeName, IEntityPermission entityPermission);
         Task<IList<AssetType>> GetByCategoryIdAsync(int assetCategoryId);
-        Task<IList<AssetType>> GetByCategoryIdAsync(int assetCategoryId, IEntityPermission entityPermission);
         Task<IList<AssetType>> GetByClassIdAsync(int assetClassId);
-        Task<IList<AssetType>> GetByClassIdAsync(int assetClassId, IEntityPermission entityPermission);
+        Task<IList<AssetType>> GetByGroupIdAsync(int assetGroupId);
         Task<IList<AssetType>> GetAllAsync();
-        Task<IList<AssetType>> GetAllAsync(IEntityPermission entityPermission);
+        #endregion
+
+        #region Asset Type Write Action Methods
         Task<bool> AddAsync(AssetType assetType);
 
         Task<bool> EditAsync(AssetType assetType);
 
         Task<bool> DeleteAsync(int assetTypeId);
+        #endregion
     }
 }

@@ -46,7 +46,7 @@ namespace IntranetPortal.Areas.ContentManager.Controllers
                 var post = await _contentManager.GetPostByIdAsync(model.PostId);
                 if (post != null && post.PostId > 0)
                 {
-                    model.PostDetailsHtml = post.PostDetails;
+                    model.PostDetailsHtml = post.PostDetailsRaw;
                     model.PostDetailsRaw = post.PostDetailsRaw;
                     model.PostTypeId = post.PostTypeId;
                     model.PostTitle = post.PostTitle;

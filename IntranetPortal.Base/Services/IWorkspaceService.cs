@@ -36,12 +36,16 @@ namespace IntranetPortal.Base.Services
         Task<List<ProjectFolder>> SearchProjectFoldersAsync(int WorkspaceID, string FolderTitle, bool? isArchived = null);
         #endregion
 
-        #region Project Action Interfaces
+        #region Project Write Action Interfaces
         Task<bool> CreateProjectAsync(Project project);
         Task<bool> UpdateProjectAsync(Project project);
-        Task<Project> GetWorkItemByIDAsync(int projectID);
-        Task<Project> GetWorkItemByCodeAsync(string projectCode);
-        Task<List<Project>> GetWorkItemsByFolderIDAsync(int FolderID);
+        Task<bool> UpdateProjectMoreInfoAsync(int projectId, string instructions, string deliverables, string modifiedBy);
+        #endregion
+
+        #region Project Read Action Interfaces
+        Task<Project> GetProjectByIDAsync(int projectID);
+        Task<Project> GetProjectByCodeAsync(string projectCode);
+        Task<List<Project>> GetProjectsByFolderIDAsync(int FolderID);
         Task<List<Project>> GetProjectsByOwnerIDAsync(string OwnerID);
         Task<List<Project>> SearchProjectsAsync(string projectTitle);
         Task<List<Project>> SearchProjectsAsync(int FolderID, string projectTitle);

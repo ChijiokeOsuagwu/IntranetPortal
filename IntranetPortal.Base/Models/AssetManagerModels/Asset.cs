@@ -12,10 +12,13 @@ namespace IntranetPortal.Base.Models.AssetManagerModels
         public string AssetDescription { get; set; }
         public int AssetTypeID { get; set; }
         public string AssetTypeName { get; set; }
+        public int? AssetGroupID { get; set; }
+        public string AssetGroupName { get; set; }
         public int? AssetClassID { get; set; }
         public string AssetClassName { get; set; }
         public int AssetCategoryID { get; set; }
         public string AssetCategoryName { get; set; }
+        public int? AssetDivisionID { get; set; }
         public int? BaseLocationID { get; set; }
         public string BaseLocationName { get; set; }
         public int? BinLocationID { get; set; }

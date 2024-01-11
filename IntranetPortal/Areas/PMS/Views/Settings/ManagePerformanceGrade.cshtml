@@ -1,0 +1,91 @@
+﻿
+@model IntranetPortal.Areas.PMS.Models.ManageReviewGradeViewModel
+<h3 class="mb-1">Performance Grades</h3>
+<hr />
+<div class="card mt-1" style="max-width:1000px">
+    <div class="card-header bg-success">
+        <h4 class="text-white">Manage Performance Grade</h4>
+    </div>
+    <div class="card-body bg-secondary">
+        @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-x-circle"></i>
+                <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (!String.IsNullOrEmpty(Model.ViewModelSuccessMessage))
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="bi bi-check-circle"></i>
+                <span class="fw-bold">@Model.ViewModelSuccessMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (!String.IsNullOrEmpty(Model.ViewModelWarningMessage))
+        {
+            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                <i class="bi bi-exclamation-circle"></i>
+                <span class="fw-bold">@Model.ViewModelWarningMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        <form asp-area="PMS" asp-controller="Settings" asp-action="ManagePerformanceGrade" method="post" autocomplete="off">
+            <div class="row">
+                <div class="col-md-12 mb-3">
+                    <input type="hidden" asp-for="ReviewGradeId" />
+                    <input type="hidden" asp-for="GradeHeaderId" />
+                    <input type="hidden" asp-for="GradeType" />
+                    <label asp-for="ReviewGradeDescription" class="form-label text-white fw-bold"></label>
+                    <input asp-for="ReviewGradeDescription" class="form-control" placeholder="Enter Description">
+                    <div><span asp-validation-for="ReviewGradeDescription" class="text-danger"></span></div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label asp-for="LowerBandScore" class="form-label text-white fw-bold"></label>
+                    <input asp-for="LowerBandScore" class="form-control" min="0" max="100">
+                    <div><span asp-validation-for="LowerBandScore" class="text-danger"></span></div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label asp-for="UpperBandScore" class="form-label text-white fw-bold"></label>
+                    <input asp-for="UpperBandScore" class="form-control" min="0" max="100">
+                    <div><span asp-validation-for="UpperBandScore" class="text-danger"></span></div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label asp-for="GradeRank" class="form-label text-white fw-bold"></label>
+                    <select asp-for="GradeRank" class="form-control">
+                        <option value="">Select</option>
+                        <option value="1">1st</option>
+                        <option value="2">2nd</option>
+                        <option value="3">3rd</option>
+                        <option value="4">4th</option>
+                        <option value="5">5th</option>
+                        <option value="6">6th</option>
+                        <option value="7">7th</option>
+                        <option value="8">8th</option>
+                        <option value="9">9th</option>
+                        <option value="10">10th</option>
+                    </select>
+                    <div><span asp-validation-for="GradeRank" class="text-danger"></span></div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <a asp-area="PMS" asp-controller="Settings" asp-action="PerformanceGradeTemplate" asp-route-id="@Model.GradeHeaderId" class="btn btn-dark" style="width:100px" title="Exit">
+                        <span class="text-white">Exit</span>
+                    </a>
+                    <a asp-area="PMS" asp-controller="Settings" asp-action="ManagePerformanceGrade" asp-route-id="@Model.ReviewGradeId" asp-route-yd="@Model.GradeHeaderId" class="btn btn-warning" style="width:100px" title="Clear">
+                        <span class="text-white">Clear</span>
+                    </a>
+                    @if (!Model.OperationIsSuccessful)
+                    {
+                        <button type="submit" class="btn btn-success" title="Save" style="width:200px"><span class="text-white">Save</span></button>
+                    }
+
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

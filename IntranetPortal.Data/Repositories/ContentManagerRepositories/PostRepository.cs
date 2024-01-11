@@ -18,150 +18,8 @@ namespace IntranetPortal.Data.Repositories.ContentManagerRepositories
             _config = configuration;
         }
 
-        //=================== Posts Action Methods ===============================//
-        #region Post Action Methods
-
-        public async Task<bool> AddPostAsync(Post post)
-        {
-            int rows = 0;
-            var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
-            StringBuilder sb = new StringBuilder();
-            sb.Append($"INSERT INTO public.pcm_psts(title, summary, imgp, mdby, mddt, crby, crdt, typ_id, ");
-            sb.Append($"enable_com, is_hdn) VALUES (@title, @summary, @imgp, @mdby, @mddt, @crby, @crdt, ");
-            sb.Append($"@typ_id, @enable_com, @is_hdn); ");
-            string query = sb.ToString();
-            try
-            {
-                await conn.OpenAsync();
-                //Insert data
-                using (var cmd = new NpgsqlCommand(query, conn))
-                {
-                    var title = cmd.Parameters.Add("@title", NpgsqlDbType.Text);
-                    var summary = cmd.Parameters.Add("@summary", NpgsqlDbType.Text);
-                    var imgp = cmd.Parameters.Add("@imgp", NpgsqlDbType.Text);
-                    var mdby = cmd.Parameters.Add("@mdby", NpgsqlDbType.Text);
-                    var mddt = cmd.Parameters.Add("@mddt", NpgsqlDbType.TimestampTz);
-                    var crby = cmd.Parameters.Add("@crby", NpgsqlDbType.Text);
-                    var crdt = cmd.Parameters.Add("@crdt", NpgsqlDbType.TimestampTz);
-                    var typ_id = cmd.Parameters.Add("@typ_id", NpgsqlDbType.Integer);
-                    var enable_com = cmd.Parameters.Add("@enable_com", NpgsqlDbType.Boolean);
-                    var is_hdn = cmd.Parameters.Add("@is_hdn", NpgsqlDbType.Boolean);
-                    cmd.Prepare();
-                    title.Value = post.PostTitle;
-                    summary.Value = post.PostSummary;
-                    imgp.Value = post.ImagePath ?? (object)DBNull.Value;
-                    mdby.Value = post.ModifiedBy;
-                    mddt.Value = post.ModifiedDate;
-                    crby.Value = post.CreatedBy;
-                    crdt.Value = post.CreatedDate;
-                    typ_id.Value = post.PostTypeId;
-                    enable_com.Value = post.EnableComment;
-                    is_hdn.Value = post.IsHidden;
-
-                    rows = await cmd.ExecuteNonQueryAsync();
-                    await conn.CloseAsync();
-                }
-            }
-            catch (Exception ex)
-            {
-                //ErrorRepository errorRepository = new ErrorRepository(_config);
-                //ErrorEntity errorEntity = new ErrorEntity();
-                //errorEntity.ErrorMessage = ex.Message;
-                //errorEntity.ErrorDetail = ex.ToString();
-                //errorEntity.ErrorTime = $"{DateTime.UtcNow.ToLongDateString()} {DateTime.UtcNow.ToLongTimeString()} (UTC)";
-                //errorEntity.ErrorInnerSource = ex.Source;
-                //errorEntity.ErrorSource = "ApplicationUserRepository_AddApplicationUserAsync";
-                //errorRepository.AddError(errorEntity);
-                await conn.CloseAsync();
-                rows = -1;
-            }
-            return rows > 0;
-        }
-
-        public async Task<bool> DeletePostAsync(int id)
-        {
-            int rows = 0;
-            var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
-            string query = $"DELETE FROM public.pcm_psts WHERE (id = @id);";
-            try
-            {
-                await conn.OpenAsync();
-                //Delete data
-                using (var cmd = new NpgsqlCommand(query, conn))
-                {
-                    var postid = cmd.Parameters.Add("@id", NpgsqlDbType.Integer);
-                    cmd.Prepare();
-                    postid.Value = id;
-                    rows = await cmd.ExecuteNonQueryAsync();
-                    await conn.CloseAsync();
-                }
-            }
-            catch (Exception ex)
-            {
-                //ErrorRepository errorRepository = new ErrorRepository(_config);
-                //ErrorEntity errorEntity = new ErrorEntity();
-                //errorEntity.ErrorMessage = ex.Message;
-                //errorEntity.ErrorDetail = ex.ToString();
-                //errorEntity.ErrorTime = $"{DateTime.UtcNow.ToLongDateString()} {DateTime.UtcNow.ToLongTimeString()} (UTC)";
-                //errorEntity.ErrorInnerSource = ex.Source;
-                //errorEntity.ErrorSource = "ApplicationUserRepository_AddApplicationUserAsync";
-                //errorRepository.AddError(errorEntity);
-                await conn.CloseAsync();
-                rows = -1;
-            }
-            return rows > 0;
-        }
-
-        public async Task<bool> EditPostAsync(Post post)
-        {
-            int rows = 0;
-            var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
-            StringBuilder sb = new StringBuilder();
-            sb.Append($"UPDATE public.pcm_psts	SET title=@title, summary=@summary, imgp=@imgp, ");
-            sb.Append($"mdby=@mdby, mddt=@mddt, enable_com=@enable_com, is_hdn=@is_hdn WHERE(id = @id);");
-            string query = sb.ToString();
-            try
-            {
-                await conn.OpenAsync();
-                //Insert data
-                using (var cmd = new NpgsqlCommand(query, conn))
-                {
-                    var id = cmd.Parameters.Add("@id", NpgsqlDbType.Integer);
-                    var title = cmd.Parameters.Add("@title", NpgsqlDbType.Text);
-                    var summary = cmd.Parameters.Add("@summary", NpgsqlDbType.Text);
-                    var imgp = cmd.Parameters.Add("@imgp", NpgsqlDbType.Text);
-                    var mdby = cmd.Parameters.Add("@mdby", NpgsqlDbType.Text);
-                    var mddt = cmd.Parameters.Add("@mddt", NpgsqlDbType.TimestampTz);
-                    var enable_com = cmd.Parameters.Add("@enable_com", NpgsqlDbType.Boolean);
-                    var is_hdn = cmd.Parameters.Add("@is_hdn", NpgsqlDbType.Boolean);
-                    cmd.Prepare();
-                    title.Value = post.PostTitle;
-                    summary.Value = post.PostSummary;
-                    imgp.Value = post.ImagePath;
-                    mdby.Value = post.ModifiedBy;
-                    mddt.Value = post.ModifiedDate;
-                    enable_com.Value = post.EnableComment;
-                    is_hdn.Value = post.IsHidden;
-                    rows = await cmd.ExecuteNonQueryAsync();
-                    await conn.CloseAsync();
-                }
-            }
-            catch (Exception ex)
-            {
-                //ErrorRepository errorRepository = new ErrorRepository(_config);
-                //ErrorEntity errorEntity = new ErrorEntity();
-                //errorEntity.ErrorMessage = ex.Message;
-                //errorEntity.ErrorDetail = ex.ToString();
-                //errorEntity.ErrorTime = $"{DateTime.UtcNow.ToLongDateString()} {DateTime.UtcNow.ToLongTimeString()} (UTC)";
-                //errorEntity.ErrorInnerSource = ex.Source;
-                //errorEntity.ErrorSource = "ApplicationUserRepository_AddApplicationUserAsync";
-                //errorRepository.AddError(errorEntity);
-                await conn.CloseAsync();
-                rows = -1;
-            }
-            return rows > 0;
-        }
-
+        //============= Posts Read Action Methods =====================//
+        #region Post Read Action Methods
         public async Task<Post> GetPostByIdAsync(int id)
         {
             Post post = new Post();
@@ -169,8 +27,10 @@ namespace IntranetPortal.Data.Repositories.ContentManagerRepositories
             string query = String.Empty;
             StringBuilder sb = new StringBuilder();
             if (id < 1) { return null; }
-            sb.Append($"SELECT id, title, summary, details, imgp, mdby, crby, typ_id, enable_com, is_hdn, crdt, mddt, ");
-            sb.Append($"hs_cm, hs_md, dtl_rw FROM public.pcm_psts WHERE id = @id; ");
+            sb.Append("SELECT id, title, summary, details, imgp, mdby, ");
+            sb.Append("crby, typ_id, enable_com, is_hdn, crdt, mddt, ");
+            sb.Append("hs_cm, hs_md, dtl_rw FROM public.pcm_psts ");
+            sb.Append("WHERE id = @id;");
             query = sb.ToString();
             try
             {
@@ -199,6 +59,7 @@ namespace IntranetPortal.Data.Repositories.ContentManagerRepositories
                             post.HasMedia = reader["hs_md"] == DBNull.Value ? false : (bool)reader["hs_md"];
                             post.PostDetails = reader["details"] == DBNull.Value ? String.Empty : reader["details"].ToString();
                             post.PostDetailsRaw = reader["dtl_rw"] == DBNull.Value ? String.Empty : reader["dtl_rw"].ToString();
+
                         }
                 }
                 await conn.CloseAsync();
@@ -260,7 +121,8 @@ namespace IntranetPortal.Data.Repositories.ContentManagerRepositories
                 }
                 await conn.CloseAsync();
             }
-            catch (Exception ex) { 
+            catch (Exception ex)
+            {
 
                 await conn.CloseAsync();
                 throw new Exception(ex.Message);
@@ -372,7 +234,6 @@ namespace IntranetPortal.Data.Repositories.ContentManagerRepositories
 
         }
 
-
         public async Task<IList<Post>> GetByTypeIdAsync(int typeId)
         {
             List<Post> postlist = new List<Post>();
@@ -477,8 +338,184 @@ namespace IntranetPortal.Data.Repositories.ContentManagerRepositories
         }
 
         #endregion
-        
-        //=================== PostDetails Action Methods =========================//
+
+        //============= Posts Write Action Methods ====================//
+        #region Post Write Action Methods
+
+        public async Task<bool> AddPostAsync(Post post)
+        {
+            int rows = 0;
+            var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
+            StringBuilder sb = new StringBuilder();
+            sb.Append("INSERT INTO public.pcm_psts( title, summary, ");
+            sb.Append("details, imgp, mdby, crby, typ_id, enable_com, ");
+            sb.Append("is_hdn, crdt, mddt, dtl_rw) ");
+            sb.Append("VALUES (@title, @summary, @details, @imgp, ");
+            sb.Append("@mdby, @crby, @typ_id, @enable_com, ");
+            sb.Append("@is_hdn, @crdt, @mddt, @dtl_rw); ");
+
+            string query = sb.ToString();
+
+            await conn.OpenAsync();
+            //Insert data
+            using (var cmd = new NpgsqlCommand(query, conn))
+            {
+                var title = cmd.Parameters.Add("@title", NpgsqlDbType.Text);
+                var summary = cmd.Parameters.Add("@summary", NpgsqlDbType.Text);
+                var details = cmd.Parameters.Add("@details", NpgsqlDbType.Text);
+                var imgp = cmd.Parameters.Add("@imgp", NpgsqlDbType.Text);
+                var mdby = cmd.Parameters.Add("@mdby", NpgsqlDbType.Text);
+                var mddt = cmd.Parameters.Add("@mddt", NpgsqlDbType.TimestampTz);
+                var crby = cmd.Parameters.Add("@crby", NpgsqlDbType.Text);
+                var crdt = cmd.Parameters.Add("@crdt", NpgsqlDbType.TimestampTz);
+                var typ_id = cmd.Parameters.Add("@typ_id", NpgsqlDbType.Integer);
+                var enable_com = cmd.Parameters.Add("@enable_com", NpgsqlDbType.Boolean);
+                var is_hdn = cmd.Parameters.Add("@is_hdn", NpgsqlDbType.Boolean);
+                var dtl_rw = cmd.Parameters.Add("@dtl_rw", NpgsqlDbType.Text);
+                cmd.Prepare();
+                title.Value = post.PostTitle;
+                summary.Value = post.PostSummary;
+                details.Value = post.PostDetails ?? (object)DBNull.Value;
+                imgp.Value = post.ImagePath ?? (object)DBNull.Value;
+                mdby.Value = post.ModifiedBy;
+                mddt.Value = post.ModifiedDate;
+                crby.Value = post.CreatedBy;
+                crdt.Value = post.CreatedDate;
+                typ_id.Value = post.PostTypeId;
+                enable_com.Value = post.EnableComment;
+                is_hdn.Value = post.IsHidden;
+                dtl_rw.Value = post.PostDetailsRaw ?? (object)DBNull.Value;
+
+                rows = await cmd.ExecuteNonQueryAsync();
+            }
+            await conn.CloseAsync();
+            return rows > 0;
+        }
+
+        public async Task<bool> DeletePostAsync(int id)
+        {
+            int rows = 0;
+            var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
+            string query = $"DELETE FROM public.pcm_psts WHERE (id = @id);";
+            try
+            {
+                await conn.OpenAsync();
+                //Delete data
+                using (var cmd = new NpgsqlCommand(query, conn))
+                {
+                    var postid = cmd.Parameters.Add("@id", NpgsqlDbType.Integer);
+                    cmd.Prepare();
+                    postid.Value = id;
+                    rows = await cmd.ExecuteNonQueryAsync();
+                    await conn.CloseAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                //ErrorRepository errorRepository = new ErrorRepository(_config);
+                //ErrorEntity errorEntity = new ErrorEntity();
+                //errorEntity.ErrorMessage = ex.Message;
+                //errorEntity.ErrorDetail = ex.ToString();
+                //errorEntity.ErrorTime = $"{DateTime.UtcNow.ToLongDateString()} {DateTime.UtcNow.ToLongTimeString()} (UTC)";
+                //errorEntity.ErrorInnerSource = ex.Source;
+                //errorEntity.ErrorSource = "ApplicationUserRepository_AddApplicationUserAsync";
+                //errorRepository.AddError(errorEntity);
+                await conn.CloseAsync();
+                rows = -1;
+            }
+            return rows > 0;
+        }
+
+        public async Task<bool> EditPostAsync(Post post)
+        {
+            int rows = 0;
+            var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
+            StringBuilder sb = new StringBuilder();
+            sb.Append("UPDATE public.pcm_psts SET title=@title, summary=@summary, ");
+            sb.Append("details=@details, imgp=@imgp, mdby=@mdby, typ_id=@typ_id, ");
+            sb.Append("enable_com=@enable_com, is_hdn=@is_hdn, mddt=@mddt, ");
+            sb.Append("dtl_rw=@dtl_rw WHERE (id=@id);");
+
+            string query = sb.ToString();
+
+            await conn.OpenAsync();
+            //Insert data
+            using (var cmd = new NpgsqlCommand(query, conn))
+            {
+                var id = cmd.Parameters.Add("@id", NpgsqlDbType.Integer);
+                var title = cmd.Parameters.Add("@title", NpgsqlDbType.Text);
+                var summary = cmd.Parameters.Add("@summary", NpgsqlDbType.Text);
+                var details = cmd.Parameters.Add("@details", NpgsqlDbType.Text);
+                var imgp = cmd.Parameters.Add("@imgp", NpgsqlDbType.Text);
+                var mdby = cmd.Parameters.Add("@mdby", NpgsqlDbType.Text);
+                var mddt = cmd.Parameters.Add("@mddt", NpgsqlDbType.TimestampTz);
+                var typ_id = cmd.Parameters.Add("@typ_id", NpgsqlDbType.Integer);
+                var enable_com = cmd.Parameters.Add("@enable_com", NpgsqlDbType.Boolean);
+                var is_hdn = cmd.Parameters.Add("@is_hdn", NpgsqlDbType.Boolean);
+                var dtl_rw = cmd.Parameters.Add("@dtl_rw", NpgsqlDbType.Text);
+                cmd.Prepare();
+                id.Value = post.PostId;
+                title.Value = post.PostTitle;
+                summary.Value = post.PostSummary;
+                typ_id.Value = post.PostTypeId;
+                details.Value = post.PostDetails ?? (object)DBNull.Value;
+                imgp.Value = post.ImagePath ?? (object)DBNull.Value;
+                mdby.Value = post.ModifiedBy;
+                mddt.Value = post.ModifiedDate;
+                enable_com.Value = post.EnableComment;
+                is_hdn.Value = post.IsHidden;
+                dtl_rw.Value = post.PostDetailsRaw ?? (object)DBNull.Value;
+                rows = await cmd.ExecuteNonQueryAsync();
+            }
+            await conn.CloseAsync();
+            return rows > 0;
+        }
+
+        public async Task<bool> EditPostWithoutImageAsync(Post post)
+        {
+            int rows = 0;
+            var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
+            StringBuilder sb = new StringBuilder();
+            sb.Append("UPDATE public.pcm_psts SET title=@title, summary=@summary, ");
+            sb.Append("details=@details, mdby=@mdby, typ_id=@typ_id, ");
+            sb.Append("enable_com=@enable_com, is_hdn=@is_hdn, mddt=@mddt, ");
+            sb.Append("dtl_rw=@dtl_rw WHERE (id=@id);");
+
+            string query = sb.ToString();
+
+            await conn.OpenAsync();
+            //Insert data
+            using (var cmd = new NpgsqlCommand(query, conn))
+            {
+                var id = cmd.Parameters.Add("@id", NpgsqlDbType.Integer);
+                var title = cmd.Parameters.Add("@title", NpgsqlDbType.Text);
+                var summary = cmd.Parameters.Add("@summary", NpgsqlDbType.Text);
+                var details = cmd.Parameters.Add("@details", NpgsqlDbType.Text);
+                var mdby = cmd.Parameters.Add("@mdby", NpgsqlDbType.Text);
+                var mddt = cmd.Parameters.Add("@mddt", NpgsqlDbType.TimestampTz);
+                var typ_id = cmd.Parameters.Add("@typ_id", NpgsqlDbType.Integer);
+                var enable_com = cmd.Parameters.Add("@enable_com", NpgsqlDbType.Boolean);
+                var is_hdn = cmd.Parameters.Add("@is_hdn", NpgsqlDbType.Boolean);
+                var dtl_rw = cmd.Parameters.Add("@dtl_rw", NpgsqlDbType.Text);
+                cmd.Prepare();
+                id.Value = post.PostId;
+                title.Value = post.PostTitle;
+                summary.Value = post.PostSummary;
+                typ_id.Value = post.PostTypeId;
+                details.Value = post.PostDetails ?? (object)DBNull.Value;
+                mdby.Value = post.ModifiedBy;
+                mddt.Value = post.ModifiedDate;
+                enable_com.Value = post.EnableComment;
+                is_hdn.Value = post.IsHidden;
+                dtl_rw.Value = post.PostDetailsRaw ?? (object)DBNull.Value;
+                rows = await cmd.ExecuteNonQueryAsync();
+            }
+            await conn.CloseAsync();
+            return rows > 0;
+        }
+        #endregion
+
+        //============= PostDetails Action Methods ====================//
         #region Post Details
         public async Task<PostDetail> GetPostDetailsByIdAsync(int id)
         {
@@ -532,46 +569,32 @@ namespace IntranetPortal.Data.Repositories.ContentManagerRepositories
         {
             int rows = 0;
             var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
-            string query = $"UPDATE public.pcm_psts	SET details=@details, mdby=@mdby, mddt=@mddt WHERE(id = @id);";
-            try
-            {
-                await conn.OpenAsync();
-                //Insert data
-                using (var cmd = new NpgsqlCommand(query, conn))
-                {
-                    var id = cmd.Parameters.Add("@id", NpgsqlDbType.Integer);
-                    var details = cmd.Parameters.Add("@details", NpgsqlDbType.Text);
-                    var mdby = cmd.Parameters.Add("@mdby", NpgsqlDbType.Text);
-                    var mddt = cmd.Parameters.Add("@mddt", NpgsqlDbType.TimestampTz);
-                    cmd.Prepare();
-                    id.Value = postId;
-                    details.Value = htmlContent;
-                    mdby.Value = modifiedBy;
-                    mddt.Value = modifiedDate;
+            string query = $"UPDATE public.pcm_psts	SET dtl_rw=@dtl_rw, mdby=@mdby, mddt=@mddt WHERE(id = @id);";
 
-                    rows = await cmd.ExecuteNonQueryAsync();
-                    await conn.CloseAsync();
-                }
-            }
-            catch (Exception ex)
+            await conn.OpenAsync();
+            //Insert data
+            using (var cmd = new NpgsqlCommand(query, conn))
             {
-                //ErrorRepository errorRepository = new ErrorRepository(_config);
-                //ErrorEntity errorEntity = new ErrorEntity();
-                //errorEntity.ErrorMessage = ex.Message;
-                //errorEntity.ErrorDetail = ex.ToString();
-                //errorEntity.ErrorTime = $"{DateTime.UtcNow.ToLongDateString()} {DateTime.UtcNow.ToLongTimeString()} (UTC)";
-                //errorEntity.ErrorInnerSource = ex.Source;
-                //errorEntity.ErrorSource = "ApplicationUserRepository_AddApplicationUserAsync";
-                //errorRepository.AddError(errorEntity);
-                await conn.CloseAsync();
-                rows = -1;
+                var id = cmd.Parameters.Add("@id", NpgsqlDbType.Integer);
+                var dtl_rw = cmd.Parameters.Add("@dtl_rw", NpgsqlDbType.Text);
+                var mdby = cmd.Parameters.Add("@mdby", NpgsqlDbType.Text);
+                var mddt = cmd.Parameters.Add("@mddt", NpgsqlDbType.TimestampTz);
+                cmd.Prepare();
+                id.Value = postId;
+                dtl_rw.Value = htmlContent;
+                mdby.Value = modifiedBy;
+                mddt.Value = modifiedDate;
+
+                rows = await cmd.ExecuteNonQueryAsync();
+
             }
+            await conn.CloseAsync();
             return rows > 0;
         }
 
         #endregion
-       
-        //=================== Banners Action Methods =============================//
+
+        //============= Banners Action Methods ========================//
         #region Banners Action Methods
         public async Task<IList<Post>> GetAllBannersAsync()
         {
@@ -689,7 +712,7 @@ namespace IntranetPortal.Data.Repositories.ContentManagerRepositories
 
         #endregion
 
-        //=================== Announcements Action Methods =============================//
+        //============= Announcements Action Methods ==================//
         #region Announcements Action Methods
         public async Task<IList<Post>> GetAllAnnouncementsAsync()
         {
@@ -801,8 +824,7 @@ namespace IntranetPortal.Data.Repositories.ContentManagerRepositories
 
         #endregion
 
-
-        //=================== Other Action Methods ===============================//
+        //============= Other Action Methods ==========================//
         #region Other Action Methods
         public Task<IList<Post>> GetAnnouncementsAsync()
         {
@@ -964,7 +986,7 @@ namespace IntranetPortal.Data.Repositories.ContentManagerRepositories
                             HasComments = reader["hs_cm"] == DBNull.Value ? false : (bool)reader["hs_cm"],
                             HasMedia = reader["hs_md"] == DBNull.Value ? false : (bool)reader["hs_md"]
 
-                    });
+                        });
                     }
                 }
                 await conn.CloseAsync();

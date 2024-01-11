@@ -160,8 +160,9 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
                 {
                     if (model.AssetTypeID < 1 || string.IsNullOrEmpty(model.AssetID))
                     {
-                        var assets = await _assetManagerService.SearchAssetsByNameAsync(model.AssetName);
-                        asset = assets.ToList().FirstOrDefault();
+                        //var assets = await _assetManagerService.SearchAssetsByNameAsync(model.AssetName);
+                        asset = await _assetManagerService.GetAssetByNameAsync(model.AssetName);
+                        //asset = assets.ToList().FirstOrDefault();
                     }
                     else
                     {

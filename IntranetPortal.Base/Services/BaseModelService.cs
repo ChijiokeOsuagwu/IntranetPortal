@@ -131,6 +131,18 @@ namespace IntranetPortal.Base.Services
             return personList;
         }
 
+        public async Task<List<Person>> SearchNonEmployeePersonsByName(string personName)
+        {
+            List<Person> personList = new List<Person>();
+            var entities = await _personRepository.SearchNonEmployeePersonsByNameAsync(personName);
+            if (entities != null && entities.Count > 0)
+            {
+                personList = entities.ToList();
+            }
+            return personList;
+        }
+
+
         #endregion
 
         //=================================== Auto Number Service Methods ============================================================//

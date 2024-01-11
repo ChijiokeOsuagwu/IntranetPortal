@@ -142,8 +142,7 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
                     {
                         if (string.IsNullOrWhiteSpace(model.AssetID) || model.AssetTypeID < 1 || model.AssetCategoryID < 1)
                         {
-                            var assets = await _assetManagerService.SearchAssetsByNameAsync(model.AssetName);
-                            asset = assets.ToList().FirstOrDefault();
+                            asset = await _assetManagerService.GetAssetByNameAsync(model.AssetName);
                             model.AssetID = asset.AssetID;
                             model.AssetTypeID = asset.AssetTypeID;
                             model.AssetCategoryID = asset.AssetCategoryID;
@@ -251,8 +250,7 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
                         {
                             if (string.IsNullOrWhiteSpace(model.AssetID) || model.AssetTypeID < 1 || model.AssetCategoryID < 1)
                             {
-                                var assets = await _assetManagerService.SearchAssetsByNameAsync(model.AssetName);
-                                asset = assets.ToList().FirstOrDefault();
+                                asset = await _assetManagerService.GetAssetByNameAsync(model.AssetName);
                                 model.AssetID = asset.AssetID;
                                 model.AssetTypeID = asset.AssetTypeID;
                                 model.AssetCategoryID = asset.AssetCategoryID;

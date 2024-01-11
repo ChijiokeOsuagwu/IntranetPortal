@@ -1,0 +1,86 @@
+﻿@model IntranetPortal.Areas.PMS.Models.ReviewSessionsListViewModel
+<div class="container">
+    <h4 class="mb-1">Appraisal Sessions for @ViewBag.AppraiseeName</h4>
+    <hr />
+    <div class="mb-1">
+        <div class="mb-2">
+            <form asp-controller="PMS" asp-action="MyAppraisalSessions" method="get">
+                <a asp-controller="PMS" asp-action="Appraisals" class="btn btn-dark mr-3" style="width:100px" title="Exit">
+                    <span class="text-white">Back</span>
+                </a>
+                <select asp-for="Id" asp-items="@ViewBag.PerformanceYearsList" class="border-0" style="width:200px">
+                    <option value="">- Select Year -</option>
+                </select>
+                <input type="submit" value="Search" class="btn btn-dark text-white ml-3" style="width:100px" />
+            </form>
+
+            @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bi bi-x-circle"></i>
+                    <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+        </div>
+        <div class="row">
+            @if (Model == null || Model.ReviewSessionsList == null || Model.ReviewSessionsList.Count < 1)
+            {
+                <div class="alert alert-info fade show" role="alert">
+                    <i class="bi bi-info-circle"></i>
+                    <span class="fw-bold">No record was found.</span>
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-sm table-hover">
+                        <thead style="background-color:#2e4053">
+                            <tr>
+                                <th><h4 class="text-white fw-bolder">Appraisal Sessions</h4></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.ReviewSessionsList)
+                            {
+                                <tr style="border:2px solid #d5d8dc">
+                                    <td>
+                                        <div class="row pb-2">
+                                            <div class="col-md-6">
+                                                @if (item.IsActive)
+                                                {
+                                                    <span class="badge bg-success fw-bold fs-6">Open</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-danger fw-bold fs-6">Closed</span>
+                                                }
+                                                <span class="fw-bolder fs-5 pl-1">@item.Name</span>
+                                            </div>
+                                            <div class="col-md-2">
+                                                <span class="fw-bolder fs-5">@item.ReviewTypeName</span>
+                                            </div>
+                                            <div class="col-md-4">
+                                                @*<a asp-area="PMS" asp-controller="Settings" asp-action="ReviewSessionInfo" asp-route-id="@item.Id" asp-route-src="mas" title="Show Information" class="btn btn-sm btn-light text-dark">
+                                                    <i class="bi bi-info-lg fw-bolder" style="font-size:0.8rem;"></i><span class="fw-bold" style="font-size: 0.8rem;">Details</span>
+                                                </a>
+                                                <a asp-area="PMS" asp-Controller="Settings" asp-action="AppraisalGradesInfo" asp-route-id="@item.Id" title="Grade Settings" class="btn btn-sm btn-light text-dark">
+                                                    <i class="bi bi-percent fw-bolder" style="font-size: 0.8rem;"></i><span class="fw-bold ml-2" style="font-size: 0.8rem;">Grading</span>
+                                                </a>*@
+                                                <a asp-area="PMS" asp-Controller="Process" asp-action="MyAppraisalSteps" asp-route-id="@item.Id" title="Process" class="btn btn-sm btn-light text-dark">
+                                                    <i class="bi bi-pencil-square fw-bolder" style="font-size: 0.8rem;"></i><span class="fw-bold ml-2" style="font-size: 0.8rem;">Process</span>
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+

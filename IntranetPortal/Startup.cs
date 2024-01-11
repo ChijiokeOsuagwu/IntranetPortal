@@ -102,10 +102,15 @@ namespace IntranetPortal
                 areaName: "ContentManager",
                  pattern: "ContentManager/{controller=Home}/{action=Index}/{id?}");
 
+                //endpoints.MapAreaControllerRoute(
+                //    name: "EmployeeRecords",
+                //areaName: "EmployeeRecords",
+                // pattern: "EmployeeRecords/{controller=Home}/{action=Index}/{id?}");
+
                 endpoints.MapAreaControllerRoute(
-                    name: "EmployeeRecords",
-                areaName: "EmployeeRecords",
-                 pattern: "EmployeeRecords/{controller=Home}/{action=Index}/{id?}");
+                      name: "PMS",
+                  areaName: "PMS",
+                   pattern: "PMS/{controller=Home}/{action=Index}/{id?}");
 
                 endpoints.MapAreaControllerRoute(
                     name: "ERM",

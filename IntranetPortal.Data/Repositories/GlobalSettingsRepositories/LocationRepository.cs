@@ -225,6 +225,58 @@ namespace IntranetPortal.Data.Repositories.GlobalSettingsRepositories
             return location;
         }
 
+        public async Task<IList<Location>> GetLocationsByUserIdAsync(string userId)
+        {
+            List<Location> locationList = new List<Location>();
+            var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
+            string query = String.Empty;
+            StringBuilder sb = new StringBuilder();
+
+            sb.Append("SELECT locqk, locname, loctype, lochq1, lochq2, ");
+            sb.Append("locmb, locmd, loccb, loccd, locctr, locst ");
+            sb.Append("FROM public.gst_locs WHERE locqk IN ");
+            sb.Append("(SELECT loc_id FROM public.sct_ntt_pms ");
+            sb.Append("WHERE usr_acct_id = @usr_id) ");
+            sb.Append("ORDER BY locname; ");
+            query = sb.ToString();
+            try
+            {
+                await conn.OpenAsync();
+                // Retrieve all rows
+                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+                {
+                    var usr_id = cmd.Parameters.Add("@usr_id", NpgsqlDbType.Text);
+                    await cmd.PrepareAsync();
+                    usr_id.Value = userId;
+
+                    var reader = await cmd.ExecuteReaderAsync();
+                    while (await reader.ReadAsync())
+                    {
+                        locationList.Add(new Location()
+                        {
+                            LocationID = reader["locqk"] == DBNull.Value ? 0 : (int)reader["locqk"],
+                            LocationName = reader["locname"] == DBNull.Value ? String.Empty : reader["locname"].ToString(),
+                            LocationCountry = reader["locctr"] == DBNull.Value ? String.Empty : reader["locctr"].ToString(),
+                            LocationType = reader["loctype"] == DBNull.Value ? String.Empty : reader["loctype"].ToString(),
+                            LocationHeadID1 = reader["lochq1"] == DBNull.Value ? String.Empty : reader["lochq1"].ToString(),
+                            LocationHeadID2 = reader["lochq2"] == DBNull.Value ? String.Empty : reader["lochq2"].ToString(),
+                            LocationState = reader["locst"] == DBNull.Value ? String.Empty : reader["locst"].ToString(),
+                            ModifiedBy = reader["locmb"] == DBNull.Value ? string.Empty : reader["locmb"].ToString(),
+                            ModifiedDate = reader["locmd"] == DBNull.Value ? string.Empty : reader["locmd"].ToString(),
+                            CreatedBy = reader["loccb"] == DBNull.Value ? string.Empty : reader["loccb"].ToString(),
+                            CreatedDate = reader["loccd"] == DBNull.Value ? string.Empty : reader["loccd"].ToString(),
+                        });
+                    }
+                }
+                await conn.CloseAsync();
+            }
+            catch (Exception ex)
+            {
+                await conn.CloseAsync();
+                throw new Exception(ex.Message);
+            }
+            return locationList;
+        }
 
         public async Task<IList<Location>> GetLocationsAsync()
         {
@@ -483,7 +535,6 @@ namespace IntranetPortal.Data.Repositories.GlobalSettingsRepositories
             }
             return state;
         }
-
 
         public async Task<IList<Country>> GetCountriesAsync()
         {

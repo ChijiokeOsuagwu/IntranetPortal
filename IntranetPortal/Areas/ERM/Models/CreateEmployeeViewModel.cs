@@ -187,16 +187,16 @@ namespace IntranetPortal.Areas.ERM.Models
             string formattedFirstName = string.Empty;
             string formattedSurname = string.Empty;
             string formattedOthernames = string.Empty;
-            if (!string.IsNullOrWhiteSpace(Title)) { formattedTitle = Title.ToUpper(); }
-            if (!string.IsNullOrWhiteSpace(FirstName)) { formattedFirstName = FirstName.ToUpper(); }
-            if (!string.IsNullOrWhiteSpace(Surname)) { formattedSurname = Surname.ToUpper(); }
-            if (!string.IsNullOrWhiteSpace(OtherNames)) { formattedOthernames = OtherNames.ToUpper(); }
+            if (!string.IsNullOrWhiteSpace(Title)) { formattedTitle = Title.Trim().ToUpper(); }
+            if (!string.IsNullOrWhiteSpace(FirstName)) { formattedFirstName = FirstName.Trim().ToUpper(); }
+            if (!string.IsNullOrWhiteSpace(Surname)) { formattedSurname = Surname.Trim().ToUpper(); }
+            if (!string.IsNullOrWhiteSpace(OtherNames)) { formattedOthernames = OtherNames.Trim().ToUpper(); }
 
 
             return new Employee
             {
                 EmployeeID = EmployeeID ?? PersonID,
-                FullName = $"{formattedTitle} {formattedFirstName} {formattedOthernames} {formattedSurname}",
+                FullName = $"{formattedFirstName} {formattedOthernames} {formattedSurname}",
                 EmployeeNo1 = EmployeeNo1,
                 EmployeeNo2 = EmployeeNo2,
                 CompanyID = CompanyCode,

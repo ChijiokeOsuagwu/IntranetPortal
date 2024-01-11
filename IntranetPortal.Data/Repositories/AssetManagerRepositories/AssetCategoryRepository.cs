@@ -156,29 +156,26 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
         {
             int rows = 0;
             var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
-            string query = $"UPDATE public.asm_stt_ctgs	SET asst_ctgs_nm=@asst_ctgs_nm, asst_ctgs_ds=@asst_ctgs_ds	WHERE asst_ctgs_id=@asst_ctgs_id;";
-            try
+            StringBuilder sb = new StringBuilder();
+            sb.Append("UPDATE public.asm_stt_ctgs SET asst_ctgs_nm=@asst_ctgs_nm, ");
+            sb.Append("asst_ctgs_ds=@asst_ctgs_ds ");
+            sb.Append("WHERE asst_ctgs_id=@asst_ctgs_id; ");
+            string query = sb.ToString();
+
+            await conn.OpenAsync();
+            //Insert data
+            using (var cmd = new NpgsqlCommand(query, conn))
             {
-                await conn.OpenAsync();
-                //Insert data
-                using (var cmd = new NpgsqlCommand(query, conn))
-                {
-                    var categoryId = cmd.Parameters.Add("@asst_ctgs_id", NpgsqlDbType.Integer);
-                    var categoryName = cmd.Parameters.Add("@asst_ctgs_nm", NpgsqlDbType.Text);
-                    var categoryDescription = cmd.Parameters.Add("@asst_ctgs_ds", NpgsqlDbType.Text);
-                    cmd.Prepare();
-                    categoryId.Value = assetCategory.ID;
-                    categoryName.Value = assetCategory.Name;
-                    categoryDescription.Value = assetCategory.Description ?? (object)DBNull.Value;
-                    rows = await cmd.ExecuteNonQueryAsync();
-                    await conn.CloseAsync();
-                }
+                var categoryId = cmd.Parameters.Add("@asst_ctgs_id", NpgsqlDbType.Integer);
+                var categoryName = cmd.Parameters.Add("@asst_ctgs_nm", NpgsqlDbType.Text);
+                var categoryDescription = cmd.Parameters.Add("@asst_ctgs_ds", NpgsqlDbType.Text);
+                cmd.Prepare();
+                categoryId.Value = assetCategory.ID;
+                categoryName.Value = assetCategory.Name;
+                categoryDescription.Value = assetCategory.Description ?? (object)DBNull.Value;
+                rows = await cmd.ExecuteNonQueryAsync();
             }
-            catch (Exception ex)
-            {
-                await conn.CloseAsync();
-                throw new Exception(ex.Message);
-            }
+            await conn.CloseAsync();
             return rows > 0;
         }
 

@@ -17,6 +17,24 @@
             }
         })
 
+    $("#tn").autocomplete(
+        {
+            minLength: 3,
+            source: function (request, response) {
+                var text = $("#tn").val();
+                $.ajax({
+                    type: "GET",
+                    url: "/AssetManager/Home/GetAssetTypes",
+                    data: { text: request.term },
+                    success: function (data) {
+                        response($.map(data, function (item) {
+                            return { label: item, value: item }
+                        }))
+                    }
+                })
+            }
+        })
+
     $("#ParentAssetName").autocomplete(
         {
             minLength: 3,
@@ -54,7 +72,7 @@
         })
 });
 
-//=============== Script to populate fields with the AssetName retrieved by the autocomplete function ================================//
+//===== Script to populate fields with the AssetName retrieved by the autocomplete function =====//
 var getAssetParameters = function () {
     var parent_asset_name = $("#ParentAssetName").val();
     if (parent_asset_name != "" || parent_asset_name != undefined) {

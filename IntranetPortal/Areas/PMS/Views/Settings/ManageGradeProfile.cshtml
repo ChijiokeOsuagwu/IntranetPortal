@@ -1,0 +1,67 @@
+﻿
+@model IntranetPortal.Areas.PMS.Models.ManageGradeProfileViewModel
+<h3 class="mb-1">Grading Profiles</h3>
+<hr />
+<div class="card mt-1" style="max-width:800px">
+    <div class="card-header bg-success">
+        <h4 class="text-white">Manage Grading Profile</h4>
+    </div>
+    <div class="card-body bg-secondary">
+        @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-x-circle"></i>
+                <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (!String.IsNullOrEmpty(Model.ViewModelSuccessMessage))
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="bi bi-check-circle"></i>
+                <span class="fw-bold">@Model.ViewModelSuccessMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (!String.IsNullOrEmpty(Model.ViewModelWarningMessage))
+        {
+            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                <i class="bi bi-exclamation-circle"></i>
+                <span class="fw-bold">@Model.ViewModelWarningMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        <form asp-area="PMS" asp-controller="Settings" asp-action="ManageGradeProfile" method="post" autocomplete="off">
+            <div class="row">
+                <div class="col-md-12 mb-3">
+                    <input type="hidden" asp-for="GradeHeaderId" />
+                    <label asp-for="GradeHeaderName" class="form-label text-white fw-bold"></label>
+                    <input asp-for="GradeHeaderName" class="form-control" placeholder="Enter Name">
+                    <div><span asp-validation-for="GradeHeaderName" class="text-danger"></span></div>
+                </div>
+                <div class="col-md-12 mb-3">
+                    <label asp-for="GradeHeaderDescription" class="form-label text-white fw-bold"></label>
+                    <input asp-for="GradeHeaderDescription" class="form-control" placeholder="Email">
+                    <div><span asp-validation-for="GradeHeaderDescription" class="text-danger"></span></div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <a asp-area="PMS" asp-controller="Settings" asp-action="Grading" class="btn btn-dark" style="width:100px" title="Back">
+                        <span class="text-white">Back</span>
+                    </a>
+                    <a asp-area="PMS" asp-controller="Settings" asp-action="ManageGradeProfile" asp-route-id="@Model.GradeHeaderId" class="btn btn-warning" style="width:100px" title="Clear">
+                        <span class="text-white">Clear</span>
+                    </a>
+                    @if (!Model.OperationIsSuccessful)
+                    {
+                        <button type="submit" class="btn btn-success" title="Save" style="width:200px"><span class="text-white">Save</span></button>
+                    }
+                    <a asp-area="PMS" asp-controller="Settings" asp-action="DeleteGradeProfile" asp-route-id="@Model.GradeHeaderId" title="Delete" class="btn btn-sm btn-danger ml-5" style="width:100px">
+                        <span class="fw-bold text-white">Delete</span>
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

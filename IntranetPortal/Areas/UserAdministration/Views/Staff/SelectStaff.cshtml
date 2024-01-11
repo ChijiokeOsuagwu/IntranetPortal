@@ -1,5 +1,5 @@
 ﻿
-@model IntranetPortal.Models.PaginatedList<Employee>
+@model IntranetPortal.Areas.UserAdministration.Models.SelectStaffListViewModel
     @{
         ViewData["Title"] = "User Administration | Select Staff";
         //Layout = "~/Areas/EmployeeRecords/Views/Shared/_ERMLayout.cshtml";
@@ -20,7 +20,7 @@
                 <form asp-area="UserAdministration" asp-controller="Staff" asp-action="SelectStaff" method="get">
                     <div class="form-actions no-color">
                         <p>
-                            Enter Name: <input type="text" class="border-0" style="width:300px" name="SearchString" value="@ViewData["CurrentFilter"]" />
+                            Enter Name: <input asp-for="ss" class="border-0" style="width:300px"/>
                             <input type="submit" value="Search" class="btn btn-primary" style="width:100px" />
                         </p>
                     </div>
@@ -29,14 +29,14 @@
                     <thead>
                         <tr>
                             <th><span class="text-white fw-bolder">Employee No</span></th>
+                            
+                            <th><h4 class="text-white fw-bolder">Name</h4></th>
+                   
                             <th>
-                                <a asp-area="UserAdministration" asp-controller="Staff" asp-action="SelectStaff" asp-route-sortOrder="@ViewData["NameSortParm"]" asp-route-currentFilter="@ViewData["CurrentFilter"]"> <span class="text-white fw-bolder">Employee Name</span></a>
+                                <h4 class="text-white fw-bolder">Unit</h4>
                             </th>
                             <th>
-                                <a asp-area="UserAdministration" asp-controller="Staff" asp-action="SelectStaff" asp-route-sortOrder="@ViewData["UnitSortParm"]" asp-route-currentFilter="@ViewData["CurrentFilter"]"><span class="text-white fw-bolder">Unit</span></a>
-                            </th>
-                            <th>
-                                <a asp-area="UserAdministration" asp-controller="Staff" asp-action="SelectStaff" asp-route-sortOrder="@ViewData["LocSortParm"]" asp-route-currentFilter="@ViewData["CurrentFilter"]"><span class="text-white fw-bolder">Location</span></a>
+                                <h4 class="text-white fw-bolder">Location</h4></a>
                             </th>
                             <th>
 
@@ -44,7 +44,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach (var item in Model)
+                        @foreach (var item in Model.Employees)
                         {
                             <tr>
                                 <td>
@@ -72,25 +72,6 @@
                     </tbody>
                 </table>
             </div>
-            @{
-                var prevDisabled = !Model.HasPreviousPage ? "disabled" : "";
-                var nextDisabled = !Model.HasNextPage ? "disabled" : "";
-            }
-
-            <a asp-action="Index"
-               asp-route-sortOrder="@ViewData["CurrentSort"]"
-               asp-route-pageNumber="@(Model.PageIndex - 1)"
-               asp-route-currentFilter="@ViewData["CurrentFilter"]"
-               class="btn btn-primary @prevDisabled" style="width:100px">
-                Previous
-            </a>
-            <a asp-action="Index"
-               asp-route-sortOrder="@ViewData["CurrentSort"]"
-               asp-route-pageNumber="@(Model.PageIndex + 1)"
-               asp-route-currentFilter="@ViewData["CurrentFilter"]"
-               class="btn btn-primary @nextDisabled" style="width:100px">
-                Next
-            </a>
         </div>
     </div>
 

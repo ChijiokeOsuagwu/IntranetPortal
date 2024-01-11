@@ -8,6 +8,7 @@ namespace IntranetPortal.Base.Models.EmployeeRecordModels
     {
         public int ReportingLineID { get; set; }
         public string EmployeeID { get; set; }
+        public string ReportingLineType { get; set; }
         public string EmployeeName { get; set; }
         public string ReportsToEmployeeID { get; set; }
         public string ReportsToEmployeeName { get; set; }

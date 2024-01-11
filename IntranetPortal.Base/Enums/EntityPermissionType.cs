@@ -6,7 +6,6 @@ namespace IntranetPortal.Base.Enums
 {
     public enum EntityPermissionType
     {
-        Location,
-        AssetCategory
+        AssetDivision
     }
 }

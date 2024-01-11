@@ -151,13 +151,12 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
                     {
                         if (string.IsNullOrWhiteSpace(model.AssetID) || model.AssetTypeID < 1 || model.AssetCategoryID < 1)
                         {
-                            var assets = await _assetManagerService.SearchAssetsByNameAsync(model.AssetName);
-                            Asset asset = assets.ToList().FirstOrDefault();
-                            model.AssetID = asset.AssetID;
-                            model.AssetTypeID = asset.AssetTypeID;
-                            model.AssetCategoryID = asset.AssetCategoryID;
-                            model.AssetConditionStatus = asset.ConditionStatus;
-                            model.AssetConditionDescription = asset.ConditionDescription;
+                            var searchAsset = await _assetManagerService.GetAssetByNameAsync(model.AssetName);
+                            model.AssetID = searchAsset.AssetID;
+                            model.AssetTypeID = searchAsset.AssetTypeID;
+                            model.AssetCategoryID = searchAsset.AssetCategoryID;
+                            model.AssetConditionStatus = searchAsset.ConditionStatus;
+                            model.AssetConditionDescription = searchAsset.ConditionDescription;
                         }
 
                         if (string.IsNullOrWhiteSpace(model.AssetID) || model.AssetTypeID < 1 || model.AssetCategoryID < 1)
@@ -281,13 +280,12 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
                         {
                             if (string.IsNullOrWhiteSpace(model.AssetID) || model.AssetTypeID < 1 || model.AssetCategoryID < 1)
                             {
-                                var assets = await _assetManagerService.SearchAssetsByNameAsync(model.AssetName);
-                                asset = assets.ToList().FirstOrDefault();
-                                model.AssetID = asset.AssetID;
-                                model.AssetTypeID = asset.AssetTypeID;
-                                model.AssetCategoryID = asset.AssetCategoryID;
-                                model.AssetConditionDescription = asset.ConditionDescription;
-                                model.AssetConditionStatus = asset.ConditionStatus;
+                                var assetSearch = await _assetManagerService.GetAssetByNameAsync(model.AssetName);
+                                model.AssetID = assetSearch.AssetID;
+                                model.AssetTypeID = assetSearch.AssetTypeID;
+                                model.AssetCategoryID = assetSearch.AssetCategoryID;
+                                model.AssetConditionDescription = assetSearch.ConditionDescription;
+                                model.AssetConditionStatus = assetSearch.ConditionStatus;
                             }
 
                             if (string.IsNullOrWhiteSpace(model.AssetID) || model.AssetTypeID < 1 || model.AssetCategoryID < 1)

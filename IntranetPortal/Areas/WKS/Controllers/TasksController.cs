@@ -1016,7 +1016,7 @@ namespace IntranetPortal.Areas.WKS.Controllers
                 {
                     if (!string.IsNullOrWhiteSpace(model.ProjectNumber))
                     {
-                        var entity = await _workspaceService.GetWorkItemByCodeAsync(model.ProjectNumber);
+                        var entity = await _workspaceService.GetProjectByCodeAsync(model.ProjectNumber);
                         if (entity != null && !string.IsNullOrWhiteSpace(entity.Title))
                         {
                             project = entity;

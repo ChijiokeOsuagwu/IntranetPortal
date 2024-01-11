@@ -1,0 +1,98 @@
+﻿@model IntranetPortal.Areas.AssetManager.Models.SelectTypeListViewModel
+@{
+    ViewData["Title"] = "OfficeManager | Select Asset Type";
+}
+<div class="container">
+    <h4>Select Asset Type</h4>
+    <hr />
+    <div class="mb-1">
+        <form asp-area="AssetManager" asp-controller="Master" asp-action="SelectType" method="get">
+            <a asp-area="AssetManager" asp-controller="Master" asp-action="List" class="btn btn-dark mr-3" style="width:100px" title="Click to Go Back">
+                <span class="text-white">Back</span>
+            </a>
+            <select asp-for="cl" asp-items="@ViewBag.AssetClassList" class="border-0 mr-2" style="width:250px">
+                <option value="">- Select Class -</option>
+            </select>
+            <select asp-for="gp" asp-items="@ViewBag.AssetGroupList" class="border-0 mr-2" style="width:250px">
+                <option value="">- Select Group -</option>
+            </select>
+            <input asp-for="tn" placeholder="Enter Name" class="border-0" style="width:200px" />
+            <input type="submit" value="Search" class="btn btn-dark" style="width:100px" />
+        </form>
+
+        @if (!String.IsNullOrEmpty(ViewBag.ErrorMessage))
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-x-circle"></i>
+                <span class="fw-bold">@ViewBag.ErrorMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+    </div>
+    @if (Model.AssetTypeList == null || Model.AssetTypeList.Count < 1)
+    {
+        <div class="alert alert-info fade show" role="alert">
+            <i class="bi bi-info-circle"></i>
+            <span class="fw-bold">No record was found.</span>
+        </div>
+    }
+    else
+    {
+        int row_no = 0;
+        <div class="row">
+            <div class="table-responsive">
+                <table class="table table-hover table-sm ">
+                    <thead class="table-dark">
+                        <tr>
+                            <th><span class="text-white fw-bold">#</span></th>
+                            <th><span class="text-white fw-bold">Type</span></th>
+                            <th><span class="text-white fw-bold">Group</span></th>
+                            <th><span class="text-white fw-bold">Class</span></th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody class="table-light">
+                        @foreach (var type in Model.AssetTypeList)
+                        {
+                            row_no++;
+
+                            <tr class="p-0 table-success">
+                                <td>
+                                    <span class="fw-bold">@row_no.ToString()</span>
+                                </td>
+                                <td>
+                                    <span class="fw-bold" title="@type.Name">@type.Name</span>
+                                </td>
+                                <td>
+                                    <span class="fw-bold" title="@type.GroupName">@type.GroupName</span>
+                                </td>
+                                <td>
+                                    <span class="fw-bold" title="@type.ClassName">@type.ClassName</span>
+                                </td>
+                                <td>
+                                    <div class="text-center">
+                                        <a asp-area="AssetManager" asp-controller="Master" asp-action="AddAsset" asp-route-tp="@type.ID" title="Details" class="btn btn-sm btn-dark">
+                                            <span class="text-white fw-bold">Select</span>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+</div>
+@section Scripts{
+    <script src="~/js/js_asm/asm_master_assets.js"></script>
+}
+
+
+
+
+
+
+
+
+

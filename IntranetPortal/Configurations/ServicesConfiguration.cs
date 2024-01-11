@@ -5,6 +5,7 @@ using IntranetPortal.Base.Repositories.BusinessManagerRepositories;
 using IntranetPortal.Base.Repositories.ContentManagerRepositories;
 using IntranetPortal.Base.Repositories.ErmRepository;
 using IntranetPortal.Base.Repositories.GlobalSettingsRepositories;
+using IntranetPortal.Base.Repositories.PmsRepositories;
 using IntranetPortal.Base.Repositories.SecurityRepositories;
 using IntranetPortal.Base.Repositories.WksRepositories;
 using IntranetPortal.Base.Services;
@@ -15,6 +16,7 @@ using IntranetPortal.Data.Repositories.BusinessManagerRepositories;
 using IntranetPortal.Data.Repositories.ContentManagerRepositories;
 using IntranetPortal.Data.Repositories.ErmRepositories;
 using IntranetPortal.Data.Repositories.GlobalSettingsRepositories;
+using IntranetPortal.Data.Repositories.PmsRepositories;
 using IntranetPortal.Data.Repositories.SecurityRepositories;
 using IntranetPortal.Data.Repositories.WksRepositories;
 using Microsoft.Extensions.DependencyInjection;
@@ -41,10 +43,12 @@ namespace IntranetPortal.Configurations
             services.AddScoped<IRoleRepository, RoleRepository>();
             services.AddScoped<IEmployeeUserRepository, EmployeeUserRepository>();
             services.AddScoped<IUserPermissionRepository, UserPermissionRepository>();
+            services.AddScoped<IEntityPermissionRepository, EntityPermissionRepository>();
             services.AddScoped<ITeamRepository, TeamRepository>();
             services.AddScoped<IAssetRepository, AssetRepository>();
             services.AddScoped<IAssetTypeRepository, AssetTypeRepository>();
             services.AddScoped<IAssetCategoryRepository, AssetCategoryRepository>();
+            services.AddScoped<IAssetDivisionRepository, AssetDivisionRepository>();
             services.AddScoped<IAssetReservationRepository, AssetReservationRepository>();
             services.AddScoped<IAssetUsageRepository, AssetUsageRepository>();
             services.AddScoped<IAssetIncidentRepository, AssetIncidentRepository>();
@@ -67,6 +71,7 @@ namespace IntranetPortal.Configurations
             services.AddScoped<IProjectFolderRepository, ProjectFolderRepository>();
             services.AddScoped<IProjectRepository, ProjectRepository>();
             services.AddScoped<IAssetClassRepository, AssetClassRepository>();
+            services.AddScoped<IAssetGroupRepository, AssetGroupRepository>();
             services.AddScoped<ITaskListRepository, TaskListRepository>();
             services.AddScoped<ITaskItemRepository, TaskItemRepository>();
             services.AddScoped<ITaskTimelineRepository, TaskTimelineRepository>();
@@ -75,6 +80,26 @@ namespace IntranetPortal.Configurations
             services.AddScoped<ITaskEvaluationHeaderRepository, TaskEvaluationHeaderRepository>();
             services.AddScoped<ITaskEvaluationDetailRepository, TaskEvaluationDetailRepository>();
             services.AddScoped<ITaskItemEvaluationRepository, TaskItemEvaluationRepository>();
+            //Performance Management System Repositories
+            services.AddScoped<IPerformanceYearRepository, PerformanceYearRepository>();
+            services.AddScoped<IPmsActivityHistoryRepository, PmsActivityHistoryRepository>();
+            services.AddScoped<IPmsSystemRepository, PmsSystemRepository>();
+            services.AddScoped<IReviewApprovalRepository, ReviewApprovalRepository>();
+            services.AddScoped<IReviewCDGRepository, ReviewCDGRepository>();
+            services.AddScoped<IReviewGradeRepository, ReviewGradeRepository>();
+            services.AddScoped<IReviewHeaderRepository, ReviewHeaderRepository>();
+            services.AddScoped<IReviewMessageRepository, ReviewMessageRepository>();
+            services.AddScoped<IReviewMetricRepository, ReviewMetricRepository>();
+            services.AddScoped<IReviewResultRepository, ReviewResultRepository>();
+            services.AddScoped<IReviewSessionRepository, ReviewSessionRepository>();
+            services.AddScoped<IReviewStageRepository, ReviewStageRepository>();
+            services.AddScoped<IReviewSubmissionRepository, ReviewSubmissionRepository>();
+            services.AddScoped<IAppraisalGradeRepository, AppraisalGradeRepository>();
+            services.AddScoped<IApprovalRoleRepository, ApprovalRoleRepository>();
+            services.AddScoped<ICompetencyRepository, CompetencyRepository>();
+            services.AddScoped<IGradeHeaderRepository, GradeHeaderRepository>();
+            services.AddScoped<ISessionScheduleRepository, SessionScheduleRepository>();
+            services.AddScoped<IPerformanceSettingsRepository, PerformanceSettingsRepository>();
         }
 
         public static void ConfigureServiceManagers(this IServiceCollection services)
@@ -88,6 +113,7 @@ namespace IntranetPortal.Configurations
             services.AddScoped<IBamsManagerService, BamsManagerService>();
             services.AddScoped<IErmService, ErmService>();
             services.AddScoped<IWorkspaceService, WorkspaceService>();
+            services.AddScoped<IPerformanceService, PerformanceService>();
         }
 
     }

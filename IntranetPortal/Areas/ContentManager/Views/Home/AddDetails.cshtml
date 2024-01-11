@@ -36,11 +36,11 @@
         <form enctype="multipart/form-data" asp-area="ContentManager" asp-controller="Home" asp-action="AddDetails" method="post">
             <div class="mb-3" style="height:400px">
                 <div><span asp-validation-for="PostDetailsHtml" class="text-danger"></span></div>
-                <textarea asp-for="PostDetailsHtml" class="form-control"></textarea>
+                <textarea id="tiny" asp-for="PostDetailsHtml" class="form-control"></textarea>
             </div>
             <input id="PostId" name="PostId" value="@Model.PostId" type="hidden" />
             <input id="PostTypeId" name="PostTypeId" value="@Model.PostTypeId" type="hidden" />
-            <a asp-area="ContentManager" asp-controller="Home" asp-action="Index" class="btn btn-dark" style="width:100px" title="Return to Articles Library">
+            <a asp-area="ContentManager" asp-controller="Banners" asp-action="List" class="btn btn-dark" style="width:100px" title="Go Back">
                 <span class="text-white">Exit</span>
             </a>
             <button type="submit" class="btn btn-success" style="width:200px"><span class="text-white">Save Content</span></button>
@@ -48,8 +48,8 @@
     </div>
 </div>
     @section Scripts{
-        <script src="~/lib/summernote/dist/summernote-lite.min.js"></script>
-        <script>
+        @*<script src="~/lib/summernote/dist/summernote-lite.min.js"></script>*@
+        @*<script>
             $(document).ready(function () {
                 $('#PostDetailsHtml').summernote({
                     height: 330,                 // set editor height
@@ -58,7 +58,7 @@
                     focus: true                 // set focus to editable area after initializing summernote
                 });
             });
-        </script>
+        </script>*@
     }
 
 
