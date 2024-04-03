@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Data;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using IntranetPortal.Areas.AssetManager.Models;
@@ -15,6 +16,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
+using ClosedXML.Excel;
 
 namespace IntranetPortal.Areas.AssetManager.Controllers
 {
@@ -100,6 +102,7 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
             return View(model);
         }
 
+        #region Asset Master Write Action Controller Methods
 
         [Authorize(Roles = "AMSMGAINF, XYALLACCZ")]
         public async Task<IActionResult> SelectType(int? cl = null, int? gp = null, string tn = null)
@@ -140,7 +143,6 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
 
             return View(model);
         }
-
 
         [HttpGet]
         [Authorize(Roles = "AMSMGAINF, XYALLACCZ")]
@@ -400,7 +402,15 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
                     }
 
                     Asset asset = model.ConvertToAsset();
-                    asset.ImagePath = uploadsFolder;
+                    if (ImageChanged)
+                    {
+                        asset.ImagePath = uploadsFolder;
+                    }
+                    else
+                    {
+                        asset.ImagePath = model.OldImagePath;
+                    }
+
                     asset.ModifiedBy = HttpContext.User.Identity.Name;
                     asset.ModifiedDate = $"{DateTime.UtcNow.ToLongDateString()} {DateTime.UtcNow.ToLongTimeString()} + GMT";
 
@@ -595,14 +605,28 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
         [Authorize(Roles = "AMSMGAINF, XYALLACCZ")]
         public async Task<IActionResult> DeleteAsset(AssetViewModel model)
         {
+            string absoluteFilePath = string.Empty;
             if (model != null)
             {
                 try
                 {
+                    if (!string.IsNullOrWhiteSpace(model.ImagePath))
+                    {
+                        absoluteFilePath = Path.Combine(_webHostEnvironment.WebRootPath, model.ImagePath);
+                    }
+
                     string deletedBy = HttpContext.User.Identity.Name;
                     bool succeeded = await _assetManagerService.DeleteAssetAsync(model.AssetID, deletedBy);
                     if (succeeded)
                     {
+                        if (!string.IsNullOrEmpty(absoluteFilePath))
+                        {
+                            FileInfo file = new FileInfo(absoluteFilePath);
+                            if (file.Exists)
+                            {
+                                file.Delete();
+                            }
+                        }
                         return RedirectToAction("List");
                     }
                 }
@@ -620,6 +644,107 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
             return View(model);
         }
 
+        #endregion
+
+        #region Asset Master Reports
+        
+        [Authorize(Roles = "AMSMGAINF, XYALLACCZ")]
+        public async Task<IActionResult> StatusReport(int? bsl = null, int? bnl = null, int? grp = null, int? typ = null, int? cnd = null)
+        {
+            string userName = HttpContext.User.Identity.Name;
+            string userId = HttpContext.User.Claims.FirstOrDefault(c => c.Type.Contains("nameidentifier")).Value;
+            if (string.IsNullOrWhiteSpace(userId) && string.IsNullOrWhiteSpace(userName))
+            {
+                await HttpContext.SignOutAsync(SecurityConstants.ChxCookieAuthentication);
+                return LocalRedirect("/Home/Login");
+            }
+
+            AssetStatusReportViewModel model = new AssetStatusReportViewModel();
+            model.AssetMasterList = new List<Asset>();
+            model.bsl = bsl;
+            model.bnl = bnl;
+            model.grp = grp;
+            model.typ = typ;
+            model.cnd = cnd;
+
+            try
+            {
+                var entities = await _assetManagerService.GetAssetStatusReportAsync(userId, model.bsl, model.bnl, model.grp, model.typ, model.cnd);
+                if(entities != null)
+                {
+                    model.AssetMasterList = entities;
+                    model.RecordCount = entities.Count;
+                }
+            }
+            catch (Exception ex)
+            {
+                model.ViewModelErrorMessage = ex.Message;
+            }
+
+            var baselocations_entities = await _globalSettingsService.GetAllLocationsAsync();
+            if (baselocations_entities != null && baselocations_entities.Count > 0)
+            {
+                ViewBag.BaseLocationList = new SelectList(baselocations_entities, "LocationID", "LocationName", bsl);
+            }
+
+            var binlocation_entities = await _assetManagerService.GetAssetBinLocationsAsync(userId);
+            if (binlocation_entities != null && binlocation_entities.Count > 0)
+            {
+                ViewBag.BinLocationList = new SelectList(binlocation_entities, "AssetBinLocationID", "AssetBinLocationName", bnl);
+            }
+
+            var asset_group_entities = await _assetManagerService.GetAssetGroupsAsync();
+            if (asset_group_entities != null && asset_group_entities.Count > 0)
+            {
+                ViewBag.AssetGroupList = new SelectList(asset_group_entities, "GroupID", "GroupName", grp);
+            }
+
+            var asset_type_entities = await _assetManagerService.GetAssetTypesAsync();
+            if (asset_type_entities != null && asset_type_entities.Count > 0)
+            {
+                ViewBag.AssetTypeList = new SelectList(asset_type_entities, "ID", "Name", typ);
+            }
+            return View(model);
+        }
+
+        [Authorize(Roles = "AMSMGAINF, XYALLACCZ")]
+        public async Task<FileResult> DownloadStatusReport(int? bsl = null, int? bnl = null, int? grp = null, int? typ = null, int? cnd = null)
+        {
+            string userName = HttpContext.User.Identity.Name;
+            string userId = HttpContext.User.Claims.FirstOrDefault(c => c.Type.Contains("nameidentifier")).Value;
+            if (string.IsNullOrWhiteSpace(userId) && string.IsNullOrWhiteSpace(userName))
+            {
+                return null;
+            }
+
+            AssetStatusReportViewModel model = new AssetStatusReportViewModel();
+            model.AssetMasterList = new List<Asset>();
+            model.bsl = bsl;
+            model.bnl = bnl;
+            model.cnd = cnd;
+            model.grp = grp;
+            model.typ = typ;
+
+            string fileName = $"Assets & Equipment Status Report {DateTime.Now.Ticks.ToString()}.xlsx";
+            try
+            {
+                var entities = await _assetManagerService.GetAssetStatusReportAsync(userId, model.bsl, model.bnl, model.grp, model.typ, model.cnd);
+                if (entities != null && entities.Count > 0)
+                {
+                    model.AssetMasterList = entities;
+                    model.RecordCount = entities.Count;
+                }
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+            return GenerateStatusReportExcel(fileName, model.AssetMasterList);
+        }
+
+
+
+        #endregion
 
         //=============== Assets Helper Methods =====================//
         #region Assets Helper Methods
@@ -663,6 +788,48 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
                 asset_type_name = asset.AssetTypeName,
             }, Formatting.Indented);
             return Json(model);
+        }
+
+        private FileResult GenerateStatusReportExcel(string fileName, IEnumerable<Asset> results)
+        {
+            DataTable dataTable = new DataTable("tbAssetList");
+            dataTable.Columns.AddRange(new DataColumn[]
+            {
+              new DataColumn("No"),
+              new DataColumn("Name"),
+              new DataColumn("Type"),
+              new DataColumn("Condition"),
+              new DataColumn("Base Location"),
+              new DataColumn("Bin Location"),
+              new DataColumn("Current Location"),
+              new DataColumn("Usage Status"),
+              new DataColumn("Master"),
+            });
+
+            foreach (var result in results)
+            {
+                dataTable.Rows.Add(
+                    result.AssetNumber,
+                    result.AssetName,
+                    result.AssetTypeName,
+                    result.ConditionDescription,
+                    result.BaseLocationName,
+                    result.BinLocationName,
+                    result.CurrentLocation,
+                    result.UsageStatus,
+                    result.ParentAssetName
+                    );
+            }
+
+            using (XLWorkbook workbook = new XLWorkbook())
+            {
+                workbook.Worksheets.Add(dataTable);
+                using (MemoryStream stream = new MemoryStream())
+                {
+                    workbook.SaveAs(stream);
+                    return File(stream.ToArray(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
+                }
+            }
         }
 
         #endregion

@@ -1,0 +1,71 @@
+﻿@model IntranetPortal.Areas.PMS.Models.AddCompetencyViewModel
+<h3>Appraisal Competency</h3>
+<hr />
+<div class="row">
+    <div class="col-md-12">
+        <a asp-area="PMS" asp-controller="Process" asp-action="AppraisalCompetencies" asp-route-id="@Model.ReviewHeaderId" title="Go Back" class="btn btn-outline-light text-dark">
+            <i class="bi bi-backspace fw-bolder" style="font-size: 1.1rem;"></i><span class="fw-bold ml-2" style="font-size: 1.0rem;">Back</span>
+        </a>
+    </div>
+</div>
+<div class="card mt-1">
+    <div class="card-header" style="background-color:#5b2c6f">
+        <h4 class="text-white">Edit Competency</h4>
+    </div>
+    <div class="card-body" style="background-color:#ebdef0">
+        @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-x-circle"></i>
+                <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (!String.IsNullOrEmpty(Model.ViewModelSuccessMessage))
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="bi bi-check-circle"></i>
+                <span class="fw-bold">@Model.ViewModelSuccessMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (!String.IsNullOrEmpty(Model.ViewModelWarningMessage))
+        {
+            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                <i class="bi bi-exclamation-circle"></i>
+                <span class="fw-bold">@Model.ViewModelWarningMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        <form asp-area="PMS" asp-controller="Process" asp-action="ManageAppraisalCompetency" method="post" autocomplete="off">
+            <div class="row">
+                <div class="col-md-12 mb-2">
+                    <input type="hidden" asp-for="ReviewHeaderId" />
+                    <input type="hidden" asp-for="ReviewMetricId" />
+                    <input type="hidden" asp-for="ReviewSessionId" />
+                    <input type="hidden" asp-for="ReviewYearId" />
+                    <input type="hidden" asp-for="AppraiseeId" />
+                    <label asp-for="ReviewMetricDescription" class="form-label text-dark fw-bold"></label>
+                    <textarea asp-for="ReviewMetricDescription" class="form-control fw-bold" rows="4" style="font-size:1.0rem" readonly="readonly">@Model.ReviewMetricDescription</textarea>
+                    <div><span asp-validation-for="ReviewMetricDescription" class="text-danger"></span></div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-2">
+                    <label asp-for="ReviewMetricWeightage" class="form-label text-dark fw-bold"></label>
+                    <input asp-for="ReviewMetricWeightage" class="form-control" type="number" min="1.00" max="100.00" step="1" />
+                    <div><span asp-validation-for="ReviewMetricWeightage" class="text-danger"></span></div>
+                </div>
+                <div class="col-md-10 text-end">
+                    <a asp-area="PMS" asp-controller="Process" asp-action="AppraisalCompetencies" asp-route-id="@Model.ReviewHeaderId" class="btn btn-dark" style="width: 100px" title="Back">
+                        <span class="text-white">Back</span>
+                    </a>
+                    @if (!Model.OperationIsSuccessful)
+                    {
+                        <button type="submit" class="btn" title="Save" style="width:200px; background-color:#5b2c6f"><span class="text-white">Save</span></button>
+                    }
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

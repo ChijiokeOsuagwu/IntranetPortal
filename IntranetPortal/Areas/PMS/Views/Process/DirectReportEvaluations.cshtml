@@ -1,0 +1,115 @@
+﻿
+@model IntranetPortal.Areas.PMS.Models.DirectReportEvaluationsViewModel
+<div class="container">
+    <h4 class="mb-1">Direct Reports Evaluations</h4>
+    <hr />
+    <div class="row">
+        <div class="col-md-2 mb-2 text-start">
+            <a asp-area="PMS" asp-controller="Home" asp-action="Index" title="Go Back" class="btn btn-sm btn-outline-light text-dark">
+                <i class="bi bi-backspace fw-bolder" style="font-size: 1.0rem;"></i>&nbsp;<span class="fw-bold ml-1" style="font-size: 0.9rem;">Back</span>
+            </a>
+        </div>
+        <div class="col-md-10 mb-2 text-end">
+            <form asp-area="PMS" asp-controller="Home" asp-action="Index" method="get">
+                <select asp-for="sd" asp-items="@ViewBag.ReportsList" class="border-0 fw-bold" style="min-width:350px">
+                    <option value="0">- Select -</option>
+                </select>
+                <select asp-for="id" asp-items="@ViewBag.SessionsList" class="border-0 fw-bold ml-3" style="min-width:350px">
+                    <option value="0">- Select -</option>
+                </select>
+                <input type="submit" value="Search" class="btn btn-dark text-white" style="width:100px" />
+            </form>
+        </div>
+    </div>
+
+    @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+    {<div class="row">
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-x-circle"></i>
+                <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        </div>
+    }
+    <div class="row">
+        @if (Model == null || Model.ReportsResultSummaryList == null || Model.ReportsResultSummaryList.Count < 1)
+        {
+            <div class="alert alert-info fade show" role="alert">
+                <i class="bi bi-info-circle"></i>
+                <span class="fw-bold">No record was found.</span>
+            </div>
+        }
+        else
+        {
+            <div class="table-responsive" style="min-height:500px;">
+                <table class="table table-sm table-hover">
+                    <thead class="table-dark">
+                        <tr>
+                            <th><span class="text-white fw-bolder">Appraiser</span></th>
+                            <th>
+                                <span class="text-white fw-bolder">Position</span>
+                            </th>
+                            <th>
+                                <span class="text-white fw-bolder">Type</span>
+                            </th>
+                            <th>
+                                <span class="text-white fw-bolder">Score</span>
+                            </th>
+                            <th>    </th>
+                        </tr>
+                    </thead>
+                    <tbody class="table-light">
+                        @foreach (var item in Model.ReportsResultSummaryList)
+                        {
+                            <tr>
+                                <td>
+                                    <span class="fw-bolder">@item.AppraiserName</span>
+                                </td>
+                                <td>
+                                    <span class="fw-bolder">@item.AppraiserRoleDescription</span>
+                                    @if (item.IsMain)
+                                    {<i class="bi bi-check fw-bold text-dark"></i>}
+                                </td>
+                                <td>
+                                    <span class="fw-bolder">@item.AppraiserTypeDescription</span>
+                                </td>
+                                <td title="@item.PerformanceRating">
+                                    <span class="fw-bolder">@item.CombinedScoreObtained</span>
+                                </td>
+                                <td>
+                                    <div class="btn-group dropstart">
+                                        <button type="button" class="bg-light" style="border:0px; height:15px" data-bs-toggle="dropdown" aria-expanded="false">
+                                            <span class="text-dark fw-bold"><i class="bi bi-three-dots" style="font-size:1.2rem"></i></span>
+
+                                        </button>
+                                        <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton2">
+                                            <li>
+                                                <a class="dropdown-item" asp-area="PMS" asp-controller="Process" asp-action="AddRecommendation" asp-route-id="@item.ReviewHeaderId" title="Add Recommendation">
+                                                    <i class="bi bi-file-earmark-plus"></i>
+                                                    <span class="text-white">Add Recommendation</span>
+                                                </a>
+                                            </li>
+                                            <li><hr class="dropdown-divider"></li>
+                                            <li>
+                                                <a asp-area="PMS" asp-controller="Process" asp-action="ShowContractInfo" asp-route-id="@item.ReviewHeaderId" title="View Performance Contract" class="dropdown-item">
+                                                    <i class="bi bi-file-text"></i>
+                                                    <span class="text-white">View Contract</span>
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a asp-area="PMS" asp-controller="Process" asp-action="ShowSelectedResult" asp-route-id="@item.ReviewHeaderId" asp-route-ad="@item.AppraiserId" title="View Evaluation Result" class="dropdown-item">
+                                                    <i class="bi bi-file-ruled"></i>
+                                                    <span class="text-white">View Result</span>
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>

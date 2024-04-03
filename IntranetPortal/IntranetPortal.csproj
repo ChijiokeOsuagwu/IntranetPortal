@@ -16,6 +16,7 @@
     <PackageReference Include="Select.HtmlToPdf" Version="22.1.0" />
     <PackageReference Include="Select.HtmlToPdf.NetCore" Version="22.1.0" />
     <PackageReference Include="SendGrid" Version="9.27.0" />
+    <PackageReference Include="TinyMCE" Version="6.8.2" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Areas\AssetManager\Data\" />

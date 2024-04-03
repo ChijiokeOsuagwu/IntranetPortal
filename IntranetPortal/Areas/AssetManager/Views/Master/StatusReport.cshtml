@@ -1,0 +1,116 @@
+﻿@model IntranetPortal.Areas.AssetManager.Models.AssetStatusReportViewModel
+<div class="container">
+    <h4 class="mb-1">Assets & Equipment Status Report</h4>
+    <hr />
+    <div class="row">
+        <div class="row">
+            <div class="col-md-12 mb-3 text-start">
+                <a asp-area="AssetManager" asp-controller="Home" asp-action="Index" title="Go Back" class="btn btn-sm btn-outline-light text-dark">
+                    <i class="bi bi-backspace fw-bolder" style="font-size: 1.0rem;"></i><span class="fw-bold ml-1" style="font-size: 0.9rem;">Back</span>
+                </a>
+                <a asp-area="AssetManager" asp-controller="Master" asp-action="DownloadStatusReport" asp-route-bsl="@Model.bsl" asp-route-bnl="@Model.bnl" asp-route-grp="@Model.grp" asp-route-typ="@Model.typ" title="Download Excel" class="btn btn-sm btn-outline-light ml-2 text-dark">
+                    <i class="bi bi-download fw-bolder" style="font-size: 1.0rem;"></i><span class="fw-bold ml-1" style="font-size: 0.9rem;">Download</span>
+                </a>
+            </div>
+        </div>
+        <div class="row">
+            <form asp-area="AssetManager" asp-controller="Master" asp-action="StatusReport" method="get">
+                <div class="row">
+                    <div class="col-md-2 mb-2">
+                        <select asp-for="bsl" asp-items="@ViewBag.BaseLocationList" class="fw-bold bg-light border-0">
+                            <option value=""> Base Location </option>
+                        </select>
+                    </div>
+                    <div class="col-md-2 mb-2">
+                        <select asp-for="bnl" asp-items="@ViewBag.BinLocationList" class="fw-bold bg-light border-0">
+                            <option value=""> Bin Location </option>
+                        </select>
+                    </div>
+                    <div class="col-md-2 mb-2">
+                        <select asp-for="grp" asp-items="@ViewBag.AssetGroupList" class="fw-bold bg-light border-0">
+                            <option value=""> Asset Group </option>
+                        </select>
+                    </div>
+                    <div class="col-md-2 mb-2">
+                        <select asp-for="typ" asp-items="@ViewBag.AssetTypeList" class="fw-bold bg-light border-0" style="border-radius:10px">
+                            <option value=""> Asset Type </option>
+                        </select>
+                    </div>
+                    <div class="col-md-2 mb-2">
+                        <select asp-for="cnd" class="fw-bold bg-light border-0" style="border-radius:10px">
+                            <option value=""> Condition </option>
+                            <option value="0"> In Good Condition </option>
+                            <option value="1"> Requires Repairs </option>
+                            <option value="2"> Faulty Beyond Repair </option>
+                        </select>
+                    </div>
+                    <div class="col-md-2 mb-2">
+                        <input type="submit" value="Search" class="btn btn-dark btn-sm text-white" />
+                    </div>
+                </div>
+            </form>
+        </div>
+
+    </div>
+
+    @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+    {<div class="row">
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-x-circle"></i>
+                <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        </div>
+    }
+    <div class="row">
+        @if (Model == null || Model.AssetMasterList == null || Model.AssetMasterList.Count < 1)
+        {
+            <div class="alert alert-info fade show" role="alert">
+                <i class="bi bi-info-circle"></i>
+                <span class="fw-bold">No record was found.</span>
+            </div>
+        }
+        else
+        {
+            <div class="row">
+                <div class="table-responsive" style="min-height:500px;">
+                    <table class="table table-sm table-striped caption-top">
+                        <caption>Asset & Equipment Status Report as at @{DateTime.Now.ToLongDateString();}</caption>
+                        <thead class="table-dark">
+                            <tr>
+                                <th><span class="text-white fw-bolder">No</span></th>
+                                <th><span class="text-white fw-bolder">Name</span></th>
+                                <th><span class="text-white fw-bolder">Type</span>
+                                <th><span class="text-white fw-bolder">Condition</span></th>
+                                <th><span class="text-white fw-bolder">Base Location</span></th>
+                                <th><span class="text-white fw-bolder">Bin Location</span></th>
+                                <th><span class="text-white fw-bolder">Current Location</span></th>
+                                <th><span class="text-white fw-bolder">Usage Status</span>
+                                <th><span class="text-white fw-bolder">Master</span></th>
+                            </tr>
+                        </thead>
+                        <tbody class="table-light">
+                            @foreach (var item in Model.AssetMasterList)
+                            {
+                                <tr>
+                                    <td><span class="fw-bold">@item.AssetNumber</span></td>
+                                    <td><span class="fw-bold">@item.AssetName</span></td>
+                                    <td><span class="fw-bold">@item.AssetTypeName</span>
+                                    <td><span class="fw-bold">@item.ConditionDescription</span></td>
+                                    <td><span class="fw-bold">@item.BaseLocationName</span></td>
+                                    <td><span class="fw-bold">@item.BinLocationName</span></td>
+                                    <td><span class="fw-bold">@item.CurrentLocation</span></td>
+                                    <td><span class="fw-bold">@item.UsageStatus</span>
+                                    <td><span class="fw-bold">@item.ParentAssetName</span></td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+@section Scripts{
+    <script src="~/js/pms.js"></script>
+}

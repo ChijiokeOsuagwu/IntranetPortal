@@ -1,0 +1,132 @@
+﻿
+@model IntranetPortal.Areas.PMS.Models.AppraisalApprovalViewModel
+<div class="container">
+    <h4 class="mb-1">Approval History</h4>
+    <hr />
+    <div class="row">
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <div class="container-fluid">
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNavDropdown">
+                    <ul class="navbar-nav">
+                        <li class="nav-item">
+                            <button title="Go Back" class="btn btn-sm btn-outline-light text-dark" onclick="history.back()">
+                                <i class="bi bi-backspace fw-bolder" style="font-size: 1.0rem;"></i>&nbsp;<span class="fw-bold ml-1" style="font-size: 0.9rem;">Back</span>
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </div>
+    <div class="mb-1">
+        <input type="hidden" asp-for="ReviewHeaderID" />
+        <div>
+            @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bi bi-x-circle"></i>
+                    <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+        </div>
+        <div class="row">
+            @if (Model == null || Model.ReviewApprovalList == null || Model.ReviewApprovalList.Count < 1)
+            {
+                <div class="alert alert-info fade show" role="alert">
+                    <i class="bi bi-info-circle"></i>
+                    <span class="fw-bold">No record was found.</span>
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table border-0">
+                        <tbody style="background-color:#ebedef">
+                            @foreach (var item in Model.ReviewApprovalList)
+                            {
+                                if (item.ApprovalTypeId == 1)
+                                {
+                                    <tr style="border-bottom:2px solid #abb2b9">
+                                        <td>
+                                            <div class="row">
+                                                <div class="card">
+                                                    <div class="card-header bg-info">
+                                                        <span class="fw-bold text-white" style="font-size:1.2rem"> @item.ApprovalTypeDescription</span>
+                                                    </div>
+                                                    <div class="card-body" style="background-color:#ccccff">
+                                                        <div class="row">
+                                                            <div class="col-md-4 mb-2">
+                                                                <label class="form-label text-dark fw-bold">Approved by:</label>
+                                                                <div class="form-control fw-bold" style="font-size:1.0rem">@item.ApproverName</div>
+                                                            </div>
+                                                            <div class="col-md-4 mb-2">
+                                                                <label class="form-label text-dark fw-bold">Approved As:</label>
+                                                                <div class="form-control fw-bold" style="font-size:1.0rem">@item.ApproverRoleDescription</div>
+                                                            </div>
+                                                            <div class="col-md-4 mb-2">
+                                                                <label class="form-label text-dark fw-bold">Time Approved</label>
+                                                                <div class="form-control fw-bold" style="font-size:1.0rem">@item.ApprovedTime.Value.ToLongDateString() @item.ApprovedTime.Value.ToLongTimeString()</div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="row">
+                                                            <div class="col-md-12 mb-2">
+                                                                <label class="form-label text-dark fw-bold">Comments</label>
+                                                                <textarea asp-for="@item.ApprovedComments" class="form-control fw-bold" rows="2" style="font-size:1.0rem" readonly="readonly">@item.ApprovedComments</textarea>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                                else if (item.ApprovalTypeId == 2)
+                                {
+                                    <tr style="border-bottom:2px solid #abb2b9">
+                                        <td>
+                                            <div class="row">
+                                                <div class="card">
+                                                    <div class="card-header" style="background-color:#6c3483">
+                                                        <span class="fw-bold text-white" style="font-size:1.2rem"> @item.ApprovalTypeDescription</span>
+                                                    </div>
+                                                    <div class="card-body" style="background-color:#ccccff">
+                                                        <div class="row">
+                                                            <div class="col-md-4 mb-2">
+                                                                <label class="form-label text-dark fw-bold">Approved by:</label>
+                                                                <div class="form-control fw-bold" style="font-size:1.0rem">@item.ApproverName</div>
+                                                            </div>
+                                                            <div class="col-md-4 mb-2">
+                                                                <label class="form-label text-dark fw-bold">Approved As:</label>
+                                                                <div class="form-control fw-bold" style="font-size:1.0rem">@item.ApproverRoleDescription</div>
+                                                            </div>
+                                                            <div class="col-md-4 mb-2">
+                                                                <label class="form-label text-dark fw-bold">Time Approved</label>
+                                                                <div class="form-control fw-bold" style="font-size:1.0rem">@item.ApprovedTime.Value.ToLongDateString() @item.ApprovedTime.Value.ToLongTimeString()</div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="row">
+                                                            <div class="col-md-12 mb-2">
+                                                                <label class="form-label text-dark fw-bold">Comments</label>
+                                                                <textarea asp-for="@item.ApprovedComments" class="form-control fw-bold" rows="2" style="font-size:1.0rem" readonly="readonly">@item.ApprovedComments</textarea>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+
+        </div>
+    </div>
+</div>
+

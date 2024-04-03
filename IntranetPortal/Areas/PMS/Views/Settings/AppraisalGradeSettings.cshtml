@@ -1,0 +1,170 @@
+﻿@model IntranetPortal.Areas.PMS.Models.AppraisalGradeSettingsListViewModel
+<div>
+    <h3>Appraisal Grade Settings</h3>
+    <hr />
+    <div class="row">
+        <div class="container">
+            <ul class="nav nav-tabs" id="myTab" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="home-tab" data-bs-toggle="tab" data-bs-target="#home" type="button" role="tab" aria-controls="home" aria-selected="true"><span class="fw-bold">Performance Grades</span></button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="profile-tab" data-bs-toggle="tab" data-bs-target="#profile" type="button" role="tab" aria-controls="profile" aria-selected="false"><span class="fw-bold">Competency Grades</span></button>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-expanded="false"><span class="fw-bold text-dark">Options</span></a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" asp-area="PMS" asp-controller="Settings" asp-action="ManageAppraisalPerformanceGrade" asp-route-id="0" asp-route-rd="@Model.ReviewSessionID"><span class="fw-bold">New Performance Grade</span></a></li>
+                        <li><a class="dropdown-item" asp-area="PMS" asp-controller="Settings" asp-action="ManageAppraisalCompetencyGrade" asp-route-id="0" asp-route-rd="@Model.ReviewSessionID"><span class="fw-bold">New Competency Grade</span></a></li>
+                        <li><a class="dropdown-item" asp-area="PMS" asp-controller="Settings" asp-action="CopyAppraisalGrades" asp-route-id="@Model.ReviewSessionID"><span class="fw-bold">Copy Grades</span></a></li>
+                    </ul>
+                </li>
+                <li class="nav-item">
+                    <a asp-area="PMS" asp-controller="Settings" asp-action="ShowReviewSession" asp-route-id="@Model.ReviewSessionID" title="Go Back" class="btn btn-sm">
+                        <i class="bi bi-arrow-left fw-bolder" style="font-size:1.2rem"></i><span class="fw-bolder text-dark ml-2" style="font-size:0.9rem">Go Back</span>
+                    </a>
+                </li>
+            </ul>
+            <div class="tab-content" id="myTabContent">
+                <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
+                    <div class="m-3">
+                        @if (Model == null || Model.AppraisalPerformanceGradeList == null || Model.AppraisalPerformanceGradeList.Count < 1)
+                        {
+                            <div class="alert alert-info fade show" role="alert">
+                                <i class="bi bi-info-circle"></i>
+                                <span class="fw-bold">No record was found.</span>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="table-responsive">
+                                <table class="table table-sm table-hover">
+                                    <thead class="table-dark">
+                                        <tr>
+                                            <th><span class="text-white fw-bolder">Description</span></th>
+                                            <th>
+                                                <span class="text-white fw-bolder">Lower Limit</span>
+                                            </th>
+                                            <th>
+                                                <span class="text-white fw-bolder">Upper Limit</span>
+                                            </th>
+                                            <th>
+                                                <span class="text-white fw-bolder">Rank</span>
+                                            </th>
+                                            <th>
+
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="table-success">
+                                        @foreach (var item in Model.AppraisalPerformanceGradeList)
+                                        {
+                                            <tr>
+                                                <td class="p-2">
+                                                    <span class="fw-bolder">@item.AppraisalGradeDescription</span>
+                                                </td>
+                                                <td class="p-2">
+                                                    <span class="fw-bolder">@item.LowerBandScore</span>
+                                                </td>
+                                                <td class="p-2">
+                                                    <span class="fw-bolder">@item.UpperBandScore</span>
+                                                </td>
+                                                <td class="p-2">
+                                                    <span class="fw-bolder">@item.GradeRankDescription</span>
+                                                </td>
+                                                <td class="p-2 text-end">
+                                                    <div class="dropdown">
+                                                        <a class="btn btn-sm btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
+                                                            Select Action
+                                                        </a>
+                                                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                                                            <li>
+                                                                <a asp-controller="PMS" asp-action="ManageAppraisalPerformanceGrade" asp-route-id="@item.AppraisalGradeId" asp-route-td="@Model.ReviewSessionID" title="Edit" class="dropdown-item">
+                                                                    <span class="fw-bold">Edit</span>
+                                                                </a>
+                                                            </li>
+                                                            <li>
+                                                                <a asp-controller="PMS" asp-action="DeleteAppraisalPerformanceGrade" asp-route-id="@item.AppraisalGradeId" title="Delete" class="dropdown-item">
+                                                                    <span class="fw-bold">Delete</span>
+                                                                </a>
+                                                            </li>
+                                                        </ul>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        }
+                    </div>
+                </div>
+                <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab">
+                    <div class="m-3">
+                        @if (Model == null || Model.AppraisalCompetencyGradeList == null || Model.AppraisalCompetencyGradeList.Count < 1)
+                        {
+                            <div class="alert alert-info fade show" role="alert">
+                                <i class="bi bi-info-circle"></i>
+                                <span class="fw-bold">No record was found.</span>
+                            </div>
+                        }
+                        else
+                        {
+                            <table class="table table-sm table-hover">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th><span class="text-white fw-bolder">Description</span></th>
+                                        <th>
+                                            <span class="text-white fw-bolder">Score</span>
+                                        </th>
+                                        <th>
+                                            <span class="text-white fw-bolder">Rank</span>
+                                        </th>
+                                        <th>
+
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody class="table-success">
+                                    @foreach (var item in Model.AppraisalCompetencyGradeList)
+                                    {
+                                        <tr>
+                                            <td class="p-2">
+                                                <span class="fw-bolder">@item.AppraisalGradeDescription</span>
+                                            </td>
+                                            <td class="p-2">
+                                                <span class="fw-bolder">@item.LowerBandScore</span>
+                                            </td>
+                                            <td class="p-2">
+                                                <span class="fw-bolder">@item.GradeRankDescription</span>
+                                            </td>
+                                            <td class="p-2 text-end">
+                                                <div class="dropdown">
+                                                    <a class="btn btn-sm btn-dark dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
+                                                        Select Action
+                                                    </a>
+                                                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                                                        <li>
+                                                            <a asp-controller="PMS" asp-action="ManageAppraisalCompetencyGrade" asp-route-id="@item.AppraisalGradeId" asp-route-td="@Model.ReviewSessionID" title="Edit" class="dropdown-item">
+                                                                <span class="fw-bold">Edit</span>
+                                                            </a>
+                                                        </li>
+                                                        <li>
+                                                            <a asp-controller="PMS" asp-action="DeleteAppraisalCompetencyGrade" asp-route-id="@item.AppraisalGradeId" title="Delete" class="dropdown-item">
+                                                                <span class="fw-bold">Delete</span>
+                                                            </a>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

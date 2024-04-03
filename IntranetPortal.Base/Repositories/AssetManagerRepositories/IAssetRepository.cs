@@ -13,16 +13,28 @@ namespace IntranetPortal.Base.Repositories.AssetManagerRepositories
         Task<Asset> GetByNameAsync(string assetName);
         Task<IList<Asset>> SearchByNameAsync(string assetName, string userId);
         Task<IList<Asset>> GetByAssetTypeIdAsync(int assetTypeId, string userId);
-
         Task<IList<Asset>> GetByClassIdAsync(int assetClassId, string userId);
-
         Task<IList<Asset>> GetByCategoryIdAsync(int assetCategoryId, string userId);
-
         Task<IList<Asset>> GetByDivisionIdAsync(int assetDivisionId, string userId);
-
         Task<IList<Asset>> GetByAssetGroupIdAsync(int assetGroupId, string userId);
-
+        Task<IList<Asset>> GetByAssetConditionAsync(int assetCondition, string userId);
         Task<IList<Asset>> GetAllAsync(string userId);
+
+        Task<IList<Asset>> GetByBinLocationIdnAssetTypeIdAsync(int binLocationId, int assetTypeId, string userId);
+        Task<IList<Asset>> GetByBinLocationIdnAssetTypeIdnAssetConditionAsync(int binLocationId, int assetTypeId, int assetCondition, string userId);
+        Task<IList<Asset>> GetByBinLocationIdnAssetGroupIdAsync(int binLocationId, int assetGroupId, string userId);
+        Task<IList<Asset>> GetByBinLocationIdnAssetGroupIdnAssetConditionAsync(int binLocationId, int assetGroupId, int assetCondition, string userId);
+        Task<IList<Asset>> GetByBinLocationIdAsync(int binLocationId, string userId);
+        Task<IList<Asset>> GetByBinLocationIdnAssetConditionAsync(int binLocationId, int assetCondition, string userId);
+
+
+        Task<IList<Asset>> GetByBaseLocationIdnAssetTypeIdAsync(int baseLocationId, int assetTypeId, string userId);
+        Task<IList<Asset>> GetByBaseLocationIdnAssetTypeIdnAssetConditionAsync(int baseLocationId, int assetTypeId, int assetCondition, string userId);
+        Task<IList<Asset>> GetByBaseLocationIdnAssetGroupIdAsync(int baseLocationId, int assetGroupId, string userId);
+        Task<IList<Asset>> GetByBaseLocationIdnAssetGroupIdnAssetConditionAsync(int baseLocationId, int assetGroupId, int assetCondition, string userId);
+        Task<IList<Asset>> GetByBaseLocationIdAsync(int baseLocationId, string userId);
+        Task<IList<Asset>> GetByBaseLocationIdnAssetConditionAsync(int baseLocationId, int assetCondition, string userId);
+
         #endregion
 
         #region Asset Master Write Action Methods

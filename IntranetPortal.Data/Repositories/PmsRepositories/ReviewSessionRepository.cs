@@ -368,7 +368,23 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
             int rows = 0;
             var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
 
-            string query = "DELETE FROM public.pmsrvwsxns WHERE (rvw_sxn_id=@rvw_sxn_id);";
+            string query = string.Empty;
+            StringBuilder sb = new StringBuilder();
+
+            sb.Append("DELETE FROM public.pmsrvwgrds WHERE rvw_sxn_id = @rvw_sxn_id;");
+            sb.Append("DELETE FROM public.pmsloghsts WHERE rvw_hdr_id IN(SELECT rvw_hdr_id FROM pmsrvwhdrs WHERE rvw_sxn_id = @rvw_sxn_id);");
+            sb.Append("DELETE FROM public.pmsrvwaprvs WHERE rvw_hdr_id IN(SELECT rvw_hdr_id FROM pmsrvwhdrs WHERE rvw_sxn_id = @rvw_sxn_id);");
+            sb.Append("DELETE FROM public.pmsrvwcdgs WHERE rvw_hdr_id IN(SELECT rvw_hdr_id FROM pmsrvwhdrs WHERE rvw_sxn_id = @rvw_sxn_id);");
+            sb.Append("DELETE FROM public.pmsrvwmsgs WHERE rvw_hdr_id IN(SELECT rvw_hdr_id FROM pmsrvwhdrs WHERE rvw_sxn_id = @rvw_sxn_id);");
+            sb.Append("DELETE FROM public.pmsrvwsmry WHERE rvw_hdr_id IN(SELECT rvw_hdr_id FROM pmsrvwhdrs WHERE rvw_sxn_id = @rvw_sxn_id);");
+            sb.Append("DELETE FROM public.pmsrvwsbms WHERE rvw_hdr_id IN(SELECT rvw_hdr_id FROM pmsrvwhdrs WHERE rvw_sxn_id = @rvw_sxn_id);");
+            sb.Append("DELETE FROM public.pmsrvwrdtls WHERE rvw_sxn_id = @rvw_sxn_id;");
+            sb.Append("DELETE FROM public.pmsrvwmtrcs WHERE rvw_sxn_id = @rvw_sxn_id;");
+            sb.Append("DELETE FROM public.pmsrvwhdrs WHERE rvw_sxn_id = @rvw_sxn_id;");
+            sb.Append("DELETE FROM public.pmsschdls WHERE rvw_sxn_id = @rvw_sxn_id;");
+            sb.Append("DELETE FROM public.pmsrvwsxns WHERE rvw_sxn_id = @rvw_sxn_id;");
+
+            query = sb.ToString();
             try
             {
                 await conn.OpenAsync();

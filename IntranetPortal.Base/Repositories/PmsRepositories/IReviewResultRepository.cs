@@ -12,7 +12,7 @@ namespace IntranetPortal.Base.Repositories.PmsRepositories
         Task<bool> AddAsync(ReviewResult reviewResult);
         Task<bool> AddSummaryAsync(ResultSummary resultSummary);
         Task<bool> DeleteSummaryAsync(int reviewHeaderId);
-        Task<List<int>> GetAppraisersByReviewHeaderId(int reviewHeaderId);
+        Task<List<string>> GetAppraisersByReviewHeaderId(int reviewHeaderId);
         Task<List<AppraiserDetail>> GetAppraisersDetailsByReviewHeaderId(int reviewHeaderId);
         Task<IList<ReviewResult>> GetByAppraiserIdAndMetricId(int reviewHeaderId, string appraiserId, int reviewMetricId);
         Task<IList<ReviewResult>> GetByAppraiserIdAndMetricTypeId(int reviewHeaderId, string appraiserId, int reviewMetricTypeId);

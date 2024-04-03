@@ -10,9 +10,9 @@ namespace IntranetPortal.Base.Models.PmsModels
         public int ReviewHeaderId { get; set; }
         public int ReviewSessionId { get; set; }
         public string ReviewSessionName { get; set; }
-        public int FromEmployeeId { get; set; }
+        public string FromEmployeeId { get; set; }
         public string FromEmployeeName { get; set; }
-        public int ToEmployeeId { get; set; }
+        public string ToEmployeeId { get; set; }
         public string ToEmployeeName { get; set; }
         public int ToEmployeeRoleId { get; set; }
         public string ToEmployeeRoleName { get; set; }

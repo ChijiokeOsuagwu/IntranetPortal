@@ -1,0 +1,142 @@
+﻿
+@model IntranetPortal.Areas.PMS.Models.EvaluationResultViewModel
+<div class="container">
+    <h4 class="mb-1">Evaluation Summary Result</h4>
+    <hr />
+    <div class="row">
+        <div class="col-md-6 text-start">
+            <a asp-area="PMS" asp-controller="Process" asp-action="CmpFinalEvaluationList" asp-route-id="@Model.ReviewHeaderID" asp-route-ad="@Model.AppraiserID" asp-route-sd="@Model.SubmissionID" title="Go Back" class="btn btn-outline-light text-dark">
+                <i class="bi bi-backspace fw-bolder" style="font-size: 1.1rem;"></i><span class="fw-bold ml-2" style="font-size: 1.0rem;">Back</span>
+            </a>
+        </div>
+        <div class="col-md-6 text-end">
+            <a asp-area="PMS" asp-controller="Process" asp-action="ApproveEvaluation" asp-route-id="@Model.ReviewHeaderID" asp-route-ad="@Model.AppraiserID" title="Approve Final Result" class="btn btn-sm btn-light text-dark ml-2">
+                <span class="fw-bold mr-2" style="font-size: 1.0rem;">Proceed to Approve Result</span><i class="bi bi-chevron-double-right fw-bolder" style="font-size: 1.1rem;"></i>
+            </a>
+        </div>
+    </div>
+    <div class="row">
+        <div class="table-responsive">
+            <table class="table border-0">
+                <thead>
+                    <tr>
+                        <th colspan="4" style="background-color:#17202a">
+                            <span class="fw-bold text-white" style="font-size:1.1rem;">Basic Information</span>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="border-bottom:2px solid #4a235a">
+                        <td style="width:15pc; background-color:#4a235a"><span class="text-white fw-bold">Session:</span></td>
+                        <td style="width:35pc"><span class="fw-bold">@Model.ReviewSessionName</span></td>
+                        <td style="width:15pc; background-color:#4a235a"><span class="text-white fw-bold">Appraisee:</span></td>
+                        <td style="width:35pc"><span class="fw-bold">@Model.AppraiseeName</span></td>
+                    </tr>
+                    <tr style="border-bottom:2px solid #4a235a">
+                        <td style="width:15pc; background-color:#4a235a"><span class="text-white fw-bold">Appraiser Name:</span></td>
+                        <td style="width:35pc"><span class="fw-bold">@Model.AppraiserName</span></td>
+                        <td style="width: 15pc; background-color: #4a235a"><span class="text-white fw-bold">Appraiser Role:</span></td>
+                        <td style="width:35pc"><span class="fw-bold">@Model.AppraiserRoleName</span></td>
+                    </tr>
+                    <tr style="border-bottom:2px solid #4a235a">
+                        <td style="width: 15pc; background-color: #4a235a"><span class="text-white fw-bold">Appraiser Type:</span></td>
+                        <td style="width:35pc"><span class="fw-bold">@Model.AppraiserTypeDescription</span></td>
+                        <td style="width:15pc; background-color:#4a235a"><span class="text-white fw-bold">Appraisal Time:</span></td>
+                        <td style="width:35pc"><span class="fw-bold">@Model.AppraisalTime</span></td>
+                    </tr>
+                    <tr>
+                        <td colspan="5" style="background-color:#17202a">
+                            <span class="fw-bold text-white" style="font-size:1.1rem;"></span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <hr />
+            <div class="row">
+                <div class="col-md-3 p-2" style="background-color:#1b4f72; border:1px solid #1b4f72">
+                    <span class="fw-bold text-white" style="font-size:1.0rem">Performance Rating:</span>
+                </div>
+                <div class="col-md-9 p-2" style="border:1px solid #1b4f72">
+                    <span class="fw-bold" style="font-size:1.0rem">@Model.PerformanceRating</span>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-3 p-2" style="background-color:#1b4f72; border:1px solid #1b4f72">
+                    <span class="fw-bold text-white" style="font-size:1.0rem">Score Ranking:</span>
+                </div>
+                <div class="col-md-9 p-2" style="border:1px solid #1b4f72">
+                    <span class="fw-bold" style="font-size:1.0rem">@Model.PerformanceRank</span>
+                </div>
+            </div>
+            <hr />
+            <table class="table border-0">
+                <thead>
+                    <tr>
+                        <th colspan="5" style="background-color:#17202a">
+                            <span class="fw-bold text-white" style="font-size: 1.1rem;">Score Summary </span>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td colspan="5" style="background-color:#2874a6">
+                            <span class="fw-bold text-white" style="font-size:1.1rem;">Key Performance Area (KPA) Score Summary</span>
+                        </td>
+                    </tr>
+                    <tr style="border-bottom: 2px solid #2874a6">
+                        <td style="width:25pc; background-color:#2874a6"><span class="text-white fw-bold">Score Obtained:</span></td>
+                        <td style="width:15pc"><span class="fw-bold">@Model.QuantitativeScoreObtained</span></td>
+                        <td style="width:25pc; background-color:#2874a6"><span class="text-white fw-bold">Score Obtainable:</span></td>
+                        <td style="width:15pc"><span class="fw-bold">@Model.QuantitativeScoreObtainable</span></td>
+                        <td style="width:20pc; background-color:#2874a6"><span class="fw-bold"></span></td>
+                    </tr>
+                    <tr>
+                        <td colspan="5" style="        background-color: #28b463">
+                            <span class="fw-bold text-white" style="font-size:1.1rem;">Competencies Summary </span>
+                        </td>
+                    </tr>
+                    <tr style="border-bottom:2px solid #28b463">
+                        <td style="width: 25pc; background-color: #28b463">
+                            <span class="text-white fw-bold">Score Obtained:</span>
+                        </td>
+                        <td style="width:15pc"><span class="fw-bold">@Model.QualitativeScoreObtained</span></td>
+                        <td style="width:25pc; background-color:#28b463"><span class="text-white fw-bold">Score Obtainable:</span></td>
+                        <td style="width: 15pc"><span class="fw-bold">@Model.QualitativeScoreObtainable</span></td>
+                        <td style="width: 20pc; background-color: #28b463">
+                            <span class="text-white fw-bold"></span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="5" style="background-color:#b03a2e">
+                            <span class="fw-bold text-white" style="font-size:1.1rem;">Total Evaluation Summary </span>
+                        </td>
+                    </tr>
+                    <tr style="border-bottom:2px solid #b03a2e">
+                        <td style="width:25pc; background-color:#b03a2e"><span class="text-white fw-bold">Score Obtained:</span></td>
+                        <td style="width:15pc"><span class="fw-bold">@Model.TotalScoreObtained</span></td>
+                        <td style="width:25pc; background-color:#b03a2e"><span class="text-white fw-bold">Score Obtainable:</span></td>
+                        <td style="width:15pc"><span class="fw-bold">@Model.TotalScoreObtainable</span></td>
+                        <td style="width:20pc; background-color:#b03a2e"><span class="text-white fw-bold"></span></td>
+                    </tr>
+                    <tr>
+                        <td colspan="5" style="background-color:#17202a">
+                            <span class="fw-bold text-white" style="font-size: 0.9rem;"> </span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="row">
+            <div class="col-md-6 text-start">
+                <a asp-area="PMS" asp-controller="Process" asp-action="CmpFinalEvaluationList" asp-route-id="@Model.ReviewHeaderID" asp-route-ad="@Model.AppraiserID" asp-route-sd="@Model.SubmissionID" title="Go Back" class="btn btn-outline-light text-dark">
+                    <i class="bi bi-backspace fw-bolder" style="font-size: 1.1rem;"></i><span class="fw-bold ml-2" style="font-size: 1.0rem;">Back</span>
+                </a>
+            </div>
+            <div class="col-md-6 text-end">
+                <a asp-area="PMS" asp-controller="Process" asp-action="ApproveEvaluation" asp-route-id="@Model.ReviewHeaderID" title="Approve Final Result" class="btn btn-sm btn-light text-dark ml-2">
+                    <span class="fw-bold mr-2" style="font-size: 1.0rem;">Proceed to Approve Result</span><i class="bi bi-chevron-double-right fw-bolder" style="font-size: 1.1rem;"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

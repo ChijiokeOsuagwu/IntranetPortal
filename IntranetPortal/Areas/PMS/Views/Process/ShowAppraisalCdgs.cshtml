@@ -1,0 +1,122 @@
+﻿@model IntranetPortal.Areas.PMS.Models.AppraisalCdgViewModel
+<div class="container">
+    <h4 class="mb-1">Career Development Goals (CDGs)</h4>
+    <hr />
+    <div class="row">
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <div class="container-fluid">
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNavDropdown">
+                    <ul class="navbar-nav">
+                        <li class="nav-item">
+                            <button title="Go Back" class="btn btn-sm btn-outline-light text-dark" onclick="history.back()">
+                                <i class="bi bi-backspace fw-bolder" style="font-size: 1.0rem;"></i>&nbsp;<span class="fw-bold ml-1" style="font-size: 0.9rem;">Back</span>
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </div>
+    <hr />
+    <div class="row">
+        @if (Model == null || Model.ReviewCdgList == null || Model.ReviewCdgList.Count < 1)
+        {
+            <div class="alert alert-secondary alert-dismissible fade show" role="alert">
+                <i class="bi bi-x-circle"></i>
+                <span class="fw-bold text-dark">No record was found.</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        else
+        {
+            int row_number = 0;
+            @*<div class="table-responsive">
+                    <div class="accordion" id="accordionCdg">
+                        @foreach (var cdg in Model.ReviewCdgList)
+                        {
+                            row_number++;
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="heading_@row_number">
+                                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse_@row_number" aria-expanded="true" aria-controls="collapse_@row_number">
+                                        <span class="fw-bold" style="font-size: 0.9rem;">CDG #@row_number</span>
+                                    </button>
+                                </h2>
+                                <div id="collapse_@row_number" class="accordion-collapse collapse" aria-labelledby="heading_@row_number" data-bs-parent="#accordionCdg">
+                                    <div class="accordion-body" style="background-color:#ccccff">
+                                        <div class="card">
+                                            <div class="card-body" style="background-color:#ccccff">
+                                                <div class="row">
+                                                    <div class="col-md-12 mb-2">
+                                                        <label class="form-label text-dark fw-bold">CDG Description</label>
+                                                        <textarea asp-for="@cdg.ReviewCdgDescription" class="form-control fw-bold" rows="2" style="font-size:1.0rem" readonly="readonly">@cdg.ReviewCdgDescription</textarea>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-md-12 mb-2">
+                                                        <label class="form-label text-dark fw-bold">CDG Objective</label>
+                                                        <textarea asp-for="@cdg.ReviewCdgObjective" class="form-control fw-bold" rows="2" style="font-size:1.0rem" readonly="readonly">@cdg.ReviewCdgObjective</textarea>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-md-12 mb-3">
+                                                        <label class="form-label text-dark fw-bold">Action Plan</label>
+                                                        <textarea asp-for="@cdg.ReviewCdgActionPlan" class="form-control fw-bold" rows="2" style="font-size:1.0rem" readonly="readonly">@cdg.ReviewCdgActionPlan</textarea>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>*@
+
+            <!-------- Start Of New Mark Up -->
+
+            <div class="table-responsive">
+                <table class="table border-0">
+                    <tbody>
+                        @foreach (var cdg in Model.ReviewCdgList)
+                        {
+                            row_number++;
+                            <tr style="border-bottom:2px solid #abb2b9">
+                                <td>
+                                    <div class="card">
+                                        <div class="card-header" style="background-color:#943126">
+                                            <span class="fw-bold text-white" style="font-size: 1.0rem;">CDG #@row_number</span>
+                                        </div>
+                                        <div class="card-body" style="background-color:#ccccff">
+                                            <div class="row">
+                                                <div class="col-md-12 mb-2">
+                                                    <label class="form-label text-dark fw-bold">CDG Description</label>
+                                                    <textarea asp-for="@cdg.ReviewCdgDescription" class="form-control fw-bold" rows="2" style="font-size:1.0rem" readonly="readonly">@cdg.ReviewCdgDescription</textarea>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-md-12 mb-2">
+                                                    <label class="form-label text-dark fw-bold">CDG Objective</label>
+                                                    <textarea asp-for="@cdg.ReviewCdgObjective" class="form-control fw-bold" rows="2" style="font-size:1.0rem" readonly="readonly">@cdg.ReviewCdgObjective</textarea>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-md-12 mb-3">
+                                                    <label class="form-label text-dark fw-bold">Action Plan</label>
+                                                    <textarea asp-for="@cdg.ReviewCdgActionPlan" class="form-control fw-bold" rows="2" style="font-size:1.0rem" readonly="readonly">@cdg.ReviewCdgActionPlan</textarea>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>
+

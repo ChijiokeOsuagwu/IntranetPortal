@@ -373,14 +373,14 @@ namespace IntranetPortal.Data.Repositories.ContentManagerRepositories
                 var is_hdn = cmd.Parameters.Add("@is_hdn", NpgsqlDbType.Boolean);
                 var dtl_rw = cmd.Parameters.Add("@dtl_rw", NpgsqlDbType.Text);
                 cmd.Prepare();
-                title.Value = post.PostTitle;
-                summary.Value = post.PostSummary;
+                title.Value = post.PostTitle ?? (object)DBNull.Value;
+                summary.Value = post.PostSummary ?? (object)DBNull.Value;
                 details.Value = post.PostDetails ?? (object)DBNull.Value;
                 imgp.Value = post.ImagePath ?? (object)DBNull.Value;
-                mdby.Value = post.ModifiedBy;
-                mddt.Value = post.ModifiedDate;
-                crby.Value = post.CreatedBy;
-                crdt.Value = post.CreatedDate;
+                mdby.Value = post.ModifiedBy ?? (object)DBNull.Value;
+                mddt.Value = post.ModifiedDate ?? (object)DBNull.Value;
+                crby.Value = post.CreatedBy ?? (object)DBNull.Value;
+                crdt.Value = post.CreatedDate ?? (object)DBNull.Value;
                 typ_id.Value = post.PostTypeId;
                 enable_com.Value = post.EnableComment;
                 is_hdn.Value = post.IsHidden;
@@ -455,13 +455,13 @@ namespace IntranetPortal.Data.Repositories.ContentManagerRepositories
                 var dtl_rw = cmd.Parameters.Add("@dtl_rw", NpgsqlDbType.Text);
                 cmd.Prepare();
                 id.Value = post.PostId;
-                title.Value = post.PostTitle;
-                summary.Value = post.PostSummary;
+                title.Value = post.PostTitle ?? (object)DBNull.Value;
+                summary.Value = post.PostSummary ?? (object)DBNull.Value;
                 typ_id.Value = post.PostTypeId;
                 details.Value = post.PostDetails ?? (object)DBNull.Value;
                 imgp.Value = post.ImagePath ?? (object)DBNull.Value;
-                mdby.Value = post.ModifiedBy;
-                mddt.Value = post.ModifiedDate;
+                mdby.Value = post.ModifiedBy ?? (object)DBNull.Value;
+                mddt.Value = post.ModifiedDate ?? (object)DBNull.Value;
                 enable_com.Value = post.EnableComment;
                 is_hdn.Value = post.IsHidden;
                 dtl_rw.Value = post.PostDetailsRaw ?? (object)DBNull.Value;
@@ -499,12 +499,12 @@ namespace IntranetPortal.Data.Repositories.ContentManagerRepositories
                 var dtl_rw = cmd.Parameters.Add("@dtl_rw", NpgsqlDbType.Text);
                 cmd.Prepare();
                 id.Value = post.PostId;
-                title.Value = post.PostTitle;
-                summary.Value = post.PostSummary;
+                title.Value = post.PostTitle ?? (object)DBNull.Value;
+                summary.Value = post.PostSummary ?? (object)DBNull.Value;
                 typ_id.Value = post.PostTypeId;
                 details.Value = post.PostDetails ?? (object)DBNull.Value;
-                mdby.Value = post.ModifiedBy;
-                mddt.Value = post.ModifiedDate;
+                mdby.Value = post.ModifiedBy ?? (object)DBNull.Value;
+                mddt.Value = post.ModifiedDate ?? (object)DBNull.Value;
                 enable_com.Value = post.EnableComment;
                 is_hdn.Value = post.IsHidden;
                 dtl_rw.Value = post.PostDetailsRaw ?? (object)DBNull.Value;
@@ -619,9 +619,9 @@ namespace IntranetPortal.Data.Repositories.ContentManagerRepositories
                         postlist.Add(new Post()
                         {
                             PostId = reader["id"] == DBNull.Value ? 0 : Convert.ToInt32(reader["id"]),
-                            PostTitle = reader["title"] == DBNull.Value ? String.Empty : reader["title"].ToString(),
-                            PostSummary = reader["summary"] == DBNull.Value ? String.Empty : reader["summary"].ToString(),
-                            ImagePath = reader["imgp"] == DBNull.Value ? String.Empty : reader["imgp"].ToString(),
+                            PostTitle = reader["title"] == DBNull.Value ? string.Empty : reader["title"].ToString(),
+                            PostSummary = reader["summary"] == DBNull.Value ? string.Empty : reader["summary"].ToString(),
+                            ImagePath = reader["imgp"] == DBNull.Value ? string.Empty : reader["imgp"].ToString(),
                             ModifiedBy = reader["mdby"] == DBNull.Value ? string.Empty : reader["mdby"].ToString(),
                             ModifiedDate = reader["mddt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["mddt"],
                             CreatedBy = reader["crby"] == DBNull.Value ? string.Empty : reader["crby"].ToString(),
@@ -638,14 +638,6 @@ namespace IntranetPortal.Data.Repositories.ContentManagerRepositories
             }
             catch (Exception ex)
             {
-                //ErrorRepository errorRepository = new ErrorRepository(_config);
-                //ErrorEntity errorEntity = new ErrorEntity();
-                //errorEntity.ErrorMessage = ex.Message;
-                //errorEntity.ErrorDetail = ex.ToString();
-                //errorEntity.ErrorTime = $"{DateTime.UtcNow.ToLongDateString()} {DateTime.UtcNow.ToLongTimeString()} (UTC)";
-                //errorEntity.ErrorInnerSource = ex.Source;
-                //errorEntity.ErrorSource = "ApplicationUserRepository_GetUsersByDatabaseId";
-                //errorRepository.AddError(errorEntity);
                 await conn.CloseAsync();
                 postlist = null;
             }
@@ -676,9 +668,9 @@ namespace IntranetPortal.Data.Repositories.ContentManagerRepositories
                         postlist.Add(new Post()
                         {
                             PostId = reader["id"] == DBNull.Value ? 0 : Convert.ToInt32(reader["id"]),
-                            PostTitle = reader["title"] == DBNull.Value ? String.Empty : reader["title"].ToString(),
-                            PostSummary = reader["summary"] == DBNull.Value ? String.Empty : reader["summary"].ToString(),
-                            ImagePath = reader["imgp"] == DBNull.Value ? String.Empty : reader["imgp"].ToString(),
+                            PostTitle = reader["title"] == DBNull.Value ? string.Empty : reader["title"].ToString(),
+                            PostSummary = reader["summary"] == DBNull.Value ? string.Empty : reader["summary"].ToString(),
+                            ImagePath = reader["imgp"] == DBNull.Value ? string.Empty : reader["imgp"].ToString(),
                             ModifiedBy = reader["mdby"] == DBNull.Value ? string.Empty : reader["mdby"].ToString(),
                             ModifiedDate = reader["mddt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["mddt"],
                             CreatedBy = reader["crby"] == DBNull.Value ? string.Empty : reader["crby"].ToString(),
@@ -695,19 +687,10 @@ namespace IntranetPortal.Data.Repositories.ContentManagerRepositories
             }
             catch (Exception ex)
             {
-                //ErrorRepository errorRepository = new ErrorRepository(_config);
-                //ErrorEntity errorEntity = new ErrorEntity();
-                //errorEntity.ErrorMessage = ex.Message;
-                //errorEntity.ErrorDetail = ex.ToString();
-                //errorEntity.ErrorTime = $"{DateTime.UtcNow.ToLongDateString()} {DateTime.UtcNow.ToLongTimeString()} (UTC)";
-                //errorEntity.ErrorInnerSource = ex.Source;
-                //errorEntity.ErrorSource = "ApplicationUserRepository_GetUsersByDatabaseId";
-                //errorRepository.AddError(errorEntity);
                 await conn.CloseAsync();
                 postlist = null;
             }
             return postlist;
-
         }
 
         #endregion
@@ -973,9 +956,9 @@ namespace IntranetPortal.Data.Repositories.ContentManagerRepositories
                         postlist.Add(new Post()
                         {
                             PostId = reader["id"] == DBNull.Value ? 0 : Convert.ToInt32(reader["id"]),
-                            PostTitle = reader["title"] == DBNull.Value ? String.Empty : reader["title"].ToString(),
-                            PostSummary = reader["summary"] == DBNull.Value ? String.Empty : reader["summary"].ToString(),
-                            ImagePath = reader["imgp"] == DBNull.Value ? String.Empty : reader["imgp"].ToString(),
+                            PostTitle = reader["title"] == DBNull.Value ? string.Empty : reader["title"].ToString(),
+                            PostSummary = reader["summary"] == DBNull.Value ? string.Empty : reader["summary"].ToString(),
+                            ImagePath = reader["imgp"] == DBNull.Value ? string.Empty : reader["imgp"].ToString(),
                             ModifiedBy = reader["mdby"] == DBNull.Value ? string.Empty : reader["mdby"].ToString(),
                             ModifiedDate = reader["mddt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["mddt"],
                             CreatedBy = reader["crby"] == DBNull.Value ? string.Empty : reader["crby"].ToString(),
@@ -993,14 +976,6 @@ namespace IntranetPortal.Data.Repositories.ContentManagerRepositories
             }
             catch (Exception ex)
             {
-                //ErrorRepository errorRepository = new ErrorRepository(_config);
-                //ErrorEntity errorEntity = new ErrorEntity();
-                //errorEntity.ErrorMessage = ex.Message;
-                //errorEntity.ErrorDetail = ex.ToString();
-                //errorEntity.ErrorTime = $"{DateTime.UtcNow.ToLongDateString()} {DateTime.UtcNow.ToLongTimeString()} (UTC)";
-                //errorEntity.ErrorInnerSource = ex.Source;
-                //errorEntity.ErrorSource = "ApplicationUserRepository_GetUsersByDatabaseId";
-                //errorRepository.AddError(errorEntity);
                 await conn.CloseAsync();
                 postlist = null;
             }
@@ -1016,168 +991,6 @@ namespace IntranetPortal.Data.Repositories.ContentManagerRepositories
         {
             throw new NotImplementedException();
         }
-
-
-        //public async Task<IList<ApplicationUserEntity>> GetUsersByDatabaseIdAsync(string databaseId)
-        //{
-        //    List<ApplicationUserEntity> userlist = new List<ApplicationUserEntity>();
-        //    using var conn = new NpgsqlConnection(_config.GetConnectionString("NexxitConnection"));
-        //    string query = String.Empty;
-        //    StringBuilder sb = new StringBuilder();
-        //    if (String.IsNullOrEmpty(databaseId))
-        //    {
-        //        return null;
-        //    }
-
-        //    sb.Append($"SELECT u.srxqk, u.srxnm, u.srxnnm, u.srxfn, u.sbrqk, u.srxph, u.srxss, u.srxccs, ");
-        //    sb.Append($"u.srxtfe, u.srxisl, u.srxled, u.srxafc, u.srxml, u.srxnml, u.srxmlc, u.srxpn, u.srxpnc, ");
-        //    sb.Append($"u.srximg, u.srxmb, u.srxmd, u.srxcb, u.srxcd, u.srxisd, u.srxisy, u.dbxqk, d.dbxds, ");
-        //    sb.AppendLine($"d.dbxcx, t.sbrnr, t.sbrnm FROM utlsy010t u JOIN utlsy005t d ON u.dbxqk = d.dbxqk ");
-        //    sb.AppendLine($"JOIN utlsy003t t ON u.sbrqk = t.sbrqk::text WHERE u.srxisd = false ");
-        //    sb.AppendLine($"AND u.dbxqk = @dbxqk ;");
-        //    query = sb.ToString();
-        //    try
-        //    {
-        //        await conn.OpenAsync();
-        //        // Retrieve all rows
-        //        using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
-        //        {
-        //            var dbxqk = cmd.Parameters.Add("@dbxqk", NpgsqlDbType.Text);
-        //            await cmd.PrepareAsync();
-        //            dbxqk.Value = databaseId.ToUpperInvariant();
-        //            await using (var reader = await cmd.ExecuteReaderAsync())
-        //                while (await reader.ReadAsync())
-        //                {
-        //                    userlist.Add(new ApplicationUserEntity(_crypto)
-        //                    {
-        //                        AccessFailedCount = reader["srxafc"] == DBNull.Value ? 0 : Convert.ToInt32(reader["srxafc"]),
-        //                        ConcurrencyStamp = reader["srxccs"] == DBNull.Value ? String.Empty : reader["srxccs"].ToString(),
-        //                        Email = reader["srxml"] == DBNull.Value ? String.Empty : reader["srxml"].ToString(),
-        //                        EmailIsConfirmed = reader["srxmlc"] == DBNull.Value ? false : (bool)reader["srxmlc"],
-        //                        FullName = reader["srxfn"] == DBNull.Value ? String.Empty : reader["srxfn"].ToString(),
-        //                        ImagePath = reader["srximg"] == DBNull.Value ? String.Empty : reader["srximg"].ToString(),
-        //                        IsDeleted = reader["srxisd"] == DBNull.Value ? false : (bool)reader["srxisd"],
-        //                        IsSystem = reader["srxisy"] == DBNull.Value ? false : (bool)reader["srxisy"],
-        //                        LockOutEnd = reader["srxled"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["srxled"],
-        //                        LockOutIsEnabled = reader["srxisl"] == DBNull.Value ? false : (bool)reader["srxisl"],
-        //                        NormalizedEmail = reader["srxnml"] == DBNull.Value ? String.Empty : reader["srxnml"].ToString(),
-        //                        NormalizedUsername = reader["srxnnm"] == DBNull.Value ? String.Empty : reader["srxnnm"].ToString(),
-        //                        PasswordHash = reader["srxph"] == DBNull.Value ? String.Empty : reader["srxph"].ToString(),
-        //                        PhoneNumber = reader["srxpn"] == DBNull.Value ? String.Empty : reader["srxpn"].ToString(),
-        //                        PhoneNumberIsConfirmed = reader["srxpnc"] == DBNull.Value ? false : (bool)reader["srxpnc"],
-        //                        SecurityStamp = reader["srxss"] == DBNull.Value ? String.Empty : reader["srxss"].ToString(),
-        //                        TwoFactorAuthenticationIsEnabled = reader["srxtfe"] == DBNull.Value ? false : (bool)reader["srxtfe"],
-        //                        UserName = reader["srxnm"] == DBNull.Value ? String.Empty : reader["srxnm"].ToString(),
-        //                        UserID = reader["srxqk"] == DBNull.Value ? String.Empty : reader["srxqk"].ToString(),
-        //                        ModifiedBy = reader["srxmb"] == DBNull.Value ? string.Empty : reader["srxmb"].ToString(),
-        //                        ModifiedDate = reader["srxmd"] == DBNull.Value ? string.Empty : reader["srxmd"].ToString(),
-        //                        CreatedDate = reader["srxcd"] == DBNull.Value ? string.Empty : reader["srxcd"].ToString(),
-        //                        CreatedBy = reader["srxcb"] == DBNull.Value ? string.Empty : reader["srxcb"].ToString(),
-        //                        TenantID = reader["sbrqk"] == DBNull.Value ? string.Empty : reader["sbrqk"].ToString(),
-        //                        CompanyName = reader["dbxds"] == DBNull.Value ? string.Empty : reader["dbxds"].ToString(),
-        //                        Connection = reader["dbxcx"] == DBNull.Value ? string.Empty : reader["dbxcx"].ToString(),
-        //                        DatabaseID = reader["dbxqk"] == DBNull.Value ? string.Empty : reader["dbxqk"].ToString(),
-        //                        TenantName = reader["sbrnm"] == DBNull.Value ? string.Empty : reader["sbrnm"].ToString(),
-        //                        TenantNumber = reader["sbrnr"] == DBNull.Value ? string.Empty : reader["sbrnr"].ToString(),
-        //                    });
-        //                }
-        //        }
-        //        await conn.CloseAsync();
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        ErrorRepository errorRepository = new ErrorRepository(_config);
-        //        ErrorEntity errorEntity = new ErrorEntity();
-        //        errorEntity.ErrorMessage = ex.Message;
-        //        errorEntity.ErrorDetail = ex.ToString();
-        //        errorEntity.ErrorTime = $"{DateTime.UtcNow.ToLongDateString()} {DateTime.UtcNow.ToLongTimeString()} (UTC)";
-        //        errorEntity.ErrorInnerSource = ex.Source;
-        //        errorEntity.ErrorSource = "ApplicationUserRepository_GetUsersByDatabaseId";
-        //        errorRepository.AddError(errorEntity);
-        //        await conn.CloseAsync();
-        //        userlist = null;
-        //    }
-        //    return userlist;
-        //}
-
-        //public async Task<ApplicationUserEntity> GetUserByLoginIdAsync(string loginId)
-        //{
-        //    ApplicationUserEntity userEntity = new ApplicationUserEntity(_crypto);
-        //    using var conn = new NpgsqlConnection(_config.GetConnectionString("NexxitConnection"));
-        //    string query = String.Empty;
-        //    StringBuilder sb = new StringBuilder();
-        //    if (String.IsNullOrEmpty(loginId))
-        //    {
-        //        return null;
-        //    }
-
-        //    sb.Append($"SELECT u.srxqk, u.srxnm, u.srxnnm, u.srxfn, u.sbrqk, u.srxph, u.srxss, u.srxccs, ");
-        //    sb.Append($"u.srxtfe, u.srxisl, u.srxled, u.srxafc, u.srxml, u.srxnml, u.srxmlc, u.srxpn, u.srxpnc, ");
-        //    sb.Append($"u.srximg, u.srxmb, u.srxmd, u.srxcb, u.srxcd, u.srxisd, u.srxisy, u.dbxqk, d.dbxds, ");
-        //    sb.AppendLine($"d.dbxcx, t.sbrnr, t.sbrnm FROM utlsy010t u JOIN utlsy005t d ON u.dbxqk = d.dbxqk ");
-        //    sb.AppendLine($"JOIN utlsy003t t ON u.sbrqk = t.sbrqk::text WHERE u.srxisd = false ");
-        //    sb.AppendLine($"AND u.srxnnm = @srxnnm ;");
-        //    query = sb.ToString();
-        //    try
-        //    {
-        //        await conn.OpenAsync();
-        //        // Retrieve all rows
-        //        using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
-        //        {
-        //            var srxnnm = cmd.Parameters.Add("@srxnnm", NpgsqlDbType.Text);
-        //            await cmd.PrepareAsync();
-        //            srxnnm.Value = loginId.ToUpperInvariant();
-        //            await using (var reader = await cmd.ExecuteReaderAsync())
-        //                while (await reader.ReadAsync())
-        //                {
-        //                    userEntity.AccessFailedCount = reader["srxafc"] == DBNull.Value ? 0 : Convert.ToInt32(reader["srxafc"]);
-        //                    userEntity.ConcurrencyStamp = reader["srxccs"] == DBNull.Value ? String.Empty : reader["srxccs"].ToString();
-        //                    userEntity.Email = reader["srxml"] == DBNull.Value ? String.Empty : reader["srxml"].ToString();
-        //                    userEntity.EmailIsConfirmed = reader["srxmlc"] == DBNull.Value ? false : (bool)reader["srxmlc"];
-        //                    userEntity.FullName = reader["srxfn"] == DBNull.Value ? String.Empty : reader["srxfn"].ToString();
-        //                    userEntity.ImagePath = reader["srximg"] == DBNull.Value ? String.Empty : reader["srximg"].ToString();
-        //                    userEntity.IsDeleted = reader["srxisd"] == DBNull.Value ? false : (bool)reader["srxisd"];
-        //                    userEntity.IsSystem = reader["srxisy"] == DBNull.Value ? false : (bool)reader["srxisy"];
-        //                    userEntity.LockOutEnd = reader["srxled"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["srxled"];
-        //                    userEntity.LockOutIsEnabled = reader["srxisl"] == DBNull.Value ? false : (bool)reader["srxisl"];
-        //                    userEntity.NormalizedEmail = reader["srxnml"] == DBNull.Value ? String.Empty : reader["srxnml"].ToString();
-        //                    userEntity.NormalizedUsername = reader["srxnnm"] == DBNull.Value ? String.Empty : reader["srxnnm"].ToString();
-        //                    userEntity.PasswordHash = reader["srxph"] == DBNull.Value ? String.Empty : reader["srxph"].ToString();
-        //                    userEntity.PhoneNumber = reader["srxpn"] == DBNull.Value ? String.Empty : reader["srxpn"].ToString();
-        //                    userEntity.PhoneNumberIsConfirmed = reader["srxpnc"] == DBNull.Value ? false : (bool)reader["srxpnc"];
-        //                    userEntity.SecurityStamp = reader["srxss"] == DBNull.Value ? String.Empty : reader["srxss"].ToString();
-        //                    userEntity.TwoFactorAuthenticationIsEnabled = reader["srxtfe"] == DBNull.Value ? false : (bool)reader["srxtfe"];
-        //                    userEntity.UserName = reader["srxnm"] == DBNull.Value ? String.Empty : reader["srxnm"].ToString();
-        //                    userEntity.UserID = reader["srxqk"] == DBNull.Value ? String.Empty : reader["srxqk"].ToString();
-        //                    userEntity.ModifiedBy = reader["srxmb"] == DBNull.Value ? string.Empty : reader["srxmb"].ToString();
-        //                    userEntity.ModifiedDate = reader["srxmd"] == DBNull.Value ? string.Empty : reader["srxmd"].ToString();
-        //                    userEntity.CreatedDate = reader["srxcd"] == DBNull.Value ? string.Empty : reader["srxcd"].ToString();
-        //                    userEntity.CreatedBy = reader["srxcb"] == DBNull.Value ? string.Empty : reader["srxcb"].ToString();
-        //                    userEntity.TenantID = reader["sbrqk"] == DBNull.Value ? string.Empty : reader["sbrqk"].ToString();
-        //                    userEntity.CompanyName = reader["dbxds"] == DBNull.Value ? string.Empty : reader["dbxds"].ToString();
-        //                    userEntity.Connection = reader["dbxcx"] == DBNull.Value ? string.Empty : reader["dbxcx"].ToString();
-        //                    userEntity.DatabaseID = reader["dbxqk"] == DBNull.Value ? string.Empty : reader["dbxqk"].ToString();
-        //                    userEntity.TenantName = reader["sbrnm"] == DBNull.Value ? string.Empty : reader["sbrnm"].ToString();
-        //                    userEntity.TenantNumber = reader["sbrnr"] == DBNull.Value ? string.Empty : reader["sbrnr"].ToString();
-        //                }
-        //        }
-        //        await conn.CloseAsync();
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        ErrorRepository errorRepository = new ErrorRepository(_config);
-        //        ErrorEntity errorEntity = new ErrorEntity();
-        //        errorEntity.ErrorMessage = ex.Message;
-        //        errorEntity.ErrorDetail = ex.ToString();
-        //        errorEntity.ErrorTime = $"{DateTime.UtcNow.ToLongDateString()} {DateTime.UtcNow.ToLongTimeString()} (UTC)";
-        //        errorEntity.ErrorInnerSource = ex.Source;
-        //        errorEntity.ErrorSource = "ApplicationUserRepository_GetUsersByLoginIdAsync";
-        //        errorRepository.AddError(errorEntity);
-        //        await conn.CloseAsync();
-        //        return null;
-        //    }
-        //    return userEntity;
-        //}
         #endregion
     }
 }

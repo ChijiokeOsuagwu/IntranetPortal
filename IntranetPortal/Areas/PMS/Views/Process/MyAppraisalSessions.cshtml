@@ -4,8 +4,8 @@
     <hr />
     <div class="mb-1">
         <div class="mb-2">
-            <form asp-controller="PMS" asp-action="MyAppraisalSessions" method="get">
-                <a asp-controller="PMS" asp-action="Appraisals" class="btn btn-dark mr-3" style="width:100px" title="Exit">
+            <form asp-area="PMS" asp-controller="Process" asp-action="MyAppraisalSessions" method="get">
+                <a asp-area="PMS" asp-controller="Home" asp-action="Index" class="btn btn-dark mr-3" style="width:100px" title="Exit">
                     <span class="text-white">Back</span>
                 </a>
                 <select asp-for="Id" asp-items="@ViewBag.PerformanceYearsList" class="border-0" style="width:200px">
@@ -49,13 +49,13 @@
                                             <div class="col-md-6">
                                                 @if (item.IsActive)
                                                 {
-                                                    <span class="badge bg-success fw-bold fs-6">Open</span>
+                                                    <i title="This Session is Open." class="bi bi-unlock-fill fw-bolder" style="font-size:1.2rem"></i>
                                                 }
                                                 else
                                                 {
-                                                    <span class="badge bg-danger fw-bold fs-6">Closed</span>
+                                                    <span><i title="This Session is Closed." class="bi bi-lock-fill fw-bolder" style="font-size:1.2rem"></i></span>
                                                 }
-                                                <span class="fw-bolder fs-5 pl-1">@item.Name</span>
+                                                <span title="@item.Name" class="fw-bolder fs-5 pl-1">@item.Name</span>
                                             </div>
                                             <div class="col-md-2">
                                                 <span class="fw-bolder fs-5">@item.ReviewTypeName</span>
@@ -68,7 +68,8 @@
                                                     <i class="bi bi-percent fw-bolder" style="font-size: 0.8rem;"></i><span class="fw-bold ml-2" style="font-size: 0.8rem;">Grading</span>
                                                 </a>*@
                                                 <a asp-area="PMS" asp-Controller="Process" asp-action="MyAppraisalSteps" asp-route-id="@item.Id" title="Process" class="btn btn-sm btn-light text-dark">
-                                                    <i class="bi bi-pencil-square fw-bolder" style="font-size: 0.8rem;"></i><span class="fw-bold ml-2" style="font-size: 0.8rem;">Process</span>
+                                                    @*<i class="bi bi-pencil-square fw-bolder" style="font-size: 0.8rem;"></i><span class="fw-bold ml-2" style="font-size: 0.8rem;">Go</span>*@
+                                                    <i class="bi bi-box-arrow-right fw-bold" style="font-size: 1.2rem;"></i><span class="fw-bold ml-2" style="font-size: 1.0rem;">Proceed</span>
                                                 </a>
                                             </div>
                                         </div>

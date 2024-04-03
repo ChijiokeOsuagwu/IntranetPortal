@@ -19,7 +19,7 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
         }
 
         #region Review Submission Read Action Methods
-        public async Task<List<ReviewSubmission>> GetByReviewerIdAsync(int reviewerId)
+        public async Task<List<ReviewSubmission>> GetByReviewerIdAsync(string reviewerId)
         {
             List<ReviewSubmission> reviewSubmissionList = new List<ReviewSubmission>();
             var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
@@ -34,8 +34,8 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
             sb.Append("FROM public.pmsrvwsbms s ");
             sb.Append("INNER JOIN public.pmsrvwhdrs h ON h.rvw_hdr_id = s.rvw_hdr_id ");
             sb.Append("INNER JOIN public.pmsaprvrls a ON a.aprv_rl_id = s.apvr_rl_id ");
-            sb.Append("INNER JOIN public.ermempinf e ON e.empid = s.frm_emp_id ");
-            sb.Append("INNER JOIN public.ermempinf f ON f.empid = s.to_emp_id ");
+            sb.Append("INNER JOIN public.gst_prsns e ON e.id = s.frm_emp_id ");
+            sb.Append("INNER JOIN public.gst_prsns f ON f.id = s.to_emp_id ");
             sb.Append("WHERE (s.to_emp_id = @to_emp_id) AND (s.is_del = false) ");
             sb.Append("ORDER BY s.sbm_dt DESC;");
             string query = sb.ToString();
@@ -43,7 +43,7 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
             // Retrieve all rows
             using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
             {
-                var to_emp_id = cmd.Parameters.Add("@to_emp_id", NpgsqlDbType.Integer);
+                var to_emp_id = cmd.Parameters.Add("@to_emp_id", NpgsqlDbType.Text);
                 await cmd.PrepareAsync();
                 to_emp_id.Value = reviewerId;
 
@@ -55,9 +55,9 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
                         ReviewSubmissionId = reader["rvw_sbm_id"] == DBNull.Value ? 0 : (int)reader["rvw_sbm_id"],
                         ReviewHeaderId = reader["rvw_hdr_id"] == DBNull.Value ? 0 : (int)reader["rvw_hdr_id"],
                         ReviewSessionId = reader["rvw_sxn_id"] == DBNull.Value ? 0 : (int)reader["rvw_sxn_id"],
-                        FromEmployeeId = reader["frm_emp_id"] == DBNull.Value ? 0 : (int)reader["frm_emp_id"],
+                        FromEmployeeId = reader["frm_emp_id"] == DBNull.Value ? string.Empty : reader["frm_emp_id"].ToString(),
                         FromEmployeeName = reader["frm_emp_nm"] == DBNull.Value ? string.Empty : reader["frm_emp_nm"].ToString(),
-                        ToEmployeeId = reader["to_emp_id"] == DBNull.Value ? 0 : (int)reader["to_emp_id"],
+                        ToEmployeeId = reader["to_emp_id"] == DBNull.Value ? string.Empty : reader["to_emp_id"].ToString(),
                         ToEmployeeName = reader["to_emp_nm"] == DBNull.Value ? string.Empty : reader["to_emp_nm"].ToString(),
                         ToEmployeeRoleId = reader["apvr_rl_id"] == DBNull.Value ? 0 : (int)reader["apvr_rl_id"],
                         ToEmployeeRoleName = reader["aprv_rl_nm"] == DBNull.Value ? string.Empty : reader["aprv_rl_nm"].ToString(),
@@ -73,7 +73,7 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
             await conn.CloseAsync();
             return reviewSubmissionList;
         }
-        public async Task<List<ReviewSubmission>> GetByReviewerIdAndReviewSessionIdAsync(int reviewerId, int reviewSessionId)
+        public async Task<List<ReviewSubmission>> GetByReviewerIdAndReviewSessionIdAsync(string reviewerId, int reviewSessionId)
         {
             List<ReviewSubmission> reviewSubmissionList = new List<ReviewSubmission>();
             var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
@@ -88,8 +88,8 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
             sb.Append("FROM public.pmsrvwsbms s ");
             sb.Append("INNER JOIN public.pmsrvwhdrs h ON h.rvw_hdr_id = s.rvw_hdr_id ");
             sb.Append("INNER JOIN public.pmsaprvrls a ON a.aprv_rl_id = s.apvr_rl_id ");
-            sb.Append("INNER JOIN public.ermempinf e ON e.empid = s.frm_emp_id ");
-            sb.Append("INNER JOIN public.ermempinf f ON f.empid = s.to_emp_id ");
+            sb.Append("INNER JOIN public.gst_prsns e ON e.id = s.frm_emp_id ");
+            sb.Append("INNER JOIN public.gst_prsns f ON f.id = s.to_emp_id ");
             sb.Append("WHERE (s.to_emp_id = @to_emp_id) AND (h.rvw_sxn_id = @rvw_sxn_id) ");
             sb.Append("AND (s.is_del = false) ORDER BY s.sbm_dt DESC;");
 
@@ -98,7 +98,7 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
             // Retrieve all rows
             using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
             {
-                var to_emp_id = cmd.Parameters.Add("@to_emp_id", NpgsqlDbType.Integer);
+                var to_emp_id = cmd.Parameters.Add("@to_emp_id", NpgsqlDbType.Text);
                 var rvw_sxn_id = cmd.Parameters.Add("@rvw_sxn_id", NpgsqlDbType.Integer);
                 await cmd.PrepareAsync();
                 to_emp_id.Value = reviewerId;
@@ -112,9 +112,9 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
                         ReviewSubmissionId = reader["rvw_sbm_id"] == DBNull.Value ? 0 : (int)reader["rvw_sbm_id"],
                         ReviewHeaderId = reader["rvw_hdr_id"] == DBNull.Value ? 0 : (int)reader["rvw_hdr_id"],
                         ReviewSessionId = reader["rvw_sxn_id"] == DBNull.Value ? 0 : (int)reader["rvw_sxn_id"],
-                        FromEmployeeId = reader["frm_emp_id"] == DBNull.Value ? 0 : (int)reader["frm_emp_id"],
+                        FromEmployeeId = reader["frm_emp_id"] == DBNull.Value ? string.Empty : reader["frm_emp_id"].ToString(),
                         FromEmployeeName = reader["frm_emp_nm"] == DBNull.Value ? string.Empty : reader["frm_emp_nm"].ToString(),
-                        ToEmployeeId = reader["to_emp_id"] == DBNull.Value ? 0 : (int)reader["to_emp_id"],
+                        ToEmployeeId = reader["to_emp_id"] == DBNull.Value ? string.Empty : reader["to_emp_id"].ToString(),
                         ToEmployeeName = reader["to_emp_nm"] == DBNull.Value ? string.Empty : reader["to_emp_nm"].ToString(),
                         ToEmployeeRoleId = reader["apvr_rl_id"] == DBNull.Value ? 0 : (int)reader["apvr_rl_id"],
                         ToEmployeeRoleName = reader["aprv_rl_nm"] == DBNull.Value ? string.Empty : reader["aprv_rl_nm"].ToString(),
@@ -145,8 +145,8 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
             sb.Append("FROM public.pmsrvwsbms s ");
             sb.Append("INNER JOIN public.pmsrvwhdrs h ON h.rvw_hdr_id = s.rvw_hdr_id ");
             sb.Append("INNER JOIN public.pmsaprvrls a ON a.aprv_rl_id = s.apvr_rl_id ");
-            sb.Append("INNER JOIN public.ermempinf e ON e.empid = s.frm_emp_id ");
-            sb.Append("INNER JOIN public.ermempinf f ON f.empid = s.to_emp_id ");
+            sb.Append("INNER JOIN public.gst_prsns e ON e.id = s.frm_emp_id ");
+            sb.Append("INNER JOIN public.gst_prsns f ON f.id = s.to_emp_id ");
             sb.Append("WHERE (s.rvw_hdr_id = @rvw_hdr_id) ORDER BY s.sbm_dt DESC; ");
             string query = sb.ToString();
             await conn.OpenAsync();
@@ -165,9 +165,9 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
                         ReviewSubmissionId = reader["rvw_sbm_id"] == DBNull.Value ? 0 : (int)reader["rvw_sbm_id"],
                         ReviewHeaderId = reader["rvw_hdr_id"] == DBNull.Value ? 0 : (int)reader["rvw_hdr_id"],
                         ReviewSessionId = reader["rvw_sxn_id"] == DBNull.Value ? 0 : (int)reader["rvw_sxn_id"],
-                        FromEmployeeId = reader["frm_emp_id"] == DBNull.Value ? 0 : (int)reader["frm_emp_id"],
+                        FromEmployeeId = reader["frm_emp_id"] == DBNull.Value ? string.Empty : reader["frm_emp_id"].ToString(),
                         FromEmployeeName = reader["frm_emp_nm"] == DBNull.Value ? string.Empty : reader["frm_emp_nm"].ToString(),
-                        ToEmployeeId = reader["to_emp_id"] == DBNull.Value ? 0 : (int)reader["to_emp_id"],
+                        ToEmployeeId = reader["to_emp_id"] == DBNull.Value ? string.Empty : reader["to_emp_id"].ToString(),
                         ToEmployeeName = reader["to_emp_nm"] == DBNull.Value ? string.Empty : reader["to_emp_nm"].ToString(),
                         ToEmployeeRoleId = reader["apvr_rl_id"] == DBNull.Value ? 0 : (int)reader["apvr_rl_id"],
                         ToEmployeeRoleName = reader["aprv_rl_nm"] == DBNull.Value ? string.Empty : reader["aprv_rl_nm"].ToString(),
@@ -198,8 +198,8 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
             sb.Append("FROM public.pmsrvwsbms s ");
             sb.Append("INNER JOIN public.pmsrvwhdrs h ON h.rvw_hdr_id = s.rvw_hdr_id ");
             sb.Append("INNER JOIN public.pmsaprvrls a ON a.aprv_rl_id = s.apvr_rl_id ");
-            sb.Append("INNER JOIN public.ermempinf e ON e.empid = s.frm_emp_id ");
-            sb.Append("INNER JOIN public.ermempinf f ON f.empid = s.to_emp_id ");
+            sb.Append("INNER JOIN public.gst_prsns e ON e.id = s.frm_emp_id ");
+            sb.Append("INNER JOIN public.gst_prsns f ON f.id = s.to_emp_id ");
             sb.Append("WHERE (s.rvw_hdr_id = @rvw_hdr_id) ");
             sb.Append("AND (s.sbm_typ_id = @sbm_typ_id) ");
             sb.Append("ORDER BY s.sbm_dt DESC;");
@@ -222,9 +222,9 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
                         ReviewSubmissionId = reader["rvw_sbm_id"] == DBNull.Value ? 0 : (int)reader["rvw_sbm_id"],
                         ReviewHeaderId = reader["rvw_hdr_id"] == DBNull.Value ? 0 : (int)reader["rvw_hdr_id"],
                         ReviewSessionId = reader["rvw_sxn_id"] == DBNull.Value ? 0 : (int)reader["rvw_sxn_id"],
-                        FromEmployeeId = reader["frm_emp_id"] == DBNull.Value ? 0 : (int)reader["frm_emp_id"],
+                        FromEmployeeId = reader["frm_emp_id"] == DBNull.Value ? string.Empty : reader["frm_emp_id"].ToString(),
                         FromEmployeeName = reader["frm_emp_nm"] == DBNull.Value ? string.Empty : reader["frm_emp_nm"].ToString(),
-                        ToEmployeeId = reader["to_emp_id"] == DBNull.Value ? 0 : (int)reader["to_emp_id"],
+                        ToEmployeeId = reader["to_emp_id"] == DBNull.Value ? string.Empty : reader["to_emp_id"].ToString(),
                         ToEmployeeName = reader["to_emp_nm"] == DBNull.Value ? string.Empty : reader["to_emp_nm"].ToString(),
                         ToEmployeeRoleId = reader["apvr_rl_id"] == DBNull.Value ? 0 : (int)reader["apvr_rl_id"],
                         ToEmployeeRoleName = reader["aprv_rl_nm"] == DBNull.Value ? string.Empty : reader["aprv_rl_nm"].ToString(),
@@ -240,7 +240,7 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
             await conn.CloseAsync();
             return reviewSubmissionList;
         }
-        public async Task<List<ReviewSubmission>> GetByReviewHeaderIdAndSubmissionPurposeIdAsync(int reviewHeaderId, int submissionPurposeId, int appraiserId)
+        public async Task<List<ReviewSubmission>> GetByReviewHeaderIdAndSubmissionPurposeIdAsync(int reviewHeaderId, int submissionPurposeId, string appraiserId)
         {
             List<ReviewSubmission> reviewSubmissionList = new List<ReviewSubmission>();
             var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
@@ -255,8 +255,8 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
             sb.Append("FROM public.pmsrvwsbms s ");
             sb.Append("INNER JOIN public.pmsrvwhdrs h ON h.rvw_hdr_id = s.rvw_hdr_id ");
             sb.Append("INNER JOIN public.pmsaprvrls a ON a.aprv_rl_id = s.apvr_rl_id ");
-            sb.Append("INNER JOIN public.ermempinf e ON e.empid = s.frm_emp_id ");
-            sb.Append("INNER JOIN public.ermempinf f ON f.empid = s.to_emp_id ");
+            sb.Append("INNER JOIN public.gst_prsns e ON e.id = s.frm_emp_id ");
+            sb.Append("INNER JOIN public.gst_prsns f ON f.id = s.to_emp_id ");
             sb.Append("WHERE (s.rvw_hdr_id = @rvw_hdr_id) ");
             sb.Append("AND (s.sbm_typ_id = @sbm_typ_id) ");
             sb.Append("AND (s.to_emp_id = @to_emp_id) ");
@@ -268,7 +268,7 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
             {
                 var rvw_hdr_id = cmd.Parameters.Add("@rvw_hdr_id", NpgsqlDbType.Integer);
                 var sbm_typ_id = cmd.Parameters.Add("@sbm_typ_id", NpgsqlDbType.Integer);
-                var to_emp_id = cmd.Parameters.Add("@to_emp_id", NpgsqlDbType.Integer);
+                var to_emp_id = cmd.Parameters.Add("@to_emp_id", NpgsqlDbType.Text);
                 await cmd.PrepareAsync();
                 rvw_hdr_id.Value = reviewHeaderId;
                 sbm_typ_id.Value = submissionPurposeId;
@@ -282,9 +282,9 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
                         ReviewSubmissionId = reader["rvw_sbm_id"] == DBNull.Value ? 0 : (int)reader["rvw_sbm_id"],
                         ReviewHeaderId = reader["rvw_hdr_id"] == DBNull.Value ? 0 : (int)reader["rvw_hdr_id"],
                         ReviewSessionId = reader["rvw_sxn_id"] == DBNull.Value ? 0 : (int)reader["rvw_sxn_id"],
-                        FromEmployeeId = reader["frm_emp_id"] == DBNull.Value ? 0 : (int)reader["frm_emp_id"],
+                        FromEmployeeId = reader["frm_emp_id"] == DBNull.Value ? string.Empty : reader["frm_emp_id"].ToString(),
                         FromEmployeeName = reader["frm_emp_nm"] == DBNull.Value ? string.Empty : reader["frm_emp_nm"].ToString(),
-                        ToEmployeeId = reader["to_emp_id"] == DBNull.Value ? 0 : (int)reader["to_emp_id"],
+                        ToEmployeeId = reader["to_emp_id"] == DBNull.Value ? string.Empty : reader["to_emp_id"].ToString(),
                         ToEmployeeName = reader["to_emp_nm"] == DBNull.Value ? string.Empty : reader["to_emp_nm"].ToString(),
                         ToEmployeeRoleId = reader["apvr_rl_id"] == DBNull.Value ? 0 : (int)reader["apvr_rl_id"],
                         ToEmployeeRoleName = reader["aprv_rl_nm"] == DBNull.Value ? string.Empty : reader["aprv_rl_nm"].ToString(),
@@ -315,8 +315,8 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
             sb.Append("FROM public.pmsrvwsbms s ");
             sb.Append("INNER JOIN public.pmsrvwhdrs h ON h.rvw_hdr_id = s.rvw_hdr_id ");
             sb.Append("INNER JOIN public.pmsaprvrls a ON a.aprv_rl_id = s.apvr_rl_id ");
-            sb.Append("INNER JOIN public.ermempinf e ON e.empid = s.frm_emp_id ");
-            sb.Append("INNER JOIN public.ermempinf f ON f.empid = s.to_emp_id ");
+            sb.Append("INNER JOIN public.gst_prsns e ON e.id = s.frm_emp_id ");
+            sb.Append("INNER JOIN public.gst_prsns f ON f.id = s.to_emp_id ");
             sb.Append("WHERE (s.rvw_sbm_id = @rvw_sbm_id); ");
             string query = sb.ToString();
             await conn.OpenAsync();
@@ -335,9 +335,9 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
                         ReviewSubmissionId = reader["rvw_sbm_id"] == DBNull.Value ? 0 : (int)reader["rvw_sbm_id"],
                         ReviewHeaderId = reader["rvw_hdr_id"] == DBNull.Value ? 0 : (int)reader["rvw_hdr_id"],
                         ReviewSessionId = reader["rvw_sxn_id"] == DBNull.Value ? 0 : (int)reader["rvw_sxn_id"],
-                        FromEmployeeId = reader["frm_emp_id"] == DBNull.Value ? 0 : (int)reader["frm_emp_id"],
+                        FromEmployeeId = reader["frm_emp_id"] == DBNull.Value ? string.Empty : reader["frm_emp_id"].ToString(),
                         FromEmployeeName = reader["frm_emp_nm"] == DBNull.Value ? string.Empty : reader["frm_emp_nm"].ToString(),
-                        ToEmployeeId = reader["to_emp_id"] == DBNull.Value ? 0 : (int)reader["to_emp_id"],
+                        ToEmployeeId = reader["to_emp_id"] == DBNull.Value ? string.Empty : reader["to_emp_id"].ToString(),
                         ToEmployeeName = reader["to_emp_nm"] == DBNull.Value ? string.Empty : reader["to_emp_nm"].ToString(),
                         ToEmployeeRoleId = reader["apvr_rl_id"] == DBNull.Value ? 0 : (int)reader["apvr_rl_id"],
                         ToEmployeeRoleName = reader["aprv_rl_nm"] == DBNull.Value ? string.Empty : reader["aprv_rl_nm"].ToString(),
@@ -374,8 +374,8 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
                 using (var cmd = new NpgsqlCommand(query, conn))
                 {
                     var rvw_hdr_id = cmd.Parameters.Add("@rvw_hdr_id", NpgsqlDbType.Integer);
-                    var frm_emp_id = cmd.Parameters.Add("@frm_emp_id", NpgsqlDbType.Integer);
-                    var to_emp_id = cmd.Parameters.Add("@to_emp_id", NpgsqlDbType.Integer);
+                    var frm_emp_id = cmd.Parameters.Add("@frm_emp_id", NpgsqlDbType.Text);
+                    var to_emp_id = cmd.Parameters.Add("@to_emp_id", NpgsqlDbType.Text);
                     var sbm_typ_id = cmd.Parameters.Add("@sbm_typ_id", NpgsqlDbType.Integer);
                     var sbm_dt = cmd.Parameters.Add("@sbm_dt", NpgsqlDbType.TimestampTz);
                     var sbm_msg = cmd.Parameters.Add("@sbm_msg", NpgsqlDbType.Text);
@@ -445,7 +445,7 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
             return rows > 0;
         }
 
-        public async Task<bool> UpdateAsync(int reviewHeaderId, int toEmployeeId, int submissionPurposeId)
+        public async Task<bool> UpdateAsync(int reviewHeaderId, string toEmployeeId, int submissionPurposeId)
         {
             int rows = 0;
             var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
@@ -463,7 +463,7 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
                 using (var cmd = new NpgsqlCommand(query, conn))
                 {
                     var rvw_hdr_id = cmd.Parameters.Add("@rvw_hdr_id", NpgsqlDbType.Integer);
-                    var to_emp_id = cmd.Parameters.Add("@to_emp_id", NpgsqlDbType.Integer);
+                    var to_emp_id = cmd.Parameters.Add("@to_emp_id", NpgsqlDbType.Text);
                     var sbm_typ_id = cmd.Parameters.Add("@sbm_typ_id", NpgsqlDbType.Integer);
 
                     var is_xtn = cmd.Parameters.Add("@is_xtn", NpgsqlDbType.Boolean);

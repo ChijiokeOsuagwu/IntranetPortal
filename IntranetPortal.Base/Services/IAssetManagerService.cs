@@ -98,6 +98,11 @@ namespace IntranetPortal.Base.Services
         Task<IList<Asset>> GetAssetsByAssetGroupIdAsync(int assetGroupId, string userId);
         #endregion
 
+        #region Asset Report Service Methods
+        Task<List<Asset>> GetAssetStatusReportAsync(string UserId, int? BaseLocationID = null, int? BinLocationID = null, int? AssetGroupID = null, int? AssetTypeID = null, int? AssetCondition = null);
+
+        #endregion
+
         //=================== Asset Reservation Service Methods ======================//
         #region Asset Reservations Service Methods
         Task<bool> CreateAssetReservationAsync(AssetReservation assetReservation);

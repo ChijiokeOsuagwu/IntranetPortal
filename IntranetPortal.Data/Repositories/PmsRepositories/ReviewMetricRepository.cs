@@ -34,7 +34,8 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
             sb.Append("INNER JOIN public.pmsrvwsxns s ON s.rvw_sxn_id = m.rvw_sxn_id ");
             sb.Append("INNER JOIN public.gst_prsns a ON a.id = h.rvw_emp_id ");
             sb.Append("LEFT JOIN public.gst_prsns f ON f.id = h.pry_apr_id ");
-            sb.Append("WHERE (m.rvw_hdr_id = @rvw_hdr_id); ");
+            sb.Append("WHERE (m.rvw_hdr_id = @rvw_hdr_id) ");
+            sb.Append("ORDER BY m.rvw_mtrc_id; ");
             string query = sb.ToString();
             await conn.OpenAsync();
             // Retrieve all rows
@@ -87,7 +88,8 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
             sb.Append("INNER JOIN public.gst_prsns a ON a.id = h.rvw_emp_id ");
             sb.Append("LEFT JOIN public.gst_prsns f ON f.id = h.pry_apr_id ");
             sb.Append("WHERE (m.rvw_hdr_id = @rvw_hdr_id) ");
-            sb.Append("AND (LOWER(m.mtrc_ds) = LOWER(@mtrc_ds));");
+            sb.Append("AND (LOWER(m.mtrc_ds) = LOWER(@mtrc_ds)) ");
+            sb.Append("ORDER BY m.rvw_mtrc_id; ");
             string query = sb.ToString();
             await conn.OpenAsync();
             // Retrieve all rows
@@ -142,7 +144,9 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
             sb.Append("INNER JOIN public.gst_prsns a ON a.id = h.rvw_emp_id ");
             sb.Append("LEFT JOIN public.gst_prsns f ON f.id = h.pry_apr_id ");
             sb.Append("WHERE (m.rvw_hdr_id = @rvw_hdr_id) ");
-            sb.Append("AND (m.mtrc_typ_id = 0); ");
+            sb.Append("AND (m.mtrc_typ_id = 0) ");
+            sb.Append("ORDER BY m.rvw_mtrc_id; ");
+
             string query = sb.ToString();
             await conn.OpenAsync();
             // Retrieve all rows
@@ -195,7 +199,9 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
             sb.Append("INNER JOIN public.gst_prsns a ON a.id = h.rvw_emp_id ");
             sb.Append("LEFT JOIN public.gst_prsns f ON f.id = h.pry_apr_id ");
             sb.Append("WHERE (m.rvw_hdr_id = @rvw_hdr_id) ");
-            sb.Append("AND (m.mtrc_typ_id = 1); ");
+            sb.Append("AND (m.mtrc_typ_id = 1) ");
+            sb.Append("ORDER BY m.rvw_mtrc_id; ");
+
             string query = sb.ToString();
             await conn.OpenAsync();
             // Retrieve all rows
@@ -247,7 +253,9 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
             sb.Append("INNER JOIN public.pmsrvwsxns s ON s.rvw_sxn_id = m.rvw_sxn_id ");
             sb.Append("INNER JOIN public.gst_prsns a ON a.id = h.rvw_emp_id ");
             sb.Append("LEFT JOIN public.gst_prsns f ON f.id = h.pry_apr_id ");
-            sb.Append("WHERE (m.rvw_mtrc_id = @rvw_mtrc_id); ");
+            sb.Append("WHERE (m.rvw_mtrc_id = @rvw_mtrc_id) ");
+            sb.Append("ORDER BY m.rvw_mtrc_id; ");
+
             string query = sb.ToString();
             await conn.OpenAsync();
             // Retrieve all rows
@@ -397,7 +405,9 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
             sb.Append("WHERE (m.rvw_hdr_id = @rvw_hdr_id) AND (m.mtrc_typ_id = @mtrc_typ_id) ");
             sb.Append("AND (m.rvw_mtrc_id NOT IN (SELECT rvw_mtric_id ");
             sb.Append("FROM public.pmsrvwrdtls d WHERE d.rvw_hdr_id = @rvw_hdr_id ");
-            sb.Append("AND d.rvw_aprsr_id = @rvw_aprsr_id));");
+            sb.Append("AND d.rvw_aprsr_id = @rvw_aprsr_id)) ");
+            sb.Append("ORDER BY m.rvw_mtrc_id; ");
+
 
             string query = sb.ToString();
             await conn.OpenAsync();

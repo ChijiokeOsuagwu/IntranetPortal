@@ -1,0 +1,308 @@
+﻿@model IntranetPortal.Areas.PMS.Models.AppraisalInfoViewModel
+<div class="container">
+    <h4 class="mb-1">Performance Contract for @Model.AppraisalReviewHeader.AppraiseeName</h4>
+    <hr />
+    <div class="row">
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <div class="container-fluid">
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNavDropdown">
+                    <ul class="navbar-nav">
+                        <li class="nav-item">
+                            <button title="Go Back" class="btn btn-sm btn-outline-light text-dark" onclick="history.back()">
+                                <i class="bi bi-backspace fw-bolder" style="font-size: 1.0rem;"></i>&nbsp;<span class="fw-bold ml-1" style="font-size: 0.9rem;">Back</span>
+                            </button>
+                        </li>
+                        <li class="nav-item">
+                            <a asp-area="PMS" asp-controller="Process" asp-action="AppraisalNotes" asp-route-id="@Model.AppraisalReviewHeader.ReviewHeaderId" asp-route-sp="apr" title="Appraisal Notes" class="btn btn-sm btn-light text-dark">
+                                <i class="bi bi-journals fw-bolder" style="font-size: 1.0rem"></i><span class="fw-bold ml-1" style="font-size: 0.9rem;">Notes</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a asp-area="PMS" asp-controller="Process" asp-action="AppraisalActivities" asp-route-id="@Model.AppraisalReviewHeader.ReviewHeaderId" asp-route-sp="stp" title="Appraisal Activity History" class="btn btn-sm btn-light text-dark">
+                                <i class="bi bi-journals fw-bolder" style="font-size: 1.0rem"></i><span class="fw-bold ml-1" style="font-size: 0.9rem;">History</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </div>
+    <div class="row">
+        <!-- Nav tabs -->
+        <ul class="nav nav-tabs" id="myTab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="summary-tab" data-bs-toggle="tab" data-bs-target="#summary" type="button" role="tab" aria-controls="summary" aria-selected="true" style="background-color:#273746; width:150px"><span class="fw-bold text-white">Summary</span></button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="kpa-tab" data-bs-toggle="tab" data-bs-target="#kpa" type="button" role="tab" aria-controls="kpa" aria-selected="false" style="background-color: #2874a6; "><span class="fw-bold text-white">Key Performance Areas</span></button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="cmps-tab" data-bs-toggle="tab" data-bs-target="#cmps" type="button" role="tab" aria-controls="cmps" aria-selected="false" style="background-color:#198754; width:150px"><span class="fw-bold text-white">Competencies</span></button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="cdgs-tab" data-bs-toggle="tab" data-bs-target="#cdgs" type="button" role="tab" aria-controls="cdgs" aria-selected="false" style="background-color:#943126"><span class="fw-bold text-white">Career Development Goals</span></button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="agreement-tab" data-bs-toggle="tab" data-bs-target="#agreement" type="button" role="tab" aria-controls="agreement" aria-selected="false" style="background-color:#d4ac0d; width:150px"><span class="fw-bold text-white">Agreement</span></button>
+            </li>
+        </ul>
+        <!-- Tab panes -->
+        <div class="tab-content mt-2">
+            <div class="tab-pane active" id="summary" role="tabpanel" aria-labelledby="summary-tab">
+                <div class="card mt-2">
+                    <div class="card-header bg-dark">
+                        <span class="text-white fw-bold" style="font-size:1.2rem">Summary Information</span>
+                    </div>
+                    <div class="card-body bg-secondary">
+                        <div class="row">
+                            <div class="col-md-6 mb-2">
+                                <label class="form-label text-white">Appraisee:</label>
+                                <div class="form-control text-dark fw-bold">@Model.AppraisalReviewHeader.AppraiseeName</div>
+                            </div>
+                            <div class="col-md-6 mb-2">
+                                <label class="form-label text-white">Appraisee Designation:</label>
+                                <div class="form-control text-dark fw-bold">@Model.AppraisalReviewHeader.AppraiseeDesignation</div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-2">
+                                <label class="form-label text-white">Appraiser:</label>
+                                <div class="form-control text-dark fw-bold">@Model.AppraisalReviewHeader.PrimaryAppraiserName</div>
+                            </div>
+                            <div class="col-md-6 mb-2">
+                                <label class="form-label text-white">Appraiser Designation:</label>
+                                <div class="form-control text-dark fw-bold">@Model.AppraisalReviewHeader.PrimaryAppraiserDesignation</div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-2">
+                                <label class="form-label text-white">Appraisal Session:</label>
+                                <div class="form-control text-dark fw-bold">@Model.AppraisalReviewHeader.ReviewSessionName</div>
+                            </div>
+                            <div class="col-md-2 mb-2">
+                                <label class="form-label text-white">Performance Year:</label>
+                                <div class="form-control text-dark fw-bold">@Model.AppraisalReviewHeader.ReviewYearName</div>
+                            </div>
+                            <div class="col-md-4 mb-2">
+                                <label class="form-label text-white">Current Stage:</label>
+                                <div class="form-control text-dark fw-bold">@Model.AppraisalReviewHeader.ReviewStageDescription</div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <label class="form-label text-white">Performance Goal:</label>
+                            <textarea class="form-control fw-bold" rows="4" style="font-size:1.0rem">@Model.AppraisalReviewHeader.PerformanceGoal</textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="tab-pane" id="kpa" role="tabpanel" aria-labelledby="kpa-tab">
+                <div class="row">
+                    @if (Model == null || Model.KpaList == null || Model.KpaList.Count < 1)
+                    {
+                        <div class="alert alert-secondary alert-dismissible fade show" role="alert">
+                            <i class="bi bi-x-circle"></i>
+                            <span class="fw-bold text-dark">No record was found.</span>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    }
+                    else
+                    {
+                        int row_number = 0;
+                        <div class="table-responsive">
+                            <table class="table border-0">
+                                <tbody>
+                                    @foreach (var kpa in Model.KpaList)
+                                    {
+                                        row_number++;
+                                        <tr style="border-bottom:2px solid #abb2b9">
+                                            <td>
+                                                <div class="card">
+                                                    <div class="card-header bg-info">
+                                                        <span class="fw-bold text-white" style="font-size: 0.9rem;">KPA #@row_number</span>
+                                                    </div>
+                                                    <div class="card-body bg-secondary">
+                                                        <div class="row">
+                                                            <div class="col-md-12 mb-2">
+                                                                <label class="form-label text-white fw-bold">Description</label>
+                                                                <textarea asp-for="@kpa.ReviewMetricDescription" class="form-control fw-bold" rows="3" style="font-size:1.0rem" readonly="readonly">@kpa.ReviewMetricDescription</textarea>
+                                                            </div>
+                                                        </div>
+                                                        <div class="row">
+                                                            <div class="col-md-12 mb-2">
+                                                                <label class="form-label text-white fw-bold">Measurement</label>
+                                                                <textarea asp-for="@kpa.ReviewMetricKpi" class="form-control fw-bold" rows="2" style="font-size:1.0rem" readonly="readonly">@kpa.ReviewMetricKpi</textarea>
+                                                            </div>
+                                                        </div>
+                                                        <div class="row">
+                                                            <div class="col-md-12 mb-2">
+                                                                <label class="form-label text-white fw-bold">Target</label>
+                                                                <textarea asp-for="@kpa.ReviewMetricTarget" class="form-control fw-bold" rows="2" style="font-size:1.0rem" readonly="readonly">@kpa.ReviewMetricTarget</textarea>
+                                                            </div>
+                                                        </div>
+                                                        <div class="row">
+                                                            <div class="col-md-2">
+                                                                <label class="form-label text-white fw-bold">Weightage</label>
+                                                                <div class="form-control fw-bold">@kpa.ReviewMetricWeightage</div>
+                                                            </div>
+                                                            <div class="col-md-10 text-end">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                </div>
+            </div>
+            <div class="tab-pane" id="cmps" role="tabpanel" aria-labelledby="cmps-tab">
+                <div class="row">
+                    @if (Model == null || Model.CompetencyList == null || Model.CompetencyList.Count < 1)
+                    {
+                        <div class="alert alert-info fade show" role="alert">
+                            <i class="bi bi-info-circle"></i>
+                            <span class="fw-bold">No record was found.</span>
+                        </div>
+                    }
+                    else
+                    {
+                        int row_number = 0;
+                        <div class="table-responsive">
+                            <table class="table border-0">
+                                <thead style="background-color:#1e8449">
+                                    <tr>
+                                        <th>
+                                            <span class="text-white fw-bolder" style="font-size:1.0rem">#</span>
+                                        </th>
+                                        <th>
+                                            <span class="text-white fw-bolder" style="font-size:1.0rem">Competency Description</span>
+                                        </th>
+                                        <th>
+                                            <span class="text-white fw-bolder" style="font-size:1.0rem">Wt.</span>
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var competency in Model.CompetencyList)
+                                    {
+                                        row_number++;
+                                        <tr style="border-bottom:2px solid #abb2b9">
+                                            <td>
+                                                <span class="text-dark fw-bolder" style="font-size:1.0rem">@row_number.ToString()</span>
+                                            </td>
+                                            <td>
+                                                <div>
+                                                    <span class="text-dark fw-bold" style="font-size:1.0rem">
+                                                        @competency.ReviewMetricDescription
+                                                    </span>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <span class="text-dark fw-bold" style="font-size:1.0rem">
+                                                    @competency.ReviewMetricWeightage.ToString()
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                </div>
+            </div>
+            <div class="tab-pane" id="cdgs" role="tabpanel" aria-labelledby="cdgs-tab">
+                <div class="row">
+                    @if (Model == null || Model.CdgList == null || Model.CdgList.Count < 1)
+                    {
+                        <div class="alert alert-secondary alert-dismissible fade show" role="alert">
+                            <i class="bi bi-x-circle"></i>
+                            <span class="fw-bold text-dark">No record was found.</span>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    }
+                    else
+                    {
+                        int row_number = 0;
+                        <div class="table-responsive">
+                            <table class="table border-0">
+                                <tbody>
+                                    @foreach (var cdg in Model.CdgList)
+                                    {
+                                        row_number++;
+                                        <tr style="border-bottom:2px solid #abb2b9">
+                                            <td>
+                                                <div class="card">
+                                                    <div class="card-header" style="background-color:#943126">
+                                                        <span class="fw-bold text-white" style="font-size: 1.0rem;">CDG #@row_number</span>
+                                                    </div>
+                                                    <div class="card-body" style="background-color:#ccccff">
+                                                        <div class="row">
+                                                            <div class="col-md-12 mb-2">
+                                                                <label class="form-label text-dark fw-bold">CDG Description</label>
+                                                                <textarea asp-for="@cdg.ReviewCdgDescription" class="form-control fw-bold" rows="2" style="font-size:1.0rem" readonly="readonly">@cdg.ReviewCdgDescription</textarea>
+                                                            </div>
+                                                        </div>
+                                                        <div class="row">
+                                                            <div class="col-md-12 mb-2">
+                                                                <label class="form-label text-dark fw-bold">CDG Objective</label>
+                                                                <textarea asp-for="@cdg.ReviewCdgObjective" class="form-control fw-bold" rows="2" style="font-size:1.0rem" readonly="readonly">@cdg.ReviewCdgObjective</textarea>
+                                                            </div>
+                                                        </div>
+                                                        <div class="row">
+                                                            <div class="col-md-12 mb-3">
+                                                                <label class="form-label text-dark fw-bold">Action Plan</label>
+                                                                <textarea asp-for="@cdg.ReviewCdgActionPlan" class="form-control fw-bold" rows="2" style="        font-size: 1.0rem" readonly="readonly">@cdg.ReviewCdgActionPlan</textarea>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                </div>
+            </div>
+            <div class="tab-pane" id="agreement" role="tabpanel" aria-labelledby="agreement-tab">
+                <div class="row">
+                    <div class="card mt-1">
+                        <div class="card-header bg-warning">
+                            <h4 class="text-white">Performance Contract Agreement</h4>
+                        </div>
+                        <div class="card-body bg-secondary">
+                            <div class="row">
+                                <div class="col-md-12 mb-2">
+                                    <div class="bg-white fw-bold text-dark p-2" style="font-size:1.0rem">I, <span class="fw-bolder">@Model.AppraisalReviewHeader.AppraiseeName</span> do solemnly attest to my agreement to, and acceptance of this Performance Contract as defined for the <span>@Model.AppraisalReviewHeader.ReviewSessionName </span>. And hereby do sign off below accordingly.</div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12 mb-2">
+                                    <label class="form-label text-white fw-bold">Appraisal Session</label>
+                                    <div class="form-control fw-bold text-dark">@Model.AppraisalReviewHeader.ReviewSessionName </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label text-white fw-bold">Appraisal Year</label>
+                                    <div class="form-control fw-bold text-dark">@Model.AppraisalReviewHeader.ReviewYearName </div>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label text-white fw-bold">Signed On:</label>
+                                    <div class="form-control fw-bold text-dark">@Model.AppraisalReviewHeader.TimeContractAccepted.Value.ToLongDateString()  @Model.AppraisalReviewHeader.TimeContractAccepted.Value.ToLongTimeString() GMT </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

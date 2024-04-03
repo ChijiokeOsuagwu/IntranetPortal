@@ -1,0 +1,80 @@
+﻿
+@model IntranetPortal.Areas.PMS.Models.ApproveContractViewModel
+<h3>Performance Contract Approval</h3>
+<hr />
+<div class="card mt-1" style="max-width:800px">
+    <div class="card-header bg-info">
+        <h4 class="text-white">Approve Performance Contract</h4>
+    </div>
+    <div class="card-body bg-secondary">
+        @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-x-circle"></i>
+                <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (!String.IsNullOrEmpty(Model.ViewModelSuccessMessage))
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="bi bi-check-circle"></i>
+                <span class="fw-bold">@Model.ViewModelSuccessMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (!String.IsNullOrEmpty(Model.ViewModelWarningMessage))
+        {
+            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                <i class="bi bi-exclamation-circle"></i>
+                <span class="fw-bold">@Model.ViewModelWarningMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        <form asp-area="PMS" asp-controller="Process" asp-action="ApproveContract" method="post" autocomplete="off">
+            <div class="row">
+                <div class="col-md-12 mb-2">
+                    <input type="hidden" asp-for="ReviewHeaderID" />
+                    <input type="hidden" asp-for="ReviewMetricID" />
+                    <input type="hidden" asp-for="ApprovalTypeID" />
+                    <input type="hidden" asp-for="ApproverID" />
+                    <input type="hidden" asp-for="AppraiseeID" />
+                    <input type="hidden" asp-for="SubmissionID" />
+                    <input type="hidden" asp-for="ApproverName" />
+                    <input type="hidden" asp-for="ApproverID" />
+                    <label asp-for="ApproverName" class="form-label text-white fw-bold"></label>
+                    <div class="form-control fw-bold" style="font-size:1.0rem">@Model.ApproverName</div>
+                    <div><span asp-validation-for="ApproverName" class="text-danger"></span></div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12 mb-2">
+                    <label asp-for="ApproverRoleID" class="form-label text-white fw-bold"></label>
+                    <select asp-for="ApproverRoleID" asp-items="@ViewBag.RoleList" class="form-control">
+                        <option value=""> Select </option>
+                    </select>
+                    <div><span asp-validation-for="ApproverRoleID" class="text-danger"></span></div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-12 mb-3">
+                    <label asp-for="ApprovedComments" class="form-label text-white fw-bold"></label>
+                    <textarea asp-for="ApprovedComments" class="form-control fw-bold" rows="2" style="font-size:1.0rem">@Model.ApprovedComments</textarea>
+                    <div><span asp-validation-for="ApprovedComments" class="text-danger"></span></div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12 text-end">
+                    <a asp-area="PMS" asp-controller="Process" asp-action="AppraisalInfo" asp-route-id="@Model.ReviewHeaderID" asp-route-sd="@Model.SubmissionID" class="btn btn-dark" style="width:100px" title="Back">
+                        <span class="text-white">Back</span>
+                    </a>
+                    @if (!Model.OperationIsSuccessful)
+                    {
+                        <button type="submit" class="btn btn-info" title="Approve" style="width:200px"><span class="text-white">Approve</span></button>
+                    }
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

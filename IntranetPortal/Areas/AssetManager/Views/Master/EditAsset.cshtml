@@ -34,8 +34,12 @@
             }
         <form asp-area="AssetManager" asp-controller="Master" asp-action="EditAsset" method="post" autocomplete="off">
             <div class="row">
-                  <div class="col-md-6 mb-1">
+                <div class="col-md-6 mb-1">
                     <input type="hidden" asp-for="AssetID" />
+                    <input type="hidden" asp-for="AssetGroupID" />
+                    <input type="hidden" asp-for="AssetClassID" />
+                    <input type="hidden" asp-for="AssetCategoryID" />
+                    <input type="hidden" asp-for="AssetDivisionID" />
                     <label asp-for="AssetName" class="form-label text-white fw-bold"></label>
                     <input asp-for="AssetName" class="form-control fw-bold">
                     <div><span asp-validation-for="AssetName" class="text-danger"></span></div>
@@ -115,6 +119,7 @@
                             <div><span asp-validation-for="ConditionStatus" class="text-danger"></span></div>
                         </div>
                         <div class="col-md-6 mb-1">
+                            <input type="hidden" asp-for="OldImagePath" />
                             <input type="hidden" asp-for="ImagePath" />
                             <label asp-for="ImageUpload" class="form-label text-white fw-bold"></label>
                             <input asp-for="ImageUpload" class="form-control fw-bold">

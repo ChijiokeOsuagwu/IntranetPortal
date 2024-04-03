@@ -26,8 +26,7 @@
     <link href="~/css/site.css" rel="stylesheet" />
 
     <!-- TinyMCE -->
-
-    <script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
+    <script src="~/lib/tinymce/tinymce.min.js" referrerpolicy="origin"></script>
 
     <script>
 
@@ -85,7 +84,7 @@
                             <a class="btn btn-outline-light dropdown-toggle" id="navbarDropdownPages" data-bs-toggle="dropdown" role="button" aria-expanded="false" title="@User.Identity.Name">
                                 <i class="bi bi-person-circle"></i>
                             </a>
-                            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownPages">
+                            <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownPages">
                                 <a class="dropdown-item" asp-area="ERM" asp-controller="Employees" asp-action="Profile" asp-route-id="" asp-route-src="hmp"><i class="bi bi-person-badge-fill"></i> View Profile</a>
                                 <a class="dropdown-item" asp-area="" asp-controller="Home" asp-action="ChangePassword"><i class="bi bi-key-fill"></i> Password</a>
                                 <a class="dropdown-item" asp-area="" asp-controller="Home" asp-action="Logout"><i class="bi bi-door-closed-fill"></i> Log Out</a>

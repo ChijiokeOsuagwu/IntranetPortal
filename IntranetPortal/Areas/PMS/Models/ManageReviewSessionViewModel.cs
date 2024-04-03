@@ -67,6 +67,7 @@ namespace IntranetPortal.Areas.PMS.Models
 
         [Required]
         [Display(Name = "Combined Final Score")]
+        [Range(100, 200)]
         public decimal TotalCombinedScore { get; set; }
 
         [Display(Name = "Status")]
@@ -112,6 +113,5 @@ namespace IntranetPortal.Areas.PMS.Models
                 TotalKpaScore = reviewSession.TotalKpaScore,
             };
         }
-
     }
 }

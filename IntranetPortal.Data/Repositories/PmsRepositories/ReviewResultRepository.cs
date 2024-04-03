@@ -614,7 +614,7 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
             using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
             {
                 var rvw_hdr_id = cmd.Parameters.Add("@rvw_hdr_id", NpgsqlDbType.Integer);
-                var rvw_aprsr_id = cmd.Parameters.Add("@rvw_aprsr_id", NpgsqlDbType.Integer);
+                var rvw_aprsr_id = cmd.Parameters.Add("@rvw_aprsr_id", NpgsqlDbType.Text);
                 await cmd.PrepareAsync();
                 rvw_hdr_id.Value = reviewHeaderId;
                 rvw_aprsr_id.Value = appraiserId;
@@ -667,9 +667,9 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
             return reviewResultsList;
         }
 
-        public async Task<List<int>> GetAppraisersByReviewHeaderId(int reviewHeaderId)
+        public async Task<List<string>> GetAppraisersByReviewHeaderId(int reviewHeaderId)
         {
-            List<int> appraisersList = new List<int>();
+            List<string> appraisersList = new List<string>();
             var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
             StringBuilder sb = new StringBuilder();
             sb.Append("SELECT DISTINCT rvw_aprsr_id ");
@@ -689,7 +689,7 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
                 while (await reader.ReadAsync())
                 {
                     appraisersList.Add(
-                         reader["rvw_aprsr_id"] == DBNull.Value ? 0 : (int)reader["rvw_aprsr_id"]
+                         reader["rvw_aprsr_id"] == DBNull.Value ? string.Empty : reader["rvw_aprsr_id"].ToString()
                        );
                 }
             }
@@ -867,20 +867,20 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
             sb.Append("r.aprsr_rl_ds, r.rvw_yr_id, s.rvw_sxn_nm,  r.is_main, ");
             sb.Append("(SELECT fullname FROM gst_prsns WHERE id = r.rvw_aprsr_id) as rvw_aprsr_nm, ");
             sb.Append("(SELECT fullname FROM gst_prsns WHERE id = r.rvw_emp_id) as rvw_emp_nm, ");
-            sb.Append("y.pms_yr_nm, e.unit_cd, e.dept_cd, e.loc_id, e.emp_no_1, ");
-            sb.Append("e.current_designation, d.dept_nm, u.unit_nm, l.locname, ");
+            sb.Append("y.pms_yr_nm, e.unit_id, e.dept_id, e.loc_id, e.emp_no_1, ");
+            sb.Append("e.current_designation, d.deptname, u.unitname, l.locname, ");
             sb.Append("s.ttl_cmp_scr, s.ttl_kpa_scr, s.ttl_cmb_scr ");
             sb.Append("FROM public.pmsrvwsmry r ");
             sb.Append("INNER JOIN public.pmsrvwsxns s ON s.rvw_sxn_id = r.rvw_sxn_id ");
             sb.Append("INNER JOIN public.pmssttyrs y ON y.pms_yr_id = r.rvw_yr_id ");
             sb.Append("INNER JOIN public.erm_emp_inf e ON e.emp_id = r.rvw_emp_id ");
             sb.Append("INNER JOIN public.erm_emp_inf f ON f.emp_id = r.rvw_aprsr_id ");
-            sb.Append("INNER JOIN public.gst_depts d ON d.deptqk = e.dept_cd ");
-            sb.Append("INNER JOIN public.gst_units u ON u.unitqk = e.unit_cd ");
+            sb.Append("INNER JOIN public.gst_depts d ON d.deptqk = e.dept_id ");
+            sb.Append("INNER JOIN public.gst_units u ON u.unitqk = e.unit_id ");
             sb.Append("INNER JOIN public.gst_locs l ON l.locqk = e.loc_id ");
             sb.Append("WHERE (r.is_main = true) ");
             sb.Append("AND (r.rvw_sxn_id = @rvw_sxn_id) ");
-            sb.Append("ORDER BY d.dept_nm, u.unit_nm, rvw_emp_nm, rvw_aprsr_nm;");
+            sb.Append("ORDER BY d.deptname, u.unitname, rvw_emp_nm, rvw_aprsr_nm;");
 
             string query = sb.ToString();
             await conn.OpenAsync();
@@ -924,11 +924,11 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
                         AppraiserTypeDescription = reader["apr_typ_ds"] == DBNull.Value ? string.Empty : reader["apr_typ_ds"].ToString(),
                         AppraiserRoleDescription = reader["aprsr_rl_ds"] == DBNull.Value ? string.Empty : reader["aprsr_rl_ds"].ToString(),
 
-                        UnitId = reader["unit_cd"] == DBNull.Value ? 0 : (int)reader["unit_cd"],
-                        UnitName = reader["unit_nm"] == DBNull.Value ? string.Empty : reader["unit_nm"].ToString(),
+                        UnitId = reader["unit_id"] == DBNull.Value ? 0 : (int)reader["unit_id"],
+                        UnitName = reader["unitname"] == DBNull.Value ? string.Empty : reader["unitname"].ToString(),
 
-                        DepartmentId = reader["dept_cd"] == DBNull.Value ? 0 : (int)reader["dept_cd"],
-                        DepartmentName = reader["dept_nm"] == DBNull.Value ? string.Empty : reader["dept_nm"].ToString(),
+                        DepartmentId = reader["dept_id"] == DBNull.Value ? 0 : (int)reader["dept_id"],
+                        DepartmentName = reader["deptname"] == DBNull.Value ? string.Empty : reader["deptname"].ToString(),
 
                         LocationId = reader["loc_id"] == DBNull.Value ? 0 : (int)reader["loc_id"],
                         LocationName = reader["locname"] == DBNull.Value ? string.Empty : reader["locname"].ToString(),
@@ -957,7 +957,7 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
             sb.Append("(SELECT fullname FROM gst_prsns WHERE id = r.rvw_aprsr_id) as rvw_aprsr_nm, ");
 
             sb.Append("y.pms_yr_nm, e.unit_id, e.dept_id, e.loc_id, e.emp_no_1, ");
-            sb.Append("e.current_designation, d.dept_nm, u.unit_nm, l.locname, ");
+            sb.Append("e.current_designation, d.deptname, u.unitname, l.locname, ");
             sb.Append("s.ttl_cmp_scr, s.ttl_kpa_scr, s.ttl_cmb_scr ");
             sb.Append("FROM public.pmsrvwsmry r ");
             sb.Append("INNER JOIN public.pmsrvwsxns s ON s.rvw_sxn_id = r.rvw_sxn_id ");
@@ -969,8 +969,8 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
             sb.Append("INNER JOIN public.gst_locs l ON l.locqk = e.loc_id ");
             sb.Append("WHERE (r.is_main = true) ");
             sb.Append("AND (r.rvw_sxn_id = @rvw_sxn_id) ");
-            sb.Append("AND (e.dept_id = @dept_cd) ");
-            sb.Append("ORDER BY d.dept_nm, u.unit_nm, rvw_emp_nm;");
+            sb.Append("AND (e.dept_id = @dept_id) ");
+            sb.Append("ORDER BY d.deptname, u.unitname, rvw_emp_nm;");
 
             string query = sb.ToString();
             await conn.OpenAsync();
@@ -978,10 +978,10 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
             using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
             {
                 var rvw_sxn_id = cmd.Parameters.Add("@rvw_sxn_id", NpgsqlDbType.Integer);
-                var dept_cd = cmd.Parameters.Add("@dept_cd", NpgsqlDbType.Integer);
+                var dept_id = cmd.Parameters.Add("@dept_id", NpgsqlDbType.Integer);
                 await cmd.PrepareAsync();
                 rvw_sxn_id.Value = reviewSessionId;
-                dept_cd.Value = departmentId;
+                dept_id.Value = departmentId;
 
                 var reader = await cmd.ExecuteReaderAsync();
                 while (await reader.ReadAsync())
@@ -1016,11 +1016,11 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
                         AppraiserTypeDescription = reader["apr_typ_ds"] == DBNull.Value ? string.Empty : reader["apr_typ_ds"].ToString(),
                         AppraiserRoleDescription = reader["aprsr_rl_ds"] == DBNull.Value ? string.Empty : reader["aprsr_rl_ds"].ToString(),
 
-                        UnitId = reader["unit_cd"] == DBNull.Value ? 0 : (int)reader["unit_cd"],
-                        UnitName = reader["unit_nm"] == DBNull.Value ? string.Empty : reader["unit_nm"].ToString(),
+                        UnitId = reader["unit_id"] == DBNull.Value ? 0 : (int)reader["unit_id"],
+                        UnitName = reader["unitname"] == DBNull.Value ? string.Empty : reader["unitname"].ToString(),
 
-                        DepartmentId = reader["dept_cd"] == DBNull.Value ? 0 : (int)reader["dept_cd"],
-                        DepartmentName = reader["dept_nm"] == DBNull.Value ? string.Empty : reader["dept_nm"].ToString(),
+                        DepartmentId = reader["dept_id"] == DBNull.Value ? 0 : (int)reader["dept_id"],
+                        DepartmentName = reader["deptname"] == DBNull.Value ? string.Empty : reader["deptname"].ToString(),
 
                         LocationId = reader["loc_id"] == DBNull.Value ? 0 : (int)reader["loc_id"],
                         LocationName = reader["locname"] == DBNull.Value ? string.Empty : reader["locname"].ToString(),
@@ -1049,7 +1049,7 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
             sb.Append("(SELECT fullname FROM gst_prsns WHERE id = r.rvw_aprsr_id) as rvw_aprsr_nm, ");
 
             sb.Append("y.pms_yr_nm, e.unit_id, e.dept_id, e.loc_id, e.emp_no_1, ");
-            sb.Append("e.current_designation, d.dept_nm, u.unit_nm, l.locname, ");
+            sb.Append("e.current_designation, d.deptname, u.unitname, l.locname, ");
             sb.Append("s.ttl_cmp_scr, s.ttl_kpa_scr, s.ttl_cmb_scr ");
             sb.Append("FROM public.pmsrvwsmry r ");
             sb.Append("INNER JOIN public.pmsrvwsxns s ON s.rvw_sxn_id = r.rvw_sxn_id ");
@@ -1061,8 +1061,8 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
             sb.Append("INNER JOIN public.gst_locs l ON l.locqk = e.loc_id ");
             sb.Append("WHERE (r.is_main = true) ");
             sb.Append("AND (r.rvw_sxn_id = @rvw_sxn_id) ");
-            sb.Append("AND (e.unit_cd = @unit_cd) ");
-            sb.Append("ORDER BY d.dept_nm, u.unit_nm, e.fullname;");
+            sb.Append("AND (e.unit_id = @unit_cd) ");
+            sb.Append("ORDER BY d.deptname, u.unitname, e.fullname;");
 
             string query = sb.ToString();
             await conn.OpenAsync();
@@ -1108,11 +1108,11 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
                         AppraiserTypeDescription = reader["apr_typ_ds"] == DBNull.Value ? string.Empty : reader["apr_typ_ds"].ToString(),
                         AppraiserRoleDescription = reader["aprsr_rl_ds"] == DBNull.Value ? string.Empty : reader["aprsr_rl_ds"].ToString(),
 
-                        UnitId = reader["unit_cd"] == DBNull.Value ? 0 : (int)reader["unit_cd"],
-                        UnitName = reader["unit_nm"] == DBNull.Value ? string.Empty : reader["unit_nm"].ToString(),
+                        UnitId = reader["unit_id"] == DBNull.Value ? 0 : (int)reader["unit_id"],
+                        UnitName = reader["unitname"] == DBNull.Value ? string.Empty : reader["unitname"].ToString(),
 
-                        DepartmentId = reader["dept_cd"] == DBNull.Value ? 0 : (int)reader["dept_cd"],
-                        DepartmentName = reader["dept_nm"] == DBNull.Value ? string.Empty : reader["dept_nm"].ToString(),
+                        DepartmentId = reader["dept_id"] == DBNull.Value ? 0 : (int)reader["dept_id"],
+                        DepartmentName = reader["deptname"] == DBNull.Value ? string.Empty : reader["deptname"].ToString(),
 
                         LocationId = reader["loc_id"] == DBNull.Value ? 0 : (int)reader["loc_id"],
                         LocationName = reader["locname"] == DBNull.Value ? string.Empty : reader["locname"].ToString(),
@@ -1141,7 +1141,7 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
             sb.Append("(SELECT fullname FROM gst_prsns WHERE id = r.rvw_aprsr_id) as rvw_aprsr_nm, ");
 
             sb.Append("y.pms_yr_nm, e.unit_id, e.dept_id, e.loc_id, e.emp_no_1, ");
-            sb.Append("e.current_designation, d.dept_nm, u.unit_nm, l.locname, ");
+            sb.Append("e.current_designation, d.deptname, u.unitname, l.locname, ");
             sb.Append("s.ttl_cmp_scr, s.ttl_kpa_scr, s.ttl_cmb_scr ");
             sb.Append("FROM public.pmsrvwsmry r ");
             sb.Append("INNER JOIN public.pmsrvwsxns s ON s.rvw_sxn_id = r.rvw_sxn_id ");
@@ -1154,7 +1154,7 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
             sb.Append("WHERE (r.is_main = true) ");
             sb.Append("AND (r.rvw_sxn_id = @rvw_sxn_id) ");
             sb.Append("AND ((SELECT fullname FROM gst_prsns WHERE id = r.rvw_emp_id) = @appraisee_name) ");
-            sb.Append("ORDER BY d.dept_nm, u.unit_nm, rvw_emp_nm;");
+            sb.Append("ORDER BY d.deptname, u.unitname, rvw_emp_nm;");
 
             string query = sb.ToString();
             await conn.OpenAsync();
@@ -1200,11 +1200,11 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
                         AppraiserTypeDescription = reader["apr_typ_ds"] == DBNull.Value ? string.Empty : reader["apr_typ_ds"].ToString(),
                         AppraiserRoleDescription = reader["aprsr_rl_ds"] == DBNull.Value ? string.Empty : reader["aprsr_rl_ds"].ToString(),
 
-                        UnitId = reader["unit_cd"] == DBNull.Value ? 0 : (int)reader["unit_cd"],
-                        UnitName = reader["unit_nm"] == DBNull.Value ? string.Empty : reader["unit_nm"].ToString(),
+                        UnitId = reader["unit_id"] == DBNull.Value ? 0 : (int)reader["unit_id"],
+                        UnitName = reader["unitname"] == DBNull.Value ? string.Empty : reader["unitname"].ToString(),
 
-                        DepartmentId = reader["dept_cd"] == DBNull.Value ? 0 : (int)reader["dept_cd"],
-                        DepartmentName = reader["dept_nm"] == DBNull.Value ? string.Empty : reader["dept_nm"].ToString(),
+                        DepartmentId = reader["dept_id"] == DBNull.Value ? 0 : (int)reader["dept_id"],
+                        DepartmentName = reader["deptname"] == DBNull.Value ? string.Empty : reader["deptname"].ToString(),
 
                         LocationId = reader["loc_id"] == DBNull.Value ? 0 : (int)reader["loc_id"],
                         LocationName = reader["locname"] == DBNull.Value ? string.Empty : reader["locname"].ToString(),
@@ -1233,7 +1233,7 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
             sb.Append("(SELECT fullname FROM gst_prsns WHERE id = r.rvw_aprsr_id) as rvw_aprsr_nm, ");
 
             sb.Append("y.pms_yr_nm, e.unit_id, e.dept_id, e.loc_id, e.emp_no_1, ");
-            sb.Append("e.current_designation, d.dept_nm, u.unit_nm, l.locname, ");
+            sb.Append("e.current_designation, d.deptname, u.unitname, l.locname, ");
             sb.Append("s.ttl_cmp_scr, s.ttl_kpa_scr, s.ttl_cmb_scr ");
             sb.Append("FROM public.pmsrvwsmry r ");
             sb.Append("INNER JOIN public.pmsrvwsxns s ON s.rvw_sxn_id = r.rvw_sxn_id ");
@@ -1291,11 +1291,11 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
                         AppraiserTypeDescription = reader["apr_typ_ds"] == DBNull.Value ? string.Empty : reader["apr_typ_ds"].ToString(),
                         AppraiserRoleDescription = reader["aprsr_rl_ds"] == DBNull.Value ? string.Empty : reader["aprsr_rl_ds"].ToString(),
 
-                        UnitId = reader["unit_cd"] == DBNull.Value ? 0 : (int)reader["unit_cd"],
-                        UnitName = reader["unit_nm"] == DBNull.Value ? string.Empty : reader["unit_nm"].ToString(),
+                        UnitId = reader["unit_id"] == DBNull.Value ? 0 : (int)reader["unit_id"],
+                        UnitName = reader["unitname"] == DBNull.Value ? string.Empty : reader["unitname"].ToString(),
 
-                        DepartmentId = reader["dept_cd"] == DBNull.Value ? 0 : (int)reader["dept_cd"],
-                        DepartmentName = reader["dept_nm"] == DBNull.Value ? string.Empty : reader["dept_nm"].ToString(),
+                        DepartmentId = reader["dept_id"] == DBNull.Value ? 0 : (int)reader["dept_id"],
+                        DepartmentName = reader["deptname"] == DBNull.Value ? string.Empty : reader["deptname"].ToString(),
 
                         LocationId = reader["loc_id"] == DBNull.Value ? 0 : (int)reader["loc_id"],
                         LocationName = reader["locname"] == DBNull.Value ? string.Empty : reader["locname"].ToString(),
@@ -1316,14 +1316,14 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
             var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
             StringBuilder sb = new StringBuilder();
             sb.Append("SELECT r.rvw_smr_id, r.rvw_hdr_id, r.rvw_sxn_id, r.rvw_aprsr_id, ");
-            sb.Append("r.apr_typ_ds, r.aprsr_rl_ds, f.fullname as rvw_aprsr_nm, ");
-            sb.Append("f.current_designation, f.emp_no_1, d.dept_nm, u.unit_nm, ");
-            sb.Append("(SELECT fullname FROM gst_prsns WHERE id = r.rvw_aprsr_id) as rvw_aprsr_nm, ");
-            sb.Append("(SELECT rvw_aprsr_nm ||' ('||r.apr_typ_ds||')') AS aprsr_ds, ");
+            sb.Append("r.apr_typ_ds, r.aprsr_rl_ds, f.current_designation, f.emp_no_1, ");
+            sb.Append("d.deptname, u.unitname, (SELECT fullname FROM gst_prsns ");
+            sb.Append("WHERE id = r.rvw_aprsr_id) as rvw_aprsr_nm, ");
+           // sb.Append("(SELECT rvw_aprsr_nm ||' ('||r.apr_typ_ds||')') AS aprsr_ds, ");
             sb.Append("l.locname FROM public.pmsrvwsmry r ");
             sb.Append("INNER JOIN public.erm_emp_inf f ON f.emp_id = r.rvw_aprsr_id ");
-            sb.Append("INNER JOIN public.gst_depts d ON d.deptqk = f.dept_cd ");
-            sb.Append("INNER JOIN public.gst_units u ON u.unitqk = f.unit_cd ");
+            sb.Append("INNER JOIN public.gst_depts d ON d.deptqk = f.dept_id ");
+            sb.Append("INNER JOIN public.gst_units u ON u.unitqk = f.unit_id ");
             sb.Append("INNER JOIN public.gst_locs l ON l.locqk = f.loc_id ");
             sb.Append("WHERE (r.rvw_hdr_id = @rvw_hdr_id) ");
             sb.Append("ORDER BY r.rvw_smr_id;");
@@ -1349,12 +1349,12 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
                         AppraiserName = reader["rvw_aprsr_nm"] == DBNull.Value ? string.Empty : reader["rvw_aprsr_nm"].ToString(),
                         AppraiserTypeDescription = reader["apr_typ_ds"] == DBNull.Value ? string.Empty : reader["apr_typ_ds"].ToString(),
                         AppraiserRoleDescription = reader["aprsr_rl_ds"] == DBNull.Value ? string.Empty : reader["aprsr_rl_ds"].ToString(),
-                        AppraiserUnitName = reader["unit_nm"] == DBNull.Value ? string.Empty : reader["unit_nm"].ToString(),
-                        AppraiserDepartmentName = reader["dept_nm"] == DBNull.Value ? string.Empty : reader["dept_nm"].ToString(),
+                        AppraiserUnitName = reader["unitname"] == DBNull.Value ? string.Empty : reader["unitname"].ToString(),
+                        AppraiserDepartmentName = reader["deptname"] == DBNull.Value ? string.Empty : reader["deptname"].ToString(),
                         AppraiserLocationName = reader["locname"] == DBNull.Value ? string.Empty : reader["locname"].ToString(),
                         AppraiserNo = reader["emp_no_1"] == DBNull.Value ? string.Empty : reader["emp_no_1"].ToString(),
                         AppraiserDesignation = reader["current_designation"] == DBNull.Value ? string.Empty : reader["current_designation"].ToString(),
-                        AppraiserFullDescription = reader["aprsr_ds"] == DBNull.Value ? string.Empty : reader["aprsr_ds"].ToString(),
+                       // AppraiserFullDescription = reader["aprsr_ds"] == DBNull.Value ? string.Empty : reader["aprsr_ds"].ToString(),
                     });
                 }
             }
@@ -1370,17 +1370,17 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
             sb.Append("SELECT r.emp_id, e.emp_no_1, e.current_designation, ");
             sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = r.emp_id) AS fullname, ");
             sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = s.rvw_aprsr_id) AS rvw_aprsr_nm, ");
-            sb.Append("u.unit_nm, s.kpa_scr_obt, s.cmp_scr_obt, s.cmb_scr_obt, ");
+            sb.Append("u.unitname, s.kpa_scr_obt, s.cmp_scr_obt, s.cmb_scr_obt, ");
             sb.Append("s.rvw_hdr_id, s.rvw_aprsr_id, s.apr_typ_ds, s.aprsr_rl_ds, ");
             sb.Append("s.pfm_rating, s.is_main FROM public.erm_emp_rpts r ");
             sb.Append("INNER JOIN public.erm_emp_inf e ON e.emp_id = r.emp_id ");
-            sb.Append("INNER JOIN public.gst_units u ON u.unitqk = e.unit_cd ");
+            sb.Append("INNER JOIN public.gst_units u ON u.unitqk = e.unit_id ");
             sb.Append("LEFT JOIN public.pmsrvwsmry s ON s.rvw_emp_id = r.emp_id ");
             sb.Append("LEFT JOIN public.erm_emp_inf f ON f.emp_id = s.rvw_aprsr_id ");
-            sb.Append("WHERE (r.ndt_dt IS NULL OR r.ndt_dt > CURRENT_DATE) ");
-            sb.Append("AND (r.rpt_to_id = @rpt_to_id AND s.rvw_sxn_id = @rvw_sxn_id) ");
+            sb.Append("WHERE (r.rpt_nds IS NULL OR r.rpt_nds > CURRENT_DATE) ");
+            sb.Append("AND (r.rpt_emp_id = @rpt_emp_id AND s.rvw_sxn_id = @rvw_sxn_id) ");
             //sb.Append("AND (s.is_main = true) ");
-            sb.Append("ORDER BY u.unit_nm, s.cmb_scr_obt DESC;");
+            sb.Append("ORDER BY u.unitname, s.cmb_scr_obt DESC;");
 
             string query = sb.ToString();
             await conn.OpenAsync();
@@ -1388,10 +1388,10 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
             using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
             {
                 var rvw_sxn_id = cmd.Parameters.Add("@rvw_sxn_id", NpgsqlDbType.Integer);
-                var rpt_to_id = cmd.Parameters.Add("@rpt_to_id", NpgsqlDbType.Text);
+                var rpt_emp_id = cmd.Parameters.Add("@rpt_emp_id", NpgsqlDbType.Text);
                 await cmd.PrepareAsync();
                 rvw_sxn_id.Value = reviewSessionId;
-                rpt_to_id.Value = reportToId;
+                rpt_emp_id.Value = reportToId;
 
                 var reader = await cmd.ExecuteReaderAsync();
                 while (await reader.ReadAsync())
@@ -1410,7 +1410,7 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
                         CompetencyScoreObtained = reader["cmp_scr_obt"] == DBNull.Value ? 0.00M : (decimal)reader["cmp_scr_obt"],
                         CombinedScoreObtained = reader["cmb_scr_obt"] == DBNull.Value ? 0.00M : (decimal)reader["cmb_scr_obt"],
                         PerformanceRating = reader["pfm_rating"] == DBNull.Value ? string.Empty : reader["pfm_rating"].ToString(),
-                        UnitName = reader["unit_nm"] == DBNull.Value ? string.Empty : reader["unit_nm"].ToString(),
+                        UnitName = reader["unitname"] == DBNull.Value ? string.Empty : reader["unitname"].ToString(),
                         EmployeeNo = reader["emp_no_1"] == DBNull.Value ? string.Empty : reader["emp_no_1"].ToString(),
                         CurrentDesignation = reader["current_designation"] == DBNull.Value ? string.Empty : reader["current_designation"].ToString(),
                     });
@@ -1428,17 +1428,17 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
             sb.Append("SELECT r.emp_id, e.emp_no_1, e.current_designation, ");
             sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = r.emp_id) AS fullname, ");
             sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = s.rvw_aprsr_id) AS rvw_aprsr_nm, ");
-            sb.Append("u.unit_nm, s.kpa_scr_obt, s.cmp_scr_obt, s.cmb_scr_obt, ");
+            sb.Append("u.unitname, s.kpa_scr_obt, s.cmp_scr_obt, s.cmb_scr_obt, ");
             sb.Append("s.rvw_hdr_id, s.rvw_aprsr_id, s.apr_typ_ds, s.aprsr_rl_ds, ");
             sb.Append("s.pfm_rating, s.is_main FROM public.erm_emp_rpts r ");
             sb.Append("INNER JOIN public.erm_emp_inf e ON e.emp_id = r.emp_id ");
-            sb.Append("INNER JOIN public.gst_units u ON u.unitqk = e.unit_cd ");
+            sb.Append("INNER JOIN public.gst_units u ON u.unitqk = e.unit_id ");
             sb.Append("LEFT JOIN public.pmsrvwsmry s ON s.rvw_emp_id = r.emp_id ");
             sb.Append("LEFT JOIN public.erm_emp_inf f ON f.emp_id = s.rvw_aprsr_id ");
-            sb.Append("WHERE (r.ndt_dt IS NULL OR r.ndt_dt > CURRENT_DATE) ");
-            sb.Append("AND (r.rpt_to_id = @rpt_to_id) AND (s.rvw_sxn_id = @rvw_sxn_id) ");
+            sb.Append("WHERE (r.rpt_nds IS NULL OR r.rpt_nds > CURRENT_DATE) ");
+            sb.Append("AND (r.rpt_emp_id = @rpt_emp_id) AND (s.rvw_sxn_id = @rvw_sxn_id) ");
             sb.Append("AND (r.emp_id = @emp_id) ");
-            sb.Append("ORDER BY u.unit_nm, s.cmb_scr_obt DESC;");
+            sb.Append("ORDER BY u.unitname, s.cmb_scr_obt DESC;");
 
             string query = sb.ToString();
             await conn.OpenAsync();
@@ -1446,11 +1446,11 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
             using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
             {
                 var rvw_sxn_id = cmd.Parameters.Add("@rvw_sxn_id", NpgsqlDbType.Integer);
-                var rpt_to_id = cmd.Parameters.Add("@rpt_to_id", NpgsqlDbType.Text);
+                var rpt_emp_id = cmd.Parameters.Add("@rpt_emp_id", NpgsqlDbType.Text);
                 var emp_id = cmd.Parameters.Add("@emp_id", NpgsqlDbType.Text);
                 await cmd.PrepareAsync();
                 rvw_sxn_id.Value = reviewSessionId;
-                rpt_to_id.Value = reportToId;
+                rpt_emp_id.Value = reportToId;
                 emp_id.Value = appraiseeId;
 
                 var reader = await cmd.ExecuteReaderAsync();
@@ -1470,7 +1470,7 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
                         CompetencyScoreObtained = reader["cmp_scr_obt"] == DBNull.Value ? 0.00M : (decimal)reader["cmp_scr_obt"],
                         CombinedScoreObtained = reader["cmb_scr_obt"] == DBNull.Value ? 0.00M : (decimal)reader["cmb_scr_obt"],
                         PerformanceRating = reader["pfm_rating"] == DBNull.Value ? string.Empty : reader["pfm_rating"].ToString(),
-                        UnitName = reader["unit_nm"] == DBNull.Value ? string.Empty : reader["unit_nm"].ToString(),
+                        UnitName = reader["unitname"] == DBNull.Value ? string.Empty : reader["unitname"].ToString(),
                         EmployeeNo = reader["emp_no_1"] == DBNull.Value ? string.Empty : reader["emp_no_1"].ToString(),
                         CurrentDesignation = reader["current_designation"] == DBNull.Value ? string.Empty : reader["current_designation"].ToString(),
                     });
@@ -1640,8 +1640,8 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
             sb.Append("r.aprsr_rl_ds, r.rvw_yr_id, s.rvw_sxn_nm,  r.is_main, ");
             sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = r.rvw_emp_id) as rvw_emp_nm, ");
             sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = r.rvw_aprsr_id) as rvw_aprsr_nm, ");
-            sb.Append("y.pms_yr_nm, e.unit_cd, e.dept_cd, e.loc_id, e.emp_no_1, ");
-            sb.Append("e.current_designation, d.dept_nm, u.unit_nm, l.locname, ");
+            sb.Append("y.pms_yr_nm, e.unit_id, e.dept_id, e.loc_id, e.emp_no_1, ");
+            sb.Append("e.current_designation, d.deptname, u.unitname, l.locname, ");
             sb.Append("f.current_designation as rvw_aprsr_dsg, ");
             sb.Append("s.ttl_cmp_scr, s.ttl_kpa_scr, s.ttl_cmb_scr, ");
             sb.Append("h.fbk_probs, h.fbk_solns, h.lm_rmk, h.uh_rmk, h.dh_rmk, ");
@@ -1655,8 +1655,8 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
             sb.Append("INNER JOIN public.pmssttyrs y ON y.pms_yr_id = r.rvw_yr_id ");
             sb.Append("INNER JOIN public.erm_emp_inf e ON e.emp_id = r.rvw_emp_id ");
             sb.Append("INNER JOIN public.erm_emp_inf f ON f.emp_id = r.rvw_aprsr_id ");
-            sb.Append("INNER JOIN public.gst_depts d ON d.deptqk = e.dept_cd ");
-            sb.Append("INNER JOIN public.gst_units u ON u.unitqk = e.unit_cd ");
+            sb.Append("INNER JOIN public.gst_depts d ON d.deptqk = e.dept_id ");
+            sb.Append("INNER JOIN public.gst_units u ON u.unitqk = e.unit_id ");
             sb.Append("INNER JOIN public.gst_locs l ON l.locqk = e.loc_id ");
             sb.Append("WHERE (s.rvw_sxn_id = @rvw_sxn_id) ");
             sb.Append("ORDER BY r.rvw_smr_id;");
@@ -1705,11 +1705,11 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
                         AppraiserTypeDescription = reader["apr_typ_ds"] == DBNull.Value ? string.Empty : reader["apr_typ_ds"].ToString(),
                         AppraiserRoleDescription = reader["aprsr_rl_ds"] == DBNull.Value ? string.Empty : reader["aprsr_rl_ds"].ToString(),
 
-                        UnitId = reader["unit_cd"] == DBNull.Value ? 0 : (int)reader["unit_cd"],
-                        UnitName = reader["unit_nm"] == DBNull.Value ? string.Empty : reader["unit_nm"].ToString(),
+                        UnitId = reader["unit_id"] == DBNull.Value ? 0 : (int)reader["unit_id"],
+                        UnitName = reader["unitname"] == DBNull.Value ? string.Empty : reader["unitname"].ToString(),
 
-                        DepartmentId = reader["dept_cd"] == DBNull.Value ? 0 : (int)reader["dept_cd"],
-                        DepartmentName = reader["dept_nm"] == DBNull.Value ? string.Empty : reader["dept_nm"].ToString(),
+                        DepartmentId = reader["dept_id"] == DBNull.Value ? 0 : (int)reader["dept_id"],
+                        DepartmentName = reader["deptname"] == DBNull.Value ? string.Empty : reader["deptname"].ToString(),
 
                         LocationId = reader["loc_id"] == DBNull.Value ? 0 : (int)reader["loc_id"],
                         LocationName = reader["locname"] == DBNull.Value ? string.Empty : reader["locname"].ToString(),
@@ -1756,8 +1756,8 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
             sb.Append("r.aprsr_rl_ds, r.rvw_yr_id, s.rvw_sxn_nm,  r.is_main, ");
             sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = r.rvw_emp_id) as rvw_emp_nm, ");
             sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = r.rvw_aprsr_id) as rvw_aprsr_nm, ");
-            sb.Append("y.pms_yr_nm, e.unit_cd, e.dept_cd, e.loc_id, e.emp_no_1, ");
-            sb.Append("e.current_designation, d.dept_nm, u.unit_nm, l.locname, ");
+            sb.Append("y.pms_yr_nm, e.unit_id, e.dept_id, e.loc_id, e.emp_no_1, ");
+            sb.Append("e.current_designation, d.deptname, u.unitname, l.locname, ");
             sb.Append("f.current_designation as rvw_aprsr_dsg, ");
             sb.Append("s.ttl_cmp_scr, s.ttl_kpa_scr, s.ttl_cmb_scr, ");
             sb.Append("h.fbk_probs, h.fbk_solns, h.lm_rmk, h.uh_rmk, h.dh_rmk, ");
@@ -1771,8 +1771,8 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
             sb.Append("INNER JOIN public.pmssttyrs y ON y.pms_yr_id = r.rvw_yr_id ");
             sb.Append("INNER JOIN public.erm_emp_inf e ON e.emp_id = r.rvw_emp_id ");
             sb.Append("INNER JOIN public.erm_emp_inf f ON f.emp_id = r.rvw_aprsr_id ");
-            sb.Append("INNER JOIN public.gst_depts d ON d.deptqk = e.dept_cd ");
-            sb.Append("INNER JOIN public.gst_units u ON u.unitqk = e.unit_cd ");
+            sb.Append("INNER JOIN public.gst_depts d ON d.deptqk = e.dept_id ");
+            sb.Append("INNER JOIN public.gst_units u ON u.unitqk = e.unit_id ");
             sb.Append("INNER JOIN public.gst_locs l ON l.locqk = e.loc_id ");
             sb.Append("WHERE (s.rvw_sxn_id = @rvw_sxn_id) ");
             sb.Append("AND (e.loc_id = @loc_id) ");
@@ -1823,11 +1823,11 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
                         AppraiserTypeDescription = reader["apr_typ_ds"] == DBNull.Value ? string.Empty : reader["apr_typ_ds"].ToString(),
                         AppraiserRoleDescription = reader["aprsr_rl_ds"] == DBNull.Value ? string.Empty : reader["aprsr_rl_ds"].ToString(),
 
-                        UnitId = reader["unit_cd"] == DBNull.Value ? 0 : (int)reader["unit_cd"],
-                        UnitName = reader["unit_nm"] == DBNull.Value ? string.Empty : reader["unit_nm"].ToString(),
+                        UnitId = reader["unit_id"] == DBNull.Value ? 0 : (int)reader["unit_id"],
+                        UnitName = reader["unitname"] == DBNull.Value ? string.Empty : reader["unitname"].ToString(),
 
-                        DepartmentId = reader["dept_cd"] == DBNull.Value ? 0 : (int)reader["dept_cd"],
-                        DepartmentName = reader["dept_nm"] == DBNull.Value ? string.Empty : reader["dept_nm"].ToString(),
+                        DepartmentId = reader["dept_id"] == DBNull.Value ? 0 : (int)reader["dept_id"],
+                        DepartmentName = reader["deptname"] == DBNull.Value ? string.Empty : reader["deptname"].ToString(),
 
                         LocationId = reader["loc_id"] == DBNull.Value ? 0 : (int)reader["loc_id"],
                         LocationName = reader["locname"] == DBNull.Value ? string.Empty : reader["locname"].ToString(),
@@ -1873,8 +1873,8 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
             sb.Append("r.aprsr_rl_ds, r.rvw_yr_id, s.rvw_sxn_nm,  r.is_main, ");
             sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = r.rvw_emp_id) as rvw_emp_nm, ");
             sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = r.rvw_aprsr_id) as rvw_aprsr_nm, ");
-            sb.Append("y.pms_yr_nm, e.unit_cd, e.dept_cd, e.loc_id, e.emp_no_1, ");
-            sb.Append("e.current_designation, d.dept_nm, u.unit_nm, l.locname, ");
+            sb.Append("y.pms_yr_nm, e.unit_id, e.dept_id, e.loc_id, e.emp_no_1, ");
+            sb.Append("e.current_designation, d.deptname, u.unitname, l.locname, ");
             sb.Append("f.current_designation as rvw_aprsr_dsg, ");
             sb.Append("s.ttl_cmp_scr, s.ttl_kpa_scr, s.ttl_cmb_scr, ");
             sb.Append("h.fbk_probs, h.fbk_solns, h.lm_rmk, h.uh_rmk, h.dh_rmk, ");
@@ -1888,8 +1888,8 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
             sb.Append("INNER JOIN public.pmssttyrs y ON y.pms_yr_id = r.rvw_yr_id ");
             sb.Append("INNER JOIN public.erm_emp_inf e ON e.emp_id = r.rvw_emp_id ");
             sb.Append("INNER JOIN public.erm_emp_inf f ON f.emp_id = r.rvw_aprsr_id ");
-            sb.Append("INNER JOIN public.gst_depts d ON d.deptqk = e.dept_cd ");
-            sb.Append("INNER JOIN public.gst_units u ON u.unitqk = e.unit_cd ");
+            sb.Append("INNER JOIN public.gst_depts d ON d.deptqk = e.dept_id ");
+            sb.Append("INNER JOIN public.gst_units u ON u.unitqk = e.unit_id ");
             sb.Append("INNER JOIN public.gst_locs l ON l.locqk = e.loc_id ");
             sb.Append("WHERE (s.rvw_sxn_id = @rvw_sxn_id) ");
             sb.Append("AND (e.dept_id = @dept_cd) ");
@@ -1940,11 +1940,11 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
                         AppraiserTypeDescription = reader["apr_typ_ds"] == DBNull.Value ? string.Empty : reader["apr_typ_ds"].ToString(),
                         AppraiserRoleDescription = reader["aprsr_rl_ds"] == DBNull.Value ? string.Empty : reader["aprsr_rl_ds"].ToString(),
 
-                        UnitId = reader["unit_cd"] == DBNull.Value ? 0 : (int)reader["unit_cd"],
-                        UnitName = reader["unit_nm"] == DBNull.Value ? string.Empty : reader["unit_nm"].ToString(),
+                        UnitId = reader["unit_id"] == DBNull.Value ? 0 : (int)reader["unit_id"],
+                        UnitName = reader["unitname"] == DBNull.Value ? string.Empty : reader["unitname"].ToString(),
 
-                        DepartmentId = reader["dept_cd"] == DBNull.Value ? 0 : (int)reader["dept_cd"],
-                        DepartmentName = reader["dept_nm"] == DBNull.Value ? string.Empty : reader["dept_nm"].ToString(),
+                        DepartmentId = reader["dept_id"] == DBNull.Value ? 0 : (int)reader["dept_id"],
+                        DepartmentName = reader["deptname"] == DBNull.Value ? string.Empty : reader["deptname"].ToString(),
 
                         LocationId = reader["loc_id"] == DBNull.Value ? 0 : (int)reader["loc_id"],
                         LocationName = reader["locname"] == DBNull.Value ? string.Empty : reader["locname"].ToString(),
@@ -1991,8 +1991,8 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
             sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = r.rvw_emp_id) as rvw_emp_nm, ");
             sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = r.rvw_aprsr_id) as rvw_aprsr_nm, ");
 
-            sb.Append("y.pms_yr_nm, e.unit_cd, e.dept_cd, e.loc_id, e.emp_no_1, ");
-            sb.Append("e.current_designation, d.dept_nm, u.unit_nm, l.locname, ");
+            sb.Append("y.pms_yr_nm, e.unit_id, e.dept_id, e.loc_id, e.emp_no_1, ");
+            sb.Append("e.current_designation, d.deptname, u.unitname, l.locname, ");
             sb.Append("f.current_designation as rvw_aprsr_dsg, ");
             sb.Append("s.ttl_cmp_scr, s.ttl_kpa_scr, s.ttl_cmb_scr, ");
             sb.Append("h.fbk_probs, h.fbk_solns, h.lm_rmk, h.uh_rmk, h.dh_rmk, ");
@@ -2006,8 +2006,8 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
             sb.Append("INNER JOIN public.pmssttyrs y ON y.pms_yr_id = r.rvw_yr_id ");
             sb.Append("INNER JOIN public.erm_emp_inf e ON e.emp_id = r.rvw_emp_id ");
             sb.Append("INNER JOIN public.erm_emp_inf f ON f.emp_id = r.rvw_aprsr_id ");
-            sb.Append("INNER JOIN public.gst_depts d ON d.deptqk = e.dept_cd ");
-            sb.Append("INNER JOIN public.gst_units u ON u.unitqk = e.unit_cd ");
+            sb.Append("INNER JOIN public.gst_depts d ON d.deptqk = e.dept_id ");
+            sb.Append("INNER JOIN public.gst_units u ON u.unitqk = e.unit_id ");
             sb.Append("INNER JOIN public.gst_locs l ON l.locqk = e.loc_id ");
             sb.Append("WHERE (s.rvw_sxn_id = @rvw_sxn_id) ");
             sb.Append("AND (e.unit_id = @unit_cd) ");
@@ -2058,11 +2058,11 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
                         AppraiserTypeDescription = reader["apr_typ_ds"] == DBNull.Value ? string.Empty : reader["apr_typ_ds"].ToString(),
                         AppraiserRoleDescription = reader["aprsr_rl_ds"] == DBNull.Value ? string.Empty : reader["aprsr_rl_ds"].ToString(),
 
-                        UnitId = reader["unit_cd"] == DBNull.Value ? 0 : (int)reader["unit_cd"],
-                        UnitName = reader["unit_nm"] == DBNull.Value ? string.Empty : reader["unit_nm"].ToString(),
+                        UnitId = reader["unit_id"] == DBNull.Value ? 0 : (int)reader["unit_id"],
+                        UnitName = reader["unitname"] == DBNull.Value ? string.Empty : reader["unitname"].ToString(),
 
-                        DepartmentId = reader["dept_cd"] == DBNull.Value ? 0 : (int)reader["dept_cd"],
-                        DepartmentName = reader["dept_nm"] == DBNull.Value ? string.Empty : reader["dept_nm"].ToString(),
+                        DepartmentId = reader["dept_id"] == DBNull.Value ? 0 : (int)reader["dept_id"],
+                        DepartmentName = reader["deptname"] == DBNull.Value ? string.Empty : reader["deptname"].ToString(),
 
                         LocationId = reader["loc_id"] == DBNull.Value ? 0 : (int)reader["loc_id"],
                         LocationName = reader["locname"] == DBNull.Value ? string.Empty : reader["locname"].ToString(),

@@ -29,19 +29,21 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
             sb.Append("h.dh_rmk, h.dh_rec, h.hr_rmk, h.hr_rec, h.mgt_rmk, h.mgt_dec, ");
             sb.Append("h.con_acpt, h.dt_con_acpt, h.eva_acpt, h.dt_eva_acpt, h.is_flg, ");
             sb.Append("h.flg_by, h.flg_dt, h.rvw_gls, h.lm_nm, h.uh_nm, h.dh_nm, h.hr_nm, ");
-            sb.Append("h.mgt_nm, s.rvw_sxn_nm, e.fullname as appraisee_name, ");
+            sb.Append("h.mgt_nm, s.rvw_sxn_nm, p1.fullname as appraisee_name, ");
             sb.Append("g.rvw_stg_nm, g.stg_xtn_ds, y.pms_yr_nm, p.fullname as appraiser_name, ");
             sb.Append("e.current_designation AS appraisee_designation, ");
-            sb.Append("p.current_designation AS appraiser_designation, ");
-            sb.Append("u.unit_nm, d.dept_nm, l.locname FROM public.pmsrvwhdrs h ");
+            sb.Append("q.current_designation AS appraiser_designation, ");
+            sb.Append("u.unitname, d.deptname, l.locname FROM public.pmsrvwhdrs h ");
             sb.Append("INNER JOIN public.pmsrvwsxns s ON s.rvw_sxn_id = h.rvw_sxn_id ");
-            sb.Append("INNER JOIN public.gst_prsns e ON e.id = h.rvw_emp_id ");
+            sb.Append("INNER JOIN public.gst_prsns p1 ON p1.id = h.rvw_emp_id ");
+            sb.Append("INNER JOIN public.erm_emp_inf e ON e.emp_id = h.rvw_emp_id ");
             sb.Append("INNER JOIN public.pmssttstgs g ON g.rvw_stg_id = h.rvw_stg_id ");
             sb.Append("INNER JOIN public.pmssttyrs y ON y.pms_yr_id = h.rvw_yr_id ");
             sb.Append("INNER JOIN public.gst_units u ON u.unitqk = h.unit_cd ");
             sb.Append("INNER JOIN public.gst_depts d ON d.deptqk = h.dept_cd ");
             sb.Append("INNER JOIN public.gst_locs l ON l.locqk = h.loc_id ");
             sb.Append("LEFT JOIN public.gst_prsns p ON p.id = h.pry_apr_id ");
+            sb.Append("LEFT JOIN public.erm_emp_inf q ON q.emp_id = h.pry_apr_id ");
             sb.Append("WHERE (h.rvw_hdr_id = @rvw_hdr_id); ");
             string query = sb.ToString();
             await conn.OpenAsync();
@@ -99,8 +101,8 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
                         ReviewYearName = reader["pms_yr_nm"] == DBNull.Value ? string.Empty : reader["pms_yr_nm"].ToString(),
                         PrimaryAppraiserName = reader["appraiser_name"] == DBNull.Value ? string.Empty : reader["appraiser_name"].ToString(),
                         PrimaryAppraiserDesignation = reader["appraiser_designation"] == DBNull.Value ? string.Empty : reader["appraiser_designation"].ToString(),
-                        UnitName = reader["unit_nm"] == DBNull.Value ? string.Empty : reader["unit_nm"].ToString(),
-                        DepartmentName = reader["dept_nm"] == DBNull.Value ? string.Empty : reader["dept_nm"].ToString(),
+                        UnitName = reader["unitname"] == DBNull.Value ? string.Empty : reader["unitname"].ToString(),
+                        DepartmentName = reader["deptname"] == DBNull.Value ? string.Empty : reader["deptname"].ToString(),
                         LocationName = reader["locname"] == DBNull.Value ? string.Empty : reader["locname"].ToString(),
                     });
                 }
@@ -195,8 +197,8 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
                         ReviewYearName = reader["pms_yr_nm"] == DBNull.Value ? string.Empty : reader["pms_yr_nm"].ToString(),
                         PrimaryAppraiserName = reader["appraiser_name"] == DBNull.Value ? string.Empty : reader["appraiser_name"].ToString(),
                         PrimaryAppraiserDesignation = reader["appraiser_designation"] == DBNull.Value ? string.Empty : reader["appraiser_designation"].ToString(),
-                        UnitName = reader["unit_nm"] == DBNull.Value ? string.Empty : reader["unit_nm"].ToString(),
-                        DepartmentName = reader["dept_nm"] == DBNull.Value ? string.Empty : reader["dept_nm"].ToString(),
+                        UnitName = reader["unitname"] == DBNull.Value ? string.Empty : reader["unitname"].ToString(),
+                        DepartmentName = reader["deptname"] == DBNull.Value ? string.Empty : reader["deptname"].ToString(),
                         LocationName = reader["locname"] == DBNull.Value ? string.Empty : reader["locname"].ToString(),
                     });
                 }

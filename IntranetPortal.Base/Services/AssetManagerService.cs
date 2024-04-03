@@ -630,7 +630,7 @@ namespace IntranetPortal.Base.Services
             bool IsSuccessful = false;
             try
             {
-                IsSuccessful = await _assetRepository.DeleteAsync(assetId, deletedBy);
+                IsSuccessful = await _assetRepository.DeletePermanentlyAsync(assetId);
             }
             catch (Exception ex)
             {
@@ -801,6 +801,140 @@ namespace IntranetPortal.Base.Services
         }
 
 
+        #endregion
+
+        #region Asset Report Service Methods
+        public async Task<List<Asset>> GetAssetStatusReportAsync(string UserId, int? BaseLocationID = null, int? BinLocationID = null, int? AssetGroupID = null, int? AssetTypeID = null, int? AssetCondition = null)
+        {
+            List<Asset> AssetList = new List<Asset>();
+            if(BinLocationID != null && BinLocationID.Value > 0)
+            {
+                if(AssetTypeID != null && AssetTypeID > 0)
+                {
+                    if(AssetCondition != null)
+                    {
+                        var asset_entities = await _assetRepository.GetByBinLocationIdnAssetTypeIdnAssetConditionAsync(BinLocationID.Value, AssetTypeID.Value, AssetCondition.Value, UserId);
+                        if (asset_entities != null) { return asset_entities.ToList(); }
+                    }
+                    else
+                    {
+                        var asset_entities = await _assetRepository.GetByBinLocationIdnAssetTypeIdAsync(BinLocationID.Value, AssetTypeID.Value, UserId);
+                        if (asset_entities != null) { return asset_entities.ToList(); }
+                    }
+                }
+                else if(AssetGroupID != null && AssetGroupID > 0)
+                {
+                    if (AssetCondition != null)
+                    {
+                        var asset_entities = await _assetRepository.GetByBinLocationIdnAssetGroupIdnAssetConditionAsync(BinLocationID.Value, AssetGroupID.Value, AssetCondition.Value, UserId);
+                        if (asset_entities != null) { return asset_entities.ToList(); }
+                    }
+                    else
+                    {
+                        var asset_entities = await _assetRepository.GetByBinLocationIdnAssetGroupIdAsync(BinLocationID.Value, AssetGroupID.Value, UserId);
+                        if (asset_entities != null) { return asset_entities.ToList(); }
+                    }
+                }
+                else
+                {
+                    if(AssetCondition != null)
+                    {
+                        var asset_entities = await _assetRepository.GetByBinLocationIdnAssetConditionAsync(BinLocationID.Value, AssetCondition.Value, UserId);
+                        if (asset_entities != null) { return asset_entities.ToList(); }
+                    }
+                    else
+                    {
+                        var asset_entities = await _assetRepository.GetByBinLocationIdAsync(BinLocationID.Value, UserId);
+                        if (asset_entities != null) { return asset_entities.ToList(); }
+                    }
+                }
+            }
+            else if(BaseLocationID != null && BaseLocationID.Value > 0)
+            {
+                if (AssetTypeID != null && AssetTypeID > 0)
+                {
+                    if(AssetCondition != null)
+                    {
+                        var asset_entities = await _assetRepository.GetByBaseLocationIdnAssetTypeIdnAssetConditionAsync(BaseLocationID.Value, AssetTypeID.Value, AssetCondition.Value, UserId);
+                        if (asset_entities != null) { return asset_entities.ToList(); }
+                    }
+                    else
+                    {
+                        var asset_entities = await _assetRepository.GetByBaseLocationIdnAssetTypeIdAsync(BaseLocationID.Value, AssetTypeID.Value, UserId);
+                        if (asset_entities != null) { return asset_entities.ToList(); }
+                    }
+                }
+                else if (AssetGroupID != null && AssetGroupID > 0)
+                {
+                    if(AssetCondition != null)
+                    {
+                        var asset_entities = await _assetRepository.GetByBaseLocationIdnAssetGroupIdnAssetConditionAsync(BaseLocationID.Value, AssetGroupID.Value, AssetCondition.Value, UserId);
+                        if (asset_entities != null) { return asset_entities.ToList(); }
+                    }
+                    else
+                    {
+                        var asset_entities = await _assetRepository.GetByBaseLocationIdnAssetGroupIdAsync(BaseLocationID.Value, AssetGroupID.Value, UserId);
+                        if (asset_entities != null) { return asset_entities.ToList(); }
+                    }
+                }
+                else
+                {
+                    if (AssetCondition != null)
+                    {
+                        var asset_entities = await _assetRepository.GetByBaseLocationIdnAssetConditionAsync(BaseLocationID.Value, AssetCondition.Value, UserId);
+                        if (asset_entities != null) { return asset_entities.ToList(); }
+                    }
+                    else
+                    {
+                        var asset_entities = await _assetRepository.GetByBaseLocationIdAsync(BaseLocationID.Value, UserId);
+                        if (asset_entities != null) { return asset_entities.ToList(); }
+                    }
+                }
+            }
+            else
+            {
+                if (AssetTypeID != null && AssetTypeID > 0)
+                {
+                    if(AssetCondition != null)
+                    {
+                        var asset_entities = await _assetRepository.GetByBinLocationIdnAssetTypeIdnAssetConditionAsync(BinLocationID.Value, AssetTypeID.Value, AssetCondition.Value, UserId);
+                        if (asset_entities != null) { return asset_entities.ToList(); }
+                    }
+                    else
+                    {
+                        var asset_entities = await _assetRepository.GetByBinLocationIdnAssetTypeIdAsync(BinLocationID.Value, AssetTypeID.Value, UserId);
+                        if (asset_entities != null) { return asset_entities.ToList(); }
+                    }
+                }
+                else if (AssetGroupID != null && AssetGroupID > 0)
+                {
+                    if(AssetCondition != null)
+                    {
+                        var asset_entities = await _assetRepository.GetByBinLocationIdnAssetGroupIdnAssetConditionAsync(BinLocationID.Value, AssetGroupID.Value, AssetCondition.Value, UserId);
+                        if (asset_entities != null) { return asset_entities.ToList(); }
+                    }
+                    else
+                    {
+                        var asset_entities = await _assetRepository.GetByBinLocationIdnAssetGroupIdAsync(BinLocationID.Value, AssetGroupID.Value, UserId);
+                        if (asset_entities != null) { return asset_entities.ToList(); }
+                    }
+                }
+                else
+                {
+                    if(AssetCondition != null)
+                    {
+                        var asset_entities = await _assetRepository.GetByAssetConditionAsync(AssetCondition.Value, UserId);
+                        if (asset_entities != null) { return asset_entities.ToList(); }
+                    }
+                    else
+                    {
+                        var asset_entities = await _assetRepository.GetAllAsync(UserId);
+                        if (asset_entities != null) { return asset_entities.ToList(); }
+                    }
+                }
+            }
+            return AssetList;
+        }
         #endregion
 
         //============ Asset Reservation Action Methods ===================//

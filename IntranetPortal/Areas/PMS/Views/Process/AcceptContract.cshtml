@@ -1,0 +1,75 @@
+﻿
+@model IntranetPortal.Areas.PMS.Models.AcceptContractViewModel
+<h3>Performance Contract Agreement</h3>
+<hr />
+<div class="card mt-1" style="max-width:1000px">
+    <div class="card-header bg-info">
+        <h4 class="text-white">Performance Contract Agreement</h4>
+    </div>
+    <div class="card-body bg-secondary">
+        @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-x-circle"></i>
+                <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (!String.IsNullOrEmpty(Model.ViewModelSuccessMessage))
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="bi bi-check-circle"></i>
+                <span class="fw-bold">@Model.ViewModelSuccessMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (!String.IsNullOrEmpty(Model.ViewModelWarningMessage))
+        {
+            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                <i class="bi bi-exclamation-circle"></i>
+                <span class="fw-bold">@Model.ViewModelWarningMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        <form asp-area="PMS" asp-controller="Process" asp-action="AcceptContract" method="post" autocomplete="off">
+            <div class="row">
+                <div class="col-md-12 mb-2">
+                    <input type="hidden" asp-for="ReviewHeaderID" />
+                    <input type="hidden" asp-for="AppraiseeID" />
+                    <input type="hidden" asp-for="AppraiseeName" />
+                    <input type="hidden" asp-for="ReviewSessionID" />
+                    <input type="hidden" asp-for="ReviewSessionName" />
+                    <input type="hidden" asp-for="ReviewYearName" />
+                    <div class="bg-white fw-bold text-dark p-2" style="font-size:1.0rem">I, <span class="fw-bolder">@Model.AppraiseeName</span> agreement to, and accept this Performance Contract as defined for the <span>@Model.ReviewSessionName </span>. And hereby do sign off below accordingly.</div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12 mb-2">
+                    <label class="form-label text-white fw-bold">Appraisal Session</label>
+                    <div class="form-control fw-bold text-dark">@Model.ReviewSessionName </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label text-white fw-bold">Appraisal Year</label>
+                    <div class="form-control fw-bold text-dark">@Model.ReviewYearName </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label text-white fw-bold">Date/Time</label>
+                    <div class="form-control fw-bold text-dark">@DateTime.Now.ToLongDateString() @DateTime.Now.ToLongTimeString() </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12 text-end">
+                    <a asp-area="PMS" asp-controller="Process" asp-action="MyAppraisalSteps" asp-route-id="@Model.ReviewSessionID" class="btn btn-dark mr-2" style="width:100px" title="Back">
+                        <span class="text-white">Back</span>
+                    </a>
+                    @if (!Model.OperationIsSuccessful)
+                    {
+                        <button type="submit" class="btn btn-info" title="Sign Off" style="width:200px"><span class="text-white fw-bold">Sign Off</span></button>
+                    }
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

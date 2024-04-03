@@ -1,0 +1,180 @@
+﻿@model IntranetPortal.Areas.PMS.Models.AppraisalsSubmittedtoMeViewModel
+<div class="container">
+    <h4 class="mb-1">Appraisals Submitted to Me</h4>
+    <hr />
+    <div class="mb-1">
+        <div class="mb-2">
+            <form asp-area="PMS" asp-controller="Process" asp-action="AppraisalsSubmittedtoMe" method="get">
+                <a asp-area="PMS" asp-controller="Home" asp-action="Index" class="btn mr-3" style="width:100px; background-color:#2e4053" title="Exit">
+                    <span class="text-white">Back</span>
+                </a>
+                <select asp-for="id" asp-items="@ViewBag.ReviewSessionList" class="border-0" style="width:450px">
+                    <option value="">- Select Session -</option>
+                </select>
+                <input type="submit" value="Search" class="btn text-white ml-3" style="width:100px; background-color:#2e4053" />
+            </form>
+
+            @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bi bi-x-circle"></i>
+                    <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+        </div>
+        <div class="row">
+            @if (Model == null || Model.ReviewSubmissionList == null || Model.ReviewSubmissionList.Count < 1)
+            {
+                <div class="alert alert-info fade show" role="alert">
+                    <i class="bi bi-info-circle"></i>
+                    <span class="fw-bold">No record was found.</span>
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-sm table-hover">
+                        <thead style="background-color:#2e4053">
+                            <tr>
+                                <th><span class="text-white fw-bolder">From</span></th>
+                                <th>
+                                    <span class="text-white fw-bolder">Purpose</span>
+                                </th>
+                                <th>
+                                    <span class="text-white fw-bolder">Date Submitted</span>
+                                </th>
+                                <th>
+                                    <span class="text-white fw-bolder">Status</span>
+                                </th>
+                                <th>
+
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody style="background-color:#d1f2eb">
+                            @foreach (var item in Model.ReviewSubmissionList)
+                            {
+                                switch (item.SubmissionPurposeId)
+                                {
+                                    case 1:
+                                        <tr>
+                                            <td class="p-2">
+                                                <span class="fw-bolder">@item.FromEmployeeName</span>
+                                            </td>
+                                            <td class="p-2">
+                                                <span class="fw-bolder">@item.SubmissionPurposeDescription</span>
+                                            </td>
+                                            <td class="p-2">
+                                                <span class="fw-bolder">@item.TimeSubmitted.Value.ToLongDateString()  @item.TimeSubmitted.Value.ToLongTimeString()</span>
+                                            </td>
+                                            @if (item.IsActioned)
+                                            {
+                                                <td class="p-2 text-center">
+                                                    <span class="badge rounded-pill bg-success fw-bold" style="width:100px; font-size:0.9rem;">Actioned</span>
+                                                </td>
+                                                <td class="p-2 text-end">
+                                                    <button title="Delete" class="btn btn-sm btn-danger fw-bold" style="border-radius:10px; width:100px" onclick="deleteSubmission('@item.ReviewSubmissionId')"><span class="text-white fw-bold">Delete</span></button>
+                                                </td>
+                                            }
+                                            else
+                                            {
+                                                <td class="p-2 text-center">
+                                                    <span class="badge rounded-pill bg-warning fw-bold" style="font-size:0.9rem; color:black; width:100px">Pending</span>
+                                                </td>
+                                                <td class="p-2 text-end">
+                                                    <a asp-area="PMS" asp-controller="Process" asp-action="AppraisalInfo" asp-route-id="@item.ReviewHeaderId" asp-route-sd="@item.ReviewSubmissionId" asp-route-src="stm" title="Select" class="btn btn-sm" style="border-radius:10px; width:100px; background-color:#2e4053">
+                                                        <span class="text-white fw-bold">Select</span>
+                                                    </a>
+                                                    <button title="Mark as Done" class="btn btn-sm" style="border-radius:10px; width:100px; background-color:#6c3483" onclick="markDone('@item.ReviewSubmissionId')"><span class="fw-bold text-white">Mark as Done</span></button>
+                                                </td>
+                                            }
+
+                                        </tr>
+                                        break;
+                                    case 2:
+                                        <tr>
+                                            <td class="p-2">
+                                                <span class="fw-bolder">@item.FromEmployeeName</span>
+                                            </td>
+                                            <td class="p-2">
+                                                <span class="fw-bolder">@item.SubmissionPurposeDescription</span>
+                                            </td>
+                                            <td class="p-2">
+                                                <span class="fw-bolder">@item.TimeSubmitted.Value.ToLongDateString()  @item.TimeSubmitted.Value.ToLongTimeString()</span>
+                                            </td>
+                                            @if (item.IsActioned)
+                                            {
+                                                <td class="p-2 text-center">
+                                                    <span class="badge rounded-pill bg-success fw-bold" style="width:100px; font-size:0.9rem;">Actioned</span>
+                                                </td>
+                                                <td class="p-2 text-end">
+                                                    <button title="Delete" class="btn btn-sm btn-danger fw-bold" style="border-radius:10px; width:100px" onclick="deleteSubmission('@item.ReviewSubmissionId')"><span class="text-white fw-bold">Delete</span></button>
+                                                </td>
+                                            }
+                                            else
+                                            {
+                                                <td class="p-2 text-center">
+                                                    <span class="badge rounded-pill bg-warning fw-bold" style="font-size:0.9rem; color:black; width:100px">Pending</span>
+                                                </td>
+                                                <td class="p-2 text-end">
+                                                    <a asp-area="PMS" asp-controller="Process" asp-action="KpaFinalEvaluationList" asp-route-id="@item.ReviewHeaderId" asp-route-ad="@item.ToEmployeeId" asp-route-sd="@item.ReviewSubmissionId" title="Select" class="btn btn-sm" style="border-radius:10px; width:100px;background-color:#2e4053">
+                                                        <span class="text-white fw-bold">Select</span>
+                                                    </a>
+                                                    <button title="Mark as Done" class="btn btn-sm" style="border-radius:10px; width:100px; background-color:#6c3483" onclick="markDone('@item.ReviewSubmissionId')"><span class="fw-bold text-white">Mark as Done</span></button>
+                                                </td>
+                                            }
+
+                                        </tr>
+                                        break;
+                                    case 3:
+                                        <tr>
+                                            <td class="p-2">
+                                                <span class="fw-bolder">@item.FromEmployeeName</span>
+                                            </td>
+                                            <td class="p-2">
+                                                <span class="fw-bolder">@item.SubmissionPurposeDescription</span>
+                                            </td>
+                                            <td class="p-2">
+                                                <span class="fw-bolder">@item.TimeSubmitted.Value.ToLongDateString()  @item.TimeSubmitted.Value.ToLongTimeString()</span>
+                                            </td>
+                                            @if (item.IsActioned)
+                                            {
+                                                <td class="p-2 text-center">
+                                                    <span class="badge rounded-pill bg-success fw-bold" style="width:100px; font-size:0.9rem;">Actioned</span>
+                                                </td>
+                                                <td class="p-2 text-end">
+                                                    <button title="Delete" class="btn btn-sm btn-danger fw-bold" style="border-radius:10px; width:100px" onclick="deleteSubmission('@item.ReviewSubmissionId')"><span class="text-white fw-bold">Delete</span></button>
+                                                </td>
+                                            }
+                                            else
+                                            {
+                                                <td class="p-2 text-center">
+                                                    <span class="badge rounded-pill bg-warning fw-bold" style="font-size:0.9rem; color:black; width:100px">Pending</span>
+                                                </td>
+                                                <td class="p-2 text-end">
+                                                    <a asp-area="PMS" asp-controller="Process" asp-action="FullEvaluationResult" asp-route-id="@item.ReviewHeaderId" asp-route-sd="@item.ReviewSubmissionId" title="Select" class="btn btn-sm" style="border-radius:10px; width:100px;background-color:#2e4053">
+                                                        <span class="text-white fw-bold">Select</span>
+                                                    </a>
+                                                    <button title="Mark as Done" class="btn btn-sm" style="border-radius:10px; width:100px; background-color:#6c3483" onclick="markDone('@item.ReviewSubmissionId')"><span class="fw-bold text-white">Mark as Done</span></button>
+                                                </td>
+                                            }
+
+                                        </tr>
+                                        break;
+                                    default:
+                                        break;
+                                }
+
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+
+        </div>
+    </div>
+</div>
+@section Scripts{
+    <script src="~/js/pms.js"></script>
+}

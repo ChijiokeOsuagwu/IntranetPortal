@@ -66,8 +66,7 @@
                 </div>
             </div>
         </div>
-        @if (User.IsInRole("XYALLACCZ") || User.IsInRole("PCMMGACNT"))
-        {
+
             <!-- Column -->
             <div class="col-md-6 col-lg-2 col-xlg-3">
                 <a asp-area="ContentManager" asp-controller="Home" asp-action="Index">
@@ -79,10 +78,9 @@
                     </div>
                 </a>
             </div>
-        }
         <!-- Column -->
-        @if (User.IsInRole("XYALLACCZ") || User.IsInRole("ERMVWAEMR"))
-        {
+        @*@if (User.IsInRole("XYALLACCZ") || User.IsInRole("ERMVWAEMR"))
+        {*@
             <div class="col-md-6 col-lg-2 col-xlg-3">
                 <a asp-area="ERM" asp-controller="Home" asp-action="Index">
                     <div class="card card-hover">
@@ -93,10 +91,10 @@
                     </div>
                 </a>
             </div>
-        }
+        @*}
 
         @if (User.IsInRole("XYALLACCZ") || User.IsInRole("AMSVWAINF") || User.IsInRole("AMSVWATXN") || User.IsInRole("AMSVWASTT"))
-        {
+        {*@
             <!-- Column -->
             <div class="col-md-6 col-lg-2 col-xlg-3">
                 <a asp-area="AssetManager" asp-controller="Home" asp-action="Index">
@@ -108,23 +106,23 @@
                     </div>
                 </a>
             </div>
-        }
+        @*}
         @if (User.IsInRole("XYALLACCZ") || User.IsInRole("BPSVWCUSR") || User.IsInRole("BPSVWSUPR"))
-        {
+        {*@
             <!-- Column -->
             <div class="col-md-6 col-lg-2 col-xlg-3">
                 <a asp-area="PartnerServices" asp-controller="Home" asp-action="Index">
                     <div class="card card-hover">
                         <div class="box bg-warning text-center">
                             <h1 class="font-light text-white"><i class="fas fa-user-tie"></i></h1>
-                            <h6 class="text-white">Partners Services</h6>
+                            <h6 class="text-white">Vendors & Customers</h6>
                         </div>
                     </div>
                 </a>
             </div>
-        }
+        @*}
         @if (User.IsInRole("XYALLACCZ") || User.IsInRole("BAMVWASSG") || User.IsInRole("BAMVWDPLS"))
-        {
+        {*@
             <!-- Column -->
             <div class="col-md-6 col-lg-2 col-xlg-3">
                 <a asp-area="Bams" asp-controller="Home" asp-action="Index">
@@ -136,7 +134,7 @@
                     </div>
                 </a>
             </div>
-        }
+        @*}*@
         <!-- Column -->
         <div class="col-md-6 col-lg-2 col-xlg-3">
             <div class="card card-hover">
@@ -147,14 +145,14 @@
             </div>
         </div>
         <!-- Column -->
-        <div class="col-md-6 col-lg-2 col-xlg-3">
+        @*<div class="col-md-6 col-lg-2 col-xlg-3">
             <div class="card card-hover">
                 <div class="box bg-secondary text-center">
                     <h1 class="font-light text-white"><i class="mdi mdi-calendar-check"></i></h1>
                     <h6 class="text-white">Calendar</h6>
                 </div>
             </div>
-        </div>
+        </div>*@
         @if (User.IsInRole("XYALLACCZ"))
         {
             <!-- Column -->

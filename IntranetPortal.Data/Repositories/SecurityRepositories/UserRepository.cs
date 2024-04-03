@@ -145,9 +145,9 @@ namespace IntranetPortal.Data.Repositories.SecurityRepositories
             var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
             string query = String.Empty;
             StringBuilder sb = new StringBuilder();
-            sb.Append($"SELECT u.usr_id, u.usr_nm, u.usr_typ, u.usr_afc, u.usr_ccs, u.usr_mlc, u.lck_enb, u.lck_end, u.usr_pwh, u.usr_stp, u.usr_tfe, ");
-            sb.Append($" u.coy_cd, u.usr_cb, u.usr_cd, u.usr_md, u.usr_mb, p.id, p.fullname, p.sex, p.phone1, p.phone2, p.email, p.sex ");
-            sb.Append($"FROM public.sct_usr_acct u INNER JOIN public.gst_prsns p ON u.usr_id = p.id WHERE LOWER(u.usr_id)=LOWER(@userId);");
+            sb.Append("SELECT u.usr_id, u.usr_nm, u.usr_typ, u.usr_afc, u.usr_ccs, u.usr_mlc, u.lck_enb, u.lck_end, u.usr_pwh, u.usr_stp, u.usr_tfe, ");
+            sb.Append(" u.coy_cd, u.usr_cb, u.usr_cd, u.usr_md, u.usr_mb, p.id, p.fullname, p.sex, p.phone1, p.phone2, p.email, p.sex ");
+            sb.Append("FROM public.sct_usr_acct u INNER JOIN public.gst_prsns p ON u.usr_id = p.id WHERE LOWER(u.usr_id)=LOWER(@userId);");
             query = sb.ToString();
             try
             {

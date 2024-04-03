@@ -11,7 +11,7 @@ using System.Linq;
 
 namespace IntranetPortal.Base.Services
 {
-    public class PerformanceService:IPerformanceService
+    public class PerformanceService : IPerformanceService
     {
         private readonly IEmployeesRepository _employeesRepository;
         private readonly IPerformanceYearRepository _performanceYearRepository;
@@ -67,9 +67,8 @@ namespace IntranetPortal.Base.Services
             _reviewResultRepository = reviewResultRepository;
         }
 
-
         #region Performance Year Service Methods
- 
+
         public async Task<List<PerformanceYear>> GetPerformanceYearsAsync()
         {
             List<PerformanceYear> performanceYearList = new List<PerformanceYear>();
@@ -208,7 +207,6 @@ namespace IntranetPortal.Base.Services
             return await _approvalRoleRepository.DeleteAsync(approvalRoleId);
         }
         #endregion
-
 
         #region Review Session Read Service Methods
         public async Task<List<ReviewSession>> GetReviewSessionsAsync()
@@ -828,7 +826,7 @@ namespace IntranetPortal.Base.Services
             if (reviewHeaderId < 1) { throw new ArgumentNullException(nameof(reviewHeaderId)); }
             return await _reviewHeaderRepository.UpdateGoalAsync(reviewHeaderId, performanceGoal, appraiserId);
         }
-        
+
         public async Task<bool> UpdateReviewHeaderStageAsync(int reviewHeaderId, int nextStageId)
         {
             if (reviewHeaderId < 1) { throw new ArgumentNullException(nameof(reviewHeaderId)); }
@@ -1202,10 +1200,6 @@ namespace IntranetPortal.Base.Services
 
         #endregion
 
-
-
-
-
         #region PMS Utility Service Methods
         public async Task<MoveToNextStageModel> ValidateMoveRequestAsync(int reviewHeaderId, string appraiserId = null)
         {
@@ -1557,602 +1551,599 @@ namespace IntranetPortal.Base.Services
         }
         #endregion
 
+        #region Review Submission Service Methods
 
-        /*
+        public async Task<bool> AddReviewSubmissionAsync(ReviewSubmission reviewSubmission)
+        {
+            if (reviewSubmission == null) { throw new ArgumentNullException(nameof(reviewSubmission)); }
+            return await _reviewSubmissionRepository.AddAsync(reviewSubmission);
+        }
 
- #region Review Submission Service Methods
+        public async Task<bool> UpdateReviewSubmissionAsync(int reviewSubmissionId)
+        {
+            if (reviewSubmissionId < 1) { throw new ArgumentNullException(nameof(reviewSubmissionId)); }
+            return await _reviewSubmissionRepository.UpdateAsync(reviewSubmissionId);
+        }
 
- public async Task<bool> AddReviewSubmissionAsync(ReviewSubmission reviewSubmission)
- {
-     if (reviewSubmission == null) { throw new ArgumentNullException(nameof(reviewSubmission)); }
-     return await _reviewSubmissionRepository.AddAsync(reviewSubmission);
- }
+        public async Task<bool> DeleteReviewSubmissionAsync(int reviewSubmissionId)
+        {
+            if (reviewSubmissionId < 1) { throw new ArgumentNullException(nameof(reviewSubmissionId)); }
+            return await _reviewSubmissionRepository.DeleteAsync(reviewSubmissionId);
+        }
 
- public async Task<bool> UpdateReviewSubmissionAsync(int reviewSubmissionId)
- {
-     if (reviewSubmissionId < 1) { throw new ArgumentNullException(nameof(reviewSubmissionId)); }
-     return await _reviewSubmissionRepository.UpdateAsync(reviewSubmissionId);
- }
+        public async Task<ReviewSubmission> GetReviewSubmissionByIdAsync(int reviewSubmissionId)
+        {
+            ReviewSubmission reviewSubmission = new ReviewSubmission();
+            var entities = await _reviewSubmissionRepository.GetByIdAsync(reviewSubmissionId);
+            if (entities != null && entities.Count > 0)
+            {
+                reviewSubmission = entities.FirstOrDefault();
+            }
+            return reviewSubmission;
+        }
 
- public async Task<bool> DeleteReviewSubmissionAsync(int reviewSubmissionId)
- {
-     if (reviewSubmissionId < 1) { throw new ArgumentNullException(nameof(reviewSubmissionId)); }
-     return await _reviewSubmissionRepository.DeleteAsync(reviewSubmissionId);
- }
+        public async Task<List<ReviewSubmission>> GetReviewSubmissionsByApproverIdAsync(string reviewerId, int? reviewSessionId = null)
+        {
+            List<ReviewSubmission> reviewSubmissions = new List<ReviewSubmission>();
+            if (reviewSessionId != null && reviewSessionId > 0)
+            {
+                var entities = await _reviewSubmissionRepository.GetByReviewerIdAndReviewSessionIdAsync(reviewerId, reviewSessionId.Value);
+                if (entities != null && entities.Count > 0)
+                {
+                    reviewSubmissions = entities;
+                }
+            }
+            else
+            {
+                var entities = await _reviewSubmissionRepository.GetByReviewerIdAsync(reviewerId);
+                if (entities != null && entities.Count > 0)
+                {
+                    reviewSubmissions = entities;
+                }
+            }
+            return reviewSubmissions;
+        }
 
- public async Task<ReviewSubmission> GetReviewSubmissionByIdAsync(int reviewSubmissionId)
- {
-     ReviewSubmission reviewSubmission = new ReviewSubmission();
-     var entities = await _reviewSubmissionRepository.GetByIdAsync(reviewSubmissionId);
-     if (entities != null && entities.Count > 0)
-     {
-         reviewSubmission = entities.FirstOrDefault();
-     }
-     return reviewSubmission;
- }
+        public async Task<List<ReviewSubmission>> GetReviewSubmissionsByReviewHeaderIdAsync(int reviewHeaderId, int? submissionPurposeId = null, string submittedToEmployeeId = null)
+        {
+            List<ReviewSubmission> reviewSubmissions = new List<ReviewSubmission>();
+            if ((submissionPurposeId == null || submissionPurposeId < 1) && string.IsNullOrWhiteSpace(submittedToEmployeeId))
+            {
+                var entities = await _reviewSubmissionRepository.GetByReviewHeaderIdAsync(reviewHeaderId);
+                if (entities != null && entities.Count > 0)
+                {
+                    reviewSubmissions = entities;
+                }
+            }
+            else if ((submissionPurposeId != null && submissionPurposeId > 0) && string.IsNullOrWhiteSpace(submittedToEmployeeId))
+            {
+                var entities = await _reviewSubmissionRepository.GetByReviewHeaderIdAndSubmissionPurposeIdAsync(reviewHeaderId, submissionPurposeId.Value);
+                if (entities != null && entities.Count > 0)
+                {
+                    reviewSubmissions = entities;
+                }
+            }
+            else if ((submissionPurposeId != null && submissionPurposeId > 0) && !string.IsNullOrWhiteSpace(submittedToEmployeeId))
+            {
+                var entities = await _reviewSubmissionRepository.GetByReviewHeaderIdAndSubmissionPurposeIdAsync(reviewHeaderId, submissionPurposeId.Value, submittedToEmployeeId);
+                if (entities != null && entities.Count > 0)
+                {
+                    reviewSubmissions = entities;
+                }
+            }
+            else
+            {
+                reviewSubmissions = null;
+            }
+            return reviewSubmissions;
+        }
 
- public async Task<List<ReviewSubmission>> GetReviewSubmissionsByApproverIdAsync(int reviewerId, int? reviewSessionId = null)
- {
-     List<ReviewSubmission> reviewSubmissions = new List<ReviewSubmission>();
-     if (reviewSessionId != null && reviewSessionId > 0)
-     {
-         var entities = await _reviewSubmissionRepository.GetByReviewerIdAndReviewSessionIdAsync(reviewerId, reviewSessionId.Value);
-         if (entities != null && entities.Count > 0)
-         {
-             reviewSubmissions = entities;
-         }
-     }
-     else
-     {
-         var entities = await _reviewSubmissionRepository.GetByReviewerIdAsync(reviewerId);
-         if (entities != null && entities.Count > 0)
-         {
-             reviewSubmissions = entities;
-         }
-     }
-     return reviewSubmissions;
- }
+        #endregion
 
- public async Task<List<ReviewSubmission>> GetReviewSubmissionsByReviewHeaderIdAsync(int reviewHeaderId, int? submissionPurposeId = null, int? submittedToEmployeeId = null)
- {
-     List<ReviewSubmission> reviewSubmissions = new List<ReviewSubmission>();
-     if ((submissionPurposeId == null || submissionPurposeId < 1) && (submittedToEmployeeId == null || submittedToEmployeeId < 1))
-     {
-         var entities = await _reviewSubmissionRepository.GetByReviewHeaderIdAsync(reviewHeaderId);
-         if (entities != null && entities.Count > 0)
-         {
-             reviewSubmissions = entities;
-         }
-     }
-     else if ((submissionPurposeId != null && submissionPurposeId > 0) && (submittedToEmployeeId == null || submittedToEmployeeId < 1))
-     {
-         var entities = await _reviewSubmissionRepository.GetByReviewHeaderIdAndSubmissionPurposeIdAsync(reviewHeaderId, submissionPurposeId.Value);
-         if (entities != null && entities.Count > 0)
-         {
-             reviewSubmissions = entities;
-         }
-     }
-     else if ((submissionPurposeId != null && submissionPurposeId > 0) && (submittedToEmployeeId != null && submittedToEmployeeId > 0))
-     {
-         var entities = await _reviewSubmissionRepository.GetByReviewHeaderIdAndSubmissionPurposeIdAsync(reviewHeaderId, submissionPurposeId.Value, submittedToEmployeeId.Value);
-         if (entities != null && entities.Count > 0)
-         {
-             reviewSubmissions = entities;
-         }
-     }
-     else
-     {
-         reviewSubmissions = null;
-     }
-     return reviewSubmissions;
- }
+        #region Review Message Service Methods
+        public async Task<List<ReviewMessage>> GetReviewMessagesAsync(int reviewHeaderId)
+        {
+            List<ReviewMessage> reviewMessages = new List<ReviewMessage>();
+            var entities = await _reviewMessageRepository.GetByReviewHeaderIdAsync(reviewHeaderId);
+            if (entities != null && entities.Count > 0)
+            {
+                reviewMessages = entities;
+            }
+            return reviewMessages;
+        }
 
- #endregion
+        public async Task<ReviewMessage> GetReviewMessageAsync(int reviewMessageId)
+        {
+            ReviewMessage reviewMessage = new ReviewMessage();
+            return await _reviewMessageRepository.GetByIdAsync(reviewMessageId); ;
+        }
 
- #region Review Message Service Methods
- public async Task<List<ReviewMessage>> GetReviewMessagesAsync(int reviewHeaderId)
- {
-     List<ReviewMessage> reviewMessages = new List<ReviewMessage>();
-     var entities = await _reviewMessageRepository.GetByReviewHeaderIdAsync(reviewHeaderId);
-     if (entities != null && entities.Count > 0)
-     {
-         reviewMessages = entities;
-     }
-     return reviewMessages;
- }
+        public async Task<bool> AddReviewMessageAsync(ReviewMessage reviewMessage)
+        {
+            if (reviewMessage == null) { throw new ArgumentNullException(nameof(reviewMessage)); }
+            return await _reviewMessageRepository.AddAsync(reviewMessage);
+        }
 
- public async Task<ReviewMessage> GetReviewMessageAsync(int reviewMessageId)
- {
-     ReviewMessage reviewMessage = new ReviewMessage();
-     return await _reviewMessageRepository.GetByIdAsync(reviewMessageId); ;
- }
+        public async Task<bool> UpdateReviewMessageAsync(ReviewMessage reviewMessage)
+        {
+            if (reviewMessage == null) { throw new ArgumentNullException(nameof(reviewMessage)); }
+            return await _reviewMessageRepository.UpdateAsync(reviewMessage);
+        }
 
- public async Task<bool> AddReviewMessageAsync(ReviewMessage reviewMessage)
- {
-     if (reviewMessage == null) { throw new ArgumentNullException(nameof(reviewMessage)); }
-     return await _reviewMessageRepository.AddAsync(reviewMessage);
- }
+        public async Task<bool> DeleteReviewMessageAsync(int reviewMessageId)
+        {
+            if (reviewMessageId < 1) { throw new ArgumentNullException(nameof(reviewMessageId)); }
+            return await _reviewMessageRepository.DeleteAsync(reviewMessageId);
+        }
 
- public async Task<bool> UpdateReviewMessageAsync(ReviewMessage reviewMessage)
- {
-     if (reviewMessage == null) { throw new ArgumentNullException(nameof(reviewMessage)); }
-     return await _reviewMessageRepository.UpdateAsync(reviewMessage);
- }
+        #endregion
 
- public async Task<bool> DeleteReviewMessageAsync(int reviewMessageId)
- {
-     if (reviewMessageId < 1) { throw new ArgumentNullException(nameof(reviewMessageId)); }
-     return await _reviewMessageRepository.DeleteAsync(reviewMessageId);
- }
+        #region Review Approval Service Methods
+        public async Task<bool> ReturnContractToAppraisee(int nextStageId, int reviewSubmissionId, ReviewMessage reviewMessage = null)
+        {
+            if (reviewMessage != null) { await _reviewMessageRepository.AddAsync(reviewMessage); }
 
- #endregion
+            bool appraisalIsUpdated = await _reviewHeaderRepository.UpdateStageIdAsync(reviewMessage.ReviewHeaderId, nextStageId);
+            if (appraisalIsUpdated)
+            {
+                bool submissionIsUpdated = await _reviewSubmissionRepository.UpdateAsync(reviewSubmissionId);
+                return submissionIsUpdated;
+            }
+            return false;
+        }
+        public async Task<bool> ApproveContractToAppraisee(ReviewApproval reviewApproval, int? reviewSubmissionId)
+        {
+            if (reviewApproval == null) { throw new Exception("Error: the required parameter [ReviewApproval] cannot be null."); }
+            bool approvalAdded = false;
+            approvalAdded = await _reviewApprovalRepository.AddAsync(reviewApproval);
+            if (approvalAdded)
+            {
+                bool submissionIsUpdated = false;
+                if (reviewSubmissionId != null && reviewSubmissionId > 0)
+                {
+                    var submission_entities = await _reviewSubmissionRepository.GetByIdAsync(reviewSubmissionId.Value);
+                    if (submission_entities != null && submission_entities.Count > 0)
+                    {
+                        submissionIsUpdated = await _reviewSubmissionRepository.UpdateAsync(reviewSubmissionId.Value);
+                    }
+                }
+                else
+                {
+                    var submission_entities = await _reviewSubmissionRepository.GetByReviewHeaderIdAndSubmissionPurposeIdAsync(reviewApproval.ReviewHeaderId, reviewApproval.SubmissionPurposeId, reviewApproval.ApproverId);
+                    if (submission_entities != null && submission_entities.Count > 0)
+                    {
+                        submissionIsUpdated = await _reviewSubmissionRepository.UpdateAsync(reviewApproval.ReviewHeaderId, reviewApproval.ApproverId, reviewApproval.SubmissionPurposeId);
+                    }
+                    else
+                    {
+                        var evaluation_submission_entities = await _reviewSubmissionRepository.GetByReviewHeaderIdAndSubmissionPurposeIdAsync(reviewApproval.ReviewHeaderId, (int)ReviewSubmissionPurpose.FinalEvaluation, reviewApproval.ApproverId);
+                        if (evaluation_submission_entities != null && evaluation_submission_entities.Count > 0)
+                        {
+                            ReviewSubmission reviewSubmission = evaluation_submission_entities.FirstOrDefault();
+                            submissionIsUpdated = await _reviewSubmissionRepository.UpdateAsync(reviewSubmission.ReviewSubmissionId);
+                            if (submissionIsUpdated)
+                            {
+                                reviewSubmission.SubmissionPurposeId = (int)ReviewSubmissionPurpose.ResultApproval;
+                                reviewSubmission.IsActioned = true;
+                                reviewSubmission.TimeActioned = DateTime.UtcNow;
+                                await _reviewSubmissionRepository.AddAsync(reviewSubmission);
+                            }
+                        }
+                        else
+                        {
+                            submissionIsUpdated = true;
+                        }
+                    }
+                    //submissionIsUpdated = await _reviewSubmissionRepository.UpdateAsync(reviewApproval.ReviewHeaderId, reviewApproval.ApproverId, reviewApproval.SubmissionPurposeId);
+                }
 
- 
- #region Review Approval Service Methods
- public async Task<bool> ReturnContractToAppraisee(int nextStageId, int reviewSubmissionId, ReviewMessage reviewMessage = null)
- {
-     if (reviewMessage != null) { await _reviewMessageRepository.AddAsync(reviewMessage); }
+                if (!submissionIsUpdated)
+                {
+                    await _reviewApprovalRepository.DeleteAsync(reviewApproval);
+                    return false;
+                }
+                else
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+        public async Task<bool> AcceptContractByAppraisee(int reviewHeaderId)
+        {
+            if (reviewHeaderId < 1) { throw new Exception("Error: the required parameter [ReviewHeaderID] cannot be null."); }
+            bool acceptanceIsAdded = false;
+            bool reviewStageUpdated = false;
+            acceptanceIsAdded = await _reviewHeaderRepository.UpdateContractAcceptanceAsync(reviewHeaderId, true);
+            if (acceptanceIsAdded)
+            {
+                reviewStageUpdated = await _reviewHeaderRepository.UpdateStageIdAsync(reviewHeaderId, 7);
+            }
+            return reviewStageUpdated;
+        }
+        public async Task<bool> AcceptEvaluationByAppraisee(int reviewHeaderId)
+        {
+            if (reviewHeaderId < 1) { throw new Exception("Error: the required parameter [ReviewHeaderID] cannot be null."); }
+            bool acceptanceIsAdded = false;
+            bool reviewStageUpdated = false;
+            acceptanceIsAdded = await _reviewHeaderRepository.UpdateEvaluationAcceptanceAsync(reviewHeaderId, true);
+            if (acceptanceIsAdded)
+            {
+                reviewStageUpdated = await _reviewHeaderRepository.UpdateStageIdAsync(reviewHeaderId, 12);
+            }
+            return reviewStageUpdated;
+        }
+        public async Task<List<ReviewApproval>> GetReviewApprovalsAsync(int reviewHeaderId)
+        {
+            List<ReviewApproval> reviewApprovals = new List<ReviewApproval>();
+            var entities = await _reviewApprovalRepository.GetByReviewHeaderIdAsync(reviewHeaderId);
+            if (entities != null && entities.Count > 0)
+            {
+                reviewApprovals = entities.ToList();
+            }
+            return reviewApprovals;
+        }
 
-     bool appraisalIsUpdated = await _reviewHeaderRepository.UpdateStageIdAsync(reviewMessage.ReviewHeaderId, nextStageId);
-     if (appraisalIsUpdated)
-     {
-         bool submissionIsUpdated = await _reviewSubmissionRepository.UpdateAsync(reviewSubmissionId);
-         return submissionIsUpdated;
-     }
-     return false;
- }
- public async Task<bool> ApproveContractToAppraisee(ReviewApproval reviewApproval, int? reviewSubmissionId)
- {
-     if (reviewApproval == null) { throw new Exception("Error: the required parameter [ReviewApproval] cannot be null."); }
-     bool approvalAdded = false;
-     approvalAdded = await _reviewApprovalRepository.AddAsync(reviewApproval);
-     if (approvalAdded)
-     {
-         bool submissionIsUpdated = false;
-         if (reviewSubmissionId != null && reviewSubmissionId > 0)
-         {
-             var submission_entities = await _reviewSubmissionRepository.GetByIdAsync(reviewSubmissionId.Value);
-             if (submission_entities != null && submission_entities.Count > 0)
-             {
-                 submissionIsUpdated = await _reviewSubmissionRepository.UpdateAsync(reviewSubmissionId.Value);
-             }
-         }
-         else
-         {
-             var submission_entities = await _reviewSubmissionRepository.GetByReviewHeaderIdAndSubmissionPurposeIdAsync(reviewApproval.ReviewHeaderId, reviewApproval.SubmissionPurposeId, reviewApproval.ApproverId);
-             if (submission_entities != null && submission_entities.Count > 0)
-             {
-                 submissionIsUpdated = await _reviewSubmissionRepository.UpdateAsync(reviewApproval.ReviewHeaderId, reviewApproval.ApproverId, reviewApproval.SubmissionPurposeId);
-             }
-             else
-             {
-                 var evaluation_submission_entities = await _reviewSubmissionRepository.GetByReviewHeaderIdAndSubmissionPurposeIdAsync(reviewApproval.ReviewHeaderId, (int)ReviewSubmissionPurpose.FinalEvaluation, reviewApproval.ApproverId);
-                 if (evaluation_submission_entities != null && evaluation_submission_entities.Count > 0)
-                 {
-                     ReviewSubmission reviewSubmission = evaluation_submission_entities.FirstOrDefault();
-                     submissionIsUpdated = await _reviewSubmissionRepository.UpdateAsync(reviewSubmission.ReviewSubmissionId);
-                     if (submissionIsUpdated)
-                     {
-                         reviewSubmission.SubmissionPurposeId = (int)ReviewSubmissionPurpose.ResultApproval;
-                         reviewSubmission.IsActioned = true;
-                         reviewSubmission.TimeActioned = DateTime.UtcNow;
-                         await _reviewSubmissionRepository.AddAsync(reviewSubmission);
-                     }
-                 }
-                 else
-                 {
-                     submissionIsUpdated = true;
-                 }
-             }
-             //submissionIsUpdated = await _reviewSubmissionRepository.UpdateAsync(reviewApproval.ReviewHeaderId, reviewApproval.ApproverId, reviewApproval.SubmissionPurposeId);
-         }
+        #endregion
 
-         if (!submissionIsUpdated)
-         {
-             await _reviewApprovalRepository.DeleteAsync(reviewApproval);
-             return false;
-         }
-         else
-         {
-             return true;
-         }
-     }
-     return false;
- }
- public async Task<bool> AcceptContractByAppraisee(int reviewHeaderId)
- {
-     if (reviewHeaderId < 1) { throw new Exception("Error: the required parameter [ReviewHeaderID] cannot be null."); }
-     bool acceptanceIsAdded = false;
-     bool reviewStageUpdated = false;
-     acceptanceIsAdded = await _reviewHeaderRepository.UpdateContractAcceptanceAsync(reviewHeaderId, true);
-     if (acceptanceIsAdded)
-     {
-         reviewStageUpdated = await _reviewHeaderRepository.UpdateStageIdAsync(reviewHeaderId, 7);
-     }
-     return reviewStageUpdated;
- }
- public async Task<bool> AcceptEvaluationByAppraisee(int reviewHeaderId)
- {
-     if (reviewHeaderId < 1) { throw new Exception("Error: the required parameter [ReviewHeaderID] cannot be null."); }
-     bool acceptanceIsAdded = false;
-     bool reviewStageUpdated = false;
-     acceptanceIsAdded = await _reviewHeaderRepository.UpdateEvaluationAcceptanceAsync(reviewHeaderId, true);
-     if (acceptanceIsAdded)
-     {
-         reviewStageUpdated = await _reviewHeaderRepository.UpdateStageIdAsync(reviewHeaderId, 12);
-     }
-     return reviewStageUpdated;
- }
- public async Task<List<ReviewApproval>> GetReviewApprovalsAsync(int reviewHeaderId)
- {
-     List<ReviewApproval> reviewApprovals = new List<ReviewApproval>();
-     var entities = await _reviewApprovalRepository.GetByReviewHeaderIdAsync(reviewHeaderId);
-     if (entities != null && entities.Count > 0)
-     {
-         reviewApprovals = entities.ToList();
-     }
-     return reviewApprovals;
- }
+        #region Review Result Service Methods
+        public async Task<List<ReviewResult>> GetInitialReviewResultKpasAsync(int reviewHeaderId, string appraiserId)
+        {
+            List<ReviewResult> reviewResults = new List<ReviewResult>();
+            var entities = await _reviewResultRepository.GetIntitalByMetricTypeIdAsync(reviewHeaderId, appraiserId, (int)ReviewMetricType.KPA);
+            if (entities != null && entities.Count > 0)
+            {
+                reviewResults = entities.ToList();
+            }
+            return reviewResults;
+        }
 
- #endregion
+        public async Task<List<ReviewResult>> GetInitialReviewResultAsync(int reviewHeaderId, string appraiserId, int reviewMetricId)
+        {
+            List<ReviewResult> reviewResults = new List<ReviewResult>();
+            var entities = await _reviewResultRepository.GetIntitalByMetricIdAsync(reviewHeaderId, appraiserId, reviewMetricId);
+            if (entities != null && entities.Count > 0)
+            {
+                reviewResults = entities.ToList();
+            }
+            return reviewResults;
+        }
 
- #region Review Result Service Methods
- public async Task<List<ReviewResult>> GetInitialReviewResultKpasAsync(int reviewHeaderId, int appraiserId)
- {
-     List<ReviewResult> reviewResults = new List<ReviewResult>();
-     var entities = await _reviewResultRepository.GetIntitalByMetricTypeIdAsync(reviewHeaderId, appraiserId, (int)ReviewMetricType.KPA);
-     if (entities != null && entities.Count > 0)
-     {
-         reviewResults = entities.ToList();
-     }
-     return reviewResults;
- }
+        public async Task<List<ReviewResult>> GetInitialReviewResultCmpsAsync(int reviewHeaderId, string appraiserId)
+        {
+            List<ReviewResult> reviewResults = new List<ReviewResult>();
+            var entities = await _reviewResultRepository.GetIntitalByMetricTypeIdAsync(reviewHeaderId, appraiserId, (int)ReviewMetricType.Competency);
+            if (entities != null && entities.Count > 0)
+            {
+                reviewResults = entities.ToList();
+            }
+            return reviewResults;
+        }
 
- public async Task<List<ReviewResult>> GetInitialReviewResultAsync(int reviewHeaderId, int appraiserId, int reviewMetricId)
- {
-     List<ReviewResult> reviewResults = new List<ReviewResult>();
-     var entities = await _reviewResultRepository.GetIntitalByMetricIdAsync(reviewHeaderId, appraiserId, reviewMetricId);
-     if (entities != null && entities.Count > 0)
-     {
-         reviewResults = entities.ToList();
-     }
-     return reviewResults;
- }
+        public async Task<List<ReviewResult>> GetReviewResultByAppraiserIdAndReviewMetricIdAsync(int reviewHeaderId, string appraiserId, int reviewMetricId)
+        {
+            List<ReviewResult> reviewResults = new List<ReviewResult>();
+            var entities = await _reviewResultRepository.GetByAppraiserIdAndMetricId(reviewHeaderId, appraiserId, reviewMetricId);
+            if (entities != null && entities.Count > 0)
+            {
+                reviewResults = entities.ToList();
+            }
+            return reviewResults;
+        }
 
- public async Task<List<ReviewResult>> GetInitialReviewResultCmpsAsync(int reviewHeaderId, int appraiserId)
- {
-     List<ReviewResult> reviewResults = new List<ReviewResult>();
-     var entities = await _reviewResultRepository.GetIntitalByMetricTypeIdAsync(reviewHeaderId, appraiserId, (int)ReviewMetricType.Competency);
-     if (entities != null && entities.Count > 0)
-     {
-         reviewResults = entities.ToList();
-     }
-     return reviewResults;
- }
+        public async Task<List<ReviewResult>> GetReviewResultByAppraiserIdAndReviewMetricTypeIdAsync(int reviewHeaderId, string appraiserId, int? reviewMetricTypeId = null)
+        {
+            List<ReviewResult> reviewResults = new List<ReviewResult>();
+            if (reviewMetricTypeId == null)
+            {
+                var first_entities = await _reviewResultRepository.GetByAppraiserIdAndReviewHeaderId(reviewHeaderId, appraiserId);
+                if (first_entities != null && first_entities.Count > 0)
+                {
+                    reviewResults = first_entities.ToList();
+                }
+            }
+            else
+            {
+                var entities = await _reviewResultRepository.GetByAppraiserIdAndMetricTypeId(reviewHeaderId, appraiserId, reviewMetricTypeId.Value);
+                if (entities != null && entities.Count > 0)
+                {
+                    reviewResults = entities.ToList();
+                }
+            }
+            return reviewResults;
+        }
 
- public async Task<List<ReviewResult>> GetReviewResultByAppraiserIdAndReviewMetricIdAsync(int reviewHeaderId, int appraiserId, int reviewMetricId)
- {
-     List<ReviewResult> reviewResults = new List<ReviewResult>();
-     var entities = await _reviewResultRepository.GetByAppraiserIdAndMetricId(reviewHeaderId, appraiserId, reviewMetricId);
-     if (entities != null && entities.Count > 0)
-     {
-         reviewResults = entities.ToList();
-     }
-     return reviewResults;
- }
+        public async Task<ScoreSummary> GetScoreSummaryAsync(int reviewHeaderId, string appraiserId)
+        {
+            ScoreSummary scoreSummary = new ScoreSummary();
+            if (reviewHeaderId > 0 && !string.IsNullOrWhiteSpace(appraiserId))
+            {
+                var entities = await _reviewResultRepository.GetScoresByReviewHeaderIdAndAppraiserIdAsync(reviewHeaderId, appraiserId);
+                if (entities != null)
+                {
+                    decimal kpaScore = 0.00M;
+                    decimal cmpScore = 0.00M;
+                    foreach (var item in entities)
+                    {
+                        if (item.ReviewMetricTypeId == (int)ReviewMetricType.KPA)
+                        {
+                            kpaScore = item.TotalScore;
+                        }
+                        else if (item.ReviewMetricTypeId == (int)ReviewMetricType.Competency)
+                        {
+                            cmpScore = item.TotalScore;
+                        }
+                    }
+                    scoreSummary.QualitativeScore = cmpScore;
+                    scoreSummary.QuantitativeScore = kpaScore;
+                    scoreSummary.TotalPerformanceScore = cmpScore + kpaScore;
+                    scoreSummary.AppraiserId = appraiserId;
+                    scoreSummary.ReviewHeaderId = reviewHeaderId;
+                }
+            }
+            else
+            {
+                scoreSummary = null;
+            }
+            return scoreSummary;
+        }
 
- public async Task<List<ReviewResult>> GetReviewResultByAppraiserIdAndReviewMetricTypeIdAsync(int reviewHeaderId, int appraiserId, int? reviewMetricTypeId = null)
- {
-     List<ReviewResult> reviewResults = new List<ReviewResult>();
-     if (reviewMetricTypeId == null)
-     {
-         var first_entities = await _reviewResultRepository.GetByAppraiserIdAndReviewHeaderId(reviewHeaderId, appraiserId);
-         if (first_entities != null && first_entities.Count > 0)
-         {
-             reviewResults = first_entities.ToList();
-         }
-     }
-     else
-     {
-         var entities = await _reviewResultRepository.GetByAppraiserIdAndMetricTypeId(reviewHeaderId, appraiserId, reviewMetricTypeId.Value);
-         if (entities != null && entities.Count > 0)
-         {
-             reviewResults = entities.ToList();
-         }
-     }
-     return reviewResults;
- }
+        public async Task<List<string>> GetAppraisersAsync(int reviewHeaderId)
+        {
+            return await _reviewResultRepository.GetAppraisersByReviewHeaderId(reviewHeaderId);
+        }
 
- public async Task<ScoreSummary> GetScoreSummaryAsync(int reviewHeaderId, int appraiserId)
- {
-     ScoreSummary scoreSummary = new ScoreSummary();
-     if (reviewHeaderId > 0 && appraiserId > 0)
-     {
-         var entities = await _reviewResultRepository.GetScoresByReviewHeaderIdAndAppraiserIdAsync(reviewHeaderId, appraiserId);
-         if (entities != null)
-         {
-             decimal kpaScore = 0.00M;
-             decimal cmpScore = 0.00M;
-             foreach (var item in entities)
-             {
-                 if (item.ReviewMetricTypeId == (int)ReviewMetricType.KPA)
-                 {
-                     kpaScore = item.TotalScore;
-                 }
-                 else if (item.ReviewMetricTypeId == (int)ReviewMetricType.Competency)
-                 {
-                     cmpScore = item.TotalScore;
-                 }
-             }
-             scoreSummary.QualitativeScore = cmpScore;
-             scoreSummary.QuantitativeScore = kpaScore;
-             scoreSummary.TotalPerformanceScore = cmpScore + kpaScore;
-             scoreSummary.AppraiserId = appraiserId;
-             scoreSummary.ReviewHeaderId = reviewHeaderId;
-         }
-     }
-     else
-     {
-         scoreSummary = null;
-     }
-     return scoreSummary;
- }
+        public async Task<List<AppraiserDetail>> GetAppraiserDetailsAsync(int reviewHeaderId)
+        {
+            List<AppraiserDetail> reviewDetails = new List<AppraiserDetail>();
+            var entities = await _reviewResultRepository.GetAppraisersDetailsByReviewHeaderId(reviewHeaderId);
+            if (entities != null && entities.Count > 0)
+            {
+                foreach (var item in entities)
+                {
+                    item.AppraiserFullDescription = $"{item.AppraiserName} ({item.AppraiserTypeDescription})";
+                }
+                reviewDetails = entities.ToList();
+            }
+            return reviewDetails;
+        }
 
- public async Task<List<int>> GetAppraisersAsync(int reviewHeaderId)
- {
-     return await _reviewResultRepository.GetAppraisersByReviewHeaderId(reviewHeaderId);
- }
+        
+        //========================== Result Summary Read Service Methods =======================================//
+        public async Task<List<ResultSummary>> GetResultSummaryForReportsAsync(string reportToId, int reviewSessionId, string appraiseeId = null)
+        {
+            List<ResultSummary> resultSummaries = new List<ResultSummary>();
+            if (appraiseeId == null)
+            {
+                var entities = await _reviewResultRepository.GetSummaryByReportToId(reportToId, reviewSessionId);
+                if (entities != null && entities.Count > 0)
+                {
+                    resultSummaries = entities.ToList();
+                }
+            }
+            else
+            {
+                var entities = await _reviewResultRepository.GetSummaryByReportToIdAndAppraiseeId(reportToId, reviewSessionId, appraiseeId);
+                if (entities != null && entities.Count > 0)
+                {
+                    resultSummaries = entities.ToList();
+                }
+            }
+            return resultSummaries;
+        }
 
+        public async Task<List<ResultSummary>> GetResultSummaryByReviewSessionIdAsync(int reviewSessionId)
+        {
+            List<ResultSummary> resultSummaries = new List<ResultSummary>();
+            var entities = await _reviewResultRepository.GetSummaryByReviewSessionId(reviewSessionId);
+            if (entities != null && entities.Count > 0)
+            {
+                resultSummaries = entities.ToList();
+            }
+            return resultSummaries;
+        }
 
- public async Task<List<AppraiserDetail>> GetAppraiserDetailsAsync(int reviewHeaderId)
- {
-     List<AppraiserDetail> reviewDetails = new List<AppraiserDetail>();
-     var entities = await _reviewResultRepository.GetAppraisersDetailsByReviewHeaderId(reviewHeaderId);
-     if (entities != null && entities.Count > 0)
-     {
-         reviewDetails = entities.ToList();
-     }
-     return reviewDetails;
- }
+        public async Task<List<ResultSummary>> GetResultSummaryByReviewSessionIdAndDepartmentCodeAsync(int reviewSessionId, int departmentId)
+        {
+            List<ResultSummary> resultSummaries = new List<ResultSummary>();
+            var entities = await _reviewResultRepository.GetSummaryByReviewSessionIdAndDepartmentCode(reviewSessionId, departmentId);
+            if (entities != null && entities.Count > 0)
+            {
+                resultSummaries = entities.ToList();
+            }
+            return resultSummaries;
+        }
 
- //========================== Result Summary Read Service Methods =======================================//
- public async Task<List<ResultSummary>> GetResultSummaryForReportsAsync(int reportToId, int reviewSessionId, int? appraiseeId = null)
- {
-     List<ResultSummary> resultSummaries = new List<ResultSummary>();
-     if (appraiseeId == null)
-     {
-         var entities = await _reviewResultRepository.GetSummaryByReportToId(reportToId, reviewSessionId);
-         if (entities != null && entities.Count > 0)
-         {
-             resultSummaries = entities.ToList();
-         }
-     }
-     else
-     {
-         var entities = await _reviewResultRepository.GetSummaryByReportToIdAndAppraiseeId(reportToId, reviewSessionId, appraiseeId.Value);
-         if (entities != null && entities.Count > 0)
-         {
-             resultSummaries = entities.ToList();
-         }
-     }
-     return resultSummaries;
- }
+        public async Task<List<ResultSummary>> GetResultSummaryByReviewSessionIdAndUnitCodeAsync(int reviewSessionId, int unitId)
+        {
+            List<ResultSummary> resultSummaries = new List<ResultSummary>();
+            var entities = await _reviewResultRepository.GetSummaryByReviewSessionIdAndUnitCode(reviewSessionId, unitId);
+            if (entities != null && entities.Count > 0)
+            {
+                resultSummaries = entities.ToList();
+            }
+            return resultSummaries;
+        }
 
- public async Task<List<ResultSummary>> GetResultSummaryByReviewSessionIdAsync(int reviewSessionId)
- {
-     List<ResultSummary> resultSummaries = new List<ResultSummary>();
-     var entities = await _reviewResultRepository.GetSummaryByReviewSessionId(reviewSessionId);
-     if (entities != null && entities.Count > 0)
-     {
-         resultSummaries = entities.ToList();
-     }
-     return resultSummaries;
- }
-
- public async Task<List<ResultSummary>> GetResultSummaryByReviewSessionIdAndDepartmentCodeAsync(int reviewSessionId, string departmentCode)
- {
-     List<ResultSummary> resultSummaries = new List<ResultSummary>();
-     var entities = await _reviewResultRepository.GetSummaryByReviewSessionIdAndDepartmentCode(reviewSessionId, departmentCode);
-     if (entities != null && entities.Count > 0)
-     {
-         resultSummaries = entities.ToList();
-     }
-     return resultSummaries;
- }
-
- public async Task<List<ResultSummary>> GetResultSummaryByReviewSessionIdAndUnitCodeAsync(int reviewSessionId, string unitCode)
- {
-     List<ResultSummary> resultSummaries = new List<ResultSummary>();
-     var entities = await _reviewResultRepository.GetSummaryByReviewSessionIdAndUnitCode(reviewSessionId, unitCode);
-     if (entities != null && entities.Count > 0)
-     {
-         resultSummaries = entities.ToList();
-     }
-     return resultSummaries;
- }
-
- public async Task<List<ResultSummary>> GetResultSummaryByReviewSessionIdAndAppraiseeNameAsync(int reviewSessionId, string appraiseeName)
- {
-     List<ResultSummary> resultSummaries = new List<ResultSummary>();
-     var entities = await _reviewResultRepository.GetSummaryByReviewSessionIdAndAppraiseeName(reviewSessionId, appraiseeName);
-     if (entities != null && entities.Count > 0)
-     {
-         resultSummaries = entities.ToList();
-     }
-     return resultSummaries;
- }
-
-
- //========================== Result Details Read Service Methods =======================================//
- public async Task<List<ResultDetail>> GetPrincipalResultDetailAsync(int reviewSessionId, int? locationId = null, string departmentCode = null, string unitCode = null)
- {
-     List<ResultDetail> resultDetails = new List<ResultDetail>();
-
-     if (!string.IsNullOrWhiteSpace(unitCode))
-     {
-         var entities = await _reviewResultRepository.GetPrincipalResultDetailByUnitCodeAndReviewSessionIdAsync(reviewSessionId, unitCode);
-         if (entities != null && entities.Count > 0)
-         {
-             resultDetails = entities.ToList();
-         }
-     }
-     else if (!string.IsNullOrWhiteSpace(departmentCode))
-     {
-         var entities = await _reviewResultRepository.GetPrincipalResultDetailByDepartmentCodeAndReviewSessionIdAsync(reviewSessionId, departmentCode);
-         if (entities != null && entities.Count > 0)
-         {
-             resultDetails = entities.ToList();
-         }
-     }
-     else if (locationId != null && locationId > 0)
-     {
-         var entities = await _reviewResultRepository.GetPrincipalResultDetailByLocationIdAndReviewSessionIdAsync(reviewSessionId, locationId.Value);
-         if (entities != null && entities.Count > 0)
-         {
-             resultDetails = entities.ToList();
-         }
-     }
-     else
-     {
-         var entities = await _reviewResultRepository.GetPrincipalResultDetailByReviewSessionIdAsync(reviewSessionId);
-         if (entities != null && entities.Count > 0)
-         {
-             resultDetails = entities.ToList();
-         }
-     }
-     return resultDetails;
- }
+        public async Task<List<ResultSummary>> GetResultSummaryByReviewSessionIdAndAppraiseeNameAsync(int reviewSessionId, string appraiseeName)
+        {
+            List<ResultSummary> resultSummaries = new List<ResultSummary>();
+            var entities = await _reviewResultRepository.GetSummaryByReviewSessionIdAndAppraiseeName(reviewSessionId, appraiseeName);
+            if (entities != null && entities.Count > 0)
+            {
+                resultSummaries = entities.ToList();
+            }
+            return resultSummaries;
+        }
 
 
- //================== Review Result Write Service Methods =====================================================//
+        //========================== Result Details Read Service Methods =======================================//
+        public async Task<List<ResultDetail>> GetPrincipalResultDetailAsync(int reviewSessionId, int? locationId = null, int? departmentId = null, int? unitId = null)
+        {
+            List<ResultDetail> resultDetails = new List<ResultDetail>();
 
- public async Task<bool> UploadResults(int reviewHeaderId)
- {
-     if (reviewHeaderId < 1) { return false; }
-     ReviewHeader reviewHeader = new ReviewHeader();
-     ResultSummary resultSummary = new ResultSummary();
-
-     var reviewHeaderList = await _reviewHeaderRepository.GetByIdAsync(reviewHeaderId);
-
-     if (reviewHeaderList == null || reviewHeaderList.Count != 1) { return false; }
-     reviewHeader = reviewHeaderList.FirstOrDefault();
-     resultSummary.ReviewSessionId = reviewHeader.ReviewSessionId;
-     resultSummary.ReviewYearId = reviewHeader.ReviewYearId;
-     resultSummary.AppraiseeId = reviewHeader.AppraiseeId;
-     string PrimaryAppraiserId = reviewHeader.PrimaryAppraiserId;
-
-     var appraiserIds = await _reviewResultRepository.GetAppraisersByReviewHeaderId(reviewHeaderId);
-     if (appraiserIds == null || appraiserIds.Count < 1) { return false; }
-
-     int no_inserted = 0;
-     int no_results = appraiserIds.Count;
-     foreach (int appraiserId in appraiserIds)
-     {
-         if (appraiserId == PrimaryAppraiserId) { resultSummary.IsMain = true; }
-
-         var result_entities = await _reviewResultRepository.GetByAppraiserIdAndReviewHeaderId(reviewHeaderId, appraiserId);
-
-         if (result_entities != null && result_entities.Count > 0)
-         {
-             ReviewResult reviewResult = result_entities.FirstOrDefault();
-             resultSummary.AppraiserName = reviewResult.AppraiserName;
-             resultSummary.AppraiserRoleDescription = reviewResult.AppraiserRoleName;
-             resultSummary.AppraiserTypeDescription = reviewResult.AppraiserTypeDescription;
-             resultSummary.AppraiserId = appraiserId;
-             resultSummary.ReviewHeaderId = reviewHeaderId;
-
-             var entities = await _reviewResultRepository.GetScoresByReviewHeaderIdAndAppraiserIdAsync(reviewHeaderId, appraiserId);
-             if (entities != null)
-             {
-                 decimal kpaScore = 0.00M;
-                 decimal cmpScore = 0.00M;
-                 foreach (var item in entities)
-                 {
-                     if (item.ReviewMetricTypeId == (int)ReviewMetricType.KPA)
-                     {
-                         kpaScore = item.TotalScore;
-                     }
-                     else if (item.ReviewMetricTypeId == (int)ReviewMetricType.Competency)
-                     {
-                         cmpScore = item.TotalScore;
-                     }
-                 }
-                 resultSummary.KpaScoreObtained = kpaScore;
-                 resultSummary.CompetencyScoreObtained = cmpScore;
-                 resultSummary.CombinedScoreObtained = cmpScore + kpaScore;
-
-                 var appraisal_grade_entities = await _appraisalGradeRepository.GetByReviewSessionIdAndGradeScoreAsync(resultSummary.ReviewSessionId, ReviewGradeType.Performance, resultSummary.CombinedScoreObtained);
-
-                 if (appraisal_grade_entities != null && appraisal_grade_entities.Count > 0)
-                 {
-                     AppraisalGrade appraisalGrade = appraisal_grade_entities.FirstOrDefault();
-                     if (appraisalGrade != null)
-                     {
-                         resultSummary.PerformanceRating = appraisalGrade.AppraisalGradeDescription;
-                         resultSummary.ScoreRankDescription = appraisalGrade.GradeRankDescription;
-                         resultSummary.ScoreRank = appraisalGrade.GradeRank;
-
-                         var existing_result_summary = await _reviewResultRepository.GetSummaryByAppraiserIdAndReviewHeaderId(reviewHeaderId, appraiserId);
-
-                         if (existing_result_summary != null && existing_result_summary.Count > 0)
-                         {
-                             await _reviewResultRepository.UpdateSummaryAsync(resultSummary);
-                             no_inserted++;
-                         }
-                         else
-                         {
-                             await _reviewResultRepository.AddSummaryAsync(resultSummary);
-                             no_inserted++;
-                         }
-                     }
-                 }
-
-             }
-         }
-     }
-
-     if (no_inserted == no_results)
-     {
-         return true;
-     }
-     else
-     {
-         await _reviewResultRepository.DeleteSummaryAsync(reviewHeaderId);
-         return false;
-     }
- }
-
- public async Task<bool> AddReviewResultAsync(ReviewResult reviewResult)
- {
-     if (reviewResult == null) { throw new ArgumentNullException(nameof(reviewResult)); }
-     var entities = await _reviewResultRepository.GetByAppraiserIdAndMetricId(reviewResult.ReviewHeaderId, reviewResult.AppraiserId, reviewResult.ReviewMetricId);
-     if (entities != null && entities.Count > 0)
-     {
-         return await _reviewResultRepository.UpdateAsync(reviewResult);
-     }
-     return await _reviewResultRepository.AddAsync(reviewResult);
- }
-
- public async Task<bool> UpdateReviewResultAsync(ReviewResult reviewResult)
- {
-     if (reviewResult == null) { throw new ArgumentNullException(nameof(reviewResult)); }
-     return await _reviewResultRepository.UpdateAsync(reviewResult);
- }
-
- public async Task<bool> AddResultSummaryAsync(ResultSummary resultSummary)
- {
-     if (resultSummary == null) { throw new ArgumentNullException(nameof(resultSummary)); }
-     var entities = await _reviewResultRepository.GetSummaryByAppraiserIdAndReviewHeaderId(resultSummary.ReviewHeaderId, resultSummary.AppraiserId);
-     if (entities != null && entities.Count > 0)
-     {
-         return await _reviewResultRepository.UpdateSummaryAsync(resultSummary);
-     }
-     return await _reviewResultRepository.AddSummaryAsync(resultSummary);
- }
-
- #endregion
+            if (unitId != null && unitId > 0)
+            {
+                var entities = await _reviewResultRepository.GetPrincipalResultDetailByUnitCodeAndReviewSessionIdAsync(reviewSessionId, unitId.Value);
+                if (entities != null && entities.Count > 0)
+                {
+                    resultDetails = entities.ToList();
+                }
+            }
+            else if (departmentId != null && departmentId > 0)
+            {
+                var entities = await _reviewResultRepository.GetPrincipalResultDetailByDepartmentCodeAndReviewSessionIdAsync(reviewSessionId, departmentId.Value);
+                if (entities != null && entities.Count > 0)
+                {
+                    resultDetails = entities.ToList();
+                }
+            }
+            else if (locationId != null && locationId > 0)
+            {
+                var entities = await _reviewResultRepository.GetPrincipalResultDetailByLocationIdAndReviewSessionIdAsync(reviewSessionId, locationId.Value);
+                if (entities != null && entities.Count > 0)
+                {
+                    resultDetails = entities.ToList();
+                }
+            }
+            else
+            {
+                var entities = await _reviewResultRepository.GetPrincipalResultDetailByReviewSessionIdAsync(reviewSessionId);
+                if (entities != null && entities.Count > 0)
+                {
+                    resultDetails = entities.ToList();
+                }
+            }
+            return resultDetails;
+        }
 
 
-     */
+        //================== Review Result Write Service Methods =====================================================//
+
+        public async Task<bool> UploadResults(int reviewHeaderId)
+        {
+            if (reviewHeaderId < 1) { return false; }
+            ReviewHeader reviewHeader = new ReviewHeader();
+            ResultSummary resultSummary = new ResultSummary();
+
+            var reviewHeaderList = await _reviewHeaderRepository.GetByIdAsync(reviewHeaderId);
+
+            if (reviewHeaderList == null || reviewHeaderList.Count != 1) { return false; }
+            reviewHeader = reviewHeaderList.FirstOrDefault();
+            resultSummary.ReviewSessionId = reviewHeader.ReviewSessionId;
+            resultSummary.ReviewYearId = reviewHeader.ReviewYearId;
+            resultSummary.AppraiseeId = reviewHeader.AppraiseeId;
+            string PrimaryAppraiserId = reviewHeader.PrimaryAppraiserId;
+
+            var appraiserIds = await _reviewResultRepository.GetAppraisersByReviewHeaderId(reviewHeaderId);
+            if (appraiserIds == null || appraiserIds.Count < 1) { return false; }
+
+            int no_inserted = 0;
+            int no_results = appraiserIds.Count;
+            foreach (string appraiserId in appraiserIds)
+            {
+                if (appraiserId == PrimaryAppraiserId) { resultSummary.IsMain = true; }
+
+                var result_entities = await _reviewResultRepository.GetByAppraiserIdAndReviewHeaderId(reviewHeaderId, appraiserId);
+
+                if (result_entities != null && result_entities.Count > 0)
+                {
+                    ReviewResult reviewResult = result_entities.FirstOrDefault();
+                    resultSummary.AppraiserName = reviewResult.AppraiserName;
+                    resultSummary.AppraiserRoleDescription = reviewResult.AppraiserRoleName;
+                    resultSummary.AppraiserTypeDescription = reviewResult.AppraiserTypeDescription;
+                    resultSummary.AppraiserId = appraiserId;
+                    resultSummary.ReviewHeaderId = reviewHeaderId;
+
+                    var entities = await _reviewResultRepository.GetScoresByReviewHeaderIdAndAppraiserIdAsync(reviewHeaderId, appraiserId);
+                    if (entities != null)
+                    {
+                        decimal kpaScore = 0.00M;
+                        decimal cmpScore = 0.00M;
+                        foreach (var item in entities)
+                        {
+                            if (item.ReviewMetricTypeId == (int)ReviewMetricType.KPA)
+                            {
+                                kpaScore = item.TotalScore;
+                            }
+                            else if (item.ReviewMetricTypeId == (int)ReviewMetricType.Competency)
+                            {
+                                cmpScore = item.TotalScore;
+                            }
+                        }
+                        resultSummary.KpaScoreObtained = kpaScore;
+                        resultSummary.CompetencyScoreObtained = cmpScore;
+                        resultSummary.CombinedScoreObtained = cmpScore + kpaScore;
+
+                        var appraisal_grade_entities = await _appraisalGradeRepository.GetByReviewSessionIdAndGradeScoreAsync(resultSummary.ReviewSessionId, ReviewGradeType.Performance, resultSummary.CombinedScoreObtained);
+
+                        if (appraisal_grade_entities != null && appraisal_grade_entities.Count > 0)
+                        {
+                            AppraisalGrade appraisalGrade = appraisal_grade_entities.FirstOrDefault();
+                            if (appraisalGrade != null)
+                            {
+                                resultSummary.PerformanceRating = appraisalGrade.AppraisalGradeDescription;
+                                resultSummary.ScoreRankDescription = appraisalGrade.GradeRankDescription;
+                                resultSummary.ScoreRank = appraisalGrade.GradeRank;
+
+                                var existing_result_summary = await _reviewResultRepository.GetSummaryByAppraiserIdAndReviewHeaderId(reviewHeaderId, appraiserId);
+
+                                if (existing_result_summary != null && existing_result_summary.Count > 0)
+                                {
+                                    await _reviewResultRepository.UpdateSummaryAsync(resultSummary);
+                                    no_inserted++;
+                                }
+                                else
+                                {
+                                    await _reviewResultRepository.AddSummaryAsync(resultSummary);
+                                    no_inserted++;
+                                }
+                            }
+                        }
+
+                    }
+                }
+            }
+
+            if (no_inserted == no_results)
+            {
+                return true;
+            }
+            else
+            {
+                await _reviewResultRepository.DeleteSummaryAsync(reviewHeaderId);
+                return false;
+            }
+        }
+
+        public async Task<bool> AddReviewResultAsync(ReviewResult reviewResult)
+        {
+            if (reviewResult == null) { throw new ArgumentNullException(nameof(reviewResult)); }
+            var entities = await _reviewResultRepository.GetByAppraiserIdAndMetricId(reviewResult.ReviewHeaderId, reviewResult.AppraiserId, reviewResult.ReviewMetricId);
+            if (entities != null && entities.Count > 0)
+            {
+                return await _reviewResultRepository.UpdateAsync(reviewResult);
+            }
+            return await _reviewResultRepository.AddAsync(reviewResult);
+        }
+
+        public async Task<bool> UpdateReviewResultAsync(ReviewResult reviewResult)
+        {
+            if (reviewResult == null) { throw new ArgumentNullException(nameof(reviewResult)); }
+            return await _reviewResultRepository.UpdateAsync(reviewResult);
+        }
+
+        public async Task<bool> AddResultSummaryAsync(ResultSummary resultSummary)
+        {
+            if (resultSummary == null) { throw new ArgumentNullException(nameof(resultSummary)); }
+            var entities = await _reviewResultRepository.GetSummaryByAppraiserIdAndReviewHeaderId(resultSummary.ReviewHeaderId, resultSummary.AppraiserId);
+            if (entities != null && entities.Count > 0)
+            {
+                return await _reviewResultRepository.UpdateSummaryAsync(resultSummary);
+            }
+            return await _reviewResultRepository.AddSummaryAsync(resultSummary);
+        }
+
+        #endregion      
     }
 }

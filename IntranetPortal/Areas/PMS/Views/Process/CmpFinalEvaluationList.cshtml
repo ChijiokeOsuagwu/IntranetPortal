@@ -1,0 +1,97 @@
+﻿
+@model IntranetPortal.Areas.PMS.Models.EvaluationListViewModel
+    <div class="container">
+        <h4 class="mb-1">Final Evaluation List: Competencies</h4>
+        <hr />
+        <div class="row">
+            <div class="col-md-6 text-start">
+                <a asp-area="PMS" asp-controller="Process" asp-action="KpaFinalEvaluationList" asp-route-id="@Model.ReviewHeaderID" asp-route-ad="@Model.AppraiserID" asp-route-sd="@Model.SubmissionID"  title="Go Back" class="btn btn-outline-light text-dark">
+                    <i class="bi bi-backspace fw-bolder" style="font-size: 1.1rem;"></i><span class="fw-bold ml-2" style="font-size: 1.0rem;">Back</span>
+                </a>
+            </div>
+            <div class="col-md-6 text-end">
+                <a asp-area="PMS" asp-controller="Process" asp-action="FinalEvaluationResult" asp-route-id="@Model.ReviewHeaderID" asp-route-ad="@Model.AppraiserID" asp-route-sd="@Model.SubmissionID" title="Proceed to Evaluation Result" class="btn btn-sm btn-light text-dark ml-2">
+                    <span class="fw-bold mr-2" style="font-size: 1.0rem;">Proceed to Result</span><i class="bi bi-chevron-double-right fw-bolder" style="font-size: 1.1rem;"></i>
+                </a>
+            </div>
+        </div>
+        <div class="row">
+            @if (Model == null || Model.ReviewResultList == null || Model.ReviewResultList.Count < 1)
+            {
+                <div class="alert alert-secondary alert-dismissible fade show" role="alert">
+                    <i class="bi bi-x-circle"></i>
+                    <span class="fw-bold text-dark">No record was found.</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            else
+            {
+                int row_number = 0;
+                <div class="table-responsive">
+                    <table class="table border-0">
+                        <tbody>
+                            @foreach (var cmp in Model.ReviewResultList)
+                            {
+                                row_number++;
+                                <tr style="border-bottom:2px solid #abb2b9">
+                                    <td>
+                                        <div class="card">
+                                            <div class="card-header bg-success">
+                                                <span class="fw-bold text-white" style="font-size: 0.9rem;">Competency #@row_number</span>
+                                            </div>
+                                            <div class="card-body bg-secondary">
+                                                <div class="row">
+                                                    <div class="col-md-12 mb-2">
+                                                        <label class="form-label text-white fw-bold">Description</label>
+                                                        <textarea asp-for="@cmp.ReviewMetricDescription" class="form-control fw-bold" rows="3" style="font-size:1.0rem" readonly="readonly">@cmp.ReviewMetricDescription</textarea>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-md-12 mb-2">
+                                                        <label class="form-label text-white fw-bold">Appraiser Comment</label>
+                                                        <textarea id="txt_appraiser_comment_@cmp.ReviewMetricId" asp-for="@cmp.AppraiserComment" class="form-control fw-bold" rows="2" style="font-size:1.0rem">@cmp.AppraiserComment</textarea>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-md-3">
+                                                        <label class="form-label text-white fw-bold">Appraisee's Score</label>
+                                                        <div class="form-control fw-bold">@cmp.AppraiseeScore</div>
+                                                    </div>
+                                                    <div class="col-md-3">
+                                                        <label class="form-label text-white fw-bold">Final Score</label>
+                                                        <select id="dpd_appraiser_score_@cmp.ReviewMetricId" asp-for="@cmp.AppraiserScore" asp-items="@ViewBag.GradeList" class="form-control fw-bold" onchange="saveCmpScore(@cmp.ReviewResultId, @cmp.ReviewHeaderId, @cmp.ReviewMetricId, '@Model.AppraiserID', '@Model.PrimaryAppraiserID', @Model.SubmissionID)">
+                                                            <option value="0">Select Score</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="col-md-4 mt-3" id="span_@cmp.ReviewMetricId">
+                                                    </div>
+                                                    <div class="col-md-2 mt-3">
+                                                        @*<button class="btn btn-success" onclick="saveCmpScore(@cmp.ReviewResultId, @cmp.ReviewHeaderId, @cmp.ReviewMetricId, '@Model.AppraiserID', '@Model.PrimaryAppraiserID')"><span class="text-white fw-bold">Save Score</span></button>*@
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 text-start">
+                        <a asp-area="PMS" asp-controller="Process" asp-action="KpaFinalEvaluationList" asp-route-id="@Model.ReviewHeaderID" asp-route-ad="@Model.AppraiserID" asp-route-sd="@Model.SubmissionID"  title="Go Back" class="btn btn-outline-light text-dark">
+                            <i class="bi bi-backspace fw-bolder" style="font-size: 1.1rem;"></i><span class="fw-bold ml-2" style="font-size: 1.0rem;">Back</span>
+                        </a>
+                    </div>
+                    <div class="col-md-6 text-end">
+                        <a asp-area="PMS" asp-controller="Process" asp-action="FinalEvaluationResult" asp-route-id="@Model.ReviewHeaderID" asp-route-ad="@Model.AppraiserID" asp-route-sd="@Model.SubmissionID" title="Proceed to Evaluation Result" class="btn btn-sm btn-light text-dark ml-2">
+                            <span class="fw-bold mr-2" style="font-size: 1.0rem;">Proceed to Result</span><i class="bi bi-chevron-double-right fw-bolder" style="font-size: 1.1rem;"></i>
+                        </a>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+@section Scripts{
+    <script src="~/js/pms.js"></script>
+}

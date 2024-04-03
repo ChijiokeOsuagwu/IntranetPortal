@@ -1,0 +1,86 @@
+﻿
+@model IntranetPortal.Areas.PMS.Models.AddRecommendationViewModel
+<h3 class="mb-1">Performance Evaluation Recommendation</h3>
+<hr />
+<div class="card mt-1" style="max-width:1000px">
+    <div class="card-header bg-info">
+        <h4 class="text-white">Recommendation Form</h4>
+    </div>
+    <div class="card-body bg-secondary">
+        @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-x-circle"></i>
+                <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (!String.IsNullOrEmpty(Model.ViewModelSuccessMessage))
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="bi bi-check-circle"></i>
+                <span class="fw-bold">@Model.ViewModelSuccessMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (!String.IsNullOrEmpty(Model.ViewModelWarningMessage))
+        {
+            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                <i class="bi bi-exclamation-circle"></i>
+                <span class="fw-bold">@Model.ViewModelWarningMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        <form asp-area="PMS" asp-controller="Process" asp-action="AddRecommendation" method="post" autocomplete="off">
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <input type="hidden" asp-for="ReviewHeaderID" />
+                    <input type="hidden" asp-for="RecommenderID" />
+                    <input type="hidden" asp-for="ReviewSessionID" />
+                    <input type="hidden" asp-for="AppraiseeID" />
+                    <label asp-for="RecommendedAction" class="form-label text-white fw-bold"></label>
+                    <select asp-for="RecommendedAction" asp-items="@ViewBag.RecommendedActionList" class="form-control">
+                        <option value=""> Select </option>
+                    </select>
+                    <div><span asp-validation-for="RecommendedAction" class="text-danger"></span></div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label asp-for="RecommenderRole" class="form-label text-white fw-bold"></label>
+                    <select asp-for="RecommenderRole" class="form-control">
+                        <option value=""> Select </option>
+                        <option value="L">Line Manager</option>
+                        <option value="U">Unit Head</option>
+                        <option value="D">Department Head</option>
+                        <option value="H">HR</option>
+                        <option value="M">Management</option>
+                    </select>
+                    <div><span asp-validation-for="RecommenderRole" class="text-danger"></span></div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label asp-for="RecommenderName" class="form-label text-white fw-bold"></label>
+                    <input asp-for="RecommenderName" class="form-control" readonly="readonly" />
+                    <div><span asp-validation-for="RecommenderName" class="text-danger"></span></div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12 mb-3">
+                    <label asp-for="Remarks" class="form-label text-white fw-bold"></label>
+                    <textarea asp-for="Remarks" class="form-control fw-bold" rows="6" style="font-size:1.0rem">@Model.Remarks</textarea>
+                    <div><span asp-validation-for="Remarks" class="text-danger"></span></div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <a asp-area="PMS" asp-controller="Process" asp-action="DirectReportEvaluations" asp-route-id="@Model.ReviewSessionID" asp-route-sd="@Model.AppraiseeID" class="btn btn-dark" style="width:100px" title="Exit">
+                        <span class="text-white">Exit</span>
+                    </a>
+
+                    @if (!Model.OperationIsSuccessful)
+                    {
+                        <button type="submit" class="btn btn-info" title="Save" style="width:200px"><span class="text-white">Add</span></button>
+                    }
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

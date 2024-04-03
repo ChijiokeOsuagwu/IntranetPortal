@@ -143,66 +143,66 @@ namespace IntranetPortal.Base.Services
         Task<List<AppraisalRecommendation>> GetAppraisalRecommendationsAsync();
         #endregion
 
-        /*
-                        #region Review Submission Service Methods
-                        Task<bool> AddReviewSubmissionAsync(ReviewSubmission reviewSubmission);
-                        Task<bool> UpdateReviewSubmissionAsync(int reviewSubmissionId);
-                        Task<bool> DeleteReviewSubmissionAsync(int reviewSubmissionId);
-                        Task<ReviewSubmission> GetReviewSubmissionByIdAsync(int reviewSubmissionId);
-                        Task<List<ReviewSubmission>> GetReviewSubmissionsByApproverIdAsync(int reviewerId, int? reviewSessionId = null);
-                        Task<List<ReviewSubmission>> GetReviewSubmissionsByReviewHeaderIdAsync(int reviewHeaderId, int? submissionPurposeId = null, int? submittedToEmployeeId = null);
-                        #endregion
 
-                        #region Review Message Service Methods
-                        Task<List<ReviewMessage>> GetReviewMessagesAsync(int reviewHeaderId);
-                        Task<ReviewMessage> GetReviewMessageAsync(int reviewMessageId);
-                        Task<bool> AddReviewMessageAsync(ReviewMessage reviewMessage);
-                        Task<bool> UpdateReviewMessageAsync(ReviewMessage reviewMessage);
-                        Task<bool> DeleteReviewMessageAsync(int reviewMessageId);
-                        #endregion
+        #region Review Submission Service Methods
+        Task<bool> AddReviewSubmissionAsync(ReviewSubmission reviewSubmission);
+        Task<bool> UpdateReviewSubmissionAsync(int reviewSubmissionId);
+        Task<bool> DeleteReviewSubmissionAsync(int reviewSubmissionId);
+        Task<ReviewSubmission> GetReviewSubmissionByIdAsync(int reviewSubmissionId);
+        Task<List<ReviewSubmission>> GetReviewSubmissionsByApproverIdAsync(string reviewerId, int? reviewSessionId = null);
+        Task<List<ReviewSubmission>> GetReviewSubmissionsByReviewHeaderIdAsync(int reviewHeaderId, int? submissionPurposeId = null, string submittedToEmployeeId = null);
+        #endregion
 
+        #region Review Message Service Methods
+        Task<List<ReviewMessage>> GetReviewMessagesAsync(int reviewHeaderId);
+        Task<ReviewMessage> GetReviewMessageAsync(int reviewMessageId);
+        Task<bool> AddReviewMessageAsync(ReviewMessage reviewMessage);
+        Task<bool> UpdateReviewMessageAsync(ReviewMessage reviewMessage);
+        Task<bool> DeleteReviewMessageAsync(int reviewMessageId);
+        #endregion
 
-                        #region Review Approval Service Methods
-                        Task<bool> ReturnContractToAppraisee(int nextStageId, int reviewSubmissionId, ReviewMessage reviewMessage = null);
-                        Task<bool> ApproveContractToAppraisee(ReviewApproval reviewApproval, int? reviewSubmissionId);
-                        Task<bool> AcceptContractByAppraisee(int reviewHeaderId);
-                        Task<bool> AcceptEvaluationByAppraisee(int reviewHeaderId);
-                        Task<List<ReviewApproval>> GetReviewApprovalsAsync(int reviewHeaderId);
-                        #endregion
-
-                        #region Review Result Service Methods
-                        //===================== Review Result Read Service Methods =========================================//
-                        Task<List<ReviewResult>> GetInitialReviewResultKpasAsync(int reviewHeaderId, int appraiserId);
-                        Task<List<ReviewResult>> GetInitialReviewResultAsync(int reviewHeaderId, int appraiserId, int reviewMetricId);
-
-                        Task<List<ReviewResult>> GetInitialReviewResultCmpsAsync(int reviewHeaderId, int appraiserId);
-                        Task<List<ReviewResult>> GetReviewResultByAppraiserIdAndReviewMetricIdAsync(int reviewHeaderId, int appraiserId, int reviewMetricId);
-                        Task<List<ReviewResult>> GetReviewResultByAppraiserIdAndReviewMetricTypeIdAsync(int reviewHeaderId, int appraiserId, int? reviewMetricTypeId = null);
-
-                        Task<List<int>> GetAppraisersAsync(int reviewHeaderId);
-                        Task<List<AppraiserDetail>> GetAppraiserDetailsAsync(int reviewHeaderId);
-                        Task<ScoreSummary> GetScoreSummaryAsync(int reviewHeaderId, int appraiserId);
-                        Task<List<ResultSummary>> GetResultSummaryForReportsAsync(int reportToId, int reviewSessionId, int? appraiseeId = null);
-
-                        Task<List<ResultSummary>> GetResultSummaryByReviewSessionIdAsync(int reviewSessionId);
-                        Task<List<ResultSummary>> GetResultSummaryByReviewSessionIdAndDepartmentCodeAsync(int reviewSessionId, string departmentCode);
-                        Task<List<ResultSummary>> GetResultSummaryByReviewSessionIdAndUnitCodeAsync(int reviewSessionId, string unitCode);
-                        Task<List<ResultSummary>> GetResultSummaryByReviewSessionIdAndAppraiseeNameAsync(int reviewSessionId, string appraiseeName);
+        #region Review Approval Service Methods
+        Task<bool> ReturnContractToAppraisee(int nextStageId, int reviewSubmissionId, ReviewMessage reviewMessage = null);
+        Task<bool> ApproveContractToAppraisee(ReviewApproval reviewApproval, int? reviewSubmissionId);
+        Task<bool> AcceptContractByAppraisee(int reviewHeaderId);
+        Task<bool> AcceptEvaluationByAppraisee(int reviewHeaderId);
+        Task<List<ReviewApproval>> GetReviewApprovalsAsync(int reviewHeaderId);
+        #endregion
 
 
-                        //===================== Review Result Write Service Methods =========================================//
-                        Task<bool> AddReviewResultAsync(ReviewResult reviewResult);
-                        Task<bool> UpdateReviewResultAsync(ReviewResult reviewResult);
+        #region Review Result Service Methods
+        //===================== Review Result Read Service Methods =========================================//
+        Task<List<ReviewResult>> GetInitialReviewResultKpasAsync(int reviewHeaderId, string appraiserId);
+        Task<List<ReviewResult>> GetInitialReviewResultAsync(int reviewHeaderId, string appraiserId, int reviewMetricId);
 
-                        //==================== Result Summary Service Methods ================================================//
-                        Task<bool> AddResultSummaryAsync(ResultSummary resultSummary);
-                        Task<bool> UploadResults(int reviewHeaderId);
+        Task<List<ReviewResult>> GetInitialReviewResultCmpsAsync(int reviewHeaderId, string appraiserId);
+        Task<List<ReviewResult>> GetReviewResultByAppraiserIdAndReviewMetricIdAsync(int reviewHeaderId, string appraiserId, int reviewMetricId);
+        Task<List<ReviewResult>> GetReviewResultByAppraiserIdAndReviewMetricTypeIdAsync(int reviewHeaderId, string appraiserId, int? reviewMetricTypeId = null);
 
-                        //=================== Result Details Service Methods ==================================================//
-                        Task<List<ResultDetail>> GetPrincipalResultDetailAsync(int reviewSessionId, int? locationId = null, string departmentCode = null, string unitCode = null);
+        Task<List<string>> GetAppraisersAsync(int reviewHeaderId);
+        Task<List<AppraiserDetail>> GetAppraiserDetailsAsync(int reviewHeaderId);
+        Task<ScoreSummary> GetScoreSummaryAsync(int reviewHeaderId, string appraiserId);
+        Task<List<ResultSummary>> GetResultSummaryForReportsAsync(string reportToId, int reviewSessionId, string appraiseeId = null);
 
-                        #endregion
-                    */
+        Task<List<ResultSummary>> GetResultSummaryByReviewSessionIdAsync(int reviewSessionId);
+        Task<List<ResultSummary>> GetResultSummaryByReviewSessionIdAndDepartmentCodeAsync(int reviewSessionId, int departmentId);
+        Task<List<ResultSummary>> GetResultSummaryByReviewSessionIdAndUnitCodeAsync(int reviewSessionId, int unitId);
+        Task<List<ResultSummary>> GetResultSummaryByReviewSessionIdAndAppraiseeNameAsync(int reviewSessionId, string appraiseeName);
+
+
+        //===================== Review Result Write Service Methods =========================================//
+        Task<bool> AddReviewResultAsync(ReviewResult reviewResult);
+        Task<bool> UpdateReviewResultAsync(ReviewResult reviewResult);
+
+        //==================== Result Summary Service Methods ================================================//
+        Task<bool> AddResultSummaryAsync(ResultSummary resultSummary);
+        Task<bool> UploadResults(int reviewHeaderId);
+
+        //=================== Result Details Service Methods ==================================================//
+        Task<List<ResultDetail>> GetPrincipalResultDetailAsync(int reviewSessionId, int? locationId = null, int? departmentId = null, int? unitId = null);
+
+        #endregion
+
     }
 
 }

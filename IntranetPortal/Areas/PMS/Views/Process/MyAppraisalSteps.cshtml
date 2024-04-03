@@ -41,14 +41,14 @@
                                 <i class="bi bi-journals fw-bolder" style="font-size: 1.0rem"></i><span class="fw-bold ml-1" style="font-size: 0.9rem;">History</span>
                             </a>
                         </li>
-                        @if ((Model.IsActive) && (Model.AllActivitiesScheduled || Model.PerformanceEvaluationScheduled))
+                        @*@if ((Model.IsActive) && (Model.AllActivitiesScheduled || Model.ContractDefinitionScheduled || Model.PerformanceEvaluationScheduled))
                         {
-                            @*<li class="nav-item">
-                                    <a asp-controller="PMS" asp-action="MoveToPreviousStep" asp-route-id="@Model.ReviewHeaderId" title="Return to Previous Step" class="btn btn-sm btn-light text-dark">
-                                        <i class="bi bi-arrow-90deg-up fw-bolder" style="font-size: 1.0rem"></i><span class="fw-bold ml-1" style="font-size: 0.9rem;">Return To Previous</span>
-                                    </a>
-                                </li>*@
-                        }
+                            <li class="nav-item">
+                                <a asp-area="PMS" asp-controller="Process" asp-action="MoveToPreviousStep" asp-route-id="@Model.ReviewHeaderId" title="Return to Previous Step" class="btn btn-sm btn-light text-dark">
+                                    <i class="bi bi-arrow-90deg-up fw-bolder" style="font-size: 1.0rem"></i><span class="fw-bold ml-1" style="font-size: 0.9rem;">Return To Previous</span>
+                                </a>
+                            </li>
+                        }*@
                     </ul>
                 </div>
             </div>
@@ -89,7 +89,7 @@
                         <thead style="background-color:#273746">
                             <tr>
                                 <th colspan="3">
-                                    <span class="text-white fw-bolder" style="font-size:1.1rem">Follow the Steps below to Complete the Appraisal</span>
+                                    <span class="text-white fw-bolder" style="font-size:1.1rem">Please follow the steps below to complete this Performance Appraisal Session.</span>
                                 </th>
                             </tr>
                         </thead>
@@ -112,17 +112,15 @@
                                                 <span class="text-dark fw-bolder ml-1" style="font-size:1.0rem; min-width:100px">Step 1</span>
                                             </td>
                                             <td>
-                                                <div>
-                                                    <span class="text-dark fw-bold" style="font-size:1.0rem">
-                                                        Welcome @Model.AppraiseeName. It appears you are yet to begin this appraisal session.
-                                                        You can start by entering your Performance Goal for the Period under review.
-                                                    </span>
-                                                </div>
+                                                <span class="text-dark fw-bold" style="font-size:1.0rem">
+                                                    Welcome @Model.AppraiseeName. It appears you are yet to begin this appraisal session.
+                                                    You can start by entering your Performance Goal for the Period under review.
+                                                </span>
                                             </td>
                                             <td class="p-2 text-end">
                                                 @if ((Model.IsActive) && (Model.AllActivitiesScheduled || Model.ContractDefinitionScheduled))
                                                 {
-                                                    <a asp-controller="PMS" asp-action="CreatePerformanceGoals" asp-route-id="@Model.ReviewSessionId" asp-route-ad="@Model.AppraiseeId" title="Create Performance Goal" class="btn btn-sm btn-dark" style="width:100px">
+                                                    <a asp-area="PMS" asp-controller="Process" asp-action="CreatePerformanceGoals" asp-route-id="@Model.ReviewSessionId" asp-route-ad="@Model.AppraiseeId" title="Create Performance Goal" class="btn btn-sm btn-dark" style="width:100px">
                                                         <span class="text-white fw-bold">Start</span>
                                                     </a>
                                                 }
@@ -137,19 +135,17 @@
                                                 <span class="text-dark fw-bolder" style="font-size:1.0rem">Step 1</span>
                                             </td>
                                             <td>
-                                                <div>
-                                                    <span class="text-dark fw-bold" style="font-size:1.0rem">
-                                                        Definition of Performance Goal - (On Going)
-                                                    </span>
-                                                </div>
+                                                <span class="text-dark fw-bold" style="font-size:1.0rem">
+                                                    Definition of Performance Goal - (On Going)
+                                                </span>
                                             </td>
                                             <td class="p-2 text-end">
                                                 @if ((Model.IsActive) && (Model.AllActivitiesScheduled || Model.ContractDefinitionScheduled))
                                                 {
-                                                    <a asp-controller="PMS" asp-action="ManagePerformanceGoal" asp-route-id="@Model.ReviewHeaderId" title="Continue" class="btn btn-sm btn-info" style="width:100px">
+                                                    <a asp-area="PMS" asp-controller="Process" asp-action="ManagePerformanceGoal" asp-route-id="@Model.ReviewHeaderId" title="Edit Performance Goals" class="btn btn-sm btn-info" style="width:100px">
                                                         <span class="text-white fw-bold">Edit</span>
                                                     </a>
-                                                    <a asp-controller="PMS" asp-action="MoveToNextStep" asp-route-id="@Model.ReviewHeaderId" title="Move to Next Step" class="btn btn-sm btn-dark" style="width:100px">
+                                                    <a asp-area="PMS" asp-controller="Process" asp-action="MoveToNextStep" asp-route-id="@Model.ReviewHeaderId" title="Move to Next Step" class="btn btn-sm btn-dark" style="width:100px">
                                                         <span class="text-white fw-bold">Next</span>
                                                     </a>
                                                 }
@@ -169,7 +165,7 @@
                                                 </span>
                                             </td>
                                             <td class="p-2 text-end">
-                                                <a asp-controller="PMS" asp-action="ShowPerformanceGoal" asp-route-id="@Model.ReviewHeaderId" title="View Performance Goal" class="btn btn-sm btn-dark" style="width:150px">
+                                                <a asp-area="PMS" asp-controller="Process" asp-action="ShowPerformanceGoal" asp-route-id="@Model.ReviewHeaderId" title="View Performance Goal" class="btn btn-sm btn-dark" style="width:150px">
                                                     <span class="text-white fw-bold">View Goal(s)</span>
                                                 </a>
                                             </td>
@@ -194,7 +190,7 @@
                                                 </div>
                                             </td>
                                             <td class="p-2 text-end">
-                                                <a asp-controller="PMS" asp-action="ShowAppraisalKpas" asp-route-id="@Model.ReviewHeaderId" title="Create Performance Goal" class="btn btn-sm btn-dark" style="width:150px">
+                                                <a asp-area="PMS" asp-controller="Process" asp-action="ShowAppraisalKpas" asp-route-id="@Model.ReviewHeaderId" title="Create Performance Goal" class="btn btn-sm btn-dark" style="width:150px">
                                                     <span class="text-white fw-bold">View KPAs</span>
                                                 </a>
                                             </td>
@@ -217,10 +213,13 @@
                                             <td class="p-2 text-end">
                                                 @if ((Model.IsActive) && (Model.AllActivitiesScheduled || Model.ContractDefinitionScheduled))
                                                 {
-                                                    <a asp-controller="PMS" asp-action="AppraisalKpas" asp-route-id="@Model.ReviewHeaderId" title="Continue" class="btn btn-sm btn-info" style="width:100px">
+                                                    <a asp-area="PMS" asp-controller="Process" asp-action="MoveToPreviousStep" asp-route-id="@Model.ReviewHeaderId" title="Return to Previous Step" class="btn btn-sm btn-danger" style="width:100px">
+                                                        <span class="text-white fw-bold">Back</span>
+                                                    </a>
+                                                    <a asp-area="PMS" asp-controller="Process" asp-action="AppraisalKpas" asp-route-id="@Model.ReviewHeaderId" title="Continue" class="btn btn-sm btn-info" style="width:100px">
                                                         <span class="text-white fw-bold">Continue</span>
                                                     </a>
-                                                    <a asp-controller="PMS" asp-action="MoveToNextStep" asp-route-id="@Model.ReviewHeaderId" title="Move to the Next Step" class="btn btn-sm btn-dark" style="width:100px">
+                                                    <a asp-area="PMS" asp-controller="Process" asp-action="MoveToNextStep" asp-route-id="@Model.ReviewHeaderId" title="Move to the Next Step" class="btn btn-sm btn-dark" style="width:100px">
                                                         <span class="text-white fw-bold">Next</span>
                                                     </a>
                                                 }
@@ -262,7 +261,7 @@
                                                 </div>
                                             </td>
                                             <td class="p-2 text-end">
-                                                <a asp-controller="PMS" asp-action="ShowAppraisalCompetencies" asp-route-id="@Model.ReviewHeaderId" title="View Appraisal Competencies" class="btn btn-sm btn-dark" style="width:150px">
+                                                <a asp-area="PMS" asp-controller="Process" asp-action="ShowAppraisalCompetencies" asp-route-id="@Model.ReviewHeaderId" title="View Appraisal Competencies" class="btn btn-sm btn-dark" style="width:150px">
                                                     <span class="text-white fw-bold">View Competencies</span>
                                                 </a>
                                             </td>
@@ -285,10 +284,13 @@
                                             <td class="p-2 text-end">
                                                 @if ((Model.IsActive) && (Model.AllActivitiesScheduled || Model.ContractDefinitionScheduled))
                                                 {
-                                                    <a asp-controller="PMS" asp-action="AppraisalCompetencies" asp-route-id="@Model.ReviewHeaderId" title="Select" class="btn btn-sm btn-success" style="width:100px">
+                                                    <a asp-area="PMS" asp-controller="Process" asp-action="MoveToPreviousStep" asp-route-id="@Model.ReviewHeaderId" title="Return to Previous Step" class="btn btn-sm btn-danger" style="width:100px">
+                                                        <span class="text-white fw-bold">Back</span>
+                                                    </a>
+                                                    <a asp-area="PMS" asp-controller="Process" asp-action="AppraisalCompetencies" asp-route-id="@Model.ReviewHeaderId" title="Select" class="btn btn-sm btn-success" style="width:100px">
                                                         <span class="text-white fw-bold">Continue</span>
                                                     </a>
-                                                    <a asp-controller="PMS" asp-action="MoveToNextStep" asp-route-id="@Model.ReviewHeaderId" title="Move to the Next Step" class="btn btn-sm btn-dark" style="width:100px">
+                                                    <a asp-area="PMS" asp-controller="Process" asp-action="MoveToNextStep" asp-route-id="@Model.ReviewHeaderId" title="Move to the Next Step" class="btn btn-sm btn-dark" style="width:100px">
                                                         <span class="text-white fw-bold">Next</span>
                                                     </a>
                                                 }
@@ -330,7 +332,7 @@
                                                 </div>
                                             </td>
                                             <td class="p-1 text-end">
-                                                <a asp-controller="PMS" asp-action="ShowAppraisalCdgs" asp-route-id="@Model.ReviewHeaderId" title="Show Career Development Goals" class="btn btn-sm btn-dark" style="width:150px">
+                                                <a asp-area="PMS" asp-controller="Process" asp-action="ShowAppraisalCdgs" asp-route-id="@Model.ReviewHeaderId" title="Show Career Development Goals" class="btn btn-sm btn-dark" style="width:150px">
                                                     <span class="text-white fw-bold">View CDGs</span>
                                                 </a>
                                             </td>
@@ -353,10 +355,13 @@
                                             <td class="p-2 text-end">
                                                 @if ((Model.IsActive) && (Model.AllActivitiesScheduled || Model.ContractDefinitionScheduled))
                                                 {
-                                                    <a asp-controller="PMS" asp-action="AppraisalCdgs" asp-route-id="@Model.ReviewHeaderId" title="Continue" class="btn btn-sm btn-success" style="width:100px">
+                                                    <a asp-area="PMS" asp-controller="Process" asp-action="MoveToPreviousStep" asp-route-id="@Model.ReviewHeaderId" title="Return to Previous Step" class="btn btn-sm btn-danger" style="width:100px">
+                                                        <span class="text-white fw-bold">Back</span>
+                                                    </a>
+                                                    <a asp-area="PMS" asp-controller="Process" asp-action="AppraisalCdgs" asp-route-id="@Model.ReviewHeaderId" title="Continue" class="btn btn-sm btn-success" style="width:100px">
                                                         <span class="text-white fw-bold">Continue</span>
                                                     </a>
-                                                    <a asp-controller="PMS" asp-action="MoveToNextStep" asp-route-id="@Model.ReviewHeaderId" title="Move to the Next Step" class="btn btn-sm btn-dark" style="width:100px">
+                                                    <a asp-area="PMS" asp-controller="Process" asp-action="MoveToNextStep" asp-route-id="@Model.ReviewHeaderId" title="Move to the Next Step" class="btn btn-sm btn-dark" style="width:100px">
                                                         <span class="text-white fw-bold">Next</span>
                                                     </a>
                                                 }
@@ -398,7 +403,7 @@
                                                 </div>
                                             </td>
                                             <td class="p-1 text-end">
-                                                <a asp-controller="PMS" asp-action="ShowAppraisalApprovals" asp-route-id="@Model.ReviewHeaderId" title="View Approval History" class="btn btn-sm btn-dark" style="width:150px">
+                                                <a asp-area="PMS" asp-controller="Process" asp-action="ShowAppraisalApprovals" asp-route-id="@Model.ReviewHeaderId" title="View Approval History" class="btn btn-sm btn-dark" style="width:150px">
                                                     <span class="text-white fw-bold">View Approvals</span>
                                                 </a>
                                             </td>
@@ -419,15 +424,18 @@
                                                 </div>
                                             </td>
                                             <td class="p-2 text-end">
-                                                <a asp-controller="PMS" asp-action="ShowAppraisalApprovals" asp-route-id="@Model.ReviewHeaderId" title="View Approval History" class="btn btn-sm btn-info" style="width:150px">
+                                                <a asp-area="PMS" asp-controller="Process" asp-action="ShowAppraisalApprovals" asp-route-id="@Model.ReviewHeaderId" title="View Approval History" class="btn btn-sm btn-info" style="width:150px">
                                                     <span class="text-white fw-bold">View Approvals</span>
                                                 </a>
                                                 @if ((Model.IsActive) && (Model.AllActivitiesScheduled || Model.ContractDefinitionScheduled))
                                                 {
-                                                    <a asp-controller="PMS" asp-action="AppraisalSubmissionHistory" asp-route-id="@Model.ReviewHeaderId" title="Submit" class="btn btn-sm btn-success" style="width:100px">
+                                                    <a asp-area="PMS" asp-controller="Process" asp-action="MoveToPreviousStep" asp-route-id="@Model.ReviewHeaderId" title="Return to Previous Step" class="btn btn-sm btn-danger" style="width:100px">
+                                                        <span class="text-white fw-bold">Back</span>
+                                                    </a>
+                                                    <a asp-area="PMS" asp-controller="Process" asp-action="AppraisalSubmissionHistory" asp-route-id="@Model.ReviewHeaderId" title="Submit" class="btn btn-sm btn-success" style="width:100px">
                                                         <span class="text-white fw-bold">Submit</span>
                                                     </a>
-                                                    <a asp-controller="PMS" asp-action="MoveToNextStep" asp-route-id="@Model.ReviewHeaderId" title="Move to the Next Step" class="btn btn-sm btn-dark" style="width:100px">
+                                                    <a asp-area="PMS" asp-controller="Process" asp-action="MoveToNextStep" asp-route-id="@Model.ReviewHeaderId" title="Move to the Next Step" class="btn btn-sm btn-dark" style="width:100px">
                                                         <span class="text-white fw-bold">Next</span>
                                                     </a>
                                                 }
@@ -469,7 +477,7 @@
                                                 </div>
                                             </td>
                                             <td class="p-1 text-end">
-                                                <a asp-controller="PMS" asp-action="ShowAppraiseeAgreement" asp-route-id="@Model.ReviewHeaderId" title="View Appraisee Agreement" class="btn btn-sm btn-dark" style="width:150px">
+                                                <a asp-area="PMS" asp-controller="Process" asp-action="ShowAppraiseeAgreement" asp-route-id="@Model.ReviewHeaderId" title="View Appraisee Agreement" class="btn btn-sm btn-dark" style="width:150px">
                                                     <span class="text-white fw-bold">View Agreement</span>
                                                 </a>
                                             </td>
@@ -492,7 +500,10 @@
                                             <td class="p-2 text-end">
                                                 @if ((Model.IsActive) && (Model.AllActivitiesScheduled || Model.ContractDefinitionScheduled))
                                                 {
-                                                    <a asp-controller="PMS" asp-action="AcceptContract" asp-route-id="@Model.ReviewHeaderId" title="Agree & Sign Off" class="btn btn-sm btn-info" style="width:150px">
+                                                    <a asp-area="PMS" asp-controller="Process" asp-action="MoveToPreviousStep" asp-route-id="@Model.ReviewHeaderId" title="Return to Previous Step" class="btn btn-sm btn-danger" style="width:100px">
+                                                        <span class="text-white fw-bold">Back</span>
+                                                    </a>
+                                                    <a asp-area="PMS" asp-controller="Process" asp-action="AcceptContract" asp-route-id="@Model.ReviewHeaderId" title="Agree & Sign Off" class="btn btn-sm btn-info" style="width:150px">
                                                         <span class="text-white fw-bold">Agree & Sign Off</span>
                                                     </a>
                                                 }
@@ -533,7 +544,7 @@
                                                 </div>
                                             </td>
                                             <td class="p-1 text-end">
-                                                <a asp-controller="PMS" asp-action="ShowContractInfo" asp-route-id="@Model.ReviewHeaderId" asp-route-sd="@Model.AppraiseeId" title="View Performance Contract" class="btn btn-sm btn-dark" style="width:150px">
+                                                <a asp-area="PMS" asp-controller="Process" asp-action="ShowContractInfo" asp-route-id="@Model.ReviewHeaderId" asp-route-sd="@Model.AppraiseeId" title="View Performance Contract" class="btn btn-sm btn-dark" style="width:150px">
                                                     <span class="text-white fw-bold">View Contract</span>
                                                 </a>
                                             </td>
@@ -562,7 +573,7 @@
                                                 </div>
                                             </td>
                                             <td class="p-1 text-end">
-                                                <a asp-controller="PMS" asp-action="ShowContractInfo" asp-route-id="@Model.ReviewHeaderId" asp-route-sd="@Model.AppraiseeId" title="View Performance Contract" class="btn btn-sm btn-dark" style="width:150px">
+                                                <a asp-area="PMS" asp-controller="Process" asp-action="ShowContractInfo" asp-route-id="@Model.ReviewHeaderId" asp-route-sd="@Model.AppraiseeId" title="View Performance Contract" class="btn btn-sm btn-dark" style="width:150px">
                                                     <span class="text-white fw-bold">View Contract</span>
                                                 </a>
                                             </td>
@@ -586,7 +597,7 @@
                                                 </div>
                                             </td>
                                             <td class="p-1 text-end">
-                                                <a asp-controller="PMS" asp-action="MoveToNextStep" asp-route-id="@Model.ReviewHeaderId" title="Move to the Next Step" class="btn btn-sm btn-dark" style="width:100px">
+                                                <a asp-area="PMS" asp-controller="Process" asp-action="MoveToNextStep" asp-route-id="@Model.ReviewHeaderId" title="Move to the Next Step" class="btn btn-sm btn-dark" style="width:100px">
                                                     <span class="text-white fw-bold">Start</span>
                                                 </a>
                                             </td>
@@ -609,11 +620,12 @@
                                             </td>
                                         </tr>
                                         <tr>
-                                            <td colspan="3" style="background-color: #17a589; padding:4px">...</td>
+                                            <td colspan="3" style="background-color: #17a589; padding:4px">
+                                                <span class="text-white fw-bolder" style="font-size:1.0rem">2nd Phase: Performance Evaluation</span>
+                                            </td>
                                         </tr>
                                     }
                                 }
-
                                 if (item.ReviewStageId == 8)
                                 {
                                     if (Model.CurrentReviewStageId < 8)
@@ -651,10 +663,10 @@
                                             <td class="p-2 text-end">
                                                 @if ((Model.IsActive) && (Model.AllActivitiesScheduled || Model.PerformanceEvaluationScheduled))
                                                 {
-                                                    <a asp-controller="PMS" asp-action="KpaEvaluationList" asp-route-id="@Model.ReviewHeaderId" asp-route-ad="@Model.AppraiseeId" title="KPA Evaluation List" class="btn btn-sm btn-success" style="width:100px">
+                                                    <a asp-area="PMS" asp-controller="Process" asp-action="KpaSelfEvaluationList" asp-route-id="@Model.ReviewHeaderId" asp-route-ad="@Model.AppraiseeId" title="KPA Evaluation List" class="btn btn-sm btn-success" style="width:100px">
                                                         <span class="text-white fw-bold">Continue</span>
                                                     </a>
-                                                    <a asp-controller="PMS" asp-action="MoveToNextStep" asp-route-id="@Model.ReviewHeaderId" asp-route-ad="@Model.AppraiseeId" title="Move to the Next Step" class="btn btn-sm btn-dark" style="width:100px">
+                                                    <a asp-area="PMS" asp-controller="Process" asp-action="MoveToNextStep" asp-route-id="@Model.ReviewHeaderId" asp-route-ad="@Model.AppraiseeId" title="Move to the Next Step" class="btn btn-sm btn-dark" style="width:100px">
                                                         <span class="text-white fw-bold">Next</span>
                                                     </a>
                                                 }
@@ -674,7 +686,7 @@
                                                 </span>
                                             </td>
                                             <td class="p-2 text-end">
-                                                <a asp-controller="PMS" asp-action="EvaluationResult" asp-route-id="@Model.ReviewHeaderId" asp-route-ad="@Model.AppraiseeId" title="View Evaluation Result" class="btn btn-sm btn-dark" style="width:150px">
+                                                <a asp-area="PMS" asp-controller="Process" asp-action="EvaluationResult" asp-route-id="@Model.ReviewHeaderId" asp-route-ad="@Model.AppraiseeId" title="View Evaluation Result" class="btn btn-sm btn-dark" style="width:150px">
                                                     <span class="text-white fw-bold">View Result</span>
                                                 </a>
                                             </td>
@@ -717,16 +729,16 @@
                                                 </div>
                                             </td>
                                             <td class="p-2 text-end">
-                                                <a asp-controller="PMS" asp-action="ShowEvaluations" asp-route-id="@Model.ReviewHeaderId" title="View Evaluations" class="btn btn-sm btn-dark" style="width:150px">
+                                                <a asp-area="PMS" asp-controller="Process" asp-action="ShowEvaluations" asp-route-id="@Model.ReviewHeaderId" title="View Evaluations" class="btn btn-sm btn-dark" style="width:150px">
                                                     <span class="text-white fw-bold">View Results</span>
                                                 </a>
 
                                                 @if ((Model.IsActive) && (Model.AllActivitiesScheduled || Model.PerformanceEvaluationScheduled))
                                                 {
-                                                    <a asp-controller="PMS" asp-action="SubmitAppraisal" asp-route-id="@Model.ReviewHeaderId" title="Submit for Evaluation" class="btn btn-sm btn-success" style="width:100px">
+                                                    <a asp-area="PMS" asp-controller="Process" asp-action="SubmitAppraisal" asp-route-id="@Model.ReviewHeaderId" title="Submit for Evaluation" class="btn btn-sm btn-success" style="width:100px">
                                                         <span class="text-white fw-bold">Submit</span>
                                                     </a>
-                                                    <a asp-controller="PMS" asp-action="MoveToNextStep" asp-route-id="@Model.ReviewHeaderId" title="Move to the Next Step" class="btn btn-sm btn-dark" style="width:100px">
+                                                    <a asp-area="PMS" asp-controller="Process" asp-action="MoveToNextStep" asp-route-id="@Model.ReviewHeaderId" title="Move to the Next Step" class="btn btn-sm btn-dark" style="width:100px">
                                                         <span class="text-white fw-bold">Next</span>
                                                     </a>
                                                 }
@@ -746,7 +758,7 @@
                                                 </span>
                                             </td>
                                             <td class="p-2 text-end">
-                                                <a asp-controller="PMS" asp-action="ShowEvaluations" asp-route-id="@Model.ReviewHeaderId" title="View Evaluations" class="btn btn-sm btn-dark" style="width:150px">
+                                                <a asp-area="PMS" asp-controller="Process" asp-action="ShowEvaluations" asp-route-id="@Model.ReviewHeaderId" title="View Evaluations" class="btn btn-sm btn-dark" style="width:150px">
                                                     <span class="text-white fw-bold">View Evaluations</span>
                                                 </a>
                                             </td>
@@ -771,7 +783,7 @@
                                                 </div>
                                             </td>
                                             <td class="p-1 text-end">
-                                                <a asp-controller="PMS" asp-action="ShowAppraisalApprovals" asp-route-id="@Model.ReviewHeaderId" title="View Approval History" class="btn btn-sm btn-dark" style="width:150px">
+                                                <a asp-area="PMS" asp-controller="Process" asp-action="ShowAppraisalApprovals" asp-route-id="@Model.ReviewHeaderId" title="View Approval History" class="btn btn-sm btn-dark" style="width:150px">
                                                     <span class="text-white fw-bold">View Approvals</span>
                                                 </a>
                                             </td>
@@ -792,15 +804,15 @@
                                                 </div>
                                             </td>
                                             <td class="p-2 text-end">
-                                                <a asp-controller="PMS" asp-action="ShowAppraisalApprovals" asp-route-id="@Model.ReviewHeaderId" title="View Approval History" class="btn btn-sm btn-dark" style="width:150px">
+                                                <a asp-area="PMS" asp-controller="Process" asp-action="ShowAppraisalApprovals" asp-route-id="@Model.ReviewHeaderId" title="View Approval History" class="btn btn-sm btn-dark" style="width:150px">
                                                     <span class="text-white fw-bold">View Approvals</span>
                                                 </a>
                                                 @if ((Model.IsActive) && (Model.AllActivitiesScheduled || Model.PerformanceEvaluationScheduled))
                                                 {
-                                                    <a asp-controller="PMS" asp-action="AppraisalSubmissionHistory" asp-route-id="@Model.ReviewHeaderId" title="Submit" class="btn btn-sm btn-success" style="width:75px">
+                                                    <a asp-area="PMS" asp-controller="Process" asp-action="AppraisalSubmissionHistory" asp-route-id="@Model.ReviewHeaderId" title="Submit" class="btn btn-sm btn-success" style="width:75px">
                                                         <span class="text-white fw-bold">Submit</span>
                                                     </a>
-                                                    <a asp-controller="PMS" asp-action="MoveToNextStep" asp-route-id="@Model.ReviewHeaderId" title="Move to the Next Step" class="btn btn-sm btn-dark" style="width:100px">
+                                                    <a asp-area="PMS" asp-controller="Process" asp-action="MoveToNextStep" asp-route-id="@Model.ReviewHeaderId" title="Move to the Next Step" class="btn btn-sm btn-dark" style="width:100px">
                                                         <span class="text-white fw-bold">Next</span>
                                                     </a>
                                                 }
@@ -842,7 +854,7 @@
                                                 </div>
                                             </td>
                                             <td class="p-1 text-end">
-                                                <a asp-controller="PMS" asp-action="ShowEvaluationSignOff" asp-route-id="@Model.ReviewHeaderId" title="Show Sign Off Copy" class="btn btn-sm btn-dark" style="width:150px">
+                                                <a asp-area="PMS" asp-controller="Process" asp-action="ShowEvaluationSignOff" asp-route-id="@Model.ReviewHeaderId" title="Show Sign Off Copy" class="btn btn-sm btn-dark" style="width:150px">
                                                     <span class="text-white fw-bold">View Sign Off </span>
                                                 </a>
                                             </td>
@@ -865,7 +877,7 @@
                                             <td class="p-2 text-end">
                                                 @if ((Model.IsActive) && (Model.AllActivitiesScheduled || Model.PerformanceEvaluationScheduled))
                                                 {
-                                                    <a asp-controller="PMS" asp-action="AcceptEvaluation" asp-route-id="@Model.ReviewHeaderId" title="Agree & Sign Off" class="btn btn-sm btn-info" style="width:150px">
+                                                    <a asp-area="PMS" asp-controller="Process" asp-action="AcceptEvaluation" asp-route-id="@Model.ReviewHeaderId" title="Agree & Sign Off" class="btn btn-sm btn-info" style="width:150px">
                                                         <span class="text-white fw-bold">Sign Off</span>
                                                     </a>
                                                 }
@@ -906,7 +918,7 @@
                                                 </div>
                                             </td>
                                             <td class="p-1 text-end">
-                                                <a asp-controller="PMS" asp-action="ShowSelectedResult" asp-route-id="@Model.ReviewHeaderId" title="View Evaluation Result" class="btn btn-sm btn-dark" style="width:150px">
+                                                <a asp-area="PMS" asp-controller="Process" asp-action="ShowSelectedResult" asp-route-id="@Model.ReviewHeaderId" title="View Evaluation Result" class="btn btn-sm btn-dark" style="width:150px">
                                                     <span class="text-white fw-bold">View Result</span>
                                                 </a>
                                             </td>
@@ -930,7 +942,7 @@
                                                 </div>
                                             </td>
                                             <td class="p-1 text-end">
-                                                <a asp-controller="PMS" asp-action="ManageFeedback" asp-route-id="@Model.ReviewHeaderId" asp-route-sd="@Model.ReviewSessionId" title="Complete Feed Back Form" class="btn btn-sm btn-dark" style="width:150px">
+                                                <a asp-area="PMS" asp-controller="Process" asp-action="ManageFeedback" asp-route-id="@Model.ReviewHeaderId" asp-route-sd="@Model.ReviewSessionId" title="Complete Feed Back Form" class="btn btn-sm btn-dark" style="width:150px">
                                                     <span class="text-white fw-bold">Go</span>
                                                 </a>
                                             </td>

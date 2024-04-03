@@ -1,0 +1,302 @@
+﻿
+@model IntranetPortal.Areas.PMS.Models.ShowFullResultViewModel
+<div class="container">
+    <h4 class="mb-1">Evaluation Result</h4>
+    <hr />
+    <div class="row">
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <div class="container-fluid">
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNavDropdown">
+                    <ul class="navbar-nav">
+                        <li class="nav-item">
+                            <button title="Go Back" class="btn btn-sm btn-outline-light text-dark" onclick="history.back()">
+                                <i class="bi bi-backspace fw-bolder" style="font-size: 1.0rem;"></i>&nbsp;<span class="fw-bold ml-1" style="font-size: 0.9rem;">Back</span>
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </div>
+    <div class="row">
+        <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="pills-summary-tab" data-bs-toggle="pill" data-bs-target="#pills-summary" type="button" role="tab" aria-controls="pills-summary" aria-selected="true">Summary</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="pills-kpa-tab" data-bs-toggle="pill" data-bs-target="#pills-kpa" type="button" role="tab" aria-controls="pills-kpa" aria-selected="false">Key Performance Areas</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="pills-cmp-tab" data-bs-toggle="pill" data-bs-target="#pills-cmp" type="button" role="tab" aria-controls="pills-cmp" aria-selected="false">Competencies</button>
+            </li>
+        </ul>
+        <div class="tab-content" id="pills-tabContent">
+            <div class="tab-pane fade show active" id="pills-summary" role="tabpanel" aria-labelledby="pills-summary-tab">
+                <div class="table-responsive">
+                    <table class="table border-0">
+                        <thead>
+                            <tr>
+                                <th colspan="4" style="background-color:#17202a">
+                                    <span class="fw-bold text-white" style="font-size:1.1rem;">Basic Information</span>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr style="border-bottom:2px solid #4a235a">
+                                <td style="width:15pc; background-color:#4a235a"><span class="text-white fw-bold">Session:</span></td>
+                                <td style="width:35pc"><span class="fw-bold">@Model.EvaluationSummaryResult.ReviewSessionName</span></td>
+                                <td style="width:15pc; background-color:#4a235a"><span class="text-white fw-bold">Appraisee:</span></td>
+                                <td style="width:35pc"><span class="fw-bold">@Model.EvaluationSummaryResult.AppraiseeName</span></td>
+                            </tr>
+                            <tr style="border-bottom:2px solid #4a235a">
+                                <td style="width:15pc; background-color:#4a235a"><span class="text-white fw-bold">Appraiser Name:</span></td>
+                                <td style="width:35pc"><span class="fw-bold">@Model.EvaluationSummaryResult.AppraiserName</span></td>
+                                <td style="width: 15pc; background-color: #4a235a"><span class="text-white fw-bold">Appraiser Role:</span></td>
+                                <td style="width:35pc"><span class="fw-bold">@Model.EvaluationSummaryResult.AppraiserRoleName</span></td>
+                            </tr>
+                            <tr style="border-bottom:2px solid #4a235a">
+                                <td style="width: 15pc; background-color: #4a235a"><span class="text-white fw-bold">Appraiser Type:</span></td>
+                                <td style="width:35pc"><span class="fw-bold">@Model.EvaluationSummaryResult.AppraiserTypeDescription</span></td>
+                                <td style="width:15pc; background-color:#4a235a"><span class="text-white fw-bold">Appraisal Time:</span></td>
+                                <td style="width:35pc"><span class="fw-bold">@Model.EvaluationSummaryResult.AppraisalTime</span></td>
+                            </tr>
+                            <tr>
+                                <td colspan="5" style="background-color:#17202a">
+                                    <span class="fw-bold text-white" style="font-size:1.1rem;"></span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <hr />
+                    <div class="row">
+                        <div class="col-md-3 p-2" style="background-color:#1b4f72; border:1px solid #1b4f72">
+                            <span class="fw-bold text-white" style="font-size:1.0rem">Performance Rating:</span>
+                        </div>
+                        <div class="col-md-9 p-2" style="border:1px solid #1b4f72">
+                            <span class="fw-bold" style="font-size:1.0rem">@Model.EvaluationSummaryResult.PerformanceRating</span>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-3 p-2" style="background-color:#1b4f72; border:1px solid #1b4f72">
+                            <span class="fw-bold text-white" style="font-size:1.0rem">Score Ranking:</span>
+                        </div>
+                        <div class="col-md-9 p-2" style="border:1px solid #1b4f72">
+                            <span class="fw-bold" style="font-size:1.0rem">@Model.EvaluationSummaryResult.PerformanceRank</span>
+                        </div>
+                    </div>
+                    <hr />
+                    <table class="table border-0">
+                        <thead>
+                            <tr>
+                                <th colspan="5" style="background-color:#17202a">
+                                    <span class="fw-bold text-white" style="font-size: 1.1rem;">Score Summary </span>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td colspan="5" style="background-color:#2874a6">
+                                    <span class="fw-bold text-white" style="font-size:1.1rem;">Key Performance Area (KPA) Score Summary</span>
+                                </td>
+                            </tr>
+                            <tr style="border-bottom: 2px solid #2874a6">
+                                <td style="width:25pc; background-color:#2874a6"><span class="text-white fw-bold">Score Obtained:</span></td>
+                                <td style="width:15pc"><span class="fw-bold">@Model.EvaluationSummaryResult.QuantitativeScoreObtained</span></td>
+                                <td style="width:25pc; background-color:#2874a6"><span class="text-white fw-bold">Score Obtainable:</span></td>
+                                <td style="width:15pc"><span class="fw-bold">@Model.EvaluationSummaryResult.QuantitativeScoreObtainable</span></td>
+                                <td style="width:20pc; background-color:#2874a6"><span class="fw-bold"></span></td>
+                            </tr>
+                            <tr>
+                                <td colspan="5" style="        background-color: #28b463">
+                                    <span class="fw-bold text-white" style="font-size:1.1rem;">Competencies Summary </span>
+                                </td>
+                            </tr>
+                            <tr style="border-bottom:2px solid #28b463">
+                                <td style="width: 25pc; background-color: #28b463">
+                                    <span class="text-white fw-bold">Score Obtained:</span>
+                                </td>
+                                <td style="width:15pc"><span class="fw-bold">@Model.EvaluationSummaryResult.QualitativeScoreObtained</span></td>
+                                <td style="width:25pc; background-color:#28b463"><span class="text-white fw-bold">Score Obtainable:</span></td>
+                                <td style="width: 15pc"><span class="fw-bold">@Model.EvaluationSummaryResult.QualitativeScoreObtainable</span></td>
+                                <td style="width: 20pc; background-color: #28b463">
+                                    <span class="text-white fw-bold"></span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="5" style="background-color:#b03a2e">
+                                    <span class="fw-bold text-white" style="font-size:1.1rem;">Total Evaluation Summary </span>
+                                </td>
+                            </tr>
+                            <tr style="border-bottom:2px solid #b03a2e">
+                                <td style="width:25pc; background-color:#b03a2e"><span class="text-white fw-bold">Score Obtained:</span></td>
+                                <td style="width:15pc"><span class="fw-bold">@Model.EvaluationSummaryResult.TotalScoreObtained</span></td>
+                                <td style="width:25pc; background-color:#b03a2e"><span class="text-white fw-bold">Score Obtainable:</span></td>
+                                <td style="width:15pc"><span class="fw-bold">@Model.EvaluationSummaryResult.TotalScoreObtainable</span></td>
+                                <td style="width:20pc; background-color:#b03a2e"><span class="text-white fw-bold"></span></td>
+                            </tr>
+                            <tr>
+                                <td colspan="5" style="background-color:#17202a">
+                                    <span class="fw-bold text-white" style="font-size: 0.9rem;"> </span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="tab-pane fade" id="pills-kpa" role="tabpanel" aria-labelledby="pills-kpa-tab">
+                <div class="row">
+                    @if (Model == null || Model.KpaFullResult == null || Model.KpaFullResult.ReviewResultList == null || Model.KpaFullResult.ReviewResultList.Count < 1)
+                    {
+                        <div class="alert alert-secondary alert-dismissible fade show" role="alert">
+                            <i class="bi bi-x-circle"></i>
+                            <span class="fw-bold text-dark">No record was found.</span>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    }
+                    else
+                    {
+                        int row_number = 0;
+                        <div class="table-responsive">
+                            <table class="table border-0">
+                                <tbody>
+                                    @foreach (var kpa in Model.KpaFullResult.ReviewResultList)
+                                    {
+                                        row_number++;
+                                        <tr style="border-bottom:2px solid #abb2b9">
+                                            <td>
+                                                <div class="card">
+                                                    <div class="card-header bg-info">
+                                                        <span class="fw-bold text-white" style="font-size: 0.9rem;">KPA #@row_number</span>
+                                                    </div>
+                                                    <div class="card-body bg-secondary" >
+                                                        <div class="row">
+                                                            <div class="col-md-12 mb-2">
+                                                                <label class="form-label text-white fw-bold">Description</label>
+                                                                <textarea asp-for="@kpa.ReviewMetricDescription" class="form-control fw-bold" rows="3" style="font-size:1.0rem" readonly="readonly">@kpa.ReviewMetricDescription</textarea>
+                                                            </div>
+                                                        </div>
+                                                        <div class="row">
+                                                            <div class="col-md-12 mb-2">
+                                                                <label class="form-label text-white fw-bold">Measurement</label>
+                                                                <textarea asp-for="@kpa.ReviewMetricMeasurement" class="form-control fw-bold" rows="2" style="font-size:1.0rem" readonly="readonly">@kpa.ReviewMetricMeasurement</textarea>
+                                                            </div>
+                                                        </div>
+                                                        <div class="row">
+                                                            <div class="col-md-12 mb-2">
+                                                                <label class="form-label text-white fw-bold">Target Achievement</label>
+                                                                <textarea asp-for="@kpa.ReviewMetricTarget" class="form-control fw-bold" rows="2" style="font-size:1.0rem" readonly="readonly">@kpa.ReviewMetricTarget</textarea>
+                                                            </div>
+                                                        </div>
+                                                        <div class="row">
+                                                            <div class="col-md-12 mb-2">
+                                                                <label class="form-label text-white fw-bold">Achievement according to Appraisee</label>
+                                                                <textarea asp-for="@kpa.AppraiseeAchievement" class="form-control fw-bold" rows="2" style="font-size:1.0rem" readonly="readonly">@kpa.ActualAchievement</textarea>
+                                                            </div>
+                                                        </div>
+                                                        <div class="row">
+                                                            <div class="col-md-12 mb-2">
+                                                                <label class="form-label text-white fw-bold">Actual Achievement</label>
+                                                                <textarea asp-for="@kpa.ActualAchievement" class="form-control fw-bold" rows="2" style="font-size:1.0rem" readonly="readonly">@kpa.ActualAchievement</textarea>
+                                                            </div>
+                                                        </div>
+                                                        <div class="row">
+                                                            <div class="col-md-12 mb-2">
+                                                                <label class="form-label text-white fw-bold">Appraiser Comment</label>
+                                                                <textarea asp-for="@kpa.AppraiserComment" class="form-control fw-bold" rows="2" style="font-size:1.0rem" readonly="readonly">@kpa.AppraiserComment</textarea>
+                                                            </div>
+                                                        </div>
+                                                        <div class="row">
+                                                            <div class="col-md-2">
+                                                                <label class="form-label text-white fw-bold">Score</label>
+                                                                <div class="form-control fw-bold">@kpa.AppraiserScoreDescription</div>
+                                                            </div>
+                                                            <div class="col-md-2">
+                                                                <label class="form-label text-white fw-bold">Appraisee's Score</label>
+                                                                <div class="form-control fw-bold">@kpa.AppraiseeScore</div>
+                                                            </div>
+                                                            <div class="col-md-8 text-end">
+
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+
+                        </div>
+                    }
+                </div>
+            </div>
+            <div class="tab-pane fade" id="pills-cmp" role="tabpanel" aria-labelledby="pills-cmp-tab">
+                <div class="row">
+                    @if (Model == null || Model.CmpFullResult == null || Model.CmpFullResult.ReviewResultList == null || Model.CmpFullResult.ReviewResultList.Count < 1)
+                    {
+                        <div class="alert alert-secondary alert-dismissible fade show" role="alert">
+                            <i class="bi bi-x-circle"></i>
+                            <span class="fw-bold text-dark">No record was found.</span>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    }
+                    else
+                    {
+                        int row_number = 0;
+                        <div class="table-responsive">
+                            <table class="table border-0">
+                                <tbody>
+                                    @foreach (var cmp in Model.CmpFullResult.ReviewResultList)
+                                    {
+                                        row_number++;
+                                        <tr style="border-bottom:2px solid #abb2b9">
+                                            <td>
+                                                <div class="card">
+                                                    <div class="card-header bg-success">
+                                                        <span class="fw-bold text-white" style="font-size: 0.9rem;">Competency #@row_number</span>
+                                                    </div>
+                                                    <div class="card-body bg-secondary">
+                                                        <div class="row">
+                                                            <div class="col-md-12 mb-2">
+                                                                <label class="form-label text-white fw-bold">Description</label>
+                                                                <textarea asp-for="@cmp.ReviewMetricDescription" class="form-control fw-bold" rows="3" style="font-size:1.0rem" readonly="readonly">@cmp.ReviewMetricDescription</textarea>
+                                                            </div>
+                                                        </div>
+                                                        <div class="row">
+                                                            <div class="col-md-12 mb-2">
+                                                                <label class="form-label text-white fw-bold">Appraiser Comment</label>
+                                                                <textarea asp-for="@cmp.AppraiserComment" class="form-control fw-bold" rows="2" style="font-size:1.0rem" readonly="readonly">@cmp.AppraiserComment</textarea>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="row">
+                                                            <div class="col-md-4">
+                                                                <label class="form-label text-white fw-bold">Score</label>
+                                                                <div class="form-control fw-bold">@cmp.AppraiserScoreDescription</div>
+                                                            </div>
+                                                            <div class="col-md-4">
+                                                                <label class="form-label text-white fw-bold">Appraisee's Score</label>
+                                                                <div class="form-control fw-bold">@cmp.AppraiseeScore</div>
+                                                            </div>
+                                                            <div class="col-md-4 text-end">
+
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

@@ -1,0 +1,87 @@
+﻿@model IntranetPortal.Areas.PMS.Models.SelectCompetencyViewModel
+<div class="container">
+    <h4 class="mb-1">Competency Dictionary</h4>
+    <hr />
+    <div class="row">
+        <form asp-area="PMS" asp-controller="Process" asp-action="SelectCompetencies" asp-route-id="@Model.ReviewHeaderID" method="get">
+            <a asp-area="PMS" asp-controller="Process" asp-action="AppraisalCompetencies" asp-route-id="@Model.ReviewHeaderID" title="Go Back" class="btn btn-sm" style="width:75px; background-color:#5b2c6f">
+                <span class="fw-bold" style="font-size:0.9rem; color:white">Back</span>
+            </a>
+            <select asp-for="vd" asp-items="@ViewBag.LevelList" class="border-0" style="width:200px">
+                <option value="0">- Level -</option>
+            </select>
+            <select asp-for="cd" asp-items="@ViewBag.CategoryList" class="border-0" style="width:300px">
+                <option value="0">- Category -</option>
+            </select>
+            <input type="submit" value="Search" class="btn ml-2 text-white" style="width:150px; background-color:#5b2c6f" />
+        </form>
+    </div>
+    <div class="mb-1">
+        <input type="hidden" asp-for="ReviewHeaderID" />
+        <div>
+            @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bi bi-x-circle"></i>
+                    <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+        </div>
+        <div class="row">
+            @if (Model == null || Model.CompetenciesList == null || Model.CompetenciesList.Count < 1)
+            {
+                <div class="alert alert-info fade show" role="alert">
+                    <i class="bi bi-info-circle"></i>
+                    <span class="fw-bold">No record was found.</span>
+                </div>
+            }
+            else
+            {
+                int row_number = 0;
+                <div class="table-responsive">
+                    <table class="table border-0">
+                        <thead style="background-color:#5b2c6f">
+                            <tr>
+                                <th>
+                                    <span class="text-white fw-bolder" style="font-size:1.0rem">#</span>
+                                </th>
+                                <th>
+                                    <span class="text-white fw-bolder" style="font-size:1.0rem">Competency</span>
+                                </th>
+                                <th>
+                                    <span class="text-white fw-bolder" style="font-size:1.0rem">Definition</span>
+                                </th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var competency in Model.CompetenciesList)
+                            {
+                                row_number++;
+                                <tr style="border-bottom:2px solid #5b2c6f">
+                                    <td>
+                                        <span class="text-dark fw-bolder" style="font-size:1.0rem">@row_number.ToString()</span>
+                                    </td>
+                                    <td>
+                                        <span class="text-dark fw-bolder" style="font-size:1.0rem">@competency.Title</span>
+                                    </td>
+                                    <td>
+                                        <span class="text-dark fw-bold" style="font-size:1.0rem">
+                                            @competency.Description
+                                        </span>
+                                    </td>
+                                    <td class="p-2 text-end">
+                                        <a asp-area="PMS" asp-controller="Process" asp-action="AddCompetency" asp-route-id="@competency.Id" asp-route-rd="@Model.ReviewHeaderID" title="Select" class="btn btn-sm" style="width:100px; background-color:#5b2c6f">
+                                            <span class="text-white fw-bold">Select</span>
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+</div>

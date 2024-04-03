@@ -295,7 +295,6 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
                 rvw_aprv_id.Value = reviewApprovalId;
 
                 rows = await cmd.ExecuteNonQueryAsync();
-                await conn.CloseAsync();
             }
             await conn.CloseAsync();
             return rows > 0;

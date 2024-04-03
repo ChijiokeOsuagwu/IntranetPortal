@@ -1,0 +1,105 @@
+﻿
+@model IntranetPortal.Areas.PMS.Models.AppraisalKpaViewModel
+<div class="container">
+    <h4 class="mb-1">Key Performance Areas (KPAs)</h4>
+    <hr />
+    <div class="row">
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <div class="container-fluid">
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNavDropdown">
+                    <ul class="navbar-nav">
+                        <li class="nav-item">
+                            <a asp-area="PMS" asp-controller="Process" asp-action="MyAppraisalSteps" asp-route-id="@Model.ReviewSessionID" title="Go Back" class="btn btn-sm btn-outline-light text-dark">
+                                <i class="bi bi-backspace fw-bolder" style="font-size: 1.1rem;"></i>&nbsp;<span class="fw-bold ml-1" style="font-size: 1.0rem;">Back</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a asp-area="PMS" asp-controller="Process" asp-action="ManageAppraisalKpa" asp-route-id="@Model.ReviewHeaderID" asp-route-md="0" title="Add New KPA" class="btn btn-sm btn-light text-dark">
+                                <i class="bi bi-plus-lg fw-bolder" style="font-size: 1.1rem; font-weight:900"></i><span class="fw-bold ml-1" style="font-size: 1.0rem;">Create New KPA</span>
+                            </a>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-expanded="false">
+                                <i class="bi bi-sliders fw-bolder" style="font-size: 1.1rem; font-weight:900"></i><span class="fw-bold ml-1" style="font-size: 1.0rem;">Copy Options</span>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" asp-area="PMS" asp-controller="Process" asp-action="CopyKpaFromPastContract" asp-route-id="0" asp-route-rd="@Model.ReviewSessionID"><span class="fw-bold">Copy from Contract</span></a></li>
+                                <li><a class="dropdown-item" asp-area="PMS" asp-controller="Process" asp-action="CopyKpaFromProfile" asp-route-id="0" asp-route-rd="@Model.ReviewSessionID"><span class="fw-bold">Copy from Profile</span></a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </div>
+    <div class="row">
+        @if (Model == null || Model.ReviewMetricList == null || Model.ReviewMetricList.Count < 1)
+        {
+            <div class="alert alert-secondary alert-dismissible fade show" role="alert">
+                <i class="bi bi-x-circle"></i>
+                <span class="fw-bold text-dark">No record was found.</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        else
+        {
+            int row_number = 0;
+            <div class="table-responsive">
+                <table class="table border-0">
+                    <tbody>
+                        @foreach (var kpa in Model.ReviewMetricList)
+                        {
+                            row_number++;
+                            <tr style="border-bottom:2px solid #abb2b9">
+                                <td>
+                                    <div class="card">
+                                        <div class="card-header bg-info">
+                                            <span class="fw-bold text-white" style="font-size: 0.9rem;">KPA #@row_number</span>
+                                        </div>
+                                        <div class="card-body bg-secondary">
+                                            <div class="row">
+                                                <div class="col-md-12 mb-2">
+                                                    <label class="form-label text-white fw-bold">Description</label>
+                                                    <textarea asp-for="@kpa.ReviewMetricDescription" class="form-control fw-bold" rows="3" style="font-size:1.0rem" readonly="readonly">@kpa.ReviewMetricDescription</textarea>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-md-12 mb-2">
+                                                    <label class="form-label text-white fw-bold">Measurement</label>
+                                                    <textarea asp-for="@kpa.ReviewMetricKpi" class="form-control fw-bold" rows="2" style="font-size:1.0rem" readonly="readonly">@kpa.ReviewMetricKpi</textarea>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-md-12 mb-2">
+                                                    <label class="form-label text-white fw-bold">Target Achievement</label>
+                                                    <textarea asp-for="@kpa.ReviewMetricTarget" class="form-control fw-bold" rows="2" style="font-size:1.0rem" readonly="readonly">@kpa.ReviewMetricTarget</textarea>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-md-2">
+                                                    <label class="form-label text-white fw-bold">Weightage</label>
+                                                    <div class="form-control fw-bold">@kpa.ReviewMetricWeightage</div>
+                                                </div>
+                                                <div class="col-md-10 text-end">
+                                                    <a asp-area="PMS" asp-controller="Process" asp-action="ManageAppraisalKpa" asp-route-id="@kpa.ReviewHeaderId" asp-route-md="@kpa.ReviewMetricId" class="btn btn-info" style="width:100px" title="Edit">
+                                                        <span class="text-white">Edit</span>
+                                                    </a>
+                                                    <a asp-area="PMS" asp-controller="Process" asp-action="DeleteAppraisalKpa" asp-route-id="@kpa.ReviewMetricId" class="btn btn-danger ml-1" style="width:100px" title="Delete">
+                                                        <span class="text-white">Delete</span>
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>

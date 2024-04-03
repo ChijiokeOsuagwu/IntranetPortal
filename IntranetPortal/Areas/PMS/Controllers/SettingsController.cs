@@ -45,7 +45,7 @@ namespace IntranetPortal.Areas.PMS.Controllers
 
         #region Performance Year Controller Actions
 
-        [Authorize(Roles = "PMSSTT, XYALLACCZ")]
+        [Authorize(Roles = "PMSSTTMGA, XYALLACCZ")]
         public async Task<IActionResult> PerformanceYears()
         {
             PerformanceYearsListViewModel model = new PerformanceYearsListViewModel();
@@ -67,7 +67,7 @@ namespace IntranetPortal.Areas.PMS.Controllers
             return View(model);
         }
 
-        [Authorize(Roles = "PMSSTT, XYALLACCZ")]
+        [Authorize(Roles = "PMSSTTMGA, XYALLACCZ")]
         public async Task<IActionResult> ManagePerformanceYear(int id)
         {
             PerformanceYearViewModel model = new PerformanceYearViewModel();
@@ -82,7 +82,7 @@ namespace IntranetPortal.Areas.PMS.Controllers
             return View(model);
         }
 
-        [Authorize(Roles = "PMSSTT, XYALLACCZ")]
+        [Authorize(Roles = "PMSSTTMGA, XYALLACCZ")]
         [HttpPost]
         public async Task<IActionResult> ManagePerformanceYear(PerformanceYearViewModel model)
         {
@@ -130,7 +130,7 @@ namespace IntranetPortal.Areas.PMS.Controllers
             return View(model);
         }
 
-        [Authorize(Roles = "PMSSTT, XYALLACCZ")]
+        [Authorize(Roles = "PMSSTTMGA, XYALLACCZ")]
         public async Task<IActionResult> DeletePerformanceYear(int yd)
         {
 
@@ -159,7 +159,7 @@ namespace IntranetPortal.Areas.PMS.Controllers
 
         #region Approver Roles Controller Actions
 
-        [Authorize(Roles = "PMSSTT, XYALLACCZ")]
+        [Authorize(Roles = "PMSSTTMGA, XYALLACCZ")]
         public async Task<IActionResult> ApproverRoles()
         {
             ApprovalRolesListViewModel model = new ApprovalRolesListViewModel();
@@ -172,7 +172,7 @@ namespace IntranetPortal.Areas.PMS.Controllers
             return View(model);
         }
 
-        [Authorize(Roles = "PMSSTT, XYALLACCZ")]
+        [Authorize(Roles = "PMSSTTMGA, XYALLACCZ")]
         public async Task<IActionResult> ManageApproverRole(int id)
         {
             ApprovalRoleViewModel model = new ApprovalRoleViewModel();
@@ -190,7 +190,7 @@ namespace IntranetPortal.Areas.PMS.Controllers
             return View(model);
         }
 
-        [Authorize(Roles = "PMSSTT, XYALLACCZ")]
+        [Authorize(Roles = "PMSSTTMGA, XYALLACCZ")]
         [HttpPost]
         public async Task<IActionResult> ManageApproverRole(ApprovalRoleViewModel model)
         {
@@ -240,7 +240,7 @@ namespace IntranetPortal.Areas.PMS.Controllers
             return View(model);
         }
 
-        [Authorize(Roles = "PMSSTT, XYALLACCZ")]
+        [Authorize(Roles = "PMSSTTMGA, XYALLACCZ")]
         public async Task<IActionResult> DeleteApproverRole(int id)
         {
             ApprovalRoleViewModel model = new ApprovalRoleViewModel();
@@ -258,7 +258,7 @@ namespace IntranetPortal.Areas.PMS.Controllers
             return View(model);
         }
 
-        [Authorize(Roles = "PMSSTT, XYALLACCZ")]
+        [Authorize(Roles = "PMSSTTMGA, XYALLACCZ")]
         [HttpPost]
         public async Task<IActionResult> DeleteApproverRole(ApprovalRoleViewModel model)
         {
@@ -287,7 +287,7 @@ namespace IntranetPortal.Areas.PMS.Controllers
 
         #region Review Session Controller Actions
 
-        [Authorize(Roles = "PMSSTT, XYALLACCZ")]
+        [Authorize(Roles = "PMSSTTMGA, XYALLACCZ")]
         public async Task<IActionResult> ReviewSessions(int? id)
         {
             ReviewSessionsListViewModel model = new ReviewSessionsListViewModel();
@@ -317,7 +317,7 @@ namespace IntranetPortal.Areas.PMS.Controllers
             return View(model);
         }
 
-        [Authorize(Roles = "PMSSTT, XYALLACCZ")]
+        [Authorize(Roles = "PMSSTTMGA, XYALLACCZ")]
         public async Task<IActionResult> ManageReviewSession(int id)
         {
             ManageReviewSessionViewModel model = new ManageReviewSessionViewModel();
@@ -346,7 +346,7 @@ namespace IntranetPortal.Areas.PMS.Controllers
             return View(model);
         }
 
-        [Authorize(Roles = "PMSSTT, XYALLACCZ")]
+        [Authorize(Roles = "PMSSTTMGA, XYALLACCZ")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ManageReviewSession(ManageReviewSessionViewModel model)
@@ -418,7 +418,7 @@ namespace IntranetPortal.Areas.PMS.Controllers
             return View(model);
         }
 
-        [Authorize(Roles = "PMSSTT, XYALLACCZ")]
+        [Authorize(Roles = "PMSSTTMGA, XYALLACCZ")]
         public async Task<IActionResult> DeleteReviewSession(int id)
         {
             ManageReviewSessionViewModel model = new ManageReviewSessionViewModel();
@@ -442,7 +442,7 @@ namespace IntranetPortal.Areas.PMS.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = "PMSSTT, XYALLACCZ")]
+        [Authorize(Roles = "PMSSTTMGA, XYALLACCZ")]
         public async Task<IActionResult> DeleteReviewSession(ManageReviewSessionViewModel model)
         {
             try
@@ -500,7 +500,7 @@ namespace IntranetPortal.Areas.PMS.Controllers
 
         #region Review Grades Controller Actions
 
-        [Authorize(Roles = "PMSSTT, XYALLACCZ")]
+        [Authorize(Roles = "PMSSTTMGA, XYALLACCZ")]
         public async Task<IActionResult> Grading()
         {
             GradingListViewModel model = new GradingListViewModel();
@@ -512,7 +512,7 @@ namespace IntranetPortal.Areas.PMS.Controllers
             return View(model);
         }
 
-        [Authorize(Roles = "PMSSTT, XYALLACCZ")]
+        [Authorize(Roles = "PMSSTTMGA, XYALLACCZ")]
         public async Task<IActionResult> ManageGradeProfile(int id)
         {
             ManageGradeProfileViewModel model = new ManageGradeProfileViewModel();
@@ -531,7 +531,7 @@ namespace IntranetPortal.Areas.PMS.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = "PMSSTT, XYALLACCZ")]
+        [Authorize(Roles = "PMSSTTMGA, XYALLACCZ")]
         public async Task<IActionResult> ManageGradeProfile(ManageGradeProfileViewModel model)
         {
             try
@@ -579,7 +579,7 @@ namespace IntranetPortal.Areas.PMS.Controllers
             return View(model);
         }
 
-        [Authorize(Roles = "PMSSTT, XYALLACCZ")]
+        [Authorize(Roles = "PMSSTTMGA, XYALLACCZ")]
         public async Task<IActionResult> DeleteGradeProfile(int id)
         {
             ManageGradeProfileViewModel model = new ManageGradeProfileViewModel();
@@ -598,7 +598,7 @@ namespace IntranetPortal.Areas.PMS.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = "PMSSTT, XYALLACCZ")]
+        [Authorize(Roles = "PMSSTTMGA, XYALLACCZ")]
         public async Task<IActionResult> DeleteGradeProfile(ManageGradeProfileViewModel model)
         {
             try
@@ -636,7 +636,7 @@ namespace IntranetPortal.Areas.PMS.Controllers
         }
 
 
-        [Authorize(Roles = "PMSSTT, XYALLACCZ")]
+        [Authorize(Roles = "PMSSTTMGA, XYALLACCZ")]
         public async Task<IActionResult> PerformanceGradeTemplate(int id)
         {
             ReviewGradeListViewModel model = new ReviewGradeListViewModel();
@@ -654,7 +654,7 @@ namespace IntranetPortal.Areas.PMS.Controllers
         }
 
 
-        [Authorize(Roles = "PMSSTT, XYALLACCZ")]
+        [Authorize(Roles = "PMSSTTMGA, XYALLACCZ")]
         public async Task<IActionResult> ManagePerformanceGrade(int td, int? id)
         {
             ManageReviewGradeViewModel model = new ManageReviewGradeViewModel();
@@ -679,7 +679,7 @@ namespace IntranetPortal.Areas.PMS.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = "PMSSTT, XYALLACCZ")]
+        [Authorize(Roles = "PMSSTTMGA, XYALLACCZ")]
         public async Task<IActionResult> ManagePerformanceGrade(ManageReviewGradeViewModel model)
         {
             try
@@ -747,7 +747,7 @@ namespace IntranetPortal.Areas.PMS.Controllers
             return View(model);
         }
 
-        [Authorize(Roles = "PMSSTT, XYALLACCZ")]
+        [Authorize(Roles = "PMSSTTMGA, XYALLACCZ")]
         public async Task<IActionResult> DeletePerformanceGrade(int id)
         {
             ManageReviewGradeViewModel model = new ManageReviewGradeViewModel();
@@ -772,7 +772,7 @@ namespace IntranetPortal.Areas.PMS.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = "PMSSTT, XYALLACCZ")]
+        [Authorize(Roles = "PMSSTTMGA, XYALLACCZ")]
         public async Task<IActionResult> DeletePerformanceGrade(ManageReviewGradeViewModel model)
         {
 
@@ -801,7 +801,7 @@ namespace IntranetPortal.Areas.PMS.Controllers
 
         //============================== Competency Grades =======================================//    
 
-        [Authorize(Roles = "PMSSTT, XYALLACCZ")]
+        [Authorize(Roles = "PMSSTTMGA, XYALLACCZ")]
         public async Task<IActionResult> CompetencyGradeTemplate(int id)
         {
             ReviewGradeListViewModel model = new ReviewGradeListViewModel();
@@ -818,7 +818,7 @@ namespace IntranetPortal.Areas.PMS.Controllers
             return View(model);
         }
 
-        [Authorize(Roles = "PMSSTT, XYALLACCZ")]
+        [Authorize(Roles = "PMSSTTMGA, XYALLACCZ")]
         public async Task<IActionResult> ManageCompetencyGrade(int td, int? id)
         {
             ManageReviewGradeViewModel model = new ManageReviewGradeViewModel();
@@ -843,7 +843,7 @@ namespace IntranetPortal.Areas.PMS.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = "PMSSTT, XYALLACCZ")]
+        [Authorize(Roles = "PMSSTTMGA, XYALLACCZ")]
         public async Task<IActionResult> ManageCompetencyGrade(ManageReviewGradeViewModel model)
         {
             try
@@ -890,7 +890,7 @@ namespace IntranetPortal.Areas.PMS.Controllers
             return View(model);
         }
 
-        [Authorize(Roles = "PMSSTT, XYALLACCZ")]
+        [Authorize(Roles = "PMSSTTMGA, XYALLACCZ")]
         public async Task<IActionResult> CompetencyGradeInfo(int id)
         {
             ManageReviewGradeViewModel model = new ManageReviewGradeViewModel();
@@ -912,7 +912,7 @@ namespace IntranetPortal.Areas.PMS.Controllers
             return View(model);
         }
 
-        [Authorize(Roles = "PMSSTT, XYALLACCZ")]
+        [Authorize(Roles = "PMSSTTMGA, XYALLACCZ")]
         public async Task<IActionResult> DeleteCompetencyGrade(int id)
         {
             ManageReviewGradeViewModel model = new ManageReviewGradeViewModel();
@@ -937,7 +937,7 @@ namespace IntranetPortal.Areas.PMS.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = "PMSSTT, XYALLACCZ")]
+        [Authorize(Roles = "PMSSTTMGA, XYALLACCZ")]
         public async Task<IActionResult> DeleteCompetencyGrade(ManageReviewGradeViewModel model)
         {
 
@@ -950,6 +950,400 @@ namespace IntranetPortal.Areas.PMS.Controllers
                     {
                         model.ViewModelSuccessMessage = "Records deleted successfully!";
                         return RedirectToAction("CompetencyGradeTemplate", new { id = model.GradeHeaderId });
+                    }
+                    else
+                    {
+                        model.ViewModelErrorMessage = "Sorry, an error was encountered. Delete operation failed.";
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                model.ViewModelErrorMessage = ex.Message;
+            }
+            return View(model);
+        }
+
+        #endregion
+
+        #region Appraisal Grades Controller Actions
+
+        [Authorize(Roles = "PMSSTTMGA, XYALLACCZ")]
+        public async Task<IActionResult> AppraisalGradeSettings(int id)
+        {
+            AppraisalGradeSettingsListViewModel model = new AppraisalGradeSettingsListViewModel();
+            if (id > 0)
+            {
+                model.ReviewSessionID = id;
+                var p_entities = await _performanceService.GetAppraisalPerformanceGradesAsync(id);
+                if (p_entities != null && p_entities.Count > 0)
+                {
+                    model.AppraisalPerformanceGradeList = p_entities.ToList();
+                }
+
+                var c_entities = await _performanceService.GetAppraisalCompetencyGradesAsync(id);
+                if (c_entities != null && c_entities.Count > 0)
+                {
+                    model.AppraisalCompetencyGradeList = c_entities.ToList();
+                }
+            }
+            return View(model);
+        }
+
+        [Authorize(Roles = "PMSSTTMGA, XYALLACCZ")]
+        public async Task<IActionResult> CopyAppraisalGrades(int id)
+        {
+            CopyAppraisalGradesViewModel model = new CopyAppraisalGradesViewModel();
+            model.ReviewSessionId = id;
+            List<GradeHeader> gradeHeaders = new List<GradeHeader>();
+            gradeHeaders = await _performanceService.GetGradeHeadersAsync();
+            if (gradeHeaders != null && gradeHeaders.Count > 0)
+            {
+                ViewBag.GradeProfileList = new SelectList(gradeHeaders, "GradeHeaderId", "GradeHeaderName");
+            }
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "PMSSTTMGA, XYALLACCZ")]
+        public async Task<IActionResult> CopyAppraisalGrades(CopyAppraisalGradesViewModel model)
+        {
+            List<GradeHeader> gradeHeaders = new List<GradeHeader>();
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    string CopiedBy = HttpContext.User.Identity.Name;
+                    bool IsCopied = await _performanceService.CopyAppraisalGradeAsync(CopiedBy, model.ReviewSessionId, model.GradeProfileId, null);
+                    if (IsCopied)
+                    {
+                        model.OperationIsSuccessful = true;
+                        model.ViewModelSuccessMessage = "Appraisal Grades were copied successfully!";
+                    }
+
+                }
+                catch (Exception ex)
+                {
+                    model.ViewModelErrorMessage = ex.Message;
+                }
+            }
+
+            gradeHeaders = await _performanceService.GetGradeHeadersAsync();
+            if (gradeHeaders != null && gradeHeaders.Count > 0)
+            {
+                ViewBag.GradeProfileList = new SelectList(gradeHeaders, "GradeHeaderId", "GradeHeaderName");
+            }
+            return View(model);
+        }
+
+        public async Task<IActionResult> AppraisalGradesInfo(int id)
+        {
+            AppraisalGradeSettingsListViewModel model = new AppraisalGradeSettingsListViewModel();
+            if (id > 0)
+            {
+                model.ReviewSessionID = id;
+                var p_entities = await _performanceService.GetAppraisalPerformanceGradesAsync(id);
+                if (p_entities != null && p_entities.Count > 0)
+                {
+                    model.AppraisalPerformanceGradeList = p_entities.ToList();
+                }
+
+                var c_entities = await _performanceService.GetAppraisalCompetencyGradesAsync(id);
+                if (c_entities != null && c_entities.Count > 0)
+                {
+                    model.AppraisalCompetencyGradeList = c_entities.ToList();
+                }
+            }
+            return View(model);
+        }
+
+        #endregion
+
+        #region Appraisal Performance Grade Controller Actions
+
+        [Authorize(Roles = "PMSSTTMGA, XYALLACCZ")]
+        public async Task<IActionResult> ManageAppraisalPerformanceGrade(int id, int? rd = null)
+        {
+            ManageAppraisalGradeViewModel model = new ManageAppraisalGradeViewModel();
+            if (rd != null && rd.Value > 0) { model.ReviewSessionId = rd.Value; }
+
+            if (id > 0)
+            {
+                AppraisalGrade appraisalGrade = await _performanceService.GetAppraisalGradeAsync(id);
+                if (appraisalGrade != null && !string.IsNullOrWhiteSpace(appraisalGrade.AppraisalGradeDescription))
+                {
+                    model.ReviewSessionId = appraisalGrade.ReviewSessionId;
+                    model.ReviewSessionName = appraisalGrade.ReviewSessionName;
+                    model.AppraisalGradeDescription = appraisalGrade.AppraisalGradeDescription;
+                    model.GradeRank = appraisalGrade.GradeRank;
+                    model.GradeType = appraisalGrade.GradeType;
+                    model.LowerBandScore = appraisalGrade.LowerBandScore;
+                    model.AppraisalGradeId = appraisalGrade.AppraisalGradeId;
+                    model.UpperBandScore = appraisalGrade.UpperBandScore;
+                }
+            }
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "PMSSTTMGA, XYALLACCZ")]
+        public async Task<IActionResult> ManageAppraisalPerformanceGrade(ManageAppraisalGradeViewModel model)
+        {
+            try
+            {
+                AppraisalGrade appraisalGrade = new AppraisalGrade();
+                if (ModelState.IsValid)
+                {
+                    appraisalGrade = model.ConvertToPerformanceGrade();
+                    appraisalGrade.CreatedBy = HttpContext.User.Identity.Name;
+                    appraisalGrade.CreatedTime = DateTime.UtcNow;
+                    if (appraisalGrade.AppraisalGradeId < 1)
+                    {
+                        bool IsAdded = await _performanceService.AddAppraisalGradeAsync(appraisalGrade);
+                        if (IsAdded)
+                        {
+                            model.OperationIsSuccessful = true;
+                            model.ViewModelSuccessMessage = "New Performance Grade was added successfully!";
+                        }
+                        else
+                        {
+                            model.ViewModelSuccessMessage = "Sorry, an error was encountered. Please try again.";
+                        }
+                    }
+                    else
+                    {
+                        appraisalGrade.LastModifiedBy = HttpContext.User.Identity.Name;
+                        appraisalGrade.LastModifiedTime = DateTime.UtcNow;
+                        bool IsUpdated = await _performanceService.EditAppraisalGradeAsync(appraisalGrade);
+                        if (IsUpdated)
+                        {
+                            model.OperationIsSuccessful = true;
+                            model.ViewModelSuccessMessage = "Performance Grade was updated successfully!";
+                        }
+                        else
+                        {
+                            model.ViewModelSuccessMessage = "Sorry, an error was encountered. Please try again.";
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                model.ViewModelErrorMessage = ex.Message;
+            }
+            return View(model);
+        }
+
+        public async Task<IActionResult> AppraisalPerformanceGradeInfo(int id)
+        {
+            ManageAppraisalGradeViewModel model = new ManageAppraisalGradeViewModel();
+            if (id > 0)
+            {
+                AppraisalGrade appraisalGrade = await _performanceService.GetAppraisalGradeAsync(id);
+                if (appraisalGrade != null && !string.IsNullOrWhiteSpace(appraisalGrade.AppraisalGradeDescription))
+                {
+                    model.ReviewSessionId = appraisalGrade.ReviewSessionId;
+                    model.ReviewSessionName = appraisalGrade.ReviewSessionName;
+                    model.AppraisalGradeDescription = appraisalGrade.AppraisalGradeDescription;
+                    model.GradeRank = appraisalGrade.GradeRank;
+                    model.GradeType = appraisalGrade.GradeType;
+                    model.LowerBandScore = appraisalGrade.LowerBandScore;
+                    model.AppraisalGradeId = appraisalGrade.AppraisalGradeId;
+                    model.UpperBandScore = appraisalGrade.UpperBandScore;
+                }
+            }
+            return View(model);
+        }
+
+        [Authorize(Roles = "PMSSTTMGA, XYALLACCZ")]
+        public async Task<IActionResult> DeleteAppraisalPerformanceGrade(int id)
+        {
+            ManageAppraisalGradeViewModel model = new ManageAppraisalGradeViewModel();
+            if (id > 0)
+            {
+                AppraisalGrade appraisalGrade = await _performanceService.GetAppraisalGradeAsync(id);
+                if (appraisalGrade != null && !string.IsNullOrWhiteSpace(appraisalGrade.AppraisalGradeDescription))
+                {
+                    model.ReviewSessionId = appraisalGrade.ReviewSessionId;
+                    model.ReviewSessionName = appraisalGrade.ReviewSessionName;
+                    model.AppraisalGradeDescription = appraisalGrade.AppraisalGradeDescription;
+                    model.GradeRank = appraisalGrade.GradeRank;
+                    model.GradeRankDescription = appraisalGrade.GradeRankDescription;
+                    model.GradeType = appraisalGrade.GradeType;
+                    model.LowerBandScore = appraisalGrade.LowerBandScore;
+                    model.AppraisalGradeId = appraisalGrade.AppraisalGradeId;
+                    model.UpperBandScore = appraisalGrade.UpperBandScore;
+                }
+            }
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "PMSSTTMGA, XYALLACCZ")]
+        public async Task<IActionResult> DeleteAppraisalPerformanceGrade(ManageAppraisalGradeViewModel model)
+        {
+
+            try
+            {
+                if (model != null && model.AppraisalGradeId > 0)
+                {
+                    bool IsDeleted = await _performanceService.DeleteAppraisalGradeAsync(model.AppraisalGradeId);
+                    if (IsDeleted)
+                    {
+                        model.ViewModelSuccessMessage = "Records deleted successfully!";
+                        return RedirectToAction("AppraisalGradeSettings", new { id = model.ReviewSessionId });
+                    }
+                    else
+                    {
+                        model.ViewModelErrorMessage = "Sorry, an error was encountered. Delete operation failed.";
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                model.ViewModelErrorMessage = ex.Message;
+            }
+            return View(model);
+        }
+
+        #endregion
+
+        #region Appraisal Competency Grade Controller Actions
+
+        [Authorize(Roles = "PMSSTTMGA, XYALLACCZ")]
+        public async Task<IActionResult> ManageAppraisalCompetencyGrade(int id, int? rd = null)
+        {
+            ManageAppraisalGradeViewModel model = new ManageAppraisalGradeViewModel();
+            if (rd != null && rd.Value > 0) { model.ReviewSessionId = rd.Value; }
+            if (id > 0)
+            {
+                AppraisalGrade appraisalGrade = await _performanceService.GetAppraisalGradeAsync(id);
+                if (appraisalGrade != null && !string.IsNullOrWhiteSpace(appraisalGrade.AppraisalGradeDescription))
+                {
+                    model.ReviewSessionId = appraisalGrade.ReviewSessionId;
+                    model.ReviewSessionName = appraisalGrade.ReviewSessionName;
+                    model.AppraisalGradeDescription = appraisalGrade.AppraisalGradeDescription;
+                    model.GradeRank = appraisalGrade.GradeRank;
+                    model.GradeType = appraisalGrade.GradeType;
+                    model.LowerBandScore = appraisalGrade.LowerBandScore;
+                    model.AppraisalGradeId = appraisalGrade.AppraisalGradeId;
+                    model.UpperBandScore = appraisalGrade.UpperBandScore;
+                }
+            }
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "PMSSTTMGA, XYALLACCZ")]
+        public async Task<IActionResult> ManageAppraisalCompetencyGrade(ManageAppraisalGradeViewModel model)
+        {
+            try
+            {
+                AppraisalGrade appraisalGrade = new AppraisalGrade();
+                if (ModelState.IsValid)
+                {
+                    appraisalGrade = model.ConvertToCompetencyGrade();
+                    appraisalGrade.CreatedBy = HttpContext.User.Identity.Name;
+                    appraisalGrade.CreatedTime = DateTime.UtcNow;
+                    if (appraisalGrade.AppraisalGradeId < 1)
+                    {
+                        bool IsAdded = await _performanceService.AddAppraisalGradeAsync(appraisalGrade);
+                        if (IsAdded)
+                        {
+                            model.OperationIsSuccessful = true;
+                            model.ViewModelSuccessMessage = "New Competency Grade was added successfully!";
+                        }
+                        else
+                        {
+                            model.ViewModelSuccessMessage = "Sorry, an error was encountered. Please try again.";
+                        }
+                    }
+                    else
+                    {
+                        appraisalGrade.LastModifiedBy = HttpContext.User.Identity.Name;
+                        appraisalGrade.LastModifiedTime = DateTime.UtcNow;
+                        bool IsUpdated = await _performanceService.EditAppraisalGradeAsync(appraisalGrade);
+                        if (IsUpdated)
+                        {
+                            model.OperationIsSuccessful = true;
+                            model.ViewModelSuccessMessage = "Competency Grade was updated successfully!";
+                        }
+                        else
+                        {
+                            model.ViewModelSuccessMessage = "Sorry, an error was encountered. Please try again.";
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                model.ViewModelErrorMessage = ex.Message;
+            }
+            return View(model);
+        }
+
+        public async Task<IActionResult> AppraisalCompetencyGradeInfo(int id)
+        {
+            ManageAppraisalGradeViewModel model = new ManageAppraisalGradeViewModel();
+            if (id > 0)
+            {
+                AppraisalGrade appraisalGrade = await _performanceService.GetAppraisalGradeAsync(id);
+                if (appraisalGrade != null && !string.IsNullOrWhiteSpace(appraisalGrade.AppraisalGradeDescription))
+                {
+                    model.ReviewSessionId = appraisalGrade.ReviewSessionId;
+                    model.ReviewSessionName = appraisalGrade.ReviewSessionName;
+                    model.AppraisalGradeDescription = appraisalGrade.AppraisalGradeDescription;
+                    model.GradeRank = appraisalGrade.GradeRank;
+                    model.GradeType = appraisalGrade.GradeType;
+                    model.LowerBandScore = appraisalGrade.LowerBandScore;
+                    model.AppraisalGradeId = appraisalGrade.AppraisalGradeId;
+                    model.UpperBandScore = appraisalGrade.UpperBandScore;
+                }
+            }
+            return View(model);
+        }
+
+        [Authorize(Roles = "PMSSTTMGA, XYALLACCZ")]
+        public async Task<IActionResult> DeleteAppraisalCompetencyGrade(int id)
+        {
+            ManageAppraisalGradeViewModel model = new ManageAppraisalGradeViewModel();
+            if (id > 0)
+            {
+                AppraisalGrade appraisalGrade = await _performanceService.GetAppraisalGradeAsync(id);
+                if (appraisalGrade != null && !string.IsNullOrWhiteSpace(appraisalGrade.AppraisalGradeDescription))
+                {
+                    model.ReviewSessionId = appraisalGrade.ReviewSessionId;
+                    model.ReviewSessionName = appraisalGrade.ReviewSessionName;
+                    model.AppraisalGradeDescription = appraisalGrade.AppraisalGradeDescription;
+                    model.GradeRank = appraisalGrade.GradeRank;
+                    model.GradeRankDescription = appraisalGrade.GradeRankDescription;
+                    model.GradeType = appraisalGrade.GradeType;
+                    model.LowerBandScore = appraisalGrade.LowerBandScore;
+                    model.AppraisalGradeId = appraisalGrade.AppraisalGradeId;
+                    model.UpperBandScore = appraisalGrade.UpperBandScore;
+                }
+            }
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "PMSSTTMGA, XYALLACCZ")]
+        public async Task<IActionResult> DeleteAppraisalCompetencyGrade(ManageAppraisalGradeViewModel model)
+        {
+            try
+            {
+                if (model != null && model.AppraisalGradeId > 0)
+                {
+                    bool IsDeleted = await _performanceService.DeleteAppraisalGradeAsync(model.AppraisalGradeId);
+                    if (IsDeleted)
+                    {
+                        model.ViewModelSuccessMessage = "Records deleted successfully!";
+                        return RedirectToAction("AppraisalGradeSettings", new { id = model.ReviewSessionId });
                     }
                     else
                     {
