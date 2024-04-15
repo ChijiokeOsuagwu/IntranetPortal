@@ -52,9 +52,27 @@ function saveKpaScore(review_result_id, review_header_id, review_metric_id, appr
     const appraiserCommentTextArea = document.getElementById("txt_appraiser_comment_" + review_metric_id);
     const appraiserScoreTextBox = document.getElementById("txt_appraiser_score_" + review_metric_id);
 
+    //== validation labels==//
+    const actualAchievementValidationLabel = document.getElementById("validation_lbl_actual_achievement_" + review_metric_id);
+    const scoreValidationLabel = document.getElementById("validation_lbl_appraiser_score_" + review_metric_id);
+
     let actual_achievement = actualAchievementTextArea.value;
     let appraiser_comment = appraiserCommentTextArea.value;
     let appraiser_score = appraiserScoreTextBox.value;
+
+    if (actual_achievement === null || actual_achievement.trim().length === 0) {
+        actualAchievementValidationLabel.innerHTML = "<span style='color:#FF0000; background-color:#cfd8dc'>Please enter Actual Achievement!</span>";
+        actualAchievementTextArea.focus();
+        return;
+    }
+    actualAchievementValidationLabel.innerHTML = "";
+
+    if (isNaN(appraiser_score) || appraiser_score === undefined || appraiser_score < 1) {
+        scoreValidationLabel.innerHTML = "<span style='color:#FF0000; background-color:#cfd8dc'>Please enter a valid score!</span>";
+        appraiserScoreTextBox.focus();
+        return;
+    }
+    scoreValidationLabel.innerHTML = "";
 
     $.ajax({
         type: 'POST',
@@ -63,14 +81,14 @@ function saveKpaScore(review_result_id, review_header_id, review_metric_id, appr
         data: { rh: review_header_id, rm: review_metric_id, ap: appraiser_id, aa: actual_achievement, ac: appraiser_comment, sc: appraiser_score, pa: primary_appraiser_id, id: review_result_id, sd: submission_id },
         success: function (result) {
             if (result == "saved") {
-                spanSaved.innerHTML = '<h5 class="text-success">Saved successfully <i class="bi bi-check-lg"></i></h5>';
+                spanSaved.innerHTML = "<h5 style='color:#66FF00'>Saved successfully <i class='bi bi-check-lg'></i></h5>";
                 //location.reload();
             }
             else if (result == "failed") {
-                spanSaved.innerHTML = '<h5 class="text-danger">Not Saved <i class="bi bi-x-lg"></i></h5>';
+                spanSaved.innerHTML = "<h5 style='color:#FF0000'>Not Saved. Please try again. <i class='bi bi-x-lg'></i></h5>";
             }
             else {
-                spanSaved.innerHTML = '<h5 class="text-warning">Error encountered <i class="bi bi-exclamation-lg"></i></h5>';
+                spanSaved.innerHTML = "<h5 style='color:#66FF00'>An error encountered. Please try again. <i class=bi bi-exclamation-lg></i></h5>";
                 alert(result);
             }
         },

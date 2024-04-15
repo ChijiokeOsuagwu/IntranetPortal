@@ -62,17 +62,20 @@
                                                 <div class="col-md-12 mb-2">
                                                     <label class="form-label text-white fw-bold">Actual Achievement</label>
                                                     <textarea id="txt_actual_achievement_@kpa.ReviewMetricId" value="@kpa.ActualAchievement" class="form-control fw-bold" rows="2" style="font-size:1.0rem" >@kpa.ActualAchievement</textarea>
+                                                    <div id="validation_lbl_actual_achievement_@kpa.ReviewMetricId"></div>
                                                 </div>
                                             </div>
                                             <div class="row">
                                                 <div class="col-md-12 mb-2">
-                                                    <label class="form-label text-white fw-bold">Appraiser Comment</label>
+                                                    <label class="form-label text-white fw-bold">Comment</label>
                                                     <textarea id="txt_appraiser_comment_@kpa.ReviewMetricId" value="@kpa.AppraiserComment" class="form-control fw-bold" rows="2" style="font-size:1.0rem">@kpa.AppraiserComment</textarea>
                                                 </div>
                                             </div>
                                             <div class="row">
-                                                <div class="col-md-2 mt-2">
-                                                    <input id="txt_appraiser_score_@kpa.ReviewMetricId" value="@kpa.AppraiserScore" class="form-control fw-bold" type="number" min="0" max="100" placeholder="Enter Score" />
+                                                <div class="col-md-2 mb-2">
+                                                    <label class="form-label text-white fw-bold">Enter Score (%)</label>
+                                                    <input id="txt_appraiser_score_@kpa.ReviewMetricId" value="@kpa.AppraiserScore" class="form-control fw-bold" type="number" min="0" max="100" />
+                                                    <div id="validation_lbl_appraiser_score_@kpa.ReviewMetricId"></div>
                                                 </div>
                                                 <div class="col-md-4 mt-2" id="span_@kpa.ReviewMetricId">
                                                 </div>
