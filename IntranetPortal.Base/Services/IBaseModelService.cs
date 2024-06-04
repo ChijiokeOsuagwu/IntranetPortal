@@ -66,7 +66,6 @@ namespace IntranetPortal.Base.Services
 
         Task<bool> DeleteReadMessagesByRecipientIdAsync(string recipientId);
 
-        Task<bool> DeleteUnReadMessagesByRecipientIdAsync(string recipientId);
         #endregion
 
         //========================================== System Application Action Methods ===================================//

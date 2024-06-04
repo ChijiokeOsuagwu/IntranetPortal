@@ -104,11 +104,9 @@ function saveCmpScore(review_result_id, review_header_id, review_metric_id, appr
     const spanSaved = document.getElementById("span_" + review_metric_id);
     const appraiserCommentTextArea = document.getElementById("txt_appraiser_comment_" + review_metric_id);
     const appraiserScoreDropdown = document.getElementById("dpd_appraiser_score_" + review_metric_id);
-    //const scoreSpan = document.getElementById('score_' + review_metric_id);
 
     let appraiser_comment = appraiserCommentTextArea.value;
     let appraiser_score = parseFloat(appraiserScoreDropdown.value).toFixed(2);
-    //scoreSpan.innerHTML = appraiser_score.toString();
 
     $.ajax({
         type: 'POST',
@@ -117,23 +115,22 @@ function saveCmpScore(review_result_id, review_header_id, review_metric_id, appr
         data: { rh: review_header_id, rm: review_metric_id, ap: appraiser_id, sc: appraiser_score, ac: appraiser_comment, pa: primary_appraiser_id, id: review_result_id, sd: submission_id },
         success: function (result) {
             if (result == "saved") {
-                spanSaved.innerHTML = '<h5 class="text-success">Saved successfully <i class="bi bi-check-lg"></i></h5>';
+                spanSaved.innerHTML = "<h5 style='color:#66FF00'>Saved successfully <i class='bi bi-check-lg'></i></h5>";
             }
             else if (result == "failed") {
-                spanSaved.innerHTML = '<h5 class="text-danger">Not Saved <i class="bi bi-x-lg"></i></h5>';
+                spanSaved.innerHTML = "<h5 style='color:#FF0000'>Not Saved. Please try again. <i class='bi bi-x-lg'></i></h5>";
             }
             else {
-                spanSaved.innerHTML = '<h5 class="text-warning">Error encountered <i class="bi bi-exclamation-lg"></i></h5>';
-                alert(result);
+                spanSaved.innerHTML = "<h5 style='color:#FF0000'>Error encountered <i class='bi bi-exclamation-lg'></i></h5>";
+                console.log(result);
             }
         },
         error: function (err) {
-            spanSaved.innerHTML = '<h5 class="text-warning">Error encountered<i class="bi bi-exclamation-lg"></i></h5>';
+            spanSaved.innerHTML = '<h5 style="color:#FF0000">Error encountered<i class="bi bi-exclamation-lg"></i></h5>';
             console.log(err);
         }
     })
 }
-
 
 $("#nm").autocomplete(
     {
@@ -142,7 +139,7 @@ $("#nm").autocomplete(
             var text = $("#nm").val();
             $.ajax({
                 type: "GET",
-                url: "/Employees/GetEmployeeNames?name=" + text,
+                url: "/ERM/Home/GetEmployeeNames?name=" + text,
                 data: { text: request.term },
                 success: function (data) {
                     response($.map(data, function (item) {

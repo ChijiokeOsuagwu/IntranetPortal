@@ -334,27 +334,6 @@ namespace IntranetPortal.Controllers
         }
 
         [HttpPost]
-        public async Task<string> DeleteUnRead(string rd)
-        {
-            if (!string.IsNullOrWhiteSpace(rd))
-            {
-                bool IsRemoved = await _baseModelService.DeleteUnReadMessagesByRecipientIdAsync(rd);
-                if (IsRemoved)
-                {
-                    return "done";
-                }
-                else
-                {
-                    return "failed";
-                }
-            }
-            else
-            {
-                return "none";
-            }
-        }
-
-        [HttpPost]
         public async Task<string> DeleteRead(string rd)
         {
             if (!string.IsNullOrWhiteSpace(rd))

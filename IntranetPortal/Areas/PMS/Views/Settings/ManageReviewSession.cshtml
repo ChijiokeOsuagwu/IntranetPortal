@@ -37,14 +37,14 @@
                     <input type="hidden" asp-for="Id" />
                     <label asp-for="Name" class="form-label text-white fw-bold"></label>
                     <input asp-for="Name" class="form-control" placeholder="Title">
-                    <div><span asp-validation-for="Name" class="text-danger"></span></div>
+                    <div><span asp-validation-for="Name" class="text-white"></span></div>
                 </div>
                 <div class="col-md-3 mb-2">
                     <label asp-for="ReviewYearId" class="form-label text-white fw-bold"></label>
                     <select asp-for="ReviewYearId" asp-items="@ViewBag.PerformanceYearsList" class="form-control">
                         <option value=""> Year </option>
                     </select>
-                    <div><span asp-validation-for="ReviewYearId" class="text-danger"></span></div>
+                    <div><span asp-validation-for="ReviewYearId" class="text-white"></span></div>
                 </div>
                 <div class="col-md-3 mb-2">
                     <label asp-for="IsActive" class="form-label text-white fw-bold"></label>
@@ -52,7 +52,7 @@
                         <option value="1">Open</option>
                         <option value="0">Close</option>
                     </select>
-                    <div><span asp-validation-for="IsActive" class="text-danger"></span></div>
+                    <div><span asp-validation-for="IsActive" class="text-white"></span></div>
                 </div>
             </div>
             <div class="row">
@@ -61,44 +61,44 @@
                     <select asp-for="ReviewTypeId" asp-items="@ViewBag.ReviewTypesList" class="form-control">
                         <option value=""> Type </option>
                     </select>
-                    <div><span asp-validation-for="ReviewTypeId" class="text-danger"></span></div>
+                    <div><span asp-validation-for="ReviewTypeId" class="text-white"></span></div>
                 </div>
                 <div class="col-md-3 mb-3">
                     <label asp-for="StartDate" class="form-label text-white fw-bold"></label>
                     <input asp-for="StartDate" class="form-control" placeholder="Other Names">
-                    <div><span asp-validation-for="StartDate" class="text-danger"></span></div>
+                    <div><span asp-validation-for="StartDate" class="text-white"></span></div>
                 </div>
                 <div class="col-md-3 mb-3">
                     <label asp-for="EndDate" class="form-label text-white fw-bold"></label>
                     <input asp-for="EndDate" class="form-control" placeholder="Other Names">
-                    <div><span asp-validation-for="EndDate" class="text-danger"></span></div>
+                    <div><span asp-validation-for="EndDate" class="text-white"></span></div>
                 </div>
                 <div class="col-md-3 mb-3">
                     <label asp-for="TotalCombinedScore" class="form-label text-white fw-bold"></label>
                     <input asp-for="TotalCombinedScore" class="form-control" />
-                    <div><span asp-validation-for="TotalCombinedScore" class="text-danger"></span></div>
+                    <div><span asp-validation-for="TotalCombinedScore" class="text-white"></span></div>
                 </div>
             </div>
             <div class="row">
                 <div class="col-md-3 mb-3">
                     <label asp-for="MinNoOfCompetencies" class="form-label text-white fw-bold"></label>
                     <input asp-for="MinNoOfCompetencies" class="form-control">
-                    <div><span asp-validation-for="MinNoOfCompetencies" class="text-danger"></span></div>
+                    <div><span asp-validation-for="MinNoOfCompetencies" class="text-white"></span></div>
                 </div>
                 <div class="col-md-3 mb-3">
                     <label asp-for="MaxNoOfCompetencies" class="form-label text-white fw-bold"></label>
                     <input asp-for="MaxNoOfCompetencies" class="form-control">
-                    <div><span asp-validation-for="MaxNoOfCompetencies" class="text-danger"></span></div>
+                    <div><span asp-validation-for="MaxNoOfCompetencies" class="text-white"></span></div>
                 </div>
                 <div class="col-md-3 mb-3">
                     <label asp-for="TotalCompetencyScore" class="form-label text-white fw-bold"></label>
                     <input asp-for="TotalCompetencyScore" class="form-control">
-                    <div><span asp-validation-for="TotalCompetencyScore" class="text-danger"></span></div>
+                    <div><span asp-validation-for="TotalCompetencyScore" class="text-white"></span></div>
                 </div>
                 <div class="col-md-3 mb-3">
                     <label asp-for="TotalKpaScore" class="form-label text-white fw-bold"></label>
                     <input asp-for="TotalKpaScore" class="form-control" />
-                    <div><span asp-validation-for="TotalKpaScore" class="text-danger"></span></div>
+                    <div><span asp-validation-for="TotalKpaScore" class="text-white"></span></div>
                 </div>
             </div>
             <div class="row">

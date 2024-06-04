@@ -95,9 +95,12 @@
                                         </span>
                                     </td>
                                     <td class="p-2 text-end">
-                                        <a class="btn btn-sm btn-dark" asp-area="PMS" asp-controller="Process" asp-action="AppraisalSubmissionDetails" asp-route-id="@submission.ReviewSubmissionId" title="See Details" style="width:100px">
-                                            <span class="text-white fw-bold">Details</span>
+                                        <a asp-area="PMS" asp-controller="Process" asp-action="AppraisalSubmissionDetails" asp-route-id="@submission.ReviewSubmissionId" title="See Details" style="border:none">
+                                            <i class="bi bi-info-square" style="font-size:1.2rem; color:black; font-weight:600"></i>
                                         </a>
+                                        <button title="Delete" style="border:none" onclick="deleteSubmission('@submission.ReviewSubmissionId')">
+                                            <i class="bi bi-trash" style="font-size:1.2rem; color:black; font-weight:600"></i>
+                                        </button>
                                     </td>
                                 </tr>
                             }
@@ -108,3 +111,6 @@
         </div>
     </div>
 </div>
+@section Scripts{
+    <script src="~/js/pms.js"></script>
+}

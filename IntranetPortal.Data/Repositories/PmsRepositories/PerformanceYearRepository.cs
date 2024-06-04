@@ -94,7 +94,7 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
             var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
             StringBuilder sb = new StringBuilder();
             sb.Append("SELECT pms_yr_id, pms_yr_nm, yr_str_dt, yr_ndt_dt, yr_ctt, yr_ctb, ");
-            sb.Append("yr_mdt, yr_mdb FROM public.pmssttyrs WHERE (pms_yr_nm = @pms_yr_nm); ");
+            sb.Append("yr_mdt, yr_mdb FROM public.pmssttyrs WHERE (LOWER(pms_yr_nm) = LOWER(@pms_yr_nm)); ");
             string query = sb.ToString();
             await conn.OpenAsync();
             // Retrieve all rows
@@ -163,7 +163,6 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
             await conn.CloseAsync();
             return performanceYearsList;
         }
-
 
         public async Task<bool> AddAsync(PerformanceYear performanceYear)
         {

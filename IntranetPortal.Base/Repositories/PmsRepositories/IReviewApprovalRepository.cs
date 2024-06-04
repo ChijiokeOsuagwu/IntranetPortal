@@ -16,5 +16,14 @@ namespace IntranetPortal.Base.Repositories.PmsRepositories
         Task<IList<ReviewApproval>> GetByIdAsync(int reviewApprovalId);
         Task<IList<ReviewApproval>> GetByReviewHeaderIdAsync(int reviewHeaderId);
         Task<IList<ReviewApproval>> GetByReviewHeaderIdAsync(int reviewHeaderId, int approvalTypeId);
+        Task<IList<ReviewApproval>> GetByReviewHeaderIdAsync(int reviewHeaderId, int approvalTypeId, int approverRoleId);
+
+
+        Task<IList<ReviewApproval>> GetApprovedByReviewHeaderIdAsync(int reviewHeaderId);
+        Task<IList<ReviewApproval>> GetApprovedByReviewHeaderIdAsync(int reviewHeaderId, int approvalTypeId);
+
+        Task<IList<ReviewApproval>> GetApprovedByReviewHeaderIdAsync(int reviewHeaderId, int approvalTypeId, int approverRoleId);
+
+
     }
 }

@@ -18,7 +18,7 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
             _config = configuration;
         }
 
-        //============== Assets Action Methods ===============================//
+        //======== Assets Action Methods =========//
         #region Assets Read Action Methods
         public async Task<Asset> GetByIdAsync(string assetId)
         {
@@ -29,7 +29,11 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
             sb.Append("s.cur_loc, s.mstr_id, s.pur_dt, s.pur_amt, s.img_pth, s.asst_mb, s.asst_md, s.cnd_sts, ");
             sb.Append("(SELECT COUNT (ass_rsv_id) FROM public.asm_ass_rsvs WHERE asset_id = asst_id AND rsv_stt = 'Confirmed') AS no_bkd,");
             sb.Append("s.asst_cd, s.asst_cb, s.bloc_id, t.typ_nm, c.asst_ctgs_nm, l.locname, dvsn_id, ");
-            sb.Append("s.bnloc_id, b.bnloc_nm, s.clss_id, k.clss_nm, s.grp_id, g.grp_nm ");
+            sb.Append("s.bnloc_id, b.bnloc_nm, s.clss_id, k.clss_nm, s.grp_id, g.grp_nm, ");
+            sb.Append("CASE s.cnd_sts WHEN 0 THEN 'In Good Condition' ");
+            sb.Append("WHEN 1 THEN 'Requires Repairs' ");
+            sb.Append("WHEN 2 THEN 'Faulty Beyond Repair' ");
+            sb.Append("WHEN 3 THEN 'End of Life Reached' END cnd_ds ");
             sb.Append("FROM public.asm_stt_asst s  ");
             sb.Append("INNER JOIN public.asm_stt_typs t ON s.typ_id = t.typ_id ");
             sb.Append("INNER JOIN public.asm_stt_ctgs c ON t.ctg_id = c.asst_ctgs_id ");
@@ -53,9 +57,10 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
                         asset.AssetID = reader["asst_id"] == DBNull.Value ? string.Empty : reader["asst_id"].ToString();
                         asset.AssetName = reader["asst_nm"] == DBNull.Value ? string.Empty : reader["asst_nm"].ToString();
                         asset.AssetNumber = reader["asst_no"] == DBNull.Value ? string.Empty : reader["asst_no"].ToString();
+                        asset.CustomField = reader["asst_cndt"] == DBNull.Value ? string.Empty : reader["asst_cndt"].ToString();
                         asset.AssetDescription = reader["asst_ds"] == DBNull.Value ? string.Empty : reader["asst_ds"].ToString();
                         asset.UsageStatus = reader["usg_stts"] == DBNull.Value ? string.Empty : reader["usg_stts"].ToString();
-                        asset.ConditionDescription = reader["asst_cndt"] == DBNull.Value ? string.Empty : reader["asst_cndt"].ToString();
+                        asset.ConditionDescription = reader["cnd_ds"] == DBNull.Value ? string.Empty : reader["cnd_ds"].ToString();
                         asset.CurrentLocation = reader["cur_loc"] == DBNull.Value ? string.Empty : reader["cur_loc"].ToString();
                         asset.NoOfConfirmedBooking = reader["no_bkd"] == DBNull.Value ? 0 : (long)reader["no_bkd"];
                         asset.ParentAssetID = reader["mstr_id"] == DBNull.Value ? string.Empty : reader["mstr_id"].ToString();
@@ -94,7 +99,11 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
             sb.Append("s.cur_loc, s.mstr_id, s.pur_dt, s.pur_amt, s.img_pth, s.asst_mb, s.asst_md, s.cnd_sts, ");
             sb.Append("(SELECT COUNT (ass_rsv_id) FROM public.asm_ass_rsvs WHERE asset_id = asst_id AND rsv_stt = 'Confirmed') AS no_bkd,");
             sb.Append("s.asst_cd, s.asst_cb, s.bloc_id, t.typ_nm, c.asst_ctgs_nm, l.locname, dvsn_id, ");
-            sb.Append("s.bnloc_id, b.bnloc_nm, s.clss_id, k.clss_nm, s.grp_id, g.grp_nm ");
+            sb.Append("s.bnloc_id, b.bnloc_nm, s.clss_id, k.clss_nm, s.grp_id, g.grp_nm, ");
+            sb.Append("CASE s.cnd_sts WHEN 0 THEN 'In Good Condition' ");
+            sb.Append("WHEN 1 THEN 'Requires Repairs' ");
+            sb.Append("WHEN 2 THEN 'Faulty Beyond Repair' ");
+            sb.Append("WHEN 3 THEN 'End of Life Reached' END cnd_ds ");
             sb.Append("FROM public.asm_stt_asst s  ");
             sb.Append("INNER JOIN public.asm_stt_typs t ON s.typ_id = t.typ_id ");
             sb.Append("INNER JOIN public.asm_stt_ctgs c ON t.ctg_id = c.asst_ctgs_id ");
@@ -118,9 +127,10 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
                         asset.AssetID = reader["asst_id"] == DBNull.Value ? string.Empty : reader["asst_id"].ToString();
                         asset.AssetName = reader["asst_nm"] == DBNull.Value ? string.Empty : reader["asst_nm"].ToString();
                         asset.AssetNumber = reader["asst_no"] == DBNull.Value ? string.Empty : reader["asst_no"].ToString();
+                        asset.CustomField = reader["asst_cndt"] == DBNull.Value ? string.Empty : reader["asst_cndt"].ToString();
                         asset.AssetDescription = reader["asst_ds"] == DBNull.Value ? string.Empty : reader["asst_ds"].ToString();
                         asset.UsageStatus = reader["usg_stts"] == DBNull.Value ? string.Empty : reader["usg_stts"].ToString();
-                        asset.ConditionDescription = reader["asst_cndt"] == DBNull.Value ? string.Empty : reader["asst_cndt"].ToString();
+                        asset.ConditionDescription = reader["cnd_ds"] == DBNull.Value ? string.Empty : reader["cnd_ds"].ToString();
                         asset.CurrentLocation = reader["cur_loc"] == DBNull.Value ? string.Empty : reader["cur_loc"].ToString();
                         asset.NoOfConfirmedBooking = reader["no_bkd"] == DBNull.Value ? 0 : (long)reader["no_bkd"];
                         asset.ParentAssetID = reader["mstr_id"] == DBNull.Value ? string.Empty : reader["mstr_id"].ToString();
@@ -159,7 +169,11 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
             sb.Append("s.cur_loc, s.mstr_id, s.pur_dt, s.pur_amt, s.img_pth, s.asst_mb, s.asst_md, s.cnd_sts, ");
             sb.Append("(SELECT COUNT (ass_rsv_id) FROM public.asm_ass_rsvs WHERE asset_id = asst_id AND rsv_stt = 'Confirmed') AS no_bkd,");
             sb.Append("s.asst_cd, s.asst_cb, s.bloc_id, t.typ_nm, c.asst_ctgs_nm, l.locname, dvsn_id, ");
-            sb.Append("s.bnloc_id, b.bnloc_nm, s.clss_id, k.clss_nm, s.grp_id, g.grp_nm ");
+            sb.Append("s.bnloc_id, b.bnloc_nm, s.clss_id, k.clss_nm, s.grp_id, g.grp_nm, ");
+            sb.Append("CASE s.cnd_sts WHEN 0 THEN 'In Good Condition' ");
+            sb.Append("WHEN 1 THEN 'Requires Repairs' ");
+            sb.Append("WHEN 2 THEN 'Faulty Beyond Repair' ");
+            sb.Append("WHEN 3 THEN 'End of Life Reached' END cnd_ds ");
             sb.Append("FROM public.asm_stt_asst s  ");
             sb.Append("INNER JOIN public.asm_stt_typs t ON s.typ_id = t.typ_id ");
             sb.Append("INNER JOIN public.asm_stt_ctgs c ON t.ctg_id = c.asst_ctgs_id ");
@@ -190,9 +204,10 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
                             AssetID = reader["asst_id"] == DBNull.Value ? string.Empty : reader["asst_id"].ToString(),
                             AssetName = reader["asst_nm"] == DBNull.Value ? string.Empty : reader["asst_nm"].ToString(),
                             AssetNumber = reader["asst_no"] == DBNull.Value ? string.Empty : reader["asst_no"].ToString(),
+                            CustomField = reader["asst_cndt"] == DBNull.Value ? string.Empty : reader["asst_cndt"].ToString(),
                             AssetDescription = reader["asst_ds"] == DBNull.Value ? string.Empty : reader["asst_ds"].ToString(),
                             UsageStatus = reader["usg_stts"] == DBNull.Value ? string.Empty : reader["usg_stts"].ToString(),
-                            ConditionDescription = reader["asst_cndt"] == DBNull.Value ? string.Empty : reader["asst_cndt"].ToString(),
+                            ConditionDescription = reader["cnd_ds"] == DBNull.Value ? string.Empty : reader["cnd_ds"].ToString(),
                             CurrentLocation = reader["cur_loc"] == DBNull.Value ? string.Empty : reader["cur_loc"].ToString(),
                             NoOfConfirmedBooking = reader["no_bkd"] == DBNull.Value ? 0 : (long)reader["no_bkd"],
                             ParentAssetID = reader["mstr_id"] == DBNull.Value ? string.Empty : reader["mstr_id"].ToString(),
@@ -232,7 +247,11 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
             sb.Append("s.cur_loc, s.mstr_id, s.pur_dt, s.pur_amt, s.img_pth, s.asst_mb, s.asst_md, s.cnd_sts, ");
             sb.Append("(SELECT COUNT (ass_rsv_id) FROM public.asm_ass_rsvs WHERE asset_id = asst_id AND rsv_stt = 'Confirmed') AS no_bkd,");
             sb.Append("s.asst_cd, s.asst_cb, s.bloc_id, t.typ_nm, c.asst_ctgs_nm, l.locname, dvsn_id, ");
-            sb.Append("s.bnloc_id, b.bnloc_nm, s.clss_id, k.clss_nm, s.grp_id, g.grp_nm ");
+            sb.Append("s.bnloc_id, b.bnloc_nm, s.clss_id, k.clss_nm, s.grp_id, g.grp_nm, ");
+            sb.Append("CASE s.cnd_sts WHEN 0 THEN 'In Good Condition' ");
+            sb.Append("WHEN 1 THEN 'Requires Repairs' ");
+            sb.Append("WHEN 2 THEN 'Faulty Beyond Repair' ");
+            sb.Append("WHEN 3 THEN 'End of Life Reached' END cnd_ds ");
             sb.Append("FROM public.asm_stt_asst s  ");
             sb.Append("INNER JOIN public.asm_stt_typs t ON s.typ_id = t.typ_id ");
             sb.Append("INNER JOIN public.asm_stt_ctgs c ON t.ctg_id = c.asst_ctgs_id ");
@@ -263,9 +282,10 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
                             AssetID = reader["asst_id"] == DBNull.Value ? string.Empty : reader["asst_id"].ToString(),
                             AssetName = reader["asst_nm"] == DBNull.Value ? string.Empty : reader["asst_nm"].ToString(),
                             AssetNumber = reader["asst_no"] == DBNull.Value ? string.Empty : reader["asst_no"].ToString(),
+                            CustomField = reader["asst_cndt"] == DBNull.Value ? string.Empty : reader["asst_cndt"].ToString(),
                             AssetDescription = reader["asst_ds"] == DBNull.Value ? string.Empty : reader["asst_ds"].ToString(),
                             UsageStatus = reader["usg_stts"] == DBNull.Value ? string.Empty : reader["usg_stts"].ToString(),
-                            ConditionDescription = reader["asst_cndt"] == DBNull.Value ? string.Empty : reader["asst_cndt"].ToString(),
+                            ConditionDescription = reader["cnd_ds"] == DBNull.Value ? string.Empty : reader["cnd_ds"].ToString(),
                             CurrentLocation = reader["cur_loc"] == DBNull.Value ? string.Empty : reader["cur_loc"].ToString(),
                             NoOfConfirmedBooking = reader["no_bkd"] == DBNull.Value ? 0 : (long)reader["no_bkd"],
                             ParentAssetID = reader["mstr_id"] == DBNull.Value ? string.Empty : reader["mstr_id"].ToString(),
@@ -306,7 +326,11 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
             sb.Append("s.cur_loc, s.mstr_id, s.pur_dt, s.pur_amt, s.img_pth, s.asst_mb, s.asst_md, s.cnd_sts, ");
             sb.Append("(SELECT COUNT (ass_rsv_id) FROM public.asm_ass_rsvs WHERE asset_id = asst_id AND rsv_stt = 'Confirmed') AS no_bkd,");
             sb.Append("s.asst_cd, s.asst_cb, s.bloc_id, t.typ_nm, c.asst_ctgs_nm, l.locname, dvsn_id, ");
-            sb.Append("s.bnloc_id, b.bnloc_nm, s.clss_id, k.clss_nm, s.grp_id, g.grp_nm ");
+            sb.Append("s.bnloc_id, b.bnloc_nm, s.clss_id, k.clss_nm, s.grp_id, g.grp_nm, ");
+            sb.Append("CASE s.cnd_sts WHEN 0 THEN 'In Good Condition' ");
+            sb.Append("WHEN 1 THEN 'Requires Repairs' ");
+            sb.Append("WHEN 2 THEN 'Faulty Beyond Repair' ");
+            sb.Append("WHEN 3 THEN 'End of Life Reached' END cnd_ds ");
             sb.Append("FROM public.asm_stt_asst s  ");
             sb.Append("INNER JOIN public.asm_stt_typs t ON s.typ_id = t.typ_id ");
             sb.Append("INNER JOIN public.asm_stt_ctgs c ON t.ctg_id = c.asst_ctgs_id ");
@@ -338,9 +362,10 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
                             AssetID = reader["asst_id"] == DBNull.Value ? string.Empty : reader["asst_id"].ToString(),
                             AssetName = reader["asst_nm"] == DBNull.Value ? string.Empty : reader["asst_nm"].ToString(),
                             AssetNumber = reader["asst_no"] == DBNull.Value ? string.Empty : reader["asst_no"].ToString(),
+                            CustomField = reader["asst_cndt"] == DBNull.Value ? string.Empty : reader["asst_cndt"].ToString(),
                             AssetDescription = reader["asst_ds"] == DBNull.Value ? string.Empty : reader["asst_ds"].ToString(),
                             UsageStatus = reader["usg_stts"] == DBNull.Value ? string.Empty : reader["usg_stts"].ToString(),
-                            ConditionDescription = reader["asst_cndt"] == DBNull.Value ? string.Empty : reader["asst_cndt"].ToString(),
+                            ConditionDescription = reader["cnd_ds"] == DBNull.Value ? string.Empty : reader["cnd_ds"].ToString(),
                             CurrentLocation = reader["cur_loc"] == DBNull.Value ? string.Empty : reader["cur_loc"].ToString(),
                             NoOfConfirmedBooking = reader["no_bkd"] == DBNull.Value ? 0 : (long)reader["no_bkd"],
                             ParentAssetID = reader["mstr_id"] == DBNull.Value ? string.Empty : reader["mstr_id"].ToString(),
@@ -381,7 +406,11 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
             sb.Append("s.cur_loc, s.mstr_id, s.pur_dt, s.pur_amt, s.img_pth, s.asst_mb, s.asst_md, s.cnd_sts, ");
             sb.Append("(SELECT COUNT (ass_rsv_id) FROM public.asm_ass_rsvs WHERE asset_id = asst_id AND rsv_stt = 'Confirmed') AS no_bkd,");
             sb.Append("s.asst_cd, s.asst_cb, s.bloc_id, t.typ_nm, c.asst_ctgs_nm, l.locname, dvsn_id, ");
-            sb.Append("s.bnloc_id, b.bnloc_nm, s.clss_id, k.clss_nm, s.grp_id, g.grp_nm ");
+            sb.Append("s.bnloc_id, b.bnloc_nm, s.clss_id, k.clss_nm, s.grp_id, g.grp_nm, ");
+            sb.Append("CASE s.cnd_sts WHEN 0 THEN 'In Good Condition' ");
+            sb.Append("WHEN 1 THEN 'Requires Repairs' ");
+            sb.Append("WHEN 2 THEN 'Faulty Beyond Repair' ");
+            sb.Append("WHEN 3 THEN 'End of Life Reached' END cnd_ds ");
             sb.Append("FROM public.asm_stt_asst s  ");
             sb.Append("INNER JOIN public.asm_stt_typs t ON s.typ_id = t.typ_id ");
             sb.Append("INNER JOIN public.asm_stt_ctgs c ON t.ctg_id = c.asst_ctgs_id ");
@@ -413,9 +442,10 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
                             AssetID = reader["asst_id"] == DBNull.Value ? string.Empty : reader["asst_id"].ToString(),
                             AssetName = reader["asst_nm"] == DBNull.Value ? string.Empty : reader["asst_nm"].ToString(),
                             AssetNumber = reader["asst_no"] == DBNull.Value ? string.Empty : reader["asst_no"].ToString(),
+                            CustomField = reader["asst_cndt"] == DBNull.Value ? string.Empty : reader["asst_cndt"].ToString(),
                             AssetDescription = reader["asst_ds"] == DBNull.Value ? string.Empty : reader["asst_ds"].ToString(),
                             UsageStatus = reader["usg_stts"] == DBNull.Value ? string.Empty : reader["usg_stts"].ToString(),
-                            ConditionDescription = reader["asst_cndt"] == DBNull.Value ? string.Empty : reader["asst_cndt"].ToString(),
+                            ConditionDescription = reader["cnd_ds"] == DBNull.Value ? string.Empty : reader["cnd_ds"].ToString(),
                             CurrentLocation = reader["cur_loc"] == DBNull.Value ? string.Empty : reader["cur_loc"].ToString(),
                             NoOfConfirmedBooking = reader["no_bkd"] == DBNull.Value ? 0 : (long)reader["no_bkd"],
                             ParentAssetID = reader["mstr_id"] == DBNull.Value ? string.Empty : reader["mstr_id"].ToString(),
@@ -456,7 +486,11 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
             sb.Append("s.cur_loc, s.mstr_id, s.pur_dt, s.pur_amt, s.img_pth, s.asst_mb, s.asst_md, s.cnd_sts, ");
             sb.Append("(SELECT COUNT (ass_rsv_id) FROM public.asm_ass_rsvs WHERE asset_id = asst_id AND rsv_stt = 'Confirmed') AS no_bkd,");
             sb.Append("s.asst_cd, s.asst_cb, s.bloc_id, t.typ_nm, c.asst_ctgs_nm, l.locname, dvsn_id, ");
-            sb.Append("s.bnloc_id, b.bnloc_nm, s.clss_id, k.clss_nm, s.grp_id, g.grp_nm ");
+            sb.Append("s.bnloc_id, b.bnloc_nm, s.clss_id, k.clss_nm, s.grp_id, g.grp_nm, ");
+            sb.Append("CASE s.cnd_sts WHEN 0 THEN 'In Good Condition' ");
+            sb.Append("WHEN 1 THEN 'Requires Repairs' ");
+            sb.Append("WHEN 2 THEN 'Faulty Beyond Repair' ");
+            sb.Append("WHEN 3 THEN 'End of Life Reached' END cnd_ds ");
             sb.Append("FROM public.asm_stt_asst s  ");
             sb.Append("INNER JOIN public.asm_stt_typs t ON s.typ_id = t.typ_id ");
             sb.Append("INNER JOIN public.asm_stt_ctgs c ON t.ctg_id = c.asst_ctgs_id ");
@@ -488,9 +522,10 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
                             AssetID = reader["asst_id"] == DBNull.Value ? string.Empty : reader["asst_id"].ToString(),
                             AssetName = reader["asst_nm"] == DBNull.Value ? string.Empty : reader["asst_nm"].ToString(),
                             AssetNumber = reader["asst_no"] == DBNull.Value ? string.Empty : reader["asst_no"].ToString(),
+                            CustomField = reader["asst_cndt"] == DBNull.Value ? string.Empty : reader["asst_cndt"].ToString(),
                             AssetDescription = reader["asst_ds"] == DBNull.Value ? string.Empty : reader["asst_ds"].ToString(),
                             UsageStatus = reader["usg_stts"] == DBNull.Value ? string.Empty : reader["usg_stts"].ToString(),
-                            ConditionDescription = reader["asst_cndt"] == DBNull.Value ? string.Empty : reader["asst_cndt"].ToString(),
+                            ConditionDescription = reader["cnd_ds"] == DBNull.Value ? string.Empty : reader["cnd_ds"].ToString(),
                             CurrentLocation = reader["cur_loc"] == DBNull.Value ? string.Empty : reader["cur_loc"].ToString(),
                             NoOfConfirmedBooking = reader["no_bkd"] == DBNull.Value ? 0 : (long)reader["no_bkd"],
                             ParentAssetID = reader["mstr_id"] == DBNull.Value ? string.Empty : reader["mstr_id"].ToString(),
@@ -530,7 +565,11 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
             sb.Append("s.cur_loc, s.mstr_id, s.pur_dt, s.pur_amt, s.img_pth, s.asst_mb, s.asst_md, s.cnd_sts, ");
             sb.Append("(SELECT COUNT (ass_rsv_id) FROM public.asm_ass_rsvs WHERE asset_id = asst_id AND rsv_stt = 'Confirmed') AS no_bkd,");
             sb.Append("s.asst_cd, s.asst_cb, s.bloc_id, t.typ_nm, c.asst_ctgs_nm, l.locname, dvsn_id, ");
-            sb.Append("s.bnloc_id, b.bnloc_nm, s.clss_id, k.clss_nm, s.grp_id, g.grp_nm ");
+            sb.Append("s.bnloc_id, b.bnloc_nm, s.clss_id, k.clss_nm, s.grp_id, g.grp_nm, ");
+            sb.Append("CASE s.cnd_sts WHEN 0 THEN 'In Good Condition' ");
+            sb.Append("WHEN 1 THEN 'Requires Repairs' ");
+            sb.Append("WHEN 2 THEN 'Faulty Beyond Repair' ");
+            sb.Append("WHEN 3 THEN 'End of Life Reached' END cnd_ds ");
             sb.Append("FROM public.asm_stt_asst s  ");
             sb.Append("INNER JOIN public.asm_stt_typs t ON s.typ_id = t.typ_id ");
             sb.Append("INNER JOIN public.asm_stt_ctgs c ON t.ctg_id = c.asst_ctgs_id ");
@@ -561,9 +600,10 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
                             AssetID = reader["asst_id"] == DBNull.Value ? string.Empty : reader["asst_id"].ToString(),
                             AssetName = reader["asst_nm"] == DBNull.Value ? string.Empty : reader["asst_nm"].ToString(),
                             AssetNumber = reader["asst_no"] == DBNull.Value ? string.Empty : reader["asst_no"].ToString(),
+                            CustomField = reader["asst_cndt"] == DBNull.Value ? string.Empty : reader["asst_cndt"].ToString(),
                             AssetDescription = reader["asst_ds"] == DBNull.Value ? string.Empty : reader["asst_ds"].ToString(),
                             UsageStatus = reader["usg_stts"] == DBNull.Value ? string.Empty : reader["usg_stts"].ToString(),
-                            ConditionDescription = reader["asst_cndt"] == DBNull.Value ? string.Empty : reader["asst_cndt"].ToString(),
+                            ConditionDescription = reader["cnd_ds"] == DBNull.Value ? string.Empty : reader["cnd_ds"].ToString(),
                             CurrentLocation = reader["cur_loc"] == DBNull.Value ? string.Empty : reader["cur_loc"].ToString(),
                             NoOfConfirmedBooking = reader["no_bkd"] == DBNull.Value ? 0 : (long)reader["no_bkd"],
                             ParentAssetID = reader["mstr_id"] == DBNull.Value ? string.Empty : reader["mstr_id"].ToString(),
@@ -604,7 +644,11 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
             sb.Append("s.cur_loc, s.mstr_id, s.pur_dt, s.pur_amt, s.img_pth, s.asst_mb, s.asst_md, s.cnd_sts, ");
             sb.Append("(SELECT COUNT (ass_rsv_id) FROM public.asm_ass_rsvs WHERE asset_id = asst_id AND rsv_stt = 'Confirmed') AS no_bkd,");
             sb.Append("s.asst_cd, s.asst_cb, s.bloc_id, t.typ_nm, c.asst_ctgs_nm, l.locname, dvsn_id, ");
-            sb.Append("s.bnloc_id, b.bnloc_nm, s.clss_id, k.clss_nm, s.grp_id, g.grp_nm ");
+            sb.Append("s.bnloc_id, b.bnloc_nm, s.clss_id, k.clss_nm, s.grp_id, g.grp_nm, ");
+            sb.Append("CASE s.cnd_sts WHEN 0 THEN 'In Good Condition' ");
+            sb.Append("WHEN 1 THEN 'Requires Repairs' ");
+            sb.Append("WHEN 2 THEN 'Faulty Beyond Repair' ");
+            sb.Append("WHEN 3 THEN 'End of Life Reached' END cnd_ds ");
             sb.Append("FROM public.asm_stt_asst s  ");
             sb.Append("INNER JOIN public.asm_stt_typs t ON s.typ_id = t.typ_id ");
             sb.Append("INNER JOIN public.asm_stt_ctgs c ON t.ctg_id = c.asst_ctgs_id ");
@@ -633,9 +677,10 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
                             AssetID = reader["asst_id"] == DBNull.Value ? string.Empty : reader["asst_id"].ToString(),
                             AssetName = reader["asst_nm"] == DBNull.Value ? string.Empty : reader["asst_nm"].ToString(),
                             AssetNumber = reader["asst_no"] == DBNull.Value ? string.Empty : reader["asst_no"].ToString(),
+                            CustomField = reader["asst_cndt"] == DBNull.Value ? string.Empty : reader["asst_cndt"].ToString(),
                             AssetDescription = reader["asst_ds"] == DBNull.Value ? string.Empty : reader["asst_ds"].ToString(),
                             UsageStatus = reader["usg_stts"] == DBNull.Value ? string.Empty : reader["usg_stts"].ToString(),
-                            ConditionDescription = reader["asst_cndt"] == DBNull.Value ? string.Empty : reader["asst_cndt"].ToString(),
+                            ConditionDescription = reader["cnd_ds"] == DBNull.Value ? string.Empty : reader["cnd_ds"].ToString(),
                             CurrentLocation = reader["cur_loc"] == DBNull.Value ? string.Empty : reader["cur_loc"].ToString(),
                             NoOfConfirmedBooking = reader["no_bkd"] == DBNull.Value ? 0 : (long)reader["no_bkd"],
                             ParentAssetID = reader["mstr_id"] == DBNull.Value ? string.Empty : reader["mstr_id"].ToString(),
@@ -676,7 +721,11 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
             sb.Append("s.cur_loc, s.mstr_id, s.pur_dt, s.pur_amt, s.img_pth, s.asst_mb, s.asst_md, s.cnd_sts, ");
             sb.Append("(SELECT COUNT (ass_rsv_id) FROM public.asm_ass_rsvs WHERE asset_id = asst_id AND rsv_stt = 'Confirmed') AS no_bkd,");
             sb.Append("s.asst_cd, s.asst_cb, s.bloc_id, t.typ_nm, c.asst_ctgs_nm, l.locname, dvsn_id, ");
-            sb.Append("s.bnloc_id, b.bnloc_nm, s.clss_id, k.clss_nm, s.grp_id, g.grp_nm ");
+            sb.Append("s.bnloc_id, b.bnloc_nm, s.clss_id, k.clss_nm, s.grp_id, g.grp_nm, ");
+            sb.Append("CASE s.cnd_sts WHEN 0 THEN 'In Good Condition' ");
+            sb.Append("WHEN 1 THEN 'Requires Repairs' ");
+            sb.Append("WHEN 2 THEN 'Faulty Beyond Repair' ");
+            sb.Append("WHEN 3 THEN 'End of Life Reached' END cnd_ds ");
             sb.Append("FROM public.asm_stt_asst s  ");
             sb.Append("INNER JOIN public.asm_stt_typs t ON s.typ_id = t.typ_id ");
             sb.Append("INNER JOIN public.asm_stt_ctgs c ON t.ctg_id = c.asst_ctgs_id ");
@@ -708,9 +757,10 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
                             AssetID = reader["asst_id"] == DBNull.Value ? string.Empty : reader["asst_id"].ToString(),
                             AssetName = reader["asst_nm"] == DBNull.Value ? string.Empty : reader["asst_nm"].ToString(),
                             AssetNumber = reader["asst_no"] == DBNull.Value ? string.Empty : reader["asst_no"].ToString(),
+                            CustomField = reader["asst_cndt"] == DBNull.Value ? string.Empty : reader["asst_cndt"].ToString(),
                             AssetDescription = reader["asst_ds"] == DBNull.Value ? string.Empty : reader["asst_ds"].ToString(),
                             UsageStatus = reader["usg_stts"] == DBNull.Value ? string.Empty : reader["usg_stts"].ToString(),
-                            ConditionDescription = reader["asst_cndt"] == DBNull.Value ? string.Empty : reader["asst_cndt"].ToString(),
+                            ConditionDescription = reader["cnd_ds"] == DBNull.Value ? string.Empty : reader["cnd_ds"].ToString(),
                             CurrentLocation = reader["cur_loc"] == DBNull.Value ? string.Empty : reader["cur_loc"].ToString(),
                             NoOfConfirmedBooking = reader["no_bkd"] == DBNull.Value ? 0 : (long)reader["no_bkd"],
                             ParentAssetID = reader["mstr_id"] == DBNull.Value ? string.Empty : reader["mstr_id"].ToString(),
@@ -753,8 +803,12 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
             sb.Append("s.cur_loc, s.mstr_id, s.pur_dt, s.pur_amt, s.img_pth, s.asst_mb, s.asst_md, s.cnd_sts, ");
             sb.Append("(SELECT COUNT (ass_rsv_id) FROM public.asm_ass_rsvs WHERE asset_id = asst_id AND rsv_stt = 'Confirmed') AS no_bkd,");
             sb.Append("s.asst_cd, s.asst_cb, s.bloc_id, t.typ_nm, c.asst_ctgs_nm, l.locname, dvsn_id, ");
-            sb.Append("s.bnloc_id, b.bnloc_nm, s.clss_id, k.clss_nm, s.grp_id, g.grp_nm ");
-            sb.Append("FROM public.asm_stt_asst s  ");
+            sb.Append("s.bnloc_id, b.bnloc_nm, s.clss_id, k.clss_nm, s.grp_id, g.grp_nm, ");
+            sb.Append("CASE s.cnd_sts WHEN 0 THEN 'In Good Condition' ");
+            sb.Append("WHEN 1 THEN 'Requires Repairs' ");
+            sb.Append("WHEN 2 THEN 'Faulty Beyond Repair' ");
+            sb.Append("WHEN 3 THEN 'End of Life Reached' END cnd_ds ");
+            sb.Append("FROM public.asm_stt_asst s ");
             sb.Append("INNER JOIN public.asm_stt_typs t ON s.typ_id = t.typ_id ");
             sb.Append("INNER JOIN public.asm_stt_ctgs c ON t.ctg_id = c.asst_ctgs_id ");
             sb.Append("INNER JOIN public.gst_locs l ON s.bloc_id = l.locqk ");
@@ -788,9 +842,10 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
                             AssetID = reader["asst_id"] == DBNull.Value ? string.Empty : reader["asst_id"].ToString(),
                             AssetName = reader["asst_nm"] == DBNull.Value ? string.Empty : reader["asst_nm"].ToString(),
                             AssetNumber = reader["asst_no"] == DBNull.Value ? string.Empty : reader["asst_no"].ToString(),
+                            CustomField = reader["asst_cndt"] == DBNull.Value ? string.Empty : reader["asst_cndt"].ToString(),
                             AssetDescription = reader["asst_ds"] == DBNull.Value ? string.Empty : reader["asst_ds"].ToString(),
                             UsageStatus = reader["usg_stts"] == DBNull.Value ? string.Empty : reader["usg_stts"].ToString(),
-                            ConditionDescription = reader["asst_cndt"] == DBNull.Value ? string.Empty : reader["asst_cndt"].ToString(),
+                            ConditionDescription = reader["cnd_ds"] == DBNull.Value ? string.Empty : reader["cnd_ds"].ToString(),
                             CurrentLocation = reader["cur_loc"] == DBNull.Value ? string.Empty : reader["cur_loc"].ToString(),
                             NoOfConfirmedBooking = reader["no_bkd"] == DBNull.Value ? 0 : (long)reader["no_bkd"],
                             ParentAssetID = reader["mstr_id"] == DBNull.Value ? string.Empty : reader["mstr_id"].ToString(),
@@ -830,7 +885,11 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
             sb.Append("s.cur_loc, s.mstr_id, s.pur_dt, s.pur_amt, s.img_pth, s.asst_mb, s.asst_md, s.cnd_sts, ");
             sb.Append("(SELECT COUNT (ass_rsv_id) FROM public.asm_ass_rsvs WHERE asset_id = asst_id AND rsv_stt = 'Confirmed') AS no_bkd,");
             sb.Append("s.asst_cd, s.asst_cb, s.bloc_id, t.typ_nm, c.asst_ctgs_nm, l.locname, dvsn_id, ");
-            sb.Append("s.bnloc_id, b.bnloc_nm, s.clss_id, k.clss_nm, s.grp_id, g.grp_nm ");
+            sb.Append("s.bnloc_id, b.bnloc_nm, s.clss_id, k.clss_nm, s.grp_id, g.grp_nm, ");
+            sb.Append("CASE s.cnd_sts WHEN 0 THEN 'In Good Condition' ");
+            sb.Append("WHEN 1 THEN 'Requires Repairs' ");
+            sb.Append("WHEN 2 THEN 'Faulty Beyond Repair' ");
+            sb.Append("WHEN 3 THEN 'End of Life Reached' END cnd_ds ");
             sb.Append("FROM public.asm_stt_asst s  ");
             sb.Append("INNER JOIN public.asm_stt_typs t ON s.typ_id = t.typ_id ");
             sb.Append("INNER JOIN public.asm_stt_ctgs c ON t.ctg_id = c.asst_ctgs_id ");
@@ -867,9 +926,10 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
                             AssetID = reader["asst_id"] == DBNull.Value ? string.Empty : reader["asst_id"].ToString(),
                             AssetName = reader["asst_nm"] == DBNull.Value ? string.Empty : reader["asst_nm"].ToString(),
                             AssetNumber = reader["asst_no"] == DBNull.Value ? string.Empty : reader["asst_no"].ToString(),
+                            CustomField = reader["asst_cndt"] == DBNull.Value ? string.Empty : reader["asst_cndt"].ToString(),
                             AssetDescription = reader["asst_ds"] == DBNull.Value ? string.Empty : reader["asst_ds"].ToString(),
                             UsageStatus = reader["usg_stts"] == DBNull.Value ? string.Empty : reader["usg_stts"].ToString(),
-                            ConditionDescription = reader["asst_cndt"] == DBNull.Value ? string.Empty : reader["asst_cndt"].ToString(),
+                            ConditionDescription = reader["cnd_ds"] == DBNull.Value ? string.Empty : reader["cnd_ds"].ToString(),
                             CurrentLocation = reader["cur_loc"] == DBNull.Value ? string.Empty : reader["cur_loc"].ToString(),
                             NoOfConfirmedBooking = reader["no_bkd"] == DBNull.Value ? 0 : (long)reader["no_bkd"],
                             ParentAssetID = reader["mstr_id"] == DBNull.Value ? string.Empty : reader["mstr_id"].ToString(),
@@ -909,7 +969,11 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
             sb.Append("s.cur_loc, s.mstr_id, s.pur_dt, s.pur_amt, s.img_pth, s.asst_mb, s.asst_md, s.cnd_sts, ");
             sb.Append("(SELECT COUNT (ass_rsv_id) FROM public.asm_ass_rsvs WHERE asset_id = asst_id AND rsv_stt = 'Confirmed') AS no_bkd,");
             sb.Append("s.asst_cd, s.asst_cb, s.bloc_id, t.typ_nm, c.asst_ctgs_nm, l.locname, dvsn_id, ");
-            sb.Append("s.bnloc_id, b.bnloc_nm, s.clss_id, k.clss_nm, s.grp_id, g.grp_nm ");
+            sb.Append("s.bnloc_id, b.bnloc_nm, s.clss_id, k.clss_nm, s.grp_id, g.grp_nm, ");
+            sb.Append("CASE s.cnd_sts WHEN 0 THEN 'In Good Condition' ");
+            sb.Append("WHEN 1 THEN 'Requires Repairs' ");
+            sb.Append("WHEN 2 THEN 'Faulty Beyond Repair' ");
+            sb.Append("WHEN 3 THEN 'End of Life Reached' END cnd_ds ");
             sb.Append("FROM public.asm_stt_asst s  ");
             sb.Append("INNER JOIN public.asm_stt_typs t ON s.typ_id = t.typ_id ");
             sb.Append("INNER JOIN public.asm_stt_ctgs c ON t.ctg_id = c.asst_ctgs_id ");
@@ -944,9 +1008,10 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
                             AssetID = reader["asst_id"] == DBNull.Value ? string.Empty : reader["asst_id"].ToString(),
                             AssetName = reader["asst_nm"] == DBNull.Value ? string.Empty : reader["asst_nm"].ToString(),
                             AssetNumber = reader["asst_no"] == DBNull.Value ? string.Empty : reader["asst_no"].ToString(),
+                            CustomField = reader["asst_cndt"] == DBNull.Value ? string.Empty : reader["asst_cndt"].ToString(),
                             AssetDescription = reader["asst_ds"] == DBNull.Value ? string.Empty : reader["asst_ds"].ToString(),
                             UsageStatus = reader["usg_stts"] == DBNull.Value ? string.Empty : reader["usg_stts"].ToString(),
-                            ConditionDescription = reader["asst_cndt"] == DBNull.Value ? string.Empty : reader["asst_cndt"].ToString(),
+                            ConditionDescription = reader["cnd_ds"] == DBNull.Value ? string.Empty : reader["cnd_ds"].ToString(),
                             CurrentLocation = reader["cur_loc"] == DBNull.Value ? string.Empty : reader["cur_loc"].ToString(),
                             NoOfConfirmedBooking = reader["no_bkd"] == DBNull.Value ? 0 : (long)reader["no_bkd"],
                             ParentAssetID = reader["mstr_id"] == DBNull.Value ? string.Empty : reader["mstr_id"].ToString(),
@@ -986,7 +1051,11 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
             sb.Append("s.cur_loc, s.mstr_id, s.pur_dt, s.pur_amt, s.img_pth, s.asst_mb, s.asst_md, s.cnd_sts, ");
             sb.Append("(SELECT COUNT (ass_rsv_id) FROM public.asm_ass_rsvs WHERE asset_id = asst_id AND rsv_stt = 'Confirmed') AS no_bkd,");
             sb.Append("s.asst_cd, s.asst_cb, s.bloc_id, t.typ_nm, c.asst_ctgs_nm, l.locname, dvsn_id, ");
-            sb.Append("s.bnloc_id, b.bnloc_nm, s.clss_id, k.clss_nm, s.grp_id, g.grp_nm ");
+            sb.Append("s.bnloc_id, b.bnloc_nm, s.clss_id, k.clss_nm, s.grp_id, g.grp_nm, ");
+            sb.Append("CASE s.cnd_sts WHEN 0 THEN 'In Good Condition' ");
+            sb.Append("WHEN 1 THEN 'Requires Repairs' ");
+            sb.Append("WHEN 2 THEN 'Faulty Beyond Repair' ");
+            sb.Append("WHEN 3 THEN 'End of Life Reached' END cnd_ds ");
             sb.Append("FROM public.asm_stt_asst s  ");
             sb.Append("INNER JOIN public.asm_stt_typs t ON s.typ_id = t.typ_id ");
             sb.Append("INNER JOIN public.asm_stt_ctgs c ON t.ctg_id = c.asst_ctgs_id ");
@@ -1023,9 +1092,10 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
                             AssetID = reader["asst_id"] == DBNull.Value ? string.Empty : reader["asst_id"].ToString(),
                             AssetName = reader["asst_nm"] == DBNull.Value ? string.Empty : reader["asst_nm"].ToString(),
                             AssetNumber = reader["asst_no"] == DBNull.Value ? string.Empty : reader["asst_no"].ToString(),
+                            CustomField = reader["asst_cndt"] == DBNull.Value ? string.Empty : reader["asst_cndt"].ToString(),
                             AssetDescription = reader["asst_ds"] == DBNull.Value ? string.Empty : reader["asst_ds"].ToString(),
                             UsageStatus = reader["usg_stts"] == DBNull.Value ? string.Empty : reader["usg_stts"].ToString(),
-                            ConditionDescription = reader["asst_cndt"] == DBNull.Value ? string.Empty : reader["asst_cndt"].ToString(),
+                            ConditionDescription = reader["cnd_ds"] == DBNull.Value ? string.Empty : reader["cnd_ds"].ToString(),
                             CurrentLocation = reader["cur_loc"] == DBNull.Value ? string.Empty : reader["cur_loc"].ToString(),
                             NoOfConfirmedBooking = reader["no_bkd"] == DBNull.Value ? 0 : (long)reader["no_bkd"],
                             ParentAssetID = reader["mstr_id"] == DBNull.Value ? string.Empty : reader["mstr_id"].ToString(),
@@ -1066,8 +1136,12 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
             sb.Append("s.cur_loc, s.mstr_id, s.pur_dt, s.pur_amt, s.img_pth, s.asst_mb, s.asst_md, s.cnd_sts, ");
             sb.Append("(SELECT COUNT (ass_rsv_id) FROM public.asm_ass_rsvs WHERE asset_id = asst_id AND rsv_stt = 'Confirmed') AS no_bkd,");
             sb.Append("s.asst_cd, s.asst_cb, s.bloc_id, t.typ_nm, c.asst_ctgs_nm, l.locname, dvsn_id, ");
-            sb.Append("s.bnloc_id, b.bnloc_nm, s.clss_id, k.clss_nm, s.grp_id, g.grp_nm ");
-            sb.Append("FROM public.asm_stt_asst s  ");
+            sb.Append("s.bnloc_id, b.bnloc_nm, s.clss_id, k.clss_nm, s.grp_id, g.grp_nm, ");
+            sb.Append("CASE s.cnd_sts WHEN 0 THEN 'In Good Condition' ");
+            sb.Append("WHEN 1 THEN 'Requires Repairs' ");
+            sb.Append("WHEN 2 THEN 'Faulty Beyond Repair' ");
+            sb.Append("WHEN 3 THEN 'End of Life Reached' END cnd_ds ");
+            sb.Append("FROM public.asm_stt_asst s ");
             sb.Append("INNER JOIN public.asm_stt_typs t ON s.typ_id = t.typ_id ");
             sb.Append("INNER JOIN public.asm_stt_ctgs c ON t.ctg_id = c.asst_ctgs_id ");
             sb.Append("INNER JOIN public.gst_locs l ON s.bloc_id = l.locqk ");
@@ -1098,9 +1172,10 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
                             AssetID = reader["asst_id"] == DBNull.Value ? string.Empty : reader["asst_id"].ToString(),
                             AssetName = reader["asst_nm"] == DBNull.Value ? string.Empty : reader["asst_nm"].ToString(),
                             AssetNumber = reader["asst_no"] == DBNull.Value ? string.Empty : reader["asst_no"].ToString(),
+                            CustomField = reader["asst_cndt"] == DBNull.Value ? string.Empty : reader["asst_cndt"].ToString(),
                             AssetDescription = reader["asst_ds"] == DBNull.Value ? string.Empty : reader["asst_ds"].ToString(),
                             UsageStatus = reader["usg_stts"] == DBNull.Value ? string.Empty : reader["usg_stts"].ToString(),
-                            ConditionDescription = reader["asst_cndt"] == DBNull.Value ? string.Empty : reader["asst_cndt"].ToString(),
+                            ConditionDescription = reader["cnd_ds"] == DBNull.Value ? string.Empty : reader["cnd_ds"].ToString(),
                             CurrentLocation = reader["cur_loc"] == DBNull.Value ? string.Empty : reader["cur_loc"].ToString(),
                             NoOfConfirmedBooking = reader["no_bkd"] == DBNull.Value ? 0 : (long)reader["no_bkd"],
                             ParentAssetID = reader["mstr_id"] == DBNull.Value ? string.Empty : reader["mstr_id"].ToString(),
@@ -1141,7 +1216,11 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
             sb.Append("s.cur_loc, s.mstr_id, s.pur_dt, s.pur_amt, s.img_pth, s.asst_mb, s.asst_md, s.cnd_sts, ");
             sb.Append("(SELECT COUNT (ass_rsv_id) FROM public.asm_ass_rsvs WHERE asset_id = asst_id AND rsv_stt = 'Confirmed') AS no_bkd,");
             sb.Append("s.asst_cd, s.asst_cb, s.bloc_id, t.typ_nm, c.asst_ctgs_nm, l.locname, dvsn_id, ");
-            sb.Append("s.bnloc_id, b.bnloc_nm, s.clss_id, k.clss_nm, s.grp_id, g.grp_nm ");
+            sb.Append("s.bnloc_id, b.bnloc_nm, s.clss_id, k.clss_nm, s.grp_id, g.grp_nm, ");
+            sb.Append("CASE s.cnd_sts WHEN 0 THEN 'In Good Condition' ");
+            sb.Append("WHEN 1 THEN 'Requires Repairs' ");
+            sb.Append("WHEN 2 THEN 'Faulty Beyond Repair' ");
+            sb.Append("WHEN 3 THEN 'End of Life Reached' END cnd_ds ");
             sb.Append("FROM public.asm_stt_asst s  ");
             sb.Append("INNER JOIN public.asm_stt_typs t ON s.typ_id = t.typ_id ");
             sb.Append("INNER JOIN public.asm_stt_ctgs c ON t.ctg_id = c.asst_ctgs_id ");
@@ -1175,9 +1254,10 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
                             AssetID = reader["asst_id"] == DBNull.Value ? string.Empty : reader["asst_id"].ToString(),
                             AssetName = reader["asst_nm"] == DBNull.Value ? string.Empty : reader["asst_nm"].ToString(),
                             AssetNumber = reader["asst_no"] == DBNull.Value ? string.Empty : reader["asst_no"].ToString(),
+                            CustomField = reader["asst_cndt"] == DBNull.Value ? string.Empty : reader["asst_cndt"].ToString(),
                             AssetDescription = reader["asst_ds"] == DBNull.Value ? string.Empty : reader["asst_ds"].ToString(),
                             UsageStatus = reader["usg_stts"] == DBNull.Value ? string.Empty : reader["usg_stts"].ToString(),
-                            ConditionDescription = reader["asst_cndt"] == DBNull.Value ? string.Empty : reader["asst_cndt"].ToString(),
+                            ConditionDescription = reader["cnd_ds"] == DBNull.Value ? string.Empty : reader["cnd_ds"].ToString(),
                             CurrentLocation = reader["cur_loc"] == DBNull.Value ? string.Empty : reader["cur_loc"].ToString(),
                             NoOfConfirmedBooking = reader["no_bkd"] == DBNull.Value ? 0 : (long)reader["no_bkd"],
                             ParentAssetID = reader["mstr_id"] == DBNull.Value ? string.Empty : reader["mstr_id"].ToString(),
@@ -1219,7 +1299,11 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
             sb.Append("s.cur_loc, s.mstr_id, s.pur_dt, s.pur_amt, s.img_pth, s.asst_mb, s.asst_md, s.cnd_sts, ");
             sb.Append("(SELECT COUNT (ass_rsv_id) FROM public.asm_ass_rsvs WHERE asset_id = asst_id AND rsv_stt = 'Confirmed') AS no_bkd,");
             sb.Append("s.asst_cd, s.asst_cb, s.bloc_id, t.typ_nm, c.asst_ctgs_nm, l.locname, dvsn_id, ");
-            sb.Append("s.bnloc_id, b.bnloc_nm, s.clss_id, k.clss_nm, s.grp_id, g.grp_nm ");
+            sb.Append("s.bnloc_id, b.bnloc_nm, s.clss_id, k.clss_nm, s.grp_id, g.grp_nm, ");
+            sb.Append("CASE s.cnd_sts WHEN 0 THEN 'In Good Condition' ");
+            sb.Append("WHEN 1 THEN 'Requires Repairs' ");
+            sb.Append("WHEN 2 THEN 'Faulty Beyond Repair' ");
+            sb.Append("WHEN 3 THEN 'End of Life Reached' END cnd_ds ");
             sb.Append("FROM public.asm_stt_asst s  ");
             sb.Append("INNER JOIN public.asm_stt_typs t ON s.typ_id = t.typ_id ");
             sb.Append("INNER JOIN public.asm_stt_ctgs c ON t.ctg_id = c.asst_ctgs_id ");
@@ -1254,9 +1338,10 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
                             AssetID = reader["asst_id"] == DBNull.Value ? string.Empty : reader["asst_id"].ToString(),
                             AssetName = reader["asst_nm"] == DBNull.Value ? string.Empty : reader["asst_nm"].ToString(),
                             AssetNumber = reader["asst_no"] == DBNull.Value ? string.Empty : reader["asst_no"].ToString(),
+                            CustomField = reader["asst_cndt"] == DBNull.Value ? string.Empty : reader["asst_cndt"].ToString(),
                             AssetDescription = reader["asst_ds"] == DBNull.Value ? string.Empty : reader["asst_ds"].ToString(),
                             UsageStatus = reader["usg_stts"] == DBNull.Value ? string.Empty : reader["usg_stts"].ToString(),
-                            ConditionDescription = reader["asst_cndt"] == DBNull.Value ? string.Empty : reader["asst_cndt"].ToString(),
+                            ConditionDescription = reader["cnd_ds"] == DBNull.Value ? string.Empty : reader["cnd_ds"].ToString(),
                             CurrentLocation = reader["cur_loc"] == DBNull.Value ? string.Empty : reader["cur_loc"].ToString(),
                             NoOfConfirmedBooking = reader["no_bkd"] == DBNull.Value ? 0 : (long)reader["no_bkd"],
                             ParentAssetID = reader["mstr_id"] == DBNull.Value ? string.Empty : reader["mstr_id"].ToString(),
@@ -1296,7 +1381,11 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
             sb.Append("s.cur_loc, s.mstr_id, s.pur_dt, s.pur_amt, s.img_pth, s.asst_mb, s.asst_md, s.cnd_sts, ");
             sb.Append("(SELECT COUNT (ass_rsv_id) FROM public.asm_ass_rsvs WHERE asset_id = asst_id AND rsv_stt = 'Confirmed') AS no_bkd,");
             sb.Append("s.asst_cd, s.asst_cb, s.bloc_id, t.typ_nm, c.asst_ctgs_nm, l.locname, dvsn_id, ");
-            sb.Append("s.bnloc_id, b.bnloc_nm, s.clss_id, k.clss_nm, s.grp_id, g.grp_nm ");
+            sb.Append("s.bnloc_id, b.bnloc_nm, s.clss_id, k.clss_nm, s.grp_id, g.grp_nm, ");
+            sb.Append("CASE s.cnd_sts WHEN 0 THEN 'In Good Condition' ");
+            sb.Append("WHEN 1 THEN 'Requires Repairs' ");
+            sb.Append("WHEN 2 THEN 'Faulty Beyond Repair' ");
+            sb.Append("WHEN 3 THEN 'End of Life Reached' END cnd_ds ");
             sb.Append("FROM public.asm_stt_asst s  ");
             sb.Append("INNER JOIN public.asm_stt_typs t ON s.typ_id = t.typ_id ");
             sb.Append("INNER JOIN public.asm_stt_ctgs c ON t.ctg_id = c.asst_ctgs_id ");
@@ -1333,9 +1422,10 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
                             AssetID = reader["asst_id"] == DBNull.Value ? string.Empty : reader["asst_id"].ToString(),
                             AssetName = reader["asst_nm"] == DBNull.Value ? string.Empty : reader["asst_nm"].ToString(),
                             AssetNumber = reader["asst_no"] == DBNull.Value ? string.Empty : reader["asst_no"].ToString(),
+                            CustomField = reader["asst_cndt"] == DBNull.Value ? string.Empty : reader["asst_cndt"].ToString(),
                             AssetDescription = reader["asst_ds"] == DBNull.Value ? string.Empty : reader["asst_ds"].ToString(),
                             UsageStatus = reader["usg_stts"] == DBNull.Value ? string.Empty : reader["usg_stts"].ToString(),
-                            ConditionDescription = reader["asst_cndt"] == DBNull.Value ? string.Empty : reader["asst_cndt"].ToString(),
+                            ConditionDescription = reader["cnd_ds"] == DBNull.Value ? string.Empty : reader["cnd_ds"].ToString(),
                             CurrentLocation = reader["cur_loc"] == DBNull.Value ? string.Empty : reader["cur_loc"].ToString(),
                             NoOfConfirmedBooking = reader["no_bkd"] == DBNull.Value ? 0 : (long)reader["no_bkd"],
                             ParentAssetID = reader["mstr_id"] == DBNull.Value ? string.Empty : reader["mstr_id"].ToString(),
@@ -1375,7 +1465,11 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
             sb.Append("s.cur_loc, s.mstr_id, s.pur_dt, s.pur_amt, s.img_pth, s.asst_mb, s.asst_md, s.cnd_sts, ");
             sb.Append("(SELECT COUNT (ass_rsv_id) FROM public.asm_ass_rsvs WHERE asset_id = asst_id AND rsv_stt = 'Confirmed') AS no_bkd,");
             sb.Append("s.asst_cd, s.asst_cb, s.bloc_id, t.typ_nm, c.asst_ctgs_nm, l.locname, dvsn_id, ");
-            sb.Append("s.bnloc_id, b.bnloc_nm, s.clss_id, k.clss_nm, s.grp_id, g.grp_nm ");
+            sb.Append("s.bnloc_id, b.bnloc_nm, s.clss_id, k.clss_nm, s.grp_id, g.grp_nm, ");
+            sb.Append("CASE s.cnd_sts WHEN 0 THEN 'In Good Condition' ");
+            sb.Append("WHEN 1 THEN 'Requires Repairs' ");
+            sb.Append("WHEN 2 THEN 'Faulty Beyond Repair' ");
+            sb.Append("WHEN 3 THEN 'End of Life Reached' END cnd_ds ");
             sb.Append("FROM public.asm_stt_asst s  ");
             sb.Append("INNER JOIN public.asm_stt_typs t ON s.typ_id = t.typ_id ");
             sb.Append("INNER JOIN public.asm_stt_ctgs c ON t.ctg_id = c.asst_ctgs_id ");
@@ -1410,9 +1504,10 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
                             AssetID = reader["asst_id"] == DBNull.Value ? string.Empty : reader["asst_id"].ToString(),
                             AssetName = reader["asst_nm"] == DBNull.Value ? string.Empty : reader["asst_nm"].ToString(),
                             AssetNumber = reader["asst_no"] == DBNull.Value ? string.Empty : reader["asst_no"].ToString(),
+                            CustomField = reader["asst_cndt"] == DBNull.Value ? string.Empty : reader["asst_cndt"].ToString(),
                             AssetDescription = reader["asst_ds"] == DBNull.Value ? string.Empty : reader["asst_ds"].ToString(),
                             UsageStatus = reader["usg_stts"] == DBNull.Value ? string.Empty : reader["usg_stts"].ToString(),
-                            ConditionDescription = reader["asst_cndt"] == DBNull.Value ? string.Empty : reader["asst_cndt"].ToString(),
+                            ConditionDescription = reader["cnd_ds"] == DBNull.Value ? string.Empty : reader["cnd_ds"].ToString(),
                             CurrentLocation = reader["cur_loc"] == DBNull.Value ? string.Empty : reader["cur_loc"].ToString(),
                             NoOfConfirmedBooking = reader["no_bkd"] == DBNull.Value ? 0 : (long)reader["no_bkd"],
                             ParentAssetID = reader["mstr_id"] == DBNull.Value ? string.Empty : reader["mstr_id"].ToString(),
@@ -1452,7 +1547,11 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
             sb.Append("s.cur_loc, s.mstr_id, s.pur_dt, s.pur_amt, s.img_pth, s.asst_mb, s.asst_md, s.cnd_sts, ");
             sb.Append("(SELECT COUNT (ass_rsv_id) FROM public.asm_ass_rsvs WHERE asset_id = asst_id AND rsv_stt = 'Confirmed') AS no_bkd,");
             sb.Append("s.asst_cd, s.asst_cb, s.bloc_id, t.typ_nm, c.asst_ctgs_nm, l.locname, dvsn_id, ");
-            sb.Append("s.bnloc_id, b.bnloc_nm, s.clss_id, k.clss_nm, s.grp_id, g.grp_nm ");
+            sb.Append("s.bnloc_id, b.bnloc_nm, s.clss_id, k.clss_nm, s.grp_id, g.grp_nm, ");
+            sb.Append("CASE s.cnd_sts WHEN 0 THEN 'In Good Condition' ");
+            sb.Append("WHEN 1 THEN 'Requires Repairs' ");
+            sb.Append("WHEN 2 THEN 'Faulty Beyond Repair' ");
+            sb.Append("WHEN 3 THEN 'End of Life Reached' END cnd_ds ");
             sb.Append("FROM public.asm_stt_asst s  ");
             sb.Append("INNER JOIN public.asm_stt_typs t ON s.typ_id = t.typ_id ");
             sb.Append("INNER JOIN public.asm_stt_ctgs c ON t.ctg_id = c.asst_ctgs_id ");
@@ -1489,9 +1588,10 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
                             AssetID = reader["asst_id"] == DBNull.Value ? string.Empty : reader["asst_id"].ToString(),
                             AssetName = reader["asst_nm"] == DBNull.Value ? string.Empty : reader["asst_nm"].ToString(),
                             AssetNumber = reader["asst_no"] == DBNull.Value ? string.Empty : reader["asst_no"].ToString(),
+                            CustomField = reader["asst_cndt"] == DBNull.Value ? string.Empty : reader["asst_cndt"].ToString(),
                             AssetDescription = reader["asst_ds"] == DBNull.Value ? string.Empty : reader["asst_ds"].ToString(),
                             UsageStatus = reader["usg_stts"] == DBNull.Value ? string.Empty : reader["usg_stts"].ToString(),
-                            ConditionDescription = reader["asst_cndt"] == DBNull.Value ? string.Empty : reader["asst_cndt"].ToString(),
+                            ConditionDescription = reader["cnd_ds"] == DBNull.Value ? string.Empty : reader["cnd_ds"].ToString(),
                             CurrentLocation = reader["cur_loc"] == DBNull.Value ? string.Empty : reader["cur_loc"].ToString(),
                             NoOfConfirmedBooking = reader["no_bkd"] == DBNull.Value ? 0 : (long)reader["no_bkd"],
                             ParentAssetID = reader["mstr_id"] == DBNull.Value ? string.Empty : reader["mstr_id"].ToString(),
@@ -1532,7 +1632,11 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
             sb.Append("s.cur_loc, s.mstr_id, s.pur_dt, s.pur_amt, s.img_pth, s.asst_mb, s.asst_md, s.cnd_sts, ");
             sb.Append("(SELECT COUNT (ass_rsv_id) FROM public.asm_ass_rsvs WHERE asset_id = asst_id AND rsv_stt = 'Confirmed') AS no_bkd,");
             sb.Append("s.asst_cd, s.asst_cb, s.bloc_id, t.typ_nm, c.asst_ctgs_nm, l.locname, dvsn_id, ");
-            sb.Append("s.bnloc_id, b.bnloc_nm, s.clss_id, k.clss_nm, s.grp_id, g.grp_nm ");
+            sb.Append("s.bnloc_id, b.bnloc_nm, s.clss_id, k.clss_nm, s.grp_id, g.grp_nm, ");
+            sb.Append("CASE s.cnd_sts WHEN 0 THEN 'In Good Condition' ");
+            sb.Append("WHEN 1 THEN 'Requires Repairs' ");
+            sb.Append("WHEN 2 THEN 'Faulty Beyond Repair' ");
+            sb.Append("WHEN 3 THEN 'End of Life Reached' END cnd_ds ");
             sb.Append("FROM public.asm_stt_asst s  ");
             sb.Append("INNER JOIN public.asm_stt_typs t ON s.typ_id = t.typ_id ");
             sb.Append("INNER JOIN public.asm_stt_ctgs c ON t.ctg_id = c.asst_ctgs_id ");
@@ -1564,9 +1668,10 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
                             AssetID = reader["asst_id"] == DBNull.Value ? string.Empty : reader["asst_id"].ToString(),
                             AssetName = reader["asst_nm"] == DBNull.Value ? string.Empty : reader["asst_nm"].ToString(),
                             AssetNumber = reader["asst_no"] == DBNull.Value ? string.Empty : reader["asst_no"].ToString(),
+                            CustomField = reader["asst_cndt"] == DBNull.Value ? string.Empty : reader["asst_cndt"].ToString(),
                             AssetDescription = reader["asst_ds"] == DBNull.Value ? string.Empty : reader["asst_ds"].ToString(),
                             UsageStatus = reader["usg_stts"] == DBNull.Value ? string.Empty : reader["usg_stts"].ToString(),
-                            ConditionDescription = reader["asst_cndt"] == DBNull.Value ? string.Empty : reader["asst_cndt"].ToString(),
+                            ConditionDescription = reader["cnd_ds"] == DBNull.Value ? string.Empty : reader["cnd_ds"].ToString(),
                             CurrentLocation = reader["cur_loc"] == DBNull.Value ? string.Empty : reader["cur_loc"].ToString(),
                             NoOfConfirmedBooking = reader["no_bkd"] == DBNull.Value ? 0 : (long)reader["no_bkd"],
                             ParentAssetID = reader["mstr_id"] == DBNull.Value ? string.Empty : reader["mstr_id"].ToString(),
@@ -1607,7 +1712,11 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
             sb.Append("s.cur_loc, s.mstr_id, s.pur_dt, s.pur_amt, s.img_pth, s.asst_mb, s.asst_md, s.cnd_sts, ");
             sb.Append("(SELECT COUNT (ass_rsv_id) FROM public.asm_ass_rsvs WHERE asset_id = asst_id AND rsv_stt = 'Confirmed') AS no_bkd,");
             sb.Append("s.asst_cd, s.asst_cb, s.bloc_id, t.typ_nm, c.asst_ctgs_nm, l.locname, dvsn_id, ");
-            sb.Append("s.bnloc_id, b.bnloc_nm, s.clss_id, k.clss_nm, s.grp_id, g.grp_nm ");
+            sb.Append("s.bnloc_id, b.bnloc_nm, s.clss_id, k.clss_nm, s.grp_id, g.grp_nm, ");
+            sb.Append("CASE s.cnd_sts WHEN 0 THEN 'In Good Condition' ");
+            sb.Append("WHEN 1 THEN 'Requires Repairs' ");
+            sb.Append("WHEN 2 THEN 'Faulty Beyond Repair' ");
+            sb.Append("WHEN 3 THEN 'End of Life Reached' END cnd_ds ");
             sb.Append("FROM public.asm_stt_asst s  ");
             sb.Append("INNER JOIN public.asm_stt_typs t ON s.typ_id = t.typ_id ");
             sb.Append("INNER JOIN public.asm_stt_ctgs c ON t.ctg_id = c.asst_ctgs_id ");
@@ -1641,9 +1750,10 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
                             AssetID = reader["asst_id"] == DBNull.Value ? string.Empty : reader["asst_id"].ToString(),
                             AssetName = reader["asst_nm"] == DBNull.Value ? string.Empty : reader["asst_nm"].ToString(),
                             AssetNumber = reader["asst_no"] == DBNull.Value ? string.Empty : reader["asst_no"].ToString(),
+                            CustomField = reader["asst_cndt"] == DBNull.Value ? string.Empty : reader["asst_cndt"].ToString(),
                             AssetDescription = reader["asst_ds"] == DBNull.Value ? string.Empty : reader["asst_ds"].ToString(),
                             UsageStatus = reader["usg_stts"] == DBNull.Value ? string.Empty : reader["usg_stts"].ToString(),
-                            ConditionDescription = reader["asst_cndt"] == DBNull.Value ? string.Empty : reader["asst_cndt"].ToString(),
+                            ConditionDescription = reader["cnd_ds"] == DBNull.Value ? string.Empty : reader["cnd_ds"].ToString(),
                             CurrentLocation = reader["cur_loc"] == DBNull.Value ? string.Empty : reader["cur_loc"].ToString(),
                             NoOfConfirmedBooking = reader["no_bkd"] == DBNull.Value ? 0 : (long)reader["no_bkd"],
                             ParentAssetID = reader["mstr_id"] == DBNull.Value ? string.Empty : reader["mstr_id"].ToString(),
@@ -1674,8 +1784,6 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
             await conn.CloseAsync();
             return assetList;
         }
-
-
 
         #endregion
 
@@ -1812,222 +1920,222 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
             return rows > 0;
         }
 
-public async Task<bool> UpdateUsageStatusAsync(string assetId, string newStatus, string modifiedBy)
-{
-    int rows = 0;
-    var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
-    StringBuilder sb = new StringBuilder();
-    sb.Append("UPDATE public.asm_stt_asst SET usg_stts = @usg_stts, asst_mb = @asst_mb, ");
-    sb.Append("asst_md = @asst_md WHERE (asst_id = @asst_id );");
-    string query = sb.ToString();
-    try
-    {
-        await conn.OpenAsync();
-        //Insert data
-        using (var cmd = new NpgsqlCommand(query, conn))
+        public async Task<bool> UpdateUsageStatusAsync(string assetId, string newStatus, string modifiedBy)
         {
-            var asst_id = cmd.Parameters.Add("@asst_id", NpgsqlDbType.Text);
-            var usg_stts = cmd.Parameters.Add("@usg_stts", NpgsqlDbType.Text);
-            var asst_mb = cmd.Parameters.Add("@asst_mb", NpgsqlDbType.Text);
-            var asst_md = cmd.Parameters.Add("@asst_md", NpgsqlDbType.Text);
-            cmd.Prepare();
-            asst_id.Value = assetId;
-            usg_stts.Value = newStatus;
-            asst_mb.Value = modifiedBy ?? (object)DBNull.Value;
-            asst_md.Value = $"{DateTime.UtcNow.ToLongDateString()} {DateTime.UtcNow.ToLongTimeString()} UTC";
+            int rows = 0;
+            var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
+            StringBuilder sb = new StringBuilder();
+            sb.Append("UPDATE public.asm_stt_asst SET usg_stts = @usg_stts, asst_mb = @asst_mb, ");
+            sb.Append("asst_md = @asst_md WHERE (asst_id = @asst_id );");
+            string query = sb.ToString();
+            try
+            {
+                await conn.OpenAsync();
+                //Insert data
+                using (var cmd = new NpgsqlCommand(query, conn))
+                {
+                    var asst_id = cmd.Parameters.Add("@asst_id", NpgsqlDbType.Text);
+                    var usg_stts = cmd.Parameters.Add("@usg_stts", NpgsqlDbType.Text);
+                    var asst_mb = cmd.Parameters.Add("@asst_mb", NpgsqlDbType.Text);
+                    var asst_md = cmd.Parameters.Add("@asst_md", NpgsqlDbType.Text);
+                    cmd.Prepare();
+                    asst_id.Value = assetId;
+                    usg_stts.Value = newStatus;
+                    asst_mb.Value = modifiedBy ?? (object)DBNull.Value;
+                    asst_md.Value = $"{DateTime.UtcNow.ToLongDateString()} {DateTime.UtcNow.ToLongTimeString()} UTC";
 
-            rows = await cmd.ExecuteNonQueryAsync();
-            await conn.CloseAsync();
+                    rows = await cmd.ExecuteNonQueryAsync();
+                    await conn.CloseAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                await conn.CloseAsync();
+                throw new Exception(ex.Message);
+            }
+            return rows > 0;
         }
-    }
-    catch (Exception ex)
-    {
-        await conn.CloseAsync();
-        throw new Exception(ex.Message);
-    }
-    return rows > 0;
-}
 
-public async Task<bool> UpdateAssetConditionAsync(string assetId, string assetCondition, string modifiedBy)
-{
-    int rows = 0;
-    var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
-    StringBuilder sb = new StringBuilder();
-    sb.Append("UPDATE public.asm_stt_asst SET asst_cndt = @asst_cndt, asst_mb = @asst_mb,");
-    sb.Append("asst_md = @asst_md  WHERE (asst_id = @asst_id );");
-    string query = sb.ToString();
-    try
-    {
-        await conn.OpenAsync();
-        //Insert data
-        using (var cmd = new NpgsqlCommand(query, conn))
+        public async Task<bool> UpdateAssetConditionAsync(string assetId, string assetCondition, string modifiedBy)
         {
-            var asst_id = cmd.Parameters.Add("@asst_id", NpgsqlDbType.Text);
-            var asst_cndt = cmd.Parameters.Add("@asst_cndt", NpgsqlDbType.Text);
-            var asst_mb = cmd.Parameters.Add("@asst_mb", NpgsqlDbType.Text);
-            var asst_md = cmd.Parameters.Add("@asst_md", NpgsqlDbType.Text);
-            cmd.Prepare();
-            asst_id.Value = assetId;
-            asst_cndt.Value = assetCondition;
-            asst_mb.Value = modifiedBy ?? (object)DBNull.Value;
-            asst_md.Value = $"{DateTime.UtcNow.ToLongDateString()} {DateTime.UtcNow.ToLongTimeString()} UTC";
-            rows = await cmd.ExecuteNonQueryAsync();
-            await conn.CloseAsync();
+            int rows = 0;
+            var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
+            StringBuilder sb = new StringBuilder();
+            sb.Append("UPDATE public.asm_stt_asst SET asst_cndt = @asst_cndt, asst_mb = @asst_mb,");
+            sb.Append("asst_md = @asst_md  WHERE (asst_id = @asst_id );");
+            string query = sb.ToString();
+            try
+            {
+                await conn.OpenAsync();
+                //Insert data
+                using (var cmd = new NpgsqlCommand(query, conn))
+                {
+                    var asst_id = cmd.Parameters.Add("@asst_id", NpgsqlDbType.Text);
+                    var asst_cndt = cmd.Parameters.Add("@asst_cndt", NpgsqlDbType.Text);
+                    var asst_mb = cmd.Parameters.Add("@asst_mb", NpgsqlDbType.Text);
+                    var asst_md = cmd.Parameters.Add("@asst_md", NpgsqlDbType.Text);
+                    cmd.Prepare();
+                    asst_id.Value = assetId;
+                    asst_cndt.Value = assetCondition;
+                    asst_mb.Value = modifiedBy ?? (object)DBNull.Value;
+                    asst_md.Value = $"{DateTime.UtcNow.ToLongDateString()} {DateTime.UtcNow.ToLongTimeString()} UTC";
+                    rows = await cmd.ExecuteNonQueryAsync();
+                    await conn.CloseAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                await conn.CloseAsync();
+                throw new Exception(ex.Message);
+            }
+            return rows > 0;
         }
-    }
-    catch (Exception ex)
-    {
-        await conn.CloseAsync();
-        throw new Exception(ex.Message);
-    }
-    return rows > 0;
-}
 
-public async Task<bool> UpdateCurrentLocationAsync(string assetId, string currentLocation, string modifiedBy)
-{
-    int rows = 0;
-    var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
-    StringBuilder sb = new StringBuilder();
-    sb.Append("UPDATE public.asm_stt_asst SET cur_loc = @cur_loc, asst_mb = @asst_mb, ");
-    sb.Append("asst_md = @asst_md WHERE (asst_id = @asst_id );");
-    string query = sb.ToString();
-    try
-    {
-        await conn.OpenAsync();
-        //Insert data
-        using (var cmd = new NpgsqlCommand(query, conn))
+        public async Task<bool> UpdateCurrentLocationAsync(string assetId, string currentLocation, string modifiedBy)
         {
-            var asst_id = cmd.Parameters.Add("@asst_id", NpgsqlDbType.Text);
-            var cur_loc = cmd.Parameters.Add("@cur_loc", NpgsqlDbType.Text);
-            var asst_mb = cmd.Parameters.Add("@asst_mb", NpgsqlDbType.Text);
-            var asst_md = cmd.Parameters.Add("@asst_md", NpgsqlDbType.Text);
-            cmd.Prepare();
-            asst_id.Value = assetId;
-            cur_loc.Value = currentLocation;
-            asst_mb.Value = modifiedBy ?? (object)DBNull.Value;
-            asst_md.Value = $"{DateTime.UtcNow.ToLongDateString()} {DateTime.UtcNow.ToLongTimeString()} UTC";
+            int rows = 0;
+            var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
+            StringBuilder sb = new StringBuilder();
+            sb.Append("UPDATE public.asm_stt_asst SET cur_loc = @cur_loc, asst_mb = @asst_mb, ");
+            sb.Append("asst_md = @asst_md WHERE (asst_id = @asst_id );");
+            string query = sb.ToString();
+            try
+            {
+                await conn.OpenAsync();
+                //Insert data
+                using (var cmd = new NpgsqlCommand(query, conn))
+                {
+                    var asst_id = cmd.Parameters.Add("@asst_id", NpgsqlDbType.Text);
+                    var cur_loc = cmd.Parameters.Add("@cur_loc", NpgsqlDbType.Text);
+                    var asst_mb = cmd.Parameters.Add("@asst_mb", NpgsqlDbType.Text);
+                    var asst_md = cmd.Parameters.Add("@asst_md", NpgsqlDbType.Text);
+                    cmd.Prepare();
+                    asst_id.Value = assetId;
+                    cur_loc.Value = currentLocation;
+                    asst_mb.Value = modifiedBy ?? (object)DBNull.Value;
+                    asst_md.Value = $"{DateTime.UtcNow.ToLongDateString()} {DateTime.UtcNow.ToLongTimeString()} UTC";
 
-            rows = await cmd.ExecuteNonQueryAsync();
-            await conn.CloseAsync();
+                    rows = await cmd.ExecuteNonQueryAsync();
+                    await conn.CloseAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                await conn.CloseAsync();
+                throw new Exception(ex.Message);
+            }
+            return rows > 0;
         }
-    }
-    catch (Exception ex)
-    {
-        await conn.CloseAsync();
-        throw new Exception(ex.Message);
-    }
-    return rows > 0;
-}
 
-public async Task<bool> UpdateBaseLocationAsync(string assetId, int baseLocationId, string currentLocation, int? binLocationId, string modifiedBy)
-{
-    int rows = 0;
-    var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
-    StringBuilder sb = new StringBuilder();
-    sb.Append("UPDATE public.asm_stt_asst SET bloc_id = @bloc_id, cur_loc = @cur_loc, asst_mb = @asst_mb, ");
-    sb.Append("asst_md = @asst_md, bnloc_id=@bnloc_id WHERE (asst_id = @asst_id );");
-    string query = sb.ToString();
-    try
-    {
-        await conn.OpenAsync();
-        //Insert data
-        using (var cmd = new NpgsqlCommand(query, conn))
+        public async Task<bool> UpdateBaseLocationAsync(string assetId, int baseLocationId, string currentLocation, int? binLocationId, string modifiedBy)
         {
-            var asst_id = cmd.Parameters.Add("@asst_id", NpgsqlDbType.Text);
-            var bloc_id = cmd.Parameters.Add("@bloc_id", NpgsqlDbType.Integer);
-            var cur_loc = cmd.Parameters.Add("@cur_loc", NpgsqlDbType.Text);
-            var asst_mb = cmd.Parameters.Add("@asst_mb", NpgsqlDbType.Text);
-            var asst_md = cmd.Parameters.Add("@asst_md", NpgsqlDbType.Text);
-            var bnloc_id = cmd.Parameters.Add("@bnloc_id", NpgsqlDbType.Integer);
-            cmd.Prepare();
-            asst_id.Value = assetId;
-            bloc_id.Value = baseLocationId;
-            cur_loc.Value = currentLocation;
-            asst_mb.Value = modifiedBy ?? (object)DBNull.Value;
-            asst_md.Value = $"{DateTime.UtcNow.ToLongDateString()} {DateTime.UtcNow.ToLongTimeString()} UTC";
-            bnloc_id.Value = binLocationId ?? (object)DBNull.Value;
+            int rows = 0;
+            var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
+            StringBuilder sb = new StringBuilder();
+            sb.Append("UPDATE public.asm_stt_asst SET bloc_id = @bloc_id, cur_loc = @cur_loc, asst_mb = @asst_mb, ");
+            sb.Append("asst_md = @asst_md, bnloc_id=@bnloc_id WHERE (asst_id = @asst_id );");
+            string query = sb.ToString();
+            try
+            {
+                await conn.OpenAsync();
+                //Insert data
+                using (var cmd = new NpgsqlCommand(query, conn))
+                {
+                    var asst_id = cmd.Parameters.Add("@asst_id", NpgsqlDbType.Text);
+                    var bloc_id = cmd.Parameters.Add("@bloc_id", NpgsqlDbType.Integer);
+                    var cur_loc = cmd.Parameters.Add("@cur_loc", NpgsqlDbType.Text);
+                    var asst_mb = cmd.Parameters.Add("@asst_mb", NpgsqlDbType.Text);
+                    var asst_md = cmd.Parameters.Add("@asst_md", NpgsqlDbType.Text);
+                    var bnloc_id = cmd.Parameters.Add("@bnloc_id", NpgsqlDbType.Integer);
+                    cmd.Prepare();
+                    asst_id.Value = assetId;
+                    bloc_id.Value = baseLocationId;
+                    cur_loc.Value = currentLocation;
+                    asst_mb.Value = modifiedBy ?? (object)DBNull.Value;
+                    asst_md.Value = $"{DateTime.UtcNow.ToLongDateString()} {DateTime.UtcNow.ToLongTimeString()} UTC";
+                    bnloc_id.Value = binLocationId ?? (object)DBNull.Value;
 
-            rows = await cmd.ExecuteNonQueryAsync();
-            await conn.CloseAsync();
+                    rows = await cmd.ExecuteNonQueryAsync();
+                    await conn.CloseAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                await conn.CloseAsync();
+                throw new Exception(ex.Message);
+            }
+            return rows > 0;
         }
-    }
-    catch (Exception ex)
-    {
-        await conn.CloseAsync();
-        throw new Exception(ex.Message);
-    }
-    return rows > 0;
-}
 
-public async Task<bool> DeleteAsync(string assetId, string deletedBy)
-{
-    int rows = 0;
-    string deletedTime = $"{DateTime.Now.ToLongDateString()} {DateTime.Now.ToLongTimeString()}";
-    var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
-    StringBuilder sb = new StringBuilder();
-    sb.Append("UPDATE public.asm_stt_asst SET is_del=TRUE, asst_mb=@asst_mb, asst_md=@asst_md ");
-    sb.Append("WHERE (asst_id=@asst_id); ");
-    string query = sb.ToString();
-    try
-    {
-        await conn.OpenAsync();
-        //Insert data
-        using (var cmd = new NpgsqlCommand(query, conn))
+        public async Task<bool> DeleteAsync(string assetId, string deletedBy)
         {
-            var asst_id = cmd.Parameters.Add("@asst_id", NpgsqlDbType.Text);
-            var asst_mb = cmd.Parameters.Add("@asst_mb", NpgsqlDbType.Text);
-            var asst_md = cmd.Parameters.Add("@asst_md", NpgsqlDbType.Text);
-            cmd.Prepare();
-            asst_id.Value = assetId;
-            asst_mb.Value = deletedBy ?? (object)DBNull.Value;
-            asst_md.Value = deletedTime ?? (object)DBNull.Value;
+            int rows = 0;
+            string deletedTime = $"{DateTime.Now.ToLongDateString()} {DateTime.Now.ToLongTimeString()}";
+            var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
+            StringBuilder sb = new StringBuilder();
+            sb.Append("UPDATE public.asm_stt_asst SET is_del=TRUE, asst_mb=@asst_mb, asst_md=@asst_md ");
+            sb.Append("WHERE (asst_id=@asst_id); ");
+            string query = sb.ToString();
+            try
+            {
+                await conn.OpenAsync();
+                //Insert data
+                using (var cmd = new NpgsqlCommand(query, conn))
+                {
+                    var asst_id = cmd.Parameters.Add("@asst_id", NpgsqlDbType.Text);
+                    var asst_mb = cmd.Parameters.Add("@asst_mb", NpgsqlDbType.Text);
+                    var asst_md = cmd.Parameters.Add("@asst_md", NpgsqlDbType.Text);
+                    cmd.Prepare();
+                    asst_id.Value = assetId;
+                    asst_mb.Value = deletedBy ?? (object)DBNull.Value;
+                    asst_md.Value = deletedTime ?? (object)DBNull.Value;
 
-            rows = await cmd.ExecuteNonQueryAsync();
-            await conn.CloseAsync();
+                    rows = await cmd.ExecuteNonQueryAsync();
+                    await conn.CloseAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                await conn.CloseAsync();
+                throw new Exception(ex.Message);
+            }
+            return rows > 0;
         }
-    }
-    catch (Exception ex)
-    {
-        await conn.CloseAsync();
-        throw new Exception(ex.Message);
-    }
-    return rows > 0;
-}
 
-public async Task<bool> DeletePermanentlyAsync(string assetId)
-{
-    int rows = 0;
-    var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
-    StringBuilder sb = new StringBuilder();
-    sb.AppendLine("DELETE FROM public.asm_ass_rsvs WHERE (asset_id = @asst_id); ");
-    sb.AppendLine("DELETE FROM public.bam_dpmt_eqmt WHERE usg_id IN (SELECT usg_id FROM asm_ass_usg WHERE asset_id = @asst_id);");
-    sb.AppendLine("DELETE FROM public.asm_ass_usg WHERE (asset_id = @asst_id); ");
-    sb.AppendLine("DELETE FROM public.asm_mtnc_hst WHERE (asm_asst_id = @asst_id); ");
-    sb.AppendLine("DELETE FROM public.asm_incdt_hst WHERE (asm_asst_id = @asst_id); ");
-    sb.AppendLine("DELETE FROM public.asm_mvt_hst WHERE (asm_asst_id = @asst_id); ");
-    sb.AppendLine("DELETE FROM public.bam_dpmt_eqmt WHERE(eqmt_asset_id = @asst_id); ");
-    sb.AppendLine("DELETE FROM public.asm_stt_asst WHERE (asst_id = @asst_id); ");
-    string query = sb.ToString();
-    try
-    {
-        await conn.OpenAsync();
-        //Insert data
-        using (var cmd = new NpgsqlCommand(query, conn))
+        public async Task<bool> DeletePermanentlyAsync(string assetId)
         {
-            var asst_id = cmd.Parameters.Add("@asst_id", NpgsqlDbType.Text);
-            cmd.Prepare();
-            asst_id.Value = assetId;
-            rows = await cmd.ExecuteNonQueryAsync();
-            await conn.CloseAsync();
+            int rows = 0;
+            var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine("DELETE FROM public.asm_ass_rsvs WHERE (asset_id = @asst_id); ");
+            sb.AppendLine("DELETE FROM public.bam_dpmt_eqmt WHERE usg_id IN (SELECT usg_id FROM asm_ass_usg WHERE asset_id = @asst_id);");
+            sb.AppendLine("DELETE FROM public.asm_ass_usg WHERE (asset_id = @asst_id); ");
+            sb.AppendLine("DELETE FROM public.asm_mtnc_hst WHERE (asm_asst_id = @asst_id); ");
+            sb.AppendLine("DELETE FROM public.asm_incdt_hst WHERE (asm_asst_id = @asst_id); ");
+            sb.AppendLine("DELETE FROM public.asm_mvt_hst WHERE (asm_asst_id = @asst_id); ");
+            sb.AppendLine("DELETE FROM public.bam_dpmt_eqmt WHERE(eqmt_asset_id = @asst_id); ");
+            sb.AppendLine("DELETE FROM public.asm_stt_asst WHERE (asst_id = @asst_id); ");
+            string query = sb.ToString();
+            try
+            {
+                await conn.OpenAsync();
+                //Insert data
+                using (var cmd = new NpgsqlCommand(query, conn))
+                {
+                    var asst_id = cmd.Parameters.Add("@asst_id", NpgsqlDbType.Text);
+                    cmd.Prepare();
+                    asst_id.Value = assetId;
+                    rows = await cmd.ExecuteNonQueryAsync();
+                    await conn.CloseAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                await conn.CloseAsync();
+                throw new Exception(ex.Message);
+            }
+            return rows > 0;
         }
-    }
-    catch (Exception ex)
-    {
-        await conn.CloseAsync();
-        throw new Exception(ex.Message);
-    }
-    return rows > 0;
-}
 
         #endregion
     }

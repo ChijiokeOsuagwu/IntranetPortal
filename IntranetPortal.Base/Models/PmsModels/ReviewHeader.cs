@@ -48,8 +48,8 @@ namespace IntranetPortal.Base.Models.PmsModels
         public bool? EvaluationIsAccepted { get; set; }
         public DateTime? TimeEvaluationAccepted { get; set; }
         public bool IsFlagged { get; set; }
-        public string FlaggedBy { get; set; }
         public DateTime? FlaggedTime { get; set; }
+        public string FlaggedReason { get; set; }
         public string PerformanceGoal { get; set; }
     }
 }

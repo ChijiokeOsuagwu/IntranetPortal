@@ -19,8 +19,8 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
             _config = configuration;
         }
 
-        //============== Asset Type Action Methods =======================//
-        #region AssetType Action Methods
+        //======= AssetType Action Methods ===========//
+        #region AssetType Read Action Methods
 
         public async Task<AssetType> GetByIdAsync(int assetTypeId)
         {
@@ -72,7 +72,8 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
             sb.Append("INNER JOIN public.asm_stt_ctgs c ON t.ctg_id = c.asst_ctgs_id ");
             sb.Append("LEFT JOIN public.asm_stt_clss l ON l.clss_id = t.clss_id ");
             sb.Append("LEFT JOIN public.asm_stt_grps g ON g.grp_id = t.grp_id ");
-            sb.Append($"WHERE(LOWER(typ_nm) LIKE '%'||LOWER(@typ_nm)||'%') ORDER BY typ_nm;");
+            sb.Append("WHERE(LOWER(typ_nm) LIKE '%'||LOWER(@typ_nm)||'%') ");
+            sb.Append("ORDER BY t.typ_nm;");
             string query = sb.ToString();
 
             await conn.OpenAsync();
@@ -114,7 +115,8 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
             sb.Append("INNER JOIN public.asm_stt_ctgs c ON t.ctg_id = c.asst_ctgs_id ");
             sb.Append("LEFT JOIN public.asm_stt_clss l ON l.clss_id = t.clss_id ");
             sb.Append("LEFT JOIN public.asm_stt_grps g ON g.grp_id = t.grp_id ");
-            sb.Append("WHERE (t.ctg_id = @ctg_id);");
+            sb.Append("WHERE (t.ctg_id = @ctg_id) ");
+            sb.Append("ORDER BY t.typ_nm;");
             string query = sb.ToString();
 
             await conn.OpenAsync();
@@ -156,7 +158,8 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
             sb.Append("INNER JOIN public.asm_stt_ctgs c ON t.ctg_id = c.asst_ctgs_id ");
             sb.Append("LEFT JOIN public.asm_stt_clss l ON l.clss_id = t.clss_id ");
             sb.Append("LEFT JOIN public.asm_stt_grps g ON g.grp_id = t.grp_id ");
-            sb.Append("WHERE (t.clss_id = @clss_id OR t.clss_id IS NULL);");
+            sb.Append("WHERE (t.clss_id = @clss_id OR t.clss_id IS NULL) ");
+            sb.Append("ORDER BY t.typ_nm;");
             string query = sb.ToString();
 
             await conn.OpenAsync();
@@ -198,7 +201,8 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
             sb.Append("INNER JOIN public.asm_stt_ctgs c ON t.ctg_id = c.asst_ctgs_id ");
             sb.Append("LEFT JOIN public.asm_stt_clss l ON l.clss_id = t.clss_id ");
             sb.Append("LEFT JOIN public.asm_stt_grps g ON g.grp_id = t.grp_id ");
-            sb.Append("WHERE (t.grp_id = @grp_id);");
+            sb.Append("WHERE (t.grp_id = @grp_id) ");
+            sb.Append("ORDER BY t.typ_nm;");
             string query = sb.ToString();
 
             await conn.OpenAsync();
@@ -240,7 +244,7 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
             sb.Append("INNER JOIN public.asm_stt_ctgs c ON t.ctg_id = c.asst_ctgs_id ");
             sb.Append("LEFT JOIN public.asm_stt_clss l ON l.clss_id = t.clss_id ");
             sb.Append("LEFT JOIN public.asm_stt_grps g ON g.grp_id = t.grp_id ");
-            sb.Append("ORDER BY c.asst_ctgs_nm, l.clss_nm, t.typ_nm;");
+            sb.Append("ORDER BY t.typ_nm;");
             string query = sb.ToString();
 
             await conn.OpenAsync();
@@ -268,7 +272,9 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
             await conn.CloseAsync();
             return typesList;
         }
+        #endregion
 
+        #region AssetType Write Action Methods
         public async Task<bool> AddAsync(AssetType assetType)
         {
             int rows = 0;

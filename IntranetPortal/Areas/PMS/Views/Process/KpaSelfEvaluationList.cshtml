@@ -16,6 +16,14 @@
         </div>
     </div>
     <div class="row">
+        @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-x-circle"></i>
+                <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
         @if (Model == null || Model.ReviewResultList == null || Model.ReviewResultList.Count < 1)
         {
             <div class="alert alert-secondary alert-dismissible fade show" role="alert">
@@ -61,7 +69,7 @@
                                             <div class="row">
                                                 <div class="col-md-12 mb-2">
                                                     <label class="form-label text-white fw-bold">Actual Achievement</label>
-                                                    <textarea id="txt_actual_achievement_@kpa.ReviewMetricId" value="@kpa.ActualAchievement" class="form-control fw-bold" rows="2" style="font-size:1.0rem" >@kpa.ActualAchievement</textarea>
+                                                    <textarea id="txt_actual_achievement_@kpa.ReviewMetricId" value="@kpa.ActualAchievement" class="form-control fw-bold" rows="2" style="font-size:1.0rem">@kpa.ActualAchievement</textarea>
                                                     <div id="validation_lbl_actual_achievement_@kpa.ReviewMetricId"></div>
                                                 </div>
                                             </div>
@@ -72,19 +80,22 @@
                                                 </div>
                                             </div>
                                             <div class="row">
-                                                <div class="col-md-2 mb-2">
+                                                <div class="col-md-4 mb-2">
                                                     <label class="form-label text-white fw-bold">Enter Score (%)</label>
-                                                    <input id="txt_appraiser_score_@kpa.ReviewMetricId" value="@kpa.AppraiserScore" class="form-control fw-bold" type="number" min="0" max="100" />
+                                                    <input id="txt_appraiser_score_@kpa.ReviewMetricId" value="@kpa.AppraiserScore" class="form-control fw-bold" />
                                                     <div id="validation_lbl_appraiser_score_@kpa.ReviewMetricId"></div>
                                                 </div>
-                                                <div class="col-md-4 mt-2" id="span_@kpa.ReviewMetricId">
-                                                </div>
-                                                    <div class="col-md-6 mt-2">
-                                                        <button class="btn btn-info" onclick="saveKpaScore(@kpa.ReviewResultId, @kpa.ReviewHeaderId, @kpa.ReviewMetricId, '@Model.AppraiserID', '@Model.PrimaryAppraiserID')"><span class="fw-bold">Save Score</span></button>
+                                                <div class="col-md-8" style="padding-top:30px">
+                                                    <div class="row">
+                                                        <div class="col-md-2">
+                                                            <button class="btn btn-info" onclick="saveKpaScore(@kpa.ReviewResultId, @kpa.ReviewHeaderId, @kpa.ReviewMetricId, '@Model.AppraiserID', '@Model.PrimaryAppraiserID')"><span class="fw-bold">Save Score</span></button>
+                                                        </div>
+                                                        <div class="col-md-10 pt-2" id="span_@kpa.ReviewMetricId">
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
-                                    </div>
+                                        </div>
                                 </td>
                             </tr>
                         }
@@ -109,4 +120,3 @@
 @section Scripts{
     <script src="~/js/pms.js"></script>
 }
-

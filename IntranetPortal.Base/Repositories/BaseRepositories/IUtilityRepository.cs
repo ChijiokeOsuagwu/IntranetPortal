@@ -54,9 +54,11 @@ namespace IntranetPortal.Base.Repositories.BaseRepositories
 
         Task<bool> UpdateMessageReadStatusAsync(int messageDetailId);
 
-        Task<bool> UpdateMessageDeleteStatusByMessageDetailIdAsync(int messageDetailId);
+        //========= Delete Messages Permanently ==========//
+        Task<bool> DeleteMessageDetailByMessageDetailIdAsync(int messageDetailId);
+        Task<bool> DeleteMessageByMessageIdAsync(string messageId);
+        Task<bool> DeleteReadMessageDetailByRecipientIdAsync(string recipientId);
 
-        Task<bool> UpdateMessageDeleteStatusByRecipientIdAsync(string recipientId, bool readStatus);
         #endregion
 
         //============================= Industry Types Action Methods =======================//

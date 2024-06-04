@@ -12,12 +12,11 @@ namespace IntranetPortal.Areas.ContentManager.Models
     {
         public int Id { get; set; }
         public string CodedId { get; set; }
-        [Required]
-        [MaxLength(50, ErrorMessage = "Title cannot be more than 50 characters.")]
+
+        [MaxLength(60, ErrorMessage = "Title cannot be more than 50 characters.")]
         [Display(Name = "Banner Title")]
         public string Title { get; set; }
 
-        [Required]
         [MaxLength(100, ErrorMessage = "Caption cannot be more than 100 characters.")]
         [Display(Name = "Banner Caption")]
         public string Summary { get; set; }

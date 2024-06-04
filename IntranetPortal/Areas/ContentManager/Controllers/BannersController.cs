@@ -180,7 +180,7 @@ namespace IntranetPortal.Areas.ContentManager.Controllers
             {
                 Post post = new Post();
                 string absoluteFilePath = string.Empty;
-                string uploadedFilePath = string.Empty;
+                string uploadedFilePath = model.OldImagePath;
 
                 if (model.BannerImage != null)
                 {
@@ -203,6 +203,7 @@ namespace IntranetPortal.Areas.ContentManager.Controllers
                     }
                 }
 
+                post.PostId = model.Id;
                 post.IsHidden = model.IsHidden;
                 post.PostSummary = model.Summary;
                 post.PostTypeId = (int)PostType.Banner;

@@ -16,6 +16,15 @@
             </div>
         </div>
         <div class="row">
+            @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bi bi-x-circle"></i>
+                    <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+
             @if (Model == null || Model.ReviewResultList == null || Model.ReviewResultList.Count < 1)
             {
                 <div class="alert alert-secondary alert-dismissible fade show" role="alert">
@@ -63,10 +72,9 @@
                                                             <option value="0">Select Score</option>
                                                         </select>
                                                     </div>
-                                                    <div class="col-md-4 mt-3" id="span_@cmp.ReviewMetricId">
-                                                    </div>
-                                                    <div class="col-md-2 mt-3">
-                                                        @*<button class="btn btn-success" onclick="saveCmpScore(@cmp.ReviewResultId, @cmp.ReviewHeaderId, @cmp.ReviewMetricId, '@Model.AppraiserID', '@Model.PrimaryAppraiserID')"><span class="text-white fw-bold">Save Score</span></button>*@
+                                                    <div class="col-md-6">
+                                                        <div style="margin-top:40px;" id="span_@cmp.ReviewMetricId">
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -79,7 +87,7 @@
                 </div>
                 <div class="row">
                     <div class="col-md-6 text-start">
-                        <a asp-area="PMS" asp-controller="Process" asp-action="KpaFinalEvaluationList" asp-route-id="@Model.ReviewHeaderID" asp-route-ad="@Model.AppraiserID" asp-route-sd="@Model.SubmissionID"  title="Go Back" class="btn btn-outline-light text-dark">
+                        <a asp-area="PMS" asp-controller="Process" asp-action="KpaFinalEvaluationList" asp-route-id="@Model.ReviewHeaderID" asp-route-ad="@Model.AppraiserID" asp-route-sd="@Model.SubmissionID" title="Go Back" class="btn btn-outline-light text-dark">
                             <i class="bi bi-backspace fw-bolder" style="font-size: 1.1rem;"></i><span class="fw-bold ml-2" style="font-size: 1.0rem;">Back</span>
                         </a>
                     </div>

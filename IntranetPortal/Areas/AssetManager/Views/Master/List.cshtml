@@ -1,39 +1,72 @@
-﻿@model IntranetPortal.Areas.AssetManager.Models.AssetListViewModel
-@{
-    ViewData["Title"] = "OfficeManager | Assets Master List";
-}
-    <div class="container">
-        <h4>Assets Master List</h4>
-        <hr />
-        <div class="row mb-2">
-            <form asp-area="AssetManager" asp-controller="Master" asp-action="List" method="get">
-                <a asp-area="AssetManager" asp-controller="Home" asp-action="Index" class="btn btn-dark" style="width:75px" title="Click to Go Back">
-                    <span class="text-white">Back</span>
+﻿@model IntranetPortal.Areas.AssetManager.Models.AssetStatusReportViewModel
+<div class="container">
+    <h4 class="mb-1">Assets & Equipment Master List</h4>
+    <hr />
+    <div class="row">
+        <div class="row">
+            <div class="col-md-12 mb-3 text-start">
+                <a asp-area="AssetManager" asp-controller="Home" asp-action="Index" title="Go Back" class="btn btn-sm btn-outline-light text-dark">
+                    <i class="bi bi-backspace fw-bolder" style="font-size: 1.0rem;"></i><span class="fw-bold ml-1" style="font-size: 0.9rem;">Back</span>
                 </a>
-                <select asp-for="gp" asp-items="@ViewBag.AssetGroupList" class="border-0" style="width:300px">
-                    <option value="">- Select Group -</option>
-                </select>
-                <select asp-for="tp" asp-items="@ViewBag.AssetTypeList" class="border-0" style="width:300px">
-                    <option value="">- Select Type -</option>
-                </select>
-                <input asp-for="an" placeholder="Enter Name" class="border-0" style="width:250px" />
-                <input type="submit" value="Search" class="btn btn-dark mr-2" style="width:75px" />
-                <a asp-area="AssetManager" asp-controller="Master" asp-action="SelectType" class="btn btn-success" style="width:100px" title="Add New Asset">
-                    <span class="text-white">New Asset</span>
-                </a>
-            </form>
+                @if (Model != null && Model.AssetMasterList != null && Model.AssetMasterList.Count > 0)
+                {
+                    <a asp-area="AssetManager" asp-controller="Master" asp-action="DownloadAssetMasterList" asp-route-bsl="@Model.bsl" asp-route-bnl="@Model.bnl" asp-route-typ="@Model.typ" title="Download Excel" class="btn btn-sm btn-outline-light ml-2 text-dark">
+                        <i class="bi bi-download fw-bolder" style="font-size: 1.0rem;"></i><span class="fw-bold ml-1" style="font-size: 0.9rem;">Download</span>
+                    </a>
+                }
+            </div>
         </div>
         <div class="row">
-            @if (!String.IsNullOrEmpty(ViewBag.ErrorMessage))
-            {
-                <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                    <i class="bi bi-x-circle"></i>
-                    <span class="fw-bold">@ViewBag.ErrorMessage</span>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            <form asp-area="AssetManager" asp-controller="Master" asp-action="List" method="get">
+                <div class="row">
+                    <div class="col-md-3 mb-2">
+                        <select asp-for="bsl" asp-items="@ViewBag.BaseLocationList" class="fw-bold bg-light border-0">
+                            <option value=""> Base Location </option>
+                        </select>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <select asp-for="bnl" asp-items="@ViewBag.BinLocationList" class="fw-bold bg-light border-0">
+                            <option value=""> Bin Location </option>
+                        </select>
+                    </div>
+                    @*<div class="col-md-2 mb-2">
+                            <select asp-for="grp" asp-items="@ViewBag.AssetGroupList" class="fw-bold bg-light border-0">
+                                <option value=""> Asset Group </option>
+                            </select>
+                        </div>*@
+                    <div class="col-md-2 mb-2">
+                        <select asp-for="typ" asp-items="@ViewBag.AssetTypeList" class="fw-bold bg-light border-0" style="border-radius:10px">
+                            <option value=""> Asset Type </option>
+                        </select>
+                    </div>
+                    <div class="col-md-2 mb-2">
+                        <select asp-for="cnd" class="fw-bold bg-light border-0" style="border-radius:10px">
+                            <option value=""> Condition </option>
+                            <option value="0"> In Good Condition </option>
+                            <option value="1"> Requires Repairs </option>
+                            <option value="2"> Faulty Beyond Repair </option>
+                            <option value="3"> End of Life </option>
+                        </select>
+                    </div>
+                    <div class="col-md-2 mb-2">
+                        <input type="submit" value="Search" class="btn btn-dark btn-sm text-white" />
+                    </div>
                 </div>
-            }
+            </form>
         </div>
-        @if (Model.AssetList == null || Model.AssetList.Count < 1)
+    </div>
+
+    @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+    {<div class="row">
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-x-circle"></i>
+                <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        </div>
+    }
+    <div class="row">
+        @if (Model == null || Model.AssetMasterList == null || Model.AssetMasterList.Count < 1)
         {
             <div class="alert alert-info fade show" role="alert">
                 <i class="bi bi-info-circle"></i>
@@ -43,103 +76,84 @@
         else
         {
             <div class="row">
-                <div class="table-responsive">
-                    <table class="table table-hover table-sm ">
+                <div class="table-responsive" style="min-height:500px;">
+                    <table class="table table-sm table-striped caption-top">
+                        <caption>Asset & Equipment Status Report as at @{DateTime.Now.ToLongDateString();}</caption>
                         <thead class="table-dark">
                             <tr>
-                                <th><span class="text-white fw-bold">No</span></th>
-                                <th><span class="text-white fw-bold">Name</span></th>
-                                <th><span class="text-white fw-bold">Condition</span></th>
-                                <th><span class="text-white fw-bold">Usage Status</span></th>
-                                <th></th>
+                                <th><span class="text-white fw-bolder">No</span></th>
+                                <th><span class="text-white fw-bolder">Name</span></th>
+                                <th><span class="text-white fw-bolder">Type</span>
+                                <th><span class="text-white fw-bolder">Condition</span></th>
+                                <th><span class="text-white fw-bolder">Base Location</span></th>
+                                <th><span class="text-white fw-bolder">Bin Location</span></th>
+                                @*<th><span class="text-white fw-bolder">Current Location</span></th>
+        <th><span class="text-white fw-bolder">Usage Status</span>
+        <th><span class="text-white fw-bolder">Master</span></th>*@
+                                <th><span class="text-white fw-bolder">(@Model.AssetMasterList.Count.ToString())</span></th>
                             </tr>
                         </thead>
                         <tbody class="table-light">
-                            @foreach (var asset in Model.AssetList)
+                            @foreach (var item in Model.AssetMasterList)
                             {
-                                switch (asset.ConditionStatus)
+                                switch (item.ConditionStatus)
                                 {
-                                    case AssetCondition.InGoodCondition:
-                                        <tr class="p-0 table-success">
-                                            <td>
-                                                <span class="fw-bold">@asset.AssetNumber</span>
-                                            </td>
-                                            <td>
-                                                <span class="fw-bold" title="@asset.AssetDescription">@asset.AssetName</span>
-                                            </td>
-                                            <td>
-                                                <span class="fw-bold" title="@asset.ConditionDescription">In Good Condition</span>
-                                            </td>
-                                            <td>
-                                                <span class="fw-bold">@asset.UsageStatus</span>
-                                                @if (asset.NoOfConfirmedBooking > 0)
-                                                {
-                                                    <a asp-area="AssetManager" asp-controller="Home" asp-action="BookingList" asp-route-id="@asset.AssetID" title="This equipment is Booked. Click to view Booking List">
-                                                        <span class="text-white fw-bold"><i class="bi bi-bookmarks-fill ml-2" style="font-size: 1.0rem; color:black"></i></span>
-                                                    </a>
-                                                }
-                                            </td>
-                                            <td>
-                                                <div class="text-center">
-                                                    <a asp-area="AssetManager" asp-controller="Master" asp-action="Details" asp-route-id="@asset.AssetID" title="Details" class="btn btn-sm btn-dark">
-                                                        <span class="text-white fw-bold">Select</span>
-                                                    </a>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                        break;
                                     case AssetCondition.RequiresRepair:
-                                        <tr class="p-0 table-warning">
-                                            <td>
-                                                <span class="fw-bold">@asset.AssetNumber</span>
-                                            </td>
-                                            <td>
-                                                <span class="fw-bold" title="@asset.AssetDescription">@asset.AssetName</span>
-                                            </td>
-                                            <td>
-                                                <span class="fw-bold" title="@asset.ConditionDescription">Requires Repair</span>
-                                            </td>
-                                            <td>
-                                                <span class="fw-bold">@asset.UsageStatus</span>
-                                                @if (asset.NoOfConfirmedBooking > 0)
-                                                {
-                                                    <a asp-area="AssetManager" asp-controller="Home" asp-action="BookingList" asp-route-id="@asset.AssetID" title="This equipment is Booked. Click to view Booking List">
-                                                        <span class="text-white fw-bold"><i class="bi bi-bookmarks-fill ml-2" style="font-size: 1.0rem; color:black"></i></span>
-                                                    </a>
-                                                }
-                                            </td>
-                                            <td>
-                                                <div class="text-center">
-                                                    <a asp-area="AssetManager" asp-controller="Master" asp-action="Details" asp-route-id="@asset.AssetID" title="Details" class="btn btn-sm btn-dark">
-                                                        <span class="text-white fw-bold">Select</span>
-                                                    </a>
-                                                </div>
-                                            </td>
-                                        </tr>
+                            <tr class="table-warning">
+                                <td><span class="fw-bold">@item.AssetNumber</span></td>
+                                <td><span class="fw-bold">@item.AssetName</span></td>
+                                <td><span class="fw-bold">@item.AssetTypeName</span>
+                                <td><span class="fw-bold">@item.ConditionDescription</span></td>
+                                <td><span class="fw-bold">@item.BaseLocationName</span></td>
+                                <td><span class="fw-bold">@item.BinLocationName</span></td>
+                                @*<td><span class="fw-bold">@item.CurrentLocation</span></td>
+        <td><span class="fw-bold">@item.UsageStatus</span>
+        <td><span class="fw-bold">@item.ParentAssetName</span></td>*@
+                                <td>
+                                    <div class="text-center">
+                                        <a asp-area="AssetManager" asp-controller="Master" asp-action="Details" asp-route-id="@item.AssetID" title="Details" class="btn btn-sm btn-dark">
+                                            <span class="text-white fw-bold">Select</span>
+                                        </a>
+                                    </div>
+                                </td>
+
+                            </tr>
                                         break;
                                     case AssetCondition.BeyondRepair:
-                                        <tr class="p-0 table-danger">
-                                            <td>
-                                                <span class="fw-bold">@asset.AssetNumber</span>
-                                            </td>
-                                            <td>
-                                                <span class="fw-bold" title="@asset.AssetDescription">@asset.AssetName</span>
-                                            </td>
-                                            <td>
-                                                <span class="fw-bold" title="@asset.ConditionDescription">Beyond Repair</span>
-                                            </td>
-                                            <td>
-                                                <span class="fw-bold">@asset.UsageStatus</span>
-                                                @if (asset.NoOfConfirmedBooking > 0)
-                                                {
-                                                    <a asp-area="AssetManager" asp-controller="Home" asp-action="BookingList" asp-route-id="@asset.AssetID" title="This equipment is Booked. Click to view Booking List">
-                                                        <span class="text-white fw-bold"><i class="bi bi-bookmarks-fill ml-2" style="font-size: 1.0rem; color:black"></i></span>
-                                                    </a>
-                                                }
-                                            </td>
+                        <tr class="table-danger">
+                            <td><span class="fw-bold">@item.AssetNumber</span></td>
+                            <td><span class="fw-bold">@item.AssetName</span></td>
+                            <td><span class="fw-bold">@item.AssetTypeName</span>
+                            <td><span class="fw-bold">@item.ConditionDescription</span></td>
+                            <td><span class="fw-bold">@item.BaseLocationName</span></td>
+                            <td><span class="fw-bold">@item.BinLocationName</span></td>
+                            @*<td><span class="fw-bold">@item.CurrentLocation</span></td>
+        <td><span class="fw-bold">@item.UsageStatus</span>
+        <td><span class="fw-bold">@item.ParentAssetName</span></td>*@
+                            <td>
+                                <div class="text-center">
+                                    <a asp-area="AssetManager" asp-controller="Master" asp-action="Details" asp-route-id="@item.AssetID" title="Details" class="btn btn-sm btn-dark">
+                                        <span class="text-white fw-bold">Select</span>
+                                    </a>
+                                </div>
+                            </td>
+
+                        </tr>
+                                        break;
+                                    case AssetCondition.EndOfLife:
+                                        <tr class="table-secondary">
+                                            <td><span class="fw-bold text-white">@item.AssetNumber</span></td>
+                                            <td><span class="fw-bold text-white">@item.AssetName</span></td>
+                                            <td><span class="fw-bold text-white">@item.AssetTypeName</span>
+                                            <td><span class="fw-bold text-white">@item.ConditionDescription</span></td>
+                                            <td><span class="fw-bold text-white">@item.BaseLocationName</span></td>
+                                            <td><span class="fw-bold text-white">@item.BinLocationName</span></td>
+                                            @*<td><span class="fw-bold text-white">@item.CurrentLocation</span></td>
+                                                <td><span class="fw-bold text-white">@item.UsageStatus</span>
+                                                <td><span class="fw-bold text-white">@item.ParentAssetName</span></td>*@
                                             <td>
                                                 <div class="text-center">
-                                                    <a asp-area="AssetManager" asp-controller="Master" asp-action="Details" asp-route-id="@asset.AssetID" title="Details" class="btn btn-sm btn-dark">
+                                                    <a asp-area="AssetManager" asp-controller="Master" asp-action="Details" asp-route-id="@item.AssetID" title="Details" class="btn btn-sm btn-dark">
                                                         <span class="text-white fw-bold">Select</span>
                                                     </a>
                                                 </div>
@@ -147,28 +161,20 @@
                                         </tr>
                                         break;
                                     default:
-                                        <tr class="p-0">
-                                            <td>
-                                                <span class="fw-bold">@asset.AssetNumber</span>
-                                            </td>
-                                            <td>
-                                                <span class="fw-bold" title="@asset.AssetDescription">@asset.AssetName</span>
-                                            </td>
-                                            <td>
-                                                <span class="fw-bold" title="@asset.ConditionDescription">@asset.ConditionStatus</span>
-                                            </td>
-                                            <td>
-                                                <span class="fw-bold">@asset.UsageStatus</span>
-                                                @if (asset.NoOfConfirmedBooking > 0)
-                                                {
-                                                    <a asp-area="AssetManager" asp-controller="Home" asp-action="BookingList" asp-route-id="@asset.AssetID" title="This equipment is Booked. Click to view Booking List">
-                                                        <span class="text-white fw-bold"><i class="bi bi-bookmarks-fill ml-2" style="font-size: 1.0rem; color:black"></i></span>
-                                                    </a>
-                                                }
-                                            </td>
+                                        <tr>
+                                            <td><span class="fw-bold">@item.AssetNumber</span></td>
+                                            <td><span class="fw-bold">@item.AssetName</span></td>
+                                            <td><span class="fw-bold">@item.AssetTypeName</span>
+                                            <td><span class="fw-bold">@item.ConditionDescription</span></td>
+                                            <td><span class="fw-bold">@item.BaseLocationName</span></td>
+                                            <td><span class="fw-bold">@item.BinLocationName</span></td>
+                                            @*<td><span class="fw-bold">@item.CurrentLocation</span></td>
+                                                <td><span class="fw-bold">@item.UsageStatus</span>
+                                                <td><span class="fw-bold">@item.ParentAssetName</span></td>*@
+
                                             <td>
                                                 <div class="text-center">
-                                                    <a asp-area="AssetManager" asp-controller="Master" asp-action="Details" asp-route-id="@asset.AssetID" title="Details" class="btn btn-sm btn-dark">
+                                                    <a asp-area="AssetManager" asp-controller="Master" asp-action="Details" asp-route-id="@item.AssetID" title="Details" class="btn btn-sm btn-dark">
                                                         <span class="text-white fw-bold">Select</span>
                                                     </a>
                                                 </div>
@@ -183,10 +189,10 @@
             </div>
         }
     </div>
+</div>
 @section Scripts{
-    <script src="~/js/js_asm/asm_master_assets.js"></script>
+    <script src="~/js/pms.js"></script>
 }
-
 
 
 

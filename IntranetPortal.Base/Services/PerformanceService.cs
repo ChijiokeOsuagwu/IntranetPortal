@@ -808,6 +808,72 @@ namespace IntranetPortal.Base.Services
             return reviewHeader;
         }
 
+        public async Task<List<ReviewHeader>> GetReviewHeadersAsync(int reviewSessionId, int? reviewStageId = null, int? locationId = null, int? unitId = null, string appraiseeName = null)
+        {
+            int ReviewSessionID = reviewSessionId;
+            int ReviewStageID = reviewStageId ?? 0;
+            int LocationID = locationId ?? 0;
+            int UnitID = unitId ?? 0;
+            
+            List<ReviewHeader> reviewHeaderList = new List<ReviewHeader>();
+
+            if (string.IsNullOrWhiteSpace(appraiseeName))
+            {
+                if (ReviewSessionID > 0 && ReviewStageID > 0 && LocationID > 0 && UnitID > 0)
+                {
+                    var entities = await _reviewHeaderRepository.GetByReviewSessionIdnStageIdnLocationIdnUnitIdAsync(ReviewSessionID, ReviewStageID, LocationID, UnitID);
+                    if (entities != null && entities.Count > 0)
+                    {
+                        reviewHeaderList = entities.ToList();
+                    }
+                }
+                else if (ReviewSessionID > 0 && ReviewStageID > 0 && LocationID > 0)
+                {
+                    var entities = await _reviewHeaderRepository.GetByReviewSessionIdnStageIdnLocationIdAsync(ReviewSessionID, ReviewStageID, LocationID);
+                    if (entities != null && entities.Count > 0)
+                    {
+                        reviewHeaderList = entities.ToList();
+                    }
+                }
+                else if (ReviewSessionID > 0 && ReviewStageID > 0)
+                {
+                    var entities = await _reviewHeaderRepository.GetByReviewSessionIdnStageIdAsync(ReviewSessionID, ReviewStageID);
+                    if (entities != null && entities.Count > 0)
+                    {
+                        reviewHeaderList = entities.ToList();
+                    }
+                }
+                else if (ReviewSessionID > 0)
+                {
+                    var entities = await _reviewHeaderRepository.GetByReviewSessionIdAsync(ReviewSessionID);
+                    if (entities != null && entities.Count > 0)
+                    {
+                        reviewHeaderList = entities.ToList();
+                    }
+                }
+            }
+            else
+            {
+                if(ReviewSessionID > 0)
+                {
+                    var entities = await _reviewHeaderRepository.GetByReviewSessionIdnAppraiseeNameAsync(ReviewSessionID, appraiseeName);
+                    if (entities != null && entities.Count > 0)
+                    {
+                        reviewHeaderList = entities.ToList();
+                    }
+                }
+                else
+                {
+                    var entities = await _reviewHeaderRepository.GetByAppraiseeNameAsync(appraiseeName);
+                    if (entities != null && entities.Count > 0)
+                    {
+                        reviewHeaderList = entities.ToList();
+                    }
+                }
+
+            }
+            return reviewHeaderList;
+        }
 
         //================== Review Header Write Service Methods =====================================================//
         public async Task<bool> AddReviewHeaderAsync(ReviewHeader reviewHeader)
@@ -821,6 +887,7 @@ namespace IntranetPortal.Base.Services
 
             return await _reviewHeaderRepository.AddAsync(reviewHeader);
         }
+        
         public async Task<bool> UpdatePerformanceGoalAsync(int reviewHeaderId, string performanceGoal, string appraiserId)
         {
             if (reviewHeaderId < 1) { throw new ArgumentNullException(nameof(reviewHeaderId)); }
@@ -861,6 +928,7 @@ namespace IntranetPortal.Base.Services
                     case 7:
                         activityHistory.ActivityDescription = $"Completed the Performance Contract Agreement and Sign-Off step and the Performance Contract Definition phase.";
                         break;
+
                     case 8:
                         activityHistory.ActivityDescription = $"Commenced the Performance Evaluation phase with the Self Evaluation step.";
                         break;
@@ -884,10 +952,10 @@ namespace IntranetPortal.Base.Services
             return IsUpdated;
         }
 
-        public async Task<bool> UpdateAppraiseeFlagAsync(int reviewHeaderId, bool isFlagged, string flaggedBy)
+        public async Task<bool> UpdateAppraiseeFlagAsync(int reviewHeaderId, bool isFlagged, string flaggedReason)
         {
             if (reviewHeaderId < 1) { throw new ArgumentNullException(nameof(reviewHeaderId)); }
-            return await _reviewHeaderRepository.UpdateAppraiseeFlagAsync(reviewHeaderId, isFlagged, flaggedBy);
+            return await _reviewHeaderRepository.UpdateAppraiseeFlagAsync(reviewHeaderId, isFlagged, flaggedReason);
         }
 
         public async Task<bool> UpdateFeedbackAsync(int reviewHeaderId, string feedbackProblems, string feedbackSolutions)
@@ -999,6 +1067,21 @@ namespace IntranetPortal.Base.Services
             }
             return reviewMetric;
         }
+
+        public async Task<int> GetMetricCountAsync(int reviewHeaderId, ReviewMetricType reviewMetricType)
+        {
+            int metricCount = 0;
+            if (reviewMetricType == ReviewMetricType.Competency)
+            {
+                metricCount = await _reviewMetricRepository.GetCmpCountByReviewHeaderIdAsync(reviewHeaderId);
+            }
+            else
+            {
+                metricCount = await _reviewMetricRepository.GetKpaCountByReviewHeaderIdAsync(reviewHeaderId);
+            }
+            return metricCount;
+        }
+
 
         //================== Review Metric Write Service Methods =====================================================//
         public async Task<bool> AddReviewMetricAsync(ReviewMetric reviewMetric)
@@ -1133,7 +1216,46 @@ namespace IntranetPortal.Base.Services
             }
             return competency;
         }
+        
+        public async Task<bool> AddCompetencyAsync(Competency competency)
+        {
+            if (competency == null || string.IsNullOrWhiteSpace(competency.Title)) { throw new ArgumentNullException(nameof(competency)); }
+            var entities = await _competencyRepository.GetByTitleAsync(competency.Title);
+            if (entities != null && entities.Count > 0)
+            {
+                throw new Exception("Duplicate Entry! Sorry, a Competency with the same title already exists in the system.");
+            }
 
+            return await _competencyRepository.AddAsync(competency);
+        }
+
+        public async Task<bool> UpdateCompetencyAsync(Competency competency)
+        {
+            if (competency == null || string.IsNullOrWhiteSpace(competency.Title)) { throw new ArgumentNullException(nameof(competency)); }
+            var entities = await _competencyRepository.GetByTitleAsync(competency.Title);
+            if (entities != null && entities.Count > 0)
+            {
+                List<Competency> competencies = entities.ToList();
+                foreach (Competency cmp in competencies)
+                {
+                    if (cmp.Id != competency.Id)
+                    {
+                        throw new Exception("Duplicate Entry! Sorry, a Competency with the same title already exists in the system.");
+                    }
+                }
+            }
+            return await _competencyRepository.UpdateAsync(competency);
+        }
+
+        public async Task<bool> DeleteCompetencyAsync(int competencyId)
+        {
+            if (competencyId < 1) { throw new ArgumentNullException(nameof(competencyId)); }
+            return await _competencyRepository.DeleteAsync(competencyId);
+        }
+
+
+
+        //======= Competency Categories Service Methods =========//
         public async Task<List<CompetencyCategory>> GetCompetencyCategoriesAsync()
         {
             List<CompetencyCategory> categories = new List<CompetencyCategory>();
@@ -1145,6 +1267,49 @@ namespace IntranetPortal.Base.Services
             return categories;
         }
 
+        public async Task<CompetencyCategory> GetCompetencyCategoryAsync(int competencyCategoryId)
+        {
+            return await _competencyRepository.GetCompetencyCategoryByIdAsync(competencyCategoryId);
+        }
+
+        public async Task<bool> AddCompetencyCategoryAsync(string competencyCategoryDescription)
+        {
+            if (string.IsNullOrEmpty(competencyCategoryDescription)) { throw new ArgumentNullException(nameof(competencyCategoryDescription)); }
+            var entity = await _competencyRepository.GetCompetencyCategoryByDescriptionAsync(competencyCategoryDescription);
+            if (entity != null && entity.Id > 0)
+            {
+                throw new Exception("Duplicate Entry! Sorry, a Competency Category with the same name already exists in the system.");
+            }
+
+            return await _competencyRepository.AddCompetencyCategoryAsync(competencyCategoryDescription);
+        }
+
+        public async Task<bool> UpdateCompetencyCategoryAsync(int competencyCategoryId, string competencyCategoryDescription)
+        {
+            if (string.IsNullOrWhiteSpace(competencyCategoryDescription)) { throw new ArgumentNullException(nameof(competencyCategoryDescription)); }
+            if (competencyCategoryId < 1) { throw new ArgumentNullException(nameof(competencyCategoryId)); }
+
+            CompetencyCategory competencyCategory = await _competencyRepository.GetCompetencyCategoryByDescriptionAsync(competencyCategoryDescription);
+            if (competencyCategory != null)
+            {
+                    if (competencyCategory.Id != competencyCategoryId && competencyCategory.Id > 0)
+                    {
+                        throw new Exception("Duplicate Entry! Sorry, a Competency Category with the same name already exists in the system.");
+                    }
+            }
+
+            return await _competencyRepository.UpdateCompetencyCategoryAsync(competencyCategoryId, competencyCategoryDescription);
+        }
+
+        public async Task<bool> DeleteCompetencyCategoryAsync(int competencyCategoryId)
+        {
+            if (competencyCategoryId < 1) { throw new ArgumentNullException(nameof(competencyCategoryId)); }
+            return await _competencyRepository.DeleteCompetencyCategoryAsync(competencyCategoryId);
+        }
+
+
+
+        //======= Competency Level Service Methods ==============//
         public async Task<List<CompetencyLevel>> GetCompetencyLevelsAsync()
         {
             List<CompetencyLevel> levels = new List<CompetencyLevel>();
@@ -1155,6 +1320,47 @@ namespace IntranetPortal.Base.Services
             }
             return levels;
         }
+
+        public async Task<CompetencyLevel> GetCompetencyLevelAsync(int competencyLevelId)
+        {
+            return await _competencyRepository.GetCompetencyLevelByIdAsync(competencyLevelId);
+        }
+
+        public async Task<bool> AddCompetencyLevelAsync(string competencyLevelDescription)
+        {
+            if (string.IsNullOrEmpty(competencyLevelDescription)) { throw new ArgumentNullException(nameof(competencyLevelDescription)); }
+            var entity = await _competencyRepository.GetCompetencyCategoryByDescriptionAsync(competencyLevelDescription);
+            if (entity != null && entity.Id > 0)
+            {
+                throw new Exception("Duplicate Entry! Sorry, a Competency Level with the same name already exists in the system.");
+            }
+
+            return await _competencyRepository.AddCompetencyLevelAsync(competencyLevelDescription);
+        }
+
+        public async Task<bool> UpdateCompetencyLevelAsync(int competencyLevelId, string competencyLevelDescription)
+        {
+            if (string.IsNullOrWhiteSpace(competencyLevelDescription)) { throw new ArgumentNullException(nameof(competencyLevelDescription)); }
+            if (competencyLevelId < 1) { throw new ArgumentNullException(nameof(competencyLevelId)); }
+
+            CompetencyLevel competencyLevel = await _competencyRepository.GetCompetencyLevelByDescriptionAsync(competencyLevelDescription);
+            if (competencyLevel != null)
+            {
+                if (competencyLevel.Id != competencyLevelId && competencyLevel.Id > 0)
+                {
+                    throw new Exception("Duplicate Entry! Sorry, a Competency Level with the same name already exists in the system.");
+                }
+            }
+
+            return await _competencyRepository.UpdateCompetencyLevelAsync(competencyLevelId, competencyLevelDescription);
+        }
+
+        public async Task<bool> DeleteCompetencyLevelAsync(int competencyLevelId)
+        {
+            if (competencyLevelId < 1) { throw new ArgumentNullException(nameof(competencyLevelId)); }
+            return await _competencyRepository.DeleteCompetencyLevelAsync(competencyLevelId);
+        }
+
         #endregion
 
         #region Review CDG Service Methods
@@ -1604,9 +1810,10 @@ namespace IntranetPortal.Base.Services
             return reviewSubmissions;
         }
 
-        public async Task<List<ReviewSubmission>> GetReviewSubmissionsByReviewHeaderIdAsync(int reviewHeaderId, int? submissionPurposeId = null, string submittedToEmployeeId = null)
+        public async Task<List<ReviewSubmission>> GetReviewSubmissionsByReviewHeaderIdAsync(int reviewHeaderId, int? submissionPurposeId = null, string submittedToEmployeeId = null, int? submittedToEmployeeRoleId = null)
         {
             List<ReviewSubmission> reviewSubmissions = new List<ReviewSubmission>();
+
             if ((submissionPurposeId == null || submissionPurposeId < 1) && string.IsNullOrWhiteSpace(submittedToEmployeeId))
             {
                 var entities = await _reviewSubmissionRepository.GetByReviewHeaderIdAsync(reviewHeaderId);
@@ -1626,6 +1833,14 @@ namespace IntranetPortal.Base.Services
             else if ((submissionPurposeId != null && submissionPurposeId > 0) && !string.IsNullOrWhiteSpace(submittedToEmployeeId))
             {
                 var entities = await _reviewSubmissionRepository.GetByReviewHeaderIdAndSubmissionPurposeIdAsync(reviewHeaderId, submissionPurposeId.Value, submittedToEmployeeId);
+                if (entities != null && entities.Count > 0)
+                {
+                    reviewSubmissions = entities;
+                }
+            }
+            else if ((submissionPurposeId != null && submissionPurposeId > 0) && !string.IsNullOrWhiteSpace(submittedToEmployeeId) && (submittedToEmployeeRoleId != null && submittedToEmployeeRoleId > 0))
+            {
+                var entities = await _reviewSubmissionRepository.GetByReviewHeaderIdAndSubmissionPurposeIdAsync(reviewHeaderId, submissionPurposeId.Value, submittedToEmployeeId, submittedToEmployeeRoleId.Value);
                 if (entities != null && entities.Count > 0)
                 {
                     reviewSubmissions = entities;
@@ -1773,14 +1988,68 @@ namespace IntranetPortal.Base.Services
             }
             return reviewStageUpdated;
         }
-        public async Task<List<ReviewApproval>> GetReviewApprovalsAsync(int reviewHeaderId)
+        public async Task<List<ReviewApproval>> GetReviewApprovalsAsync(int reviewHeaderId, int? approvalTypeId = null, int? approverRoleId = null)
         {
+            int ApprovalTypeId = approvalTypeId ?? 0;
+            int ApproverRoleId = approverRoleId ?? 0;
             List<ReviewApproval> reviewApprovals = new List<ReviewApproval>();
-            var entities = await _reviewApprovalRepository.GetByReviewHeaderIdAsync(reviewHeaderId);
-            if (entities != null && entities.Count > 0)
+            if(ApprovalTypeId > 0 && ApproverRoleId > 0)
             {
-                reviewApprovals = entities.ToList();
+                var entities = await _reviewApprovalRepository.GetByReviewHeaderIdAsync(reviewHeaderId, ApprovalTypeId, ApproverRoleId);
+                if (entities != null && entities.Count > 0)
+                {
+                    reviewApprovals = entities.ToList();
+                }
             }
+            else if(ApprovalTypeId > 0 && approverRoleId < 1)
+            {
+                var entities = await _reviewApprovalRepository.GetByReviewHeaderIdAsync(reviewHeaderId, ApprovalTypeId);
+                if (entities != null && entities.Count > 0)
+                {
+                    reviewApprovals = entities.ToList();
+                }
+            }
+            else
+            {
+                var entities = await _reviewApprovalRepository.GetByReviewHeaderIdAsync(reviewHeaderId);
+                if (entities != null && entities.Count > 0)
+                {
+                    reviewApprovals = entities.ToList();
+                }
+            }
+
+            return reviewApprovals;
+        }
+        public async Task<List<ReviewApproval>> GetReviewApprovalsApprovedAsync(int reviewHeaderId, int? approvalTypeId = null, int? approverRoleId = null)
+        {
+            int ApprovalTypeId = approvalTypeId ?? 0;
+            int ApproverRoleId = approverRoleId ?? 0;
+            List<ReviewApproval> reviewApprovals = new List<ReviewApproval>();
+            if (ApprovalTypeId > 0 && ApproverRoleId > 0)
+            {
+                var entities = await _reviewApprovalRepository.GetApprovedByReviewHeaderIdAsync(reviewHeaderId, ApprovalTypeId, ApproverRoleId);
+                if (entities != null && entities.Count > 0)
+                {
+                    reviewApprovals = entities.ToList();
+                }
+            }
+            else if (ApprovalTypeId > 0 && approverRoleId < 1)
+            {
+                var entities = await _reviewApprovalRepository.GetApprovedByReviewHeaderIdAsync(reviewHeaderId, ApprovalTypeId);
+                if (entities != null && entities.Count > 0)
+                {
+                    reviewApprovals = entities.ToList();
+                }
+            }
+            else
+            {
+                var entities = await _reviewApprovalRepository.GetApprovedByReviewHeaderIdAsync(reviewHeaderId);
+                if (entities != null && entities.Count > 0)
+                {
+                    reviewApprovals = entities.ToList();
+                }
+            }
+
             return reviewApprovals;
         }
 
@@ -1908,7 +2177,23 @@ namespace IntranetPortal.Base.Services
             return reviewDetails;
         }
 
-        
+        public async Task<int> GetEvaluatedMetricCountAsync(int reviewHeaderId, string appraiserId, ReviewMetricType reviewMetricType)
+        {
+            int metricCount = 0;
+            int reviewMetricTypeId = (int)reviewMetricType;
+
+            if (reviewMetricType == ReviewMetricType.Competency)
+            {
+                metricCount = await _reviewResultRepository.GetMetricCountByAppraiserIdAndMetricTypeId(reviewHeaderId, appraiserId, reviewMetricTypeId);
+            }
+            else
+            {
+                metricCount = await _reviewResultRepository.GetMetricCountByAppraiserIdAndMetricTypeId(reviewHeaderId, appraiserId, reviewMetricTypeId);
+            }
+            return metricCount;
+        }
+
+
         //========================== Result Summary Read Service Methods =======================================//
         public async Task<List<ResultSummary>> GetResultSummaryForReportsAsync(string reportToId, int reviewSessionId, string appraiseeId = null)
         {
@@ -2009,6 +2294,29 @@ namespace IntranetPortal.Base.Services
             else
             {
                 var entities = await _reviewResultRepository.GetPrincipalResultDetailByReviewSessionIdAsync(reviewSessionId);
+                if (entities != null && entities.Count > 0)
+                {
+                    resultDetails = entities.ToList();
+                }
+            }
+            return resultDetails;
+        }
+
+        public async Task<List<ResultDetail>> GetRejectedPrincipalResultDetailAsync(int reviewSessionId, int? locationId = null)
+        {
+            List<ResultDetail> resultDetails = new List<ResultDetail>();
+
+            if (locationId != null && locationId > 0)
+            {
+                var entities = await _reviewResultRepository.GetRejectedPrincipalResultDetailByLocationIdAndReviewSessionIdAsync(reviewSessionId, locationId.Value);
+                if (entities != null && entities.Count > 0)
+                {
+                    resultDetails = entities.ToList();
+                }
+            }
+            else
+            {
+                var entities = await _reviewResultRepository.GetRejectedPrincipalResultDetailByReviewSessionIdAsync(reviewSessionId);
                 if (entities != null && entities.Count > 0)
                 {
                     resultDetails = entities.ToList();

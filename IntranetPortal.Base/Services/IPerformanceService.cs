@@ -84,10 +84,11 @@ namespace IntranetPortal.Base.Services
         #region Review Header Service Method
         Task<ReviewHeader> GetReviewHeaderAsync(int reviewHeaderId);
         Task<ReviewHeader> GetReviewHeaderAsync(string appraiseeId, int reviewSessionId);
+        Task<List<ReviewHeader>> GetReviewHeadersAsync(int reviewSessionId, int? reviewStageId = null, int? locationId = null, int? unitId = null, string appraiseeName = null);
         Task<bool> AddReviewHeaderAsync(ReviewHeader reviewHeader);
         Task<bool> UpdatePerformanceGoalAsync(int reviewHeaderId, string performanceGoal, string appraiserId);
         Task<bool> UpdateReviewHeaderStageAsync(int reviewHeaderId, int nextStageId);
-        Task<bool> UpdateAppraiseeFlagAsync(int reviewHeaderId, bool isFlagged, string flaggedBy);
+        Task<bool> UpdateAppraiseeFlagAsync(int reviewHeaderId, bool isFlagged, string flaggedReason);
         Task<bool> UpdateFeedbackAsync(int reviewHeaderId, string feedbackProblems, string feedbackSolutions);
         Task<bool> AddAppraisalRecommendationAsync(ReviewHeaderRecommendation model);
         #endregion
@@ -103,6 +104,7 @@ namespace IntranetPortal.Base.Services
         Task<List<ReviewMetric>> GetKpasAsync(int reviewHeaderId);
         Task<List<ReviewMetric>> GetCompetenciesAsync(int reviewHeaderId);
         Task<ReviewMetric> GetReviewMetricAsync(int reviewMetricId);
+        Task<int> GetMetricCountAsync(int reviewHeaderId, ReviewMetricType reviewMetricType);
         Task<bool> AddReviewMetricAsync(ReviewMetric reviewMetric);
         Task<bool> UpdateReviewMetricAsync(ReviewMetric reviewMetric);
         Task<bool> DeleteReviewMetricAsync(int reviewMetricId);
@@ -110,13 +112,32 @@ namespace IntranetPortal.Base.Services
         #endregion
 
         #region Competency Service Methods
+
+        //====== Competency Service Methods =====//
         Task<List<Competency>> GetFromCompetencyDictionaryAsync();
         Task<Competency> GetFromCompetencyDictionaryByIdAsync(int CompetencyId);
         Task<List<Competency>> GetFromCompetencyDictionaryByCategoryAsync(int CategoryId);
         Task<List<Competency>> GetFromCompetencyDictionaryByLevelAsync(int LevelId);
         Task<List<Competency>> SearchFromCompetencyDictionaryAsync(int CategoryId, int LevelId);
+        Task<bool> AddCompetencyAsync(Competency competency);
+        Task<bool> UpdateCompetencyAsync(Competency competency);
+        Task<bool> DeleteCompetencyAsync(int competencyId);
+
+
+
+        //====== Competency Category Service Methods =========//
         Task<List<CompetencyCategory>> GetCompetencyCategoriesAsync();
+        Task<CompetencyCategory> GetCompetencyCategoryAsync(int competencyCategoryId);
+        Task<bool> AddCompetencyCategoryAsync(string competencyCategoryDescription);
+        Task<bool> UpdateCompetencyCategoryAsync(int competencyCategoryId, string competencyCategoryDescription);
+        Task<bool> DeleteCompetencyCategoryAsync(int competencyCategoryId);
+
+        //====== Competency Level Service Methods =========//
         Task<List<CompetencyLevel>> GetCompetencyLevelsAsync();
+        Task<CompetencyLevel> GetCompetencyLevelAsync(int competencyLevelId);
+        Task<bool> AddCompetencyLevelAsync(string competencyLevelDescription);
+        Task<bool> UpdateCompetencyLevelAsync(int competencyLevelId, string competencyLevelDescription);
+        Task<bool> DeleteCompetencyLevelAsync(int competencyLevelId);
 
         #endregion
 
@@ -128,8 +149,6 @@ namespace IntranetPortal.Base.Services
         Task<bool> DeleteReviewCdgAsync(int reviewCdgId);
 
         #endregion
-
-
 
         #region PMS Utility Service Methods
         Task<MoveToNextStageModel> ValidateMoveRequestAsync(int reviewHeaderId, string appraiserId = null);
@@ -143,14 +162,13 @@ namespace IntranetPortal.Base.Services
         Task<List<AppraisalRecommendation>> GetAppraisalRecommendationsAsync();
         #endregion
 
-
         #region Review Submission Service Methods
         Task<bool> AddReviewSubmissionAsync(ReviewSubmission reviewSubmission);
         Task<bool> UpdateReviewSubmissionAsync(int reviewSubmissionId);
         Task<bool> DeleteReviewSubmissionAsync(int reviewSubmissionId);
         Task<ReviewSubmission> GetReviewSubmissionByIdAsync(int reviewSubmissionId);
         Task<List<ReviewSubmission>> GetReviewSubmissionsByApproverIdAsync(string reviewerId, int? reviewSessionId = null);
-        Task<List<ReviewSubmission>> GetReviewSubmissionsByReviewHeaderIdAsync(int reviewHeaderId, int? submissionPurposeId = null, string submittedToEmployeeId = null);
+        Task<List<ReviewSubmission>> GetReviewSubmissionsByReviewHeaderIdAsync(int reviewHeaderId, int? submissionPurposeId = null, string submittedToEmployeeId = null, int? submittedToEmployeeRoleId = null);
         #endregion
 
         #region Review Message Service Methods
@@ -166,12 +184,15 @@ namespace IntranetPortal.Base.Services
         Task<bool> ApproveContractToAppraisee(ReviewApproval reviewApproval, int? reviewSubmissionId);
         Task<bool> AcceptContractByAppraisee(int reviewHeaderId);
         Task<bool> AcceptEvaluationByAppraisee(int reviewHeaderId);
-        Task<List<ReviewApproval>> GetReviewApprovalsAsync(int reviewHeaderId);
-        #endregion
+        Task<List<ReviewApproval>> GetReviewApprovalsAsync(int reviewHeaderId, int? approvalTypeId = null, int? approverRoleId = null);
+        Task<List<ReviewApproval>> GetReviewApprovalsApprovedAsync(int reviewHeaderId, int? approvalTypeId = null, int? approverRoleId = null);
 
+
+        #endregion
 
         #region Review Result Service Methods
         //===================== Review Result Read Service Methods =========================================//
+        Task<int> GetEvaluatedMetricCountAsync(int reviewHeaderId, string appraiserId, ReviewMetricType reviewMetricType);
         Task<List<ReviewResult>> GetInitialReviewResultKpasAsync(int reviewHeaderId, string appraiserId);
         Task<List<ReviewResult>> GetInitialReviewResultAsync(int reviewHeaderId, string appraiserId, int reviewMetricId);
 
@@ -200,7 +221,7 @@ namespace IntranetPortal.Base.Services
 
         //=================== Result Details Service Methods ==================================================//
         Task<List<ResultDetail>> GetPrincipalResultDetailAsync(int reviewSessionId, int? locationId = null, int? departmentId = null, int? unitId = null);
-
+        Task<List<ResultDetail>> GetRejectedPrincipalResultDetailAsync(int reviewSessionId, int? locationId = null);
         #endregion
 
     }

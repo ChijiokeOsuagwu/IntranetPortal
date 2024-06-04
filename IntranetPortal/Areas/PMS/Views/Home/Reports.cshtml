@@ -1,0 +1,64 @@
+﻿
+@{
+    ViewData["Title"] = "Performance Management";
+}
+<link href="~/lib/matrix/dist/css/style.min.css" rel="stylesheet" />
+<div class="my-2">
+    <!-- ============================================================== -->
+    <!-- Sales Cards  -->
+    <!-- ============================================================== -->
+    <h4 class="fw-bold">Performance Management</h4>
+    <hr />
+    <div class="row">
+        <!-- Column -->
+        <div class="col-md-6 col-lg-2 col-xlg-3">
+            <a asp-area="PMS" asp-controller="Home" asp-action="Index">
+                <div class="card card-hover">
+                    <div class="box bg-light text-center">
+                        <h1 class="font-light text-dark"><i class="bi bi-arrow-left-square"></i></h1>
+                        <h6 class="text-dark">Go Back</h6>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <!-- Column -->
+        <div class="col-md-6 col-lg-2 col-xlg-3">
+            <a asp-area="PMS" asp-controller="Home" asp-action="RejectedEvaluations">
+                <div class="card card-hover">
+                    <div class="box bg-light text-center">
+                        <h1 class="font-light text-dark"><i class="bi bi-file-earmark-bar-graph"></i></h1>
+                        <h6 class="text-dark">Evaluations for Mediation</h6>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <!-- Column -->
+        <div class="col-md-6 col-lg-2 col-xlg-3">
+            <a asp-area="PMS" asp-controller="Home" asp-action="ProgressStatus">
+                <div class="card card-hover">
+                    <div class="box bg-light text-center">
+                        <h1 class="font-light text-dark"><i class="bi bi-file-earmark-bar-graph"></i></h1>
+                        <h6 class="text-dark">Progress Status</h6>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <!-- Column -->
+        <div class="col-md-6 col-lg-2 col-xlg-3">
+            <a asp-area="PMS" asp-controller="Home" asp-action="ResultReport">
+                <div class="card card-hover">
+                    <div class="box bg-light text-center">
+                        <h1 class="font-light text-dark"><i class="bi bi-file-earmark-bar-graph"></i></h1>
+                        <h6 class="text-dark">Appraisal Results</h6>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <!-- Column -->
+    </div>
+</div>
+@section Scripts{
+
+}
+
+

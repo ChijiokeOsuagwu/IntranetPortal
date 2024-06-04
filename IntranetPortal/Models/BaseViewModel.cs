@@ -9,6 +9,7 @@ namespace IntranetPortal.Models
     {
         public string SourceKey { get; set; }
         public string src { get; set; }
+        public string psp { get; set; }
         public string ViewModelErrorMessage { get; set; }
         public string ViewModelSuccessMessage { get; set; }
         public string ViewModelWarningMessage { get; set; }

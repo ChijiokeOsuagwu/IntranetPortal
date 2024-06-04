@@ -257,6 +257,18 @@ namespace IntranetPortal.Base.Services
                 if (existing_msg == null || string.IsNullOrWhiteSpace(existing_msg.Subject))
                 {
                     MessageIsSent = await _utilityRepository.AddMessageAsync(message);
+                    if (MessageIsSent)
+                    {
+                        MessageDetail messageDetail = new MessageDetail
+                        {
+                            MessageID = message.MessageID,
+                            RecipientID = message.RecipientID,
+                            RecipientName = message.RecipientName,
+                            IsDeleted = false,
+                            IsRead = false,
+                        };
+                      await _utilityRepository.AddMessageDetailAsync(messageDetail);
+                    }
                 }
                 else
                 {
@@ -358,14 +370,21 @@ namespace IntranetPortal.Base.Services
         public async Task<bool> DeleteMessageByMessageDetailIDAsync(int messageDetailId)
         {
             bool IsDeleted = false;
+            string messageId = string.Empty;
             if (messageDetailId < 1) { throw new ArgumentNullException(nameof(messageDetailId)); }
             try
             {
-                IsDeleted = await _utilityRepository.UpdateMessageDeleteStatusByMessageDetailIdAsync(messageDetailId);
+                Message message = await _utilityRepository.GetMessageByMessageDetailIdAsync(messageDetailId);
+                if(message != null) { messageId = message.MessageID; }
+                IsDeleted = await _utilityRepository.DeleteMessageDetailByMessageDetailIdAsync(messageDetailId);
+                if (IsDeleted)
+                {
+                    await _utilityRepository.DeleteMessageByMessageIdAsync(messageId);
+                }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                throw new Exception(ex.Message);
+                return true;
             }
             return IsDeleted;
         }
@@ -376,22 +395,23 @@ namespace IntranetPortal.Base.Services
             if (string.IsNullOrWhiteSpace(recipientId)) { throw new ArgumentNullException(nameof(recipientId)); }
             try
             {
-                IsDeleted = await _utilityRepository.UpdateMessageDeleteStatusByRecipientIdAsync(recipientId, true);
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
-            return IsDeleted;
-        }
-
-        public async Task<bool> DeleteUnReadMessagesByRecipientIdAsync(string recipientId)
-        {
-            bool IsDeleted = false;
-            if (string.IsNullOrWhiteSpace(recipientId)) { throw new ArgumentNullException(nameof(recipientId)); }
-            try
-            {
-                IsDeleted = await _utilityRepository.UpdateMessageDeleteStatusByRecipientIdAsync(recipientId, false);
+                List<Message> readMessages = await _utilityRepository.GetMessagesByReceipientIdAsync(recipientId);
+                List<string> readMessageIds = new List<string>();
+                if(readMessages != null && readMessages.Count > 0)
+                {
+                    foreach (var msg in readMessages)
+                    {
+                        readMessageIds.Add(msg.MessageID);
+                    }
+                }
+                IsDeleted = await _utilityRepository.DeleteReadMessageDetailByRecipientIdAsync(recipientId);
+                if (IsDeleted)
+                {
+                    foreach (var id in readMessageIds)
+                    {
+                        await _utilityRepository.DeleteMessageByMessageIdAsync(id);
+                    }
+                }
             }
             catch (Exception ex)
             {

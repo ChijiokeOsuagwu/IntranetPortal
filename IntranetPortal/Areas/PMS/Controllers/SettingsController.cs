@@ -393,6 +393,19 @@ namespace IntranetPortal.Areas.PMS.Controllers
             {
                 model.ViewModelErrorMessage = ex.Message;
             }
+
+            List<PerformanceYear> pyears = await _performanceService.GetPerformanceYearsAsync();
+            if (pyears != null && pyears.Count > 0)
+            {
+                ViewBag.PerformanceYearsList = new SelectList(pyears, "Id", "Name", model.ReviewYearId);
+            }
+
+            List<ReviewType> types = await _performanceService.GetReviewTypesAsync();
+            if (types != null && types.Count > 0)
+            {
+                ViewBag.ReviewTypesList = new SelectList(types, "ReviewTypeId", "ReviewTypeName", model.ReviewTypeId);
+            }
+
             return View(model);
         }
 
@@ -799,7 +812,7 @@ namespace IntranetPortal.Areas.PMS.Controllers
             return View(model);
         }
 
-        //============================== Competency Grades =======================================//    
+        //============ Competency Grades ================//    
 
         [Authorize(Roles = "PMSSTTMGA, XYALLACCZ")]
         public async Task<IActionResult> CompetencyGradeTemplate(int id)
@@ -1650,6 +1663,378 @@ namespace IntranetPortal.Areas.PMS.Controllers
                 model.SessionScheduleId = sessionSchedule.SessionScheduleId;
             }
             return View(model);
+        }
+
+        #endregion
+
+        #region Competency Settings
+
+        //======== Competency Controller Methods ===============//
+
+        [Authorize(Roles = "PMSSTTMGA, XYALLACCZ")]
+        public async Task<IActionResult> Competencies(int? cd = null, int? ld = null)
+        {
+            int CompetencyCategoryID = cd ?? 0;
+            int CompetencyLevelID = ld ?? 0;
+
+            CompetenciesListViewModel model = new CompetenciesListViewModel();
+            var entities = await _performanceService.SearchFromCompetencyDictionaryAsync(CompetencyCategoryID, CompetencyLevelID);
+            if (entities != null && entities.Count > 0)
+            {
+                model.CompetencyList = entities.ToList();
+            }
+
+            if (TempData["Error"] != null)
+            {
+                model.ViewModelErrorMessage = TempData["Error"].ToString();
+            }
+
+            if (TempData["Success"] != null)
+            {
+                model.ViewModelSuccessMessage = TempData["Success"].ToString();
+            }
+
+            List<CompetencyCategory> competencyCategories = await _performanceService.GetCompetencyCategoriesAsync();
+            if (competencyCategories != null && competencyCategories.Count > 0)
+            {
+                ViewBag.CompetencyCategoryList = new SelectList(competencyCategories, "Id", "Description", cd);
+            }
+
+            List<CompetencyLevel> competencyLevels = await _performanceService.GetCompetencyLevelsAsync();
+            if (competencyLevels != null && competencyLevels.Count > 0)
+            {
+                ViewBag.CompetencyLevelList = new SelectList(competencyLevels, "Id", "Description", ld);
+            }
+
+            return View(model);
+        }
+
+        [Authorize(Roles = "PMSSTTMGA, XYALLACCZ")]
+        public async Task<IActionResult> ManageCompetency(int id)
+        {
+            ManageCompetencyViewModel model = new ManageCompetencyViewModel();
+            if (id > 0)
+            {
+                Competency competency = await _performanceService.GetFromCompetencyDictionaryByIdAsync(id);
+                if (competency != null && !string.IsNullOrWhiteSpace(competency.Title))
+                {
+                    model = model.ExtractFromCompetency(competency);
+                }
+            }
+
+            List<CompetencyCategory> competencyCategories = await _performanceService.GetCompetencyCategoriesAsync();
+            if (competencyCategories != null && competencyCategories.Count > 0)
+            {
+                ViewBag.CompetencyCategoryList = new SelectList(competencyCategories, "Id", "Description");
+            }
+
+            List<CompetencyLevel> competencyLevels = await _performanceService.GetCompetencyLevelsAsync();
+            if (competencyLevels != null && competencyLevels.Count > 0)
+            {
+                ViewBag.CompetencyLevelList = new SelectList(competencyLevels, "Id", "Description");
+            }
+
+            return View(model);
+        }
+
+        [Authorize(Roles = "PMSSTTMGA, XYALLACCZ")]
+        [HttpPost]
+        public async Task<IActionResult> ManageCompetency(ManageCompetencyViewModel model)
+        {
+            try
+            {
+                Competency competency = new Competency();
+                if (ModelState.IsValid)
+                {
+                    competency = model.ConvertToCompetency();
+                    if (competency.Id < 1)
+                    {
+                        bool IsAdded = await _performanceService.AddCompetencyAsync(competency);
+                        if (IsAdded)
+                        {
+                            return RedirectToAction("Competencies");
+                        }
+                        else
+                        {
+                            model.ViewModelSuccessMessage = "Sorry, an error was encountered. Please try again.";
+                        }
+                    }
+                    else
+                    {
+                        bool IsUpdated = await _performanceService.UpdateCompetencyAsync(competency);
+                        if (IsUpdated)
+                        {
+                            return RedirectToAction("Competencies");
+                            //model.OperationIsSuccessful = true;
+                            //model.ViewModelSuccessMessage = "Performance Year was updated successfully!";
+                        }
+                        else
+                        {
+                            model.ViewModelSuccessMessage = "Sorry, an error was encountered. Please try again.";
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                model.ViewModelErrorMessage = ex.Message;
+            }
+
+            List<CompetencyCategory> competencyCategories = await _performanceService.GetCompetencyCategoriesAsync();
+            if (competencyCategories != null && competencyCategories.Count > 0)
+            {
+                ViewBag.CompetencyCategoryList = new SelectList(competencyCategories, "Id", "Description");
+            }
+
+            List<CompetencyLevel> competencyLevels = await _performanceService.GetCompetencyLevelsAsync();
+            if (competencyLevels != null && competencyLevels.Count > 0)
+            {
+                ViewBag.CompetencyLevelList = new SelectList(competencyLevels, "Id", "Description");
+            }
+
+            return View(model);
+        }
+
+        [Authorize(Roles = "PMSSTTMGA, XYALLACCZ")]
+        public async Task<IActionResult> DeleteCompetency(int id)
+        {
+            try
+            {
+                if (id > 0)
+                {
+                    bool IsDeleted = await _performanceService.DeleteCompetencyAsync(id);
+                    if (IsDeleted)
+                    {
+                        TempData["Success"] = "Records deleted successfully!";
+                    }
+                    else
+                    {
+                        TempData["Error"] = "Sorry, an error was encountered. Delete operation failed.";
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = ex.Message;
+            }
+            return RedirectToAction("Competencies");
+        }
+
+
+
+        //========= Competency Categories Controller Methods ========//
+        [Authorize(Roles = "PMSSTTMGA, XYALLACCZ")]
+        public async Task<IActionResult> CompetencyCategories()
+        {
+            CompetencyCategoriesListViewModel model = new CompetencyCategoriesListViewModel();
+            var entities = await _performanceService.GetCompetencyCategoriesAsync();
+            if (entities != null && entities.Count > 0)
+            {
+                model.CompetencyCategoryList = entities.ToList();
+            }
+
+            if (TempData["Error"] != null)
+            {
+                model.ViewModelErrorMessage = TempData["Error"].ToString();
+            }
+
+            if (TempData["Success"] != null)
+            {
+                model.ViewModelSuccessMessage = TempData["Success"].ToString();
+            }
+            return View(model);
+        }
+
+        [Authorize(Roles = "PMSSTTMGA, XYALLACCZ")]
+        public async Task<IActionResult> ManageCompetencyCategory(int id)
+        {
+            CompetencyCategoryViewModel model = new CompetencyCategoryViewModel();
+            if (id > 0)
+            {
+                CompetencyCategory competencyCategory = await _performanceService.GetCompetencyCategoryAsync(id);
+                if (competencyCategory != null && !string.IsNullOrWhiteSpace(competencyCategory.Description))
+                {
+                    model = model.ExtractFromCompetencyCategory(competencyCategory);
+                }
+            }
+            return View(model);
+        }
+
+        [Authorize(Roles = "PMSSTTMGA, XYALLACCZ")]
+        [HttpPost]
+        public async Task<IActionResult> ManageCompetencyCategory(CompetencyCategoryViewModel model)
+        {
+            try
+            {
+                CompetencyCategory competencyCategory = new CompetencyCategory();
+                if (ModelState.IsValid)
+                {
+                    competencyCategory = model.ConvertToCompetencyCategory();
+                    if (competencyCategory.Id < 1)
+                    {
+                        bool IsAdded = await _performanceService.AddCompetencyCategoryAsync(competencyCategory.Description);
+                        if (IsAdded)
+                        {
+                            return RedirectToAction("CompetencyCategories");
+                        }
+                        else
+                        {
+                            model.ViewModelSuccessMessage = "Sorry, an error was encountered. Please try again.";
+                        }
+                    }
+                    else
+                    {
+                        bool IsUpdated = await _performanceService.UpdateCompetencyCategoryAsync(competencyCategory.Id, competencyCategory.Description);
+                        if (IsUpdated)
+                        {
+                            //model.OperationIsSuccessful = true;
+                            //model.ViewModelSuccessMessage = "Competency Category Year was updated successfully!";
+                            return RedirectToAction("CompetencyCategories");
+                        }
+                        else
+                        {
+                            model.ViewModelSuccessMessage = "Sorry, an error was encountered. Please try again.";
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                model.ViewModelErrorMessage = ex.Message;
+            }
+            return View(model);
+        }
+        [Authorize(Roles = "PMSSTTMGA, XYALLACCZ")]
+        public async Task<IActionResult> DeleteCompetencyCategory(int id)
+        {
+            try
+            {
+                if (id > 0)
+                {
+                    bool IsDeleted = await _performanceService.DeleteCompetencyCategoryAsync(id);
+                    if (IsDeleted)
+                    {
+                        TempData["Success"] = "Records deleted successfully!";
+                    }
+                    else
+                    {
+                        TempData["Error"] = "Sorry, an error was encountered. Delete operation failed.";
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = ex.Message;
+            }
+            return RedirectToAction("CompetencyCategories");
+        }
+
+
+        //===== Competency Levels Controller Methods =============//
+        [Authorize(Roles = "PMSSTTMGA, XYALLACCZ")]
+        public async Task<IActionResult> CompetencyLevels()
+        {
+            CompetencyLevelsListViewModel model = new CompetencyLevelsListViewModel();
+            var entities = await _performanceService.GetCompetencyLevelsAsync();
+            if (entities != null && entities.Count > 0)
+            {
+                model.CompetencyLevelList = entities.ToList();
+            }
+
+            if (TempData["Error"] != null)
+            {
+                model.ViewModelErrorMessage = TempData["Error"].ToString();
+            }
+
+            if (TempData["Success"] != null)
+            {
+                model.ViewModelSuccessMessage = TempData["Success"].ToString();
+            }
+            return View(model);
+        }
+
+        [Authorize(Roles = "PMSSTTMGA, XYALLACCZ")]
+        public async Task<IActionResult> ManageCompetencyLevel(int id)
+        {
+            CompetencyLevelViewModel model = new CompetencyLevelViewModel();
+            if (id > 0)
+            {
+                CompetencyLevel competencyLevel = await _performanceService.GetCompetencyLevelAsync(id);
+                if (competencyLevel != null && !string.IsNullOrWhiteSpace(competencyLevel.Description))
+                {
+                    model = model.ExtractFromCompetencyLevel(competencyLevel);
+                }
+            }
+            return View(model);
+        }
+
+        [Authorize(Roles = "PMSSTTMGA, XYALLACCZ")]
+        [HttpPost]
+        public async Task<IActionResult> ManageCompetencyLevel(CompetencyLevelViewModel model)
+        {
+            try
+            {
+                CompetencyLevel competencyLevel = new CompetencyLevel();
+                if (ModelState.IsValid)
+                {
+                    competencyLevel = model.ConvertToCompetencyLevel();
+                    if (competencyLevel.Id < 1)
+                    {
+                        bool IsAdded = await _performanceService.AddCompetencyLevelAsync(competencyLevel.Description);
+                        if (IsAdded)
+                        {
+                            return RedirectToAction("CompetencyLevels");
+                        }
+                        else
+                        {
+                            model.ViewModelSuccessMessage = "Sorry, an error was encountered. Please try again.";
+                        }
+                    }
+                    else
+                    {
+                        bool IsUpdated = await _performanceService.UpdateCompetencyLevelAsync(competencyLevel.Id, competencyLevel.Description);
+                        if (IsUpdated)
+                        {
+                            return RedirectToAction("CompetencyLevels");
+                        }
+                        else
+                        {
+                            model.ViewModelSuccessMessage = "Sorry, an error was encountered. Please try again.";
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                model.ViewModelErrorMessage = ex.Message;
+            }
+            return View(model);
+        }
+        
+        
+        [Authorize(Roles = "PMSSTTMGA, XYALLACCZ")]
+        public async Task<IActionResult> DeleteCompetencyLevel(int id)
+        {
+            try
+            {
+                if (id > 0)
+                {
+                    bool IsDeleted = await _performanceService.DeleteCompetencyLevelAsync(id);
+                    if (IsDeleted)
+                    {
+                        TempData["Success"] = "Records deleted successfully!";
+                    }
+                    else
+                    {
+                        TempData["Error"] = "Sorry, an error was encountered. Delete operation failed.";
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = ex.Message;
+            }
+            return RedirectToAction("CompetencyLevels");
         }
 
         #endregion

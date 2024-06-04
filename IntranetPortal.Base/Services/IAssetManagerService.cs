@@ -99,7 +99,7 @@ namespace IntranetPortal.Base.Services
         #endregion
 
         #region Asset Report Service Methods
-        Task<List<Asset>> GetAssetStatusReportAsync(string UserId, int? BaseLocationID = null, int? BinLocationID = null, int? AssetGroupID = null, int? AssetTypeID = null, int? AssetCondition = null);
+        Task<List<Asset>> GetAssetStatusReportAsync(string UserId, int? BaseLocationID = null, int? BinLocationID = null, int? AssetTypeID = null, int? AssetCondition = null);
 
         #endregion
 

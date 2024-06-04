@@ -11,12 +11,25 @@
                 <div class="collapse navbar-collapse" id="navbarNavDropdown">
                     <ul class="navbar-nav">
                         <li class="nav-item">
-                            <button title="Go Back" class="btn btn-sm btn-outline-light text-dark" onclick="history.back()">
+                            @*<button title="Go Back" class="btn btn-sm btn-outline-light text-dark">
                                 <i class="bi bi-backspace fw-bolder" style="font-size: 1.0rem;"></i>&nbsp;<span class="fw-bold ml-1" style="font-size: 0.9rem;">Back</span>
-                            </button>
+                            </button>*@
+
+                            @if (Model.SourcePage == "stp" || Model.src == "stp")
+                            {
+                                <a asp-area="PMS" asp-Controller="Process" asp-action="MyAppraisalSteps" asp-route-id="@Model.ReviewSessionID" title="Go Back" class="btn btn-sm btn-outline-light text-dark">
+                                    <i class="bi bi-backspace fw-bolder" style="font-size: 1.0rem;"></i>&nbsp;<span class="fw-bold ml-1" style="font-size: 0.9rem;">Back</span>
+                                </a>
+                            }
+                            else if (Model.SourcePage == "apr" || Model.src == "apr")
+                            {
+                                <a asp-area="PMS" asp-Controller="Process" asp-action="AppraisalInfo" asp-route-id="@Model.ReviewHeaderID" asp-route-src="@Model.psp" asp-route-sd="@Model.ReviewSubmissionID" title="Go Back" class="btn btn-sm btn-outline-light text-dark">
+                                    <i class="bi bi-backspace fw-bolder" style="font-size: 1.0rem;"></i>&nbsp;<span class="fw-bold ml-1" style="font-size: 0.9rem;">Back</span>
+                                </a>
+                            }
                         </li>
                         <li class="nav-item">
-                            <a asp-area="PMS" asp-controller="Process" asp-action="AddAppraisalNote" asp-route-id="@Model.ReviewHeaderID" asp-route-sd="@Model.LoggedInEmployeeID" asp-route-ad="@Model.AppraiseeID" title="Add New Note" class="btn btn-sm btn-outline-light text-dark" style="width:200px">
+                            <a asp-area="PMS" asp-controller="Process" asp-action="AddAppraisalNote" asp-route-id="@Model.ReviewHeaderID" asp-route-sd="@Model.LoggedInEmployeeID" asp-route-ad="@Model.AppraiseeID" asp-route-sp="@Model.src" asp-route-psp="@Model.psp" asp-route-sbm="@Model.ReviewSubmissionID" title="Add New Note" class="btn btn-sm btn-outline-light text-dark" style="width:200px">
                                 <i class="bi bi-plus-lg fw-bolder" style="font-size: 1.0rem;"></i><span class="fw-bold ml-1" style="font-size: 0.9rem;">New Note</span>
                             </a>
                         </li>
@@ -29,6 +42,7 @@
         <input type="hidden" asp-for="ReviewHeaderID" />
         <input type="hidden" asp-for="ReviewSessionID" />
         <input type="hidden" asp-for="AppraiseeID" />
+        <input type="hidden" asp-for="ReviewSubmissionID" />
         <div>
             @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
             {
@@ -53,7 +67,6 @@
                     <div class="col-md-12">
                         <div class="card">
                             <div class="card-body">
-                                <h4 class="card-title mb-0">Recent Posts</h4>
                             </div>
                             <div class="comment-widgets scrollable">
                                 @foreach (var msg in Model.ReviewMessageList)
@@ -61,18 +74,11 @@
                                     <!-- Comment Row -->
                                     <div class="d-flex flex-row comment-row mt-0">
                                         <div class="p-2">
-                                            @if (msg.FromEmployeeSex == "FEMALE")
-                                            {
-                                                <img src="~/img/appimg/blackfemale.jpg" alt="Sender Image" width="50" class="rounded-circle">
-                                            }
-                                            else
-                                            {
-                                                <img src="~/img/appimg/blackmale.jpg" alt="Sender Image" width="50" class="rounded-circle">
-                                            }
+                                            <img src="~/img/user_icon_128px.png" alt="Sender Image" width="50" class="rounded-circle">
                                         </div>
                                         <div class="comment-text w-100">
                                             <h6 class="font-medium">@msg.FromEmployeeName</h6>
-                                            <span class="mb-3 d-block">@msg.MessageBody</span>
+                                            <span class="mb-3 d-block font-bold">@msg.MessageBody</span>
                                             <div class="comment-footer">
                                                 <span class="text-muted float-end">@msg.MessageTime.Value.ToLongDateString() @msg.MessageTime.Value.ToLongTimeString()</span>
                                             </div>

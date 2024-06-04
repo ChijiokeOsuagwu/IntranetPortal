@@ -7,7 +7,7 @@
     <hr />
     <div class="mb-1">
         <form asp-area="AssetManager" asp-controller="Settings" asp-action="AssetTypes" method="get">
-            <a asp-area="AssetManager" asp-controller="Home" asp-action="Index" class="btn btn-dark mr-2" style="width:100px" title="Click to Go Back">
+            <a asp-area="AssetManager" asp-controller="Settings" asp-action="Index" class="btn btn-dark mr-2" style="width:100px" title="Click to Go Back">
                 <span class="text-white">Back</span>
             </a>
             <select id="cd" name="cd" asp-items="@ViewBag.AssetClassesList" selected="@ViewBag.cd" class="border-0" style="width:300px">

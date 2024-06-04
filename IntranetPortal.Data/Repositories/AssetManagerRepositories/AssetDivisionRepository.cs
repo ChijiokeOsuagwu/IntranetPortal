@@ -63,7 +63,7 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
             sb.Append("public.gst_locs WHERE locqk = loc_id) as loc_nm ");
             sb.Append("FROM public.asm_stt_dvsn  ");
             sb.Append("WHERE(LOWER(asst_dvsn_nm) LIKE '%'||LOWER(@asst_dvsn_nm)||'%') ");
-            sb.Append("ORDER BY loc_nm, asst_dvsn_nm; ");
+            sb.Append("ORDER BY asst_dvsn_nm; ");
             string query = sb.ToString();
             try
             {
@@ -109,7 +109,7 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
             sb.Append("FROM public.asm_stt_dvsn ");
             sb.Append("WHERE asst_dvsn_id IN (SELECT asst_dvsn_id FROM public.sct_ntt_pms ");
             sb.Append("WHERE ntt_typ=0 AND usr_acct_id = @usr_id) ");
-            sb.Append("ORDER BY loc_nm, asst_dvsn_nm; ");
+            sb.Append("ORDER BY asst_dvsn_nm; ");
 
             string query = sb.ToString();
 
@@ -147,7 +147,7 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
             sb.Append("asst_dvsn_ds, loc_id, (SELECT locname FROM ");
             sb.Append("public.gst_locs WHERE locqk = loc_id) as loc_nm ");
             sb.Append("FROM public.asm_stt_dvsn ");
-            sb.Append("ORDER BY loc_nm, asst_dvsn_nm; ");
+            sb.Append("ORDER BY asst_dvsn_nm; ");
             string query = sb.ToString();
 
             await conn.OpenAsync();

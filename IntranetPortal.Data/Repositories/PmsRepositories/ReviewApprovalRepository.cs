@@ -122,6 +122,7 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
             return reviewApprovalsList;
         }
 
+        //=== Get All Approvals ====//
         public async Task<IList<ReviewApproval>> GetByReviewHeaderIdAsync(int reviewHeaderId)
         {
             List<ReviewApproval> reviewApprovalsList = new List<ReviewApproval>();
@@ -232,6 +233,243 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
             await conn.CloseAsync();
             return reviewApprovalsList;
         }
+
+        public async Task<IList<ReviewApproval>> GetByReviewHeaderIdAsync(int reviewHeaderId, int approvalTypeId, int approverRoleId)
+        {
+            List<ReviewApproval> reviewApprovalsList = new List<ReviewApproval>();
+            var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
+            StringBuilder sb = new StringBuilder();
+            sb.Append("SELECT a.rvw_aprv_id, a.aprv_typ_id, a.rvw_hdr_id, ");
+            sb.Append("a.aprv_emp_id, a.rvw_emp_id, a.is_aprvd, a.rvw_aprv_dt, ");
+            sb.Append("a.rvw_aprv_rmk, a.aprv_rl_id, a.rvw_mtrc_id, r.aprv_rl_nm, ");
+            sb.Append("r.mst_aprv_con, r.mst_aprv_eva, e.fullname as rvw_emp_nm, ");
+            sb.Append("f.fullname as aprv_emp_nm, t.aprv_typ_nm ");
+            sb.Append("FROM public.pmsrvwaprvs a ");
+            sb.Append("LEFT JOIN public.pmsaprvrls r ON r.aprv_rl_id = a.aprv_rl_id ");
+            sb.Append("LEFT JOIN public.gst_prsns e ON e.id = a.rvw_emp_id ");
+            sb.Append("LEFT JOIN public.gst_prsns f ON f.id = a.aprv_emp_id ");
+            sb.Append("LEFT JOIN public.pmsaprvtyps t ON t.aprv_typ_id = a.aprv_typ_id ");
+            sb.Append("WHERE (a.rvw_hdr_id = @rvw_hdr_id) ");
+            sb.Append("AND (a.aprv_typ_id = @aprv_typ_id) ");
+            sb.Append("AND (a.aprv_rl_id = @aprv_rl_id) ");
+            sb.Append("ORDER BY a.rvw_aprv_id DESC;");
+            string query = sb.ToString();
+            await conn.OpenAsync();
+            // Retrieve all rows
+            using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+            {
+                var rvw_hdr_id = cmd.Parameters.Add("@rvw_hdr_id", NpgsqlDbType.Integer);
+                var aprv_typ_id = cmd.Parameters.Add("@aprv_typ_id", NpgsqlDbType.Integer);
+                var aprv_rl_id = cmd.Parameters.Add("@aprv_rl_id", NpgsqlDbType.Integer);
+                await cmd.PrepareAsync();
+                rvw_hdr_id.Value = reviewHeaderId;
+                aprv_typ_id.Value = approvalTypeId;
+                aprv_rl_id.Value = approverRoleId;
+
+                var reader = await cmd.ExecuteReaderAsync();
+                while (await reader.ReadAsync())
+                {
+                    reviewApprovalsList.Add(new ReviewApproval()
+                    {
+                        ReviewApprovalId = reader["rvw_aprv_id"] == DBNull.Value ? 0 : (int)(reader["rvw_aprv_id"]),
+                        ApprovalTypeId = reader["aprv_typ_id"] == DBNull.Value ? 0 : (int)reader["aprv_typ_id"],
+                        ApprovalTypeDescription = reader["aprv_typ_nm"] == DBNull.Value ? string.Empty : (reader["aprv_typ_nm"]).ToString(),
+                        ReviewHeaderId = reader["rvw_hdr_id"] == DBNull.Value ? 0 : (int)reader["rvw_hdr_id"],
+                        ApproverId = reader["aprv_emp_id"] == DBNull.Value ? string.Empty : reader["aprv_emp_id"].ToString(),
+                        ApproverName = reader["aprv_emp_nm"] == DBNull.Value ? string.Empty : reader["aprv_emp_nm"].ToString(),
+                        AppraiseeId = reader["rvw_emp_id"] == DBNull.Value ? string.Empty : reader["rvw_emp_id"].ToString(),
+                        AppraiseeName = reader["rvw_emp_nm"] == DBNull.Value ? string.Empty : reader["rvw_emp_id"].ToString(),
+                        IsApproved = reader["is_aprvd"] == DBNull.Value ? false : (bool)reader["is_aprvd"],
+                        ApprovedTime = reader["rvw_aprv_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["rvw_aprv_dt"],
+                        ApprovedComments = reader["rvw_aprv_rmk"] == DBNull.Value ? string.Empty : reader["rvw_aprv_rmk"].ToString(),
+                        ApproverRoleId = reader["aprv_rl_id"] == DBNull.Value ? 0 : (int)reader["aprv_rl_id"],
+                        ApproverRoleDescription = reader["aprv_rl_nm"] == DBNull.Value ? string.Empty : reader["aprv_rl_nm"].ToString(),
+                        ReviewMetricId = reader["rvw_mtrc_id"] == DBNull.Value ? 0 : (int)reader["rvw_mtrc_id"],
+                        MustApproveContract = reader["mst_aprv_con"] == DBNull.Value ? false : (bool)reader["mst_aprv_con"],
+                        MustApproveEvaluation = reader["mst_aprv_eva"] == DBNull.Value ? false : (bool)reader["mst_aprv_eva"],
+                    });
+                }
+            }
+            await conn.CloseAsync();
+            return reviewApprovalsList;
+        }
+
+
+        //======= Get Only Approved =======//
+        public async Task<IList<ReviewApproval>> GetApprovedByReviewHeaderIdAsync(int reviewHeaderId)
+        {
+            List<ReviewApproval> reviewApprovalsList = new List<ReviewApproval>();
+            var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
+            StringBuilder sb = new StringBuilder();
+            sb.Append("SELECT a.rvw_aprv_id, a.aprv_typ_id, a.rvw_hdr_id, ");
+            sb.Append("a.aprv_emp_id, a.rvw_emp_id, a.is_aprvd, a.rvw_aprv_dt, ");
+            sb.Append("a.rvw_aprv_rmk, a.aprv_rl_id, a.rvw_mtrc_id, r.aprv_rl_nm, ");
+            sb.Append("r.mst_aprv_con, r.mst_aprv_eva, e.fullname as rvw_emp_nm, ");
+            sb.Append("f.fullname as aprv_emp_nm, t.aprv_typ_nm ");
+            sb.Append("FROM public.pmsrvwaprvs a ");
+            sb.Append("LEFT JOIN public.pmsaprvrls r ON r.aprv_rl_id = a.aprv_rl_id ");
+            sb.Append("LEFT JOIN public.gst_prsns e ON e.id = a.rvw_emp_id ");
+            sb.Append("LEFT JOIN public.gst_prsns f ON f.id = a.aprv_emp_id ");
+            sb.Append("LEFT JOIN public.pmsaprvtyps t ON t.aprv_typ_id = a.aprv_typ_id ");
+            sb.Append("WHERE (a.rvw_hdr_id = @rvw_hdr_id) ");
+            sb.Append("AND (a.is_aprvd = true) ");
+            sb.Append("ORDER BY a.rvw_aprv_id DESC;");
+            string query = sb.ToString();
+            await conn.OpenAsync();
+            // Retrieve all rows
+            using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+            {
+                var rvw_hdr_id = cmd.Parameters.Add("@rvw_hdr_id", NpgsqlDbType.Integer);
+                await cmd.PrepareAsync();
+                rvw_hdr_id.Value = reviewHeaderId;
+
+                var reader = await cmd.ExecuteReaderAsync();
+                while (await reader.ReadAsync())
+                {
+                    reviewApprovalsList.Add(new ReviewApproval()
+                    {
+                        ReviewApprovalId = reader["rvw_aprv_id"] == DBNull.Value ? 0 : (int)(reader["rvw_aprv_id"]),
+                        ApprovalTypeId = reader["aprv_typ_id"] == DBNull.Value ? 0 : (int)reader["aprv_typ_id"],
+                        ApprovalTypeDescription = reader["aprv_typ_nm"] == DBNull.Value ? string.Empty : (reader["aprv_typ_nm"]).ToString(),
+                        ReviewHeaderId = reader["rvw_hdr_id"] == DBNull.Value ? 0 : (int)reader["rvw_hdr_id"],
+                        ApproverId = reader["aprv_emp_id"] == DBNull.Value ? string.Empty : reader["aprv_emp_id"].ToString(),
+                        ApproverName = reader["aprv_emp_nm"] == DBNull.Value ? string.Empty : reader["aprv_emp_nm"].ToString(),
+                        AppraiseeId = reader["rvw_emp_id"] == DBNull.Value ? string.Empty : reader["rvw_emp_id"].ToString(),
+                        AppraiseeName = reader["rvw_emp_nm"] == DBNull.Value ? string.Empty : reader["rvw_emp_id"].ToString(),
+                        IsApproved = reader["is_aprvd"] == DBNull.Value ? false : (bool)reader["is_aprvd"],
+                        ApprovedTime = reader["rvw_aprv_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["rvw_aprv_dt"],
+                        ApprovedComments = reader["rvw_aprv_rmk"] == DBNull.Value ? string.Empty : reader["rvw_aprv_rmk"].ToString(),
+                        ApproverRoleId = reader["aprv_rl_id"] == DBNull.Value ? 0 : (int)reader["aprv_rl_id"],
+                        ApproverRoleDescription = reader["aprv_rl_nm"] == DBNull.Value ? string.Empty : reader["aprv_rl_nm"].ToString(),
+                        ReviewMetricId = reader["rvw_mtrc_id"] == DBNull.Value ? 0 : (int)reader["rvw_mtrc_id"],
+                        MustApproveContract = reader["mst_aprv_con"] == DBNull.Value ? false : (bool)reader["mst_aprv_con"],
+                        MustApproveEvaluation = reader["mst_aprv_eva"] == DBNull.Value ? false : (bool)reader["mst_aprv_eva"],
+                    });
+                }
+            }
+            await conn.CloseAsync();
+            return reviewApprovalsList;
+        }
+
+        public async Task<IList<ReviewApproval>> GetApprovedByReviewHeaderIdAsync(int reviewHeaderId, int approvalTypeId)
+        {
+            List<ReviewApproval> reviewApprovalsList = new List<ReviewApproval>();
+            var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
+            StringBuilder sb = new StringBuilder();
+            sb.Append("SELECT a.rvw_aprv_id, a.aprv_typ_id, a.rvw_hdr_id, ");
+            sb.Append("a.aprv_emp_id, a.rvw_emp_id, a.is_aprvd, a.rvw_aprv_dt, ");
+            sb.Append("a.rvw_aprv_rmk, a.aprv_rl_id, a.rvw_mtrc_id, r.aprv_rl_nm, ");
+            sb.Append("r.mst_aprv_con, r.mst_aprv_eva, e.fullname as rvw_emp_nm, ");
+            sb.Append("f.fullname as aprv_emp_nm, t.aprv_typ_nm ");
+            sb.Append("FROM public.pmsrvwaprvs a ");
+            sb.Append("LEFT JOIN public.pmsaprvrls r ON r.aprv_rl_id = a.aprv_rl_id ");
+            sb.Append("LEFT JOIN public.gst_prsns e ON e.id = a.rvw_emp_id ");
+            sb.Append("LEFT JOIN public.gst_prsns f ON f.id = a.aprv_emp_id ");
+            sb.Append("LEFT JOIN public.pmsaprvtyps t ON t.aprv_typ_id = a.aprv_typ_id ");
+            sb.Append("WHERE (a.rvw_hdr_id = @rvw_hdr_id) ");
+            sb.Append("AND (a.aprv_typ_id = @aprv_typ_id) ");
+            sb.Append("AND (a.is_aprvd = true) ");
+            sb.Append("ORDER BY a.rvw_aprv_id DESC;");
+            string query = sb.ToString();
+            await conn.OpenAsync();
+            // Retrieve all rows
+            using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+            {
+                var rvw_hdr_id = cmd.Parameters.Add("@rvw_hdr_id", NpgsqlDbType.Integer);
+                var aprv_typ_id = cmd.Parameters.Add("@aprv_typ_id", NpgsqlDbType.Integer);
+                await cmd.PrepareAsync();
+                rvw_hdr_id.Value = reviewHeaderId;
+                aprv_typ_id.Value = approvalTypeId;
+
+                var reader = await cmd.ExecuteReaderAsync();
+                while (await reader.ReadAsync())
+                {
+                    reviewApprovalsList.Add(new ReviewApproval()
+                    {
+                        ReviewApprovalId = reader["rvw_aprv_id"] == DBNull.Value ? 0 : (int)(reader["rvw_aprv_id"]),
+                        ApprovalTypeId = reader["aprv_typ_id"] == DBNull.Value ? 0 : (int)reader["aprv_typ_id"],
+                        ApprovalTypeDescription = reader["aprv_typ_nm"] == DBNull.Value ? string.Empty : (reader["aprv_typ_nm"]).ToString(),
+                        ReviewHeaderId = reader["rvw_hdr_id"] == DBNull.Value ? 0 : (int)reader["rvw_hdr_id"],
+                        ApproverId = reader["aprv_emp_id"] == DBNull.Value ? string.Empty : reader["aprv_emp_id"].ToString(),
+                        ApproverName = reader["aprv_emp_nm"] == DBNull.Value ? string.Empty : reader["aprv_emp_nm"].ToString(),
+                        AppraiseeId = reader["rvw_emp_id"] == DBNull.Value ? string.Empty : reader["rvw_emp_id"].ToString(),
+                        AppraiseeName = reader["rvw_emp_nm"] == DBNull.Value ? string.Empty : reader["rvw_emp_id"].ToString(),
+                        IsApproved = reader["is_aprvd"] == DBNull.Value ? false : (bool)reader["is_aprvd"],
+                        ApprovedTime = reader["rvw_aprv_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["rvw_aprv_dt"],
+                        ApprovedComments = reader["rvw_aprv_rmk"] == DBNull.Value ? string.Empty : reader["rvw_aprv_rmk"].ToString(),
+                        ApproverRoleId = reader["aprv_rl_id"] == DBNull.Value ? 0 : (int)reader["aprv_rl_id"],
+                        ApproverRoleDescription = reader["aprv_rl_nm"] == DBNull.Value ? string.Empty : reader["aprv_rl_nm"].ToString(),
+                        ReviewMetricId = reader["rvw_mtrc_id"] == DBNull.Value ? 0 : (int)reader["rvw_mtrc_id"],
+                        MustApproveContract = reader["mst_aprv_con"] == DBNull.Value ? false : (bool)reader["mst_aprv_con"],
+                        MustApproveEvaluation = reader["mst_aprv_eva"] == DBNull.Value ? false : (bool)reader["mst_aprv_eva"],
+                    });
+                }
+            }
+            await conn.CloseAsync();
+            return reviewApprovalsList;
+        }
+
+        public async Task<IList<ReviewApproval>> GetApprovedByReviewHeaderIdAsync(int reviewHeaderId, int approvalTypeId, int approverRoleId)
+        {
+            List<ReviewApproval> reviewApprovalsList = new List<ReviewApproval>();
+            var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
+            StringBuilder sb = new StringBuilder();
+            sb.Append("SELECT a.rvw_aprv_id, a.aprv_typ_id, a.rvw_hdr_id, ");
+            sb.Append("a.aprv_emp_id, a.rvw_emp_id, a.is_aprvd, a.rvw_aprv_dt, ");
+            sb.Append("a.rvw_aprv_rmk, a.aprv_rl_id, a.rvw_mtrc_id, r.aprv_rl_nm, ");
+            sb.Append("r.mst_aprv_con, r.mst_aprv_eva, e.fullname as rvw_emp_nm, ");
+            sb.Append("f.fullname as aprv_emp_nm, t.aprv_typ_nm ");
+            sb.Append("FROM public.pmsrvwaprvs a ");
+            sb.Append("LEFT JOIN public.pmsaprvrls r ON r.aprv_rl_id = a.aprv_rl_id ");
+            sb.Append("LEFT JOIN public.gst_prsns e ON e.id = a.rvw_emp_id ");
+            sb.Append("LEFT JOIN public.gst_prsns f ON f.id = a.aprv_emp_id ");
+            sb.Append("LEFT JOIN public.pmsaprvtyps t ON t.aprv_typ_id = a.aprv_typ_id ");
+            sb.Append("WHERE (a.rvw_hdr_id = @rvw_hdr_id) ");
+            sb.Append("AND (a.aprv_typ_id = @aprv_typ_id) ");
+            sb.Append("AND (a.aprv_rl_id = @aprv_rl_id) ");
+            sb.Append("AND (a.is_aprvd = true) ");
+            sb.Append("ORDER BY a.rvw_aprv_id DESC;");
+            string query = sb.ToString();
+            await conn.OpenAsync();
+            // Retrieve all rows
+            using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+            {
+                var rvw_hdr_id = cmd.Parameters.Add("@rvw_hdr_id", NpgsqlDbType.Integer);
+                var aprv_typ_id = cmd.Parameters.Add("@aprv_typ_id", NpgsqlDbType.Integer);
+                var aprv_rl_id = cmd.Parameters.Add("@aprv_rl_id", NpgsqlDbType.Integer);
+                await cmd.PrepareAsync();
+                rvw_hdr_id.Value = reviewHeaderId;
+                aprv_typ_id.Value = approvalTypeId;
+                aprv_rl_id.Value = approverRoleId;
+
+                var reader = await cmd.ExecuteReaderAsync();
+                while (await reader.ReadAsync())
+                {
+                    reviewApprovalsList.Add(new ReviewApproval()
+                    {
+                        ReviewApprovalId = reader["rvw_aprv_id"] == DBNull.Value ? 0 : (int)(reader["rvw_aprv_id"]),
+                        ApprovalTypeId = reader["aprv_typ_id"] == DBNull.Value ? 0 : (int)reader["aprv_typ_id"],
+                        ApprovalTypeDescription = reader["aprv_typ_nm"] == DBNull.Value ? string.Empty : (reader["aprv_typ_nm"]).ToString(),
+                        ReviewHeaderId = reader["rvw_hdr_id"] == DBNull.Value ? 0 : (int)reader["rvw_hdr_id"],
+                        ApproverId = reader["aprv_emp_id"] == DBNull.Value ? string.Empty : reader["aprv_emp_id"].ToString(),
+                        ApproverName = reader["aprv_emp_nm"] == DBNull.Value ? string.Empty : reader["aprv_emp_nm"].ToString(),
+                        AppraiseeId = reader["rvw_emp_id"] == DBNull.Value ? string.Empty : reader["rvw_emp_id"].ToString(),
+                        AppraiseeName = reader["rvw_emp_nm"] == DBNull.Value ? string.Empty : reader["rvw_emp_id"].ToString(),
+                        IsApproved = reader["is_aprvd"] == DBNull.Value ? false : (bool)reader["is_aprvd"],
+                        ApprovedTime = reader["rvw_aprv_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["rvw_aprv_dt"],
+                        ApprovedComments = reader["rvw_aprv_rmk"] == DBNull.Value ? string.Empty : reader["rvw_aprv_rmk"].ToString(),
+                        ApproverRoleId = reader["aprv_rl_id"] == DBNull.Value ? 0 : (int)reader["aprv_rl_id"],
+                        ApproverRoleDescription = reader["aprv_rl_nm"] == DBNull.Value ? string.Empty : reader["aprv_rl_nm"].ToString(),
+                        ReviewMetricId = reader["rvw_mtrc_id"] == DBNull.Value ? 0 : (int)reader["rvw_mtrc_id"],
+                        MustApproveContract = reader["mst_aprv_con"] == DBNull.Value ? false : (bool)reader["mst_aprv_con"],
+                        MustApproveEvaluation = reader["mst_aprv_eva"] == DBNull.Value ? false : (bool)reader["mst_aprv_eva"],
+                    });
+                }
+            }
+            await conn.CloseAsync();
+            return reviewApprovalsList;
+        }
+
 
         #endregion
 

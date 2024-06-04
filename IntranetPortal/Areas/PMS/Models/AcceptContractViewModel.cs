@@ -20,5 +20,7 @@ namespace IntranetPortal.Areas.PMS.Models
         public DateTime? SignedOffTime { get; set; }
         public string SignedOffTimeFormatted { get; set; }
         public bool IsNotAccepted { get; set; }
+        [Required]
+        public string RejectionReason { get; set; } = "None";
     }
 }

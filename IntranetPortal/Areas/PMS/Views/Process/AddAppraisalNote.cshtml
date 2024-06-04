@@ -35,9 +35,12 @@
             <div class="row">
                 <div class="col-md-12 mb-3">
                     <input type="hidden" asp-for="ReviewHeaderID" />
+                    <input type="hidden" asp-for="ReviewSubmissionID" />
                     <input type="hidden" asp-for="ReviewMessageID" />
                     <input type="hidden" asp-for="FromEmployeeID" />
                     <input type="hidden" asp-for="SourcePage" />
+                    <input type="hidden" asp-for="src" />
+                    <input type="hidden" asp-for="psp" />
                     <label asp-for="MessageBody" class="form-label text-white fw-bold"></label>
                     <textarea asp-for="MessageBody" class="form-control fw-bold" rows="6" style="font-size:1.0rem">@Model.MessageBody</textarea>
                     <div><span asp-validation-for="MessageBody" class="text-white"></span></div>
@@ -45,7 +48,7 @@
             </div>
             <div class="row">
                 <div class="col-md-12">
-                    <a asp-area="PMS" asp-controller="Process" asp-action="AppraisalNotes" asp-route-id="@Model.ReviewHeaderID" asp-route-sp="@Model.SourcePage" class="btn btn-dark" style="width:100px" title="Back">
+                    <a asp-area="PMS" asp-controller="Process" asp-action="AppraisalNotes" asp-route-id="@Model.ReviewHeaderID" asp-route-sp="@Model.SourcePage" asp-route-psp="@Model.psp" asp-route-sbm="@Model.ReviewSubmissionID" class="btn btn-dark" style="width:100px" title="Back">
                         <span class="text-white">Back</span>
                     </a>
                     @if (!Model.OperationIsSuccessful)

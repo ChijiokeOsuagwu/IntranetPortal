@@ -394,6 +394,31 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
             return total_weightage;
         }
 
+        public async Task<int> GetKpaCountByReviewHeaderIdAsync(int reviewHeaderId)
+        {
+            int total_kpa_count = 0;
+            var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
+            StringBuilder sb = new StringBuilder();
+            sb.Append("SELECT COUNT(rvw_mtrc_id) as total ");
+            sb.Append("FROM public.pmsrvwmtrcs ");
+            sb.Append("WHERE (rvw_hdr_id = @rvw_hdr_id)  ");
+            sb.Append("AND (mtrc_typ_id = 0); ");
+            string query = sb.ToString();
+            await conn.OpenAsync();
+            // Retrieve all rows
+            using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+            {
+                var rvw_hdr_id = cmd.Parameters.Add("@rvw_hdr_id", NpgsqlDbType.Integer);
+                await cmd.PrepareAsync();
+                rvw_hdr_id.Value = reviewHeaderId;
+
+                var wt = await cmd.ExecuteScalarAsync();
+                total_kpa_count = Convert.ToInt32(wt);
+            }
+            await conn.CloseAsync();
+            return total_kpa_count;
+        }
+
         public async Task<IList<ReviewMetric>> GetUnevaluatedByMetricTypeIdAsync(int reviewHeaderId, string appraiserId, int metricTypeId)
         {
             List<ReviewMetric> reviewMetricList = new List<ReviewMetric>();

@@ -490,6 +490,42 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
             return reviewResultsList;
         }
 
+        public async Task<int> GetMetricCountByAppraiserIdAndMetricTypeId(int reviewHeaderId, string appraiserId, int reviewMetricTypeId)
+        {
+            int total_metric_count = 0;
+            List<ReviewResult> reviewResultsList = new List<ReviewResult>();
+            var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
+            StringBuilder sb = new StringBuilder();
+            sb.Append("SELECT COUNT (d.rvw_dtl_id) as total ");
+            sb.Append("FROM public.pmsrvwrdtls d ");
+            sb.Append("WHERE (d.rvw_hdr_id = @rvw_hdr_id) ");
+            sb.Append("AND (d.rvw_aprsr_id = @rvw_aprsr_id) ");
+            //sb.Append("AND (m.mtrc_typ_id = @mtrc_typ_id); ");
+            sb.Append("AND (d.rvw_mtric_id IN (SELECT ");
+            sb.Append("rvw_mtrc_id FROM public.pmsrvwmtrcs ");
+            sb.Append("WHERE rvw_hdr_id = d.rvw_hdr_id ");
+            sb.Append("AND mtrc_typ_id = @mtrc_typ_id));");
+
+            string query = sb.ToString();
+            await conn.OpenAsync();
+            // Retrieve all rows
+            using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+            {
+                var rvw_hdr_id = cmd.Parameters.Add("@rvw_hdr_id", NpgsqlDbType.Integer);
+                var rvw_aprsr_id = cmd.Parameters.Add("@rvw_aprsr_id", NpgsqlDbType.Text);
+                var mtrc_typ_id = cmd.Parameters.Add("@mtrc_typ_id", NpgsqlDbType.Integer);
+                await cmd.PrepareAsync();
+                rvw_hdr_id.Value = reviewHeaderId;
+                rvw_aprsr_id.Value = appraiserId;
+                mtrc_typ_id.Value = reviewMetricTypeId;
+
+                var wt = await cmd.ExecuteScalarAsync();
+                total_metric_count = Convert.ToInt32(wt);
+            }
+            await conn.CloseAsync();
+            return total_metric_count;
+        }
+
         public async Task<IList<ReviewResult>> GetByAppraiserIdAndMetricId(int reviewHeaderId, string appraiserId, int reviewMetricId)
         {
             List<ReviewResult> reviewResultsList = new List<ReviewResult>();
@@ -1436,8 +1472,8 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
             sb.Append("LEFT JOIN public.pmsrvwsmry s ON s.rvw_emp_id = r.emp_id ");
             sb.Append("LEFT JOIN public.erm_emp_inf f ON f.emp_id = s.rvw_aprsr_id ");
             sb.Append("WHERE (r.rpt_nds IS NULL OR r.rpt_nds > CURRENT_DATE) ");
-            sb.Append("AND (r.rpt_emp_id = @rpt_emp_id) AND (s.rvw_sxn_id = @rvw_sxn_id) ");
-            sb.Append("AND (r.emp_id = @emp_id) ");
+            sb.Append("AND (r.rpt_emp_id = @rpt_emp_id AND s.rvw_sxn_id = @rvw_sxn_id ");
+            sb.Append("AND r.emp_id = @emp_id) ");
             sb.Append("ORDER BY u.unitname, s.cmb_scr_obt DESC;");
 
             string query = sb.ToString();
@@ -1743,7 +1779,6 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
             await conn.CloseAsync();
             return resultDetailList;
         }
-
 
         public async Task<IList<ResultDetail>> GetPrincipalResultDetailByLocationIdAndReviewSessionIdAsync(int reviewSessionId, int locationId)
         {
@@ -2096,6 +2131,247 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
             await conn.CloseAsync();
             return resultDetailList;
         }
+
+
+        //===== Rejected Evaluation Results =====//
+        public async Task<IList<ResultDetail>> GetRejectedPrincipalResultDetailByReviewSessionIdAsync(int reviewSessionId)
+        {
+            List<ResultDetail> resultDetailList = new List<ResultDetail>();
+            var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
+            StringBuilder sb = new StringBuilder();
+            sb.Append("SELECT r.rvw_smr_id, r.rvw_hdr_id, r.rvw_sxn_id, r.rvw_emp_id, ");
+            sb.Append("r.rvw_aprsr_id, r.kpa_scr_obt, r.cmp_scr_obt, r.cmb_scr_obt, ");
+            sb.Append("r.scr_rank, r.scr_rank_ds, r.pfm_rating, r.apr_typ_ds, ");
+            sb.Append("r.aprsr_rl_ds, r.rvw_yr_id, s.rvw_sxn_nm,  r.is_main, ");
+            sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = r.rvw_emp_id) as rvw_emp_nm, ");
+            sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = r.rvw_aprsr_id) as rvw_aprsr_nm, ");
+            sb.Append("y.pms_yr_nm, e.unit_id, e.dept_id, e.loc_id, e.emp_no_1, ");
+            sb.Append("e.current_designation, d.deptname, u.unitname, l.locname, ");
+            sb.Append("f.current_designation as rvw_aprsr_dsg, s.ttl_cmp_scr, ");
+            sb.Append("s.ttl_kpa_scr, s.ttl_cmb_scr, h.is_flg, h.flg_rsn, h.flg_dt, ");
+            sb.Append("h.fbk_probs, h.fbk_solns, h.lm_rmk, h.uh_rmk, h.dh_rmk, ");
+            sb.Append("h.hr_rmk, h.mgt_rmk, h.rvw_gls, h.lm_nm, h.uh_nm, h.dh_nm, ");
+            sb.Append("h.hr_nm, h.mgt_nm, h.lm_rec, h.uh_rec, h.dh_rec, h.hr_rec, ");
+            sb.Append("h.mgt_dec FROM public.pmsrvwsmry r ");
+            sb.Append("INNER JOIN public.pmsrvwhdrs h ON (h.rvw_hdr_id = r.rvw_hdr_id ");
+            sb.Append("AND h.pry_apr_id = r.rvw_aprsr_id) ");
+            sb.Append("INNER JOIN public.pmsrvwsxns s ON s.rvw_sxn_id = r.rvw_sxn_id ");
+            sb.Append("INNER JOIN public.pmssttyrs y ON y.pms_yr_id = r.rvw_yr_id ");
+            sb.Append("INNER JOIN public.erm_emp_inf e ON e.emp_id = r.rvw_emp_id ");
+            sb.Append("INNER JOIN public.erm_emp_inf f ON f.emp_id = r.rvw_aprsr_id ");
+            sb.Append("INNER JOIN public.gst_depts d ON d.deptqk = e.dept_id ");
+            sb.Append("INNER JOIN public.gst_units u ON u.unitqk = e.unit_id ");
+            sb.Append("INNER JOIN public.gst_locs l ON l.locqk = e.loc_id ");
+            sb.Append("WHERE (s.rvw_sxn_id = @rvw_sxn_id) AND (h.is_flg = true) ");
+            sb.Append("ORDER BY r.rvw_smr_id;");
+
+            string query = sb.ToString();
+            await conn.OpenAsync();
+            // Retrieve all rows
+            using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+            {
+                var rvw_sxn_id = cmd.Parameters.Add("@rvw_sxn_id", NpgsqlDbType.Integer);
+                await cmd.PrepareAsync();
+                rvw_sxn_id.Value = reviewSessionId;
+
+                var reader = await cmd.ExecuteReaderAsync();
+                while (await reader.ReadAsync())
+                {
+                    resultDetailList.Add(new ResultDetail()
+                    {
+                        ResultSummaryId = reader["rvw_smr_id"] == DBNull.Value ? 0 : (int)reader["rvw_smr_id"],
+                        ReviewHeaderId = reader["rvw_hdr_id"] == DBNull.Value ? 0 : (int)reader["rvw_hdr_id"],
+                        ReviewSessionId = reader["rvw_sxn_id"] == DBNull.Value ? 0 : (int)reader["rvw_sxn_id"],
+                        ReviewSessionName = reader["rvw_sxn_nm"] == DBNull.Value ? string.Empty : reader["rvw_sxn_nm"].ToString(),
+
+                        AppraiseeId = reader["rvw_emp_id"] == DBNull.Value ? string.Empty : reader["rvw_emp_id"].ToString(),
+                        AppraiseeName = reader["rvw_emp_nm"] == DBNull.Value ? string.Empty : reader["rvw_emp_nm"].ToString(),
+
+                        ReviewYearId = reader["rvw_yr_id"] == DBNull.Value ? 0 : (int)reader["rvw_yr_id"],
+                        ReviewYearName = reader["pms_yr_nm"] == DBNull.Value ? string.Empty : reader["pms_yr_nm"].ToString(),
+
+                        AppraiserId = reader["rvw_aprsr_id"] == DBNull.Value ? string.Empty : reader["rvw_aprsr_id"].ToString(),
+                        AppraiserName = reader["rvw_aprsr_nm"] == DBNull.Value ? string.Empty : reader["rvw_aprsr_nm"].ToString(),
+                        AppraiserDesignation = reader["rvw_aprsr_dsg"] == DBNull.Value ? string.Empty : reader["rvw_aprsr_dsg"].ToString(),
+
+
+                        KpaScoreTotal = reader["ttl_kpa_scr"] == DBNull.Value ? 0.00M : (decimal)reader["ttl_kpa_scr"],
+                        KpaScoreObtained = reader["kpa_scr_obt"] == DBNull.Value ? 0.00M : (decimal)reader["kpa_scr_obt"],
+                        CompetencyScoreTotal = reader["ttl_cmp_scr"] == DBNull.Value ? 0.00M : (decimal)reader["ttl_cmp_scr"],
+                        CompetencyScoreObtained = reader["cmp_scr_obt"] == DBNull.Value ? 0.00M : (decimal)reader["cmp_scr_obt"],
+                        CombinedScoreTotal = reader["ttl_cmb_scr"] == DBNull.Value ? 0.00M : (decimal)reader["ttl_cmb_scr"],
+                        CombinedScoreObtained = reader["cmb_scr_obt"] == DBNull.Value ? 0.00M : (decimal)reader["cmb_scr_obt"],
+
+                        ScoreRank = reader["scr_rank"] == DBNull.Value ? 0 : (int)reader["scr_rank"],
+                        ScoreRankDescription = reader["scr_rank_ds"] == DBNull.Value ? string.Empty : reader["scr_rank_ds"].ToString(),
+                        PerformanceRating = reader["pfm_rating"] == DBNull.Value ? string.Empty : reader["pfm_rating"].ToString(),
+
+                        AppraiserTypeDescription = reader["apr_typ_ds"] == DBNull.Value ? string.Empty : reader["apr_typ_ds"].ToString(),
+                        AppraiserRoleDescription = reader["aprsr_rl_ds"] == DBNull.Value ? string.Empty : reader["aprsr_rl_ds"].ToString(),
+
+                        UnitId = reader["unit_id"] == DBNull.Value ? 0 : (int)reader["unit_id"],
+                        UnitName = reader["unitname"] == DBNull.Value ? string.Empty : reader["unitname"].ToString(),
+
+                        DepartmentId = reader["dept_id"] == DBNull.Value ? 0 : (int)reader["dept_id"],
+                        DepartmentName = reader["deptname"] == DBNull.Value ? string.Empty : reader["deptname"].ToString(),
+
+                        LocationId = reader["loc_id"] == DBNull.Value ? 0 : (int)reader["loc_id"],
+                        LocationName = reader["locname"] == DBNull.Value ? string.Empty : reader["locname"].ToString(),
+
+                        EmployeeNo = reader["emp_no_1"] == DBNull.Value ? string.Empty : reader["emp_no_1"].ToString(),
+                        IsMain = reader["is_main"] == DBNull.Value ? false : (bool)reader["is_main"],
+
+                        AppraiseeDesignation = reader["current_designation"] == DBNull.Value ? string.Empty : reader["current_designation"].ToString(),
+                        DepartmentHeadComments = reader["dh_rmk"] == DBNull.Value ? string.Empty : reader["dh_rmk"].ToString(),
+                        DepartmentHeadName = reader["dh_nm"] == DBNull.Value ? string.Empty : reader["dh_nm"].ToString(),
+                        DepartmentHeadRecommendation = reader["dh_rec"] == DBNull.Value ? string.Empty : reader["dh_rec"].ToString(),
+                        FeedbackProblems = reader["fbk_probs"] == DBNull.Value ? string.Empty : reader["fbk_probs"].ToString(),
+                        FeedbackSolutions = reader["fbk_solns"] == DBNull.Value ? string.Empty : reader["fbk_solns"].ToString(),
+                        HrComments = reader["hr_rmk"] == DBNull.Value ? string.Empty : reader["hr_rmk"].ToString(),
+                        HrName = reader["hr_nm"] == DBNull.Value ? string.Empty : reader["hr_nm"].ToString(),
+                        HrRecommendation = reader["hr_rec"] == DBNull.Value ? string.Empty : reader["hr_rec"].ToString(),
+                        IsFlagged = reader["is_flg"] == DBNull.Value ? false : (bool)reader["is_flg"],
+                        FlaggedReason = reader["flg_rsn"] == DBNull.Value ? string.Empty : reader["flg_rsn"].ToString(),
+                        FlaggedTime = reader["flg_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["flg_dt"],
+
+                        LineManagerComments = reader["lm_rmk"] == DBNull.Value ? string.Empty : reader["lm_rmk"].ToString(),
+                        LineManagerName = reader["lm_nm"] == DBNull.Value ? string.Empty : reader["lm_nm"].ToString(),
+                        LineManagerRecommendation = reader["lm_rec"] == DBNull.Value ? string.Empty : reader["lm_rec"].ToString(),
+                        ManagementComments = reader["mgt_rmk"] == DBNull.Value ? string.Empty : reader["mgt_rmk"].ToString(),
+                        ManagementDecision = reader["mgt_dec"] == DBNull.Value ? string.Empty : reader["mgt_dec"].ToString(),
+                        ManagementName = reader["mgt_nm"] == DBNull.Value ? string.Empty : reader["mgt_nm"].ToString(),
+                        PerformanceGoal = reader["rvw_gls"] == DBNull.Value ? string.Empty : reader["rvw_gls"].ToString(),
+                        UnitHeadComments = reader["uh_rmk"] == DBNull.Value ? string.Empty : reader["uh_rmk"].ToString(),
+                        UnitHeadName = reader["uh_nm"] == DBNull.Value ? string.Empty : reader["uh_nm"].ToString(),
+                        UnitHeadRecommendation = reader["uh_rec"] == DBNull.Value ? string.Empty : reader["uh_rec"].ToString(),
+                    }) ;
+                }
+            }
+            await conn.CloseAsync();
+            return resultDetailList;
+        }
+
+        public async Task<IList<ResultDetail>> GetRejectedPrincipalResultDetailByLocationIdAndReviewSessionIdAsync(int reviewSessionId, int locationId)
+        {
+            List<ResultDetail> resultDetailList = new List<ResultDetail>();
+            var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
+            StringBuilder sb = new StringBuilder();
+            sb.Append("SELECT r.rvw_smr_id, r.rvw_hdr_id, r.rvw_sxn_id, r.rvw_emp_id, ");
+            sb.Append("r.rvw_aprsr_id, r.kpa_scr_obt, r.cmp_scr_obt, r.cmb_scr_obt, ");
+            sb.Append("r.scr_rank, r.scr_rank_ds, r.pfm_rating, r.apr_typ_ds, ");
+            sb.Append("r.aprsr_rl_ds, r.rvw_yr_id, s.rvw_sxn_nm,  r.is_main, ");
+            sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = r.rvw_emp_id) as rvw_emp_nm, ");
+            sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = r.rvw_aprsr_id) as rvw_aprsr_nm, ");
+            sb.Append("y.pms_yr_nm, e.unit_id, e.dept_id, e.loc_id, e.emp_no_1, ");
+            sb.Append("e.current_designation, d.deptname, u.unitname, l.locname, ");
+            sb.Append("f.current_designation as rvw_aprsr_dsg, h.flg_rsn, h.flg_dt, ");
+            sb.Append("s.ttl_cmp_scr, s.ttl_kpa_scr, s.ttl_cmb_scr, ");
+            sb.Append("h.fbk_probs, h.fbk_solns, h.lm_rmk, h.uh_rmk, h.dh_rmk, ");
+            sb.Append("h.hr_rmk, h.mgt_rmk, h.is_flg, h.rvw_gls, h.lm_nm, ");
+            sb.Append("h.uh_nm, h.dh_nm, h.hr_nm, h.mgt_nm, h.lm_rec, ");
+            sb.Append("h.uh_rec, h.dh_rec, h.hr_rec, h.mgt_dec ");
+            sb.Append("FROM public.pmsrvwsmry r ");
+            sb.Append("INNER JOIN public.pmsrvwhdrs h ON (h.rvw_hdr_id = r.rvw_hdr_id ");
+            sb.Append("AND h.pry_apr_id = r.rvw_aprsr_id) ");
+            sb.Append("INNER JOIN public.pmsrvwsxns s ON s.rvw_sxn_id = r.rvw_sxn_id ");
+            sb.Append("INNER JOIN public.pmssttyrs y ON y.pms_yr_id = r.rvw_yr_id ");
+            sb.Append("INNER JOIN public.erm_emp_inf e ON e.emp_id = r.rvw_emp_id ");
+            sb.Append("INNER JOIN public.erm_emp_inf f ON f.emp_id = r.rvw_aprsr_id ");
+            sb.Append("INNER JOIN public.gst_depts d ON d.deptqk = e.dept_id ");
+            sb.Append("INNER JOIN public.gst_units u ON u.unitqk = e.unit_id ");
+            sb.Append("INNER JOIN public.gst_locs l ON l.locqk = e.loc_id ");
+            sb.Append("WHERE (s.rvw_sxn_id = @rvw_sxn_id) ");
+            sb.Append("AND (e.loc_id = @loc_id) AND (h.is_flg = true) ");
+            sb.Append("ORDER BY r.rvw_smr_id;");
+
+            string query = sb.ToString();
+            await conn.OpenAsync();
+            // Retrieve all rows
+            using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+            {
+                var rvw_sxn_id = cmd.Parameters.Add("@rvw_sxn_id", NpgsqlDbType.Integer);
+                var loc_id = cmd.Parameters.Add("@loc_id", NpgsqlDbType.Integer);
+                await cmd.PrepareAsync();
+                rvw_sxn_id.Value = reviewSessionId;
+                loc_id.Value = locationId;
+
+                var reader = await cmd.ExecuteReaderAsync();
+                while (await reader.ReadAsync())
+                {
+                    resultDetailList.Add(new ResultDetail()
+                    {
+                        ResultSummaryId = reader["rvw_smr_id"] == DBNull.Value ? 0 : (int)reader["rvw_smr_id"],
+                        ReviewHeaderId = reader["rvw_hdr_id"] == DBNull.Value ? 0 : (int)reader["rvw_hdr_id"],
+                        ReviewSessionId = reader["rvw_sxn_id"] == DBNull.Value ? 0 : (int)reader["rvw_sxn_id"],
+                        ReviewSessionName = reader["rvw_sxn_nm"] == DBNull.Value ? string.Empty : reader["rvw_sxn_nm"].ToString(),
+
+                        AppraiseeId = reader["rvw_emp_id"] == DBNull.Value ? string.Empty : reader["rvw_emp_id"].ToString(),
+                        AppraiseeName = reader["rvw_emp_nm"] == DBNull.Value ? string.Empty : reader["rvw_emp_nm"].ToString(),
+
+                        ReviewYearId = reader["rvw_yr_id"] == DBNull.Value ? 0 : (int)reader["rvw_yr_id"],
+                        ReviewYearName = reader["pms_yr_nm"] == DBNull.Value ? string.Empty : reader["pms_yr_nm"].ToString(),
+
+                        AppraiserId = reader["rvw_aprsr_id"] == DBNull.Value ? string.Empty : reader["rvw_aprsr_id"].ToString(),
+                        AppraiserName = reader["rvw_aprsr_nm"] == DBNull.Value ? string.Empty : reader["rvw_aprsr_nm"].ToString(),
+                        AppraiserDesignation = reader["rvw_aprsr_dsg"] == DBNull.Value ? string.Empty : reader["rvw_aprsr_dsg"].ToString(),
+
+                        KpaScoreTotal = reader["ttl_kpa_scr"] == DBNull.Value ? 0.00M : (decimal)reader["ttl_kpa_scr"],
+                        KpaScoreObtained = reader["kpa_scr_obt"] == DBNull.Value ? 0.00M : (decimal)reader["kpa_scr_obt"],
+                        CompetencyScoreTotal = reader["ttl_cmp_scr"] == DBNull.Value ? 0.00M : (decimal)reader["ttl_cmp_scr"],
+                        CompetencyScoreObtained = reader["cmp_scr_obt"] == DBNull.Value ? 0.00M : (decimal)reader["cmp_scr_obt"],
+                        CombinedScoreTotal = reader["ttl_cmb_scr"] == DBNull.Value ? 0.00M : (decimal)reader["ttl_cmb_scr"],
+                        CombinedScoreObtained = reader["cmb_scr_obt"] == DBNull.Value ? 0.00M : (decimal)reader["cmb_scr_obt"],
+
+                        ScoreRank = reader["scr_rank"] == DBNull.Value ? 0 : (int)reader["scr_rank"],
+                        ScoreRankDescription = reader["scr_rank_ds"] == DBNull.Value ? string.Empty : reader["scr_rank_ds"].ToString(),
+                        PerformanceRating = reader["pfm_rating"] == DBNull.Value ? string.Empty : reader["pfm_rating"].ToString(),
+
+                        AppraiserTypeDescription = reader["apr_typ_ds"] == DBNull.Value ? string.Empty : reader["apr_typ_ds"].ToString(),
+                        AppraiserRoleDescription = reader["aprsr_rl_ds"] == DBNull.Value ? string.Empty : reader["aprsr_rl_ds"].ToString(),
+
+                        UnitId = reader["unit_id"] == DBNull.Value ? 0 : (int)reader["unit_id"],
+                        UnitName = reader["unitname"] == DBNull.Value ? string.Empty : reader["unitname"].ToString(),
+
+                        DepartmentId = reader["dept_id"] == DBNull.Value ? 0 : (int)reader["dept_id"],
+                        DepartmentName = reader["deptname"] == DBNull.Value ? string.Empty : reader["deptname"].ToString(),
+
+                        LocationId = reader["loc_id"] == DBNull.Value ? 0 : (int)reader["loc_id"],
+                        LocationName = reader["locname"] == DBNull.Value ? string.Empty : reader["locname"].ToString(),
+
+                        EmployeeNo = reader["emp_no_1"] == DBNull.Value ? string.Empty : reader["emp_no_1"].ToString(),
+                        IsMain = reader["is_main"] == DBNull.Value ? false : (bool)reader["is_main"],
+
+                        AppraiseeDesignation = reader["current_designation"] == DBNull.Value ? string.Empty : reader["current_designation"].ToString(),
+                        DepartmentHeadComments = reader["dh_rmk"] == DBNull.Value ? string.Empty : reader["dh_rmk"].ToString(),
+                        DepartmentHeadName = reader["dh_nm"] == DBNull.Value ? string.Empty : reader["dh_nm"].ToString(),
+                        DepartmentHeadRecommendation = reader["dh_rec"] == DBNull.Value ? string.Empty : reader["dh_rec"].ToString(),
+                        FeedbackProblems = reader["fbk_probs"] == DBNull.Value ? string.Empty : reader["fbk_probs"].ToString(),
+                        FeedbackSolutions = reader["fbk_solns"] == DBNull.Value ? string.Empty : reader["fbk_solns"].ToString(),
+                        HrComments = reader["hr_rmk"] == DBNull.Value ? string.Empty : reader["hr_rmk"].ToString(),
+                        HrName = reader["hr_nm"] == DBNull.Value ? string.Empty : reader["hr_nm"].ToString(),
+                        HrRecommendation = reader["hr_rec"] == DBNull.Value ? string.Empty : reader["hr_rec"].ToString(),
+                        
+                        IsFlagged = reader["is_flg"] == DBNull.Value ? false : (bool)reader["is_flg"],
+                        FlaggedReason = reader["flg_rsn"] == DBNull.Value ? string.Empty : reader["flg_rsn"].ToString(),
+                        FlaggedTime = reader["flg_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["flg_dt"],
+
+                        LineManagerComments = reader["lm_rmk"] == DBNull.Value ? string.Empty : reader["lm_rmk"].ToString(),
+                        LineManagerName = reader["lm_nm"] == DBNull.Value ? string.Empty : reader["lm_nm"].ToString(),
+                        LineManagerRecommendation = reader["lm_rec"] == DBNull.Value ? string.Empty : reader["lm_rec"].ToString(),
+                        ManagementComments = reader["mgt_rmk"] == DBNull.Value ? string.Empty : reader["mgt_rmk"].ToString(),
+                        ManagementDecision = reader["mgt_dec"] == DBNull.Value ? string.Empty : reader["mgt_dec"].ToString(),
+                        ManagementName = reader["mgt_nm"] == DBNull.Value ? string.Empty : reader["mgt_nm"].ToString(),
+                        PerformanceGoal = reader["rvw_gls"] == DBNull.Value ? string.Empty : reader["rvw_gls"].ToString(),
+                        UnitHeadComments = reader["uh_rmk"] == DBNull.Value ? string.Empty : reader["uh_rmk"].ToString(),
+                        UnitHeadName = reader["uh_nm"] == DBNull.Value ? string.Empty : reader["uh_nm"].ToString(),
+                        UnitHeadRecommendation = reader["uh_rec"] == DBNull.Value ? string.Empty : reader["uh_rec"].ToString(),
+                    });
+                }
+            }
+            await conn.CloseAsync();
+            return resultDetailList;
+        }
+
         #endregion
     }
 }

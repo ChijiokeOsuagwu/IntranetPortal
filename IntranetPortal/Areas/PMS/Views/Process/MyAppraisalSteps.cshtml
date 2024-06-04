@@ -41,14 +41,6 @@
                                 <i class="bi bi-journals fw-bolder" style="font-size: 1.0rem"></i><span class="fw-bold ml-1" style="font-size: 0.9rem;">History</span>
                             </a>
                         </li>
-                        @*@if ((Model.IsActive) && (Model.AllActivitiesScheduled || Model.ContractDefinitionScheduled || Model.PerformanceEvaluationScheduled))
-                        {
-                            <li class="nav-item">
-                                <a asp-area="PMS" asp-controller="Process" asp-action="MoveToPreviousStep" asp-route-id="@Model.ReviewHeaderId" title="Return to Previous Step" class="btn btn-sm btn-light text-dark">
-                                    <i class="bi bi-arrow-90deg-up fw-bolder" style="font-size: 1.0rem"></i><span class="fw-bold ml-1" style="font-size: 0.9rem;">Return To Previous</span>
-                                </a>
-                            </li>
-                        }*@
                     </ul>
                 </div>
             </div>
@@ -878,7 +870,10 @@
                                                 @if ((Model.IsActive) && (Model.AllActivitiesScheduled || Model.PerformanceEvaluationScheduled))
                                                 {
                                                     <a asp-area="PMS" asp-controller="Process" asp-action="AcceptEvaluation" asp-route-id="@Model.ReviewHeaderId" title="Agree & Sign Off" class="btn btn-sm btn-info" style="width:150px">
-                                                        <span class="text-white fw-bold">Sign Off</span>
+                                                        <span class="text-white fw-bold">Agree</span>
+                                                    </a>
+                                                    <a asp-area="PMS" asp-controller="Process" asp-action="RejectEvaluation" asp-route-id="@Model.ReviewHeaderId" title="Reject & Sign Off" class="btn btn-sm btn-danger" style="width:150px">
+                                                        <span class="text-white fw-bold">Disagree</span>
                                                     </a>
                                                 }
                                             </td>
@@ -918,7 +913,7 @@
                                                 </div>
                                             </td>
                                             <td class="p-1 text-end">
-                                                <a asp-area="PMS" asp-controller="Process" asp-action="ShowSelectedResult" asp-route-id="@Model.ReviewHeaderId" title="View Evaluation Result" class="btn btn-sm btn-dark" style="width:150px">
+                                                <a asp-area="PMS" asp-controller="Process" asp-action="ShowEvaluations" asp-route-id="@Model.ReviewHeaderId" title="View Evaluation Results" class="btn btn-sm btn-dark" style="width:150px">
                                                     <span class="text-white fw-bold">View Result</span>
                                                 </a>
                                             </td>

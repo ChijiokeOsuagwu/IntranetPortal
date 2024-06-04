@@ -1,0 +1,96 @@
+﻿
+@{
+    ViewData["Title"] = "Asset Manager Settings";
+}
+<link href="~/lib/matrix/dist/css/style.min.css" rel="stylesheet" />
+<div class="my-2">
+    <!-- ========================================================== -->
+    <!-- Sales Cards  -->
+    <!-- ========================================================== -->
+    <h4 class="fw-bold">Asset & Equipment Settings</h4>
+    <hr />
+    <div class="row">
+        <!-- Column -->
+        <div class="col-md-6 col-lg-2 col-xlg-3">
+            <a asp-area="AssetManager" asp-controller="Home" asp-action="Index">
+                <div class="card card-hover">
+                    <div class="box bg-light text-center">
+                        <h1 class="font-light text-dark"><i class="bi bi-arrow-left-square"></i></h1>
+                        <h6 class="text-dark">Go Back</h6>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <!-- Column -->
+        <div class="col-md-6 col-lg-2 col-xlg-3">
+            <a asp-area="AssetManager" asp-controller="Settings" asp-action="AssetTypes">
+                <div class="card card-hover">
+                    <div class="box bg-light text-center">
+                        <h1 class="font-light text-dark"><i class="bi bi-columns-gap"></i></h1>
+                        <h6 class="text-dark">Asset Types</h6>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <!-- Column -->
+        <div class="col-md-6 col-lg-2 col-xlg-3">
+            <a asp-area="AssetManager" asp-controller="Settings" asp-action="AssetGroups">
+                <div class="card card-hover">
+                    <div class="box bg-light text-center">
+                        <h1 class="font-light text-dark"><i class="bi bi-columns-gap"></i></h1>
+                        <h6 class="text-dark">Asset Groups</h6>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <!-- Column -->
+        <div class="col-md-6 col-lg-2 col-xlg-3">
+            <a asp-area="AssetManager" asp-controller="Settings" asp-action="AssetClasses">
+                <div class="card card-hover">
+                    <div class="box bg-light text-center">
+                        <h1 class="font-light text-dark"><i class="bi bi-columns-gap"></i></h1>
+                        <h6 class="text-dark">Asset Classes</h6>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <!-- Column -->
+        <div class="col-md-6 col-lg-2 col-xlg-3">
+            <a asp-area="AssetManager" asp-controller="Settings" asp-action="Categories">
+                <div class="card card-hover">
+                    <div class="box bg-light text-center">
+                        <h1 class="font-light text-dark"><i class="bi bi-columns"></i></h1>
+                        <h6 class="text-dark"> Asset Categories</h6>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <!-- Column -->
+        <div class="col-md-6 col-lg-2 col-xlg-3">
+            <a asp-area="AssetManager" asp-controller="Settings" asp-action="AssetBinLocations">
+                <div class="card card-hover">
+                    <div class="box bg-light text-center">
+                        <h1 class="font-light text-dark"><i class="bi bi-geo-alt"></i></h1>
+                        <h6 class="text-dark"> Bin Locations</h6>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <!-- Column -->
+        <div class="col-md-6 col-lg-2 col-xlg-3">
+            <a asp-area="AssetManager" asp-controller="Settings" asp-action="Divisions">
+                <div class="card card-hover">
+                    <div class="box bg-light text-center">
+                        <h1 class="font-light text-dark"><i class="bi bi-ui-radios-grid"></i></h1>
+                        <h6 class="text-dark"> Control Units</h6>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <!-- Column -->
+    </div>
+</div>
+@section Scripts{
+
+}
+

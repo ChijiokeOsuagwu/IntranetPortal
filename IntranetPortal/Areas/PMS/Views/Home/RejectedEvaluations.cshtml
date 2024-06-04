@@ -1,0 +1,117 @@
+﻿
+@model IntranetPortal.Areas.PMS.Models.ResultReportViewModel
+<div class="container">
+    <h4 class="mb-1">Evaluations for Mediation Report</h4>
+    <hr />
+    <div class="row">
+        <div class="row">
+            <div class="col-md-12 mb-3 text-start">
+                <a asp-area="PMS" asp-controller="Home" asp-action="Reports" title="Go Back" class="btn btn-sm btn-outline-light text-dark">
+                    <i class="bi bi-backspace fw-bolder" style="font-size: 1.0rem;"></i><span class="fw-bold ml-1" style="font-size: 0.9rem;">Back</span>
+                </a>
+                @*<a asp-area="PMS" asp-controller="Home" asp-action="DownloadResultReport" asp-route-id="@Model.id" asp-route-lc="@Model.ld" asp-route-dc="@Model.dd" asp-route-uc="@Model.ud" title="Download Excel" class="btn btn-sm btn-outline-light ml-2 text-dark">
+                    <i class="bi bi-download fw-bolder" style="font-size: 1.0rem;"></i><span class="fw-bold ml-1" style="font-size: 0.9rem;">Download</span>
+                </a>*@
+            </div>
+        </div>
+        <div class="row">
+            <form asp-area="PMS" asp-controller="Home" asp-action="RejectedEvaluations" method="get">
+                <div class="row">
+                    <div class="col-md-6 mb-2">
+                        <select asp-for="id" asp-items="@ViewBag.SessionsList" class="form-control fw-bold">
+                            <option value="0"> Session </option>
+                        </select>
+                    </div>
+                    <div class="col-md-4 mb-2">
+                        <select asp-for="ld" asp-items="@ViewBag.LocationList" class="form-control fw-bold">
+                            <option value=""> Location </option>
+                        </select>
+                    </div>
+                    <div class="col-md-2 mb-2">
+                        <input type="submit" value="Search" class="btn btn-dark btn-sm text-white" />
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+    {<div class="row">
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-x-circle"></i>
+                <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        </div>
+    }
+    <div class="row">
+        @if (Model == null || Model.ResultDetailList == null || Model.ResultDetailList.Count < 1)
+        {
+            <div class="alert alert-info fade show" role="alert">
+                <i class="bi bi-info-circle"></i>
+                <span class="fw-bold">No record was found.</span>
+            </div>
+        }
+        else
+        {
+            <div class="row">
+                <div class="table-responsive" style="min-height:350px;">
+                    <table class="table table-sm table-striped caption-top">
+                        <caption>@Model.ReviewSessionDescription Performance Appraisal Result </caption>
+                        <thead class="table-dark">
+                            <tr>
+                                <th><span class="text-white fw-bolder">Appraisee No</span></th>
+                                <th><span class="text-white fw-bolder">Appraisee Name</span></th>
+                                <th><span class="text-white fw-bolder">Appraisee Designation</span>
+                                <th><span class="text-white fw-bolder">Appraisee Unit</span></th>
+                                <th><span class="text-white fw-bolder">Appraisee Department</span></th>
+                                <th><span class="text-white fw-bolder">Appraisee Location</span></th>
+
+                                <th><span class="text-white fw-bolder">Appraiser Name</span></th>
+                                <th><span class="text-white fw-bolder">Appriaser Designation</span>
+                                <th><span class="text-white fw-bolder">Appraiser Role</span></th>
+                                <th><span class="text-white fw-bolder">Appriaser Type</span>
+
+                                <th><span class="text-white fw-bolder">Kpa Score</span></th>
+                                <th><span class="text-white fw-bolder">Cmp Score</span></th>
+                                <th><span class="text-white fw-bolder">Total Score</span></th>
+                                <th><span class="text-white fw-bolder">Rating</span></th>
+                                <th><span class="text-white fw-bolder">Disagreement Reason</span></th>
+                                <th><span class="text-white fw-bolder">Disagreement Time </span></th>
+                            </tr>
+                        </thead>
+                        <tbody class="table-light">
+                            @foreach (var item in Model.ResultDetailList)
+                            {
+                            <tr>
+                                <td><span class="fw-bold">@item.EmployeeNo</span></td>
+                                <td><span class="fw-bold">@item.AppraiseeName</span></td>
+                                <td><span class="fw-bold">@item.AppraiseeDesignation</span>
+                                <td><span class="fw-bold">@item.UnitName</span></td>
+                                <td><span class="fw-bold">@item.DepartmentName</span></td>
+                                <td><span class="fw-bold">@item.LocationName</span></td>
+
+                                <td><span class="fw-bold">@item.AppraiserName</span></td>
+                                <td><span class="fw-bold">@item.AppraiserDesignation</span></td>
+                                <td><span class="fw-bold">@item.AppraiserRoleDescription</span></td>
+                                <td><span class="fw-bold">@item.AppraiserTypeDescription</span></td>
+
+                                <td><span class="fw-bold">@item.KpaScoreObtained</span></td>
+                                <td><span class="fw-bold">@item.CompetencyScoreObtained</span></td>
+                                <td><span class="fw-bold">@item.CombinedScoreObtained</span></td>
+                                <td><span class="fw-bold">@item.PerformanceRating</span></td>
+
+                                <td><span class="fw-bold">@item.FlaggedReason</span></td>
+                                <td><span class="fw-bold">@item.FlaggedTime.Value.ToLongDateString()  @item.FlaggedTime.Value.ToLongTimeString()</span></td>
+                            </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+@section Scripts{
+    <script src="~/js/pms.js"></script>
+}

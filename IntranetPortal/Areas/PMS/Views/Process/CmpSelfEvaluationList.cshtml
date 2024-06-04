@@ -16,6 +16,16 @@
         </div>
     </div>
     <div class="row">
+        @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-x-circle"></i>
+                <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+    </div>
+    <div class="row">
         @if (Model == null || Model.ReviewResultList == null || Model.ReviewResultList.Count < 1)
         {
             <div class="alert alert-secondary alert-dismissible fade show" role="alert">
@@ -53,15 +63,14 @@
                                                 </div>
                                             </div>
                                             <div class="row">
-                                                <div class="col-md-3 mt-1">
-                                                    <select id="dpd_appraiser_score_@cmp.ReviewMetricId" asp-for="@cmp.AppraiserScore" asp-items="@ViewBag.GradeList" class="form-control fw-bold" onchange="saveCmpScore(@cmp.ReviewResultId, @cmp.ReviewHeaderId, @cmp.ReviewMetricId, '@Model.AppraiserID', '@Model.PrimaryAppraiserID')" >
-                                                    <option value="0">Select Score</option>
+                                                <div class="col-md-4 mt-2">
+                                                    <select id="dpd_appraiser_score_@cmp.ReviewMetricId" asp-for="@cmp.AppraiserScore" asp-items="@ViewBag.GradeList" class="form-control fw-bold" onchange="saveCmpScore(@cmp.ReviewResultId, @cmp.ReviewHeaderId, @cmp.ReviewMetricId, '@Model.AppraiserID', '@Model.PrimaryAppraiserID')">
+                                                        <option value="0">Select Score</option>
                                                     </select>
                                                 </div>
-                                                <div class="col-md-5 mt-3" id="span_@cmp.ReviewMetricId">
-                                                </div>
-                                                <div class="col-md-4 mt-3">
-                                                    @*<button class="btn btn-success" onclick="saveCmpScore(@cmp.ReviewResultId, @cmp.ReviewHeaderId, @cmp.ReviewMetricId, '@Model.AppraiserID', '@Model.PrimaryAppraiserID')"><span class="text-white fw-bold">Save Score</span></button>*@
+                                                <div class="col-md-8">
+                                                    <div style="margin-top:20px;" id="span_@cmp.ReviewMetricId">
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>

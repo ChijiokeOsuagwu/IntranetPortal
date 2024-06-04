@@ -18,6 +18,7 @@ namespace IntranetPortal.Base.Repositories.PmsRepositories
         Task<IList<ReviewResult>> GetByAppraiserIdAndMetricTypeId(int reviewHeaderId, string appraiserId, int reviewMetricTypeId);
         Task<IList<ReviewResult>> GetByAppraiserIdAndReviewHeaderId(int reviewHeaderId, string appraiserId);
         Task<IList<ReviewResult>> GetById(int reviewResultId);
+        Task<int> GetMetricCountByAppraiserIdAndMetricTypeId(int reviewHeaderId, string appraiserId, int reviewMetricTypeId);
         Task<IList<ReviewResult>> GetIntitalByMetricIdAsync(int reviewHeaderId, string appraiserId, int metricId);
         Task<IList<ReviewResult>> GetIntitalByMetricTypeIdAsync(int reviewHeaderId, string appraiserId, int metricTypeId);
         Task<IList<ReviewResult>> GetIntitalByThirdPartyAsync(int reviewHeaderId, string appraiserId, int metricTypeId);
@@ -25,6 +26,12 @@ namespace IntranetPortal.Base.Repositories.PmsRepositories
         Task<IList<ResultDetail>> GetPrincipalResultDetailByLocationIdAndReviewSessionIdAsync(int reviewSessionId, int locationId);
         Task<IList<ResultDetail>> GetPrincipalResultDetailByReviewSessionIdAsync(int reviewSessionId);
         Task<IList<ResultDetail>> GetPrincipalResultDetailByUnitCodeAndReviewSessionIdAsync(int reviewSessionId, int unitId);
+
+        //========= Rejected Evaluation Results =======//
+        Task<IList<ResultDetail>> GetRejectedPrincipalResultDetailByReviewSessionIdAsync(int reviewSessionId);
+        Task<IList<ResultDetail>> GetRejectedPrincipalResultDetailByLocationIdAndReviewSessionIdAsync(int reviewSessionId, int locationId);
+        //========= End of Rejected Evaluation Results ====//
+
         Task<List<ReviewScore>> GetScoresByReviewHeaderIdAndAppraiserIdAsync(int reviewHeaderId, string appraiserId);
         Task<IList<ResultSummary>> GetSummaryByAppraiserIdAndReviewHeaderId(int reviewHeaderId, string appraiserId);
         Task<IList<ResultSummary>> GetSummaryByReportToId(string reportToId, int reviewSessionId);

@@ -156,7 +156,7 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
             sb.Append("SELECT c.clss_id, c.clss_nm, c.clss_ds, c.ctg_id, g.asst_ctgs_nm ");
             sb.Append("FROM public.asm_stt_clss c INNER JOIN public.asm_stt_ctgs g ");
             sb.Append("ON g.asst_ctgs_id = c.ctg_id ");
-            sb.Append("ORDER BY g.asst_ctgs_nm, c.clss_nm;");
+            sb.Append("ORDER BY c.clss_nm;");
             string query = sb.ToString();
             try
             {

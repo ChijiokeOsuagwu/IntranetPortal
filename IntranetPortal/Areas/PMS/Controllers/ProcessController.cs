@@ -15,9 +15,10 @@ using IntranetPortal.Base.Models.SecurityModels;
 using IntranetPortal.Base.Models.EmployeeRecordModels;
 using Microsoft.AspNetCore.Authentication;
 using IntranetPortal.Base.Enums;
-using System.Data;
-using ClosedXML.Excel;
-using System.IO;
+using System.Text;
+using IntranetPortal.Models;
+using IntranetPortal.Helpers;
+using IntranetPortal.Base.Models.BaseModels;
 
 namespace IntranetPortal.Areas.PMS.Controllers
 {
@@ -108,9 +109,9 @@ namespace IntranetPortal.Areas.PMS.Controllers
 
             EmployeeUser employeeUser = new EmployeeUser();
             ApplicationUser user = new ApplicationUser();
-            string userId = string.Empty;
+            //string userId = string.Empty;
             string userName = HttpContext.User.Identity.Name;
-            userId = HttpContext.User.Claims.FirstOrDefault(c => c.Type.Contains("nameidentifier")).Value;
+            string userId = HttpContext.User.Claims.FirstOrDefault(c => c.Type.Contains("nameidentifier")).Value;
             if (string.IsNullOrWhiteSpace(userId) && string.IsNullOrWhiteSpace(userName))
             {
                 await HttpContext.SignOutAsync(SecurityConstants.ChxCookieAuthentication);
@@ -1283,24 +1284,115 @@ namespace IntranetPortal.Areas.PMS.Controllers
                 ReviewSubmission reviewSubmission = new ReviewSubmission();
                 reviewSubmission = model.ConvertToReviewSubmission();
                 reviewSubmission.TimeSubmitted = DateTime.UtcNow;
+                ReviewHeader reviewHeader = new ReviewHeader();
                 try
                 {
+                    // Check if this submission has already been actioned by the recipient.
+                    var reviewHeader_entity = await _performanceService.GetReviewHeaderAsync(reviewSubmission.ReviewHeaderId);
+                    if (reviewHeader_entity != null)
+                    {
+                        reviewHeader = reviewHeader_entity;
+                        if (reviewSubmission.SubmissionPurposeId == 1)
+                        {
+                            var approvalEntities = await _performanceService.GetReviewApprovalsApprovedAsync(reviewSubmission.ReviewHeaderId, 1, reviewSubmission.ToEmployeeRoleId);
+                            if (approvalEntities != null && approvalEntities.Count > 0)
+                            {
+                                ReviewApproval reviewApproval = approvalEntities.FirstOrDefault();
+                                model.ViewModelWarningMessage = $"{reviewApproval.ApproverName} has already approved as {reviewApproval.ApproverRoleDescription} on {reviewApproval.ApprovedTime.Value.ToLongDateString()}.";
+
+                                var role_entities = await _performanceService.GetApprovalRolesAsync();
+                                ViewBag.ApproverRolesList = new SelectList(role_entities, "ApprovalRoleId", "ApprovalRoleName", model.ToEmployeeID);
+
+                                var entities = await _ermService.GetEmployeeReportLinesByEmployeeIdAsync(model.AppraiseeID);
+                                ViewBag.ReportingLinesList = new SelectList(entities, "ReportsToEmployeeID", "ReportsToEmployeeName", model.ToEmployeeID);
+
+                                return View(model);
+                            }
+                        }
+                        else if (reviewSubmission.SubmissionPurposeId == 3)
+                        {
+                            var approvalEntities = await _performanceService.GetReviewApprovalsApprovedAsync(reviewSubmission.ReviewHeaderId, 2, reviewSubmission.ToEmployeeRoleId);
+                            if (approvalEntities != null && approvalEntities.Count > 0)
+                            {
+                                ReviewApproval reviewApproval = approvalEntities.FirstOrDefault();
+                                model.ViewModelWarningMessage = $"{reviewApproval.ApproverName} has already approved as {reviewApproval.ApproverRoleDescription} on {reviewApproval.ApprovedTime.Value.ToLongDateString()}.";
+
+
+                                var role_entities = await _performanceService.GetApprovalRolesAsync();
+                                ViewBag.ApproverRolesList = new SelectList(role_entities, "ApprovalRoleId", "ApprovalRoleName", model.ToEmployeeID);
+
+                                var entities = await _ermService.GetEmployeeReportLinesByEmployeeIdAsync(model.AppraiseeID);
+                                ViewBag.ReportingLinesList = new SelectList(entities, "ReportsToEmployeeID", "ReportsToEmployeeName", model.ToEmployeeID);
+                                return View(model);
+                            }
+                        }
+                    }
+                    // End of checking
+
                     bool isAdded = await _performanceService.AddReviewSubmissionAsync(reviewSubmission);
                     if (isAdded)
                     {
-                        //model.ViewModelSuccessMessage = "Appraisal submitted successfully!";
-                        //model.OperationIsSuccessful = true;
-
                         Employee sender = new Employee();
                         sender = await _ermService.GetEmployeeByIdAsync(model.FromEmployeeID);
                         Employee approver = new Employee();
                         approver = await _ermService.GetEmployeeByIdAsync(model.ToEmployeeID);
+
+                        //====== Add Appraisal Activity History =======//
                         PmsActivityHistory history = new PmsActivityHistory();
                         history.ActivityDescription = $"Appraisal was submitted to {approver.FullName} by {sender.FullName} on {DateTime.UtcNow.ToLongDateString()} at {DateTime.UtcNow.ToLongTimeString()}";
                         history.ActivityTime = DateTime.UtcNow;
                         history.ReviewHeaderId = model.ReviewHeaderID;
                         await _performanceService.AddPmsActivityHistoryAsync(history);
 
+                        //===== Send Notificiation Message to Approver ========//
+                        Message message = new Message
+                        {
+                            MessageID = Guid.NewGuid().ToString(),
+                            RecipientID = approver.EmployeeID,
+                            RecipientName = approver.FullName,
+                            SentBy = sender.FullName
+                        };
+
+                        //===== Send Email Notifications to Approver =========//
+                        bool approverEmailCopySent = false;
+                        UtilityHelper utilityHelper = new UtilityHelper(_configuration);
+                        EmailModel recipientEmailCopy = new EmailModel();
+                        recipientEmailCopy.RecipientName = approver.FullName;
+                        recipientEmailCopy.RecipientEmail = approver.OfficialEmail;
+                        recipientEmailCopy.SenderName = sender.FullName;
+                        switch (reviewSubmission.SubmissionPurposeId)
+                        {
+                            case 1:
+                                recipientEmailCopy.Subject = "Request for Performance Contract Approval";
+                                recipientEmailCopy.HtmlContent = UtilityHelper.GetPerformanceContractApprovalEmailHtmlContent(approver.FullName, sender.FullName);
+                                recipientEmailCopy.PlainContent = UtilityHelper.GetPerformanceContractApprovalEmailPlainContent(approver.FullName, sender.FullName);
+
+                                message.Subject = "Request for Performance Contract Approval";
+                                message.MessageBody = UtilityHelper.GetPerformanceContractApprovalMessageContent(approver.FullName, sender.FullName);
+                                break;
+                            case 2:
+                                recipientEmailCopy.Subject = "Request for Final Performance Evaluation";
+                                recipientEmailCopy.HtmlContent = UtilityHelper.GetRequestForFinalEvaluationEmailHtmlContent(approver.FullName, sender.FullName);
+                                recipientEmailCopy.PlainContent = UtilityHelper.GetRequestForFinalEvaluationEmailPlainContent(approver.FullName, sender.FullName);
+
+                                message.Subject = "Request for Final Performance Evaluation";
+                                message.MessageBody = UtilityHelper.GetRequestForFinalEvaluationMessageContent(approver.FullName, sender.FullName);
+
+                                break;
+                            case 3:
+                                recipientEmailCopy.Subject = "Request for Performance Evaluation Result Approval";
+                                recipientEmailCopy.HtmlContent = UtilityHelper.GetRequestForEvaluationResultApprovalEmailHtmlContent(approver.FullName, sender.FullName);
+                                recipientEmailCopy.PlainContent = UtilityHelper.GetRequestForEvaluationResultApprovalEmailPlainContent(approver.FullName, sender.FullName);
+
+                                message.Subject = "Request for Performance Evaluation Result Approval";
+                                message.MessageBody = UtilityHelper.GetRequestForEvaluationResultApprovalMessageContent(approver.FullName, sender.FullName);
+                                break;
+                            default:
+                                break;
+                        }
+
+                        bool messageSent = await _baseModelService.SendMessageAsync(message);
+                        approverEmailCopySent = utilityHelper.SendEmailWithSendGrid(recipientEmailCopy);
                         return RedirectToAction("AppraisalSubmissionHistory", new { id = model.ReviewHeaderID });
                     }
                     else
@@ -1496,6 +1588,8 @@ namespace IntranetPortal.Areas.PMS.Controllers
                         history.ActivityTime = DateTime.UtcNow;
                         history.ReviewHeaderId = model.ReviewHeaderID;
                         await _performanceService.AddPmsActivityHistoryAsync(history);
+
+                        return RedirectToAction("AppraisalInfo", new {id = model.ReviewHeaderID, sd = model.ReviewSubmissionID, src = "stm" });
                     }
                     else
                     {
@@ -1572,6 +1666,9 @@ namespace IntranetPortal.Areas.PMS.Controllers
                         history.ActivityTime = DateTime.UtcNow;
                         history.ReviewHeaderId = model.ReviewHeaderID;
                         await _performanceService.AddPmsActivityHistoryAsync(history);
+
+                        return RedirectToAction("AppraisalInfo", new { id = model.ReviewHeaderID, sd = model.SubmissionID, src = "stm" });
+
                     }
                     else
                     {
@@ -1641,6 +1738,8 @@ namespace IntranetPortal.Areas.PMS.Controllers
                         history.ActivityTime = DateTime.UtcNow;
                         history.ReviewHeaderId = model.ReviewHeaderID;
                         await _performanceService.AddPmsActivityHistoryAsync(history);
+
+                        return RedirectToAction("MyAppraisalSteps", new { id = model.ReviewSessionID});
                     }
                     else
                     {
@@ -1658,6 +1757,9 @@ namespace IntranetPortal.Areas.PMS.Controllers
         public async Task<IActionResult> AcceptEvaluation(int id)
         {
             AcceptContractViewModel model = new AcceptContractViewModel();
+            model.IsNotAccepted = false;
+            //model.RejectionReason = "None";
+
             ReviewHeader reviewHeader = new ReviewHeader();
             try
             {
@@ -1698,11 +1800,6 @@ namespace IntranetPortal.Areas.PMS.Controllers
                     }
                     else
                     {
-                        if (model.IsNotAccepted)
-                        {
-                            await _performanceService.UpdateAppraiseeFlagAsync(model.ReviewHeaderID, true, model.AppraiseeName);
-                        }
-
                         bool isSignedOff = await _performanceService.AcceptEvaluationByAppraisee(model.ReviewHeaderID);
                         if (isSignedOff)
                         {
@@ -1714,7 +1811,84 @@ namespace IntranetPortal.Areas.PMS.Controllers
                             history.ActivityTime = DateTime.UtcNow;
                             history.ReviewHeaderId = model.ReviewHeaderID;
                             await _performanceService.AddPmsActivityHistoryAsync(history);
-                            return RedirectToAction("MyAppraisalSteps", "Process", new { id= model.ReviewSessionID});
+                            //return RedirectToAction("MyAppraisalSteps", "Process", new { id = model.ReviewSessionID });
+                        }
+                        else
+                        {
+                            model.ViewModelErrorMessage = "An error was encountered. The attempted operation failed.";
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    model.ViewModelErrorMessage = ex.Message;
+                }
+            }
+            return View(model);
+        }
+
+        public async Task<IActionResult> RejectEvaluation(int id)
+        {
+            AcceptContractViewModel model = new AcceptContractViewModel();
+            model.IsNotAccepted = true;
+
+            ReviewHeader reviewHeader = new ReviewHeader();
+            try
+            {
+                if (id > 0)
+                {
+                    model.ReviewHeaderID = id;
+                    reviewHeader = await _performanceService.GetReviewHeaderAsync(id);
+                    if (reviewHeader != null)
+                    {
+                        model.ReviewSessionID = reviewHeader.ReviewSessionId;
+                        model.ReviewSessionName = reviewHeader.ReviewSessionName;
+                        model.AppraiseeID = reviewHeader.AppraiseeId;
+                        model.AppraiseeName = reviewHeader.AppraiseeName;
+                        model.ReviewYearName = reviewHeader.ReviewYearName;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                model.ViewModelErrorMessage = ex.Message;
+            }
+
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> RejectEvaluation(AcceptContractViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    bool resultUploaded = await _performanceService.UploadResults(model.ReviewHeaderID);
+                    if (!resultUploaded)
+                    {
+                        model.ViewModelErrorMessage = "An error was encountered while trying to process your evaluation result. The attempted operation could not be completed.";
+                    }
+                    else
+                    {
+                        if (model.IsNotAccepted)
+                        {
+                            await _performanceService.UpdateAppraiseeFlagAsync(model.ReviewHeaderID, true, model.RejectionReason);
+                        }
+
+                        bool isSignedOff = await _performanceService.AcceptEvaluationByAppraisee(model.ReviewHeaderID);
+                        if (isSignedOff)
+                        {
+                            model.ViewModelSuccessMessage = "Performance Evaluation Result was Signed Off successfully!";
+                            model.OperationIsSuccessful = true;
+
+                            PmsActivityHistory history = new PmsActivityHistory();
+                            history.ActivityDescription = $"Performance Evaluation Result was signed off by {model.AppraiseeName} on {DateTime.UtcNow.ToLongDateString()} at {DateTime.UtcNow.ToLongTimeString()} GMT";
+                            history.ActivityTime = DateTime.UtcNow;
+                            history.ReviewHeaderId = model.ReviewHeaderID;
+                            await _performanceService.AddPmsActivityHistoryAsync(history);
+                            //return RedirectToAction("MyAppraisalSteps", "Process", new { id = model.ReviewSessionID });
                         }
                         else
                         {
@@ -2015,10 +2189,13 @@ namespace IntranetPortal.Areas.PMS.Controllers
         #endregion
 
         #region Appraisal Notes Controller Actions
-        public async Task<IActionResult> AppraisalNotes(int id, string sp)
+        public async Task<IActionResult> AppraisalNotes(int id, string sp, string psp = null, int? sbm = null)
         {
             AppraisalNotesViewModel model = new AppraisalNotesViewModel();
+            model.ReviewSubmissionID = sbm ?? 0;
             model.SourcePage = sp;
+            model.src = sp;
+            model.psp = psp;
             if (id > 0)
             {
                 ReviewHeader reviewHeader = await _performanceService.GetReviewHeaderAsync(id);
@@ -2049,9 +2226,12 @@ namespace IntranetPortal.Areas.PMS.Controllers
             return View(model);
         }
 
-        public IActionResult AddAppraisalNote(int id, string sd, string sp)
+        public IActionResult AddAppraisalNote(int id, string sd, string sp, string psp = null, int? sbm = null)
         {
             AddAppraisalNoteViewModel model = new AddAppraisalNoteViewModel();
+            model.ReviewSubmissionID = sbm ?? 0;
+            model.src = sp;
+            model.psp = psp;
             ReviewMessage reviewMessage = new ReviewMessage();
             try
             {
@@ -2080,8 +2260,10 @@ namespace IntranetPortal.Areas.PMS.Controllers
                     bool isAdded = await _performanceService.AddReviewMessageAsync(reviewMessage);
                     if (isAdded)
                     {
-                        model.ViewModelSuccessMessage = "Note saved successfully!";
                         model.OperationIsSuccessful = true;
+                        model.OperationIsCompleted = true;
+                        model.ViewModelSuccessMessage = "New Note added successfully!";
+                        return RedirectToAction("AppraisalNotes", new { id = model.ReviewHeaderID, sp = model.src, model.psp, sbm = model.ReviewSubmissionID });
                     }
                     else
                     {
@@ -2126,6 +2308,21 @@ namespace IntranetPortal.Areas.PMS.Controllers
                 model.ViewModelErrorMessage = "Error: a key parameter is missing. No record could be r";
             }
 
+            if (TempData["kpaCountErrorMessage"] != null)
+            {
+                if (!string.IsNullOrWhiteSpace(model.ViewModelErrorMessage))
+                {
+                    string errMsg = TempData["kpaCountErrorMessage"].ToString();
+                    StringBuilder sb = new StringBuilder();
+                    sb.AppendLine(model.ViewModelErrorMessage);
+                    sb.Append(errMsg);
+                    model.ViewModelErrorMessage = sb.ToString();
+                }
+                else
+                {
+                    model.ViewModelErrorMessage = TempData["kpaCountErrorMessage"].ToString();
+                }
+            }
             return View(model);
         }
 
@@ -2136,6 +2333,18 @@ namespace IntranetPortal.Areas.PMS.Controllers
             {
                 model.ReviewHeaderID = id;
                 model.AppraiserID = ad;
+
+                //Check to confirm that all KPAs have been evaluated
+                int totalNumberOfKpas = 0;
+                int totalNumberOfEvaluatedKpas = 0;
+                totalNumberOfKpas = await _performanceService.GetMetricCountAsync(id, ReviewMetricType.KPA);
+                totalNumberOfEvaluatedKpas = await _performanceService.GetEvaluatedMetricCountAsync(id, ad, ReviewMetricType.KPA);
+                if (totalNumberOfEvaluatedKpas < totalNumberOfKpas)
+                {
+                    TempData["kpaCountErrorMessage"] = "Sorry, it appears not all KPAs are evaluated yet. Please confirm that all KPAs have been evaluated and try again.";
+                    return RedirectToAction("KpaSelfEvaluationList", new { id, ad });
+                }
+
 
                 ReviewHeader reviewHeader = await _performanceService.GetReviewHeaderAsync(id);
                 if (reviewHeader != null)
@@ -2162,6 +2371,21 @@ namespace IntranetPortal.Areas.PMS.Controllers
                 ViewBag.GradeList = new SelectList(grade_entities, "UpperBandScore", "AppraisalGradeDescription");
             }
 
+            if (TempData["cmpCountErrorMessage"] != null)
+            {
+                if (!string.IsNullOrWhiteSpace(model.ViewModelErrorMessage))
+                {
+                    string errMsg = TempData["cmpCountErrorMessage"].ToString();
+                    StringBuilder sb = new StringBuilder();
+                    sb.AppendLine(model.ViewModelErrorMessage);
+                    sb.Append(errMsg);
+                    model.ViewModelErrorMessage = sb.ToString();
+                }
+                else
+                {
+                    model.ViewModelErrorMessage = TempData["cmpCountErrorMessage"].ToString();
+                }
+            }
             return View(model);
         }
 
@@ -2172,6 +2396,20 @@ namespace IntranetPortal.Areas.PMS.Controllers
             model.ReviewHeaderID = id;
             if (id > 0 && !string.IsNullOrWhiteSpace(ad))
             {
+                model.ReviewHeaderID = id;
+                model.AppraiserID = ad;
+
+                //Check to confirm that all KPAs have been evaluated
+                int totalNumberOfCmps = 0;
+                int totalNumberOfEvaluatedCmps = 0;
+                totalNumberOfCmps = await _performanceService.GetMetricCountAsync(id, ReviewMetricType.Competency);
+                totalNumberOfEvaluatedCmps = await _performanceService.GetEvaluatedMetricCountAsync(id, ad, ReviewMetricType.Competency);
+                if (totalNumberOfEvaluatedCmps < totalNumberOfCmps)
+                {
+                    TempData["cmpCountErrorMessage"] = "Sorry, it appears not all Competencies are evaluated yet. Please confirm that all Competencies have been evaluated and try again.";
+                    return RedirectToAction("CmpSelfEvaluationList", new { id, ad });
+                }
+
                 ReviewHeader reviewHeader = await _performanceService.GetReviewHeaderAsync(id);
                 if (reviewHeader != null)
                 {
@@ -2260,6 +2498,22 @@ namespace IntranetPortal.Areas.PMS.Controllers
                 model.ViewModelErrorMessage = "Error: a key parameter is missing. No record could be r";
             }
 
+            if (TempData["kpaCountErrorMessage"] != null)
+            {
+                if (!string.IsNullOrWhiteSpace(model.ViewModelErrorMessage))
+                {
+                    string errMsg = TempData["kpaCountErrorMessage"].ToString();
+                    StringBuilder sb = new StringBuilder();
+                    sb.AppendLine(model.ViewModelErrorMessage);
+                    sb.Append(errMsg);
+                    model.ViewModelErrorMessage = sb.ToString();
+                }
+                else
+                {
+                    model.ViewModelErrorMessage = TempData["kpaCountErrorMessage"].ToString();
+                }
+            }
+
             return View(model);
         }
 
@@ -2271,6 +2525,17 @@ namespace IntranetPortal.Areas.PMS.Controllers
                 model.ReviewHeaderID = id;
                 model.AppraiserID = ad;
                 model.SubmissionID = sd;
+
+                //Check to confirm that all KPAs have been evaluated
+                int totalNumberOfKpas = 0;
+                int totalNumberOfEvaluatedKpas = 0;
+                totalNumberOfKpas = await _performanceService.GetMetricCountAsync(id, ReviewMetricType.KPA);
+                totalNumberOfEvaluatedKpas = await _performanceService.GetEvaluatedMetricCountAsync(id, ad, ReviewMetricType.KPA);
+                if (totalNumberOfEvaluatedKpas < totalNumberOfKpas)
+                {
+                    TempData["kpaCountErrorMessage"] = "Sorry, it appears not all KPAs are evaluated yet. Please confirm that all KPAs have been evaluated and try again.";
+                    return RedirectToAction("KpaFinalEvaluationList", new { id, ad, sd });
+                }
 
                 ReviewHeader reviewHeader = await _performanceService.GetReviewHeaderAsync(id);
                 if (reviewHeader != null)
@@ -2288,13 +2553,29 @@ namespace IntranetPortal.Areas.PMS.Controllers
             }
             else
             {
-                model.ViewModelErrorMessage = "Error: a key parameter is missing. No record could be r";
+                model.ViewModelErrorMessage = "Error: a key parameter is missing. No record could be retrieved.";
             }
 
             var grade_entities = await _performanceService.GetAppraisalCompetencyGradesAsync(model.ReviewSessionID);
             if (grade_entities != null)
             {
                 ViewBag.GradeList = new SelectList(grade_entities, "UpperBandScore", "AppraisalGradeDescription");
+            }
+
+            if (TempData["cmpCountErrorMessage"] != null)
+            {
+                if (!string.IsNullOrWhiteSpace(model.ViewModelErrorMessage))
+                {
+                    string errMsg = TempData["cmpCountErrorMessage"].ToString();
+                    StringBuilder sb = new StringBuilder();
+                    sb.AppendLine(model.ViewModelErrorMessage);
+                    sb.Append(errMsg);
+                    model.ViewModelErrorMessage = sb.ToString();
+                }
+                else
+                {
+                    model.ViewModelErrorMessage = TempData["cmpCountErrorMessage"].ToString();
+                }
             }
 
             return View(model);
@@ -2309,6 +2590,17 @@ namespace IntranetPortal.Areas.PMS.Controllers
 
             if (id > 0 && !string.IsNullOrWhiteSpace(ad))
             {
+                //Check to confirm that all KPAs have been evaluated
+                int totalNumberOfCmps = 0;
+                int totalNumberOfEvaluatedCmps = 0;
+                totalNumberOfCmps = await _performanceService.GetMetricCountAsync(id, ReviewMetricType.Competency);
+                totalNumberOfEvaluatedCmps = await _performanceService.GetEvaluatedMetricCountAsync(id, ad, ReviewMetricType.Competency);
+                if (totalNumberOfEvaluatedCmps < totalNumberOfCmps)
+                {
+                    TempData["cmpCountErrorMessage"] = "Sorry, it appears not all Competencies are evaluated yet. Please confirm that all Competencies have been evaluated and try again.";
+                    return RedirectToAction("CmpFinalEvaluationList", new { id, ad, sd });
+                }
+
                 ReviewHeader reviewHeader = await _performanceService.GetReviewHeaderAsync(id);
                 if (reviewHeader != null)
                 {
@@ -2367,7 +2659,6 @@ namespace IntranetPortal.Areas.PMS.Controllers
         #endregion
 
         #region Evaluation Results
-
         public async Task<IActionResult> ShowEvaluations(int id)
         {
             ShowEvaluationsViewModel model = new ShowEvaluationsViewModel();
@@ -2454,80 +2745,177 @@ namespace IntranetPortal.Areas.PMS.Controllers
 
         public async Task<IActionResult> ShowFullResult(int id, string ad)
         {
-            ShowFullResultViewModel model = new ShowFullResultViewModel();
+            ShowSelectedResultViewModel model = new ShowSelectedResultViewModel();
             model.EvaluationSummaryResult = new EvaluationResultViewModel();
             model.KpaFullResult = new EvaluationListViewModel();
             model.CmpFullResult = new EvaluationListViewModel();
-
-            model.EvaluationSummaryResult.AppraiserID = ad;
-            model.EvaluationSummaryResult.ReviewHeaderID = id;
-            if (id > 0 && !string.IsNullOrWhiteSpace(ad))
+            model.ReviewHeaderInfo = new ReviewHeader();
+            model.ReviewCDGs = new List<ReviewCDG>();
+            model.id = id;
+            model.ad = ad;
+            if (!string.IsNullOrWhiteSpace(ad))
             {
-                ReviewHeader reviewHeader = await _performanceService.GetReviewHeaderAsync(id);
-                if (reviewHeader != null)
+                model.EvaluationSummaryResult.AppraiserID = ad;
+                model.EvaluationSummaryResult.ReviewHeaderID = id;
+                if (id > 0 && !string.IsNullOrWhiteSpace(ad))
                 {
-                    model.EvaluationSummaryResult.ReviewHeaderID = reviewHeader.ReviewHeaderId;
-                    model.EvaluationSummaryResult.ReviewSessionID = reviewHeader.ReviewSessionId;
-                    model.EvaluationSummaryResult.ReviewSessionName = reviewHeader.ReviewSessionName;
-                    model.EvaluationSummaryResult.ReviewYearID = reviewHeader.ReviewYearId;
-                    model.EvaluationSummaryResult.ReviewYearName = reviewHeader.ReviewYearName;
-                    model.EvaluationSummaryResult.AppraiseeID = reviewHeader.AppraiseeId;
-                    model.EvaluationSummaryResult.AppraiseeName = reviewHeader.AppraiseeName;
-
-                    ReviewSession reviewSession = await _performanceService.GetReviewSessionAsync(model.EvaluationSummaryResult.ReviewSessionID);
-                    if (reviewSession != null)
+                    ReviewHeader reviewHeader = await _performanceService.GetReviewHeaderAsync(id);
+                    if (reviewHeader != null)
                     {
-                        model.EvaluationSummaryResult.QualitativeScoreObtainable = reviewSession.TotalCompetencyScore;
-                        model.EvaluationSummaryResult.QuantitativeScoreObtainable = reviewSession.TotalKpaScore;
-                        model.EvaluationSummaryResult.TotalScoreObtainable = reviewSession.TotalCombinedScore;
+                        model.ReviewHeaderInfo = reviewHeader;
+                        model.EvaluationSummaryResult.ReviewHeaderID = reviewHeader.ReviewHeaderId;
+                        model.EvaluationSummaryResult.ReviewSessionID = reviewHeader.ReviewSessionId;
+                        model.EvaluationSummaryResult.ReviewSessionName = reviewHeader.ReviewSessionName;
+                        model.EvaluationSummaryResult.ReviewYearID = reviewHeader.ReviewYearId;
+                        model.EvaluationSummaryResult.ReviewYearName = reviewHeader.ReviewYearName;
+                        model.EvaluationSummaryResult.AppraiseeID = reviewHeader.AppraiseeId;
+                        model.EvaluationSummaryResult.AppraiseeName = reviewHeader.AppraiseeName;
+
+                        ReviewSession reviewSession = await _performanceService.GetReviewSessionAsync(model.EvaluationSummaryResult.ReviewSessionID);
+                        if (reviewSession != null)
+                        {
+                            model.EvaluationSummaryResult.QualitativeScoreObtainable = reviewSession.TotalCompetencyScore;
+                            model.EvaluationSummaryResult.QuantitativeScoreObtainable = reviewSession.TotalKpaScore;
+                            model.EvaluationSummaryResult.TotalScoreObtainable = reviewSession.TotalCombinedScore;
+                        }
+
+                        List<ReviewCDG> reviewCDGs = await _performanceService.GetReviewCdgsAsync(id);
+                        if (reviewCDGs != null)
+                        {
+                            model.ReviewCDGs = reviewCDGs;
+                        }
+                    }
+
+                    var result_entities = await _performanceService.GetReviewResultByAppraiserIdAndReviewMetricTypeIdAsync(model.EvaluationSummaryResult.ReviewHeaderID, model.EvaluationSummaryResult.AppraiserID, null);
+                    if (result_entities != null && result_entities.Count > 0)
+                    {
+                        ReviewResult reviewResult = result_entities.FirstOrDefault();
+                        model.EvaluationSummaryResult.AppraiserName = reviewResult.AppraiserName;
+                        model.EvaluationSummaryResult.AppraiserRoleID = reviewResult.AppraiserRoleId ?? 0;
+                        model.EvaluationSummaryResult.AppraiserRoleName = reviewResult.AppraiserRoleName;
+                        model.EvaluationSummaryResult.AppraiserTypeDescription = reviewResult.AppraiserTypeDescription;
+                        model.EvaluationSummaryResult.AppraisalTime = $"{reviewResult.ScoreTime.Value.ToLongDateString()} {reviewResult.ScoreTime.Value.ToLongTimeString()} GMT";
+                    }
+
+                    ScoreSummary scoreSummary = await _performanceService.GetScoreSummaryAsync(id, ad);
+                    if (scoreSummary != null)
+                    {
+                        model.EvaluationSummaryResult.QualitativeScoreObtained = scoreSummary.QualitativeScore;
+                        model.EvaluationSummaryResult.QuantitativeScoreObtained = scoreSummary.QuantitativeScore;
+                        model.EvaluationSummaryResult.TotalScoreObtained = scoreSummary.TotalPerformanceScore;
+                    }
+
+                    AppraisalGrade appraisalGrade = await _performanceService.GetAppraisalGradeAsync(model.EvaluationSummaryResult.ReviewSessionID, ReviewGradeType.Performance, model.EvaluationSummaryResult.TotalScoreObtained);
+                    if (appraisalGrade != null)
+                    {
+                        model.EvaluationSummaryResult.PerformanceRating = appraisalGrade.AppraisalGradeDescription;
+                        model.EvaluationSummaryResult.PerformanceRank = appraisalGrade.GradeRankDescription;
+                    }
+
+                    // Get KPA Results
+                    var kpa_entities = await _performanceService.GetInitialReviewResultKpasAsync(id, ad);
+                    if (kpa_entities != null && kpa_entities.Count > 0)
+                    {
+                        model.KpaFullResult.ReviewResultList = kpa_entities.ToList();
+                    }
+
+                    // Get Competency Results
+                    var cmp_entities = await _performanceService.GetInitialReviewResultCmpsAsync(id, ad);
+                    if (cmp_entities != null && cmp_entities.Count > 0)
+                    {
+                        model.CmpFullResult.ReviewResultList = cmp_entities.ToList();
                     }
                 }
-
-                var result_entities = await _performanceService.GetReviewResultByAppraiserIdAndReviewMetricTypeIdAsync(model.EvaluationSummaryResult.ReviewHeaderID, model.EvaluationSummaryResult.AppraiserID, null);
-                if (result_entities != null && result_entities.Count > 0)
+                else
                 {
-                    ReviewResult reviewResult = result_entities.FirstOrDefault();
-                    model.EvaluationSummaryResult.AppraiserName = reviewResult.AppraiserName;
-                    model.EvaluationSummaryResult.AppraiserRoleID = reviewResult.AppraiserRoleId ?? 0;
-                    model.EvaluationSummaryResult.AppraiserRoleName = reviewResult.AppraiserRoleName;
-                    model.EvaluationSummaryResult.AppraiserTypeDescription = reviewResult.AppraiserTypeDescription;
-                    model.EvaluationSummaryResult.AppraisalTime = $"{reviewResult.ScoreTime.Value.ToLongDateString()} {reviewResult.ScoreTime.Value.ToLongTimeString()} GMT";
-                }
-
-                ScoreSummary scoreSummary = await _performanceService.GetScoreSummaryAsync(id, ad);
-                if (scoreSummary != null)
-                {
-                    model.EvaluationSummaryResult.QualitativeScoreObtained = scoreSummary.QualitativeScore;
-                    model.EvaluationSummaryResult.QuantitativeScoreObtained = scoreSummary.QuantitativeScore;
-                    model.EvaluationSummaryResult.TotalScoreObtained = scoreSummary.TotalPerformanceScore;
-                }
-
-                AppraisalGrade appraisalGrade = await _performanceService.GetAppraisalGradeAsync(model.EvaluationSummaryResult.ReviewSessionID, ReviewGradeType.Performance, model.EvaluationSummaryResult.TotalScoreObtained);
-                if (appraisalGrade != null)
-                {
-                    model.EvaluationSummaryResult.PerformanceRating = appraisalGrade.AppraisalGradeDescription;
-                    model.EvaluationSummaryResult.PerformanceRank = appraisalGrade.GradeRankDescription;
-                }
-
-                // Get KPA Results
-                var kpa_entities = await _performanceService.GetInitialReviewResultKpasAsync(id, ad);
-                if (kpa_entities != null && kpa_entities.Count > 0)
-                {
-                    model.KpaFullResult.ReviewResultList = kpa_entities.ToList();
-                }
-
-                // Get Competency Results
-                var cmp_entities = await _performanceService.GetInitialReviewResultCmpsAsync(id, ad);
-                if (cmp_entities != null && cmp_entities.Count > 0)
-                {
-                    model.CmpFullResult.ReviewResultList = cmp_entities.ToList();
+                    model.ViewModelErrorMessage = "Error: a key parameter is missing. No record could be r";
                 }
             }
-            else
+
+            var appraisers = await _performanceService.GetAppraiserDetailsAsync(id);
+            if (appraisers != null)
             {
-                model.ViewModelErrorMessage = "Error: a key parameter is missing. No record could be r";
+                ViewBag.AppraisersList = new SelectList(appraisers, "AppraiserId", "AppraiserFullDescription", ad);
             }
             return View(model);
+
+
+
+
+            //ShowFullResultViewModel model = new ShowFullResultViewModel();
+            //model.EvaluationSummaryResult = new EvaluationResultViewModel();
+            //model.KpaFullResult = new EvaluationListViewModel();
+            //model.CmpFullResult = new EvaluationListViewModel();
+
+            //model.EvaluationSummaryResult.AppraiserID = ad;
+            //model.EvaluationSummaryResult.ReviewHeaderID = id;
+            //if (id > 0 && !string.IsNullOrWhiteSpace(ad))
+            //{
+            //    ReviewHeader reviewHeader = await _performanceService.GetReviewHeaderAsync(id);
+            //    if (reviewHeader != null)
+            //    {
+            //        model.EvaluationSummaryResult.ReviewHeaderID = reviewHeader.ReviewHeaderId;
+            //        model.EvaluationSummaryResult.ReviewSessionID = reviewHeader.ReviewSessionId;
+            //        model.EvaluationSummaryResult.ReviewSessionName = reviewHeader.ReviewSessionName;
+            //        model.EvaluationSummaryResult.ReviewYearID = reviewHeader.ReviewYearId;
+            //        model.EvaluationSummaryResult.ReviewYearName = reviewHeader.ReviewYearName;
+            //        model.EvaluationSummaryResult.AppraiseeID = reviewHeader.AppraiseeId;
+            //        model.EvaluationSummaryResult.AppraiseeName = reviewHeader.AppraiseeName;
+
+            //        ReviewSession reviewSession = await _performanceService.GetReviewSessionAsync(model.EvaluationSummaryResult.ReviewSessionID);
+            //        if (reviewSession != null)
+            //        {
+            //            model.EvaluationSummaryResult.QualitativeScoreObtainable = reviewSession.TotalCompetencyScore;
+            //            model.EvaluationSummaryResult.QuantitativeScoreObtainable = reviewSession.TotalKpaScore;
+            //            model.EvaluationSummaryResult.TotalScoreObtainable = reviewSession.TotalCombinedScore;
+            //        }
+            //    }
+
+            //    var result_entities = await _performanceService.GetReviewResultByAppraiserIdAndReviewMetricTypeIdAsync(model.EvaluationSummaryResult.ReviewHeaderID, model.EvaluationSummaryResult.AppraiserID, null);
+            //    if (result_entities != null && result_entities.Count > 0)
+            //    {
+            //        ReviewResult reviewResult = result_entities.FirstOrDefault();
+            //        model.EvaluationSummaryResult.AppraiserName = reviewResult.AppraiserName;
+            //        model.EvaluationSummaryResult.AppraiserRoleID = reviewResult.AppraiserRoleId ?? 0;
+            //        model.EvaluationSummaryResult.AppraiserRoleName = reviewResult.AppraiserRoleName;
+            //        model.EvaluationSummaryResult.AppraiserTypeDescription = reviewResult.AppraiserTypeDescription;
+            //        model.EvaluationSummaryResult.AppraisalTime = $"{reviewResult.ScoreTime.Value.ToLongDateString()} {reviewResult.ScoreTime.Value.ToLongTimeString()} GMT";
+            //    }
+
+            //    ScoreSummary scoreSummary = await _performanceService.GetScoreSummaryAsync(id, ad);
+            //    if (scoreSummary != null)
+            //    {
+            //        model.EvaluationSummaryResult.QualitativeScoreObtained = scoreSummary.QualitativeScore;
+            //        model.EvaluationSummaryResult.QuantitativeScoreObtained = scoreSummary.QuantitativeScore;
+            //        model.EvaluationSummaryResult.TotalScoreObtained = scoreSummary.TotalPerformanceScore;
+            //    }
+
+            //    AppraisalGrade appraisalGrade = await _performanceService.GetAppraisalGradeAsync(model.EvaluationSummaryResult.ReviewSessionID, ReviewGradeType.Performance, model.EvaluationSummaryResult.TotalScoreObtained);
+            //    if (appraisalGrade != null)
+            //    {
+            //        model.EvaluationSummaryResult.PerformanceRating = appraisalGrade.AppraisalGradeDescription;
+            //        model.EvaluationSummaryResult.PerformanceRank = appraisalGrade.GradeRankDescription;
+            //    }
+
+            //    // Get KPA Results
+            //    var kpa_entities = await _performanceService.GetInitialReviewResultKpasAsync(id, ad);
+            //    if (kpa_entities != null && kpa_entities.Count > 0)
+            //    {
+            //        model.KpaFullResult.ReviewResultList = kpa_entities.ToList();
+            //    }
+
+            //    // Get Competency Results
+            //    var cmp_entities = await _performanceService.GetInitialReviewResultCmpsAsync(id, ad);
+            //    if (cmp_entities != null && cmp_entities.Count > 0)
+            //    {
+            //        model.CmpFullResult.ReviewResultList = cmp_entities.ToList();
+            //    }
+            //}
+            //else
+            //{
+            //    model.ViewModelErrorMessage = "Error: a key parameter is missing. No record could be r";
+            //}
+            //return View(model);
         }
 
         public async Task<IActionResult> ShowSelectedResult(int id, string ad)
@@ -2702,7 +3090,7 @@ namespace IntranetPortal.Areas.PMS.Controllers
 
                 if (string.IsNullOrWhiteSpace(ReportsToID))
                 {
-                    model.ViewModelErrorMessage = "Sorry, no employee record was found for this user.";
+                    model.ViewModelErrorMessage = "Sorry, it appears your session has expired. Please login and try again.";
                 }
                 else
                 {
@@ -2753,11 +3141,11 @@ namespace IntranetPortal.Areas.PMS.Controllers
             try
             {
                 model.ReviewHeaderID = id;
-                if(id > 0)
+                if (id > 0)
                 {
                     ReviewHeader reviewHeader = new ReviewHeader();
                     reviewHeader = await _performanceService.GetReviewHeaderAsync(id);
-                    if(reviewHeader != null)
+                    if (reviewHeader != null)
                     {
                         model.ReviewSessionID = reviewHeader.ReviewSessionId;
                         model.AppraiseeID = reviewHeader.AppraiseeId;
@@ -2832,175 +3220,6 @@ namespace IntranetPortal.Areas.PMS.Controllers
 
         #endregion
 
-        #region Enquiry and Reports
-
-        [Authorize(Roles = "PMSNQR, XXACC")]
-        public async Task<IActionResult> AppraisalEnquiry(int id, int? dd = null, int? ud = null, string nm = null)
-        {
-            PmsEnquiryViewModel model = new PmsEnquiryViewModel();
-            model.ResultSummaryList = new List<ResultSummary>();
-            model.id = id;
-            model.dd = dd ?? 0;
-            model.ud = ud ?? 0;
-            model.nm = nm;
-
-            try
-            {
-                if (id > 0)
-                {
-                    if (!string.IsNullOrWhiteSpace(nm))
-                    {
-                        var entities = await _performanceService.GetResultSummaryByReviewSessionIdAndAppraiseeNameAsync(id, nm);
-                        if (entities != null && entities.Count > 0)
-                        {
-                            model.ResultSummaryList = entities;
-                        }
-                    }
-                    else if (ud != null && ud > 0)
-                    {
-                        var entities = await _performanceService.GetResultSummaryByReviewSessionIdAndUnitCodeAsync(id, ud.Value);
-                        if (entities != null && entities.Count > 0)
-                        {
-                            model.ResultSummaryList = entities;
-                        }
-                    }
-                    else if (dd != null && dd > 0)
-                    {
-                        var entities = await _performanceService.GetResultSummaryByReviewSessionIdAndDepartmentCodeAsync(id, dd.Value);
-                        if (entities != null && entities.Count > 0)
-                        {
-                            model.ResultSummaryList = entities;
-                        }
-                    }
-                    else
-                    {
-                        var entities = await _performanceService.GetResultSummaryByReviewSessionIdAsync(id);
-                        if (entities != null && entities.Count > 0)
-                        {
-                            model.ResultSummaryList = entities;
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                model.ViewModelErrorMessage = ex.Message;
-            }
-
-            var sessions_entities = await _performanceService.GetReviewSessionsAsync();
-            if (sessions_entities != null && sessions_entities.Count > 0)
-            {
-                ViewBag.SessionsList = new SelectList(sessions_entities, "Id", "Name", id);
-            }
-
-            var dept_entities = await _globalSettingsService.GetDepartmentsAsync();
-            if (dept_entities != null && dept_entities.Count > 0)
-            {
-                ViewBag.DepartmentList = new SelectList(dept_entities, "DepartmentID", "DepartmentName", dd);
-            }
-
-            var unit_entities = await _globalSettingsService.GetUnitsAsync();
-            if (unit_entities != null && unit_entities.Count > 0)
-            {
-                ViewBag.UnitList = new SelectList(unit_entities, "UnitID", "UnitName", ud);
-            }
-
-            return View(model);
-        }
-
-        [Authorize(Roles = "PMSNQR, XXACC")]
-        public async Task<IActionResult> ResultReport(int id, int? ld = null, int? dd = null, int? ud = null)
-        {
-            ResultReportViewModel model = new ResultReportViewModel();
-            model.ResultDetailList = new List<ResultDetail>();
-            model.id = id;
-            model.ld = ld ?? 0;
-            model.dd = dd ?? 0;
-            model.ud = ud ?? 0;
-
-            model.ResultDetailList = new List<ResultDetail>();
-            try
-            {
-                if (id > 0)
-                {
-                    var entities = await _performanceService.GetPrincipalResultDetailAsync(id, ld, dd, ud);
-                    if (entities != null && entities.Count > 0)
-                    {
-                        model.ResultDetailList = entities;
-                        ResultDetail resultDetail = new ResultDetail();
-                        resultDetail = entities.FirstOrDefault();
-                        model.ReviewSessionDescription = resultDetail.ReviewSessionName;
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                model.ViewModelErrorMessage = ex.Message;
-            }
-
-            var sessions_entities = await _performanceService.GetReviewSessionsAsync();
-            if (sessions_entities != null && sessions_entities.Count > 0)
-            {
-                ViewBag.SessionsList = new SelectList(sessions_entities, "Id", "Name", id);
-            }
-
-            var loc_entities = await _globalSettingsService.GetAllLocationsAsync();
-            if (loc_entities != null && loc_entities.Count > 0)
-            {
-                ViewBag.LocationList = new SelectList(loc_entities, "LocationID", "LocationName", ld);
-            }
-
-            var dept_entities = await _globalSettingsService.GetDepartmentsAsync();
-            if (dept_entities != null && dept_entities.Count > 0)
-            {
-                ViewBag.DepartmentList = new SelectList(dept_entities, "DepartmentID", "DepartmentName", dd);
-            }
-
-            var unit_entities = await _globalSettingsService.GetUnitsAsync();
-            if (unit_entities != null && unit_entities.Count > 0)
-            {
-                ViewBag.UnitList = new SelectList(unit_entities, "UnitID", "UnitName", ud);
-            }
-
-            if (TempData["ErrorMessage"] != null)
-            {
-                model.ViewModelErrorMessage = TempData["ErrorMessage"].ToString();
-            }
-
-            return View(model);
-        }
-
-        public async Task<FileResult> DownloadResultReport(int id, int? ld = null, int? dd = null, int? ud = null)
-        {
-            List<ResultDetail> ResultDetailList = new List<ResultDetail>();
-            string ReviewSessionDescription = string.Empty;
-            string fileName = string.Empty;
-            try
-            {
-                if (id > 0)
-                {
-                    var entities = await _performanceService.GetPrincipalResultDetailAsync(id, ld, dd, ud);
-                    if (entities != null && entities.Count > 0)
-                    {
-                        ResultDetailList = entities;
-                        ResultDetail resultDetail = new ResultDetail();
-                        resultDetail = entities.FirstOrDefault();
-                        ReviewSessionDescription = resultDetail.ReviewSessionName;
-                        fileName = $"Appraisal Report {DateTime.UtcNow.ToString("yyyyMMddHHmmssfff")}.xlsx";
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                return null;
-                //TempData["ErrorMessage"] = ex.Message;
-                //return RedirectToAction("ResultReport", new { id, lc, dc, uc });
-            }
-            return GenerateResultReportExcel(fileName, ResultDetailList);
-        }
-
-        #endregion
-
         #region Helper Methods
         public string DeleteSubmission(int sd)
         {
@@ -3058,18 +3277,18 @@ namespace IntranetPortal.Areas.PMS.Controllers
 
             try
             {
-                if(sd > 0)
+                if (sd > 0)
                 {
                     ReviewSubmission reviewSubmission = _performanceService.GetReviewSubmissionByIdAsync(sd).Result;
-                    if(reviewSubmission != null)
+                    if (reviewSubmission != null)
                     {
                         reviewResult.AppraiserRoleId = reviewSubmission.ToEmployeeRoleId;
                         reviewResult.AppraiserRoleName = reviewSubmission.ToEmployeeRoleName;
                     }
                 }
 
-                ReviewMetric reviewMetric =  _performanceService.GetReviewMetricAsync(rm).Result;
-                if(reviewMetric != null)
+                ReviewMetric reviewMetric = _performanceService.GetReviewMetricAsync(rm).Result;
+                if (reviewMetric != null)
                 {
                     reviewResult.ReviewMetricTypeId = reviewMetric.ReviewMetricTypeId;
                     reviewResult.ReviewSessionId = reviewMetric.ReviewSessionId;
@@ -3082,11 +3301,11 @@ namespace IntranetPortal.Areas.PMS.Controllers
 
                 if (!string.IsNullOrWhiteSpace(pa) && !string.IsNullOrWhiteSpace(reviewResult.AppraiseeId))
                 {
-                    if(reviewResult.AppraiserId == reviewResult.AppraiseeId)
+                    if (reviewResult.AppraiserId == reviewResult.AppraiseeId)
                     {
                         reviewResult.AppraiserTypeId = (int)AppraiserType.SelfAppraiser;
                     }
-                    else if(reviewResult.AppraiserId == pa)
+                    else if (reviewResult.AppraiserId == pa)
                     {
                         reviewResult.AppraiserTypeId = (int)AppraiserType.PrincipalAppraiser;
                     }
@@ -3098,14 +3317,27 @@ namespace IntranetPortal.Areas.PMS.Controllers
 
                 if (reviewResult.ReviewResultId > 0)
                 {
-                    bool IsSuccessful =  _performanceService.UpdateReviewResultAsync(reviewResult).Result;
+                    bool IsSuccessful = _performanceService.UpdateReviewResultAsync(reviewResult).Result;
                     if (IsSuccessful) { return "saved"; }
                     else { return "failed"; }
                 }
-
-                bool IsAdded = _performanceService.AddReviewResultAsync(reviewResult).Result;
-                if (IsAdded) { return "saved"; }
-                else { return "failed"; }
+                else
+                {
+                    var result_entities = _performanceService.GetReviewResultByAppraiserIdAndReviewMetricIdAsync(rh, ap, rm).Result;
+                    if(result_entities != null && result_entities.Count > 0)
+                    {
+                        reviewResult.ReviewResultId = result_entities.FirstOrDefault().ReviewResultId;
+                        bool IsSuccessful = _performanceService.UpdateReviewResultAsync(reviewResult).Result;
+                        if (IsSuccessful) { return "saved"; }
+                        else { return "failed"; }
+                    }
+                    else
+                    {
+                        bool IsAdded = _performanceService.AddReviewResultAsync(reviewResult).Result;
+                        if (IsAdded) { return "saved"; }
+                        else { return "failed"; }
+                    }
+                }
             }
             catch (Exception ex)
             {
@@ -3180,98 +3412,27 @@ namespace IntranetPortal.Areas.PMS.Controllers
                     if (IsSuccessful) { return "saved"; }
                     else { return "failed"; }
                 }
-
-                bool IsAdded = _performanceService.AddReviewResultAsync(reviewResult).Result;
-                if (IsAdded) { return "saved"; }
-                else { return "failed"; }
+                else
+                {
+                    var result_entities = _performanceService.GetReviewResultByAppraiserIdAndReviewMetricIdAsync(rh, ap, rm).Result;
+                    if (result_entities != null && result_entities.Count > 0)
+                    {
+                        reviewResult.ReviewResultId = result_entities.FirstOrDefault().ReviewResultId;
+                        bool IsSuccessful = _performanceService.UpdateReviewResultAsync(reviewResult).Result;
+                        if (IsSuccessful) { return "saved"; }
+                        else { return "failed"; }
+                    }
+                    else
+                    {
+                        bool IsAdded = _performanceService.AddReviewResultAsync(reviewResult).Result;
+                        if (IsAdded) { return "saved"; }
+                        else { return "failed"; }
+                    }
+                }
             }
             catch (Exception ex)
             {
                 return ex.Message;
-            }
-        }
-
-        private FileResult GenerateResultReportExcel(string fileName, IEnumerable<ResultDetail> results)
-        {
-            DataTable dataTable = new DataTable("results");
-            dataTable.Columns.AddRange(new DataColumn[]
-            {
-new DataColumn("Appraisee No"),
-new DataColumn("Appraisee Name"),
-new DataColumn("Appraisee Designation"),
-new DataColumn("Appraisee Unit"),
-new DataColumn("Appraisee Department"),
-new DataColumn("Appraisee Location"),
-new DataColumn("Feedback Problems"),
-new DataColumn("Feedback Solutions"),
-new DataColumn("Appraisee Disagrees"),
-new DataColumn("Appraiser Name"),
-new DataColumn("Appraiser Designation"),
-new DataColumn("Appraiser Role"),
-new DataColumn("Appraiser Type"),
-new DataColumn("Kpa Score"),
-new DataColumn("Competency Score"),
-new DataColumn("Total Score"),
-new DataColumn("Rating"),
-new DataColumn("Line Manager Recommendation"),
-new DataColumn("Line Manager Comments"),
-new DataColumn("Line Manager Name"),
-new DataColumn("Unit Head Recommendation"),
-new DataColumn("Unit Head Comments"),
-new DataColumn("Unit Head Name"),
-new DataColumn("Department Head Recommendation"),
-new DataColumn("Department Head Comments"),
-new DataColumn("Department Head Name"),
-new DataColumn("HR Recommendation"),
-new DataColumn("HR Comments"),
-new DataColumn("Management Decision"),
-new DataColumn("ManagementComments"),
-            });
-
-            foreach (var result in results)
-            {
-                dataTable.Rows.Add(
-                    result.EmployeeNo,
-                    result.AppraiseeName,
-                    result.AppraiseeDesignation,
-                    result.UnitName,
-                    result.DepartmentName,
-                    result.LocationName,
-                    result.FeedbackProblems,
-                    result.FeedbackSolutions,
-                    result.IsFlagged,
-                    result.AppraiserName,
-                    result.AppraiserDesignation,
-                    result.AppraiserRoleDescription,
-                    result.AppraiserTypeDescription,
-                    result.KpaScoreObtained,
-                    result.CompetencyScoreObtained,
-                    result.CombinedScoreObtained,
-                    result.PerformanceRating,
-                    result.LineManagerRecommendation,
-                    result.LineManagerComments,
-                    result.LineManagerName,
-                    result.UnitHeadRecommendation,
-                    result.UnitHeadComments,
-                    result.UnitHeadName,
-                    result.DepartmentHeadRecommendation,
-                    result.DepartmentHeadComments,
-                    result.DepartmentHeadName,
-                    result.HrRecommendation,
-                    result.HrComments,
-                    result.ManagementDecision,
-                    result.ManagementComments
-                    );
-            }
-
-            using (XLWorkbook workbook = new XLWorkbook())
-            {
-                workbook.Worksheets.Add(dataTable);
-                using (MemoryStream stream = new MemoryStream())
-                {
-                    workbook.SaveAs(stream);
-                    return File(stream.ToArray(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
-                }
             }
         }
 

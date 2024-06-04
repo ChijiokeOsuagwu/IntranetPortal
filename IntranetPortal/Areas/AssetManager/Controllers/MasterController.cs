@@ -46,61 +46,62 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
             _ermService = ermService;
         }
 
-        [Authorize(Roles = "AMSVWAINF, AMSMGAINF, XYALLACCZ")]
-        public async Task<IActionResult> List(string an = null, int? tp = null, int? gp = null)
+        [Authorize(Roles = "AMSMGAINF, XYALLACCZ")]
+        public async Task<IActionResult> List(int? bsl = null, int? bnl = null, int? typ = null, int? cnd = null)
         {
-            AssetListViewModel model = new AssetListViewModel();
-            IEnumerable<Asset> assetList = new List<Asset>();
+            string userName = HttpContext.User.Identity.Name;
+            string userId = HttpContext.User.Claims.FirstOrDefault(c => c.Type.Contains("nameidentifier")).Value;
+            if (string.IsNullOrWhiteSpace(userId) && string.IsNullOrWhiteSpace(userName))
+            {
+                await HttpContext.SignOutAsync(SecurityConstants.ChxCookieAuthentication);
+                return LocalRedirect("/Home/Login");
+            }
+
+            AssetStatusReportViewModel model = new AssetStatusReportViewModel();
+            model.AssetMasterList = new List<Asset>();
+            model.bsl = bsl;
+            model.bnl = bnl;
+            model.grp = 0;
+            model.typ = typ;
+            model.cnd = cnd;
+
             try
             {
-                var claims = HttpContext.User.Claims.ToList();
-                string userId = claims?.Where(x => x.Type == ClaimTypes.NameIdentifier).Select(c => c.Value).SingleOrDefault();
-                if (string.IsNullOrWhiteSpace(userId))
+                var entities = await _assetManagerService.GetAssetStatusReportAsync(userId, model.bsl, model.bnl, model.typ, model.cnd);
+                if (entities != null)
                 {
-                    await HttpContext.SignOutAsync(SecurityConstants.ChxCookieAuthentication);
-                    return LocalRedirect("/Home/Login");
+                    model.AssetMasterList = entities;
+                    model.RecordCount = entities.Count;
                 }
-
-                AssetPermission assetPermission = new AssetPermission();
-                Employee employee = new Employee();
-                string empName = HttpContext.User.Identity.Name;
-                employee = await _ermService.GetEmployeeByNameAsync(empName);
-                if(employee != null && !string.IsNullOrWhiteSpace(employee.EmployeeID))
-                {
-                    assetPermission.UserID = employee.EmployeeID;
-                }
-
-                if (!string.IsNullOrWhiteSpace(an))
-                {
-                    assetList = await _assetManagerService.SearchAssetsByNameAsync(an, userId);
-                }
-                else if (tp != null && tp.Value > 0)
-                {
-                    assetList = await _assetManagerService.GetAssetsByAssetTypeIdAsync(tp.Value, userId);
-                }
-                else if (gp != null && gp.Value > 0)
-                {
-                    assetList = await _assetManagerService.GetAssetsByAssetTypeIdAsync(tp.Value, userId);
-                }
-                else
-                {
-                    assetList = await _assetManagerService.GetAssetsAsync(userId);
-                }
-                model.AssetList = assetList.ToList();
             }
             catch (Exception ex)
             {
-                ViewBag.ErrorMessage = ex.Message;
-                assetList = null;
+                model.ViewModelErrorMessage = ex.Message;
             }
-            var assetTypes = await _assetManagerService.GetAssetTypesAsync();
-            var assetGroups = await _assetManagerService.GetAssetGroupsAsync();
 
-            ViewBag.AssetTypeList = new SelectList(assetTypes, "ID", "Name");
-            ViewBag.AssetGroupList = new SelectList(assetGroups, "GroupID", "GroupName");
+            var baselocations_entities = await _globalSettingsService.GetAllLocationsAsync();
+            if (baselocations_entities != null && baselocations_entities.Count > 0)
+            {
+                ViewBag.BaseLocationList = new SelectList(baselocations_entities, "LocationID", "LocationName", bsl);
+            }
 
+            var binlocation_entities = await _assetManagerService.GetAssetBinLocationsAsync(userId);
+            if (binlocation_entities != null && binlocation_entities.Count > 0)
+            {
+                ViewBag.BinLocationList = new SelectList(binlocation_entities, "AssetBinLocationID", "AssetBinLocationName", bnl);
+            }
+
+            var asset_type_entities = await _assetManagerService.GetAssetTypesAsync();
+            if (asset_type_entities != null && asset_type_entities.Count > 0)
+            {
+                ViewBag.AssetTypeList = new SelectList(asset_type_entities, "ID", "Name", typ);
+            }
             return View(model);
         }
+
+
+
+
 
         #region Asset Master Write Action Controller Methods
 
@@ -149,11 +150,11 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
         public async Task<IActionResult> AddAsset(int tp)
         {
             AssetViewModel model = new AssetViewModel();
-            if(tp > 0)
+            if (tp > 0)
             {
                 model.AssetTypeID = tp;
                 AssetType assetType = await _assetManagerService.GetAssetTypeByIdAsync(tp);
-                if(assetType != null && assetType.ID > 0)
+                if (assetType != null && assetType.ID > 0)
                 {
                     model.AssetCategoryID = assetType.CategoryID;
                     model.AssetCategoryID = assetType.CategoryID;
@@ -216,7 +217,7 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
                     if (!string.IsNullOrWhiteSpace(model.ParentAssetName))
                     {
                         Asset parentAsset = await _assetManagerService.GetAssetByNameAsync(model.ParentAssetName);
-                        if(parentAsset != null)
+                        if (parentAsset != null)
                         {
                             model.ParentAssetID = parentAsset.AssetID;
                             model.ParentAssetName = parentAsset.AssetName;
@@ -230,25 +231,27 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
                     asset.ModifiedDate = $"{DateTime.UtcNow.ToLongDateString()} {DateTime.UtcNow.ToLongTimeString()} + GMT";
                     asset.CreatedBy = HttpContext.User.Identity.Name;
                     asset.CreatedDate = $"{DateTime.UtcNow.ToLongDateString()} {DateTime.UtcNow.ToLongTimeString()} + GMT";
-                    if (string.IsNullOrWhiteSpace(asset.ConditionDescription))
-                    {
-                        switch (asset.ConditionStatus)
-                        {
-                            case AssetCondition.InGoodCondition:
-                                asset.ConditionDescription = "In Good Working Condition";
-                                break;
-                            case AssetCondition.BeyondRepair:
-                                asset.ConditionDescription = "Faulty (Beyond Repair)";
-                                break;
-                            case AssetCondition.RequiresRepair:
-                                asset.ConditionDescription = "Faulty (Requires Repairs)";
-                                break;
-                        }
-                    }
+
+
+                    //if (string.IsNullOrWhiteSpace(asset.ConditionDescription))
+                    //{
+                    //    switch (asset.ConditionStatus)
+                    //    {
+                    //        case AssetCondition.InGoodCondition:
+                    //            asset.ConditionDescription = "In Good Working Condition";
+                    //            break;
+                    //        case AssetCondition.BeyondRepair:
+                    //            asset.ConditionDescription = "Faulty (Beyond Repair)";
+                    //            break;
+                    //        case AssetCondition.RequiresRepair:
+                    //            asset.ConditionDescription = "Faulty (Requires Repairs)";
+                    //            break;
+                    //    }
+                    //}
 
                     if (await _assetManagerService.CreateAssetAsync(asset))
                     {
-                        return RedirectToAction("List", new { tp = asset.AssetTypeID});
+                        return RedirectToAction("List", new { tp = asset.AssetTypeID });
                     }
                     else
                     {
@@ -359,7 +362,7 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
                     string uploadsFolder = null;
                     string absoluteFilePath = null;
                     AssetType assetType = await _assetManagerService.GetAssetTypeByIdAsync(model.AssetTypeID);
-                    if(assetType != null)
+                    if (assetType != null)
                     {
                         model.AssetCategoryID = assetType.CategoryID;
                         model.AssetClassID = assetType.ClassID.Value;
@@ -647,9 +650,9 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
         #endregion
 
         #region Asset Master Reports
-        
+
         [Authorize(Roles = "AMSMGAINF, XYALLACCZ")]
-        public async Task<IActionResult> StatusReport(int? bsl = null, int? bnl = null, int? grp = null, int? typ = null, int? cnd = null)
+        public async Task<IActionResult> StatusReport(int? bsl = null, int? bnl = null, int? typ = null, int? cnd = null)
         {
             string userName = HttpContext.User.Identity.Name;
             string userId = HttpContext.User.Claims.FirstOrDefault(c => c.Type.Contains("nameidentifier")).Value;
@@ -663,14 +666,14 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
             model.AssetMasterList = new List<Asset>();
             model.bsl = bsl;
             model.bnl = bnl;
-            model.grp = grp;
+            model.grp = 0;
             model.typ = typ;
             model.cnd = cnd;
 
             try
             {
-                var entities = await _assetManagerService.GetAssetStatusReportAsync(userId, model.bsl, model.bnl, model.grp, model.typ, model.cnd);
-                if(entities != null)
+                var entities = await _assetManagerService.GetAssetStatusReportAsync(userId, model.bsl, model.bnl, model.typ, model.cnd);
+                if (entities != null)
                 {
                     model.AssetMasterList = entities;
                     model.RecordCount = entities.Count;
@@ -693,12 +696,6 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
                 ViewBag.BinLocationList = new SelectList(binlocation_entities, "AssetBinLocationID", "AssetBinLocationName", bnl);
             }
 
-            var asset_group_entities = await _assetManagerService.GetAssetGroupsAsync();
-            if (asset_group_entities != null && asset_group_entities.Count > 0)
-            {
-                ViewBag.AssetGroupList = new SelectList(asset_group_entities, "GroupID", "GroupName", grp);
-            }
-
             var asset_type_entities = await _assetManagerService.GetAssetTypesAsync();
             if (asset_type_entities != null && asset_type_entities.Count > 0)
             {
@@ -708,7 +705,7 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
         }
 
         [Authorize(Roles = "AMSMGAINF, XYALLACCZ")]
-        public async Task<FileResult> DownloadStatusReport(int? bsl = null, int? bnl = null, int? grp = null, int? typ = null, int? cnd = null)
+        public async Task<FileResult> DownloadStatusReport(int? bsl = null, int? bnl = null, int? typ = null, int? cnd = null)
         {
             string userName = HttpContext.User.Identity.Name;
             string userId = HttpContext.User.Claims.FirstOrDefault(c => c.Type.Contains("nameidentifier")).Value;
@@ -722,26 +719,58 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
             model.bsl = bsl;
             model.bnl = bnl;
             model.cnd = cnd;
-            model.grp = grp;
             model.typ = typ;
 
             string fileName = $"Assets & Equipment Status Report {DateTime.Now.Ticks.ToString()}.xlsx";
             try
             {
-                var entities = await _assetManagerService.GetAssetStatusReportAsync(userId, model.bsl, model.bnl, model.grp, model.typ, model.cnd);
+                var entities = await _assetManagerService.GetAssetStatusReportAsync(userId, model.bsl, model.bnl, model.typ, model.cnd);
                 if (entities != null && entities.Count > 0)
                 {
                     model.AssetMasterList = entities;
                     model.RecordCount = entities.Count;
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return null;
             }
             return GenerateStatusReportExcel(fileName, model.AssetMasterList);
         }
 
+        [Authorize(Roles = "AMSMGAINF, XYALLACCZ")]
+        public async Task<FileResult> DownloadAssetMasterList(int? bsl = null, int? bnl = null, int? typ = null, int? cnd = null)
+        {
+            string userName = HttpContext.User.Identity.Name;
+            string userId = HttpContext.User.Claims.FirstOrDefault(c => c.Type.Contains("nameidentifier")).Value;
+            if (string.IsNullOrWhiteSpace(userId) && string.IsNullOrWhiteSpace(userName))
+            {
+                return null;
+            }
+
+            AssetStatusReportViewModel model = new AssetStatusReportViewModel();
+            model.AssetMasterList = new List<Asset>();
+            model.bsl = bsl;
+            model.bnl = bnl;
+            model.cnd = cnd;
+            model.typ = typ;
+
+            string fileName = $"Assets & Equipment Master List {DateTime.Now.Ticks.ToString()}.xlsx";
+            try
+            {
+                var entities = await _assetManagerService.GetAssetStatusReportAsync(userId, model.bsl, model.bnl, model.typ, model.cnd);
+                if (entities != null && entities.Count > 0)
+                {
+                    model.AssetMasterList = entities;
+                    model.RecordCount = entities.Count;
+                }
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+            return GenerateStatusReportExcel(fileName, model.AssetMasterList);
+        }
 
 
         #endregion

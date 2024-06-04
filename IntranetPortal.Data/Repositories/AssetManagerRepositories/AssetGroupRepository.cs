@@ -20,7 +20,7 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
         }
 
         //============== Asset Group Action Methods =======================//
-        #region AssetGroup Action Methods
+        #region AssetGroup Read Action Methods
 
         public async Task<AssetGroup> GetByIdAsync(int assetGroupId)
         {
@@ -73,7 +73,7 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
             sb.Append("LEFT JOIN public.asm_stt_clss l ");
             sb.Append("ON l.clss_id = g.clss_id  ");
             sb.Append("WHERE(LOWER(g.grp_nm) LIKE '%'||LOWER(@grp_nm)||'%') ");
-            sb.Append("ORDER BY grp_nm;");
+            sb.Append("ORDER BY g.grp_nm;");
             string query = sb.ToString();
 
             await conn.OpenAsync();
@@ -113,7 +113,9 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
             sb.Append("ON g.ctg_id = c.asst_ctgs_id ");
             sb.Append("LEFT JOIN public.asm_stt_clss l ");
             sb.Append("ON l.clss_id = g.clss_id ");
-            sb.Append("WHERE (g.ctg_id = @ctg_id);");
+            sb.Append("WHERE (g.ctg_id = @ctg_id) ");
+            sb.Append("ORDER BY g.grp_nm; ");
+
             string query = sb.ToString();
             try
             {
@@ -160,7 +162,9 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
             sb.Append("ON g.ctg_id = c.asst_ctgs_id  ");
             sb.Append("LEFT JOIN public.asm_stt_clss l ");
             sb.Append("ON l.clss_id = g.clss_id  ");
-            sb.Append("WHERE (g.clss_id = @clss_id);");
+            sb.Append("WHERE (g.clss_id = @clss_id) ");
+            sb.Append("ORDER BY g.grp_nm; ");
+
             string query = sb.ToString();
 
             await conn.OpenAsync();
@@ -200,7 +204,7 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
             sb.Append("ON g.ctg_id = c.asst_ctgs_id  ");
             sb.Append("LEFT JOIN public.asm_stt_clss l ");
             sb.Append("ON l.clss_id = g.clss_id  ");
-            sb.Append("ORDER BY c.asst_ctgs_nm, l.clss_nm, g.grp_nm;");
+            sb.Append("ORDER BY g.grp_nm;");
             string query = sb.ToString();
 
             await conn.OpenAsync();
@@ -226,6 +230,9 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
             return groupsList;
         }
 
+        #endregion
+
+        #region AssetGroup Write Action Methods
         public async Task<bool> AddAsync(AssetGroup assetGroup)
         {
             int rows = 0;

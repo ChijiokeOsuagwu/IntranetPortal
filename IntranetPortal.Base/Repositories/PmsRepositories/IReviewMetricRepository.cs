@@ -15,6 +15,7 @@ namespace IntranetPortal.Base.Repositories.PmsRepositories
         Task<List<ReviewMetric>> GetByMetricDescriptionAsync(int reviewHeaderId, string metricDescription);
         Task<List<ReviewMetric>> GetByReviewHeaderIdAsync(int reviewHeaderId);
         Task<int> GetCmpCountByReviewHeaderIdAsync(int reviewHeaderId);
+        Task<int> GetKpaCountByReviewHeaderIdAsync(int reviewHeaderId);
         Task<List<ReviewMetric>> GetCmpsByReviewHeaderIdAsync(int reviewHeaderId);
         Task<List<ReviewMetric>> GetKpasByReviewHeaderIdAsync(int reviewHeaderId);
         Task<decimal> GetTotalCmpWeightageByReviewHeaderIdAsync(int reviewHeaderId);

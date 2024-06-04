@@ -10,7 +10,7 @@
             </a>
         </div>
         <div class="col-md-10 mb-2 text-end">
-            <form asp-area="PMS" asp-controller="Home" asp-action="Index" method="get">
+            <form asp-area="PMS" asp-controller="Process" asp-action="DirectReportEvaluations" method="get">
                 <select asp-for="sd" asp-items="@ViewBag.ReportsList" class="border-0 fw-bold" style="min-width:350px">
                     <option value="0">- Select -</option>
                 </select>

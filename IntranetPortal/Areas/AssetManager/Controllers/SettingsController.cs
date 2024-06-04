@@ -38,6 +38,11 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
             _ermService = ermService;
         }
 
+        public IActionResult Index()
+        {
+            return View();
+        }
+
         //=============== Asset Division Controller Actions ======================//
         #region Asset Division Controller Actions
 

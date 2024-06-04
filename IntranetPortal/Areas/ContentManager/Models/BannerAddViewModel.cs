@@ -10,7 +10,6 @@ namespace IntranetPortal.Areas.ContentManager.Models
 {
     public class BannerAddViewModel:BaseViewModel
     {
-
         [MaxLength(50,ErrorMessage ="Title cannot be more than 50 characters.")]
         [Display(Name ="Banner Title")]
         public string Title { get; set; }

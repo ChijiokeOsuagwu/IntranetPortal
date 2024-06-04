@@ -183,11 +183,15 @@ namespace IntranetPortal.Data.Repositories.BaseRepositories
             var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
             string query = String.Empty;
             StringBuilder sb = new StringBuilder();
-            sb.Append("SELECT m.msg_id, m.msg_time, m.msg_from, m.msg_sbj, m.msg_bdy, m.msg_url, r.msg_rcpt_id, r.rcpt_id, ");
-            sb.Append("r.is_rd, r.time_rd, r.is_del, r.time_del, r.msg_id, p.fullname FROM public.gst_msgs m ");
+            sb.Append("SELECT m.msg_id, m.msg_time, m.msg_from, m.msg_sbj, ");
+            sb.Append("m.msg_bdy, m.msg_url, r.msg_rcpt_id, r.rcpt_id, ");
+            sb.Append("r.is_rd, r.time_rd, r.is_del, r.time_del, ");
+            sb.Append("r.msg_id, p.fullname FROM public.gst_msgs m  ");
             sb.Append("INNER JOIN public.gst_msgrs r ON m.msg_id = r.msg_id ");
             sb.Append("INNER JOIN public.gst_prsns p ON r.rcpt_id = p.id ");
-            sb.Append("WHERE (r.rcpt_id = @rcpt_id) AND (r.is_del = false) ORDER BY r.msg_rcpt_id DESC;");
+            sb.Append("WHERE (r.rcpt_id = @rcpt_id OR r.rcpt_id IS NULL) ");
+            sb.Append("AND (r.is_del = false) ");
+            sb.Append("ORDER BY r.msg_rcpt_id DESC;");
             query = sb.ToString();
             try
             {
@@ -357,14 +361,13 @@ namespace IntranetPortal.Data.Repositories.BaseRepositories
                     messageBody.Value = message.MessageBody;
                     actionUrl.Value = message.ActionUrl ?? (object)DBNull.Value;
                     rows = await cmd.ExecuteNonQueryAsync();
-                    await conn.CloseAsync();
                 }
             }
             catch (Exception ex)
             {
-                await conn.CloseAsync();
                 throw new Exception(ex.Message);
             }
+            finally { await conn.CloseAsync();}
             return rows > 0;
         }
 
@@ -392,19 +395,18 @@ namespace IntranetPortal.Data.Repositories.BaseRepositories
                     messageId.Value = messageDetail.MessageID;
                     recipientId.Value = messageDetail.RecipientID;
                     isRead.Value = messageDetail.IsRead;
-                    timeRead.Value = messageDetail.ReadTime;
+                    timeRead.Value = messageDetail.ReadTime ?? (object)DBNull.Value;
                     isDeleted.Value = messageDetail.IsDeleted;
-                    timeDeleted.Value = messageDetail.DeletedTime;
+                    timeDeleted.Value = messageDetail.DeletedTime ?? (object)DBNull.Value;
 
                     rows = await cmd.ExecuteNonQueryAsync();
-                    await conn.CloseAsync();
                 }
             }
             catch (Exception ex)
             {
-                await conn.CloseAsync();
                 throw new Exception(ex.Message);
             }
+            finally {await conn.CloseAsync(); }
             return rows > 0;
         }
 
@@ -439,44 +441,16 @@ namespace IntranetPortal.Data.Repositories.BaseRepositories
             return rows > 0;
         }
 
-        public async Task<bool> UpdateMessageDeleteStatusByMessageDetailIdAsync(int messageDetailId)
+        //======= Delete Messages Permanently ==============////
+        public async Task<bool> DeleteReadMessageDetailByRecipientIdAsync(string recipientId)
         {
             int rows = 0;
             var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
             StringBuilder sb = new StringBuilder();
-            sb.Append("UPDATE public.gst_msgrs SET is_del = true, time_del = @time_del  WHERE (msg_rcpt_id=@msg_rcpt_id)");
-            string query = sb.ToString();
-            try
-            {
-                await conn.OpenAsync();
-                //Insert data
-                using (var cmd = new NpgsqlCommand(query, conn))
-                {
-                    var msg_rcpt_id = cmd.Parameters.Add("@msg_rcpt_id", NpgsqlDbType.Integer);
-                    var timeDeleted = cmd.Parameters.Add("@time_del", NpgsqlDbType.Text);
-                    cmd.Prepare();
-                    msg_rcpt_id.Value = messageDetailId;
-                    timeDeleted.Value = $"{DateTime.UtcNow.ToLongDateString()} {DateTime.UtcNow.ToLongTimeString()} GMT" ?? (object)DBNull.Value; ;
 
-                    rows = await cmd.ExecuteNonQueryAsync();
-                    await conn.CloseAsync();
-                }
-            }
-            catch (Exception ex)
-            {
-                await conn.CloseAsync();
-                throw new Exception(ex.Message);
-            }
-            return rows > 0;
-        }
-
-        public async Task<bool> UpdateMessageDeleteStatusByRecipientIdAsync(string recipientId, bool readStatus)
-        {
-            int rows = 0;
-            var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
-            StringBuilder sb = new StringBuilder();
-            sb.Append("UPDATE public.gst_msgrs SET is_del = true, time_del = @time_del ");
-            sb.Append("WHERE (rcpt_id = @rcpt_id) AND (is_rd = @is_rd);");
+            sb.Append("DELETE FROM public.gst_msgrs ");
+            sb.Append("WHERE (rcpt_id = @rcpt_id) AND (is_rd = true);");
+   
             string query = sb.ToString();
             try
             {
@@ -485,27 +459,87 @@ namespace IntranetPortal.Data.Repositories.BaseRepositories
                 using (var cmd = new NpgsqlCommand(query, conn))
                 {
                     var rcpt_id = cmd.Parameters.Add("@rcpt_id", NpgsqlDbType.Text);
-                    var is_rd = cmd.Parameters.Add("@is_rd", NpgsqlDbType.Boolean);
-                    var timeDeleted = cmd.Parameters.Add("@time_del", NpgsqlDbType.Text);
                     cmd.Prepare();
                     rcpt_id.Value = recipientId;
-                    is_rd.Value = readStatus;
-                    timeDeleted.Value = $"{DateTime.UtcNow.ToLongDateString()} {DateTime.UtcNow.ToLongTimeString()} GMT" ?? (object)DBNull.Value; ;
-
                     rows = await cmd.ExecuteNonQueryAsync();
-                    await conn.CloseAsync();
                 }
             }
             catch (Exception ex)
             {
-                await conn.CloseAsync();
                 throw new Exception(ex.Message);
+            }
+            finally { await conn.CloseAsync();}
+
+            return rows > 0;
+        }
+
+        public async Task<bool> DeleteMessageDetailByMessageDetailIdAsync(int messageDetailId)
+        {
+            int rows = 0;
+            var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
+            StringBuilder sb = new StringBuilder();
+            sb.Append("DELETE FROM public.gst_msgrs ");
+            sb.Append("WHERE (msg_rcpt_id = @msg_rcpt_id)");
+            string query = sb.ToString();
+            try
+            {
+                await conn.OpenAsync();
+                //Insert data
+                using (var cmd = new NpgsqlCommand(query, conn))
+                {
+                    var msg_rcpt_id = cmd.Parameters.Add("@msg_rcpt_id", NpgsqlDbType.Integer);
+                    cmd.Prepare();
+                    msg_rcpt_id.Value = messageDetailId;
+
+                    rows = await cmd.ExecuteNonQueryAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            finally
+            {
+                await conn.CloseAsync();
             }
             return rows > 0;
         }
+
+        public async Task<bool> DeleteMessageByMessageIdAsync(string messageId)
+        {
+            int rows = 0;
+            var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
+            StringBuilder sb = new StringBuilder();
+            sb.Append("DELETE FROM public.gst_msgs ");
+            sb.Append("WHERE (msg_id = @msg_id);");
+            string query = sb.ToString();
+            try
+            {
+                await conn.OpenAsync();
+                //Insert data
+                using (var cmd = new NpgsqlCommand(query, conn))
+                {
+                    var msg_id = cmd.Parameters.Add("@msg_id", NpgsqlDbType.Text);
+                    cmd.Prepare();
+                    msg_id.Value = messageId;
+                    rows = await cmd.ExecuteNonQueryAsync();
+                }
+            }
+            catch (Exception)
+            {
+                rows = 1;
+            }
+            finally
+            {
+                await conn.CloseAsync();
+            }
+            return rows > 0;
+        }
+
+
         #endregion
 
-        //=============== Activity History Action methods ======================================//
+        //=============== Activity History Action methods ====================//
         #region Activity History Action Methods
         public async Task<bool> InsertActivityHistoryAsync(ActivityHistory activityHistory)
         {
@@ -550,7 +584,7 @@ namespace IntranetPortal.Data.Repositories.BaseRepositories
         }
         #endregion
 
-        //=============== Entity Activity History Action methods ======================================//
+        //=============== Entity Activity History Action methods =============//
         #region Entity Activity History Action Methods
         public async Task<bool> InsertTaskItemActivityHistoryAsync(TaskItemActivityHistory taskItemActivityHistory)
         {
@@ -650,7 +684,7 @@ namespace IntranetPortal.Data.Repositories.BaseRepositories
 
         #endregion
 
-        //=============== Applications Action Methods ==========================================//
+        //=============== Applications Action Methods ========================//
         #region Applications Action Methods
         public async Task<List<SystemApplication>> GetApplicationsAsync()
         {
@@ -688,7 +722,7 @@ namespace IntranetPortal.Data.Repositories.BaseRepositories
         }
         #endregion
 
-        //=============== Industry Types Action Methods ==========================================//
+        //=============== Industry Types Action Methods =======================//
         #region Industry Types Action Methods
         public async Task<List<IndustryType>> GetIndustryTypesAsync()
         {

@@ -16,6 +16,7 @@ namespace IntranetPortal.Base.Repositories.PmsRepositories
         Task<List<ReviewSubmission>> GetByReviewerIdAsync(string reviewerId);
         Task<List<ReviewSubmission>> GetByReviewHeaderIdAndSubmissionPurposeIdAsync(int reviewHeaderId, int submissionPurposeId);
         Task<List<ReviewSubmission>> GetByReviewHeaderIdAndSubmissionPurposeIdAsync(int reviewHeaderId, int submissionPurposeId, string appraiserId);
+        Task<List<ReviewSubmission>> GetByReviewHeaderIdAndSubmissionPurposeIdAsync(int reviewHeaderId, int submissionPurposeId, string appraiserId, int? appraiserRoleId = null);
         Task<List<ReviewSubmission>> GetByReviewHeaderIdAsync(int reviewHeaderId);
         Task<bool> UpdateAsync(int reviewSubmissionId);
         Task<bool> UpdateAsync(int reviewHeaderId, string toEmployeeId, int submissionPurposeId);

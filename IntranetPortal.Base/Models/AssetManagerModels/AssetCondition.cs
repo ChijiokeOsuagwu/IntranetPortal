@@ -7,5 +7,7 @@ public enum AssetCondition
     [Display(Name="Requires Repairs")]
     RequiresRepair,
     [Display(Name="Faulty Beyond Repair")]
-    BeyondRepair
+    BeyondRepair,
+    [Display(Name = "End of Life")]
+    EndOfLife
 }

@@ -15,14 +15,14 @@ namespace IntranetPortal.Areas.PMS.Models
         public string AppraiseeID { get; set; }
         public string RecommenderID { get; set; }
 
-        [Display(Name = "Recommended By:")]
+        [Display(Name = "Name:")]
         public string RecommenderName { get; set; }
 
         [Required]
-        [Display(Name = "Recommended As:")]
+        [Display(Name = "Recommended By:")]
         public string RecommenderRole { get; set; }
 
-        [Display(Name = "Recommended As:")]
+        [Display(Name = "Recommended By:")]
         public string RecommenderRoleDescription { get; set; }
 
         [Required]

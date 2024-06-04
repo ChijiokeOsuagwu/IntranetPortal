@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace IntranetPortal.Helpers
@@ -130,6 +131,154 @@ namespace IntranetPortal.Helpers
                 viewResult.View.RenderAsync(viewContext);
                 return sw.GetStringBuilder().ToString();
             }
+        }
+
+        
+        //================ Final Evaluation Notification Contents ======================//
+        public static string GetPerformanceContractApprovalEmailHtmlContent(string RecipientName, string AppraiseeName)
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append("<html><head></head>");
+            sb.Append("<body style='font-family:sans-serif; font-size:1.2rem;'>");
+            sb.Append($"<div>Dear {RecipientName},</div>");
+            sb.Append("<p>I trust this email finds you well.</p>");
+            sb.Append("<p>A performance appraisal record has just been submitted to you. ");
+            sb.Append($"It was submitted by <strong>{AppraiseeName}</strong>, on ");
+            sb.Append($"{DateTime.Now.ToLongDateString()} at exactly ");
+            sb.Append($"{DateTime.Now.ToLongTimeString()} WAT, for the review and approval ");
+            sb.Append("of their Goals and Key Performance Accountabilities (KPAs). ");
+            sb.Append("Kindly log in to Channels OfficeManager to action this request. </p>");
+            sb.Append("<p>Thank you.</p><div>Regards</div>");
+            sb.AppendLine("<div><strong>Channels OfficeManager</strong></div><br/>");
+            sb.Append("<div><em>[This is an auto-generated email. <strong>Please do not reply.</strong>]</em></div>");
+            sb.Append("</body></html>");
+
+            return sb.ToString();
+        }
+
+        public static string GetPerformanceContractApprovalEmailPlainContent(string RecipientName, string AppraiseeName)
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine($"Dear {RecipientName},");
+            sb.AppendLine("I trust this email meets you well.");
+            sb.Append("A performance appraisal record has just been submitted to you. ");
+            sb.Append($"It was submitted by {AppraiseeName}, on ");
+            sb.Append($"{DateTime.Now.ToLongDateString()} at exactly ");
+            sb.Append($"{DateTime.Now.ToLongTimeString()} WAT, for the review and approval ");
+            sb.Append("of their Goals and Key Performance Accountabilities (KPAs). ");
+            sb.AppendLine("Kindly log in to Channels OfficeManager to action this request. ");
+            sb.AppendLine("Thank you.");
+            sb.AppendLine("Regards");
+            sb.AppendLine("OfficeManager");
+            sb.AppendLine(" ");
+            sb.Append("[This is an auto-generated email. Please do not reply.]");
+
+            return sb.ToString();
+        }
+
+        public static string GetPerformanceContractApprovalMessageContent(string RecipientName, string AppraiseeName)
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append("A performance appraisal record has just been submitted to you. ");
+            sb.Append($"It was submitted by {AppraiseeName}, on ");
+            sb.Append($"{DateTime.Now.ToLongDateString()} at exactly ");
+            sb.Append($"{DateTime.Now.ToLongTimeString()} WAT, for the review and approval ");
+            sb.Append("of their Goals and Key Performance Accountabilities (KPAs). ");
+
+            return sb.ToString();
+        }
+        
+        //================ Final Evaluation Notification Contents ======================//
+        public static string GetRequestForFinalEvaluationEmailHtmlContent(string RecipientName, string AppraiseeName)
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append("<html><head></head>");
+            sb.Append("<body style='font-family:sans-serif; font-size:1.2rem;'>");
+            sb.Append($"<div>Dear {RecipientName},</div>");
+            sb.Append("<p>I trust this email finds you well.</p>");
+            sb.Append($"<p><strong>{AppraiseeName}</strong> has just submitted a performance appraisal record to you for Final Evaluation. ");
+            sb.Append($"It was submitted on {DateTime.Now.ToLongDateString()} at exactly ");
+            sb.Append($"{DateTime.Now.ToLongTimeString()} WAT. Kindly log in to Channels OfficeManager to action this request.</p> ");
+            sb.Append("<p>Thank you.</p><div>Regards</div>");
+            sb.AppendLine("<div><strong>Channels OfficeManager</strong></div><br/>");
+            sb.Append("<div><em>[This is an auto-generated email. <strong>Please do not reply.</strong>]</em></div>");
+            sb.Append("</body></html>");
+
+            return sb.ToString();
+        }
+
+        public static string GetRequestForFinalEvaluationEmailPlainContent(string RecipientName, string AppraiseeName)
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine($"Dear {RecipientName},");
+            sb.AppendLine("I trust this email meets you well.");
+            sb.Append($"{AppraiseeName} has just submitted a performance appraisal record to you for Final Evaluation. ");
+            sb.Append($"It was submitted on {DateTime.Now.ToLongDateString()} at exactly ");
+            sb.AppendLine($"{DateTime.Now.ToLongTimeString()} WAT. Kindly log in to Channels OfficeManager to action this request. ");
+            sb.AppendLine("Thank you.");
+            sb.AppendLine("Regards");
+            sb.AppendLine("OfficeManager");
+            sb.AppendLine(" ");
+            sb.Append("[This is an auto-generated email. Please do not reply.]");
+
+            return sb.ToString();
+        }
+
+        public static string GetRequestForFinalEvaluationMessageContent(string RecipientName, string AppraiseeName)
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append($"{AppraiseeName} has just submitted a performance appraisal record to you for Final Evaluation. ");
+            sb.Append($"It was submitted on {DateTime.Now.ToLongDateString()} at exactly ");
+            sb.AppendLine($"{DateTime.Now.ToLongTimeString()} WAT.");
+
+            return sb.ToString();
+        }
+
+
+        //================ Evaluation Result Approval Notification Contents ======================//
+        public static string GetRequestForEvaluationResultApprovalEmailHtmlContent(string RecipientName, string AppraiseeName)
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append("<html><head></head>");
+            sb.Append("<body style='font-family:sans-serif; font-size:1.2rem;'>");
+            sb.Append($"<div>Dear {RecipientName},</div>");
+            sb.Append("<p>I trust this email finds you well.</p>");
+            sb.Append($"<p>Please this request is for the approval of the Final Evaluation Result for <strong>{AppraiseeName}</strong>. ");
+            sb.Append($"It was submitted to you on {DateTime.Now.ToLongDateString()} at exactly ");
+            sb.Append($"{DateTime.Now.ToLongTimeString()} WAT. Kindly log in to Channels OfficeManager to action this request.</p> ");
+            sb.Append("<p>Thank you.</p><div>Regards</div>");
+            sb.AppendLine("<div><strong>Channels OfficeManager</strong></div><br/>");
+            sb.Append("<div><em>[This is an auto-generated email. <strong>Please do not reply.</strong>]</em></div>");
+            sb.Append("</body></html>");
+
+            return sb.ToString();
+        }
+
+        public static string GetRequestForEvaluationResultApprovalEmailPlainContent(string RecipientName, string AppraiseeName)
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine($"Dear {RecipientName},");
+            sb.AppendLine("I trust this email meets you well.");
+            sb.Append($"Please this request is for the approval of the Final Evaluation Result for {AppraiseeName}. ");
+            sb.Append($"It was submitted to you on {DateTime.Now.ToLongDateString()} at exactly ");
+            sb.AppendLine($"{DateTime.Now.ToLongTimeString()} WAT. Kindly log in to Channels OfficeManager to action this request.");
+            sb.AppendLine("Thank you.");
+            sb.AppendLine("Regards");
+            sb.AppendLine("OfficeManager");
+            sb.AppendLine(" ");
+            sb.Append("[This is an auto-generated email. Please do not reply.]");
+
+            return sb.ToString();
+        }
+
+        public static string GetRequestForEvaluationResultApprovalMessageContent(string RecipientName, string AppraiseeName)
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append($"Please this request is for the approval of the Final Evaluation Result for {AppraiseeName}. ");
+            sb.Append($"It was submitted to you on {DateTime.Now.ToLongDateString()} at exactly ");
+            sb.AppendLine($"{DateTime.Now.ToLongTimeString()} WAT.");
+
+            return sb.ToString();
         }
 
     }

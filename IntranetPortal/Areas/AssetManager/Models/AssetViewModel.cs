@@ -22,6 +22,10 @@ namespace IntranetPortal.Areas.AssetManager.Models
         [MaxLength(50, ErrorMessage = "Name must not exceed 50 characters.")]
         public string AssetNumber { get; set; }
 
+        [Display(Name = "Custom Field")]
+        [MaxLength(250, ErrorMessage = "Custom No. must not exceed 250 characters.")]
+        public string CustomField { get; set; }
+
         [Display(Name = "Asset Description")]
         [MaxLength(250, ErrorMessage = "Name must not exceed 250 characters.")]
         public string AssetDescription { get; set; }
@@ -132,6 +136,7 @@ namespace IntranetPortal.Areas.AssetManager.Models
                 AssetNumber = AssetNumber,
                 AssetTypeID = AssetTypeID,
                 AssetTypeName = AssetTypeName,
+                CustomField = CustomField,
                 ParentAssetID = ParentAssetID,
                 BaseLocationID = BaseLocationID,
                 BaseLocationName = BaseLocationName,

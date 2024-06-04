@@ -9,6 +9,7 @@ namespace IntranetPortal.Base.Models.AssetManagerModels
         public string AssetID { get; set; }
         public string AssetName { get; set; }
         public string AssetNumber { get; set; }
+        public string CustomField { get; set; }
         public string AssetDescription { get; set; }
         public int AssetTypeID { get; set; }
         public string AssetTypeName { get; set; }

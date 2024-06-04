@@ -4,10 +4,10 @@
     <h4 class="mb-1">Appraisal Enquiry</h4>
     <hr />
     <div class="row">
-        <form asp-controller="PMS" asp-action="AppraisalEnquiry" method="get">
+        <form asp-area="PMS" asp-controller="Home" asp-action="AppraisalEnquiry" method="get">
             <div class="row">
                 <div class="col-md-1 mb-2 text-start">
-                    <a asp-area="PMS" asp-controller="Process" asp-action="Appraisals" title="Go Back" class="btn btn-sm btn-outline-light text-dark">
+                    <a asp-area="PMS" asp-controller="Home" asp-action="Index" title="Go Back" class="btn btn-sm btn-outline-light text-dark">
                         <i class="bi bi-backspace fw-bolder" style="font-size: 1.0rem;"></i>&nbsp;<span class="fw-bold ml-1" style="font-size: 0.9rem;">Back</span>
                     </a>
                 </div>
@@ -35,7 +35,6 @@
             </div>
         </form>
     </div>
-
     @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
     {<div class="row">
             <div class="alert alert-danger alert-dismissible fade show" role="alert">
@@ -104,7 +103,7 @@
                                                         </a>
                                                     </li>
                                                     <li>
-                                                        <a asp-area="PMS" asp-controller="Process" asp-action="ShowSelectedResult" asp-route-id="@item.ReviewHeaderId" title="View Evaluation Result" class="dropdown-item">
+                                                        <a asp-area="PMS" asp-controller="Process" asp-action="ShowSelectedResult" asp-route-id="@item.ReviewHeaderId" asp-route-ad="@item.AppraiserId" title="View Evaluation Result" class="dropdown-item">
                                                             <span class="text-white fw-bold">View Evaluations</span>
                                                         </a>
                                                     </li>
@@ -124,6 +123,5 @@
 @section Scripts{
     <script src="~/js/pms.js"></script>
 }
-
 
 

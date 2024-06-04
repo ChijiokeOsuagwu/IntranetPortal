@@ -58,7 +58,7 @@ namespace IntranetPortal.Base.Models.PmsModels
         public string ManagementName { get; set; }
         public string ManagementDecision { get; set; }
         public bool IsFlagged { get; set; }
-        public string FlaggedBy { get; set; }
+        public string FlaggedReason { get; set; }
         public DateTime? FlaggedTime { get; set; }
         public string PerformanceGoal { get; set; }
     }
