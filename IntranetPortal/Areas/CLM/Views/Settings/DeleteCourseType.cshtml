@@ -1,0 +1,58 @@
+﻿
+@model IntranetPortal.Areas.CLM.Models.CourseTypeViewModel
+<h3 class="mb-1">Course Type Settings</h3>
+<hr />
+<div class="card mt-1" style="max-width:1000px">
+        <div class="card-header bg-danger">
+            <h4 class="text-white">Delete Course Type</h4>
+        </div>
+    <div class="card-body bg-secondary">
+        @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-x-circle"></i>
+                <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (!String.IsNullOrEmpty(Model.ViewModelSuccessMessage))
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="bi bi-check-circle"></i>
+                <span class="fw-bold">@Model.ViewModelSuccessMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (!String.IsNullOrEmpty(Model.ViewModelWarningMessage))
+        {
+            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                <i class="bi bi-exclamation-circle"></i>
+                <span class="fw-bold">@Model.ViewModelWarningMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        <form asp-area="CLM" asp-controller="Settings" asp-action="DeleteCourseType" method="post" autocomplete="off">
+            <div class="row">
+                <div class="col-md-12 mb-3">
+                    <input type="hidden" asp-for="CourseTypeId" />
+                    <label asp-for="CourseTypeDescription" class="form-label text-white fw-bold"></label>
+                    <div class="form-control fw-bold">@Model.CourseTypeDescription</div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <a asp-area="CLM" asp-controller="Settings" asp-action="CourseTypes" class="btn btn-dark" style="width:100px" title="Exit">
+                        <span class="text-white">Back</span>
+                    </a>
+
+                    @if (!Model.OperationIsSuccessful)
+                    {
+                       <button type="submit" class="btn btn-danger" title="Delete Permanently" style="width:200px"><span class="text-white">Delete Permanently</span></button>
+                    }
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+

@@ -103,7 +103,7 @@ namespace IntranetPortal.Controllers
 
             try
             {
-                string UserName = model.Login;
+                string UserName = model.Login.Trim();
                 //string PasswordHash = _securityService.CreatePasswordHash(model.Password);
                 bool IsPersistent = model.RememberMe;
 
@@ -116,7 +116,7 @@ namespace IntranetPortal.Controllers
                     return View(model);
                 }
                 ApplicationUser user = users.FirstOrDefault();
-                if (user.UserName == model.Login && _securityService.ValidatePassword(model.Password, user.PasswordHash))
+                if (user.UserName == UserName && _securityService.ValidatePassword(model.Password, user.PasswordHash))
                 {
                     var claims = new List<Claim>();
                     if (!string.IsNullOrEmpty(user.FullName)) { claims.Add(new Claim(ClaimTypes.Name, user.FullName)); }

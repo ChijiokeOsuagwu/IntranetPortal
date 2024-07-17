@@ -1,0 +1,27 @@
+﻿@model IntranetPortal.Areas.CLM.Models.VideoContentViewModel
+    <div class="container">
+        <button onclick="history.back();" title="Go Back" class="btn btn-sm btn-outline-light text-dark mr-2">
+            <i class="bi bi-backspace fw-bolder" style="font-size: 1.0rem;"></i><span class="fw-bold ml-1" style="font-size: 0.9rem;">Back</span>
+        </button>|
+        <span class="mb-1 text-dark fw-bold" style="font-size:1.0rem">@Model.ContentTitle</span>
+        <hr />
+
+        @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+        {
+            <div class="row">
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bi bi-x-circle"></i>
+                    <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            </div>
+        }
+        <div class="row">
+            <video id="VideoPlayer" src="@Url.Content(Model.ContentUrl)" controls
+                   width="800" height="450" autoplay />
+        </div>
+    </div>
+@section Scripts{
+
+}
+

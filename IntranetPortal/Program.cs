@@ -20,7 +20,12 @@ namespace IntranetPortal
             Host.CreateDefaultBuilder(args)
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
-                    webBuilder.UseStartup<Startup>();
+                    webBuilder.ConfigureKestrel((context, options) =>
+                    {
+                        // Handle requests up to 50 MB
+                        options.Limits.MaxRequestBodySize = 268435456;
+                    })
+                    .UseStartup<Startup>();
                 });
     }
 }

@@ -21,6 +21,7 @@
   <ItemGroup>
     <Folder Include="Areas\AssetManager\Data\" />
     <Folder Include="Areas\BAMS\Data\" />
+    <Folder Include="Areas\CLM\Data\" />
     <Folder Include="Areas\ContentManager\Data\" />
     <Folder Include="Areas\ERM\Data\" />
     <Folder Include="Areas\GlobalSettings\Data\" />
@@ -30,6 +31,9 @@
     <Folder Include="Areas\WKS\Data\" />
     <Folder Include="Areas\WKS\Views\Shared\" />
     <Folder Include="wwwroot\uploads\asm\" />
+    <Folder Include="wwwroot\uploads\clm\imgs\" />
+    <Folder Include="wwwroot\uploads\clm\docs\" />
+    <Folder Include="wwwroot\uploads\clm\vids\" />
     <Folder Include="wwwroot\uploads\erm\" />
   </ItemGroup>
   <ItemGroup>

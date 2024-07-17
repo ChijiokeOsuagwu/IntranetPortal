@@ -21,15 +21,12 @@ namespace IntranetPortal.Areas.ContentManager.Controllers
     public class BannersController : Controller
     {
         private readonly IWebHostEnvironment _webHostEnvironment;
-        private readonly IConfiguration _configuration;
         private readonly IContentManagerService _contentManager;
         private readonly IDataProtector _dataProtector;
-        public BannersController(IWebHostEnvironment webHostingEnvironment, IConfiguration configuration, 
-                                    IContentManagerService contentManager, IDataProtectionProvider dataProtectionProvider,
-                                    DataProtectionEncryptionStrings dataProtectionEncryptionStrings)
+        public BannersController(IWebHostEnvironment webHostingEnvironment, IContentManagerService contentManager,
+            IDataProtectionProvider dataProtectionProvider, DataProtectionEncryptionStrings dataProtectionEncryptionStrings)
         {
             _webHostEnvironment = webHostingEnvironment;
-            _configuration = configuration;
             _contentManager = contentManager;
             _dataProtector = dataProtectionProvider.CreateProtector(dataProtectionEncryptionStrings.RouteValuesEncryptionCode);
         }
@@ -42,7 +39,7 @@ namespace IntranetPortal.Areas.ContentManager.Controllers
             {
                 model.ViewModelSuccessMessage = TempData["DeleteSuccessMessage"].ToString();
             }
-           
+
             var result = await _contentManager.GetAllBannersAsync();
             model.Banners = result.ToList();
             foreach (var banner in model.Banners)
@@ -77,12 +74,22 @@ namespace IntranetPortal.Areas.ContentManager.Controllers
                     }
                     string uploadsFolder = "uploads/cms/" + Guid.NewGuid().ToString() + "_" + model.BannerImage.FileName;
                     string absoluteFilePath = Path.Combine(_webHostEnvironment.WebRootPath, uploadsFolder);
-                    await model.BannerImage.CopyToAsync(new FileStream(absoluteFilePath, FileMode.Create));
+
+                    //using var fileStream = new FileStream(absoluteFilePath, FileMode.Create);
+                    //await model.BannerImage.CopyToAsync(fileStream);
+
+                    using (var fileStream = new FileStream(absoluteFilePath, FileMode.Create))
+                    {
+                        await model.BannerImage.CopyToAsync(fileStream);
+                    }
+
+                    //await model.BannerImage.CopyToAsync(new FileStream(absoluteFilePath, FileMode.Create));
 
                     Post post = new Post
                     {
                         PostTitle = model.Title,
                         ImagePath = uploadsFolder,
+                        ImageFullPath = absoluteFilePath,
                         EnableComment = model.EnableComments,
                         IsHidden = model.IsHidden,
                         PostSummary = model.Summary,
@@ -133,21 +140,22 @@ namespace IntranetPortal.Areas.ContentManager.Controllers
                 model.ViewModelErrorMessage = $"Error! Sorry, an error was encountered. New banner could not be deleted.";
                 return View(model);
             }
-            int PostId = model.Id;
-            string filePath = string.Empty;
-            if (!string.IsNullOrEmpty(model.ImagePath))
+
+            Post post = await _contentManager.GetPostByIdAsync(model.Id);
+            if (post != null && !string.IsNullOrWhiteSpace(post.ImageFullPath))
             {
-                filePath = Path.Combine(_webHostEnvironment.WebRootPath, model.ImagePath);
+                FileInfo file = new FileInfo(post.ImageFullPath);
+
+                if (file.Exists)
+                {
+                    file.Delete();
+                }
             }
-            FileInfo file = new FileInfo(filePath);
-            if (file.Exists)
-            {
-                file.Delete();
-            }
-            var result = await _contentManager.DeletePostAsync(PostId);
+
+            var result = await _contentManager.DeletePostAsync(model.Id);
             if (!result)
             {
-                model.ViewModelErrorMessage = $"Error! Sorry, an error was encountered. New banner could not be deleted.";
+                model.ViewModelErrorMessage = $"Error! Sorry, an error was encountered. Banner could not be deleted.";
                 return View(model);
             }
             TempData["DeleteSuccessMessage"] = "The Banner was successfully deleted!";
@@ -178,9 +186,15 @@ namespace IntranetPortal.Areas.ContentManager.Controllers
         {
             if (ModelState.IsValid)
             {
-                Post post = new Post();
-                string absoluteFilePath = string.Empty;
-                string uploadedFilePath = model.OldImagePath;
+                string newAbsoluteFilePath = string.Empty;
+                string newUploadFolderPath = string.Empty;
+                string oldAbsoluteFilePath = string.Empty;
+
+                Post post = await _contentManager.GetPostByIdAsync(model.Id);
+                if (post != null && !string.IsNullOrWhiteSpace(post.ImageFullPath))
+                {
+                    oldAbsoluteFilePath = post.ImageFullPath;
+                }
 
                 if (model.BannerImage != null)
                 {
@@ -192,11 +206,15 @@ namespace IntranetPortal.Areas.ContentManager.Controllers
                         model.ViewModelErrorMessage = "Sorry, invalid image format. Only images of type jpg, jpeg, png, gif are permitted.";
                         return View(model);
                     }
-                    uploadedFilePath = "uploads/cms/" + Guid.NewGuid().ToString() + "_" + model.BannerImage.FileName;
-                    absoluteFilePath = Path.Combine(_webHostEnvironment.WebRootPath, uploadedFilePath);
-                    await model.BannerImage.CopyToAsync(new FileStream(absoluteFilePath, FileMode.Create));
+                    newUploadFolderPath = "uploads/cms/" + Guid.NewGuid().ToString() + "_" + model.BannerImage.FileName;
+                    newAbsoluteFilePath = Path.Combine(_webHostEnvironment.WebRootPath, newUploadFolderPath);
 
-                    FileInfo oldFile = new FileInfo(Path.Combine(_webHostEnvironment.WebRootPath, model.OldImagePath));
+                    using (var fileStream = new FileStream(newAbsoluteFilePath, FileMode.Create))
+                    {
+                        await model.BannerImage.CopyToAsync(fileStream);
+                    }
+
+                    FileInfo oldFile = new FileInfo(oldAbsoluteFilePath);
                     if (oldFile.Exists)
                     {
                         oldFile.Delete();
@@ -210,7 +228,8 @@ namespace IntranetPortal.Areas.ContentManager.Controllers
                 post.ModifiedDate = DateTime.UtcNow;
                 post.ModifiedBy = HttpContext.User.Identity.Name ?? "Unknown";
                 post.PostTitle = model.Title;
-                post.ImagePath = uploadedFilePath;
+                post.ImagePath = newUploadFolderPath;
+                post.ImageFullPath = newAbsoluteFilePath;
                 post.EnableComment = model.EnableComments;
 
                 if (await _contentManager.UpdatePostAsync(post))
@@ -219,7 +238,7 @@ namespace IntranetPortal.Areas.ContentManager.Controllers
                 }
                 else
                 {
-                    FileInfo file = new FileInfo(absoluteFilePath);
+                    FileInfo file = new FileInfo(newAbsoluteFilePath);
                     if (file.Exists)
                     {
                         file.Delete();
@@ -229,6 +248,5 @@ namespace IntranetPortal.Areas.ContentManager.Controllers
             }
             return View(model);
         }
-
     }
 }

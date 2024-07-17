@@ -1,0 +1,94 @@
+﻿@model IntranetPortal.Areas.CLM.Models.CourseViewModel
+<h4 class="fw-bold">Channels Learning Management Settings</h4>
+<hr />
+<div class="card mt-3">
+    <div class="card-header bg-dark">
+        <h4 class="text-white fw-bold">Course Details</h4>
+    </div>
+    <div class="card-body bg-secondary">
+        @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-x-circle"></i>
+                <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (!String.IsNullOrEmpty(Model.ViewModelSuccessMessage))
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="bi bi-check-circle"></i>
+                <span class="fw-bold">@Model.ViewModelSuccessMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (!String.IsNullOrEmpty(Model.ViewModelWarningMessage))
+        {
+            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                <i class="bi bi-exclamation-circle"></i>
+                <span class="fw-bold">@Model.ViewModelWarningMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        <div class="row">
+            <div class="row">
+                <div class="col-md-4 mb-2">
+                    <input type="hidden" asp-for="CourseId" />
+                    <input type="hidden" asp-for="CourseTypeId" />
+                    <input type="hidden" asp-for="CourseLevelId" />
+                    <input type="hidden" asp-for="SubjectAreaId" />
+                    <label asp-for="CourseTypeDescription" class="form-label text-white fw-bold"></label>
+                    <div class="form-control fw-bold">@Model.CourseTypeDescription</div>
+                </div>
+                <div class="col-md-5 mb-2">
+                    <label asp-for="SubjectAreaDescription" class="form-label text-white fw-bold"></label>
+                    <div class="form-control fw-bold">@Model.SubjectAreaDescription</div>
+                </div>
+                <div class="col-md-3 mb-2">
+                    <label asp-for="CourseLevelDescription" class="form-label text-white fw-bold"></label>
+                    <div class="form-control fw-bold">@Model.CourseLevelDescription</div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-8 mb-2">
+                    <label asp-for="CourseTitle" class="form-label text-white fw-bold"></label>
+                    <div class="form-control fw-bold">@Model.CourseTitle</div>
+                </div>
+                <div class="col-md-4 mb-2">
+                    <label asp-for="RecommendedAudience" class="form-label text-white fw-bold"></label>
+                    <div class="form-control fw-bold">@Model.RecommendedAudience</div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12 mb-2">
+                    <label asp-for="CourseOverview" class="form-label text-white fw-bold"></label>
+                    <textarea class="form-control fw-bold" rows="6" disabled>@Model.CourseOverview</textarea>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-5 mb-3">
+                    <label asp-for="CreditTo" class="form-label text-white fw-bold"></label>
+                    <div class="form-control fw-bold">@Model.CreditTo</div>
+                </div>
+                <div class="col-md-5 mb-3">
+                    <label asp-for="CourseSource" class="form-label text-white fw-bold"></label>
+                    <div class="form-control fw-bold">@Model.CourseSource</div>
+                </div>
+                <div class="col-md-2 mb-3">
+                    <label asp-for="DurationInHours" class="form-label text-white fw-bold"></label>
+                    <div class="form-control fw-bold">@Model.DurationInHours</div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6 mt-2">
+                    <input asp-for="@Model.RequiresEnrollment" style="width:15px; height:15px;" disabled />
+                    <span class="text-white fw-bold ml-2" style="font-size:15px">Requires Enrollment</span>
+                </div>
+                <div class="col-md-6 text-end">
+                    <button class="btn btn-dark" title="Go Back" style="width:200px" onclick="history.back()"><span class="text-white fw-bold">Back</span></button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

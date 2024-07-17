@@ -1,0 +1,68 @@
+﻿@attribute [RequestSizeLimitAttribute(268435456)]
+@model IntranetPortal.Areas.CLM.Models.UploadContentViewModel
+<h4 class="fw-bold">Channels Learning Management Settings</h4>
+<hr />
+<div class="card mt-3" style="max-width:600px">
+    <div class="card-header bg-primary">
+        <h4 class="text-white fw-bold">Upload Content</h4>
+    </div>
+    <div class="card-body bg-secondary">
+        @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-x-circle"></i>
+                <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (!String.IsNullOrEmpty(Model.ViewModelSuccessMessage))
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="bi bi-check-circle"></i>
+                <span class="fw-bold">@Model.ViewModelSuccessMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (!String.IsNullOrEmpty(Model.ViewModelWarningMessage))
+        {
+            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                <i class="bi bi-exclamation-circle"></i>
+                <span class="fw-bold">@Model.ViewModelWarningMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        <form asp-area="CLM" asp-controller="Settings" asp-action="UploadCourseContent" method="post" enctype="multipart/form-data" autocomplete="off">
+            <div class="row">
+                <input type="hidden" asp-for="CourseID" />
+                <input type="hidden" asp-for="CourseContentID" />
+                <input type="hidden" asp-for="FormatID" />
+                <input type="hidden" asp-for="OldContentUrl" />
+                <div class="col-md-12 mb-3">
+                    <label asp-for="ContentFile" class="form-label text-white fw-bold"></label>
+                    <input type="file" asp-for="ContentFile" class="form-control fw-bold">
+                    <div><span asp-validation-for="ContentFile" class="text-danger"></span></div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-12 text-end">
+                    <a asp-area="CLM" asp-controller="Settings" asp-action="CourseContents" asp-route-id="@Model.CourseID" class="btn btn-dark" style="width:100px" title="Exit">
+                        <span class="text-white fw-bold">Back</span>
+                    </a>
+                    <button type="submit" class="btn btn-primary" title="Save" style="width:200px" onclick="displayProcessingImage()"><span class="text-white fw-bold">Upload</span></button>
+                </div>
+            </div>
+            <partial name="_LoadingPartial" />
+        </form>
+    </div>
+</div>
+@section Scripts{
+    <script>
+        function displayProcessingImage() {
+            if (document.getElementById("ContentFile").value != "") {
+                document.getElementById("loading").style.display = "block";
+            }
+        }
+    </script>
+}
+

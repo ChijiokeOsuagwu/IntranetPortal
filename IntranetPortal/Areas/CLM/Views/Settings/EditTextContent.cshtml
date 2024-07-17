@@ -1,0 +1,53 @@
+﻿@model IntranetPortal.Areas.CLM.Models.EditTextContentViewModel
+    <div class="container">
+        <h4 class="mb-1">Course Contents Settings</h4>
+        <hr />
+        @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+        {
+            <div class="row">
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bi bi-x-circle"></i>
+                    <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            </div>
+        }
+
+        @if (!String.IsNullOrEmpty(Model.ViewModelSuccessMessage))
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="bi bi-check-circle"></i>
+                <span class="fw-bold">@Model.ViewModelSuccessMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        <div class="row">
+            <form asp-area="CLM" asp-controller="Settings" asp-action="EditTextContent" method="post">
+                <div class="row text-center">
+                    <input type="hidden" asp-for="CourseID" />
+                    <input type="hidden" asp-for="CourseContentID" />
+                    <div class="fw-bold" style="font-size:1.3rem">@Model.ContentHeading</div>
+                    <div class="fw-bold" style="font-size:1.0rem">@Model.ContentTitle</div>
+                </div>
+                <div class="row">
+                    <textarea id="tiny" asp-for="RawTextContent" rows="6">@Model.RawTextContent</textarea>
+                </div>
+                <div class="row">
+                    <div class="text-end">
+                        <a asp-area="CLM" asp-controller="Settings" asp-action="CourseContents" asp-route-id="@Model.CourseID" class="btn btn-dark" style="width:100px" title="Exit">
+                            <span class="text-white fw-bold">Back</span>
+                        </a>
+                        <a asp-area="CLM" asp-controller="Settings" asp-action="EditTextContent" asp-route-id="@Model.CourseContentID" class="btn btn-warning" style="width:100px" title="Clear">
+                            <span class="text-white fw-bold">Clear</span>
+                        </a>
+                        <button type="submit" class="btn btn-primary" title="Save" style="width:200px"><span class="text-white fw-bold">Save</span></button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+@section Scripts{
+
+}
+
+

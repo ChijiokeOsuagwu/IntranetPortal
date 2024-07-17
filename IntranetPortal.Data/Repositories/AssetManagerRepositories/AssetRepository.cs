@@ -1839,7 +1839,7 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
                 ctg_id.Value = asset.AssetCategoryID;
                 dvsn_id.Value = asset.AssetDivisionID ?? (object)DBNull.Value;
                 usg_stts.Value = asset.UsageStatus;
-                asst_cndt.Value = asset.ConditionDescription;
+                asst_cndt.Value = asset.CustomField ?? (object)DBNull.Value;
                 cur_loc.Value = asset.CurrentLocation ?? (object)DBNull.Value;
                 mstr_id.Value = asset.ParentAssetID ?? (object)DBNull.Value;
                 pur_dt.Value = asset.PurchaseDate ?? (object)DBNull.Value;
@@ -1909,7 +1909,7 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
                 asst_mb.Value = asset.ModifiedBy ?? (object)DBNull.Value;
                 asst_md.Value = asset.ModifiedDate ?? (object)DBNull.Value;
                 cnd_sts.Value = (int)asset.ConditionStatus;
-                asst_cndt.Value = asset.ConditionDescription ?? (object)DBNull.Value;
+                asst_cndt.Value = asset.CustomField ?? (object)DBNull.Value;
                 bnloc_id.Value = asset.BinLocationID ?? (object)DBNull.Value;
                 clss_id.Value = asset.AssetClassID ?? (object)DBNull.Value;
                 grp_id.Value = asset.AssetGroupID ?? (object)DBNull.Value;

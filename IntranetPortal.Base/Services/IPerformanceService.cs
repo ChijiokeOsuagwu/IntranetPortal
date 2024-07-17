@@ -197,6 +197,8 @@ namespace IntranetPortal.Base.Services
         Task<List<ReviewResult>> GetInitialReviewResultAsync(int reviewHeaderId, string appraiserId, int reviewMetricId);
 
         Task<List<ReviewResult>> GetInitialReviewResultCmpsAsync(int reviewHeaderId, string appraiserId);
+
+        Task<List<ReviewResult>> GetReviewResultByAppraiserIdAndReviewHeaderIdAsync(int reviewHeaderId, string appraiserId);
         Task<List<ReviewResult>> GetReviewResultByAppraiserIdAndReviewMetricIdAsync(int reviewHeaderId, string appraiserId, int reviewMetricId);
         Task<List<ReviewResult>> GetReviewResultByAppraiserIdAndReviewMetricTypeIdAsync(int reviewHeaderId, string appraiserId, int? reviewMetricTypeId = null);
 

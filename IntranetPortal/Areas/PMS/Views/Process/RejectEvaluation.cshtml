@@ -1,4 +1,4 @@
-﻿@model IntranetPortal.Areas.PMS.Models.AcceptContractViewModel
+﻿@model IntranetPortal.Areas.PMS.Models.RejectEvaluationViewModel
 <h3>Performance Evaluation Result Disagreement</h3>
 <hr />
 <div class="card mt-1" style="max-width:1000px">
@@ -41,10 +41,10 @@
                     <input type="hidden" asp-for="ReviewYearName" />
                     <input type="hidden" asp-for="IsNotAccepted" />
 
-                    <div class="bg-white fw-bold text-dark p-2" style="        font-size: 1.0rem
-">I, <span class="fw-bolder">@Model.AppraiseeName</span> disagree with this Performance Evaluation Result for the <span>@Model.ReviewSessionName </span> for the reasons below: </div>
-                    <textarea asp-for="RejectionReason" class="form-control fw-bold" rows="6" style="font-size:1.0rem" placeholder="Enter Reason Here....">@Model.RejectionReason</textarea>
-                    <div><span validation-for="RejectionReason" class="text-danger"></span></div>
+                    <div class="bg-white fw-bold text-dark p-2" style=" font-size: 1.0rem">I, <span class="fw-bolder">@Model.AppraiseeName</span> disagree with this Performance Evaluation Result for the <span>@Model.ReviewSessionName </span> for the following reasons. </div>
+                    <label class="form-label text-white fw-bold">Reason(s):</label>
+                    <textarea asp-for="RejectionReason" class="form-control fw-bold" rows="6" style="font-size:1.0rem">@Model.RejectionReason</textarea>
+                    <div><span asp-validation-for="RejectionReason" class="text-danger"></span></div>
                 </div>
             </div>
             <div class="row">
@@ -63,23 +63,20 @@
                     <div class="form-control fw-bold text-dark">@DateTime.Now.ToLongDateString() @DateTime.Now.ToLongTimeString() </div>
                 </div>
             </div>
-            @*<div class="row">
-                <div class="col-md-12 mb-3">
-                    <input asp-for="IsNotAccepted" type="checkbox" style="width:18px;height:18px" />
-                    <span class="text-white fw-bold ml-2 fs-4 pb-3">No, I do not accept this result as a true reflection of my performance.</span>
-                </div>
-            </div>*@
-            <div class="row">
+             <div class="row">
                 <div class="col-md-12 text-end">
                     <a asp-area="PMS" asp-controller="Process" asp-action="MyAppraisalSteps" asp-route-id="@Model.ReviewSessionID" class="btn btn-dark mr-2" style="width:100px" title="Back">
                         <span class="text-white">Back</span>
                     </a>
                     @if (!Model.OperationIsSuccessful)
                     {
-                        <button type="submit" class="btn" title="Sign Off" style="width:200px; background-color:#a93226"><span class="text-white fw-bold">Sign Off</span></button>
+                        <button type="submit" class="btn" title="Sign Off" style="width:200px; background-color:#a93226"><span class="text-white fw-bold" onclick="validateRejectionReason()">Sign Off</span></button>
                     }
                 </div>
             </div>
         </form>
     </div>
 </div>
+@section Scripts{
+    
+}

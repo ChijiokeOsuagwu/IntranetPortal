@@ -1,0 +1,123 @@
+﻿@model IntranetPortal.Areas.CLM.Models.CoursesListViewModel
+<div class="container">
+    <a asp-area="CLM" asp-controller="Home" asp-action="Index" title="Go Back" class="btn btn-sm btn-outline-light text-dark mr-1">
+        <i class="bi bi-backspace fw-bold" style="font-size: 1.1rem;"></i><span class="fw-bold ml-1" style="font-size: 1.0rem;">Back</span>
+    </a><span class="fw-bold" style="font-size:1.2rem">|</span>
+    <span class="fw-bold" style="font-size:1.1rem">Search Library</span>
+    <hr />
+    <div class="row">
+     <form asp-area="CLM" asp-controller="Library" asp-action="Search" method="get">
+            <div class="row">
+                <div class="col-md-3 mb-2">
+                    <select asp-for="tp" asp-items="@ViewBag.CourseTypesList" class="form-control fw-bold">
+                        <option value="0"> Course Type </option>
+                    </select>
+                </div>
+                <div class="col-md-3 mb-2">
+                    <select asp-for="sa" asp-items="@ViewBag.SubjectAreasList" class="form-control fw-bold">
+                        <option value="0"> Subject Area </option>
+                    </select>
+                </div>
+                <div class="col-md-1 mb-2">
+                    <select asp-for="lv" asp-items="@Html.GetEnumSelectList<CourseLevel>()" class="form-control fw-bold">
+                        <option value=""> Course Level </option>
+                    </select>
+                </div>
+                <div class="col-md-4 mb-2">
+                    <input asp-for="nm" class="form-control fw-bold" placeholder="Enter Course Title" />
+                </div>
+                <div class="col-md-1 mb-2">
+                    <input type="submit" value="Search" class="btn btn-dark text-white fw-bold" />
+                </div>
+            </div>
+        </form>
+    </div>
+
+    @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+    {<div class="row">
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-x-circle"></i>
+                <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        </div>
+    }
+    <div class="row mt-3">
+        @if (Model == null || Model.CoursesList == null || Model.CoursesList.Count < 1)
+        {
+            <div class="alert alert-info fade show" role="alert">
+                <i class="bi bi-info-circle"></i>
+                <span class="fw-bold">No record was found.</span>
+            </div>
+        }
+        else
+        {
+            foreach (Course course in Model.CoursesList)
+            {
+                <!-- Column -->
+                <div class="col-md-12">
+                    <div class="card mb-3">
+                        <div class="row g-0">
+                            <div class="col-md-1">
+                                <div class="row">
+                                    <img src="~/img/books-color-128.png" alt="@course.CourseTitle" style="max-height:100px; max-width:100px">
+                                </div>
+                                <div class="row">
+                                    <div class="text-center">
+                                        <div class="btn-group dropstart">
+                                            <button type="button" class="bg-light" style="border:0px; height:15px" data-bs-toggle="dropdown" aria-expanded="false">
+                                                <span class="text-dark fw-bold"><i class="bi bi-three-dots" style="font-size:1.5rem"></i></span>
+                                            </button>
+                                            <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton2">
+                                                <li>
+                                                    <a class="dropdown-item" asp-area="CLM" asp-controller="Settings" asp-action="CourseInfo" asp-route-id="@course.CourseId" title="View Details">
+                                                        <i class="bi bi-file-text"></i>
+                                                        <span class="text-white">Details</span>
+                                                    </a>
+                                                </li>
+                                                <li><hr class="dropdown-divider"></li>
+                                                <li>
+                                                    <a asp-area="CLM" asp-controller="Library" asp-action="CourseContents" asp-route-id="@course.CourseId" title="Go to Course Contents" class="dropdown-item">
+                                                        <i class="bi bi-file-text"></i>
+                                                        <span class="text-white">Contents</span>
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <a asp-area="CLM" asp-controller="Settings" asp-action="CourseAssessments" asp-route-id="@course.CourseId" title="Go to Course Assessments" class="dropdown-item">
+                                                        <i class="bi bi-file-ruled"></i>
+                                                        <span class="text-white">Assessments</span>
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-10">
+                                <div class="card-body mt-0 pt-0">
+                                    <span class="fw-bold" style="font-size:18px">@course.CourseTitle</span>
+                                    <h4 class="card-text">@course.CourseOverview</h4>
+                                    <div class="row">
+                                        <div class="col-md-5" style="font-size:13px">
+                                            Type: <span class="fw-bold text-primary">@course.CourseTypeDescription</span>
+                                        </div>
+                                        <div class="col-md-5" style="font-size:13px">
+                                            Subject: <span class="fw-bold text-danger">@course.SubjectAreaDescription</span>
+                                        </div>
+                                        <div class="col-md-2" style="font-size:13px">
+                                            Level: <span class="fw-bold text-success">@course.CourseLevelDescription</span>
+                                        </div>
+                                    </div>
+                                    <div class="card-text text-muted text-center">Uploaded by @course.UploadedBy on @course.UploadedTime.Value.ToLongDateString()</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+    </div>
+</div>
+@section Scripts{
+
+}

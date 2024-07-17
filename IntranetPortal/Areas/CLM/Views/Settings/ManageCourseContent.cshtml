@@ -1,0 +1,122 @@
+﻿@model IntranetPortal.Areas.CLM.Models.CourseContentViewModel
+<h4 class="fw-bold">Channels Learning Management Settings</h4>
+<hr />
+<div class="card mt-3">
+    @if (Model.CourseContentId > 0)
+    {
+        <div class="card-header bg-primary">
+            <h4 class="text-white fw-bold">Edit Course Content</h4>
+        </div>
+    }
+    else
+    {
+        <div class="card-header bg-success">
+            <h4 class="text-white fw-bold">New Course Content</h4>
+        </div>
+    }
+
+    <div class="card-body bg-secondary">
+        @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-x-circle"></i>
+                <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (!String.IsNullOrEmpty(Model.ViewModelSuccessMessage))
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="bi bi-check-circle"></i>
+                <span class="fw-bold">@Model.ViewModelSuccessMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (!String.IsNullOrEmpty(Model.ViewModelWarningMessage))
+        {
+            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                <i class="bi bi-exclamation-circle"></i>
+                <span class="fw-bold">@Model.ViewModelWarningMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+    <form asp-area="CLM" asp-controller="Settings" asp-action="ManageCourseContent" method="post" autocomplete="off">
+        <div class="row">
+            <input type="hidden" asp-for="CourseId" />
+            <input type="hidden" asp-for="CourseContentId" />
+            <div class="col-md-1 mb-2">
+                <label asp-for="SequenceNo" class="form-label text-white fw-bold"></label>
+                <input asp-for="SequenceNo" class="form-control fw-bold">
+                <div><span asp-validation-for="SequenceNo" class="text-danger"></span></div>
+            </div>
+            <div class="col-md-4 mb-2">
+                <label asp-for="ContentHeading" class="form-label text-white fw-bold"></label>
+                <input asp-for="ContentHeading" class="form-control fw-bold">
+                <div><span asp-validation-for="ContentHeading" class="text-danger"></span></div>
+            </div>
+            <div class="col-md-2 mb-2">
+                <label asp-for="ContentFormatId" class="form-label text-white fw-bold"></label>
+                <select asp-for="ContentFormatId" asp-items="@Html.GetEnumSelectList<ContentFormat>()" class="form-control fw-bold">
+                    <option value=""> Select Format </option>
+                </select>
+                <div><span asp-validation-for="ContentFormatId" class="text-danger"></span></div>
+            </div>
+            <div class="col-md-3 mb-2">
+                <label asp-for="ContentAudience" class="form-label text-white fw-bold"></label>
+                <input asp-for="ContentAudience" class="form-control fw-bold">
+                <div><span asp-validation-for="ContentAudience" class="text-white"></span></div>
+            </div>
+            <div class="col-md-2 mb-2">
+                <label asp-for="DurationInMinutes" class="form-label text-white fw-bold"></label>
+                <input asp-for="DurationInMinutes" class="form-control fw-bold">
+                <div><span asp-validation-for="DurationInMinutes" class="text-danger"></span></div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6 mb-2">
+                <label asp-for="ContentTitle" class="form-label text-white fw-bold"></label>
+                <input asp-for="ContentTitle" class="form-control fw-bold">
+                <div><span asp-validation-for="ContentTitle" class="text-white"></span></div>
+            </div>
+            <div class="col-md-3 mb-2">
+                <label asp-for="ContentCreditTo" class="form-label text-white fw-bold"></label>
+                <input asp-for="ContentCreditTo" class="form-control fw-bold">
+                <div><span asp-validation-for="ContentCreditTo" class="text-white"></span></div>
+            </div>
+            <div class="col-md-3 mb-2">
+                <label asp-for="ContentSource" class="form-label text-white fw-bold"></label>
+                <input asp-for="ContentSource" class="form-control fw-bold">
+                <div><span asp-validation-for="ContentSource" class="text-white"></span></div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12 mb-3">
+                <label asp-for="ContentDescription" class="form-label text-white fw-bold"></label>
+                <input asp-for="ContentDescription" class="form-control fw-bold">
+                <div><span asp-validation-for="ContentDescription" class="text-white"></span></div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12 text-end">
+                <a asp-area="CLM" asp-controller="Settings" asp-action="CourseContents" asp-route-id="@Model.CourseId" class="btn btn-dark" style="width:100px" title="Exit">
+                    <span class="text-white fw-bold">Back</span>
+                </a>
+                <a asp-area="CLM" asp-controller="Settings" asp-action="ManageCourse" asp-route-id="@Model.CourseId" asp-route-cd="@Model.CourseContentId" class="btn btn-warning" style="width:100px" title="Clear">
+                    <span class="text-white fw-bold">Clear</span>
+                </a>
+                @if (!Model.OperationIsSuccessful)
+                {
+                    if (Model.CourseId > 0)
+                    {
+                        <button type="submit" class="btn btn-primary" title="Save" style="width:200px"><span class="text-white fw-bold">Save</span></button>
+                    }
+                    else
+                    {
+                        <button type="submit" class="btn btn-success" title="Save" style="width:200px"><span class="text-white fw-bold">Save</span></button>
+                    }
+                }
+            </div>
+        </div>
+    </form>
+    </div>
+</div>

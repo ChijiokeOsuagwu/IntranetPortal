@@ -1309,6 +1309,23 @@ namespace IntranetPortal.Areas.PMS.Controllers
                                 return View(model);
                             }
                         }
+                        else if(reviewSubmission.SubmissionPurposeId == 2)
+                        {
+                            var resultEntities = await _performanceService.GetReviewResultByAppraiserIdAndReviewHeaderIdAsync(reviewSubmission.ReviewHeaderId, reviewSubmission.ToEmployeeId);
+                            if (resultEntities != null && resultEntities.Count > 0)
+                            {
+                                ReviewResult reviewResult = resultEntities.FirstOrDefault();
+                                model.ViewModelWarningMessage = $"Sorry, double evaluation is not permitted. {reviewResult.AppraiserName} has already evaluated you as {reviewResult.AppraiserRoleName} on {reviewResult.ScoreTime.Value.ToLongDateString()}.";
+
+                                var role_entities = await _performanceService.GetApprovalRolesAsync();
+                                ViewBag.ApproverRolesList = new SelectList(role_entities, "ApprovalRoleId", "ApprovalRoleName", model.ToEmployeeID);
+
+                                var entities = await _ermService.GetEmployeeReportLinesByEmployeeIdAsync(model.AppraiseeID);
+                                ViewBag.ReportingLinesList = new SelectList(entities, "ReportsToEmployeeID", "ReportsToEmployeeName", model.ToEmployeeID);
+
+                                return View(model);
+                            }
+                        }
                         else if (reviewSubmission.SubmissionPurposeId == 3)
                         {
                             var approvalEntities = await _performanceService.GetReviewApprovalsApprovedAsync(reviewSubmission.ReviewHeaderId, 2, reviewSubmission.ToEmployeeRoleId);
@@ -1829,7 +1846,7 @@ namespace IntranetPortal.Areas.PMS.Controllers
 
         public async Task<IActionResult> RejectEvaluation(int id)
         {
-            AcceptContractViewModel model = new AcceptContractViewModel();
+            RejectEvaluationViewModel model = new RejectEvaluationViewModel();
             model.IsNotAccepted = true;
 
             ReviewHeader reviewHeader = new ReviewHeader();
@@ -1859,7 +1876,7 @@ namespace IntranetPortal.Areas.PMS.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> RejectEvaluation(AcceptContractViewModel model)
+        public async Task<IActionResult> RejectEvaluation(RejectEvaluationViewModel model)
         {
             if (ModelState.IsValid)
             {

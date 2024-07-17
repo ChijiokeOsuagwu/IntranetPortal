@@ -31,59 +31,71 @@
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         }
-        <form asp-area="PMS" asp-controller="Process" asp-action="SubmitAppraisal" method="post" autocomplete="off">
-            <div class="row">
-                <div class="col-md-12 mb-2">
-                    <input type="hidden" asp-for="ReviewHeaderID" />
-                    <input type="hidden" asp-for="ReviewSubmissionID" />
-                    <input type="hidden" asp-for="ReviewSessionID" />
-                    <input type="hidden" asp-for="AppraiseeID" />
-                    <input type="hidden" asp-for="FromEmployeeID" />
-                    <label asp-for="ToEmployeeID" class="form-label text-white fw-bold"></label>
-                    <select asp-for="ToEmployeeID" asp-items="@ViewBag.ReportingLinesList" class="form-control">
-                        <option value=""> Select </option>
-                    </select>
-                    <div><span asp-validation-for="ToEmployeeID" class="text-danger"></span></div>
-                </div>
+    <form asp-area="PMS" asp-controller="Process" asp-action="SubmitAppraisal" method="post" autocomplete="off">
+        <div class="row">
+            <div class="col-md-12 mb-2">
+                <input type="hidden" asp-for="ReviewHeaderID" />
+                <input type="hidden" asp-for="ReviewSubmissionID" />
+                <input type="hidden" asp-for="ReviewSessionID" />
+                <input type="hidden" asp-for="AppraiseeID" />
+                <input type="hidden" asp-for="FromEmployeeID" />
+                <label asp-for="ToEmployeeID" class="form-label text-white fw-bold"></label>
+                <select asp-for="ToEmployeeID" asp-items="@ViewBag.ReportingLinesList" class="form-control">
+                    <option value=""> Select </option>
+                </select>
+                <div><span asp-validation-for="ToEmployeeID" class="text-danger"></span></div>
             </div>
-            <div class="row">
-                <div class="col-md-6 mb-2">
-                    <label asp-for="ToEmployeeRoleID" class="form-label text-white fw-bold"></label>
-                    <select asp-for="ToEmployeeRoleID" asp-items="@ViewBag.ApproverRolesList" class="form-control">
-                        <option value="">  </option>
-                    </select>
-                    <div><span asp-validation-for="ToEmployeeRoleID" class="text-danger"></span></div>
-                </div>
-                <div class="col-md-6 mb-2">
-                    <label asp-for="SubmissionPurposeID" class="form-label text-white fw-bold"></label>
-                    <select asp-for="SubmissionPurposeID" class="form-control">
-                        <option value=""> Select </option>
-                        <option value="1">Performance Contract Approval</option>
-                        <option value="2">Final Evaluation</option>
-                        <option value="3">Evaluation Result Approval</option>
-                    </select>
-                    <div><span asp-validation-for="SubmissionPurposeID" class="text-danger"></span></div>
-                </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6 mb-2">
+                <label asp-for="ToEmployeeRoleID" class="form-label text-white fw-bold"></label>
+                <select asp-for="ToEmployeeRoleID" asp-items="@ViewBag.ApproverRolesList" class="form-control">
+                    <option value="">  </option>
+                </select>
+                <div><span asp-validation-for="ToEmployeeRoleID" class="text-danger"></span></div>
             </div>
-            <div class="row">
-                <div class="col-md-12 mb-3">
-                    <label asp-for="SubmissionMessage" class="form-label text-white fw-bold"></label>
-                    <textarea asp-for="SubmissionMessage" class="form-control fw-bold" rows="2" style="font-size:1.0rem">@Model.SubmissionMessage</textarea>
-                    <div><span asp-validation-for="SubmissionMessage" class="text-danger"></span></div>
-                </div>
+            <div class="col-md-6 mb-2">
+                <label asp-for="SubmissionPurposeID" class="form-label text-white fw-bold"></label>
+                <select asp-for="SubmissionPurposeID" class="form-control">
+                    <option value=""> Select </option>
+                    <option value="1">Performance Contract Approval</option>
+                    <option value="2">Final Evaluation</option>
+                    <option value="3">Evaluation Result Approval</option>
+                </select>
+                <div><span asp-validation-for="SubmissionPurposeID" class="text-danger"></span></div>
             </div>
-            <div class="row">
-                <div class="col-md-12 text-end">
-                    <a asp-area="PMS" asp-controller="Process" asp-action="AppraisalSubmissionHistory" asp-route-id="@Model.ReviewHeaderID" class="btn btn-dark" style="width:100px" title="Back">
-                        <span class="text-white">Back</span>
-                    </a>
+        </div>
+        <div class="row">
+            <div class="col-md-12 mb-3">
+                <label asp-for="SubmissionMessage" class="form-label text-white fw-bold"></label>
+                <textarea asp-for="SubmissionMessage" class="form-control fw-bold" rows="2" style="font-size:1.0rem">@Model.SubmissionMessage</textarea>
+                <div><span asp-validation-for="SubmissionMessage" class="text-danger"></span></div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12 text-end">
+                <a asp-area="PMS" asp-controller="Process" asp-action="AppraisalSubmissionHistory" asp-route-id="@Model.ReviewHeaderID" class="btn btn-dark" style="width:100px" title="Back">
+                    <span class="text-white">Back</span>
+                </a>
 
-                    @if (!Model.OperationIsSuccessful)
-                    {
-                        <button type="submit" class="btn btn-info" title="Submit" style="width:200px"><span class="text-white">Submit</span></button>
-                    }
-                </div>
+                @if (!Model.OperationIsSuccessful)
+                {
+                    <button type="submit" class="btn btn-info" title="Submit" style="width:200px"><span class="text-white" onclick="displayProcessingImage()">Submit</span></button>
+                    <partial name="_SendingPartial" />
+                }
             </div>
-        </form>
+        </div>
+    </form>
     </div>
 </div>
+@section Scripts{
+    <script>
+         function displayProcessingImage(){
+             if (document.getElementById("SubmissionPurposeID").value != "" ||
+                 document.getElementById("ToEmployeeRoleID").value != "" ||
+                 document.getElementById("ToEmployeeID").value != "") {
+            document.getElementById("sending").style.display = "block";
+        }
+    }
+    </script>
+}

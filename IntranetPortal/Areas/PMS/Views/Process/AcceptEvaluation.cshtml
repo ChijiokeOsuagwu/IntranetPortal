@@ -40,7 +40,6 @@
                     <input type="hidden" asp-for="ReviewSessionName" />
                     <input type="hidden" asp-for="ReviewYearName" />
                     <input type="hidden" asp-for="IsNotAccepted" />
-                    <input type="hidden" asp-for="RejectionReason" />
                     <div class="bg-white fw-bold text-dark p-2" style="font-size:1.0rem">I, <span class="fw-bolder">@Model.AppraiseeName</span> agree and accept this Performance Evaluation Result for the <span>@Model.ReviewSessionName </span>. And hereby do sign off below accordingly.</div>
                 </div>
             </div>
@@ -61,11 +60,11 @@
                 </div>
             </div>
             @*<div class="row">
-                <div class="col-md-12 mb-3">
-                    <input asp-for="IsNotAccepted" type="checkbox" style="width:18px;height:18px" />
-                    <span class="text-white fw-bold ml-2 fs-4 pb-3">No, I do not accept this result as a true reflection of my performance.</span>
-                </div>
-            </div>*@
+                    <div class="col-md-12 mb-3">
+                        <input asp-for="IsNotAccepted" type="checkbox" style="width:18px;height:18px" />
+                        <span class="text-white fw-bold ml-2 fs-4 pb-3">No, I do not accept this result as a true reflection of my performance.</span>
+                    </div>
+                </div>*@
             <div class="row">
                 <div class="col-md-12 text-end">
                     <a asp-area="PMS" asp-controller="Process" asp-action="MyAppraisalSteps" asp-route-id="@Model.ReviewSessionID" class="btn btn-dark mr-2" style="width:100px" title="Back">

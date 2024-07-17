@@ -18,7 +18,7 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
             _config = configuration;
         }
 
-        #region Appraisal Grade Read Action Methods
+        #region Approval Role Read Action Methods
         public async Task<IList<ApprovalRole>> GetAllAsync()
         {
             List<ApprovalRole> approvalRolesList = new List<ApprovalRole>();
@@ -177,7 +177,7 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
 
         #endregion
 
-        #region Review Grade Write Action Methods
+        #region Approval Role Write Action Methods
         public async Task<bool> AddAsync(ApprovalRole approvalRole)
         {
             int rows = 0;

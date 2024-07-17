@@ -29,7 +29,7 @@ namespace IntranetPortal.Data.Repositories.ContentManagerRepositories
             if (id < 1) { return null; }
             sb.Append("SELECT id, title, summary, details, imgp, mdby, ");
             sb.Append("crby, typ_id, enable_com, is_hdn, crdt, mddt, ");
-            sb.Append("hs_cm, hs_md, dtl_rw FROM public.pcm_psts ");
+            sb.Append("hs_cm, hs_md, dtl_rw, flpth FROM public.pcm_psts ");
             sb.Append("WHERE id = @id;");
             query = sb.ToString();
             try
@@ -48,6 +48,7 @@ namespace IntranetPortal.Data.Repositories.ContentManagerRepositories
                             post.PostTitle = reader["title"] == DBNull.Value ? String.Empty : reader["title"].ToString();
                             post.PostSummary = reader["summary"] == DBNull.Value ? String.Empty : reader["summary"].ToString();
                             post.ImagePath = reader["imgp"] == DBNull.Value ? String.Empty : reader["imgp"].ToString();
+                            post.ImageFullPath = reader["flpth"] == DBNull.Value ? String.Empty : reader["flpth"].ToString();
                             post.ModifiedBy = reader["mdby"] == DBNull.Value ? string.Empty : reader["mdby"].ToString();
                             post.ModifiedDate = reader["mddt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["mddt"];
                             post.CreatedBy = reader["crby"] == DBNull.Value ? string.Empty : reader["crby"].ToString();
@@ -64,16 +65,8 @@ namespace IntranetPortal.Data.Repositories.ContentManagerRepositories
                 }
                 await conn.CloseAsync();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                //ErrorRepository errorRepository = new ErrorRepository(_config);
-                //ErrorEntity errorEntity = new ErrorEntity();
-                //errorEntity.ErrorMessage = ex.Message;
-                //errorEntity.ErrorDetail = ex.ToString();
-                //errorEntity.ErrorTime = $"{DateTime.UtcNow.ToLongDateString()} {DateTime.UtcNow.ToLongTimeString()} (UTC)";
-                //errorEntity.ErrorInnerSource = ex.Source;
-                //errorEntity.ErrorSource = "ApplicationUserRepository_GetUsersByLoginIdAsync";
-                //errorRepository.AddError(errorEntity);
                 await conn.CloseAsync();
                 return null;
             }
@@ -88,7 +81,7 @@ namespace IntranetPortal.Data.Repositories.ContentManagerRepositories
             StringBuilder sb = new StringBuilder();
 
             sb.Append("SELECT id, title, summary, imgp, mdby, crby, typ_id, enable_com, ");
-            sb.Append("is_hdn, crdt, mddt, hs_cm, hs_md FROM public.pcm_psts ");
+            sb.Append("is_hdn, crdt, mddt, hs_cm, hs_md, flpth FROM public.pcm_psts ");
             sb.Append("WHERE (typ_id != 0) ORDER BY crdt DESC;");
             query = sb.ToString();
             try
@@ -107,6 +100,7 @@ namespace IntranetPortal.Data.Repositories.ContentManagerRepositories
                             PostTitle = reader["title"] == DBNull.Value ? String.Empty : reader["title"].ToString(),
                             PostSummary = reader["summary"] == DBNull.Value ? String.Empty : reader["summary"].ToString(),
                             ImagePath = reader["imgp"] == DBNull.Value ? String.Empty : reader["imgp"].ToString(),
+                            ImageFullPath = reader["flpth"] == DBNull.Value ? string.Empty : reader["flpth"].ToString(),
                             ModifiedBy = reader["mdby"] == DBNull.Value ? string.Empty : reader["mdby"].ToString(),
                             ModifiedDate = reader["mddt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["mddt"],
                             CreatedBy = reader["crby"] == DBNull.Value ? string.Empty : reader["crby"].ToString(),
@@ -139,7 +133,7 @@ namespace IntranetPortal.Data.Repositories.ContentManagerRepositories
             StringBuilder sb = new StringBuilder();
 
             sb.Append("SELECT id, title, summary, imgp, mdby, crby, typ_id, enable_com, ");
-            sb.Append("is_hdn, crdt, mddt, hs_cm, hs_md FROM public.pcm_psts ");
+            sb.Append("is_hdn, crdt, mddt, hs_cm, hs_md, flpth FROM public.pcm_psts ");
             sb.Append("WHERE (typ_id != 0 AND typ_id != 3) ORDER BY crdt DESC;");
             query = sb.ToString();
             try
@@ -158,6 +152,7 @@ namespace IntranetPortal.Data.Repositories.ContentManagerRepositories
                             PostTitle = reader["title"] == DBNull.Value ? String.Empty : reader["title"].ToString(),
                             PostSummary = reader["summary"] == DBNull.Value ? String.Empty : reader["summary"].ToString(),
                             ImagePath = reader["imgp"] == DBNull.Value ? String.Empty : reader["imgp"].ToString(),
+                            ImageFullPath = reader["flpth"] == DBNull.Value ? string.Empty : reader["flpth"].ToString(),
                             ModifiedBy = reader["mdby"] == DBNull.Value ? string.Empty : reader["mdby"].ToString(),
                             ModifiedDate = reader["mddt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["mddt"],
                             CreatedBy = reader["crby"] == DBNull.Value ? string.Empty : reader["crby"].ToString(),
@@ -190,7 +185,7 @@ namespace IntranetPortal.Data.Repositories.ContentManagerRepositories
             StringBuilder sb = new StringBuilder();
 
             sb.Append("SELECT id, title, summary, imgp, mdby, crby, typ_id, enable_com, ");
-            sb.Append("is_hdn, crdt, mddt, hs_cm, hs_md FROM public.pcm_psts ");
+            sb.Append("is_hdn, crdt, mddt, hs_cm, hs_md, flpth FROM public.pcm_psts ");
             sb.Append("WHERE (typ_id != 0 AND typ_id != 3 AND is_hdn = false) ");
             sb.Append("ORDER BY crdt DESC;");
             query = sb.ToString();
@@ -210,6 +205,7 @@ namespace IntranetPortal.Data.Repositories.ContentManagerRepositories
                             PostTitle = reader["title"] == DBNull.Value ? String.Empty : reader["title"].ToString(),
                             PostSummary = reader["summary"] == DBNull.Value ? String.Empty : reader["summary"].ToString(),
                             ImagePath = reader["imgp"] == DBNull.Value ? String.Empty : reader["imgp"].ToString(),
+                            ImageFullPath = reader["flpth"] == DBNull.Value ? string.Empty : reader["flpth"].ToString(),
                             ModifiedBy = reader["mdby"] == DBNull.Value ? string.Empty : reader["mdby"].ToString(),
                             ModifiedDate = reader["mddt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["mddt"],
                             CreatedBy = reader["crby"] == DBNull.Value ? string.Empty : reader["crby"].ToString(),
@@ -241,7 +237,7 @@ namespace IntranetPortal.Data.Repositories.ContentManagerRepositories
             string query = String.Empty;
             StringBuilder sb = new StringBuilder();
             sb.Append("SELECT id, title, summary, details, imgp, mdby, crby, typ_id, ");
-            sb.Append("enable_com, is_hdn, crdt, mddt, hs_cm, hs_md, dtl_rw ");
+            sb.Append("enable_com, is_hdn, crdt, mddt, hs_cm, hs_md, dtl_rw, flpth ");
             sb.Append("FROM public.pcm_psts WHERE (typ_id = @typ_id) ");
             sb.Append("AND (typ_id != 0) ORDER BY crdt DESC;");
             query = sb.ToString();
@@ -263,6 +259,7 @@ namespace IntranetPortal.Data.Repositories.ContentManagerRepositories
                                 PostTitle = reader["title"] == DBNull.Value ? String.Empty : reader["title"].ToString(),
                                 PostSummary = reader["summary"] == DBNull.Value ? String.Empty : reader["summary"].ToString(),
                                 ImagePath = reader["imgp"] == DBNull.Value ? String.Empty : reader["imgp"].ToString(),
+                                ImageFullPath = reader["flpth"] == DBNull.Value ? string.Empty : reader["flpth"].ToString(),
                                 ModifiedBy = reader["mdby"] == DBNull.Value ? string.Empty : reader["mdby"].ToString(),
                                 ModifiedDate = reader["mddt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["mddt"],
                                 CreatedBy = reader["crby"] == DBNull.Value ? string.Empty : reader["crby"].ToString(),
@@ -292,7 +289,7 @@ namespace IntranetPortal.Data.Repositories.ContentManagerRepositories
             string query = String.Empty;
             StringBuilder sb = new StringBuilder();
             sb.Append("SELECT id, title, summary, details, imgp, mdby, crby, typ_id, ");
-            sb.Append("enable_com, is_hdn, crdt, mddt, hs_cm, hs_md, dtl_rw ");
+            sb.Append("enable_com, is_hdn, crdt, mddt, hs_cm, hs_md, dtl_rw, flpth ");
             sb.Append("FROM public.pcm_psts  WHERE (typ_id != 0) ");
             sb.Append("AND (LOWER(title) LIKE '%'||LOWER(@title)||'%') ");
             sb.Append("ORDER BY crdt DESC;");
@@ -315,6 +312,7 @@ namespace IntranetPortal.Data.Repositories.ContentManagerRepositories
                                 PostTitle = reader["title"] == DBNull.Value ? String.Empty : reader["title"].ToString(),
                                 PostSummary = reader["summary"] == DBNull.Value ? String.Empty : reader["summary"].ToString(),
                                 ImagePath = reader["imgp"] == DBNull.Value ? String.Empty : reader["imgp"].ToString(),
+                                ImageFullPath = reader["flpth"] == DBNull.Value ? string.Empty : reader["flpth"].ToString(),
                                 ModifiedBy = reader["mdby"] == DBNull.Value ? string.Empty : reader["mdby"].ToString(),
                                 ModifiedDate = reader["mddt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["mddt"],
                                 CreatedBy = reader["crby"] == DBNull.Value ? string.Empty : reader["crby"].ToString(),
@@ -349,10 +347,10 @@ namespace IntranetPortal.Data.Repositories.ContentManagerRepositories
             StringBuilder sb = new StringBuilder();
             sb.Append("INSERT INTO public.pcm_psts( title, summary, ");
             sb.Append("details, imgp, mdby, crby, typ_id, enable_com, ");
-            sb.Append("is_hdn, crdt, mddt, dtl_rw) ");
+            sb.Append("is_hdn, crdt, mddt, dtl_rw, flpth) ");
             sb.Append("VALUES (@title, @summary, @details, @imgp, ");
             sb.Append("@mdby, @crby, @typ_id, @enable_com, ");
-            sb.Append("@is_hdn, @crdt, @mddt, @dtl_rw); ");
+            sb.Append("@is_hdn, @crdt, @mddt, @dtl_rw, @flpth); ");
 
             string query = sb.ToString();
 
@@ -372,6 +370,7 @@ namespace IntranetPortal.Data.Repositories.ContentManagerRepositories
                 var enable_com = cmd.Parameters.Add("@enable_com", NpgsqlDbType.Boolean);
                 var is_hdn = cmd.Parameters.Add("@is_hdn", NpgsqlDbType.Boolean);
                 var dtl_rw = cmd.Parameters.Add("@dtl_rw", NpgsqlDbType.Text);
+                var flpth = cmd.Parameters.Add("@flpth", NpgsqlDbType.Text);
                 cmd.Prepare();
                 title.Value = post.PostTitle ?? (object)DBNull.Value;
                 summary.Value = post.PostSummary ?? (object)DBNull.Value;
@@ -385,6 +384,7 @@ namespace IntranetPortal.Data.Repositories.ContentManagerRepositories
                 enable_com.Value = post.EnableComment;
                 is_hdn.Value = post.IsHidden;
                 dtl_rw.Value = post.PostDetailsRaw ?? (object)DBNull.Value;
+                flpth.Value = post.ImageFullPath ?? (object)DBNull.Value;
 
                 rows = await cmd.ExecuteNonQueryAsync();
             }
@@ -434,7 +434,7 @@ namespace IntranetPortal.Data.Repositories.ContentManagerRepositories
             sb.Append("UPDATE public.pcm_psts SET title=@title, summary=@summary, ");
             sb.Append("details=@details, imgp=@imgp, mdby=@mdby, typ_id=@typ_id, ");
             sb.Append("enable_com=@enable_com, is_hdn=@is_hdn, mddt=@mddt, ");
-            sb.Append("dtl_rw=@dtl_rw WHERE (id=@id);");
+            sb.Append("dtl_rw=@dtl_rw, flpth=@flpth WHERE (id=@id);");
 
             string query = sb.ToString();
 
@@ -453,6 +453,7 @@ namespace IntranetPortal.Data.Repositories.ContentManagerRepositories
                 var enable_com = cmd.Parameters.Add("@enable_com", NpgsqlDbType.Boolean);
                 var is_hdn = cmd.Parameters.Add("@is_hdn", NpgsqlDbType.Boolean);
                 var dtl_rw = cmd.Parameters.Add("@dtl_rw", NpgsqlDbType.Text);
+                var flpth = cmd.Parameters.Add("@flpth", NpgsqlDbType.Text);
                 cmd.Prepare();
                 id.Value = post.PostId;
                 title.Value = post.PostTitle ?? (object)DBNull.Value;
@@ -465,6 +466,8 @@ namespace IntranetPortal.Data.Repositories.ContentManagerRepositories
                 enable_com.Value = post.EnableComment;
                 is_hdn.Value = post.IsHidden;
                 dtl_rw.Value = post.PostDetailsRaw ?? (object)DBNull.Value;
+                flpth.Value = post.ImageFullPath ?? (object)DBNull.Value;
+
                 rows = await cmd.ExecuteNonQueryAsync();
             }
             await conn.CloseAsync();
@@ -603,8 +606,10 @@ namespace IntranetPortal.Data.Repositories.ContentManagerRepositories
             string query = String.Empty;
             StringBuilder sb = new StringBuilder();
 
-            sb.Append($"SELECT id, title, summary, imgp, mdby, crby, typ_id, enable_com, ");
-            sb.Append($"is_hdn, crdt, mddt, hs_cm, hs_md FROM public.pcm_psts WHERE typ_id = 0 ; ");
+            sb.Append("SELECT id, title, summary, imgp, mdby, crby, typ_id, ");
+            sb.Append("enable_com, is_hdn, crdt, mddt, hs_cm, hs_md,");
+            sb.Append("flpth FROM public.pcm_psts WHERE typ_id = 0 ; ");
+            
             query = sb.ToString();
             try
             {
@@ -622,6 +627,7 @@ namespace IntranetPortal.Data.Repositories.ContentManagerRepositories
                             PostTitle = reader["title"] == DBNull.Value ? string.Empty : reader["title"].ToString(),
                             PostSummary = reader["summary"] == DBNull.Value ? string.Empty : reader["summary"].ToString(),
                             ImagePath = reader["imgp"] == DBNull.Value ? string.Empty : reader["imgp"].ToString(),
+                            ImageFullPath = reader["flpth"] == DBNull.Value ? string.Empty : reader["flpth"].ToString(),
                             ModifiedBy = reader["mdby"] == DBNull.Value ? string.Empty : reader["mdby"].ToString(),
                             ModifiedDate = reader["mddt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["mddt"],
                             CreatedBy = reader["crby"] == DBNull.Value ? string.Empty : reader["crby"].ToString(),
@@ -636,7 +642,7 @@ namespace IntranetPortal.Data.Repositories.ContentManagerRepositories
                 }
                 await conn.CloseAsync();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 await conn.CloseAsync();
                 postlist = null;
@@ -652,8 +658,10 @@ namespace IntranetPortal.Data.Repositories.ContentManagerRepositories
             string query = String.Empty;
             StringBuilder sb = new StringBuilder();
 
-            sb.Append($"SELECT id, title, summary, imgp, mdby, crby, typ_id, enable_com, ");
-            sb.Append($"is_hdn, crdt, mddt, hs_cm, hs_md FROM public.pcm_psts WHERE typ_id = 0 AND is_hdn = false; ");
+            sb.Append("SELECT id, title, summary, imgp, mdby, crby, typ_id, ");
+            sb.Append("enable_com, is_hdn, crdt, mddt, hs_cm, hs_md, flpth ");
+            sb.Append("FROM public.pcm_psts WHERE typ_id = 0 AND is_hdn = false; ");
+            
             query = sb.ToString();
             try
             {
@@ -671,6 +679,7 @@ namespace IntranetPortal.Data.Repositories.ContentManagerRepositories
                             PostTitle = reader["title"] == DBNull.Value ? string.Empty : reader["title"].ToString(),
                             PostSummary = reader["summary"] == DBNull.Value ? string.Empty : reader["summary"].ToString(),
                             ImagePath = reader["imgp"] == DBNull.Value ? string.Empty : reader["imgp"].ToString(),
+                            ImageFullPath = reader["flpth"] == DBNull.Value ? string.Empty : reader["flpth"].ToString(),
                             ModifiedBy = reader["mdby"] == DBNull.Value ? string.Empty : reader["mdby"].ToString(),
                             ModifiedDate = reader["mddt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["mddt"],
                             CreatedBy = reader["crby"] == DBNull.Value ? string.Empty : reader["crby"].ToString(),
@@ -685,7 +694,7 @@ namespace IntranetPortal.Data.Repositories.ContentManagerRepositories
                 }
                 await conn.CloseAsync();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 await conn.CloseAsync();
                 postlist = null;
@@ -940,7 +949,7 @@ namespace IntranetPortal.Data.Repositories.ContentManagerRepositories
             StringBuilder sb = new StringBuilder();
 
             sb.Append($"SELECT id, title, summary, imgp, mdby, crby, typ_id, enable_com, ");
-            sb.Append($"is_hdn, crdt, mddt, hs_cm, hs_md FROM public.pcm_psts ");
+            sb.Append($"is_hdn, crdt, mddt, hs_cm, hs_md, flpth FROM public.pcm_psts ");
             sb.Append($"WHERE typ_id = 0 AND is_hdn = false;");
             query = sb.ToString();
             try
@@ -959,6 +968,7 @@ namespace IntranetPortal.Data.Repositories.ContentManagerRepositories
                             PostTitle = reader["title"] == DBNull.Value ? string.Empty : reader["title"].ToString(),
                             PostSummary = reader["summary"] == DBNull.Value ? string.Empty : reader["summary"].ToString(),
                             ImagePath = reader["imgp"] == DBNull.Value ? string.Empty : reader["imgp"].ToString(),
+                            ImageFullPath = reader["flpth"] == DBNull.Value ? string.Empty : reader["flpth"].ToString(),
                             ModifiedBy = reader["mdby"] == DBNull.Value ? string.Empty : reader["mdby"].ToString(),
                             ModifiedDate = reader["mddt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["mddt"],
                             CreatedBy = reader["crby"] == DBNull.Value ? string.Empty : reader["crby"].ToString(),
@@ -974,7 +984,7 @@ namespace IntranetPortal.Data.Repositories.ContentManagerRepositories
                 }
                 await conn.CloseAsync();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 await conn.CloseAsync();
                 postlist = null;

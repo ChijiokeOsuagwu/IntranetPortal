@@ -1,0 +1,33 @@
+﻿@model IntranetPortal.Areas.CLM.Models.EditTextContentViewModel
+    <div class="container">
+        <button onclick="history.back();" title="Go Back" class="btn btn-sm btn-outline-light text-dark mr-1">
+            <i class="bi bi-backspace fw-bolder" style="font-size: 1.1rem;"></i><span class="fw-bold ml-1" style="font-size: 1.1rem;">Back</span>
+        </button><span class="fw-bold" style="font-size:1.1rem">|</span>
+        <span class="fw-bold" style="font-size:1.2rem">Course Contents</span>
+        <hr />
+        @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+        {
+            <div class="row">
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bi bi-x-circle"></i>
+                    <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            </div>
+        }
+        <div class="row">
+            <div class="row text-center">
+                <input type="hidden" asp-for="CourseID" />
+                <input type="hidden" asp-for="CourseContentID" />
+                <div class="fw-bold" style="font-size:1.8rem">@Model.ContentHeading</div>
+                <div class="fw-bold" style="font-size:1.3rem">@Model.ContentTitle</div>
+            </div>
+            <div class="row">
+                @Html.Raw(Model.RawTextContent)
+            </div>
+        </div>
+    </div>
+@section Scripts{
+
+}
+

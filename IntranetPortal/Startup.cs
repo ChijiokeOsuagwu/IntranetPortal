@@ -15,6 +15,9 @@ using IntranetPortal.Base.Models.SecurityModels;
 using IntranetPortal.Base.Services;
 using Npgsql;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
+using Microsoft.AspNetCore.Http.Features;
+using Microsoft.AspNetCore;
 
 namespace IntranetPortal
 {
@@ -41,6 +44,24 @@ namespace IntranetPortal
             });
 
             services.AddControllersWithViews();
+
+            
+
+            services.Configure<KestrelServerOptions>(options =>
+            {
+                options.Limits.MaxRequestBodySize = 268435456;
+            });
+
+            services.Configure<IISServerOptions>(options =>
+            {
+                options.MaxRequestBodySize = 268435456;
+            });
+
+            services.Configure<FormOptions>(options =>
+            {
+                options.MultipartBodyLengthLimit = 268435456;
+            });
+
             services.AddRazorPages();
             services.ConfigureServiceManagers();
             services.ConfigureRepositories();
@@ -116,6 +137,12 @@ namespace IntranetPortal
                     name: "ERM",
                 areaName: "ERM",
                  pattern: "ERM/{controller=Home}/{action=Index}/{id?}");
+
+                endpoints.MapAreaControllerRoute(
+                    name: "CLM",
+                areaName: "CLM",
+                 pattern: "CLM/{controller=Home}/{action=Index}/{id?}");
+
 
                 endpoints.MapAreaControllerRoute(
                     name: "GlobalSettings",

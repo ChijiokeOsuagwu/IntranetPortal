@@ -37,7 +37,7 @@ namespace IntranetPortal.Areas.PMS.Controllers
             _dataProtector = dataProtectionProvider.CreateProtector(dataProtectionEncryptionStrings.RouteValuesEncryptionCode);
         }
 
-        [Authorize(Roles = "PMSSTT, XYALLACCZ")]
+        [Authorize(Roles = "PMSSTTMGA, XYALLACCZ")]
         public IActionResult Index()
         {
             return View();

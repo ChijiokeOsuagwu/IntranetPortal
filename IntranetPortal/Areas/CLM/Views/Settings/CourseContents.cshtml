@@ -1,0 +1,203 @@
+﻿
+@model IntranetPortal.Areas.CLM.Models.CourseContentListViewModel
+<div class="container">
+    <h4 class="mb-1">Course Contents Settings</h4>
+    <hr />
+    <div class="row">
+        <form asp-area="CLM" asp-controller="Settings" asp-action="CourseContents" method="get">
+            <div class="row">
+                <input type="hidden" asp-for="id" />
+                <div class="col-md-2 mb-2">
+                    <a asp-area="CLM" asp-controller="Settings" asp-action="Courses" title="Go Back" class="btn btn-sm btn-outline-light text-dark">
+                        <i class="bi bi-backspace fw-bolder" style="font-size: 1.0rem;"></i><span class="fw-bold ml-1" style="font-size: 0.9rem;">Back</span>
+                    </a>
+                </div>
+                <div class="col-md-4 mb-2">
+                    <div class="input-group">
+                        <select asp-for="fm" asp-items="@Html.GetEnumSelectList<ContentFormat>()"  class="form-select fw-bold" >
+                            <option value=""> Select Format </option>
+                        </select>
+                        <button type="submit" class="btn btn-dark text-white fw-bold" >Search</button>
+                    </div>                
+                </div>
+                <div class="col-md-6 mb-2 text-end">
+                    <a asp-area="CLM" asp-controller="Settings" asp-action="ManageCourseContent" asp-route-id="@Model.id" title="Add New Course Content" class="btn btn-sm btn-outline-light ml-2 text-dark">
+                        <i class="bi bi-plus-lg fw-bolder" style="font-size: 1.0rem;"></i><span class="fw-bold ml-1" style="font-size: 0.9rem;">New Course Content</span>
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+    {<div class="row">
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-x-circle"></i>
+                <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        </div>
+    }
+    <hr />
+    <div class="row">
+        @if (Model == null || Model.CourseContentsList == null || Model.CourseContentsList.Count < 1)
+        {
+            <div class="alert alert-info fade show" role="alert">
+                <i class="bi bi-info-circle"></i>
+                <span class="fw-bold">No record was found.</span>
+            </div>
+        }
+        else
+        {
+             <div class="table-responsive" style="min-height:500px">
+                <table class="table table-sm table-hover">
+                    <thead class="table-dark">
+                        <tr>
+                            <th><span class="text-white fw-bolder">Seq.No.</span></th>
+                            <th><span class="text-white fw-bolder">Heading</span></th>
+                            <th>
+                                <span class="text-white fw-bolder">Title</span>
+                            </th>
+                            <th>
+                                <span class="text-white fw-bolder">Format</span>
+                            </th>
+                            <th>
+                                <span class="text-white fw-bolder">Duration (Mins)</span>
+                            </th>
+                            <th>
+
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="table-light">
+                        @foreach (CourseContent content in Model.CourseContentsList)
+                        {
+                        <tr>
+                            <td>
+                                <span class="fw-bolder">@content.SequenceNo</span>
+                            </td>
+                            <td>
+                                <span class="fw-bolder">@content.ContentHeading</span>
+                            </td>
+                            <td>
+                                <span class="fw-bolder">@content.ContentTitle</span>
+                            </td>
+                            <td>
+                                <span class="fw-bolder">@content.ContentFormatDescription</span>
+                            </td>
+                            <td>
+                                <span class="fw-bolder">@content.DurationInMinutes</span>
+                            </td>
+                            <td>
+                                <div class="btn-group dropstart">
+                                    <button type="button" class="bg-light" style="border:0px;" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <span class="text-dark fw-bold"><i class="bi bi-three-dots" style="font-size:1.0rem"></i></span>
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton2">
+                                        <li>
+                                            <a class="dropdown-item" asp-area="CLM" asp-controller="Settings" asp-action="CourseContentInfo" asp-route-id="@content.CourseContentId" title="View Details">
+                                                <i class="bi bi-file-text"></i>
+                                                <span class="text-white">Details</span>
+                                            </a>
+                                            <a class="dropdown-item" asp-area="CLM" asp-controller="Settings" asp-action="ManageCourseContent" asp-route-id="@content.CourseId" asp-route-cd="@content.CourseContentId" title="Edit Content">
+                                                <i class="bi bi-pencil-square"></i>
+                                                <span class="text-white">Edit</span>
+                                            </a>
+                                            <a class="dropdown-item" asp-area="CLM" asp-controller="Settings" asp-action="DeleteCourseContent" asp-route-id="@content.CourseContentId" title="Delete Content">
+                                                <i class="bi bi-trash"></i>
+                                                <span class="text-white">Delete</span>
+                                            </a>
+                                        </li>
+                                        <li><hr class="dropdown-divider"></li>
+                                        @if (content.ContentFormatId == (int)ContentFormat.Text)
+                                        {
+                                            <li>
+                                                <a asp-area="CLM" asp-controller="Library" asp-action="ReadTextContent" asp-route-id="@content.CourseContentId" title="Read Text Content" class="dropdown-item">
+                                                    <i class="bi bi-file-text"></i>
+                                                    <span class="text-white">Read</span>
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a asp-area="CLM" asp-controller="Settings" asp-action="EditTextContent" asp-route-id="@content.CourseContentId" title="Edit Text Content" class="dropdown-item">
+                                                    <i class="bi bi-file-ruled"></i>
+                                                    <span class="text-white">Edit File</span>
+                                                </a>
+                                            </li>
+                                        }
+                                        else if (content.ContentFormatId == (int)ContentFormat.Image)
+                                        {
+                                            <li>
+                                                <a asp-area="CLM" asp-controller="Library" asp-action="ReadContents" asp-route-id="@content.CourseContentId" title="View Images" class="dropdown-item">
+                                                    <i class="bi bi-file-text"></i>
+                                                    <span class="text-white">View Image</span>
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a asp-area="CLM" asp-controller="Settings" asp-action="CourseAssessments" asp-route-id="@content.CourseContentId" title="Upload Image" class="dropdown-item">
+                                                    <i class="bi bi-file-ruled"></i>
+                                                    <span class="text-white">Upload Image</span>
+                                                </a>
+                                            </li>
+                                        }
+                                        else if (content.ContentFormatId == (int)ContentFormat.Pdf)
+                                        {
+                                            <li>
+                                                <a asp-area="CLM" asp-controller="Library" asp-action="LoadDocumentContent" asp-route-id="@content.CourseContentId" title="View Document" class="dropdown-item">
+                                                    <i class="bi bi-file-text"></i>
+                                                    <span class="text-white">View Document</span>
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a asp-area="CLM" asp-controller="Settings" asp-action="UploadCourseContent" asp-route-id="@content.CourseContentId" title="Upload Document" class="dropdown-item">
+                                                    <i class="bi bi-file-ruled"></i>
+                                                    <span class="text-white">Upload Pdf</span>
+                                                </a>
+                                            </li>
+                                        }
+                                        else if (content.ContentFormatId == (int)ContentFormat.Video)
+                                        {
+                                            <li>
+                                                <a asp-area="CLM" asp-controller="Library" asp-action="WatchVideoContent" asp-route-id="@content.CourseContentId" title="Watch Video" class="dropdown-item">
+                                                    <i class="bi bi-file-text"></i>
+                                                    <span class="text-white">Watch Video</span>
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a asp-area="CLM" asp-controller="Settings" asp-action="UploadCourseContent" asp-route-id="@content.CourseContentId" title="Upload Video" class="dropdown-item">
+                                                    <i class="bi bi-file-ruled"></i>
+                                                    <span class="text-white">Upload Video</span>
+                                                </a>
+                                            </li>
+                                        }
+                                        else if (content.ContentFormatId == (int)ContentFormat.Audio)
+                                        {
+                                            <li>
+                                                <a asp-area="CLM" asp-controller="Settings" asp-action="WatchVideo" asp-route-id="@content.CourseContentId" title="Go to Course Contents" class="dropdown-item">
+                                                    <i class="bi bi-file-text"></i>
+                                                    <span class="text-white">Listen</span>
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a asp-area="CLM" asp-controller="Settings" asp-action="UploadCourseContent" asp-route-id="@content.CourseContentId" title="Go to Course Assessments" class="dropdown-item">
+                                                    <i class="bi bi-file-ruled"></i>
+                                                    <span class="text-white">Upload Audio</span>
+                                                </a>
+                                            </li>
+                                        }
+
+                                    </ul>
+                                </div>
+                            </td>
+                        </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        }
+    </div>
+</div>
+@section Scripts{
+
+}
+

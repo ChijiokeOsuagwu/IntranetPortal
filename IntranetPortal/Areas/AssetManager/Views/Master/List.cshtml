@@ -4,7 +4,7 @@
     <hr />
     <div class="row">
         <div class="row">
-            <div class="col-md-12 mb-3 text-start">
+            <div class="col-md-10 mb-3 text-start">
                 <a asp-area="AssetManager" asp-controller="Home" asp-action="Index" title="Go Back" class="btn btn-sm btn-outline-light text-dark">
                     <i class="bi bi-backspace fw-bolder" style="font-size: 1.0rem;"></i><span class="fw-bold ml-1" style="font-size: 0.9rem;">Back</span>
                 </a>
@@ -14,6 +14,11 @@
                         <i class="bi bi-download fw-bolder" style="font-size: 1.0rem;"></i><span class="fw-bold ml-1" style="font-size: 0.9rem;">Download</span>
                     </a>
                 }
+            </div>
+            <div class="col-md-2 mb-3">
+                <a asp-area="AssetManager" asp-controller="Master" asp-action="SelectType" title="Add New Asset" class="btn btn-sm btn-outline-light ml-2 text-dark">
+                    <i class="bi bi-plus-lg fw-bolder" style="font-size: 1.0rem;"></i><span class="fw-bold ml-1" style="font-size: 0.9rem;">New Asset</span>
+                </a>
             </div>
         </div>
         <div class="row">
@@ -29,11 +34,6 @@
                             <option value=""> Bin Location </option>
                         </select>
                     </div>
-                    @*<div class="col-md-2 mb-2">
-                            <select asp-for="grp" asp-items="@ViewBag.AssetGroupList" class="fw-bold bg-light border-0">
-                                <option value=""> Asset Group </option>
-                            </select>
-                        </div>*@
                     <div class="col-md-2 mb-2">
                         <select asp-for="typ" asp-items="@ViewBag.AssetTypeList" class="fw-bold bg-light border-0" style="border-radius:10px">
                             <option value=""> Asset Type </option>
@@ -88,8 +88,8 @@
                                 <th><span class="text-white fw-bolder">Base Location</span></th>
                                 <th><span class="text-white fw-bolder">Bin Location</span></th>
                                 @*<th><span class="text-white fw-bolder">Current Location</span></th>
-        <th><span class="text-white fw-bolder">Usage Status</span>
-        <th><span class="text-white fw-bolder">Master</span></th>*@
+                                    <th><span class="text-white fw-bolder">Usage Status</span>
+                                    <th><span class="text-white fw-bolder">Master</span></th>*@
                                 <th><span class="text-white fw-bolder">(@Model.AssetMasterList.Count.ToString())</span></th>
                             </tr>
                         </thead>
@@ -99,46 +99,46 @@
                                 switch (item.ConditionStatus)
                                 {
                                     case AssetCondition.RequiresRepair:
-                            <tr class="table-warning">
-                                <td><span class="fw-bold">@item.AssetNumber</span></td>
-                                <td><span class="fw-bold">@item.AssetName</span></td>
-                                <td><span class="fw-bold">@item.AssetTypeName</span>
-                                <td><span class="fw-bold">@item.ConditionDescription</span></td>
-                                <td><span class="fw-bold">@item.BaseLocationName</span></td>
-                                <td><span class="fw-bold">@item.BinLocationName</span></td>
-                                @*<td><span class="fw-bold">@item.CurrentLocation</span></td>
-        <td><span class="fw-bold">@item.UsageStatus</span>
-        <td><span class="fw-bold">@item.ParentAssetName</span></td>*@
-                                <td>
-                                    <div class="text-center">
-                                        <a asp-area="AssetManager" asp-controller="Master" asp-action="Details" asp-route-id="@item.AssetID" title="Details" class="btn btn-sm btn-dark">
-                                            <span class="text-white fw-bold">Select</span>
-                                        </a>
-                                    </div>
-                                </td>
+                                        <tr class="table-warning">
+                                            <td><span class="fw-bold">@item.AssetNumber</span></td>
+                                            <td><span class="fw-bold">@item.AssetName</span></td>
+                                            <td><span class="fw-bold">@item.AssetTypeName</span>
+                                            <td><span class="fw-bold">@item.ConditionDescription</span></td>
+                                            <td><span class="fw-bold">@item.BaseLocationName</span></td>
+                                            <td><span class="fw-bold">@item.BinLocationName</span></td>
+                                            @*<td><span class="fw-bold">@item.CurrentLocation</span></td>
+                                                <td><span class="fw-bold">@item.UsageStatus</span>
+                                                <td><span class="fw-bold">@item.ParentAssetName</span></td>*@
+                                            <td>
+                                                <div class="text-center">
+                                                    <a asp-area="AssetManager" asp-controller="Master" asp-action="Details" asp-route-id="@item.AssetID" title="Details" class="btn btn-sm btn-dark">
+                                                        <span class="text-white fw-bold">Select</span>
+                                                    </a>
+                                                </div>
+                                            </td>
 
-                            </tr>
+                                        </tr>
                                         break;
                                     case AssetCondition.BeyondRepair:
-                        <tr class="table-danger">
-                            <td><span class="fw-bold">@item.AssetNumber</span></td>
-                            <td><span class="fw-bold">@item.AssetName</span></td>
-                            <td><span class="fw-bold">@item.AssetTypeName</span>
-                            <td><span class="fw-bold">@item.ConditionDescription</span></td>
-                            <td><span class="fw-bold">@item.BaseLocationName</span></td>
-                            <td><span class="fw-bold">@item.BinLocationName</span></td>
-                            @*<td><span class="fw-bold">@item.CurrentLocation</span></td>
-        <td><span class="fw-bold">@item.UsageStatus</span>
-        <td><span class="fw-bold">@item.ParentAssetName</span></td>*@
-                            <td>
-                                <div class="text-center">
-                                    <a asp-area="AssetManager" asp-controller="Master" asp-action="Details" asp-route-id="@item.AssetID" title="Details" class="btn btn-sm btn-dark">
-                                        <span class="text-white fw-bold">Select</span>
-                                    </a>
-                                </div>
-                            </td>
+                                        <tr class="table-danger">
+                                            <td><span class="fw-bold">@item.AssetNumber</span></td>
+                                            <td><span class="fw-bold">@item.AssetName</span></td>
+                                            <td><span class="fw-bold">@item.AssetTypeName</span>
+                                            <td><span class="fw-bold">@item.ConditionDescription</span></td>
+                                            <td><span class="fw-bold">@item.BaseLocationName</span></td>
+                                            <td><span class="fw-bold">@item.BinLocationName</span></td>
+                                            @*<td><span class="fw-bold">@item.CurrentLocation</span></td>
+                                                <td><span class="fw-bold">@item.UsageStatus</span>
+                                                <td><span class="fw-bold">@item.ParentAssetName</span></td>*@
+                                            <td>
+                                                <div class="text-center">
+                                                    <a asp-area="AssetManager" asp-controller="Master" asp-action="Details" asp-route-id="@item.AssetID" title="Details" class="btn btn-sm btn-dark">
+                                                        <span class="text-white fw-bold">Select</span>
+                                                    </a>
+                                                </div>
+                                            </td>
 
-                        </tr>
+                                        </tr>
                                         break;
                                     case AssetCondition.EndOfLife:
                                         <tr class="table-secondary">

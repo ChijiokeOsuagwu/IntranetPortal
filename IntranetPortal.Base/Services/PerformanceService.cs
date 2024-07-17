@@ -1622,8 +1622,8 @@ namespace IntranetPortal.Base.Services
                         var selfEvaluationKpaResultEntities = await _reviewResultRepository.GetByAppraiserIdAndMetricTypeId(model.ReviewHeaderID, model.AppraiseeID, (int)ReviewMetricType.KPA);
                         var selfEvaluationCmpResultEntities = await _reviewResultRepository.GetByAppraiserIdAndMetricTypeId(model.ReviewHeaderID, model.AppraiseeID, (int)ReviewMetricType.Competency);
 
-                        var finalEvaluationKpaResultEntities = await _reviewResultRepository.GetIntitalByThirdPartyAsync(model.ReviewHeaderID, model.PrincipalAppraiserID, (int)ReviewMetricType.KPA);
-                        var finalEvaluationCmpResultEntities = await _reviewResultRepository.GetIntitalByThirdPartyAsync(model.ReviewHeaderID, model.PrincipalAppraiserID, (int)ReviewMetricType.Competency);
+                        var finalEvaluationKpaResultEntities = await _reviewResultRepository.GetByAppraiserIdAndMetricTypeId(model.ReviewHeaderID, model.PrincipalAppraiserID, (int)ReviewMetricType.KPA);
+                        var finalEvaluationCmpResultEntities = await _reviewResultRepository.GetByAppraiserIdAndMetricTypeId(model.ReviewHeaderID, model.PrincipalAppraiserID, (int)ReviewMetricType.Competency);
 
                         if (finalEvaluationKpaResultEntities == null || finalEvaluationKpaResultEntities.Count < 1)
                         {
@@ -2099,6 +2099,18 @@ namespace IntranetPortal.Base.Services
             }
             return reviewResults;
         }
+
+        public async Task<List<ReviewResult>> GetReviewResultByAppraiserIdAndReviewHeaderIdAsync(int reviewHeaderId, string appraiserId)
+        {
+            List<ReviewResult> reviewResults = new List<ReviewResult>();
+            var entities = await _reviewResultRepository.GetByAppraiserIdAndReviewHeaderId(reviewHeaderId, appraiserId);
+            if (entities != null && entities.Count > 0)
+            {
+                reviewResults = entities.ToList();
+            }
+            return reviewResults;
+        }
+
 
         public async Task<List<ReviewResult>> GetReviewResultByAppraiserIdAndReviewMetricTypeIdAsync(int reviewHeaderId, string appraiserId, int? reviewMetricTypeId = null)
         {

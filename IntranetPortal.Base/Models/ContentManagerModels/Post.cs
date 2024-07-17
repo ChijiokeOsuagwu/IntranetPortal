@@ -13,6 +13,7 @@ namespace IntranetPortal.Base.Models.ContentManagerModels
         public string PostDetails { get; set; }
         public string PostDetailsRaw { get; set; }
         public string ImagePath { get; set; }
+        public string ImageFullPath { get; set; }
         public int PostTypeId { get; set; }
         public string PostTypeName { get; set; }
         public bool EnableComment { get; set; }
