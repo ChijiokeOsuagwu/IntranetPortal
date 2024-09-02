@@ -29,7 +29,6 @@
                     <table class="table table-sm table-hover">
                         <thead class="table-dark">
                             <tr>
-                                <th><span class="text-white fw-bolder">Seq.No.</span></th>
                                 <th><span class="text-white fw-bolder">Heading</span></th>
                                 <th>
                                     <span class="text-white fw-bolder">Title</span>
@@ -50,13 +49,10 @@
                             {
                                 <tr>
                                     <td>
-                                        <span class="fw-bolder">@content.SequenceNo</span>
-                                    </td>
-                                    <td>
                                         <span class="fw-bolder">@content.ContentHeading</span>
                                     </td>
                                     <td>
-                                        <span class="fw-bolder">@content.ContentTitle</span>
+                                        <span title="@content.ContentDescription" class="fw-bolder">@content.ContentTitle</span>
                                     </td>
                                     <td>
                                         <span class="fw-bolder">@content.ContentFormatDescription</span>
@@ -65,66 +61,40 @@
                                         <span class="fw-bolder">@content.DurationInMinutes</span>
                                     </td>
                                     <td>
-                                        <div class="btn-group dropstart">
-                                            <button type="button" class="bg-light" style="border:0px;" data-bs-toggle="dropdown" aria-expanded="false">
-                                                <span class="text-dark fw-bold"><i class="bi bi-three-dots" style="font-size:1.0rem"></i></span>
-                                            </button>
-                                            <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton2">
-                                                <li>
-                                                    <a class="dropdown-item" asp-area="CLM" asp-controller="Settings" asp-action="CourseContentInfo" asp-route-id="@content.CourseContentId" title="View Details">
-                                                        <i class="bi bi-file-text"></i>
-                                                        <span class="text-white">Details</span>
-                                                    </a>
-                                                </li>
-                                                <li><hr class="dropdown-divider"></li>
-                                                @if (content.ContentFormatId == (int)ContentFormat.Text)
-                                                {
-                                                    <li>
-                                                        <a asp-area="CLM" asp-controller="Library" asp-action="ReadTextContent" asp-route-id="@content.CourseContentId" title="Read" class="dropdown-item">
-                                                            <i class="bi bi-file-text"></i>
-                                                            <span class="text-white">Read</span>
-                                                        </a>
-                                                    </li>
-                                                }
-                                                else if (content.ContentFormatId == (int)ContentFormat.Image)
-                                                {
-                                                    <li>
-                                                        <a asp-area="CLM" asp-controller="Library" asp-action="ReadContents" asp-route-id="@content.CourseContentId" title="View Image" class="dropdown-item">
-                                                            <i class="bi bi-file-text"></i>
-                                                            <span class="text-white">View Image</span>
-                                                        </a>
-                                                    </li>
-                                                }
-                                                else if (content.ContentFormatId == (int)ContentFormat.Pdf)
-                                                {
-                                                    <li>
-                                                        <a asp-area="CLM" asp-controller="Library" asp-action="LoadDocumentContent" asp-route-id="@content.CourseContentId" title="View Document" class="dropdown-item">
-                                                            <i class="bi bi-file-text"></i>
-                                                            <span class="text-white">View Document</span>
-                                                        </a>
-                                                    </li>
-                                                }
-                                                else if (content.ContentFormatId == (int)ContentFormat.Video)
-                                                {
-                                                    <li>
-                                                        <a asp-area="CLM" asp-controller="Library" asp-action="WatchVideoContent" asp-route-id="@content.CourseContentId" title="Watch Video" class="dropdown-item">
-                                                            <i class="bi bi-file-text"></i>
-                                                            <span class="text-white">Watch Video</span>
-                                                        </a>
-                                                    </li>
-                                                }
-                                                else if (content.ContentFormatId == (int)ContentFormat.Audio)
-                                                {
-                                                    <li>
-                                                        <a asp-area="CLM" asp-controller="Library" asp-action="WatchVideo" asp-route-id="@content.CourseContentId" title="Listen" class="dropdown-item">
-                                                            <i class="bi bi-file-text"></i>
-                                                            <span class="text-white">Listen</span>
-                                                        </a>
-                                                    </li>
-                                                }
+                                        <a asp-area="CLM" asp-controller="Settings" asp-action="CourseContentInfo" asp-route-id="@content.CourseContentId" title="View Content Details" class="mr-2">
+                                            <i class="bi bi-info-square" style="font-size:1.2rem; color:black"></i>
+                                        </a>
+                                        @switch (content.ContentFormatId)
+                                        {
+                                            case (int)ContentFormat.Text:
+                                                <a asp-area="CLM" asp-controller="Library" asp-action="ReadTextContent" asp-route-id="@content.CourseContentId" title="Read Content" class="mr-2">
+                                                    <i class="bi bi-book"  style="font-size:1.2rem; color:black"></i>
+                                                </a>
+                                                break;
+                                            case (int)ContentFormat.Image:
+                                                <a asp-area="CLM" asp-controller="Library" asp-action="ReadContents" asp-route-id="@content.CourseContentId" title="View Image" class="mr-2">
+                                                    <i class="bi bi-image" style="font-size:1.2rem; color:black"></i>
+                                                </a>
+                                                break;
+                                            case (int)ContentFormat.Pdf:
+                                                <a asp-area="CLM" asp-controller="Library" asp-action="LoadDocumentContent" asp-route-id="@content.CourseContentId" title="Read Document" class="mr-2">
+                                                    <i class="bi bi-file-earmark-pdf" style="font-size:1.2rem; color:black"></i>
+                                                </a>
+                                                break;
+                                            case (int)ContentFormat.Video:
+                                                <a asp-area="CLM" asp-controller="Library" asp-action="WatchVideoContent" asp-route-id="@content.CourseContentId" title="Play Video" class="mr-2">
+                                                    <i class="bi bi-play-btn" style="font-size:1.4rem; color:black"></i>
+                                                </a>
+                                                break;
+                                            case (int)ContentFormat.Audio:
+                                                <a asp-area="CLM" asp-controller="Library" asp-action="WatchVideo" asp-route-id="@content.CourseContentId" title="Play Audio" class="mr-2">
+                                                    <i class="bi bi-volume-up" style="font-size:1.2rem; color:black"></i>
+                                                </a>
+                                                break;
+                                            default:
+                                                break;
+                                        }
 
-                                            </ul>
-                                        </div>
                                     </td>
                                 </tr>
                             }

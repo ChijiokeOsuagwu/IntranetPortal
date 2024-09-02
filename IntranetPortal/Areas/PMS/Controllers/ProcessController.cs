@@ -49,7 +49,6 @@ namespace IntranetPortal.Areas.PMS.Controllers
             _dataProtector = dataProtectionProvider.CreateProtector(dataProtectionEncryptionStrings.RouteValuesEncryptionCode);
         }
 
-
         public IActionResult Index()
         {
             return View();
@@ -299,6 +298,7 @@ namespace IntranetPortal.Areas.PMS.Controllers
                         if (entity != null)
                         {
                             activityHistory.ReviewHeaderId = entity.ReviewHeaderId;
+                            activityHistory.ReviewSessionId = entity.ReviewSessionId;
                             activityHistory.ActivityTime = DateTime.UtcNow;
                             activityHistory.ActivityDescription = $"Started the Appraisal Process and added performance goal.";
                             await _performanceService.AddPmsActivityHistoryAsync(activityHistory);
@@ -372,6 +372,7 @@ namespace IntranetPortal.Areas.PMS.Controllers
                         if (entity != null)
                         {
                             activityHistory.ReviewHeaderId = entity.ReviewHeaderId;
+                            activityHistory.ReviewSessionId = entity.ReviewSessionId;
                             activityHistory.ActivityTime = DateTime.UtcNow;
                             activityHistory.ActivityDescription = $"Updated performance goal(s) for this appraisal session.";
                             await _performanceService.AddPmsActivityHistoryAsync(activityHistory);
@@ -499,7 +500,7 @@ namespace IntranetPortal.Areas.PMS.Controllers
         {
             if (ModelState.IsValid)
             {
-                if (model.ReviewHeaderID > 0 && model.NewStageID > 1)
+                if (model.ReviewHeaderID > 0 && model.NewStageID > 0 && model.CurrentStageID < 6)
                 {
                     await _performanceService.UpdateReviewHeaderStageAsync(model.ReviewHeaderID, model.NewStageID);
                 }
@@ -1359,6 +1360,7 @@ namespace IntranetPortal.Areas.PMS.Controllers
                         history.ActivityDescription = $"Appraisal was submitted to {approver.FullName} by {sender.FullName} on {DateTime.UtcNow.ToLongDateString()} at {DateTime.UtcNow.ToLongTimeString()}";
                         history.ActivityTime = DateTime.UtcNow;
                         history.ReviewHeaderId = model.ReviewHeaderID;
+                        history.ReviewSessionId = model.ReviewSessionID;
                         await _performanceService.AddPmsActivityHistoryAsync(history);
 
                         //===== Send Notificiation Message to Approver ========//
@@ -1553,23 +1555,12 @@ namespace IntranetPortal.Areas.PMS.Controllers
                     {
                         model.FromEmployeeID = reviewSubmission.FromEmployeeId;
                         model.ReviewHeaderID = reviewSubmission.ReviewHeaderId;
+                        model.ReviewSessionID = reviewSubmission.ReviewSessionId;
                         model.FromEmployeeName = reviewSubmission.FromEmployeeName;
                     }
                 }
 
-                //ApplicationUser user = new ApplicationUser();
-                //string userId = string.Empty;
                 model.LoggedInEmployeeID = HttpContext.User.Claims.FirstOrDefault(c => c.Type.Contains("nameidentifier")).Value;
-                //if (!string.IsNullOrWhiteSpace(userStringId)) { userId = Convert.ToInt32(userStringId); }
-                //var user_entities = await _securityService.GetUsersByUserId(userId);
-                //if(user_entities != null && user_entities.Count > 0)
-                //{
-                //    user = user_entities.FirstOrDefault();
-                //    if (!string.IsNullOrWhiteSpace(user.FullName))
-                //    {
-                //        model.LoggedInEmployeeID = user.PersonID;
-                //    }
-                //}
             }
             catch (Exception ex)
             {
@@ -1599,11 +1590,15 @@ namespace IntranetPortal.Areas.PMS.Controllers
                     {
                         model.ViewModelSuccessMessage = "Returned to Appraisee successfully!";
                         model.OperationIsSuccessful = true;
+                        //int reviewSessionId = 0;
+                        //var reviewHeader = await _performanceService.GetReviewHeaderAsync(model.ReviewHeaderID);
+                        //if(reviewHeader != null) { reviewSessionId = reviewHeader.ReviewSessionId; }
 
                         PmsActivityHistory history = new PmsActivityHistory();
                         history.ActivityDescription = $"Performance Contract was not approved by {model.FromEmployeeName}. The appraisal was returned for corrections on {DateTime.UtcNow.ToLongDateString()} at {DateTime.UtcNow.ToLongTimeString()} WAT";
                         history.ActivityTime = DateTime.UtcNow;
                         history.ReviewHeaderId = model.ReviewHeaderID;
+                        history.ReviewSessionId = model.ReviewSessionID;
                         await _performanceService.AddPmsActivityHistoryAsync(history);
 
                         return RedirectToAction("AppraisalInfo", new {id = model.ReviewHeaderID, sd = model.ReviewSubmissionID, src = "stm" });
@@ -1638,6 +1633,7 @@ namespace IntranetPortal.Areas.PMS.Controllers
                     {
                         model.AppraiseeID = reviewHeader.AppraiseeId;
                         model.AppraiseeName = reviewHeader.AppraiseeName;
+                        model.ReviewSessionID = reviewHeader.ReviewSessionId;
                     }
                 }
 
@@ -1682,6 +1678,7 @@ namespace IntranetPortal.Areas.PMS.Controllers
                         history.ActivityDescription = $"Performance Contract was approved by {model.ApproverName} as {model.ApproverRoleDescription} on {DateTime.UtcNow.ToLongDateString()} at {DateTime.UtcNow.ToLongTimeString()} GMT";
                         history.ActivityTime = DateTime.UtcNow;
                         history.ReviewHeaderId = model.ReviewHeaderID;
+                        history.ReviewSessionId = model.ReviewSessionID;
                         await _performanceService.AddPmsActivityHistoryAsync(history);
 
                         return RedirectToAction("AppraisalInfo", new { id = model.ReviewHeaderID, sd = model.SubmissionID, src = "stm" });
@@ -1754,6 +1751,7 @@ namespace IntranetPortal.Areas.PMS.Controllers
                         history.ActivityDescription = $"Performance Contract was agreed to and signed off by {model.AppraiseeName} on {DateTime.UtcNow.ToLongDateString()} at {DateTime.UtcNow.ToLongTimeString()} GMT";
                         history.ActivityTime = DateTime.UtcNow;
                         history.ReviewHeaderId = model.ReviewHeaderID;
+                        history.ReviewSessionId = model.ReviewSessionID;
                         await _performanceService.AddPmsActivityHistoryAsync(history);
 
                         return RedirectToAction("MyAppraisalSteps", new { id = model.ReviewSessionID});
@@ -1827,6 +1825,7 @@ namespace IntranetPortal.Areas.PMS.Controllers
                             history.ActivityDescription = $"Performance Evaluation Result was signed off by {model.AppraiseeName} on {DateTime.UtcNow.ToLongDateString()} at {DateTime.UtcNow.ToLongTimeString()} GMT";
                             history.ActivityTime = DateTime.UtcNow;
                             history.ReviewHeaderId = model.ReviewHeaderID;
+                            history.ReviewSessionId = model.ReviewSessionID;
                             await _performanceService.AddPmsActivityHistoryAsync(history);
                             //return RedirectToAction("MyAppraisalSteps", "Process", new { id = model.ReviewSessionID });
                         }
@@ -1904,6 +1903,7 @@ namespace IntranetPortal.Areas.PMS.Controllers
                             history.ActivityDescription = $"Performance Evaluation Result was signed off by {model.AppraiseeName} on {DateTime.UtcNow.ToLongDateString()} at {DateTime.UtcNow.ToLongTimeString()} GMT";
                             history.ActivityTime = DateTime.UtcNow;
                             history.ReviewHeaderId = model.ReviewHeaderID;
+                            history.ReviewSessionId = model.ReviewSessionID;
                             await _performanceService.AddPmsActivityHistoryAsync(history);
                             //return RedirectToAction("MyAppraisalSteps", "Process", new { id = model.ReviewSessionID });
                         }
@@ -2188,6 +2188,7 @@ namespace IntranetPortal.Areas.PMS.Controllers
                         history.ActivityDescription = $"Evaluation result was approved by {model.ApproverName} as {model.ApproverRoleDescription} on {DateTime.UtcNow.ToLongDateString()} at {DateTime.UtcNow.ToLongTimeString()} WAT";
                         history.ActivityTime = DateTime.UtcNow;
                         history.ReviewHeaderId = model.ReviewHeaderID;
+                        history.ReviewSessionId = model.ReviewSessionID;
                         await _performanceService.AddPmsActivityHistoryAsync(history);
                     }
                     else
@@ -2247,6 +2248,7 @@ namespace IntranetPortal.Areas.PMS.Controllers
         {
             AddAppraisalNoteViewModel model = new AddAppraisalNoteViewModel();
             model.ReviewSubmissionID = sbm ?? 0;
+            model.SourcePage = sp;
             model.src = sp;
             model.psp = psp;
             ReviewMessage reviewMessage = new ReviewMessage();
@@ -3066,6 +3068,7 @@ namespace IntranetPortal.Areas.PMS.Controllers
                     {
                         PmsActivityHistory activityHistory = new PmsActivityHistory();
                         activityHistory.ReviewHeaderId = ReviewHeaderId;
+                        activityHistory.ReviewSessionId = ReviewSessionId;
                         activityHistory.ActivityTime = DateTime.UtcNow;
                         activityHistory.ActivityDescription = $"Added Feedback to the Performance Evaluation record.";
                         await _performanceService.AddPmsActivityHistoryAsync(activityHistory);
@@ -3205,6 +3208,7 @@ namespace IntranetPortal.Areas.PMS.Controllers
                 recommendationModel.RecommendationType = model.RecommenderRole;
                 recommendationModel.RecommendedAction = model.RecommendedAction;
                 recommendationModel.ReviewHeaderId = model.ReviewHeaderID;
+                recommendationModel.ReviewSessionId = model.ReviewSessionID;
                 recommendationModel.RecommendedByName = model.RecommenderName;
                 try
                 {
@@ -3213,6 +3217,7 @@ namespace IntranetPortal.Areas.PMS.Controllers
                     {
                         PmsActivityHistory activityHistory = new PmsActivityHistory();
                         activityHistory.ReviewHeaderId = model.ReviewHeaderID;
+                        activityHistory.ReviewSessionId = model.ReviewSessionID;
                         activityHistory.ActivityTime = DateTime.UtcNow;
                         activityHistory.ActivityDescription = $"{model.RecommenderRole} recommendation was added to the Performance Evaluation record by {model.RecommenderName}.";
                         await _performanceService.AddPmsActivityHistoryAsync(activityHistory);
@@ -3454,6 +3459,5 @@ namespace IntranetPortal.Areas.PMS.Controllers
         }
 
         #endregion
-
     }
 }

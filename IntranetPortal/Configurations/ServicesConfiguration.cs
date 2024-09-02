@@ -4,7 +4,8 @@ using IntranetPortal.Base.Repositories.BaseRepositories;
 using IntranetPortal.Base.Repositories.BusinessManagerRepositories;
 using IntranetPortal.Base.Repositories.ClmRepositories;
 using IntranetPortal.Base.Repositories.ContentManagerRepositories;
-using IntranetPortal.Base.Repositories.ErmRepository;
+using IntranetPortal.Base.Repositories.ErmRepositories;
+//using IntranetPortal.Base.Repositories.ErmRepository;
 using IntranetPortal.Base.Repositories.GlobalSettingsRepositories;
 using IntranetPortal.Base.Repositories.PmsRepositories;
 using IntranetPortal.Base.Repositories.SecurityRepositories;
@@ -34,19 +35,27 @@ namespace IntranetPortal.Configurations
         public static void ConfigureRepositories(this IServiceCollection services)
         {
             services.AddScoped<IPostRepository, PostRepository>();
-            services.AddScoped<ILocationRepository, LocationRepository>();
-            services.AddScoped<IEmployeesRepository, EmployeesRepository>();
             services.AddScoped<IPersonRepository, PersonRepository>();
-            services.AddScoped<IDepartmentRepository, DepartmentRepository>();
-            services.AddScoped<IUnitRepository, UnitRepository>();
-            services.AddScoped<ICompanyRepository, CompanyRepository>();
             services.AddScoped<IUtilityRepository, UtilityRepository>();
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IRoleRepository, RoleRepository>();
             services.AddScoped<IEmployeeUserRepository, EmployeeUserRepository>();
             services.AddScoped<IUserPermissionRepository, UserPermissionRepository>();
             services.AddScoped<IEntityPermissionRepository, EntityPermissionRepository>();
+
+            //======= Global Settings Repositories ===================//
+            services.AddScoped<ICurrencyRepository, CurrencyRepository>();
             services.AddScoped<ITeamRepository, TeamRepository>();
+            services.AddScoped<ILocationRepository, LocationRepository>();
+            services.AddScoped<IDepartmentRepository, DepartmentRepository>();
+            services.AddScoped<IUnitRepository, UnitRepository>();
+            services.AddScoped<ICompanyRepository, CompanyRepository>();
+            services.AddScoped<ILocationPermissionRepository, LocationPermissionRepository>();
+
+            //======= Employee Records Management Repositories ========//
+            services.AddScoped<IEmployeesRepository, EmployeesRepository>();
+            services.AddScoped<IEmployeeSeparationRepository, EmployeeSeparationRepository>();
+            services.AddScoped<IEmployeeSeparationOutstandingRepository, EmployeeSeparationOutstandingRepository>();
 
             //======== Asset Management System Repositories ===========//
             services.AddScoped<IAssetRepository, AssetRepository>();

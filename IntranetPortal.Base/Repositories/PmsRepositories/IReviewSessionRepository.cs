@@ -1,4 +1,5 @@
-﻿using IntranetPortal.Base.Models.PmsModels;
+﻿using IntranetPortal.Base.Models.EmployeeRecordModels;
+using IntranetPortal.Base.Models.PmsModels;
 using Microsoft.Extensions.Configuration;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -16,5 +17,9 @@ namespace IntranetPortal.Base.Repositories.PmsRepositories
         Task<IList<ReviewSession>> GetByNameAsync(string reviewSessionName);
         Task<IList<ReviewSession>> GetByYearIdAsync(int performanceYearId);
         Task<bool> UpdateAsync(ReviewSession reviewSession);
+
+        Task<IList<Employee>> GetNonParticipantsByReviewSessionIdAsync(int reviewSessionId);
+        Task<IList<Employee>> GetNonParticipantsByReviewSessionIdnLocationIdAsync(int reviewSessionId, int locationId);
+        Task<IList<Employee>> GetNonParticipantsByReviewSessionIdnLocationIdnUnitIdAsync(int reviewSessionId, int locationId, int unitId);
     }
 }

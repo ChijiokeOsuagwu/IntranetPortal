@@ -302,7 +302,6 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
             return reviewHeadersList;
         }
 
-
         public async Task<IList<ReviewHeader>> GetByAppraiseeIdAndReviewSessionIdAsync(string appraiseeId, int reviewSessionId)
         {
             List<ReviewHeader> reviewHeadersList = new List<ReviewHeader>();
@@ -996,6 +995,56 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
             return rows > 0;
         }
 
+        public async Task<bool> UpdateStageAndAgreementsAsync(ReviewHeader reviewHeader)
+        {
+            int rows = 0;
+            var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
+            StringBuilder sb = new StringBuilder();
+            sb.Append("UPDATE public.pmsrvwhdrs SET rvw_stg_id=@rvw_stg_id, ");
+            sb.Append("con_acpt=@con_acpt, dt_con_acpt=@dt_con_acpt, ");
+            sb.Append("eva_acpt=@eva_acpt, dt_eva_acpt=@dt_eva_acpt, ");
+            sb.Append("is_flg=@is_flg, flg_rsn=@flg_rsn, flg_dt=@flg_dt ");
+            sb.Append("WHERE(rvw_hdr_id=@rvw_hdr_id);");
+
+            string query = sb.ToString();
+            try
+            {
+                await conn.OpenAsync();
+                //Insert data
+                using (var cmd = new NpgsqlCommand(query, conn))
+                {
+                    var rvw_hdr_id = cmd.Parameters.Add("@rvw_hdr_id", NpgsqlDbType.Integer);
+                    var rvw_stg_id = cmd.Parameters.Add("@rvw_stg_id", NpgsqlDbType.Integer);
+                    var con_acpt = cmd.Parameters.Add("@con_acpt", NpgsqlDbType.Boolean);
+                    var dt_con_acpt = cmd.Parameters.Add("@dt_con_acpt", NpgsqlDbType.TimestampTz);
+                    var eva_acpt = cmd.Parameters.Add("@eva_acpt", NpgsqlDbType.Boolean);
+                    var dt_eva_acpt = cmd.Parameters.Add("@dt_eva_acpt", NpgsqlDbType.TimestampTz);
+                    var is_flg = cmd.Parameters.Add("@is_flg", NpgsqlDbType.Boolean);
+                    var flg_rsn = cmd.Parameters.Add("@flg_rsn", NpgsqlDbType.Text);
+                    var flg_dt = cmd.Parameters.Add("@flg_dt", NpgsqlDbType.TimestampTz);
+                    cmd.Prepare();
+                    rvw_hdr_id.Value = reviewHeader.ReviewHeaderId;
+                    rvw_stg_id.Value = reviewHeader.ReviewStageId;
+                    con_acpt.Value = reviewHeader.ContractIsAccepted ?? (object)DBNull.Value;
+                    dt_con_acpt.Value = reviewHeader.TimeContractAccepted ?? (object)DBNull.Value;
+                    eva_acpt.Value = reviewHeader.EvaluationIsAccepted ?? (object)DBNull.Value;
+                    dt_eva_acpt.Value = reviewHeader.TimeEvaluationAccepted ?? (object)DBNull.Value;
+                    is_flg.Value = reviewHeader.IsFlagged;
+                    flg_rsn.Value = reviewHeader.FlaggedReason ?? (object)DBNull.Value;
+                    flg_dt.Value = reviewHeader.FlaggedTime ?? (object)DBNull.Value;
+
+                    rows = await cmd.ExecuteNonQueryAsync();
+                    await conn.CloseAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                await conn.CloseAsync();
+                throw new Exception(ex.Message);
+            }
+            return rows > 0;
+        }
+
         public async Task<bool> UpdateGoalAsync(int reviewHeaderId, string performanceGoal, string appraiserId)
         {
             int rows = 0;
@@ -1395,6 +1444,64 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
                 await conn.CloseAsync();
                 throw new Exception(ex.Message);
             }
+            return rows > 0;
+        }
+
+        public async Task<bool> UpdatePrincipalAppraiserByAppraiseeIdAsync(int reviewSessionId, string appraiseeId, string newPrincipalAppraiserId)
+        {
+            int rows = 0;
+            var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
+            StringBuilder sb = new StringBuilder();
+            sb.Append("UPDATE public.pmsrvwhdrs SET pry_apr_id=@pry_apr_id ");
+            sb.Append("WHERE (rvw_sxn_id=@rvw_sxn_id) AND (rvw_emp_id = @rvw_emp_id) ");
+            sb.Append("AND (rvw_stg_id < 9);");
+
+            string query = sb.ToString();
+
+                await conn.OpenAsync();
+                //Insert data
+                using (var cmd = new NpgsqlCommand(query, conn))
+                {
+                    var rvw_sxn_id = cmd.Parameters.Add("@rvw_sxn_id", NpgsqlDbType.Integer);
+                    var pry_apr_id = cmd.Parameters.Add("@pry_apr_id", NpgsqlDbType.Text);
+                    var rvw_emp_id = cmd.Parameters.Add("@rvw_emp_id", NpgsqlDbType.Text);
+                    cmd.Prepare();
+                    rvw_sxn_id.Value = reviewSessionId;
+                    pry_apr_id.Value = newPrincipalAppraiserId;
+                    rvw_emp_id.Value = appraiseeId;
+
+                    rows = await cmd.ExecuteNonQueryAsync();
+                }
+            await conn.CloseAsync();
+            return rows > 0;
+        }
+
+        public async Task<bool> UpdatePrincipalAppraiserByUnitIdAsync(int reviewSessionId, int unitId, string newPrincipalAppraiserId)
+        {
+            int rows = 0;
+            var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
+            StringBuilder sb = new StringBuilder();
+            sb.Append("UPDATE public.pmsrvwhdrs SET pry_apr_id=@pry_apr_id ");
+            sb.Append("WHERE (rvw_sxn_id=@rvw_sxn_id) AND (unit_cd = @unit_cd) ");
+            sb.Append("AND (rvw_stg_id < 9);");
+
+            string query = sb.ToString();
+
+            await conn.OpenAsync();
+            //Insert data
+            using (var cmd = new NpgsqlCommand(query, conn))
+            {
+                var rvw_sxn_id = cmd.Parameters.Add("@rvw_sxn_id", NpgsqlDbType.Integer);
+                var pry_apr_id = cmd.Parameters.Add("@pry_apr_id", NpgsqlDbType.Text);
+                var unit_cd = cmd.Parameters.Add("@unit_cd", NpgsqlDbType.Integer);
+                cmd.Prepare();
+                rvw_sxn_id.Value = reviewSessionId;
+                pry_apr_id.Value = newPrincipalAppraiserId;
+                unit_cd.Value = unitId;
+
+                rows = await cmd.ExecuteNonQueryAsync();
+            }
+            await conn.CloseAsync();
             return rows > 0;
         }
 

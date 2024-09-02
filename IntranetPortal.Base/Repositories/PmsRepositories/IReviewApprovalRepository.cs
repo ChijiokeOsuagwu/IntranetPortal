@@ -11,6 +11,7 @@ namespace IntranetPortal.Base.Repositories.PmsRepositories
 
         Task<bool> AddAsync(ReviewApproval reviewApproval);
         Task<bool> DeleteAsync(int reviewApprovalId);
+        Task<bool> DeleteByReviewHeaderIdAsync(int reviewHeaderId);
         Task<bool> DeleteAsync(ReviewApproval reviewApproval);
         Task<IList<ReviewApproval>> GetAllAsync();
         Task<IList<ReviewApproval>> GetByIdAsync(int reviewApprovalId);

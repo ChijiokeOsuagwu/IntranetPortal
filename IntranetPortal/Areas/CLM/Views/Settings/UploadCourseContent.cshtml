@@ -49,7 +49,10 @@
                     <a asp-area="CLM" asp-controller="Settings" asp-action="CourseContents" asp-route-id="@Model.CourseID" class="btn btn-dark" style="width:100px" title="Exit">
                         <span class="text-white fw-bold">Back</span>
                     </a>
-                    <button type="submit" class="btn btn-primary" title="Save" style="width:200px" onclick="displayProcessingImage()"><span class="text-white fw-bold">Upload</span></button>
+                    @if (!Model.OperationIsSuccessful)
+                    {
+                        <button type="submit" class="btn btn-primary" title="Save" style="width:200px" onclick="displayProcessingImage()"><span class="text-white fw-bold">Upload</span></button>
+                    }
                 </div>
             </div>
             <partial name="_LoadingPartial" />

@@ -17,10 +17,12 @@ namespace IntranetPortal.Base.Services
         private readonly ICompanyRepository _companyRepository;
         private readonly ITeamRepository _teamRepository;
         private readonly IProgramRepository _programRepository;
+        private readonly ICurrencyRepository _currencyRepository;
 
         public GlobalSettingsService(ILocationRepository locationRepository, IDepartmentRepository departmentRepository,
                                         IUnitRepository unitRepository, ICompanyRepository companyRepository,
-                                        ITeamRepository teamRepository, IProgramRepository programRepository)
+                                        ITeamRepository teamRepository, IProgramRepository programRepository,
+                                        ICurrencyRepository currencyRepository)
         {
             _locationRepository = locationRepository;
             _departmentRepository = departmentRepository;
@@ -28,6 +30,7 @@ namespace IntranetPortal.Base.Services
             _companyRepository = companyRepository;
             _teamRepository = teamRepository;
             _programRepository = programRepository;
+            _currencyRepository = currencyRepository;
         }
 
         //================================= Location Action Methods ====================================//
@@ -65,15 +68,15 @@ namespace IntranetPortal.Base.Services
         public async Task<IList<Location>> GetAllLocationsAsync(string userId)
         {
             List<Location> locations = new List<Location>();
-                var entities = await _locationRepository.GetLocationsByUserIdAsync(userId);
-                if (entities != null)
+            var entities = await _locationRepository.GetLocationsByUserIdAsync(userId);
+            if (entities != null)
+            {
+                foreach (var item in entities)
                 {
-                    foreach (var item in entities)
-                    {
-                        item.LocationDescription = $"{item.LocationName} ({item.LocationType})";
-                        locations.Add(item);
-                    }
+                    item.LocationDescription = $"{item.LocationName} ({item.LocationType})";
+                    locations.Add(item);
                 }
+            }
             return locations;
         }
 
@@ -111,6 +114,26 @@ namespace IntranetPortal.Base.Services
 
         #endregion
 
+        //================================= Currency Action Methods ====================================//
+        #region
+        public async Task<IList<Currency>> GetCurrenciesAsync()
+        {
+            List<Currency> currencies = new List<Currency>();
+            var entities = await _currencyRepository.GetCurrenciesAsync();
+            if (entities != null) { currencies = entities.ToList(); }
+            return currencies;
+        }
+
+        public async Task<Currency> GetCurrencyByCodeAsync(string currencyCode)
+        {
+            Currency currency = new Currency();
+            if (string.IsNullOrWhiteSpace(currencyCode)) { throw new ArgumentNullException(nameof(currencyCode), "The required parameter [Currency Code] is missing. The request cannot be processed."); }
+            var entity = await _currencyRepository.GetByCodeAsync(currencyCode);
+            if (entity != null) { currency = entity; }
+            return currency;
+        }
+
+        #endregion
         //================================= States Action Methods ======================================//
         #region States Action Methods
         public async Task<IList<State>> GetStatesAsync()
@@ -616,7 +639,7 @@ namespace IntranetPortal.Base.Services
             Programme program = new Programme();
             if (string.IsNullOrWhiteSpace(programTitle)) { throw new ArgumentNullException(nameof(programTitle), "The required parameter [Program Title] is missing. The request cannot be processed."); }
             var entities = await _programRepository.GetByTitleAsync(programTitle);
-            if(entities != null && entities.Count > 0)
+            if (entities != null && entities.Count > 0)
             {
                 program = entities.FirstOrDefault();
             }
@@ -638,7 +661,7 @@ namespace IntranetPortal.Base.Services
                     var entities = await _programRepository.GetByProgramTypeAndProgramBeltAsync(programType, programBelt);
                     programs = entities.ToList();
                 }
-                else if(!string.IsNullOrWhiteSpace(programType) && string.IsNullOrWhiteSpace(programBelt))
+                else if (!string.IsNullOrWhiteSpace(programType) && string.IsNullOrWhiteSpace(programBelt))
                 {
                     var entities = await _programRepository.GetByProgramTypeAsync(programType);
                     programs = entities.ToList();
@@ -650,8 +673,8 @@ namespace IntranetPortal.Base.Services
                 }
                 else
                 {
-                        var entities = await _programRepository.GetAllAsync();
-                        programs = entities.ToList();
+                    var entities = await _programRepository.GetAllAsync();
+                    programs = entities.ToList();
                 }
             }
             return programs;

@@ -14,6 +14,7 @@ namespace IntranetPortal.Base.Repositories.SecurityRepositories
         Task<bool> UpdateUserPasswordAsync(ApplicationUser applicationUser);
         Task<IList<ApplicationUser>> GetOtherUsersWithSameLoginIdAsync(string userId, string login);
         Task<bool> UpdateUserAccountAsync(ApplicationUser applicationUser);
+        Task<bool> UpdateUserActivationAsync(string userId, string modifiedBy, bool deactivate);
         Task<bool> DeleteUserAccountByIdAsync(string userId);
     }
 }

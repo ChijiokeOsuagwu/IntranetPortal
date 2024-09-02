@@ -1,5 +1,6 @@
 ﻿using IntranetPortal.Base.Models.AssetManagerModels;
 using IntranetPortal.Base.Models.BaseModels;
+using IntranetPortal.Base.Models.GlobalSettingsModels;
 using IntranetPortal.Base.Models.SecurityModels;
 using IntranetPortal.Base.Repositories.BaseRepositories;
 using IntranetPortal.Base.Repositories.SecurityRepositories;
@@ -22,11 +23,13 @@ namespace IntranetPortal.Base.Services
         private readonly IUserLoginRepository _userLoginRepository;
         private readonly IRoleRepository _roleRepository;
         private readonly IEntityPermissionRepository _entityPermissionRepository;
+        private readonly ILocationPermissionRepository _locationPermissionRepository;
 
         public SecurityService(IEmployeeUserRepository employeeUserRepository, IUtilityRepository utilityRepository,
                                 IUserRepository userRepository, IUserPermissionRepository userPermissionRepository,
                                 IRoleRepository roleRepository, IUserLoginRepository userLoginRepository,
-                                IEntityPermissionRepository entityPermissionRepository)
+                                IEntityPermissionRepository entityPermissionRepository,
+                                ILocationPermissionRepository locationPermissionRepository)
         {
             _employeeUserRepository = employeeUserRepository;
             _utilityRepository = utilityRepository;
@@ -35,6 +38,7 @@ namespace IntranetPortal.Base.Services
             _userLoginRepository = userLoginRepository;
             _roleRepository = roleRepository;
             _entityPermissionRepository = entityPermissionRepository;
+            _locationPermissionRepository = locationPermissionRepository;
         }
 
         //============= Employee User Action Methods ==================//
@@ -568,6 +572,41 @@ namespace IntranetPortal.Base.Services
             return   await _entityPermissionRepository.DeleteAssetPermissionAsync(assetPermissionId);
         }
 
+        #endregion
+
+        //============= Location Permissions Action Methods ===============//
+        #region Location Permissions Action Methods
+        public async Task<IList<LocationPermission>> GetLocationPermissionsByUserIdAsync(string userId)
+        {
+            List<LocationPermission> locationPermissions = new List<LocationPermission>();
+            var entities = await _locationPermissionRepository.GetByUserIdAsync(userId);
+            locationPermissions = entities.ToList();
+            return locationPermissions;
+        }
+
+        public async Task<List<Location>> GetLocationsYetToBeGrantedByUserIdAsync(string userId)
+        {
+            List<Location> locations = new List<Location>();
+            var entities = await _locationPermissionRepository.GetUnGrantedLocationsByUserIdAsync(userId);
+            locations = entities.ToList();
+            return locations;
+        }
+
+        public async Task<LocationPermission> GetLocationPermissionByIdAsync(int locationPermissionId)
+        {
+            LocationPermission locationPermission = new LocationPermission();
+            return await _locationPermissionRepository.GetByIdAsync(locationPermissionId);
+        }
+
+        public async Task<bool> GrantLocationPermissionAsync(LocationPermission locationPermission)
+        {
+            return await _locationPermissionRepository.AddAsync(locationPermission);
+        }
+
+        public async Task<bool> RevokeLocationPermissionAsync(int locationPermissionId)
+        {
+            return await _locationPermissionRepository.DeleteAsync(locationPermissionId);
+        }
 
         #endregion
     }

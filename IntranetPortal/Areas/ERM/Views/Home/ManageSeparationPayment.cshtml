@@ -1,0 +1,102 @@
+﻿
+@model IntranetPortal.Areas.ERM.Models.ManageSeparationPaymentViewModel
+<h3>Employee Exit Payments</h3>
+<hr />
+<div class="card mt-1" style="max-width:800px">
+    <div class="card-header bg-info">
+        @if (Model.Id > 0)
+        {
+            <h4 class="text-white">Edit Payment</h4>
+        }
+        else
+        {
+            <h4 class="text-white">New Payment</h4>
+        }
+    </div>
+    <div class="card-body bg-secondary">
+        @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-x-circle"></i>
+                <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (!String.IsNullOrEmpty(Model.ViewModelSuccessMessage))
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="bi bi-check-circle"></i>
+                <span class="fw-bold">@Model.ViewModelSuccessMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (!String.IsNullOrEmpty(Model.ViewModelWarningMessage))
+        {
+            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                <i class="bi bi-exclamation-circle"></i>
+                <span class="fw-bold">@Model.ViewModelWarningMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+
+    <form asp-area="ERM" asp-controller="Home" asp-action="ManageSeparationPayment" method="post" autocomplete="off">
+        <div class="row">
+            <div class="col-md-12 mb-2">
+                <input type="hidden" asp-for="EmployeeSeparationId" />
+                <input type="hidden" asp-for="EmployeeId" />
+                <input type="hidden" asp-for="OutstandingId" />
+                <input type="hidden" asp-for="Id" />
+                <label asp-for="ItemDescriptionFormatted" class="form-label text-white fw-bold"></label>
+                <input asp-for="ItemDescriptionFormatted" class="form-control fw-bold" disabled />
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12 mb-2">
+                <label asp-for="PaidBy" class="form-label text-white fw-bold"></label>
+                <input asp-for="PaidBy" class="form-control fw-bold" />
+                <div><span asp-validation-for="PaidBy" class="text-white"></span></div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6 mb-2">
+                <label asp-for="PaymentAmount" class="form-label text-white fw-bold"></label>
+                <input asp-for="PaymentAmount" class="form-control fw-bold" min="0" />
+                <div><span asp-validation-for="PaymentAmount" class="text-white"></span></div>
+            </div>
+            <div class="col-md-3 mb-2">
+                <label asp-for="Currency" class="form-label text-white fw-bold"></label>
+                <select asp-for="Currency" asp-items="@ViewBag.CurrenciesList" class="form-control fw-bold">
+                    <option value=""> Select </option>
+                </select>
+                <div><span asp-validation-for="Currency" class="text-white"></span></div>
+            </div>
+            <div class="col-md-3 mb-2">
+                <label asp-for="PaymentDate" class="form-label text-white fw-bold"></label>
+                <input asp-for="PaymentDate" type="date" class="form-control fw-bold" />
+                <div><span asp-validation-for="PaymentDate" class="text-white"></span></div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12 mb-3">
+                <label asp-for="PaymentDetails" class="form-label text-white fw-bold"></label>
+                <textarea asp-for="PaymentDetails" class="form-control fw-bold" rows="3" >@Model.PaymentDetails</textarea>
+                <div><span asp-validation-for="PaymentDetails" class="text-white"></span></div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12 text-end">
+                <a asp-area="ERM" asp-controller="Home" asp-action="SeparationOutstandingPayments" asp-route-id="@Model.EmployeeSeparationId" asp-route-ed="@Model.EmployeeId" asp-route-en="@Model.EmployeeName" class="btn btn-dark mr-3" style="width:100px" title="Back">
+                    <span class="text-white">Back</span>
+                </a>
+                <a asp-area="ERM" asp-controller="Home" asp-action="ManageSeparationPayment" asp-route-id="@Model.EmployeeSeparationId" class="btn btn-warning mr-1" style="width:100px" title="Clear">
+                    <span class="text-white">Clear</span>
+                </a>
+                @if (!Model.OperationIsSuccessful)
+                {
+                    <button type="submit" class="btn btn-info" title="Save" style="width:200px"><span class="text-white fw-bold">Save</span></button>
+                }
+            </div>
+        </div>
+    </form>
+    </div>
+</div>

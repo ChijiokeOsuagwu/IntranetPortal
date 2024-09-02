@@ -17,20 +17,18 @@ namespace IntranetPortal.Base.Services
             _postRepository = postRepository;
         }
 
-        //================ Posts Action Methods ====================================================================//
-        #region Post Action Methods
+        //====== Posts Write Service Methods ========//
+        #region Posts Write Service Methods
         public async Task<bool> CreatePostAsync(Post post)
         {
             if (post == null) { throw new ArgumentNullException(nameof(post), "Required parameter [post] is missing."); }
             return await _postRepository.AddPostAsync(post);
         }
-
         public async Task<bool> DeletePostAsync(int postId)
         {
             if (postId < 1) { throw new ArgumentNullException(nameof(postId), "Required parameter [postId] is missing."); }
             return await _postRepository.DeletePostAsync(postId);
         }
-
         public async Task<bool> UpdatePostAsync(Post post)
         {
             if (post == null) { throw new ArgumentNullException(nameof(post), "Required parameter [post] is missing."); }
@@ -46,18 +44,67 @@ namespace IntranetPortal.Base.Services
             if (postId < 1) { throw new ArgumentNullException(nameof(postId), "Required parameter [postId] is missing."); }
             return await _postRepository.DeletePostAsync(postId);
         }
+        #endregion
 
-        public async Task<Post> GetPostByIdAsync(int postId)
-        {
-            if(postId < 1) { throw new ArgumentNullException(nameof(postId), "Required parameter [postId] is missing."); }
-            return await _postRepository.GetPostByIdAsync(postId);
-        }
+        #region Posts Read Service Methods
 
         public async Task<IList<Post>> GetAllPostsAsync()
         {
             return await _postRepository.GetAllAsync();
         }
 
+        public async Task<Post> GetPostByIdAsync(int postId)
+        {
+            if (postId < 1) { throw new ArgumentNullException(nameof(postId), "Required parameter [postId] is missing."); }
+            return await _postRepository.GetPostByIdAsync(postId);
+        }
+
+        public async Task<IList<Post>> SearchPostsByTitle(string postTitle)
+        {
+            return await _postRepository.GetByTitleAsync(postTitle);
+        }
+
+        #endregion
+
+        #region Articles Read Service Methods
+
+        public async Task<IList<Post>> GetAllArticlesAsync()
+        {
+            return await _postRepository.GetByTypeIdAsync((int)PostType.Article);
+        }
+
+        public async Task<IList<Post>> GetUnhiddenArticlesAsync()
+        {
+            return await _postRepository.GetByTypeIdAsync((int)PostType.Article, false);
+        }
+
+        public async Task<IList<Post>> GetHiddenArticlesAsync()
+        {
+            return await _postRepository.GetByTypeIdAsync((int)PostType.Article, true);
+        }
+
+        #endregion
+
+        #region Events Read Service Methods
+        public async Task<IList<Post>> GetAllEventsAsync()
+        {
+            return await _postRepository.GetByTypeIdAsync((int)PostType.Event);
+        }
+
+        public async Task<IList<Post>> GetUnhiddenEventsAsync()
+        {
+            return await _postRepository.GetByTypeIdAsync((int)PostType.Event, false);
+        }
+
+        public async Task<IList<Post>> GetHiddenEventsAsync()
+        {
+            return await _postRepository.GetByTypeIdAsync((int)PostType.Event, true);
+        }
+
+        #endregion
+
+
+        #region 
         public async Task<IList<Post>> GetAllOtherPostsAsync()
         {
             return await _postRepository.GetPostsWithoutBannersAndAnnouncementsAsync();
@@ -71,11 +118,6 @@ namespace IntranetPortal.Base.Services
         public async Task<IList<Post>> GetPostsByPostTypeId (int postTypeId)
         {
            return await _postRepository.GetByTypeIdAsync(postTypeId);
-        }
-
-        public async Task<IList<Post>> SearchPostsByTitle(string postTitle)
-        {
-            return await _postRepository.GetByTitleAsync(postTitle);
         }
 
         public async Task<bool> UpdatePostDetailsAsync(int postId, string htmlContent, string modifiedBy, DateTime modifiedDate)
@@ -117,19 +159,5 @@ namespace IntranetPortal.Base.Services
 
         #endregion
 
-
-        //=============== Articles Action Methods =============================================================//
-        #region Articles Action Methods
-        public async Task<IList<Post>> GetAllArticlesAsync()
-        {
-            return await _postRepository.GetAllArticlesAsync();
-        }
-
-        public async Task<IList<Post>> GetUnhiddenArticlesAsync()
-        {
-            return await _postRepository.GetUnhiddenArticlesAsync();
-        }
-
-        #endregion
     }
 }

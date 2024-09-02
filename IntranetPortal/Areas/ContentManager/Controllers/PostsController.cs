@@ -265,6 +265,67 @@ namespace IntranetPortal.Areas.ContentManager.Controllers
             return View(model);
         }
 
+        [Authorize(Roles = "PCMMGACNT, XYALLACCZ")]
+        public async Task<IActionResult> Announcement()
+        {
+            AnnouncementViewModel model = new AnnouncementViewModel();
+            model.PostTypeId = 3;
+
+            var entities = await _contentManager.GetAllAnnouncementsAsync();
+            if(entities != null && entities.Count > 0)
+            {
+                var post = entities.FirstOrDefault();
+                model.PostId = post.PostId;
+                model.PostDetails = post.PostDetails;
+            }
+            return View(model);
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "PCMMGACNT, XYALLACCZ")]
+        public async Task<IActionResult> Announcement(AnnouncementViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    Post post = new Post();
+                    post.PostDetails = model.PostDetails;
+                    post.PostTypeId = model.PostTypeId;
+                    post.ModifiedDate = DateTime.UtcNow;
+                    post.ModifiedBy = HttpContext.User.Identity.Name ?? string.Empty;
+                    post.PostId = model.PostId ?? 0;
+
+                    bool IsSuccessful = false;
+                    if (post.PostId > 0)
+                    {
+                        IsSuccessful = await _contentManager.UpdatePostAsync(post);
+                    }
+                    else
+                    {
+                        IsSuccessful = await _contentManager.CreatePostAsync(post);
+                    }
+
+                    if (IsSuccessful)
+                    {
+                        model.OperationIsCompleted = true;
+                        model.OperationIsSuccessful = true;
+                        model.ViewModelSuccessMessage = "Announcement updated successfully!";
+                    }
+                    else
+                    {
+                        model.ViewModelErrorMessage = "Announcement was not updated. An error was encountered. Please try again.";
+                    }
+                }
+                catch(Exception ex)
+                {
+                    model.ViewModelErrorMessage = ex.Message;
+                }
+            }
+            return View(model);
+        }
+
+
 
         #region Helper Controller Action Methods
         public string DeletePost(int id)

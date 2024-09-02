@@ -14,6 +14,7 @@ namespace IntranetPortal.Areas.PMS.Models
 
         [Required]
         public int ReviewHeaderID { get; set; }
+        public int ReviewSessionID { get; set; }
 
         [Required]
         public string FromEmployeeID { get; set; }
@@ -40,6 +41,7 @@ namespace IntranetPortal.Areas.PMS.Models
                 MessageIsCancelled = MessageIsCancelled,
                 MessageTime = MessageTime,
                 ReviewHeaderId = ReviewHeaderID,
+                ReviewSessionId = ReviewSessionID,
                 ReviewMessageId = ReviewMessageID,
                 TimeCancelled = TimeCancelled,
             };

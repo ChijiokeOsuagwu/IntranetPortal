@@ -17,7 +17,6 @@
             }
         })
 
-
     $("#SupervisedBy").autocomplete(
         {
             //minLength: 3,
@@ -64,7 +63,6 @@ var getAssetParameters = function () {
         alert("The Equipment Name you entered appears to be incorrect. \n Please enter a correct Equipment Name and try again.");
         return false;
     }
-
     $.get("/AssetManager/Home/GetAssetParameters?asn=" + asset_name, function (data) {
         const obj = JSON.parse(data)
         if (obj.asset_id == "" || obj.asset_id == undefined) {

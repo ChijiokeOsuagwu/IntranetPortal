@@ -43,10 +43,10 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
             return View();
         }
 
-        //=============== Asset Division Controller Actions ======================//
+        //========== Asset Division Controller Actions ===============//
         #region Asset Division Controller Actions
 
-        [Authorize(Roles = "AMSVWASTT, AMSMGASTT, XYALLACCZ")]
+        [Authorize(Roles = "XYALLACCZ")]
         public async Task<IActionResult> Divisions(string searchString = null)
         {
             AssetDivisionListViewModel model = new AssetDivisionListViewModel();
@@ -65,7 +65,7 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
         }
 
         [HttpGet]
-        [Authorize(Roles = "AMSMGASTT, XYALLACCZ")]
+        [Authorize(Roles = "XYALLACCZ")]
         public async Task<IActionResult> AddDivision()
         {
             AssetDivisionViewModel model = new AssetDivisionViewModel();
@@ -78,7 +78,7 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "AMSMGASTT, XYALLACCZ")]
+        [Authorize(Roles = "XYALLACCZ")]
         public async Task<IActionResult> AddDivision(AssetDivisionViewModel model)
         {
             if (ModelState.IsValid)
@@ -112,7 +112,7 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
         }
 
         [HttpGet]
-        [Authorize(Roles = "AMSMGASTT, XYALLACCZ")]
+        [Authorize(Roles = "XYALLACCZ")]
         public async Task<IActionResult> EditDivision(int id)
         {
             AssetDivision division = new AssetDivision();
@@ -123,7 +123,6 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
                 model.ID = division.ID;
                 model.Name = division.Name;
                 model.Description = division.Description;
-                model.LocationID = division.LocationID.Value;
             }
             else
             {
@@ -139,7 +138,7 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "AMSMGASTT, XYALLACCZ")]
+        [Authorize(Roles = "XYALLACCZ")]
         public async Task<IActionResult> EditDivision(AssetDivisionViewModel model)
         {
             if (ModelState.IsValid)
@@ -173,7 +172,7 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
         }
 
         [HttpGet]
-        [Authorize(Roles = "AMSMGASTT, XYALLACCZ")]
+        [Authorize(Roles = "XYALLACCZ")]
         public async Task<IActionResult> DeleteDivision(int id)
         {
             var claims = HttpContext.User.Claims.ToList();
@@ -210,7 +209,7 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "AMSMGASTT, XYALLACCZ")]
+        [Authorize(Roles = "XYALLACCZ")]
         public async Task<IActionResult> DeleteDivision(AssetDivisionViewModel model)
         {
             if (model != null)
@@ -1060,7 +1059,6 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
         }
         #endregion
 
-
         //=============== Asset Groups Controller Actions =========================//
         #region Asset Groups Controller Action
 
@@ -1278,7 +1276,6 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
             return View(model);
         }
         #endregion
-
 
         //=============== Assets Helper Methods ==================================//
         #region Assets Helper Methods

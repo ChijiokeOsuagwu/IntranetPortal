@@ -302,9 +302,11 @@ namespace IntranetPortal.Data.Repositories.BaseRepositories
             string query = String.Empty;
             StringBuilder sb = new StringBuilder();
             if (String.IsNullOrEmpty(personName)) { throw new ArgumentNullException("Required parameter PersonName cannot be null."); }
-            sb.Append($"SELECT id, title, sname, fname, oname, fullname, sex, phone1, phone2, email, ");
-            sb.Append($"address, mdb, mdt, ctb, ctt, imgp, birthday, birthmonth, birthyear, maritalstatus ");
-            sb.Append($"FROM public.gst_prsns WHERE (fullname = @fullname); ");
+            sb.Append("SELECT id, title, sname, fname, oname, fullname, sex,  ");
+            sb.Append("phone1, phone2, email,address, mdb, mdt, ctb, ctt, ");
+            sb.Append("imgp, birthday, birthmonth, birthyear, maritalstatus ");
+            sb.Append("FROM public.gst_prsns WHERE (fullname = @fullname) ");
+            sb.Append("AND (is_dx = false);");
             query = sb.ToString();
             try
             {
@@ -356,9 +358,12 @@ namespace IntranetPortal.Data.Repositories.BaseRepositories
             string query = String.Empty;
             StringBuilder sb = new StringBuilder();
 
-            sb.Append($"SELECT id, title, sname, fname, oname, fullname, sex, phone1, phone2, email, ");
-            sb.Append($"address, mdb, mdt, ctb, ctt, imgp, birthday, birthmonth, birthyear, maritalstatus ");
-            sb.Append($"FROM public.gst_prsns ORDER BY fullname ASC; ");
+            sb.Append("SELECT id, title, sname, fname, oname, fullname, ");
+            sb.Append("sex, phone1, phone2, email,  address, mdb, ");
+            sb.Append("mdt, ctb, ctt, imgp, birthday, birthmonth, ");
+            sb.Append("birthyear, maritalstatus ");
+            sb.Append("FROM public.gst_prsns WHERE (is_dx = false) ");
+            sb.Append("ORDER BY fullname ASC; ");
             query = sb.ToString();
             try
             {
@@ -391,7 +396,6 @@ namespace IntranetPortal.Data.Repositories.BaseRepositories
                             BirthMonth = reader["birthmonth"] == DBNull.Value ? 0 : (int)reader["birthmonth"],
                             BirthYear = reader["birthyear"] == DBNull.Value ? 0 : (int)reader["birthyear"],
                             MaritalStatus = reader["maritalstatus"] == DBNull.Value ? string.Empty : reader["maritalstatus"].ToString(),
-
                         });
                     }
                 }
@@ -414,8 +418,8 @@ namespace IntranetPortal.Data.Repositories.BaseRepositories
 
             sb.Append("SELECT id, title, sname, fname, oname, fullname, sex, phone1, phone2, email, ");
             sb.Append("address, mdb, mdt, ctb, ctt, imgp, birthday, birthmonth, birthyear, maritalstatus ");
-            sb.Append("FROM public.gst_prsns ");
-            sb.Append("WHERE(LOWER(fname) LIKE '%'||LOWER(@name)||'%') ");
+            sb.Append("FROM public.gst_prsns WHERE (is_dx = false) ");
+            sb.Append("AND (LOWER(fname) LIKE '%'||LOWER(@name)||'%') ");
             sb.Append("OR (LOWER(sname) LIKE '%'||LOWER(@name)||'%') ");
             sb.Append("OR (LOWER(oname) LIKE '%'||LOWER(@name)||'%') ");
             sb.Append("OR (LOWER(fullname) LIKE '%'||LOWER(@name)||'%') ");
@@ -472,7 +476,7 @@ namespace IntranetPortal.Data.Repositories.BaseRepositories
             sb.Append("address, mdb, mdt, ctb, ctt, imgp, birthday, birthmonth, birthyear, maritalstatus ");
             sb.Append("FROM public.gst_prsns p ");
             sb.Append("LEFT OUTER JOIN public.erm_emp_inf e ON p.id = e.emp_id ");
-            sb.Append("WHERE (e.emp_id IS NULL) ");
+            sb.Append("WHERE (e.emp_id IS NULL) AND (is_dx = false) ");
             sb.Append("AND (LOWER(fname) LIKE '%'||LOWER(@name)||'%') ");
             sb.Append("OR (LOWER(sname) LIKE '%'||LOWER(@name)||'%') ");
             sb.Append("OR (LOWER(oname) LIKE '%'||LOWER(@name)||'%') ");

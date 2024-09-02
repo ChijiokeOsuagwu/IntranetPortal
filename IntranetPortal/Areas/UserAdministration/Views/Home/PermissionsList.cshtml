@@ -11,7 +11,7 @@
                 <div class="col-md-12">
                     <form asp-area="UserAdministration" asp-controller="Home" asp-action="PermissionsList"  method="get">
                         <div class="form-actions no-color">
-                            <a asp-area="UserAdministration" asp-controller="Home" asp-action="UserPermissions" asp-route-id="@ViewData["UserID"]" class="btn btn-dark" style="width:100px" title="Click to Go Back">
+                            <a asp-area="UserAdministration" asp-controller="Home" asp-action="UserPermissions" asp-route-id="@ViewData["UserID"]" class="btn btn-secondary" style="width:100px" title="Click to Go Back">
                                 <span class="text-white">Back</span>
                             </a>
                             <input type="hidden" name="id" value="@ViewData["UserID"]" />

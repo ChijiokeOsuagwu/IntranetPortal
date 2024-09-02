@@ -1,0 +1,119 @@
+﻿
+@model IntranetPortal.Areas.ERM.Models.ManageSeparationViewModel
+<h3>Employee Exit</h3>
+<hr />
+<div class="card mt-1">
+    <div class="card-header bg-danger">
+           <h4 class="text-white">Delete Employee Exit</h4>
+    </div>
+    <div class="card-body bg-secondary">
+        @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-x-circle"></i>
+                <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (!String.IsNullOrEmpty(Model.ViewModelSuccessMessage))
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="bi bi-check-circle"></i>
+                <span class="fw-bold">@Model.ViewModelSuccessMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (!String.IsNullOrEmpty(Model.ViewModelWarningMessage))
+        {
+            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                <i class="bi bi-exclamation-circle"></i>
+                <span class="fw-bold">@Model.ViewModelWarningMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+
+        <form asp-area="ERM" asp-controller="Home" asp-action="DeleteSeparation" method="post" autocomplete="off">
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <input type="hidden" asp-for="EmployeeSeparationId" />
+                    <input type="hidden" asp-for="EmployeeId" />
+                    <input type="hidden" asp-for="UnitId" />
+                    <input type="hidden" asp-for="DepartmentId" />
+                    <input type="hidden" asp-for="LocationId" />
+                    <label asp-for="EmployeeName" class="form-label text-white fw-bold"></label>
+                    <input id="sn" asp-for="EmployeeName" class="form-control fw-bold" disabled />
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label asp-for="SeparationTypeId" class="form-label text-white fw-bold"></label>
+                    <input asp-for="SeparationTypeDescription" class="form-control fw-bold" disabled />
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label asp-for="SeparationReasonId" class="form-label text-white fw-bold"></label>
+                    <input asp-for="SeparationReasonDescription" class="form-control fw-bold" disabled />
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12 mb-3">
+                    <label asp-for="SeparationReasonExplanation" class="form-label text-white fw-bold"></label>
+                    <textarea asp-for="SeparationReasonExplanation" class="form-control  fw-bold" rows="6" disabled>@Model.SeparationReasonExplanation</textarea>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-2 mb-4">
+                    <label asp-for="NoticeServedDate" class="form-label text-white fw-bold"></label>
+                    <input id="NoticeServeDate" asp-for="NoticeServedDate" type="date" class="form-control fw-bold" disabled />
+                </div>
+                <div class="col-md-2 mb-4">
+                    <label asp-for="NoticePeriodInMonths" class="form-label text-white fw-bold"></label>
+                    <input id="NoticePeriodInMonths" asp-for="NoticePeriodInMonths" class="form-control fw-bold" disabled />
+                </div>
+                <div class="col-md-2 mb-4">
+                    <label asp-for="ExpectedLastWorkedDate" class="form-label text-white fw-bold"></label>
+                    <input asp-for="ExpectedLastWorkedDate" type="date" class="form-control fw-bold" disabled />
+                </div>
+                <div class="col-md-2 mb-4">
+                    <label asp-for="ActualLastWorkedDate" class="form-label text-white fw-bold"></label>
+                    <input asp-for="ActualLastWorkedDate" type="date" class="form-control fw-bold" disabled />
+                </div>
+                <div class="col-md-2 mb-4">
+                    <label asp-for="OutstandingWorkDays" class="form-label text-white fw-bold"></label>
+                    <input asp-for="OutstandingWorkDays" class="form-control fw-bold" disabled />
+                </div>
+                <div class="col-md-2 mb-4">
+                    <label asp-for="OutstandingLeaveDays" class="form-label text-white fw-bold"></label>
+                    <input asp-for="OutstandingLeaveDays" class="form-control fw-bold" disabled />
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-3 mb-3 pt-20">
+                    <input type="checkbox" asp-for="IsOwed" class="mr-2" style="width:15px; height:15px;" disabled>
+                    <span class="text-white fw-bold" style="font-size:1.0rem">Is owed by the Company</span>
+                </div>
+                <div class="col-md-3 mb-3 pt-20">
+                    <input type="checkbox" asp-for="IsIndebted" class="mr-2" style="width:15px; height:15px;" disabled>
+                    <span class="text-white fw-bold" style="font-size:1.0rem">Is indebted to the Company</span>
+                </div>
+                <div class="col-md-3 mb-3 pt-20">
+                    <input type="checkbox" asp-for="ReturnedAssignedAssets" class="mr-2" style="width:15px; height:15px;" disabled>
+                    <span class="text-white fw-bold" style="font-size:1.0rem">Returned all assigned Assets?</span>
+                </div>
+                <div class="col-md-3 mb-3 pt-20">
+                    <input type="checkbox" asp-for="EligibleForRehire" class="mr-2" style="width:15px; height:15px;" disabled>
+                    <span class="text-white fw-bold" style="font-size:1.0rem">Eligible for Re-Hire?</span>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12 text-end">
+                    <a asp-area="ERM" asp-controller="Home" asp-action="Separation" class="btn btn-dark" style="width:100px" title="Back">
+                        <span class="text-white">Back</span>
+                    </a>
+                   <button type="submit" class="btn btn-danger" title="Delete" style="width:200px" onclick="return confirm('Do you want to delete this record permanently?')"><span class="text-white fw-bold">Delete</span></button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+@section Scripts{
+
+}
+

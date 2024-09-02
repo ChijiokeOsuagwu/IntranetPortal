@@ -1,4 +1,5 @@
 ﻿using IntranetPortal.Base.Enums;
+using IntranetPortal.Base.Models.EmployeeRecordModels;
 using IntranetPortal.Base.Models.PmsModels;
 using System;
 using System.Collections.Generic;
@@ -29,6 +30,7 @@ namespace IntranetPortal.Base.Services
         Task<List<ReviewSession>> GetReviewSessionsAsync();
         Task<List<ReviewSession>> GetReviewSessionsAsync(int PerformanceYearId);
         Task<ReviewSession> GetReviewSessionAsync(int ReviewSessionId);
+        Task<List<Employee>> GetAppraisalNonParticipants(int ReviewSessionId, int? LocationId = null, int? UnitId = null);
         Task<bool> AddReviewSessionAsync(ReviewSession reviewSession);
         Task<bool> EditReviewSessionAsync(ReviewSession reviewSession);
         Task<bool> DeleteReviewSessionAsync(int ReviewSessionId);
@@ -86,11 +88,13 @@ namespace IntranetPortal.Base.Services
         Task<ReviewHeader> GetReviewHeaderAsync(string appraiseeId, int reviewSessionId);
         Task<List<ReviewHeader>> GetReviewHeadersAsync(int reviewSessionId, int? reviewStageId = null, int? locationId = null, int? unitId = null, string appraiseeName = null);
         Task<bool> AddReviewHeaderAsync(ReviewHeader reviewHeader);
+        Task<bool> RollBackReviewHeaderAsync(ReviewHeader reviewHeader);
         Task<bool> UpdatePerformanceGoalAsync(int reviewHeaderId, string performanceGoal, string appraiserId);
         Task<bool> UpdateReviewHeaderStageAsync(int reviewHeaderId, int nextStageId);
         Task<bool> UpdateAppraiseeFlagAsync(int reviewHeaderId, bool isFlagged, string flaggedReason);
         Task<bool> UpdateFeedbackAsync(int reviewHeaderId, string feedbackProblems, string feedbackSolutions);
         Task<bool> AddAppraisalRecommendationAsync(ReviewHeaderRecommendation model);
+        Task<bool> UpdatePrincipalAppraiserAsync(int changeTypeId, int reviewSessionId, string newPrincipalAppraiserId, string appraiseeId = null, int? unitId = null);
         #endregion
 
         #region Review Stage Service Methods
@@ -186,8 +190,8 @@ namespace IntranetPortal.Base.Services
         Task<bool> AcceptEvaluationByAppraisee(int reviewHeaderId);
         Task<List<ReviewApproval>> GetReviewApprovalsAsync(int reviewHeaderId, int? approvalTypeId = null, int? approverRoleId = null);
         Task<List<ReviewApproval>> GetReviewApprovalsApprovedAsync(int reviewHeaderId, int? approvalTypeId = null, int? approverRoleId = null);
-
-
+        Task<bool> DeleteAllApprovals(int reviewHeaderId);
+        Task<bool> DeleteApprovalByType(int reviewHeaderId, ReviewApprovalType reviewApprovalType);
         #endregion
 
         #region Review Result Service Methods
@@ -216,10 +220,12 @@ namespace IntranetPortal.Base.Services
         //===================== Review Result Write Service Methods =========================================//
         Task<bool> AddReviewResultAsync(ReviewResult reviewResult);
         Task<bool> UpdateReviewResultAsync(ReviewResult reviewResult);
+        Task<bool> DeleteEvaluationsAsync(int reviewHeaderId, bool includeSelfEvaluation = false);
 
         //==================== Result Summary Service Methods ================================================//
         Task<bool> AddResultSummaryAsync(ResultSummary resultSummary);
         Task<bool> UploadResults(int reviewHeaderId);
+        Task<bool> DeleteResultSummaryAsync(int reviewHeaderId, bool includeSelfEvaluationResult = false);
 
         //=================== Result Details Service Methods ==================================================//
         Task<List<ResultDetail>> GetPrincipalResultDetailAsync(int reviewSessionId, int? locationId = null, int? departmentId = null, int? unitId = null);

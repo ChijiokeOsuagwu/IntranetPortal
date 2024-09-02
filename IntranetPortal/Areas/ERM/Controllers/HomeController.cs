@@ -12,6 +12,7 @@ using IntranetPortal.Configurations;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 
@@ -37,7 +38,6 @@ namespace IntranetPortal.Areas.ERM.Controllers
             _dataProtector = dataProtectionProvider.CreateProtector(dataProtectionEncryptionStrings.RouteValuesEncryptionCode);
         }
 
-
         [Authorize(Roles = "ERMVWAEMR, XYALLACCZ")]
         public IActionResult index()
         {
@@ -62,7 +62,6 @@ namespace IntranetPortal.Areas.ERM.Controllers
             model.EmployeesList = await _ermService.GetEmployeesByBirthDayAsync(mm, dd);
             return View(model);
         }
-
 
         public async Task<FileResult> DownloadEmployeeRegister(string cd, int? ld = null, int? dd = null, int? ud = null)
         {
@@ -181,16 +180,635 @@ namespace IntranetPortal.Areas.ERM.Controllers
             catch (Exception)
             {
                 return null;
-                //TempData["ErrorMessage"] = ex.Message;
-                //return RedirectToAction("ResultReport", new { id, lc, dc, uc });
             }
             return GenerateEmployeeRegisterInExcel(fileName, employees);
         }
 
 
+        #region Employee Separation Controller Actions
+
+        public async Task<IActionResult> Separation(DateTime? sd = null, DateTime? ed = null)
+        {
+            EmployeeSeparationViewModel model = new EmployeeSeparationViewModel();
+
+            try
+            {
+                if (sd == null) { model.sd = DateTime.Today.AddYears(-1); }
+                else { model.sd = sd.Value; }
+                if (ed == null) { model.ed = DateTime.Today; }
+                else { model.ed = ed.Value; }
+                var entities = await _ermService.GetEmployeeSeparationsAsync(model.sd, model.ed);
+                if (entities != null)
+                {
+                    model.EmployeeSeparationList = entities;
+                    model.RowCount = entities.Count;
+                }
+            }
+            catch (Exception ex)
+            {
+                model.ViewModelErrorMessage = ex.Message;
+            }
+
+            return View(model);
+        }
+
+        public async Task<IActionResult> ManageSeparation(int id)
+        {
+            ManageSeparationViewModel model = new ManageSeparationViewModel();
+            try
+            {
+                if (id > 0)
+                {
+                    var entity = await _ermService.GetEmployeeSeparationAsync(id);
+                    if (entity != null && !string.IsNullOrEmpty(entity.EmployeeName))
+                    {
+                        model = model.Extract(entity);
+                    }
+                }
+                else
+                {
+                    model.ExpectedLastWorkedDate = DateTime.Today.AddMonths(1);
+                    model.ActualLastWorkedDate = DateTime.Today.AddMonths(1);
+                    model.NoticeServedDate = DateTime.Today;
+                    model.NoticePeriodInMonths = 1;
+                    model.EligibleForRehire = true;
+                    model.ReturnedAssignedAssets = true;
+                }
+            }
+            catch (Exception ex)
+            {
+                model.ViewModelErrorMessage = ex.Message;
+            }
 
 
-        //======================== Employees Helper Methods ======================================//
+            var types = await _ermService.GetEmployeeSeparationTypesAsync();
+            var reasons = await _ermService.GetEmployeeSeparationReasonsAsync();
+
+            if (types != null) { ViewBag.SeparationTypesList = new SelectList(types, "Id", "Description"); }
+
+            if (reasons != null) { ViewBag.SeparationReasonsList = new SelectList(reasons, "Id", "Description"); }
+
+            return View(model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ManageSeparation(ManageSeparationViewModel model)
+        {
+            EmployeeSeparation employeeSeparation = new EmployeeSeparation();
+            bool IsSuccessful = false;
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    employeeSeparation = model.Convert();
+                    Employee employee = await _ermService.GetEmployeeByNameAsync(model.EmployeeName);
+                    if (employee != null)
+                    {
+                        employeeSeparation.EmployeeId = employee.EmployeeID;
+                        employeeSeparation.UnitId = employee.UnitID.Value;
+                        employeeSeparation.DepartmentId = employee.DepartmentID.Value;
+                        employeeSeparation.LocationId = employee.LocationID.Value;
+
+                        if (employeeSeparation.EmployeeSeparationId < 1)
+                        {
+                            employeeSeparation.RecordCreatedBy = HttpContext.User.Identity.Name;
+                            employeeSeparation.RecordCreatedDate = DateTime.UtcNow;
+                            IsSuccessful = await _ermService.AddEmployeeSeparationAsync(employeeSeparation);
+                            if (IsSuccessful)
+                            {
+                                model.OperationIsCompleted = true;
+                                model.OperationIsSuccessful = true;
+                                model.ViewModelSuccessMessage = "New Employee Separation added successfully!";
+                            }
+                        }
+                        else
+                        {
+                            employeeSeparation.RecordModifiedBy = HttpContext.User.Identity.Name;
+                            employeeSeparation.RecordModifiedDate = DateTime.UtcNow;
+
+                            IsSuccessful = await _ermService.EditEmployeeSeparationAsync(employeeSeparation);
+                            if (IsSuccessful)
+                            {
+                                model.OperationIsCompleted = true;
+                                model.OperationIsSuccessful = true;
+                                model.ViewModelSuccessMessage = "Employee Separation updated successfully!";
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    model.ViewModelErrorMessage = ex.Message;
+                }
+            }
+            var types = await _ermService.GetEmployeeSeparationTypesAsync();
+            var reasons = await _ermService.GetEmployeeSeparationReasonsAsync();
+            if (types != null) { ViewBag.SeparationTypesList = new SelectList(types, "Id", "Description"); }
+            if (reasons != null) { ViewBag.SeparationReasonsList = new SelectList(reasons, "Id", "Description"); }
+
+            return View(model);
+        }
+
+        public async Task<IActionResult> ViewSeparation(int id)
+        {
+            ManageSeparationViewModel model = new ManageSeparationViewModel();
+            try
+            {
+                if (id > 0)
+                {
+                    var entity = await _ermService.GetEmployeeSeparationAsync(id);
+                    if (entity != null && !string.IsNullOrEmpty(entity.EmployeeName))
+                    {
+                        model = model.Extract(entity);
+                    }
+                }
+                else
+                {
+                    return RedirectToAction("ManageSeparation");
+                }
+            }
+            catch (Exception ex)
+            {
+                model.ViewModelErrorMessage = ex.Message;
+            }
+
+
+            //var types = await _ermService.GetEmployeeSeparationTypesAsync();
+            //var reasons = await _ermService.GetEmployeeSeparationReasonsAsync();
+
+            //if (types != null) { ViewBag.SeparationTypesList = new SelectList(types, "Id", "Description"); }
+
+            //if (reasons != null) { ViewBag.SeparationReasonsList = new SelectList(reasons, "Id", "Description"); }
+
+            return View(model);
+        }
+
+        public async Task<IActionResult> DeleteSeparation(int id)
+        {
+            ManageSeparationViewModel model = new ManageSeparationViewModel();
+            try
+            {
+                if (id > 0)
+                {
+                    var entity = await _ermService.GetEmployeeSeparationAsync(id);
+                    if (entity != null && !string.IsNullOrEmpty(entity.EmployeeName))
+                    {
+                        model = model.Extract(entity);
+                    }
+                }
+                else
+                {
+                    return RedirectToAction("ManageSeparation");
+                }
+            }
+            catch (Exception ex)
+            {
+                model.ViewModelErrorMessage = ex.Message;
+            }
+            return View(model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> DeleteSeparation(ManageSeparationViewModel model)
+        {
+            try
+            {
+                var entities = await _ermService.GetSeparationOutstandingsAsync(model.EmployeeSeparationId);
+                if (entities != null && entities.Count < 1)
+                {
+                    if (await _ermService.DeleteEmployeeSeparationAsync(model.EmployeeSeparationId))
+                    {
+                        return RedirectToAction("Separation");
+                    }
+                    else
+                    {
+                        model.ViewModelErrorMessage = "An error was encountered. Delete operation failed. Please try again.";
+                    }
+                }
+                else
+                {
+                    model.OperationIsCompleted = true;
+                    model.OperationIsSuccessful = true;
+                    model.ViewModelErrorMessage = "Invalid Operation! Editing is not permitted on this record because it has pending Outstanding items.";
+                }
+            }
+            catch (Exception ex)
+            {
+                model.ViewModelErrorMessage = ex.Message;
+            }
+
+            return View(model);
+        }
+
+        #endregion
+
+        #region Employee Separation Outstanding Controller Actions
+
+        public async Task<IActionResult> SeparationOutstanding(int id, string en = "")
+        {
+            SeparationOutstandingListViewModel model = new SeparationOutstandingListViewModel();
+            model.id = id;
+            model.EmployeeName = en;
+            try
+            {
+                if (id > 0)
+                {
+                    var entities = await _ermService.GetSeparationOutstandingsAsync(model.id);
+                    if (entities != null)
+                    {
+                        model.SeparationOutstandingList = entities;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                model.ViewModelErrorMessage = ex.Message;
+            }
+            return View(model);
+        }
+
+        public async Task<IActionResult> ManageSeparationOutstanding(int id = 0, int sd = 0)
+        {
+            ManageSeparationOutstandingViewModel model = new ManageSeparationOutstandingViewModel();
+            model.EmployeeSeparationId = sd;
+            model.Id = id;
+            try
+            {
+                if (id > 0)
+                {
+                    var entity = await _ermService.GetSeparationOutstandingAsync(id);
+                    if (entity != null && !string.IsNullOrEmpty(entity.EmployeeName))
+                    {
+                        model = model.Extract(entity);
+                    }
+                }
+                else
+                {
+                    if (sd > 0)
+                    {
+                        var entity = await _ermService.GetEmployeeSeparationAsync(sd);
+                        if (entity != null)
+                        {
+                            model.EmployeeSeparationId = entity.EmployeeSeparationId;
+                            model.EmployeeId = entity.EmployeeId;
+                            model.EmployeeName = entity.EmployeeName;
+                            model.Currency = "NGN";
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                model.ViewModelErrorMessage = ex.Message;
+            }
+
+            var items = await _ermService.GetSeparationOutstandingItemsAsync();
+            var currencies = await _globalSettingsService.GetCurrenciesAsync();
+
+            if (items != null) { ViewBag.ItemsList = new SelectList(items, "Description", "Description"); }
+            if (currencies != null) { ViewBag.CurrenciesList = new SelectList(currencies, "Code", "Name"); }
+
+            return View(model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ManageSeparationOutstanding(ManageSeparationOutstandingViewModel model)
+        {
+            EmployeeSeparationOutstanding e = new EmployeeSeparationOutstanding();
+            bool IsSuccessful = false;
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    e = model.Convert();
+                    e.AmountFormatted = $"{model.Currency} {model.Amount}";
+                    e.AmountBalance = model.Amount;
+                    if (model.Id > 0)
+                    {
+                        var payments = await _ermService.GetSeparationPaymentsBySeparationOutstandingIdAsync(model.Id);
+                        if (payments != null && payments.Count > 0)
+                        {
+                            model.OperationIsCompleted = true;
+                            model.OperationIsSuccessful = true;
+                            model.ViewModelErrorMessage = "Invalid Operation! Editing is not permitted on this record because it will affect the balance of payments that have already been made on it. ";
+                        }
+                        else
+                        {
+                            IsSuccessful = await _ermService.UpdateEmployeeSeparationOutstandingAsync(e);
+                            if (IsSuccessful)
+                            {
+                                model.OperationIsCompleted = true;
+                                model.OperationIsSuccessful = true;
+                                model.ViewModelSuccessMessage = "Employee Separation Outstanding updated successfully!";
+                            }
+                            else
+                            {
+                                model.OperationIsCompleted = true;
+                                model.OperationIsSuccessful = true;
+                                model.ViewModelErrorMessage = "Sorry update operation failed. Please try again.";
+                            }
+                        }
+                    }
+                    else
+                    {
+                        IsSuccessful = await _ermService.AddEmployeeSeparationOutstandingAsync(e);
+                        if (IsSuccessful)
+                        {
+                            model.OperationIsCompleted = true;
+                            model.OperationIsSuccessful = true;
+                            model.ViewModelSuccessMessage = "New Employee Separation Outstanding added successfully!";
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    model.ViewModelErrorMessage = ex.Message;
+                }
+            }
+            var items = await _ermService.GetSeparationOutstandingItemsAsync();
+            var currencies = await _globalSettingsService.GetCurrenciesAsync();
+
+            if (items != null) { ViewBag.ItemsList = new SelectList(items, "Description", "Description"); }
+            if (currencies != null) { ViewBag.CurrenciesList = new SelectList(currencies, "Code", "Name"); }
+
+            return View(model);
+        }
+
+        public async Task<IActionResult> ViewSeparationOutstanding(int id)
+        {
+            ManageSeparationOutstandingViewModel model = new ManageSeparationOutstandingViewModel();
+            model.Id = id;
+            try
+            {
+                if (id > 0)
+                {
+                    var entity = await _ermService.GetSeparationOutstandingAsync(id);
+                    if (entity != null && !string.IsNullOrEmpty(entity.EmployeeName))
+                    {
+                        model = model.Extract(entity);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                model.ViewModelErrorMessage = ex.Message;
+            }
+            return View(model);
+        }
+
+        public async Task<IActionResult> DeleteSeparationOutstanding(int id)
+        {
+            ManageSeparationOutstandingViewModel model = new ManageSeparationOutstandingViewModel();
+            model.Id = id;
+            try
+            {
+                if (id > 0)
+                {
+                    var entity = await _ermService.GetSeparationOutstandingAsync(id);
+                    if (entity != null && !string.IsNullOrEmpty(entity.EmployeeName))
+                    {
+                        model = model.Extract(entity);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                model.ViewModelErrorMessage = ex.Message;
+            }
+            return View(model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> DeleteSeparationOutstanding(ManageSeparationOutstandingViewModel model)
+        {
+            try
+            {
+                if (model.Id > 0)
+                {
+                    var payments = await _ermService.GetSeparationPaymentsBySeparationOutstandingIdAsync(model.Id);
+                    if (payments != null && payments.Count > 0)
+                    {
+                        model.OperationIsCompleted = true;
+                        model.OperationIsSuccessful = true;
+                        model.ViewModelErrorMessage = "Invalid Operation! Delete operation is not permitted on this record because it will affect the balance of payments that have already been made on it. ";
+                    }
+                    else
+                    {
+                        if (await _ermService.DeleteEmployeeSeparationOutstandingAsync(model.Id))
+                        {
+                            return RedirectToAction("SeparationOutstanding", new { id = model.EmployeeSeparationId, en = model.EmployeeName });
+                        }
+                        else
+                        {
+                            model.OperationIsCompleted = true;
+                            model.OperationIsSuccessful = true;
+                            model.ViewModelErrorMessage = "Sorry delete operation failed. Please try again.";
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                model.ViewModelErrorMessage = ex.Message;
+            }
+            return View(model);
+        }
+        #endregion
+
+        #region Employee Separation Payments Actions
+
+        public async Task<IActionResult> SeparationOutstandingPayments(int id, string ed, string en)
+        {
+            EmployeeSeparationPaymentsListViewModel model = new EmployeeSeparationPaymentsListViewModel();
+            model.EmployeeId = ed;
+            model.EmployeeName = en;
+            model.EmployeeSeparationId = id;
+
+            try
+            {
+                if (model.EmployeeSeparationId > 0)
+                {
+                    var entities = await _ermService.GetSeparationPaymentsAsync(model.EmployeeSeparationId);
+                    if (entities != null)
+                    {
+                        model.EmployeeSeparationPayments = entities;
+                    }
+                }
+                else if (!string.IsNullOrWhiteSpace(model.EmployeeId))
+                {
+                    var entities = await _ermService.GetSeparationPaymentsAsync(model.EmployeeId);
+                    if (entities != null)
+                    {
+                        model.EmployeeSeparationPayments = entities;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                model.ViewModelErrorMessage = ex.Message;
+            }
+            return View(model);
+        }
+
+        public async Task<IActionResult> ManageSeparationPayment(int id = 0, int od = 0)
+        {
+            ManageSeparationPaymentViewModel model = new ManageSeparationPaymentViewModel();
+            model.OutstandingId = od;
+            model.Id = id;
+            try
+            {
+                if (model.Id > 0)
+                {
+                    var entity = await _ermService.GetSeparationPaymentAsync(model.Id);
+                    if (entity != null && !string.IsNullOrEmpty(entity.EmployeeName))
+                    {
+                        model = model.Extract(entity);
+                    }
+                }
+                else
+                {
+                    if (model.OutstandingId > 0)
+                    {
+                        var entity = await _ermService.GetSeparationOutstandingAsync(model.OutstandingId);
+                        if (entity != null)
+                        {
+                            model.EmployeeSeparationId = entity.EmployeeSeparationId;
+                            model.EmployeeId = entity.EmployeeId;
+                            model.EmployeeName = entity.EmployeeName;
+                            model.ItemDescription = entity.ItemDescription;
+                            model.ItemTypeDescription = entity.TypeDescription;
+                            model.Currency = entity.Currency;
+                            model.PaymentDate = DateTime.Today;
+                            model.ItemDescriptionFormatted = $"{entity.ItemDescription} ({entity.TypeDescription})";
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                model.ViewModelErrorMessage = ex.Message;
+            }
+
+            var currencies = await _globalSettingsService.GetCurrenciesAsync();
+            if (currencies != null) { ViewBag.CurrenciesList = new SelectList(currencies, "Code", "Name", model.Currency); }
+
+            return View(model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ManageSeparationPayment(ManageSeparationPaymentViewModel model)
+        {
+            EmployeeSeparationPayments e = new EmployeeSeparationPayments();
+            bool IsSuccessful = false;
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    e = model.Convert();
+                    e.EnteredBy = HttpContext.User.Identity.Name;
+                    e.EnteredDate = DateTime.UtcNow;
+
+                    if (e.Id > 0)
+                    {
+                        IsSuccessful = await _ermService.UpdateEmployeeSeparationPaymentAsync(e);
+                        if (IsSuccessful)
+                        {
+                            model.OperationIsCompleted = true;
+                            model.OperationIsSuccessful = true;
+                            model.ViewModelSuccessMessage = "Employee Separation Payment updated successfully!";
+                        }
+                    }
+                    else
+                    {
+                        IsSuccessful = await _ermService.AddEmployeeSeparationPaymentAsync(e);
+                        if (IsSuccessful)
+                        {
+                            model.OperationIsCompleted = true;
+                            model.OperationIsSuccessful = true;
+                            model.ViewModelSuccessMessage = "New Employee Separation Payment added successfully!";
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    model.ViewModelErrorMessage = ex.Message;
+                }
+            }
+
+            var currencies = await _globalSettingsService.GetCurrenciesAsync();
+            if (currencies != null) { ViewBag.CurrenciesList = new SelectList(currencies, "Code", "Name"); }
+
+            return View(model);
+        }
+
+        public async Task<IActionResult> ViewSeparationPayment(int id)
+        {
+            ManageSeparationPaymentViewModel model = new ManageSeparationPaymentViewModel();
+            model.Id = id;
+            try
+            {
+                if (id > 0)
+                {
+                    var entity = await _ermService.GetSeparationPaymentAsync(id);
+                    if (entity != null && !string.IsNullOrEmpty(entity.EmployeeName))
+                    {
+                        model = model.Extract(entity);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                model.ViewModelErrorMessage = ex.Message;
+            }
+            return View(model);
+        }
+
+        public async Task<IActionResult> DeleteSeparationPayment(int id)
+        {
+            ManageSeparationPaymentViewModel model = new ManageSeparationPaymentViewModel();
+            model.Id = id;
+            try
+            {
+                if (id > 0)
+                {
+                    var entity = await _ermService.GetSeparationPaymentAsync(id);
+                    if (entity != null && !string.IsNullOrEmpty(entity.EmployeeName))
+                    {
+                        model = model.Extract(entity);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                model.ViewModelErrorMessage = ex.Message;
+            }
+            return View(model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> DeleteSeparationPayment(ManageSeparationPaymentViewModel model)
+        {
+            try
+            {
+                if (model.Id > 0)
+                {
+                    if (await _ermService.DeleteEmployeeSeparationPaymentAsync(model.Id))
+                    {
+                        return RedirectToAction("SeparationOutstandingPayments", new { id = model.EmployeeSeparationId, ed = model.EmployeeId, en = model.EmployeeName });
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                model.ViewModelErrorMessage = ex.Message;
+            }
+            return View(model);
+        }
+
+
+        #endregion
+
+        //======== Employees Helper Methods =======//
         #region Employees Helper Methods
 
         [HttpGet]
@@ -242,7 +860,49 @@ namespace IntranetPortal.Areas.ERM.Controllers
             return Json(persons);
         }
 
+        public JsonResult GetExpectedLastWorkDate(string nd, int np)
+        {
+            DateTime expectedLastWorkDate = DateTime.Today.Date;
+            string errorMessage = string.Empty;
+            try
+            {
+                if (nd != null)
+                {
+                    DateTime convertedDate = Convert.ToDateTime(nd);
+                    expectedLastWorkDate = convertedDate.AddMonths(np);
+                }
+            }
+            catch (Exception ex)
+            {
+                errorMessage = ex.Message;
+            }
+            ResultObject returnObj = new ResultObject { errorMessage = errorMessage, result = expectedLastWorkDate.ToString("yyyy-MM-dd") };
+            var jsonObj = System.Text.Json.JsonSerializer.Serialize(returnObj);
+            return Json(jsonObj);
+        }
 
+        public JsonResult GetOutstandingWorkDays(string xd, string ad)
+        {
+            DateTime expectedLastWorkDate = DateTime.Today.Date;
+            TimeSpan daysOutstanding = new TimeSpan();
+            string errorMessage = string.Empty;
+            try
+            {
+                if (!string.IsNullOrWhiteSpace(xd) && !string.IsNullOrWhiteSpace(ad))
+                {
+                    DateTime convertedExpectedLastWorkDate = Convert.ToDateTime(xd);
+                    DateTime convertedActualLastWorkDate = Convert.ToDateTime(ad);
+                    daysOutstanding = convertedExpectedLastWorkDate - convertedActualLastWorkDate;
+                }
+            }
+            catch (Exception ex)
+            {
+                errorMessage = ex.Message;
+            }
+            ResultObject returnObj = new ResultObject { errorMessage = errorMessage, result = daysOutstanding.Days.ToString() };
+            var jsonObj = System.Text.Json.JsonSerializer.Serialize(returnObj);
+            return Json(jsonObj);
+        }
 
 
         private FileResult GenerateEmployeeRegisterInExcel(string fileName, IEnumerable<Employee> employees)
@@ -295,6 +955,12 @@ namespace IntranetPortal.Areas.ERM.Controllers
             }
         }
 
+
+        class ResultObject
+        {
+            public string errorMessage { get; set; } = string.Empty;
+            public string result { get; set; } = DateTime.Today.ToString("yyyy-MM-dd");
+        }
         #endregion
     }
 }

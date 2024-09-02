@@ -26,9 +26,7 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
             AssetDivision assetDivision = new AssetDivision();
             var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
             StringBuilder sb = new StringBuilder();
-            sb.Append("SELECT asst_dvsn_id, asst_dvsn_nm, ");
-            sb.Append("asst_dvsn_ds, loc_id, (SELECT locname FROM ");
-            sb.Append("public.gst_locs WHERE locqk = loc_id) as loc_nm ");
+            sb.Append("SELECT asst_dvsn_id, asst_dvsn_nm, asst_dvsn_ds ");
             sb.Append("FROM public.asm_stt_dvsn  ");
             sb.Append("WHERE asst_dvsn_id = @asst_dvsn_id;");
             string query = sb.ToString();
@@ -46,8 +44,6 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
                         assetDivision.ID = reader["asst_dvsn_id"] == DBNull.Value ? (int?)null : (int)reader["asst_dvsn_id"];
                         assetDivision.Name = reader["asst_dvsn_nm"] == DBNull.Value ? String.Empty : reader["asst_dvsn_nm"].ToString();
                         assetDivision.Description = reader["asst_dvsn_ds"] == DBNull.Value ? String.Empty : reader["asst_dvsn_ds"].ToString();
-                        assetDivision.LocationID = reader["loc_id"] == DBNull.Value ? (int?)null : (int)reader["loc_id"];
-                        assetDivision.LocationName = reader["loc_nm"] == DBNull.Value ? string.Empty : reader["loc_nm"].ToString();
                     }
             }
             return assetDivision;
@@ -58,9 +54,7 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
             List<AssetDivision> divisionList = new List<AssetDivision>();
             var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
             StringBuilder sb = new StringBuilder();
-            sb.Append("SELECT asst_dvsn_id, asst_dvsn_nm, ");
-            sb.Append("asst_dvsn_ds, loc_id, (SELECT locname FROM ");
-            sb.Append("public.gst_locs WHERE locqk = loc_id) as loc_nm ");
+            sb.Append("SELECT asst_dvsn_id, asst_dvsn_nm, asst_dvsn_ds ");
             sb.Append("FROM public.asm_stt_dvsn  ");
             sb.Append("WHERE(LOWER(asst_dvsn_nm) LIKE '%'||LOWER(@asst_dvsn_nm)||'%') ");
             sb.Append("ORDER BY asst_dvsn_nm; ");
@@ -82,9 +76,6 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
                                 ID = reader["asst_dvsn_id"] == DBNull.Value ? (int?)null : (int)reader["asst_dvsn_id"],
                                 Name = reader["asst_dvsn_nm"] == DBNull.Value ? String.Empty : reader["asst_dvsn_nm"].ToString(),
                                 Description = reader["asst_dvsn_ds"] == DBNull.Value ? String.Empty : reader["asst_dvsn_ds"].ToString(),
-                                LocationID = reader["loc_id"] == DBNull.Value ? (int?)null : (int)reader["loc_id"],
-                                LocationName = reader["loc_nm"] == DBNull.Value ? string.Empty : reader["loc_nm"].ToString(),
-
                         });
                         }
                 }
@@ -103,9 +94,7 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
             List<AssetDivision> divisionList = new List<AssetDivision>();
             var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
             StringBuilder sb = new StringBuilder();
-            sb.Append("SELECT asst_dvsn_id, asst_dvsn_nm, ");
-            sb.Append("asst_dvsn_ds, loc_id, (SELECT locname FROM ");
-            sb.Append("public.gst_locs WHERE locqk = loc_id) as loc_nm ");
+            sb.Append("SELECT asst_dvsn_id, asst_dvsn_nm, asst_dvsn_ds ");
             sb.Append("FROM public.asm_stt_dvsn ");
             sb.Append("WHERE asst_dvsn_id IN (SELECT asst_dvsn_id FROM public.sct_ntt_pms ");
             sb.Append("WHERE ntt_typ=0 AND usr_acct_id = @usr_id) ");
@@ -129,8 +118,6 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
                         ID = reader["asst_dvsn_id"] == DBNull.Value ? 0 : (int)reader["asst_dvsn_id"],
                         Name = reader["asst_dvsn_nm"] == DBNull.Value ? String.Empty : reader["asst_dvsn_nm"].ToString(),
                         Description = reader["asst_dvsn_ds"] == DBNull.Value ? String.Empty : reader["asst_dvsn_ds"].ToString(),
-                        LocationID = reader["loc_id"] == DBNull.Value ? (int?)null : (int)reader["loc_id"],
-                        LocationName = reader["loc_nm"] == DBNull.Value ? string.Empty : reader["loc_nm"].ToString(),
                     });
                 }
             }
@@ -143,9 +130,7 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
             List<AssetDivision> divisionList = new List<AssetDivision>();
             var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
             StringBuilder sb = new StringBuilder();
-            sb.Append("SELECT asst_dvsn_id, asst_dvsn_nm, ");
-            sb.Append("asst_dvsn_ds, loc_id, (SELECT locname FROM ");
-            sb.Append("public.gst_locs WHERE locqk = loc_id) as loc_nm ");
+            sb.Append("SELECT asst_dvsn_id, asst_dvsn_nm, asst_dvsn_ds ");
             sb.Append("FROM public.asm_stt_dvsn ");
             sb.Append("ORDER BY asst_dvsn_nm; ");
             string query = sb.ToString();
@@ -163,8 +148,6 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
                         ID = reader["asst_dvsn_id"] == DBNull.Value ? 0 : (int)reader["asst_dvsn_id"],
                         Name = reader["asst_dvsn_nm"] == DBNull.Value ? String.Empty : reader["asst_dvsn_nm"].ToString(),
                         Description = reader["asst_dvsn_ds"] == DBNull.Value ? String.Empty : reader["asst_dvsn_ds"].ToString(),
-                        LocationID = reader["loc_id"] == DBNull.Value ? (int?)null : (int)reader["loc_id"],
-                        LocationName = reader["loc_nm"] == DBNull.Value ? string.Empty : reader["loc_nm"].ToString(),
                     });
                 }
             }
@@ -181,8 +164,8 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
             var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
             StringBuilder sb = new StringBuilder();
             sb.Append("INSERT INTO public.asm_stt_dvsn ");
-            sb.Append("(asst_dvsn_nm, asst_dvsn_ds, loc_id)  ");
-            sb.Append("VALUES (@asst_dvsn_nm, @asst_dvsn_ds, @loc_id); ");
+            sb.Append("(asst_dvsn_nm, asst_dvsn_ds) ");
+            sb.Append("VALUES (@asst_dvsn_nm, @asst_dvsn_ds); ");
             string query = sb.ToString();
 
             await conn.OpenAsync();
@@ -191,11 +174,9 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
             {
                 var asst_dvsn_nm = cmd.Parameters.Add("@asst_dvsn_nm", NpgsqlDbType.Text);
                 var asst_dvsn_ds = cmd.Parameters.Add("@asst_dvsn_ds", NpgsqlDbType.Text);
-                var loc_id = cmd.Parameters.Add("@loc_id", NpgsqlDbType.Integer);
                 cmd.Prepare();
                 asst_dvsn_nm.Value = assetDivision.Name;
                 asst_dvsn_ds.Value = assetDivision.Description ?? (object)DBNull.Value;
-                loc_id.Value = assetDivision.LocationID ?? (object)DBNull.Value;
                 rows = await cmd.ExecuteNonQueryAsync();
                 await conn.CloseAsync();
             }
@@ -208,7 +189,7 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
             var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
             StringBuilder sb = new StringBuilder();
             sb.Append("UPDATE public.asm_stt_dvsn SET asst_dvsn_nm=@asst_dvsn_nm, ");
-            sb.Append("asst_dvsn_ds=@asst_dvsn_ds, loc_id=@loc_id ");
+            sb.Append("asst_dvsn_ds=@asst_dvsn_ds ");
             sb.Append("WHERE asst_dvsn_id=@asst_dvsn_id; ");
             string query = sb.ToString();
 
@@ -219,12 +200,10 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
                 var asst_dvsn_id = cmd.Parameters.Add("@asst_dvsn_id", NpgsqlDbType.Integer);
                 var asst_dvsn_nm = cmd.Parameters.Add("@asst_dvsn_nm", NpgsqlDbType.Text);
                 var asst_dvsn_ds = cmd.Parameters.Add("@asst_dvsn_ds", NpgsqlDbType.Text);
-                var loc_id = cmd.Parameters.Add("@loc_id", NpgsqlDbType.Integer);
                 cmd.Prepare();
                 asst_dvsn_id.Value = assetDivision.ID;
                 asst_dvsn_nm.Value = assetDivision.Name;
                 asst_dvsn_ds.Value = assetDivision.Description ?? (object)DBNull.Value;
-                loc_id.Value = assetDivision.LocationID ?? (object)DBNull.Value;
 
                 rows = await cmd.ExecuteNonQueryAsync();
                 await conn.CloseAsync();

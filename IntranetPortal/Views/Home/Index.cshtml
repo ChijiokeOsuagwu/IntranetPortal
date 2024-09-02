@@ -118,27 +118,14 @@
 }
 @if (Model != null && Model.Announcements != null && Model.Announcements.Count > 0)
 {
-    <section class="py-3">
-        <div class="row">
-            @foreach (var announcement in Model.Announcements)
-            {
-                <div class="col-lg-4 col-sm-6 mb-4">
-                    <div class="card h-100">
-                        <div class="card-header bg-info">
-                            <h4 class="text-white">
-                                <i class="fas fa-exclamation-circle"></i>
-                                Important Notice!
-                            </h4>
-                        </div>
-                        <div class="card-body bg-light">
-                            <p class="card-text text-white">@announcement.PostSummary</p>
-                        </div>
-                    </div>
-                </div>
-            }
-        </div>
-        <hr class="my-0" />
-    </section>
+    @if (!string.IsNullOrWhiteSpace(Model.Announcements.First().PostDetails) && Model.Announcements.First().PostDetails.Length > 10)
+    {
+        <section class="pt-1 bg-info" style="border-top:7px solid white;">
+            <div class="scroll-left">
+                <p>@Model.Announcements.First().PostDetails </p>
+            </div>
+        </section>
+    }
 }
 <section class="py-2 bg-light">
     <div class="row">
@@ -155,72 +142,73 @@
                         }
                         <div class="card-body">
                             <h3 class="card-title">@post.PostTitle</h3>
-                            <p class="card-text" style="font-size:1.2rem">@post.PostSummary
+                            <p class="card-text" style="font-size:1.2rem">
+                                @post.PostSummary
                                 <a class="btn btn-light" asp-area="" asp-controller="Home" asp-action="Read" asp-route-id="@post.PostId"><span class="text-secondary">[Read Full Article]</span></a>
                             </p>
-                            
+
                         </div>
                     </div>
                 </div>
             }
         }
         @*else
-        {
-            <div class="col-lg-4 col-sm-6 mb-4">
-                <div class="card h-100">
-                    <a href="#!"><img class="card-img-top" src="~/lib/startbootstrap/img/700x400.png" alt="..." /></a>
-                    <div class="card-body">
-                        <h4 class="card-title"><a href="#!">Project Two</a></h4>
-                        <p class="card-text">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam viverra euismod odio, gravida pellentesque urna varius vitae.</p>
+            {
+                <div class="col-lg-4 col-sm-6 mb-4">
+                    <div class="card h-100">
+                        <a href="#!"><img class="card-img-top" src="~/lib/startbootstrap/img/700x400.png" alt="..." /></a>
+                        <div class="card-body">
+                            <h4 class="card-title"><a href="#!">Project Two</a></h4>
+                            <p class="card-text">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam viverra euismod odio, gravida pellentesque urna varius vitae.</p>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="col-lg-4 col-sm-6 mb-4">
-                <div class="card h-100">
-                    <a href="#!"><img class="card-img-top" src="~/lib/startbootstrap/img/700x400.png" alt="..." /></a>
-                    <div class="card-body">
-                        <h4 class="card-title"><a href="#!">Project Two</a></h4>
-                        <p class="card-text">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam viverra euismod odio, gravida pellentesque urna varius vitae.</p>
+                <div class="col-lg-4 col-sm-6 mb-4">
+                    <div class="card h-100">
+                        <a href="#!"><img class="card-img-top" src="~/lib/startbootstrap/img/700x400.png" alt="..." /></a>
+                        <div class="card-body">
+                            <h4 class="card-title"><a href="#!">Project Two</a></h4>
+                            <p class="card-text">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam viverra euismod odio, gravida pellentesque urna varius vitae.</p>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="col-lg-4 col-sm-6 mb-4">
-                <div class="card h-100">
-                    <a href="#!"><img class="card-img-top" src="~/lib/startbootstrap/img/700x400.png" alt="..." /></a>
-                    <div class="card-body">
-                        <h4 class="card-title"><a href="#!">Project Three</a></h4>
-                        <p class="card-text">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quos quisquam, error quod sed cumque, odio distinctio velit nostrum temporibus necessitatibus et facere atque iure perspiciatis mollitia recusandae vero vel quam!</p>
+                <div class="col-lg-4 col-sm-6 mb-4">
+                    <div class="card h-100">
+                        <a href="#!"><img class="card-img-top" src="~/lib/startbootstrap/img/700x400.png" alt="..." /></a>
+                        <div class="card-body">
+                            <h4 class="card-title"><a href="#!">Project Three</a></h4>
+                            <p class="card-text">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quos quisquam, error quod sed cumque, odio distinctio velit nostrum temporibus necessitatibus et facere atque iure perspiciatis mollitia recusandae vero vel quam!</p>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="col-lg-4 col-sm-6 mb-4">
-                <div class="card h-100">
-                    <a href="#!"><img class="card-img-top" src="~/lib/startbootstrap/img/700x400.png" alt="..." /></a>
-                    <div class="card-body">
-                        <h4 class="card-title"><a href="#!">Project Four</a></h4>
-                        <p class="card-text">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam viverra euismod odio, gravida pellentesque urna varius vitae.</p>
+                <div class="col-lg-4 col-sm-6 mb-4">
+                    <div class="card h-100">
+                        <a href="#!"><img class="card-img-top" src="~/lib/startbootstrap/img/700x400.png" alt="..." /></a>
+                        <div class="card-body">
+                            <h4 class="card-title"><a href="#!">Project Four</a></h4>
+                            <p class="card-text">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam viverra euismod odio, gravida pellentesque urna varius vitae.</p>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="col-lg-4 col-sm-6 mb-4">
-                <div class="card h-100">
-                    <a href="#!"><img class="card-img-top" src="~/lib/startbootstrap/img/700x400.png" alt="..." /></a>
-                    <div class="card-body">
-                        <h4 class="card-title"><a href="#!">Project Five</a></h4>
-                        <p class="card-text">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam viverra euismod odio, gravida pellentesque urna varius vitae.</p>
+                <div class="col-lg-4 col-sm-6 mb-4">
+                    <div class="card h-100">
+                        <a href="#!"><img class="card-img-top" src="~/lib/startbootstrap/img/700x400.png" alt="..." /></a>
+                        <div class="card-body">
+                            <h4 class="card-title"><a href="#!">Project Five</a></h4>
+                            <p class="card-text">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam viverra euismod odio, gravida pellentesque urna varius vitae.</p>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="col-lg-4 col-sm-6 mb-4">
-                <div class="card h-100">
-                    <a href="#!"><img class="card-img-top" src="~/lib/startbootstrap/img/700x400.png" alt="..." /></a>
-                    <div class="card-body">
-                        <h4 class="card-title"><a href="#!">Project Six</a></h4>
-                        <p class="card-text">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Itaque earum nostrum suscipit ducimus nihil provident, perferendis rem illo, voluptate atque, sit eius in voluptates, nemo repellat fugiat excepturi! Nemo, esse.</p>
+                <div class="col-lg-4 col-sm-6 mb-4">
+                    <div class="card h-100">
+                        <a href="#!"><img class="card-img-top" src="~/lib/startbootstrap/img/700x400.png" alt="..." /></a>
+                        <div class="card-body">
+                            <h4 class="card-title"><a href="#!">Project Six</a></h4>
+                            <p class="card-text">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Itaque earum nostrum suscipit ducimus nihil provident, perferendis rem illo, voluptate atque, sit eius in voluptates, nemo repellat fugiat excepturi! Nemo, esse.</p>
+                        </div>
                     </div>
                 </div>
-            </div>
-        }*@
+            }*@
     </div>
 </section>
 

@@ -1,0 +1,121 @@
+﻿
+@model IntranetPortal.Areas.ERM.Models.SeparationOutstandingListViewModel
+<div class="container">
+    <h4 class="mb-1">Employee Exit Outstandings for: @Model.EmployeeName</h4>
+    <hr />
+    <div class="row">
+        <div class="col-md-8 text-start">
+            <a asp-area="ERM" asp-controller="Home" asp-action="Separation" title="Go Back" class="btn btn-sm btn-outline-light text-dark mr-3">
+                <i class="bi bi-backspace fw-bolder" style="font-size: 1.0rem;"></i><span class="fw-bold ml-1" style="font-size: 0.9rem;">Back</span>
+            </a>
+            @*<a asp-area="ERM" asp-controller="Home" asp-action="DownloadEmployeeSeparationsReport" asp-route-id="@Model.id" title="Download Excel" class="btn btn-sm btn-outline-light mr-5 text-dark">
+                <i class="bi bi-download fw-bolder" style="font-size: 1.0rem;"></i><span class="fw-bold ml-1" style="font-size: 0.9rem;">Download</span>
+            </a>*@
+        </div>
+        <div class="col-md-2">
+            <a asp-area="ERM" asp-controller="Home" asp-action="ManageSeparationOutstanding" asp-route-id="0" asp-route-sd="@Model.id" title="Add New Obligation" class="text-dark mr-3">
+                <i class="bi bi-plus-lg fw-bolder" style="font-size: 1.0rem;"></i><span class="fw-bold" style="font-size: 0.9rem;">Add New</span>
+            </a>
+        </div>
+    </div>
+
+    @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+    {
+        <div class="row">
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-x-circle"></i>
+                <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        </div>
+    }
+    <div class="row">
+        @if (Model == null || Model.SeparationOutstandingList == null || Model.SeparationOutstandingList.Count < 1)
+        {
+            <div class="alert alert-info fade show" role="alert">
+                <i class="bi bi-info-circle"></i>
+                <span class="fw-bold">No record was found.</span>
+            </div>
+        }
+        else
+        {
+            int row_count = 0;
+            <div class="row">
+                <div class="table-responsive" style="max-height:400px; max-width:1300px">
+                    <table class="table table-sm table-striped caption-top">
+                        <thead>
+                            <tr class="table-dark">
+                                <th><span class="text-white fw-bolder">#</span></th>
+                                <th><span class="text-white fw-bolder">Item Description</span>
+                                <th><span class="text-white fw-bolder">Type</span></th>
+                                <th><span class="text-white fw-bolder">Total Amount</span>
+                                <th><span class="text-white fw-bolder">Amount Paid</span>
+                                <th><span class="text-white fw-bolder">Balance</span></th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody class="table-warning">
+                            @foreach (var item in Model.SeparationOutstandingList)
+                            {
+                                row_count++;
+                                <tr>
+                                    <td><span class="fw-bold">@row_count.ToString()</span></td>
+                                    <td><span class="fw-bold">@item.ItemDescription</span></td>
+                                    <td><span class="fw-bold">@item.TypeDescription</span></td>
+                                    <td><span class="fw-bold">@item.Currency @item.Amount.ToString("N")</span></td>
+                                    <td><span class="fw-bold">@item.Currency @item.AmountPaid.ToString("N")</span></td>
+                                    <td><span class="fw-bold">@item.Currency @item.AmountBalance.ToString("N")</span></td>
+                                    <td class="p-1 text-end">
+                                        <div class="btn-group dropstart">
+                                            <button type="button" class="bg-light" style="border:0px; height:10px" data-bs-toggle="dropdown" aria-expanded="false">
+                                                <span class="text-dark fw-bold"><i class="bi bi-three-dots" style="font-size:1.0rem"></i></span>
+                                            </button>
+                                            <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton2">
+                                                <li>
+                                                    <a asp-area="ERM" asp-controller="Home" asp-action="ViewSeparationOutstanding" asp-route-id="@item.Id" title="View Separation Outstanding Details">
+                                                        <i class="bi bi-file-text text-white pl-2"></i>
+                                                        <span class="text-white">View</span>
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <a asp-area="ERM" asp-controller="Home" asp-action="ManageSeparationOutstanding" asp-route-id="@item.Id" asp-route-sd="@item.EmployeeSeparationId" title="Edit Separation Outstanding">
+                                                        <i class="bi bi-pencil-square text-white pl-2"></i>
+                                                        <span class="text-white">Edit</span>
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <a asp-area="ERM" asp-controller="Home" asp-action="DeleteSeparationOutstanding" asp-route-id="@item.Id" title="Delete Separation Outstanding">
+                                                        <i class="bi bi-trash2 text-white pl-2"></i>
+                                                        <span class="text-white">Delete</span>
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <a asp-area="ERM" asp-controller="Home" asp-action="ManageSeparationPayment" asp-route-od="@item.Id" title="Add New Payment">
+                                                        <i class="bi bi-credit-card text-white pl-2"></i>
+                                                        <span class="text-white">Add Payment</span>
+                                                    </a>
+                                                </li>
+                                                @if (item.HasPayments)
+                                                {
+                                                    <li>
+                                                        <a asp-area="ERM" asp-controller="Home" asp-action="SeparationOutstandingPayments" asp-route-id="@item.EmployeeSeparationId" asp-route-ed="@item.EmployeeId" asp-route-en="@item.EmployeeName" title="Payment History">
+                                                            <i class="bi bi-credit-card text-white pl-2"></i>
+                                                            <span class="text-white">Payment History</span>
+                                                        </a>
+                                                    </li>
+                                                }
+                                            </ul>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+@section Scripts{
+    <script src="~/js/pms.js"></script>
+}

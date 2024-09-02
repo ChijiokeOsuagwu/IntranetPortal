@@ -11,7 +11,7 @@
                 <span class="text-white">Exit</span>
             </a>
             <input asp-for="nm" class="border-0 pl-2 pr-2" style="width:300px" placeholder="Enter Name" />
-            <input asp-for="yy" class="border-0 pl-2 pr-2" style="width:100px" placeholder="yyyy" />
+            <input asp-for="yy" class="border-0 pl-2 pr-2" style="width:100px" placeholder="yyyy" type="number" min="2020" max="2090" />
             <select asp-for="mm" class="border-0" style="width:150px">
                 <option value="0"> All </option>
                 <option value="1">January</option>
@@ -27,7 +27,7 @@
                 <option value="11">November</option>
                 <option value="12">December</option>
             </select>
-            <input asp-for="dd" class="border-0 pl-2 pr-2" style="width:50px" placeholder="dd" />
+            <input asp-for="dd" type="number" min="1" max="31" class="border-0 pl-2 pr-2" style="width:50px" placeholder="dd" />
             <input type="submit" value="Search" class="btn btn-dark" style="width:100px" />
         </form>
 

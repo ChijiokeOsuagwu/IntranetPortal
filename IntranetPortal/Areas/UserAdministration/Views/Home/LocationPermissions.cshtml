@@ -1,0 +1,72 @@
+﻿
+@model IntranetPortal.Areas.UserAdministration.Models.LocationPermissionsListViewModel
+@{
+    ViewData["Title"] = "User Administration | Location Permissions";
+}
+    <div class="container">
+        <h3 class="mb-4">Location Permissions</h3>
+        <hr />
+        <div class="row mb-3">
+            <div class="col-md-9">
+                <a asp-area="UserAdministration" asp-controller="Staff" asp-action="EmployeeUserDetails" asp-route-id="@Model.id" class="btn btn-secondary" style="width:100px" title="Click to Go Back">
+                    <span class="text-white">Back</span>
+                </a>
+            </div>
+            <div class="col-md-3 text-end">
+                <a asp-area="UserAdministration" asp-controller="Home" asp-action="GrantUserLocationPermission" asp-route-id="@Model.id" class="btn btn-success" style="width:150px" title="Grant New Permission">
+                    <span class="text-white">New Permission</span>
+                </a>
+            </div>
+        </div>
+        <div class="row">
+            @if (Model == null || Model.LocationPermissionList == null || Model.LocationPermissionList.Count < 1)
+            {
+                <div class="alert alert-info fade show" role="alert">
+                    <i class="bi bi-info-circle"></i>
+                    <span class="fw-bold">No record was found.</span>
+                </div>
+            }
+            else
+            {
+                int row_no = 0;
+                <div class="table-responsive">
+                    <table class="table table-sm table-hover">
+                        <thead>
+                            <tr class="bg-secondary">
+                                <th>
+                                    <span class="text-white fw-bold">#</span>
+                                </th>
+                                <th>
+                                    <span class="text-white fw-bold">Location</span>
+                                </th>
+                                <th>
+                                    <span class="text-white fw-bold">Action</span>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var permission in Model.LocationPermissionList)
+                            {
+                                row_no++;
+                            <tr>
+                                <td>
+                                    <span class="text-dark fw-bold">@row_no.ToString()</span>
+                                </td>
+                                <td>
+                                    <span class="text-dark fw-bold">@Html.DisplayFor(modelItem => permission.LocationName)</span>
+                                </td>
+                                <td>
+                                    <button title="Revoke this Permission" class="btn btn-sm btn-outline-danger text-dark fw-bold" style="border-radius:10px; width:75px" id="btn_revoke_@permission.LocationPermissionId" onclick="revokeLocationPermission('@permission.LocationPermissionId')">Revoke</button>
+                                </td>
+                            </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+        </div>
+<script src="~/js/js_uad/user_permissions.js"></script>
+
+
+

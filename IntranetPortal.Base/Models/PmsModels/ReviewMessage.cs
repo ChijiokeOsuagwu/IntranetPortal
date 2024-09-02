@@ -8,6 +8,7 @@ namespace IntranetPortal.Base.Models.PmsModels
     {
         public int ReviewMessageId { get; set; }
         public int ReviewHeaderId { get; set; }
+        public int ReviewSessionId { get; set; }
         public string FromEmployeeId { get; set; }
         public string FromEmployeeName { get; set; }
         public string FromEmployeeSex { get; set; }

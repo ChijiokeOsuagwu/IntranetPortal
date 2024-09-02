@@ -45,7 +45,7 @@ namespace IntranetPortal.Controllers
             {
                 var bs = await _contentManager.GetUnhiddenBannersAsync();
                 var ts = await _contentManager.GetAllOtherUnhiddenPostsAsync();
-                var an = await _contentManager.GetUnhiddenAnnouncementsAsync();
+                var an = await _contentManager.GetAllAnnouncementsAsync();
 
                 if (!string.IsNullOrWhiteSpace(recipientId))
                 {
@@ -107,7 +107,7 @@ namespace IntranetPortal.Controllers
                 //string PasswordHash = _securityService.CreatePasswordHash(model.Password);
                 bool IsPersistent = model.RememberMe;
 
-                var users = _securityService.GetUsersByLoginId(model.Login).Result;
+                var users = await _securityService.GetUsersByLoginId(model.Login);
                 if (users == null || users.Count < 1)
                 {
                     model.ViewModelErrorMessage = "Invalid Login Attempt.";

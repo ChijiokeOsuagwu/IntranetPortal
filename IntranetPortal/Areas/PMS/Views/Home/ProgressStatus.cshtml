@@ -70,7 +70,7 @@
         {
             int row_count = 0;
             <div class="row">
-                <div class="table-responsive" style="min-height:350px;">
+                <div class="table-responsive" style="max-height:400px">
                     <table class="table table-sm table-striped caption-top">
                         <caption>@Model.ReviewSessionDescription Progress Status Report </caption>
                         <thead class="table-dark">
@@ -83,10 +83,8 @@
                                 <th><span class="text-white fw-bolder">Location</span></th>
                                 <th><span class="text-white fw-bolder">Appraiser Name</span></th>
                                 <th><span class="text-white fw-bolder">Appraiser Designation</span>
-                                <th><span class="text-white fw-bolder">Line Manger Name</span></th>
-                                <th><span class="text-white fw-bolder">Unit Head Name</span></th>
-                                <th><span class="text-white fw-bolder">Department Head Name</span></th>
                                 <th><span class="text-white fw-bolder">Appraisal Stage</span></th>
+                                <th></th>
                             </tr>
                         </thead>
                         <tbody class="table-light">
@@ -102,10 +100,31 @@
                                 <td><span class="fw-bold">@item.LocationName</span></td>
                                 <td><span class="fw-bold">@item.PrimaryAppraiserName</span></td>
                                 <td><span class="fw-bold">@item.PrimaryAppraiserDesignation</span>
-                                <td><span class="fw-bold">@item.LineManagerName</span></td>
-                                <td><span class="fw-bold">@item.UnitHeadName</span></td>
-                                <td><span class="fw-bold">@item.DepartmentHeadName</span></td>
                                 <td><span class="fw-bold">@item.ReviewStageDescription</span></td>
+                                <td class="p-1 text-end">
+                                    <div class="btn-group dropstart">
+                                        <button type="button" class="bg-light" style="border:0px; height:10px" data-bs-toggle="dropdown" aria-expanded="false">
+                                            <span class="text-dark fw-bold"><i class="bi bi-three-dots" style="font-size:1.0rem"></i></span>
+                                        </button>
+                                        <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton2">
+                                            <li>
+                                                <a asp-area="PMS" asp-controller="Process" asp-action="ShowContractInfo" asp-route-id="@item.ReviewHeaderId" asp-route-sd="@item.AppraiseeId" asp-route-sp="pgs" title="View Performance Contract" >
+                                                    <i class="bi bi-file-text"></i>
+                                                    <span class="text-white">View Contract</span>
+                                                </a>
+                                            </li>
+                                            @if (item.ReviewStageId > 9)
+                                            {
+                                            <li>
+                                                <a asp-area="PMS" asp-controller="Process" asp-action="ShowEvaluations" asp-route-id="@item.ReviewHeaderId" title="View Evaluations">
+                                                    <i class="bi bi-file-text"></i>
+                                                    <span class="text-white">View Evaluations</span>
+                                                </a>
+                                            </li>
+                                            }
+                                        </ul>
+                                    </div>
+                                </td>
                             </tr>
                             }
                         </tbody>

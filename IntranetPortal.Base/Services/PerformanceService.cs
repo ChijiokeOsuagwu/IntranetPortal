@@ -1,7 +1,7 @@
 ﻿using IntranetPortal.Base.Enums;
 using IntranetPortal.Base.Models.EmployeeRecordModels;
 using IntranetPortal.Base.Models.PmsModels;
-using IntranetPortal.Base.Repositories.ErmRepository;
+using IntranetPortal.Base.Repositories.ErmRepositories;
 using IntranetPortal.Base.Repositories.PmsRepositories;
 using System;
 using System.Collections.Generic;
@@ -240,6 +240,33 @@ namespace IntranetPortal.Base.Services
                 reviewSession = entities.ToList().FirstOrDefault();
             }
             return reviewSession;
+        }
+
+        public async Task<List<Employee>> GetAppraisalNonParticipants(int ReviewSessionId, int? LocationId = null, int? UnitId = null)
+        {
+            List<Employee> employees = new List<Employee>();
+            if(ReviewSessionId > 0)
+            {
+                if(LocationId != null && LocationId > 0)
+                {
+                    if(UnitId != null && UnitId > 0)
+                    {
+                        var entities = await _reviewSessionRepository.GetNonParticipantsByReviewSessionIdnLocationIdnUnitIdAsync(ReviewSessionId, LocationId.Value, UnitId.Value);
+                        if (entities != null) { employees = entities.ToList(); }
+                    }
+                    else
+                    {
+                        var entities = await _reviewSessionRepository.GetNonParticipantsByReviewSessionIdnLocationIdAsync(ReviewSessionId, LocationId.Value);
+                        if (entities != null) { employees = entities.ToList(); }
+                    }
+                }
+                else
+                {
+                    var entities = await _reviewSessionRepository.GetNonParticipantsByReviewSessionIdAsync(ReviewSessionId);
+                    if(entities != null) { employees = entities.ToList(); }
+                }
+            }
+            return employees;
         }
 
         #endregion
@@ -814,7 +841,7 @@ namespace IntranetPortal.Base.Services
             int ReviewStageID = reviewStageId ?? 0;
             int LocationID = locationId ?? 0;
             int UnitID = unitId ?? 0;
-            
+
             List<ReviewHeader> reviewHeaderList = new List<ReviewHeader>();
 
             if (string.IsNullOrWhiteSpace(appraiseeName))
@@ -854,7 +881,7 @@ namespace IntranetPortal.Base.Services
             }
             else
             {
-                if(ReviewSessionID > 0)
+                if (ReviewSessionID > 0)
                 {
                     var entities = await _reviewHeaderRepository.GetByReviewSessionIdnAppraiseeNameAsync(ReviewSessionID, appraiseeName);
                     if (entities != null && entities.Count > 0)
@@ -887,7 +914,14 @@ namespace IntranetPortal.Base.Services
 
             return await _reviewHeaderRepository.AddAsync(reviewHeader);
         }
-        
+
+        public async Task<bool> RollBackReviewHeaderAsync(ReviewHeader reviewHeader)
+        {
+            if (reviewHeader == null) { throw new ArgumentNullException(nameof(reviewHeader)); }
+            return await _reviewHeaderRepository.UpdateStageAndAgreementsAsync(reviewHeader);
+        }
+
+
         public async Task<bool> UpdatePerformanceGoalAsync(int reviewHeaderId, string performanceGoal, string appraiserId)
         {
             if (reviewHeaderId < 1) { throw new ArgumentNullException(nameof(reviewHeaderId)); }
@@ -902,8 +936,16 @@ namespace IntranetPortal.Base.Services
             bool IsUpdated = await _reviewHeaderRepository.UpdateStageIdAsync(reviewHeaderId, nextStageId);
             if (IsUpdated)
             {
+                int reviewSessionId = 0;
+                var entities = await _reviewHeaderRepository.GetByIdAsync(reviewHeaderId);
+                if (entities != null && entities.Count > 0)
+                {
+                    reviewSessionId = entities.FirstOrDefault().ReviewSessionId;
+                }
+
                 PmsActivityHistory activityHistory = new PmsActivityHistory();
                 activityHistory.ReviewHeaderId = reviewHeaderId;
+                activityHistory.ReviewSessionId = reviewSessionId;
                 activityHistory.ActivityTime = DateTime.UtcNow;
                 switch (nextStageId)
                 {
@@ -993,6 +1035,39 @@ namespace IntranetPortal.Base.Services
                     break;
             }
             return recommendationAdded;
+        }
+
+        public async Task<bool> UpdatePrincipalAppraiserAsync(int changeTypeId, int reviewSessionId, string newPrincipalAppraiserId, string appraiseeId = null, int? unitId = null)
+        {
+            if (reviewSessionId < 1) { throw new ArgumentNullException(nameof(reviewSessionId)); }
+            if (string.IsNullOrWhiteSpace(newPrincipalAppraiserId)) { throw new ArgumentNullException(nameof(newPrincipalAppraiserId)); }
+            bool IsUpdated = false;
+            ReviewHeader reviewHeader = new ReviewHeader();
+            var entities = await _reviewHeaderRepository.GetByAppraiseeIdAndReviewSessionIdAsync(appraiseeId, reviewSessionId);
+            if (entities != null)
+            {
+                reviewHeader = entities.FirstOrDefault();
+                if (changeTypeId == 0 && !string.IsNullOrWhiteSpace(appraiseeId))
+                {
+                    IsUpdated = await _reviewHeaderRepository.UpdatePrincipalAppraiserByAppraiseeIdAsync(reviewSessionId, appraiseeId, newPrincipalAppraiserId);
+                }
+                else if (unitId != null && unitId > 0)
+                {
+                    IsUpdated = await _reviewHeaderRepository.UpdatePrincipalAppraiserByUnitIdAsync(reviewSessionId, unitId.Value, newPrincipalAppraiserId);
+                }
+
+                if (IsUpdated)
+                {
+                    PmsActivityHistory activityHistory = new PmsActivityHistory();
+                    activityHistory.ReviewHeaderId = reviewHeader.ReviewHeaderId;
+                    activityHistory.ReviewSessionId = reviewHeader.ReviewSessionId;
+                    activityHistory.ActivityTime = DateTime.UtcNow;
+                    activityHistory.ActivityDescription = $"Replaced {reviewHeader.PrimaryAppraiserName} as the Principal Appraiser.";
+
+                    await _pmsActivityHistoryRepository.AddAsync(activityHistory);
+                }
+            }
+            return IsUpdated;
         }
 
         #endregion
@@ -1216,7 +1291,7 @@ namespace IntranetPortal.Base.Services
             }
             return competency;
         }
-        
+
         public async Task<bool> AddCompetencyAsync(Competency competency)
         {
             if (competency == null || string.IsNullOrWhiteSpace(competency.Title)) { throw new ArgumentNullException(nameof(competency)); }
@@ -1252,7 +1327,6 @@ namespace IntranetPortal.Base.Services
             if (competencyId < 1) { throw new ArgumentNullException(nameof(competencyId)); }
             return await _competencyRepository.DeleteAsync(competencyId);
         }
-
 
 
         //======= Competency Categories Service Methods =========//
@@ -1292,10 +1366,10 @@ namespace IntranetPortal.Base.Services
             CompetencyCategory competencyCategory = await _competencyRepository.GetCompetencyCategoryByDescriptionAsync(competencyCategoryDescription);
             if (competencyCategory != null)
             {
-                    if (competencyCategory.Id != competencyCategoryId && competencyCategory.Id > 0)
-                    {
-                        throw new Exception("Duplicate Entry! Sorry, a Competency Category with the same name already exists in the system.");
-                    }
+                if (competencyCategory.Id != competencyCategoryId && competencyCategory.Id > 0)
+                {
+                    throw new Exception("Duplicate Entry! Sorry, a Competency Category with the same name already exists in the system.");
+                }
             }
 
             return await _competencyRepository.UpdateCompetencyCategoryAsync(competencyCategoryId, competencyCategoryDescription);
@@ -1306,7 +1380,6 @@ namespace IntranetPortal.Base.Services
             if (competencyCategoryId < 1) { throw new ArgumentNullException(nameof(competencyCategoryId)); }
             return await _competencyRepository.DeleteCompetencyCategoryAsync(competencyCategoryId);
         }
-
 
 
         //======= Competency Level Service Methods ==============//
@@ -1549,7 +1622,7 @@ namespace IntranetPortal.Base.Services
                                     int no_matches = 0;
                                     foreach (var a in approval_entities)
                                     {
-                                        if (r.ApprovalRoleId == a.ApproverRoleId)
+                                        if ((r.ApprovalRoleId == a.ApproverRoleId) || (a.ApproverRoleDescription == "Executive Management"))
                                         {
                                             no_matches++;
                                         }
@@ -1716,8 +1789,16 @@ namespace IntranetPortal.Base.Services
         }
         public async Task<List<PmsActivityHistory>> GetPmsActivityHistory(int reviewHeaderId)
         {
+            ReviewHeader reviewHeader = new ReviewHeader();
+            int reviewSessionId = 0;
+            var reviewHeaderEntities = await _reviewHeaderRepository.GetByIdAsync(reviewHeaderId);
+            if (reviewHeaderEntities != null && reviewHeaderEntities.Count > 0)
+            {
+                reviewHeader = reviewHeaderEntities.FirstOrDefault();
+                reviewSessionId = reviewHeader.ReviewSessionId;
+            }
             List<PmsActivityHistory> activityList = new List<PmsActivityHistory>();
-            var entities = await _pmsActivityHistoryRepository.GetByReviewHeaderIdAsync(reviewHeaderId);
+            var entities = await _pmsActivityHistoryRepository.GetByReviewHeaderIdAsync(reviewSessionId, reviewHeaderId);
             if (entities != null && entities.Count > 0)
             {
                 activityList = entities.ToList();
@@ -1993,7 +2074,7 @@ namespace IntranetPortal.Base.Services
             int ApprovalTypeId = approvalTypeId ?? 0;
             int ApproverRoleId = approverRoleId ?? 0;
             List<ReviewApproval> reviewApprovals = new List<ReviewApproval>();
-            if(ApprovalTypeId > 0 && ApproverRoleId > 0)
+            if (ApprovalTypeId > 0 && ApproverRoleId > 0)
             {
                 var entities = await _reviewApprovalRepository.GetByReviewHeaderIdAsync(reviewHeaderId, ApprovalTypeId, ApproverRoleId);
                 if (entities != null && entities.Count > 0)
@@ -2001,7 +2082,7 @@ namespace IntranetPortal.Base.Services
                     reviewApprovals = entities.ToList();
                 }
             }
-            else if(ApprovalTypeId > 0 && approverRoleId < 1)
+            else if (ApprovalTypeId > 0 && approverRoleId < 1)
             {
                 var entities = await _reviewApprovalRepository.GetByReviewHeaderIdAsync(reviewHeaderId, ApprovalTypeId);
                 if (entities != null && entities.Count > 0)
@@ -2053,6 +2134,34 @@ namespace IntranetPortal.Base.Services
             return reviewApprovals;
         }
 
+        public async Task<bool> DeleteAllApprovals(int reviewHeaderId)
+        {
+            if (reviewHeaderId < 1) { throw new Exception("Error: the required parameter [ReviewHeaderID] cannot be null."); }
+            return await _reviewApprovalRepository.DeleteByReviewHeaderIdAsync(reviewHeaderId);
+        }
+
+        public async Task<bool> DeleteApprovalByType(int reviewHeaderId, ReviewApprovalType reviewApprovalType)
+        {
+            if (reviewHeaderId < 1) { throw new Exception("Error: the required parameter [ReviewHeaderID] cannot be null."); }
+            var entities = await _reviewApprovalRepository.GetByReviewHeaderIdAsync(reviewHeaderId, (int)reviewApprovalType);
+            if (entities == null || entities.Count < 1)
+            {
+                return true;
+            }
+            else 
+            { 
+                int noOfRecords = entities.Count;
+                int noDeleted = 0;
+                foreach (ReviewApproval approval in entities)
+                {
+                    if (await _reviewApprovalRepository.DeleteAsync(approval.ReviewApprovalId))
+                    {
+                        noDeleted++;
+                    }
+                }
+                return noDeleted == noOfRecords;
+            }
+        }
         #endregion
 
         #region Review Result Service Methods
@@ -2110,7 +2219,6 @@ namespace IntranetPortal.Base.Services
             }
             return reviewResults;
         }
-
 
         public async Task<List<ReviewResult>> GetReviewResultByAppraiserIdAndReviewMetricTypeIdAsync(int reviewHeaderId, string appraiserId, int? reviewMetricTypeId = null)
         {
@@ -2464,6 +2572,26 @@ namespace IntranetPortal.Base.Services
             return await _reviewResultRepository.AddSummaryAsync(resultSummary);
         }
 
-        #endregion      
+        public async Task<bool> DeleteEvaluationsAsync(int reviewHeaderId, bool includeSelfEvaluation = false)
+        {
+            if (reviewHeaderId < 1) { throw new ArgumentNullException(nameof(reviewHeaderId)); }
+            if (includeSelfEvaluation)
+            {
+                return await _reviewResultRepository.DeleteEvaluationsByReviewHeaderIdAsync(reviewHeaderId);
+            }
+            return await _reviewResultRepository.DeleteEvaluationsExceptSelfEvaluationAsync(reviewHeaderId);
+        }
+
+        public async Task<bool> DeleteResultSummaryAsync(int reviewHeaderId, bool includeSelfEvaluationResult = false)
+        {
+            if (reviewHeaderId < 1) { throw new ArgumentNullException(nameof(reviewHeaderId)); }
+            if (includeSelfEvaluationResult)
+            {
+                return await _reviewResultRepository.DeleteSummaryAsync(reviewHeaderId);
+            }
+            return await _reviewResultRepository.DeleteSummaryExceptSelfEvaluationAsync(reviewHeaderId);
+        }
+
+        #endregion
     }
 }

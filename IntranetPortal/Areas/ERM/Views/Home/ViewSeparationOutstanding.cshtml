@@ -1,0 +1,69 @@
+﻿
+@model IntranetPortal.Areas.ERM.Models.ManageSeparationOutstandingViewModel
+<h3>Employee Exit</h3>
+<hr />
+<div class="card mt-1" style="max-width:800px">
+    <div class="card-header bg-dark">
+        <h4 class="text-white">View Outstanding</h4>
+    </div>
+    <div class="card-body bg-secondary">
+        @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-x-circle"></i>
+                <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (!String.IsNullOrEmpty(Model.ViewModelSuccessMessage))
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="bi bi-check-circle"></i>
+                <span class="fw-bold">@Model.ViewModelSuccessMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (!String.IsNullOrEmpty(Model.ViewModelWarningMessage))
+        {
+            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                <i class="bi bi-exclamation-circle"></i>
+                <span class="fw-bold">@Model.ViewModelWarningMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        <div class="row">
+            <div class="col-md-12 mb-3">
+                <input type="hidden" asp-for="EmployeeSeparationId" />
+                <input type="hidden" asp-for="EmployeeId" />
+                <input type="hidden" asp-for="Id" />
+                <label asp-for="ItemDescription" class="form-label text-white fw-bold"></label>
+                <div class="form-control fw-bold">@Model.ItemDescription</div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-3 mb-3">
+                <label asp-for="TypeId" class="form-label text-white fw-bold"></label>
+                <div class="form-control fw-bold">@Model.TypeDescription</div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <label class="form-label text-white fw-bold">Original Amount</label>
+                <div class="form-control fw-bold">@Model.Currency @Model.Amount.ToString("N")</div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <label class="form-label text-white fw-bold">Amount Paid</label>
+                <div class="form-control fw-bold">@Model.Currency @Model.AmountPaid.ToString("N")</div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <label class="form-label text-white fw-bold">Balance</label>
+                <div class="form-control fw-bold">@Model.Currency @Model.AmountBalance.ToString("N")</div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12 text-end">
+                <a asp-area="ERM" asp-controller="Home" asp-action="SeparationOutstanding" asp-route-id="@Model.EmployeeSeparationId" asp-route-en="@Model.EmployeeName" class="btn btn-dark mr-3" style="width:100px" title="Back">
+                    <span class="text-white">Back</span>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

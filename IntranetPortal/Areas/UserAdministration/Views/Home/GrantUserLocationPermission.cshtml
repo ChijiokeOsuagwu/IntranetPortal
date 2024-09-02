@@ -1,0 +1,78 @@
+﻿@model IntranetPortal.Areas.UserAdministration.Models.GrantUserLocationPermissionViewModel
+@{
+    ViewData["Title"] = "User Administration | Location Permissions";
+}
+<div class="container">
+    <h3 class="mb-3">Grant Location Permissions</h3>
+    <hr />
+    <div class="mb-1">
+        <div class="row">
+                <div class="col-md-12">
+                    <a asp-area="UserAdministration" asp-controller="Home" asp-action="LocationPermissions" asp-route-id="@Model.id" class="btn btn-secondary" style="width:100px" title="Click to Go Back">
+                        <span class="text-white">Back</span>
+                    </a>
+                </div>
+
+            @if (!String.IsNullOrEmpty(ViewBag.ErrorMessage))
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bi bi-x-circle"></i>
+                    <span class="fw-bold">@ViewBag.ErrorMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+        </div>
+        @if (Model == null || Model.LocationsList == null || Model.LocationsList.Count < 1)
+        {
+            <div class="alert alert-info fade show" role="alert">
+                <i class="bi bi-info-circle"></i>
+                <span class="fw-bold">No record was found.</span>
+            </div>
+        }
+        else
+        {
+            int row_no = 0;
+            <div class="table-responsive">
+                <table class="table table-sm table-hover">
+                    <thead>
+                        <tr class="bg-secondary">
+                            <th><span class="text-white fw-bold">#</span></th>
+                            <th>
+                                <span class="text-white fw-bold">Location</span>
+                            </th>
+                            <th>
+                                <span class="text-white fw-bold">Country</span>
+                            </th>
+                            <th>
+                                <span class="text-white fw-bold">Action</span>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var location in Model.LocationsList)
+                        {
+                            row_no++;
+                        <tr>
+                            <td>
+                                <span class="text-dark fw-bold">@row_no.ToString()</span>
+                            </td>
+                            <td>
+                                <span class="text-dark fw-bold">@Html.DisplayFor(modelItem => location.LocationName)</span>
+                            </td>
+                            <td>
+                                <span class="text-dark fw-bold">@Html.DisplayFor(modelItem => location.LocationCountry)</span>
+                            </td>
+                            <td>
+                                <button title="Grant this Permission" class="btn btn-sm btn-outline-success text-dark fw-bold" style="border-radius:10px; width:75px" id="btn_grant_@location.LocationID" onclick="grantLocationPermission('@Model.id','@location.LocationID')">Grant</button>
+                            </td>
+                        </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>
+<script src="~/js/js_uad/user_permissions.js"></script>
+
+

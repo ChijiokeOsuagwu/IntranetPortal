@@ -1,0 +1,146 @@
+﻿
+@model IntranetPortal.Areas.ERM.Models.ManageSeparationViewModel
+<h3>Employee Exit</h3>
+<hr />
+<div class="card mt-1">
+    <div class="card-header bg-dark">
+        <h4 class="text-white">Employee Exit Details</h4>
+    </div>
+    <div class="card-body bg-secondary">
+        @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-x-circle"></i>
+                <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (!String.IsNullOrEmpty(Model.ViewModelSuccessMessage))
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="bi bi-check-circle"></i>
+                <span class="fw-bold">@Model.ViewModelSuccessMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (!String.IsNullOrEmpty(Model.ViewModelWarningMessage))
+        {
+            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                <i class="bi bi-exclamation-circle"></i>
+                <span class="fw-bold">@Model.ViewModelWarningMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <input type="hidden" asp-for="EmployeeSeparationId" />
+                <input type="hidden" asp-for="EmployeeId" />
+                <input type="hidden" asp-for="UnitId" />
+                <input type="hidden" asp-for="DepartmentId" />
+                <input type="hidden" asp-for="LocationId" />
+                <label asp-for="EmployeeName" class="form-label text-white fw-bold"></label>
+                <input id="sn" asp-for="EmployeeName" class="form-control fw-bold">
+                <div><span asp-validation-for="EmployeeName" class="text-white"></span></div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <label asp-for="SeparationTypeDescription" class="form-label text-white fw-bold"></label>
+                <div class="form-control fw-bold">@Model.SeparationTypeDescription</div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <label asp-for="SeparationReasonDescription" class="form-label text-white fw-bold"></label>
+                <div class="form-control fw-bold">@Model.SeparationReasonDescription</div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12 mb-3">
+                <label asp-for="SeparationReasonExplanation" class="form-label text-white fw-bold"></label>
+                <textarea asp-for="SeparationReasonExplanation" class="form-control  fw-bold" rows="4" disabled>@Model.SeparationReasonExplanation</textarea>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-4 mb-4">
+                <label asp-for="NoticeServedDate" class="form-label text-white fw-bold"></label>
+                <div class="form-control fw-bold">@Model.NoticeServedDateFormatted</div>
+            </div>
+            <div class="col-md-2 mb-4">
+                <label asp-for="NoticePeriodInMonths" class="form-label text-white fw-bold"></label>
+                <div class="form-control fw-bold">@Model.NoticePeriodInMonths.ToString() Month(s)</div>
+            </div>
+            <div class="col-md-3 mb-4">
+                <label asp-for="ExpectedLastWorkedDate" class="form-label text-white fw-bold"></label>
+                <div class="form-control fw-bold">@Model.ExpectedLastWorkedDateFormatted</div>
+            </div>
+            <div class="col-md-3 mb-4">
+                <label asp-for="ActualLastWorkedDate" class="form-label text-white fw-bold"></label>
+                <div class="form-control fw-bold">@Model.ActualLastWorkedDateFormatted</div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-3 mb-4">
+                <label asp-for="OutstandingWorkDays" class="form-label text-white fw-bold"></label>
+                <div class="form-control fw-bold">@Model.OutstandingWorkDays</div>
+            </div>
+            <div class="col-md-3 mb-4">
+                <label asp-for="OutstandingLeaveDays" class="form-label text-white fw-bold"></label>
+                <div class="form-control fw-bold">@Model.OutstandingLeaveDays</div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-3">
+                @if (Model.IsOwed)
+                {
+                    <i class="bi bi-check-square mr-2 text-white fw-bold" style="width:16px; height:16px;"></i>
+                }
+                else
+                {
+                    <input type="checkbox" asp-for="IsOwed" disabled class="mr-2" style="width:15px; height:15px;">
+                }
+                <span class="text-white fw-bold" style="font-size:1.0rem">Is owed by the Company</span>
+            </div>
+            <div class="col-md-3">
+                @if (Model.IsIndebted)
+                {
+                    <i class="bi bi-check-square mr-2 text-white fw-bold" style="width:16px; height:16px;"></i>
+                }
+                else
+                {
+                    <input type="checkbox" asp-for="IsIndebted" disabled class="mr-2" style="width:15px; height:15px;">
+                }
+                <span class="text-white fw-bold" style="font-size:1.0rem">Is indebted to the Company</span>
+            </div>
+            <div class="col-md-3">
+                @if (Model.ReturnedAssignedAssets)
+                {
+                    <i class="bi bi-check-square mr-2 text-white fw-bold" style="width:16px; height:16px;"></i>
+                }
+                else
+                {
+                    <input type="checkbox" asp-for="ReturnedAssignedAssets" disabled class="mr-2" style="width:15px; height:15px; color:blue">
+                }
+                <span class="text-white fw-bold" style="font-size:1.0rem">Returned all assigned Assets?</span>
+            </div>
+            <div class="col-md-3">
+                @if (Model.EligibleForRehire)
+                {
+                    <i class="bi bi-check-square mr-2 text-white fw-bold" style="width:16px; height:16px;"></i>
+                }
+                else
+                {
+                    <input type="checkbox" asp-for="EligibleForRehire" disabled class="mr-2" style="width:15px; height:15px;">
+                }
+                <span class="text-white fw-bold" style="font-size:1.0rem">Eligible for Re-Hire?</span>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12 mb-3 text-end">
+                <a asp-area="ERM" asp-controller="Home" asp-action="Separation" class="btn btn-dark" style="width:100px" title="Back">
+                    <span class="text-white">Back</span>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+

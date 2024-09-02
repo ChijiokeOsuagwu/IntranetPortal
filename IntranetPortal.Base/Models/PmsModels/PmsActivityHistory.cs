@@ -9,6 +9,7 @@ namespace IntranetPortal.Base.Models.PmsModels
         public int ActivityId { get; set; }
         public string ActivityDescription { get; set; }
         public DateTime? ActivityTime { get; set; }
-        public int ReviewHeaderId { get; set; }
+        public int? ReviewHeaderId { get; set; }
+        public int? ReviewSessionId { get; set; }
     }
 }

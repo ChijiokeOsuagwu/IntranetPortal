@@ -735,6 +735,7 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
 
         #endregion
 
+
         #region Review Score Read Action Methods
         public async Task<List<ReviewScore>> GetScoresByReviewHeaderIdAndAppraiserIdAsync(int reviewHeaderId, string appraiserId)
         {
@@ -886,6 +887,54 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
                 await conn.CloseAsync();
                 throw new Exception(ex.Message);
             }
+            return rows > 0;
+        }
+
+
+        public async Task<bool> DeleteEvaluationsByReviewHeaderIdAsync(int reviewHeaderId)
+        {
+            int rows = 0;
+            var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
+            StringBuilder sb = new StringBuilder();
+            sb.Append("DELETE FROM public.pmsrvwrdtls ");
+            sb.Append("WHERE (rvw_hdr_id=@rvw_hdr_id); ");
+
+            string query = sb.ToString();
+
+            await conn.OpenAsync();
+            //Insert data
+            using (var cmd = new NpgsqlCommand(query, conn))
+            {
+                var rvw_hdr_id = cmd.Parameters.Add("@rvw_hdr_id", NpgsqlDbType.Integer);
+                cmd.Prepare();
+                rvw_hdr_id.Value = reviewHeaderId;
+                rows = await cmd.ExecuteNonQueryAsync();
+            }
+            await conn.CloseAsync();
+            return rows > 0;
+        }
+
+        public async Task<bool> DeleteEvaluationsExceptSelfEvaluationAsync(int reviewHeaderId)
+        {
+            int rows = 0;
+            var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
+            StringBuilder sb = new StringBuilder();
+            sb.Append("DELETE FROM public.pmsrvwrdtls ");
+            sb.Append("WHERE (rvw_hdr_id=@rvw_hdr_id) ");
+            sb.Append("AND (aprsr_typ_id > 0);");
+
+            string query = sb.ToString();
+
+            await conn.OpenAsync();
+            //Insert data
+            using (var cmd = new NpgsqlCommand(query, conn))
+            {
+                var rvw_hdr_id = cmd.Parameters.Add("@rvw_hdr_id", NpgsqlDbType.Integer);
+                cmd.Prepare();
+                rvw_hdr_id.Value = reviewHeaderId;
+                rows = await cmd.ExecuteNonQueryAsync();
+            }
+            await conn.CloseAsync();
             return rows > 0;
         }
 
@@ -1660,6 +1709,33 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
             await conn.CloseAsync();
             return rows > 0;
         }
+
+        public async Task<bool> DeleteSummaryExceptSelfEvaluationAsync(int reviewHeaderId)
+        {
+            int rows = 0;
+            var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
+            StringBuilder sb = new StringBuilder();
+            sb.Append("DELETE FROM public.pmsrvwsmry ");
+            sb.Append("WHERE (rvw_hdr_id=@rvw_hdr_id) ");
+            sb.Append("AND (aprsr_rl_ds != 'Appraisee');");
+
+            string query = sb.ToString();
+
+            await conn.OpenAsync();
+            //Update data
+            using (var cmd = new NpgsqlCommand(query, conn))
+            {
+                var rvw_hdr_id = cmd.Parameters.Add("@rvw_hdr_id", NpgsqlDbType.Integer);
+                cmd.Prepare();
+                rvw_hdr_id.Value = reviewHeaderId;
+
+                rows = await cmd.ExecuteNonQueryAsync();
+            }
+
+            await conn.CloseAsync();
+            return rows > 0;
+        }
+
 
         #endregion
 

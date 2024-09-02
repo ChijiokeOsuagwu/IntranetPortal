@@ -81,6 +81,10 @@ namespace IntranetPortal.Helpers
 
         public bool SendEmailWithSendGrid(EmailModel model)
         {
+            if (string.IsNullOrWhiteSpace(model.RecipientEmail))
+            {
+                throw new Exception("Operation completed successfully. But email could not be sent because no email address was found for the recipient.");
+            }
             var apiKey = _config.GetSection("EmailSettings:SendGrid_API_KEY").Value;
             var client = new SendGridClient(apiKey);
             var from = new EmailAddress("officemanager@channelstv.com", "Channels OfficeManager");
@@ -277,6 +281,64 @@ namespace IntranetPortal.Helpers
             sb.Append($"Please this request is for the approval of the Final Evaluation Result for {AppraiseeName}. ");
             sb.Append($"It was submitted to you on {DateTime.Now.ToLongDateString()} at exactly ");
             sb.AppendLine($"{DateTime.Now.ToLongTimeString()} WAT.");
+
+            return sb.ToString();
+        }
+
+
+        //================ HR Department Return Notification Contents ======================//
+        public static string GetHrReturnAppraisalEmailHtmlContent(string RecipientName, string HrRepName)
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append("<html><head></head>");
+            sb.Append("<body style='font-family:sans-serif; font-size:1.2rem;'>");
+            sb.Append($"<div>Dear {RecipientName},</div>");
+            sb.Append("<p>I trust this email finds you well.</p>");
+            sb.Append("<p>The HR Department has just returned your performance appraisal record. ");
+            sb.Append("This is to enable you make some necessary corrections. ");
+            sb.Append("Kindly check your appraisal notes for instructions from the HR Department. ");
+            sb.Append($"You may also want to contact <strong>{HrRepName}</strong>, for further guidance. ");
+            sb.Append($"It was returned on {DateTime.Now.ToLongDateString()} at exactly ");
+            sb.Append($"{DateTime.Now.ToLongTimeString()} WAT. ");
+            sb.Append("Please login to Channels OfficeManager for your necessary action. </p>");
+            sb.Append("<p>Thank you.</p><div>Regards</div>");
+            sb.AppendLine("<div><strong>Channels OfficeManager</strong></div><br/>");
+            sb.Append("<div><em>[This is an auto-generated email. <strong>Please do not reply.</strong>]</em></div>");
+            sb.Append("</body></html>");
+
+            return sb.ToString();
+        }
+
+        public static string GetHrReturnAppraisalEmailPlainContent(string RecipientName, string HrRepName)
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine($"Dear {RecipientName},");
+            sb.AppendLine("I trust this email meets you well.");
+            sb.Append("The HR Department has just returned your performance appraisal record. ");
+            sb.Append("This is to enable you make some necessary corrections. ");
+            sb.Append("Kindly check your appraisal notes for instructions from the HR Department. ");
+            sb.Append($"You may also want to contact {HrRepName}, for further guidance. ");
+            sb.Append($"It was returned on {DateTime.Now.ToLongDateString()} at exactly ");
+            sb.Append($"{DateTime.Now.ToLongTimeString()} WAT. ");
+            sb.Append("Please login to Channels OfficeManager for your necessary action. ");
+            sb.AppendLine("Thank you.");
+            sb.AppendLine("Regards");
+            sb.AppendLine("OfficeManager");
+            sb.AppendLine(" ");
+            sb.Append("[This is an auto-generated email. Please do not reply.]");
+
+            return sb.ToString();
+        }
+
+        public static string GetHrReturnAppraisalMessageContent(string RecipientName, string HrRepName)
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append("The HR Department returned your performance appraisal record. ");
+            sb.Append("This is to enable you make some necessary corrections. ");
+            sb.Append("Check your appraisal notes for instructions from the HR Department. ");
+            sb.Append($"Or contact {HrRepName}, for further guidance. ");
+            sb.Append($"It was returned on {DateTime.Now.ToLongDateString()} at exactly ");
+            sb.Append($"{DateTime.Now.ToLongTimeString()} WAT. ");
 
             return sb.ToString();
         }

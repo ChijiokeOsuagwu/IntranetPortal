@@ -1,0 +1,77 @@
+﻿@model IntranetPortal.Areas.ERM.Models.SeparationReasonListViewModel
+<div class="container">
+    <h3 class="mb-1">Employee Separation Reasons</h3>
+    <hr />
+    <div class="mb-1">
+        <div class="mb-2">
+            <a asp-area="ERM" asp-controller="Settings" asp-action="Index" class="btn btn-dark" style="width:100px" title="Back">
+                <span class="text-white">Back</span>
+            </a>
+            <a asp-area="ERM" asp-controller="Settings" asp-action="ManageSeparationReason" asp-route-id="0" class="btn btn-success" style="width:200px" title="Add New Separation Reason">
+                <span class="text-white">New Separation Reason</span>
+            </a>
+
+            @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bi bi-x-circle"></i>
+                    <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+        </div>
+        <div class="row">
+            @if (Model == null || Model.SeparationReasonList == null || Model.SeparationReasonList.Count < 1)
+            {
+                <div class="alert alert-info fade show" role="alert">
+                    <i class="bi bi-info-circle"></i>
+                    <span class="fw-bold">No record was found.</span>
+                </div>
+            }
+            else
+            {
+                int row_count = 0;
+                <div class="table-responsive">
+                    <table class="table table-sm table-hover">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>
+                                    <span class="text-white fw-bolder">#</span>
+                                </th>
+                                <th>
+                                    <span class="text-white fw-bolder">Description</span>
+                                </th>
+                                <th>
+
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody class="table-warning">
+                            @foreach (var item in Model.SeparationReasonList)
+                            {
+                                row_count++;
+                                <tr>
+                                    <td class="p-2">
+                                        <span class="fw-bolder">@row_count.ToString()</span>
+                                    </td>
+                                    <td class="p-2">
+                                        <span class="fw-bolder">@item.Description</span>
+                                    </td>
+                                    <td class="p-2">
+                                        <form asp-area="ERM" asp-controller="Settings" asp-action="DeleteSeparationReason" method="post">
+                                            <a asp-area="ERM" asp-controller="Settings" asp-action="ManageSeparationReason" asp-route-id="@item.Id" title="Select" class="btn btn-sm btn-dark">
+                                                <span class="text-white fw-bold">Select</span>
+                                            </a>
+                                            <input type="hidden" id="id" name="id" value="@item.Id" />
+                                            <input type="submit" value="Delete" class="btn btn-sm btn-danger pl-3 text-white" onclick="return confirm('Delete permanently?');" />
+                                        </form>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+</div>

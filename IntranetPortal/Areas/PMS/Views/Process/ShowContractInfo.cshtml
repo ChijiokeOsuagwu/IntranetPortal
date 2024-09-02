@@ -16,7 +16,7 @@
                             </button>
                         </li>
                         <li class="nav-item">
-                            <a asp-area="PMS" asp-controller="Process" asp-action="AppraisalNotes" asp-route-id="@Model.AppraisalReviewHeader.ReviewHeaderId" asp-route-sp="apr" title="Appraisal Notes" class="btn btn-sm btn-light text-dark">
+                            <a asp-area="PMS" asp-controller="Process" asp-action="AppraisalNotes" asp-route-id="@Model.AppraisalReviewHeader.ReviewHeaderId" asp-route-sp="@Model.SourcePage" title="Appraisal Notes" class="btn btn-sm btn-light text-dark">
                                 <i class="bi bi-journals fw-bolder" style="font-size: 1.0rem"></i><span class="fw-bold ml-1" style="font-size: 0.9rem;">Notes</span>
                             </a>
                         </li>
@@ -296,7 +296,14 @@
                                 </div>
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label text-white fw-bold">Signed On:</label>
-                                    <div class="form-control fw-bold text-dark">@Model.AppraisalReviewHeader.TimeContractAccepted.Value.ToLongDateString()  @Model.AppraisalReviewHeader.TimeContractAccepted.Value.ToLongTimeString() GMT </div>
+                                    @if (Model.AppraisalReviewHeader.TimeContractAccepted != null)
+                                    {
+                                        <div class="form-control fw-bold text-dark">@Model.AppraisalReviewHeader.TimeContractAccepted.Value.ToLongDateString()  @Model.AppraisalReviewHeader.TimeContractAccepted.Value.ToLongTimeString() WAT </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="form-control fw-bold text-dark">[Not Available]</div>
+                                    }
                                 </div>
                             </div>
                         </div>

@@ -183,6 +183,8 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
             sb.Append("LEFT JOIN public.asm_stt_bnlcs b ON s.bnloc_id = b.bnloc_id ");
             sb.Append("WHERE s.dvsn_id IN (SELECT asst_dvsn_id FROM public.sct_ntt_pms ");
             sb.Append("WHERE ntt_typ=0 AND usr_acct_id = @usr_id) ");
+            sb.Append("AND s.bloc_id IN (SELECT loc_id FROM public.sct_loc_pms ");
+            sb.Append("WHERE ntt_typ=1 AND usr_acct_id = @usr_id) ");
             sb.Append("AND (s.is_del = false) AND (LOWER(asst_nm) LIKE '%'||LOWER(@asst_nm)||'%') ");
             sb.Append("ORDER BY s.asst_nm;");
             string query = sb.ToString();
@@ -261,6 +263,8 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
             sb.Append("LEFT JOIN public.asm_stt_bnlcs b ON s.bnloc_id = b.bnloc_id ");
             sb.Append("WHERE s.dvsn_id IN (SELECT asst_dvsn_id FROM public.sct_ntt_pms ");
             sb.Append("WHERE ntt_typ=0 AND usr_acct_id = @usr_id) ");
+            sb.Append("AND s.bloc_id IN (SELECT loc_id FROM public.sct_loc_pms ");
+            sb.Append("WHERE ntt_typ=1 AND usr_acct_id = @usr_id) ");
             sb.Append("AND (s.typ_id = @typ_id) AND (s.is_del = false) ");
             sb.Append("ORDER BY s.asst_nm;");
             string query = sb.ToString();
@@ -340,6 +344,8 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
             sb.Append("LEFT JOIN public.asm_stt_bnlcs b ON s.bnloc_id = b.bnloc_id ");
             sb.Append("WHERE s.dvsn_id IN (SELECT asst_dvsn_id FROM public.sct_ntt_pms ");
             sb.Append("WHERE ntt_typ=0 AND usr_acct_id = @usr_id) ");
+            sb.Append("AND s.bloc_id IN (SELECT loc_id FROM public.sct_loc_pms ");
+            sb.Append("WHERE ntt_typ=1 AND usr_acct_id = @usr_id) ");
             sb.Append("AND (s.clss_id = @clss_id OR s.clss_id IS NULL) AND (s.is_del = false)");
             sb.Append("ORDER BY s.asst_nm;");
             string query = sb.ToString();
@@ -420,6 +426,8 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
             sb.Append("LEFT JOIN public.asm_stt_bnlcs b ON s.bnloc_id = b.bnloc_id ");
             sb.Append("WHERE s.dvsn_id IN (SELECT asst_dvsn_id FROM public.sct_ntt_pms ");
             sb.Append("WHERE ntt_typ=0 AND usr_acct_id = @usr_id) ");
+            sb.Append("AND s.bloc_id IN (SELECT loc_id FROM public.sct_loc_pms ");
+            sb.Append("WHERE ntt_typ=1 AND usr_acct_id = @usr_id) ");
             sb.Append("AND (s.ctg_id = @ctg_id) AND (s.is_del = false) ");
             sb.Append("ORDER BY s.asst_nm;");
             string query = sb.ToString();
@@ -579,6 +587,8 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
             sb.Append("LEFT JOIN public.asm_stt_bnlcs b ON s.bnloc_id = b.bnloc_id ");
             sb.Append("WHERE s.dvsn_id IN (SELECT asst_dvsn_id FROM public.sct_ntt_pms ");
             sb.Append("WHERE ntt_typ=0 AND usr_acct_id = @usr_id) ");
+            sb.Append("AND s.bloc_id IN (SELECT loc_id FROM public.sct_loc_pms ");
+            sb.Append("WHERE ntt_typ=1 AND usr_acct_id = @usr_id) ");
             sb.Append("AND (s.grp_id = @grp_id) AND (s.is_del = false) ");
             sb.Append("ORDER BY s.asst_nm;");
             string query = sb.ToString();
@@ -658,6 +668,8 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
             sb.Append("LEFT JOIN public.asm_stt_bnlcs b ON s.bnloc_id = b.bnloc_id ");
             sb.Append("WHERE s.dvsn_id IN (SELECT asst_dvsn_id FROM public.sct_ntt_pms ");
             sb.Append("WHERE ntt_typ=0 AND usr_acct_id = @usr_id) ");
+            sb.Append("AND s.bloc_id IN (SELECT loc_id FROM public.sct_loc_pms ");
+            sb.Append("WHERE ntt_typ=1 AND usr_acct_id = @usr_id) ");
             sb.Append("AND (s.is_del = false) ORDER BY s.asst_nm; ");
             string query = sb.ToString();
 
@@ -735,6 +747,8 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
             sb.Append("LEFT JOIN public.asm_stt_bnlcs b ON s.bnloc_id = b.bnloc_id ");
             sb.Append("WHERE s.dvsn_id IN (SELECT asst_dvsn_id FROM public.sct_ntt_pms ");
             sb.Append("WHERE ntt_typ=0 AND usr_acct_id = @usr_id) ");
+            sb.Append("AND s.bloc_id IN (SELECT loc_id FROM public.sct_loc_pms ");
+            sb.Append("WHERE ntt_typ=1 AND usr_acct_id = @usr_id) ");
             sb.Append("AND (s.is_del = false) AND (s.cnd_sts = @cnd_sts) ");
             sb.Append("ORDER BY s.asst_nm; ");
             string query = sb.ToString();
@@ -817,6 +831,8 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
             sb.Append("LEFT JOIN public.asm_stt_bnlcs b ON s.bnloc_id = b.bnloc_id ");
             sb.Append("WHERE s.dvsn_id IN (SELECT asst_dvsn_id FROM public.sct_ntt_pms ");
             sb.Append("WHERE ntt_typ=0 AND usr_acct_id = @usr_id) ");
+            sb.Append("AND s.bloc_id IN (SELECT loc_id FROM public.sct_loc_pms ");
+            sb.Append("WHERE ntt_typ=1 AND usr_acct_id = @usr_id) ");
             sb.Append("AND (s.typ_id = @typ_id) AND (s.is_del = false) ");
             sb.Append("AND (s.bnloc_id = @bnloc_id) ");
             sb.Append("ORDER BY s.asst_nm;");
@@ -899,6 +915,8 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
             sb.Append("LEFT JOIN public.asm_stt_bnlcs b ON s.bnloc_id = b.bnloc_id ");
             sb.Append("WHERE s.dvsn_id IN (SELECT asst_dvsn_id FROM public.sct_ntt_pms ");
             sb.Append("WHERE ntt_typ=0 AND usr_acct_id = @usr_id) ");
+            sb.Append("AND s.bloc_id IN (SELECT loc_id FROM public.sct_loc_pms ");
+            sb.Append("WHERE ntt_typ=1 AND usr_acct_id = @usr_id) ");
             sb.Append("AND (s.typ_id = @typ_id) AND (s.is_del = false) ");
             sb.Append("AND (s.bnloc_id = @bnloc_id) AND (s.cnd_sts = @cnd_sts) ");
             sb.Append("ORDER BY s.asst_nm;");
@@ -983,6 +1001,8 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
             sb.Append("LEFT JOIN public.asm_stt_bnlcs b ON s.bnloc_id = b.bnloc_id ");
             sb.Append("WHERE s.dvsn_id IN (SELECT asst_dvsn_id FROM public.sct_ntt_pms ");
             sb.Append("WHERE ntt_typ=0 AND usr_acct_id = @usr_id) ");
+            sb.Append("AND s.bloc_id IN (SELECT loc_id FROM public.sct_loc_pms ");
+            sb.Append("WHERE ntt_typ=1 AND usr_acct_id = @usr_id) ");
             sb.Append("AND (s.grp_id = @grp_id) AND (s.is_del = false) ");
             sb.Append("AND (s.bnloc_id = @bnloc_id) ");
             sb.Append("ORDER BY s.asst_nm;");
@@ -1065,6 +1085,8 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
             sb.Append("LEFT JOIN public.asm_stt_bnlcs b ON s.bnloc_id = b.bnloc_id ");
             sb.Append("WHERE s.dvsn_id IN (SELECT asst_dvsn_id FROM public.sct_ntt_pms ");
             sb.Append("WHERE ntt_typ=0 AND usr_acct_id = @usr_id) ");
+            sb.Append("AND s.bloc_id IN (SELECT loc_id FROM public.sct_loc_pms ");
+            sb.Append("WHERE ntt_typ=1 AND usr_acct_id = @usr_id) ");
             sb.Append("AND (s.grp_id = @grp_id) AND (s.is_del = false) ");
             sb.Append("AND (s.bnloc_id = @bnloc_id) AND (s.cnd_sts = @cnd_sts) ");
             sb.Append("ORDER BY s.asst_nm;");
@@ -1150,6 +1172,8 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
             sb.Append("LEFT JOIN public.asm_stt_bnlcs b ON s.bnloc_id = b.bnloc_id ");
             sb.Append("WHERE s.dvsn_id IN (SELECT asst_dvsn_id FROM public.sct_ntt_pms ");
             sb.Append("WHERE ntt_typ=0 AND usr_acct_id = @usr_id) ");
+            sb.Append("AND s.bloc_id IN (SELECT loc_id FROM public.sct_loc_pms ");
+            sb.Append("WHERE ntt_typ=1 AND usr_acct_id = @usr_id) ");
             sb.Append("AND (s.bnloc_id = @bnloc_id) ");
             sb.Append("AND (s.is_del = false) ORDER BY s.asst_nm; ");
             string query = sb.ToString();
@@ -1230,6 +1254,8 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
             sb.Append("LEFT JOIN public.asm_stt_bnlcs b ON s.bnloc_id = b.bnloc_id ");
             sb.Append("WHERE s.dvsn_id IN (SELECT asst_dvsn_id FROM public.sct_ntt_pms ");
             sb.Append("WHERE ntt_typ=0 AND usr_acct_id = @usr_id) ");
+            sb.Append("AND s.bloc_id IN (SELECT loc_id FROM public.sct_loc_pms ");
+            sb.Append("WHERE ntt_typ=1 AND usr_acct_id = @usr_id) ");
             sb.Append("AND (s.bnloc_id = @bnloc_id) AND (s.cnd_sts = @cnd_sts) ");
             sb.Append("AND (s.is_del = false) ORDER BY s.asst_nm; ");
             string query = sb.ToString();
@@ -1313,6 +1339,8 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
             sb.Append("LEFT JOIN public.asm_stt_bnlcs b ON s.bnloc_id = b.bnloc_id ");
             sb.Append("WHERE s.dvsn_id IN (SELECT asst_dvsn_id FROM public.sct_ntt_pms ");
             sb.Append("WHERE ntt_typ=0 AND usr_acct_id = @usr_id) ");
+            sb.Append("AND s.bloc_id IN (SELECT loc_id FROM public.sct_loc_pms ");
+            sb.Append("WHERE ntt_typ=1 AND usr_acct_id = @usr_id) ");
             sb.Append("AND (s.typ_id = @typ_id) AND (s.is_del = false) ");
             sb.Append("AND (s.bloc_id = @bloc_id) ");
             sb.Append("ORDER BY s.asst_nm;");
@@ -1395,6 +1423,8 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
             sb.Append("LEFT JOIN public.asm_stt_bnlcs b ON s.bnloc_id = b.bnloc_id ");
             sb.Append("WHERE s.dvsn_id IN (SELECT asst_dvsn_id FROM public.sct_ntt_pms ");
             sb.Append("WHERE ntt_typ=0 AND usr_acct_id = @usr_id) ");
+            sb.Append("AND s.bloc_id IN (SELECT loc_id FROM public.sct_loc_pms ");
+            sb.Append("WHERE ntt_typ=1 AND usr_acct_id = @usr_id) ");
             sb.Append("AND (s.typ_id = @typ_id) AND (s.is_del = false) ");
             sb.Append("AND (s.bloc_id = @bloc_id) AND (s.cnd_sts = @cnd_sts) ");
             sb.Append("ORDER BY s.asst_nm;");
@@ -1479,6 +1509,8 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
             sb.Append("LEFT JOIN public.asm_stt_bnlcs b ON s.bnloc_id = b.bnloc_id ");
             sb.Append("WHERE s.dvsn_id IN (SELECT asst_dvsn_id FROM public.sct_ntt_pms ");
             sb.Append("WHERE ntt_typ=0 AND usr_acct_id = @usr_id) ");
+            sb.Append("AND s.bloc_id IN (SELECT loc_id FROM public.sct_loc_pms ");
+            sb.Append("WHERE ntt_typ=1 AND usr_acct_id = @usr_id) ");
             sb.Append("AND (s.grp_id = @grp_id) AND (s.is_del = false) ");
             sb.Append("AND (s.bloc_id = @bloc_id) ");
             sb.Append("ORDER BY s.asst_nm;");
@@ -1561,6 +1593,8 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
             sb.Append("LEFT JOIN public.asm_stt_bnlcs b ON s.bnloc_id = b.bnloc_id ");
             sb.Append("WHERE s.dvsn_id IN (SELECT asst_dvsn_id FROM public.sct_ntt_pms ");
             sb.Append("WHERE ntt_typ=0 AND usr_acct_id = @usr_id) ");
+            sb.Append("AND s.bloc_id IN (SELECT loc_id FROM public.sct_loc_pms ");
+            sb.Append("WHERE ntt_typ=1 AND usr_acct_id = @usr_id) ");
             sb.Append("AND (s.grp_id = @grp_id) AND (s.is_del = false) ");
             sb.Append("AND (s.bloc_id = @bloc_id) AND (s.cnd_sts = @cnd_sts) ");
             sb.Append("ORDER BY s.asst_nm;");
@@ -1646,6 +1680,8 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
             sb.Append("LEFT JOIN public.asm_stt_bnlcs b ON s.bnloc_id = b.bnloc_id ");
             sb.Append("WHERE s.dvsn_id IN (SELECT asst_dvsn_id FROM public.sct_ntt_pms ");
             sb.Append("WHERE ntt_typ=0 AND usr_acct_id = @usr_id) ");
+            sb.Append("AND s.bloc_id IN (SELECT loc_id FROM public.sct_loc_pms ");
+            sb.Append("WHERE ntt_typ=1 AND usr_acct_id = @usr_id) ");
             sb.Append("AND (s.bloc_id = @bloc_id) ");
             sb.Append("AND (s.is_del = false) ORDER BY s.asst_nm; ");
             string query = sb.ToString();
@@ -1726,6 +1762,8 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
             sb.Append("LEFT JOIN public.asm_stt_bnlcs b ON s.bnloc_id = b.bnloc_id ");
             sb.Append("WHERE s.dvsn_id IN (SELECT asst_dvsn_id FROM public.sct_ntt_pms ");
             sb.Append("WHERE ntt_typ=0 AND usr_acct_id = @usr_id) ");
+            sb.Append("AND s.bloc_id IN (SELECT loc_id FROM public.sct_loc_pms ");
+            sb.Append("WHERE ntt_typ=1 AND usr_acct_id = @usr_id) ");
             sb.Append("AND (s.bloc_id = @bloc_id) AND (s.cnd_sts = @cnd_sts) ");
             sb.Append("AND (s.is_del = false) ORDER BY s.asst_nm; ");
             string query = sb.ToString();

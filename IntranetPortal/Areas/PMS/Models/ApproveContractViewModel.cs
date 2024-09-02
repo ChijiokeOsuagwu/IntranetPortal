@@ -68,6 +68,7 @@ namespace IntranetPortal.Areas.PMS.Models
                 IsApproved = IsApproved,
                 ReviewApprovalId = ReviewApprovalID,
                 ReviewHeaderId = ReviewHeaderID,
+                ReviewSessionId = ReviewSessionID,
                 ReviewMetricDescription = ReviewMetricDescription,
                 ReviewMetricId = ReviewMetricID,
             };

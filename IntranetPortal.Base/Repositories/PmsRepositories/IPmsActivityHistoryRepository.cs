@@ -10,6 +10,6 @@ namespace IntranetPortal.Base.Repositories.PmsRepositories
         IConfiguration _config { get; }
 
         Task<bool> AddAsync(PmsActivityHistory activityHistory);
-        Task<IList<PmsActivityHistory>> GetByReviewHeaderIdAsync(int reviewHeaderId);
+        Task<IList<PmsActivityHistory>> GetByReviewHeaderIdAsync(int reviewSessionId, int? reviewHeaderId = null);
     }
 }

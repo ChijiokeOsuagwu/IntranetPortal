@@ -23,6 +23,7 @@ namespace IntranetPortal.Base.Repositories.PmsRepositories
 
         #region ReviewHeader Write Methods
         Task<bool> AddAsync(ReviewHeader reviewHeader);
+        Task<bool> UpdateStageAndAgreementsAsync(ReviewHeader reviewHeader);
         Task<bool> UpdateAppraiseeFlagAsync(int reviewHeaderId, bool isFlagged, string flaggedReason);
         Task<bool> UpdateContractAcceptanceAsync(int reviewHeaderId, bool isAccepted);
         Task<bool> UpdateDepartmentHeadRecommendationAsync(int reviewHeaderId, string deptHeadName, string recommendedAction, string remarks);
@@ -34,6 +35,10 @@ namespace IntranetPortal.Base.Repositories.PmsRepositories
         Task<bool> UpdateManagementDecisionAsync(int reviewHeaderId, string mgtRepName, string recommendedAction, string remarks);
         Task<bool> UpdateStageIdAsync(int reviewHeaderId, int nextStageId);
         Task<bool> UpdateUnitHeadRecommendationAsync(int reviewHeaderId, string unitHeadName, string recommendedAction, string remarks);
+
+        Task<bool> UpdatePrincipalAppraiserByAppraiseeIdAsync(int reviewSessionId, string appraiseeId, string newPrincipalAppraiserId);
+        Task<bool> UpdatePrincipalAppraiserByUnitIdAsync(int reviewSessionId, int unitId, string newPrincipalAppraiserId);
+
         #endregion
     }
 }

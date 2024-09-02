@@ -34,6 +34,7 @@
         <form asp-area="PMS" asp-controller="Process" asp-action="ApproveContract" method="post" autocomplete="off">
             <div class="row">
                 <div class="col-md-12 mb-2">
+                    <input type="hidden" asp-for="ReviewSessionID" />
                     <input type="hidden" asp-for="ReviewHeaderID" />
                     <input type="hidden" asp-for="ReviewMetricID" />
                     <input type="hidden" asp-for="ApprovalTypeID" />

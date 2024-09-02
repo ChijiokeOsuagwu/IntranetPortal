@@ -87,3 +87,49 @@ function revokeAssetPermission(asset_permission_id) {
         }
     })
 }
+
+//====== Function to Grant a Location's Permission to a User ====================//
+function grantLocationPermission(user_id, location_id) {
+    const btnGrant = document.getElementById("btn_grant_" + location_id);
+    $.ajax({
+        type: 'POST',
+        url: '/UserAdministration/Home/GrantLocationPermission',
+        dataType: "text",
+        data: { userId: user_id, locationId: location_id },
+        success: function (result) {
+            if (result == "granted") {
+                btnGrant.disabled = true;
+                location.reload();
+            }
+            else {
+                alert('Granting Permission failed!');
+                console.log(result);
+            }
+        },
+        error: function () {
+            alert('Sorry Permission was not Granted.');
+            console.log('Failed ');
+        }
+    })
+}
+
+//===== Function to Revoke User Location Permission (with LocationPermissionID) ========//
+function revokeLocationPermission(location_permission_id) {
+    $.ajax({
+        type: 'POST',
+        url: '/UserAdministration/Home/RevokeUserLocationPermission',
+        dataType: "text",
+        data: { locationPermissionId: location_permission_id },
+        success: function (result) {
+            if (result == "revoked") {
+                location.reload();
+            }
+            else {
+                alert('Revoking Permission failed!');
+            }
+        },
+        error: function () {
+            alert('Sorry Permission was not Revoked.');
+        }
+    })
+}

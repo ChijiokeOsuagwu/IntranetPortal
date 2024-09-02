@@ -572,6 +572,27 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
             return rows > 0;
         }
 
+        public async Task<bool> DeleteByReviewHeaderIdAsync(int reviewHeaderId)
+        {
+            int rows = 0;
+            var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
+
+            string query = "DELETE FROM public.pmsrvwaprvs WHERE(rvw_hdr_id=@rvw_hdr_id);";
+
+            await conn.OpenAsync();
+            //Insert data
+            using (var cmd = new NpgsqlCommand(query, conn))
+            {
+                var rvw_hdr_id = cmd.Parameters.Add("@rvw_hdr_id", NpgsqlDbType.Integer);
+                cmd.Prepare();
+                rvw_hdr_id.Value = reviewHeaderId;
+
+                rows = await cmd.ExecuteNonQueryAsync();
+            }
+            await conn.CloseAsync();
+            return rows > 0;
+        }
+
         #endregion
     }
 }

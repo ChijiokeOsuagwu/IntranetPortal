@@ -18,7 +18,7 @@ namespace IntranetPortal.Data.Repositories.GlobalSettingsRepositories
             _config = configuration;
         }
 
-        //============= Locations Action Methods =====================================//
+        //====== Locations Action Methods =======//
         #region Location Action Methods
 
         public async Task<bool> AddLocationAsync(Location location)
@@ -285,8 +285,8 @@ namespace IntranetPortal.Data.Repositories.GlobalSettingsRepositories
             string query = String.Empty;
             StringBuilder sb = new StringBuilder();
 
-            sb.Append($"SELECT locqk, locname, loctype, lochq1, lochq2, locmb, locmd, loccb, loccd, locctr, locst	");
-            sb.Append($"FROM public.gst_locs ORDER BY locname; ");
+            sb.Append("SELECT locqk, locname, loctype, lochq1, lochq2, locmb, locmd, loccb, loccd, locctr, locst	");
+            sb.Append("FROM public.gst_locs ORDER BY locname; ");
             query = sb.ToString();
             try
             {
@@ -418,7 +418,7 @@ namespace IntranetPortal.Data.Repositories.GlobalSettingsRepositories
 
         #endregion
 
-        //=========== States Action Methods ==========================================//
+        //====== States Action Methods =========//
         #region States Action Methods
         public async Task<IList<State>> GetStatesAsync()
         {

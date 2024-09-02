@@ -108,5 +108,9 @@ namespace IntranetPortal.Base.Services
 
         #endregion
 
+        #region Currency Service Interfaces
+        Task<IList<Currency>> GetCurrenciesAsync();
+        Task<Currency> GetCurrencyByCodeAsync(string currencyCode);
+        #endregion
     }
 }

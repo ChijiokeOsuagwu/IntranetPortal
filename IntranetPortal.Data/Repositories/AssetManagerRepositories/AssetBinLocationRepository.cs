@@ -11,7 +11,6 @@ using System.Threading.Tasks;
 
 namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
 {
-
     public class AssetBinLocationRepository : IAssetBinLocationRepository
     {
         public IConfiguration _config { get; }
@@ -47,7 +46,6 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
                             assetBinLocation.AssetBinLocationID = reader["bnloc_id"] == DBNull.Value ? 0 : (int)reader["bnloc_id"];
                             assetBinLocation.AssetBinLocationName = reader["bnloc_nm"] == DBNull.Value ? String.Empty : reader["bnloc_nm"].ToString();
                             assetBinLocation.AssetBinLocationDescription = reader["bnloc_ds"] == DBNull.Value ? String.Empty : reader["bnloc_ds"].ToString();
-
                             assetBinLocation.AssetLocationID = reader["loc_id"] == DBNull.Value ? 0 : (int)reader["loc_id"];
                             assetBinLocation.AssetLocationName = reader["locname"] == DBNull.Value ? String.Empty : reader["locname"].ToString();
                         }
@@ -70,8 +68,8 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
             sb.Append("SELECT b.bnloc_id, b.bnloc_nm, b.bnloc_ds, b.loc_id, l.locname ");
             sb.Append("FROM public.asm_stt_bnlcs b INNER JOIN gst_locs l ON b.loc_id = l.locqk ");
             sb.Append($"WHERE(LOWER(bnloc_nm) LIKE '%'||LOWER(@bnloc_nm)||'%') ");
-            sb.Append("AND loc_id IN (SELECT loc_id FROM public.sct_ntt_pms ");
-            sb.Append("WHERE ntt_typ=0 AND usr_acct_id = @usr_id) ");
+            sb.Append("AND loc_id IN (SELECT loc_id FROM public.sct_loc_pms ");
+            sb.Append("WHERE ntt_typ=1 AND usr_acct_id = @usr_id) ");
             sb.Append("ORDER BY bnloc_nm; ");
 
             string query = sb.ToString();
@@ -160,8 +158,8 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
             sb.Append("SELECT bnloc_id, bnloc_nm, bnloc_ds, loc_id, l.locname ");
             sb.Append("FROM public.asm_stt_bnlcs b INNER JOIN gst_locs l ON b.loc_id = l.locqk ");
             sb.Append($"WHERE(LOWER(bnloc_nm) = LOWER(@bnloc_nm)) ");
-            sb.Append("AND loc_id IN (SELECT loc_id FROM public.sct_ntt_pms ");
-            sb.Append("WHERE ntt_typ=0 AND usr_acct_id = @usr_id) ");
+            sb.Append("AND loc_id IN (SELECT loc_id FROM public.sct_loc_pms ");
+            sb.Append("WHERE ntt_typ=1 AND usr_acct_id = @usr_id) ");
             sb.Append("ORDER BY bnloc_nm;");
             string query = sb.ToString();
             try
@@ -206,8 +204,8 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
             sb.Append("SELECT bnloc_id, bnloc_nm, bnloc_ds, loc_id, l.locname ");
             sb.Append("FROM public.asm_stt_bnlcs b INNER JOIN gst_locs l ON ");
             sb.Append("b.loc_id = l.locqk WHERE (loc_id = @loc_id) ");
-            sb.Append("AND loc_id IN (SELECT loc_id FROM public.sct_ntt_pms ");
-            sb.Append("WHERE ntt_typ=0 AND usr_acct_id = @usr_id) ORDER BY bnloc_nm;");
+            sb.Append("AND loc_id IN (SELECT loc_id FROM public.sct_loc_pms ");
+            sb.Append("WHERE ntt_typ=1 AND usr_acct_id = @usr_id) ORDER BY bnloc_nm;");
             string query = sb.ToString();
             try
             {
@@ -251,9 +249,9 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
             StringBuilder sb = new StringBuilder();
             sb.Append("SELECT b.bnloc_id, b.bnloc_nm, b.bnloc_ds, b.loc_id, l.locname ");
             sb.Append("FROM public.asm_stt_bnlcs b INNER JOIN gst_locs l ON b.loc_id = l.locqk ");
-            sb.Append("WHERE b.loc_id IN (SELECT loc_id FROM public.sct_ntt_pms ");
-            sb.Append("WHERE ntt_typ=0 AND usr_acct_id = @usr_id) ");
-            sb.Append("ORDER BY l.locname, b.bnloc_nm;");
+            sb.Append("WHERE b.loc_id IN (SELECT loc_id FROM public.sct_loc_pms ");
+            sb.Append("WHERE ntt_typ=1 AND usr_acct_id = @usr_id) ");
+            sb.Append("ORDER BY b.bnloc_nm;");
             string query = sb.ToString();
             try
             {

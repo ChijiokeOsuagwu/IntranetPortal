@@ -24,5 +24,8 @@ namespace IntranetPortal.Base.Models.SecurityModels
         public string UserName { get; set; }
         public string UserType { get; set; }
         public string CompanyCode { get; set; }
+        public bool IsDeactivated { get; set; }
+        public DateTime? DeactivatedDate { get; set; }
+        public string DeactivatedBy { get; set; }
     }
 }

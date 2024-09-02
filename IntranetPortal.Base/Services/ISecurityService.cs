@@ -1,4 +1,5 @@
 ﻿using IntranetPortal.Base.Models.AssetManagerModels;
+using IntranetPortal.Base.Models.GlobalSettingsModels;
 using IntranetPortal.Base.Models.SecurityModels;
 //using Microsoft.AspNetCore.Identity;
 using System;
@@ -58,6 +59,15 @@ namespace IntranetPortal.Base.Services
         Task<IList<AssetPermission>> GetAssetPermissionsByUserIdAsync(string userId);
         Task<bool> GrantAssetPermissionAsync(AssetPermission assetPermission);
         Task<bool> RevokeAssetPermissionAsync(int assetPermissionId);
+        #endregion
+
+        //=============== Location Permissions Interfaces ==============//
+        #region Location Permissions Interfaces
+        Task<IList<LocationPermission>> GetLocationPermissionsByUserIdAsync(string userId);
+        Task<List<Location>> GetLocationsYetToBeGrantedByUserIdAsync(string userId);
+        Task<LocationPermission> GetLocationPermissionByIdAsync(int locationPermissionId);
+        Task<bool> GrantLocationPermissionAsync(LocationPermission locationPermission);
+        Task<bool> RevokeLocationPermissionAsync(int locationPermissionId);
         #endregion
     }
 }

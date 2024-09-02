@@ -1,0 +1,98 @@
+﻿
+@model IntranetPortal.Areas.ERM.Models.ManageSeparationOutstandingViewModel
+<h3>Employee Exit</h3>
+<hr />
+<div class="card mt-1" style="max-width:800px">
+    <div class="card-header bg-info">
+        @if (Model.EmployeeSeparationId > 0)
+        {
+            <h4 class="text-white">Edit Outstanding</h4>
+        }
+        else
+        {
+            <h4 class="text-white">New Outstanding</h4>
+        }
+    </div>
+    <div class="card-body bg-secondary">
+        @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-x-circle"></i>
+                <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (!String.IsNullOrEmpty(Model.ViewModelSuccessMessage))
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="bi bi-check-circle"></i>
+                <span class="fw-bold">@Model.ViewModelSuccessMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (!String.IsNullOrEmpty(Model.ViewModelWarningMessage))
+        {
+            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                <i class="bi bi-exclamation-circle"></i>
+                <span class="fw-bold">@Model.ViewModelWarningMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+
+        <form asp-area="ERM" asp-controller="Home" asp-action="ManageSeparationOutstanding" method="post" autocomplete="off">
+            <div class="row">
+                <div class="col-md-12 mb-3">
+                    <input type="hidden" asp-for="EmployeeSeparationId" />
+                    <input type="hidden" asp-for="EmployeeId" />
+                    <input type="hidden" asp-for="Id" />
+                    <label asp-for="ItemDescription" class="form-label text-white fw-bold"></label>
+                    <select asp-for="ItemDescription" asp-items="@ViewBag.ItemsList" class="form-control fw-bold">
+                        <option value="">Select</option>
+                    </select>
+                    <div><span asp-validation-for="ItemDescription" class="text-white"></span></div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label asp-for="TypeId" class="form-label text-white fw-bold"></label>
+                    <select asp-for="TypeId" class="form-control fw-bold">
+                        <option value=""> Select </option>
+                        <option value="0">Owed to Staff</option>
+                        <option value="1">Owed to Company</option>
+                    </select>
+                    <div><span asp-validation-for="TypeId" class="text-white"></span></div>
+                </div>
+                <div class="col-md-2 mb-3">
+                    <label asp-for="Currency" class="form-label text-white fw-bold"></label>
+                    <select asp-for="Currency" asp-items="@ViewBag.CurrenciesList" class="form-control fw-bold">
+                        <option value=""> Select </option>
+                    </select>
+                    <div><span asp-validation-for="Currency" class="text-white"></span></div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label asp-for="Amount" class="form-label text-white fw-bold"></label>
+                    <input asp-for="Amount" class="form-control fw-bold" min="0" />
+                    <div><span asp-validation-for="Amount" class="text-white"></span></div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12 text-end">
+                    <a asp-area="ERM" asp-controller="Home" asp-action="SeparationOutstanding" asp-route-id="@Model.EmployeeSeparationId" asp-route-en="@Model.EmployeeName" class="btn btn-dark mr-3" style="width:100px" title="Back">
+                        <span class="text-white">Back</span>
+                    </a>
+                    <a asp-area="ERM" asp-controller="Home" asp-action="ManageSeparation" asp-route-id="@Model.EmployeeSeparationId" class="btn btn-warning mr-1" style="width:100px" title="Clear">
+                        <span class="text-white">Clear</span>
+                    </a>
+                    @if (!Model.OperationIsSuccessful)
+                    {
+                        <button type="submit" class="btn btn-info" title="Save" style="width:200px"><span class="text-white fw-bold">Save</span></button>
+                    }
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+
+

@@ -1,0 +1,120 @@
+﻿
+@model IntranetPortal.Areas.PMS.Models.AppraisalNonParticipantsViewModel
+<div class="container">
+    <h4 class="mb-1">Appraisals Non Participants Report</h4>
+    <hr />
+    <div class="row">
+        <div class="row">
+            <div class="col-md-12 mb-3 text-start">
+                <a asp-area="PMS" asp-controller="Home" asp-action="Reports" title="Go Back" class="btn btn-sm btn-outline-light text-dark">
+                    <i class="bi bi-backspace fw-bolder" style="font-size: 1.0rem;"></i><span class="fw-bold ml-1" style="font-size: 0.9rem;">Back</span>
+                </a>
+                <a asp-area="PMS" asp-controller="Home" asp-action="DownloadAppraisalNonParticipantsReport" asp-route-id="@Model.id" asp-route-ld="@Model.ld" asp-route-ud="@Model.ud" title="Download Excel" class="btn btn-sm btn-outline-light ml-2 text-dark">
+                    <i class="bi bi-download fw-bolder" style="font-size: 1.0rem;"></i><span class="fw-bold ml-1" style="font-size: 0.9rem;">Download</span>
+                </a>
+            </div>
+        </div>
+        <div class="row">
+            <form asp-area="PMS" asp-controller="Home" asp-action="AppraisalNonParticipants" method="get">
+                <div class="row">
+                    <div class="col-md-4 mb-2">
+                        <select asp-for="id" asp-items="@ViewBag.SessionsList" class="form-control fw-bold">
+                            <option value="0"> Session </option>
+                        </select>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <select asp-for="ld" asp-items="@ViewBag.LocationList" class="form-control fw-bold">
+                            <option value="0"> Location </option>
+                        </select>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <select asp-for="ud" asp-items="@ViewBag.UnitList" class="form-control fw-bold">
+                            <option value="0"> Unit </option>
+                        </select>
+                    </div>
+                    <div class="col-md-2 mb-2">
+                        <input type="submit" value="Search" class="btn btn-dark btn-sm text-white" />
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+    {<div class="row">
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-x-circle"></i>
+                <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        </div>
+    }
+    <div class="row">
+        @if (Model == null || Model.EmployeesList == null || Model.EmployeesList.Count < 1)
+        {
+            <div class="alert alert-info fade show" role="alert">
+                <i class="bi bi-info-circle"></i>
+                <span class="fw-bold">No record was found.</span>
+            </div>
+        }
+        else
+        {
+            int row_count = 0;
+            <div class="row">
+                <div class="table-responsive" style="max-height:400px">
+                    <table class="table table-sm table-striped caption-top">
+                        <thead class="table-dark">
+                            <tr>
+                                <th><span class="text-white fw-bolder">(@Model.RecordCount)</span></th>
+                                <th><span class="text-white fw-bolder">Staff No.</span></th>
+                                <th><span class="text-white fw-bolder">Full Name</span></th>
+                                <th><span class="text-white fw-bolder">Gender</span></th>
+                                <th><span class="text-white fw-bolder">Phone No.</span>
+                                <th><span class="text-white fw-bolder">Email</span>
+                                <th><span class="text-white fw-bolder">Unit</span></th>
+                                <th><span class="text-white fw-bolder">Department</span></th>
+                                <th><span class="text-white fw-bolder">Location</span></th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody class="table-light">
+                            @foreach (var item in Model.EmployeesList)
+                            {
+                                row_count++;
+                            <tr>
+                                <td><span class="fw-bold">@row_count.ToString()</span></td>
+                                <td><span class="fw-bold">@item.EmployeeNo1</span></td>
+                                <td><span class="fw-bold">@item.FullName</span></td>
+                                <td><span class="fw-bold">@item.Sex</span>
+                                <td><span class="fw-bold">@item.PhoneNo1</span></td>
+                                <td><span class="fw-bold">@item.Email</span></td>
+                                <td><span class="fw-bold">@item.UnitName</span></td>
+                                <td><span class="fw-bold">@item.DepartmentName</span></td>
+                                <td><span class="fw-bold">@item.LocationName</span></td>
+                                <td class="p-1 text-end">
+                                    <div class="btn-group dropstart">
+                                        <button type="button" class="bg-light" style="border:0px; height:10px" data-bs-toggle="dropdown" aria-expanded="false">
+                                            <span class="text-dark fw-bold"><i class="bi bi-three-dots" style="font-size:1.0rem"></i></span>
+                                        </button>
+                                        <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton2">
+                                            <li>
+                                                <a asp-area="ERM" asp-controller="Employees" asp-action="Profile" asp-route-id="@item.EmployeeID" title="View Staff Profile">
+                                                    <i class="bi bi-file-text"></i>
+                                                    <span class="text-white">View Profile</span>
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </td>
+                            </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+@section Scripts{
+    <script src="~/js/pms.js"></script>
+}

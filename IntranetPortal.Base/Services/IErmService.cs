@@ -68,5 +68,55 @@ namespace IntranetPortal.Base.Services
         Task<bool> UpdateEmployeeReportLineAsync(EmployeeReportLine employeeReportLine);
         Task<bool> DeleteEmployeeReportLineAsync(int employeeReportLineId);
         #endregion
+
+        #region Employee Separation Action Methods
+        Task<bool> AddEmployeeSeparationAsync(EmployeeSeparation e);
+        Task<bool> EditEmployeeSeparationAsync(EmployeeSeparation e);
+        Task<bool> DeleteEmployeeSeparationAsync(int EmployeeSeparationId);
+        Task<EmployeeSeparation> GetEmployeeSeparationAsync(int employeeSeparationId);
+        Task<List<EmployeeSeparation>> GetEmployeeSeparationsAsync(string employeeId);
+        Task<List<EmployeeSeparation>> GetEmployeeSeparationsAsync(DateTime? startDate = null, DateTime? endDate = null);
+        #endregion
+        
+        #region Employee Separation Outstanding Action Methods
+        Task<EmployeeSeparationOutstanding> GetSeparationOutstandingAsync(int SeparationOutstandingId);
+        Task<List<EmployeeSeparationOutstanding>> GetSeparationOutstandingsAsync(string employeeId);
+        Task<List<EmployeeSeparationOutstanding>> GetSeparationOutstandingsAsync(int employeeSeparationId);
+        Task<bool> AddEmployeeSeparationOutstandingAsync(EmployeeSeparationOutstanding e);
+        Task<bool> DeleteEmployeeSeparationOutstandingAsync(int id);
+        Task<bool> UpdateEmployeeSeparationOutstandingAsync(EmployeeSeparationOutstanding e);
+
+        #endregion
+
+        #region Employee Separation Payments Action Methods
+        Task<EmployeeSeparationPayments> GetSeparationPaymentAsync(int SeparationPaymentId);
+        Task<List<EmployeeSeparationPayments>> GetSeparationPaymentsAsync(string employeeId);
+        Task<List<EmployeeSeparationPayments>> GetSeparationPaymentsAsync(int employeeSeparationId);
+        Task<List<EmployeeSeparationPayments>> GetSeparationPaymentsBySeparationOutstandingIdAsync(int employeeSeparationOutstandingId);
+        Task<bool> AddEmployeeSeparationPaymentAsync(EmployeeSeparationPayments p);
+        Task<bool> DeleteEmployeeSeparationPaymentAsync(int id);
+        Task<bool> UpdateEmployeeSeparationPaymentAsync(EmployeeSeparationPayments p);
+        #endregion
+
+        #region Employee Separation Outstanding Items Service Interfaces
+        Task<SeparationOutstandingItem> GetSeparationOutstandingItemAsync(int SeparationOutstandingItemId);
+        Task<List<SeparationOutstandingItem>> GetSeparationOutstandingItemsAsync();
+        #endregion
+
+        #region Employee Separation Types Service Methods
+        Task<bool> CreateEmployeeSeparationTypeAsync(EmployeeSeparationType t);
+        Task<bool> DeleteEmployeeSeparationTypeAsync(int id);
+        Task<bool> UpdateEmployeeSeparationTypeAsync(EmployeeSeparationType t);
+        Task<IList<EmployeeSeparationType>> GetEmployeeSeparationTypesAsync();
+        Task<EmployeeSeparationType> GetEmployeeSeparationTypeByIdAsync(int id);
+        #endregion
+
+        #region Employee Separation Reasons Service Methods
+        Task<bool> CreateEmployeeSeparationReasonAsync(EmployeeSeparationReason r);
+        Task<bool> DeleteEmployeeSeparationReasonAsync(int id);
+        Task<bool> UpdateEmployeeSeparationReasonAsync(EmployeeSeparationReason t);
+        Task<IList<EmployeeSeparationReason>> GetEmployeeSeparationReasonsAsync();
+        Task<EmployeeSeparationReason> GetEmployeeSeparationReasonByIdAsync(int id);
+        #endregion
     }
 }

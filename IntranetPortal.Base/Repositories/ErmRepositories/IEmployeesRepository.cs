@@ -4,13 +4,13 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace IntranetPortal.Base.Repositories.ErmRepository
+namespace IntranetPortal.Base.Repositories.ErmRepositories
 {
     public interface IEmployeesRepository
     {
         #region Employee Action Methods
         Task<bool> AddEmployeeAsync(Employee employee);
-
+        Task<bool> UpdateEmployeeSeparationAsync(string empId, string recordedBy, string recordedTime);
         Task<bool> DeleteEmployeeAsync(string Id, string deletedBy, string deletedTime);
 
         Task<bool> EditEmployeeAsync(Employee employee);

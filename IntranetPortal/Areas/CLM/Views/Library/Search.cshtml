@@ -6,7 +6,7 @@
     <span class="fw-bold" style="font-size:1.1rem">Search Library</span>
     <hr />
     <div class="row">
-     <form asp-area="CLM" asp-controller="Library" asp-action="Search" method="get">
+        <form asp-area="CLM" asp-controller="Library" asp-action="Search" method="get">
             <div class="row">
                 <div class="col-md-3 mb-2">
                     <select asp-for="tp" asp-items="@ViewBag.CourseTypesList" class="form-control fw-bold">
@@ -60,7 +60,9 @@
                         <div class="row g-0">
                             <div class="col-md-1">
                                 <div class="row">
-                                    <img src="~/img/books-color-128.png" alt="@course.CourseTitle" style="max-height:100px; max-width:100px">
+                                    <a asp-area="CLM" asp-controller="Library" asp-action="CourseContents" asp-route-id="@course.CourseId" title="Open Course Contents" class="dropdown-item">
+                                        <img src="~/img/books-color-128.png" alt="@course.CourseTitle" style="max-height:100px; max-width:100px">
+                                    </a>
                                 </div>
                                 <div class="row">
                                     <div class="text-center">

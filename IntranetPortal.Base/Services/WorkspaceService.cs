@@ -3,7 +3,7 @@ using IntranetPortal.Base.Models.EmployeeRecordModels;
 using IntranetPortal.Base.Models.GlobalSettingsModels;
 using IntranetPortal.Base.Models.WksModels;
 using IntranetPortal.Base.Repositories.BaseRepositories;
-using IntranetPortal.Base.Repositories.ErmRepository;
+using IntranetPortal.Base.Repositories.ErmRepositories;
 using IntranetPortal.Base.Repositories.GlobalSettingsRepositories;
 using IntranetPortal.Base.Repositories.WksRepositories;
 using System;

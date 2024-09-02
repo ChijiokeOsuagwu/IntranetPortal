@@ -10,6 +10,7 @@ namespace IntranetPortal.Base.Models.PmsModels
         public int ApprovalTypeId { get; set; }
         public string ApprovalTypeDescription { get; set; }
         public int ReviewHeaderId { get; set; }
+        public int ReviewSessionId { get; set; }
         public string ApproverId { get; set; }
         public string ApproverName { get; set; }
         public int ApproverRoleId { get; set; }

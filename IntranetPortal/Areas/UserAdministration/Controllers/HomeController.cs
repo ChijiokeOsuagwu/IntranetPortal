@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using IntranetPortal.Areas.UserAdministration.Models;
+using IntranetPortal.Base.Enums;
 using IntranetPortal.Base.Models.AssetManagerModels;
 using IntranetPortal.Base.Models.SecurityModels;
 using IntranetPortal.Base.Services;
@@ -227,7 +228,9 @@ namespace IntranetPortal.Areas.UserAdministration.Controllers
             }
             return View(model);
         }
+        #endregion
 
+        #region User Permissions
         [Authorize(Roles = "XYALLACCZ")]
         public async Task<IActionResult> UserPermissions(string id, string sortOrder, string currentFilter, string searchString, int? pageNumber)
         {
@@ -347,9 +350,9 @@ namespace IntranetPortal.Areas.UserAdministration.Controllers
                 model.UserLoginHistories = await _securityService.GetUserLoginHistoryByDateOnlyAsync(yy, mm, dd);
             }
             model.nm = nm;
-            model.yy = yy;
-            model.mm = mm;
-            model.dd = dd;
+            model.yy = yy ?? DateTime.Today.Year;
+            model.mm = mm ?? DateTime.Today.Month;
+            model.dd = dd ?? DateTime.Today.Day;
             return View(model);
         }
 
@@ -380,7 +383,6 @@ namespace IntranetPortal.Areas.UserAdministration.Controllers
                 {
                     AssetPermission assetPermission = model.ConvertToAssetPermission();
                     AssetDivision assetDivision = await _assetManagerService.GetAssetDivisionByIdAsync(assetPermission.AssetDivisionID);
-                    if(assetDivision != null) { assetPermission.LocationID = assetDivision.LocationID.Value; }
                     bool PermissionIsGranted = await _securityService.GrantAssetPermissionAsync(assetPermission);
 
                     if (PermissionIsGranted)
@@ -431,6 +433,98 @@ namespace IntranetPortal.Areas.UserAdministration.Controllers
         }
 
         #endregion
+
+        #region Locations Permission Controller Actions
+        [Authorize(Roles = "XYALLACCZ")]
+        public async Task<IActionResult> LocationPermissions(string id)
+        {
+            LocationPermissionsListViewModel model = new LocationPermissionsListViewModel();
+            model.id = id;
+
+            if (!string.IsNullOrEmpty(id))
+            {
+                var entities = await _securityService.GetLocationPermissionsByUserIdAsync(id);
+                model.LocationPermissionList = entities.ToList();
+            }
+
+            var locationEntities = await _globalSettingsService.GetAllLocationsAsync();
+            if (locationEntities != null && locationEntities.Count > 0)
+            {
+                ViewBag.LocationList = new SelectList(locationEntities, "LocationID", "LocationName");
+            }
+            return View(model);
+        }
+
+        [Authorize(Roles = "XYALLACCZ")]
+        public async Task<IActionResult> GrantUserLocationPermission(string id)
+        {
+            GrantUserLocationPermissionViewModel model = new GrantUserLocationPermissionViewModel();
+            model.id = id;
+            var locationEntities = await _securityService.GetLocationsYetToBeGrantedByUserIdAsync(id);
+            if (locationEntities != null && locationEntities.Count > 0)
+            {
+                model.LocationsList = locationEntities.ToList();
+            }
+            return View(model);
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "XYALLACCZ")]
+        public string RevokeUserLocationPermission(int locationPermissionId)
+        {
+            if (locationPermissionId < 1) { return "parameter"; }
+            try
+            {
+                bool IsRevoked = _securityService.RevokeLocationPermissionAsync(locationPermissionId).Result;
+                if (IsRevoked)
+                {
+                    return "revoked";
+                }
+                else
+                {
+                    return "failed";
+                }
+            }
+            catch
+            {
+                return "failed";
+            }
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "XYALLACCZ")]
+        public string GrantLocationPermission(string userId, int locationId)
+        {
+            if (locationId < 1 || string.IsNullOrWhiteSpace(userId)) { return "parameter"; }
+            LocationPermission locationPermission = new LocationPermission();
+            locationPermission.UserId = userId;
+            locationPermission.LocationId = locationId;
+            locationPermission.PermissionTypeId = (int)EntityPermissionType.AssetLocation;
+            
+            try
+            {
+                bool IsGranted = false;
+                IsGranted = _securityService.GrantLocationPermissionAsync(locationPermission).Result;
+                if (IsGranted)
+                {
+                    return "granted";
+                }
+                else
+                {
+                    return "failed";
+                }
+            }
+            catch
+            {
+                return "failed";
+            }
+        }
+
+
+        #endregion
+
+
+
 
         //========== Employees Helper Methods =========//
         #region Employees Helper Methods

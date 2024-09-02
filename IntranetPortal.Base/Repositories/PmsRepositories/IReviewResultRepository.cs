@@ -9,9 +9,18 @@ namespace IntranetPortal.Base.Repositories.PmsRepositories
     {
         IConfiguration _config { get; }
 
+        #region Result Write Action Interfaces
         Task<bool> AddAsync(ReviewResult reviewResult);
         Task<bool> AddSummaryAsync(ResultSummary resultSummary);
+        Task<bool> UpdateAsync(ReviewResult reviewResult);
+        Task<bool> UpdateSummaryAsync(ResultSummary resultSummary);
         Task<bool> DeleteSummaryAsync(int reviewHeaderId);
+        Task<bool> DeleteSummaryExceptSelfEvaluationAsync(int reviewHeaderId);
+        Task<bool> DeleteEvaluationsByReviewHeaderIdAsync(int reviewHeaderId);
+        Task<bool> DeleteEvaluationsExceptSelfEvaluationAsync(int reviewHeaderId);
+        #endregion
+
+        #region Result Read Action Interfaces
         Task<List<string>> GetAppraisersByReviewHeaderId(int reviewHeaderId);
         Task<List<AppraiserDetail>> GetAppraisersDetailsByReviewHeaderId(int reviewHeaderId);
         Task<IList<ReviewResult>> GetByAppraiserIdAndMetricId(int reviewHeaderId, string appraiserId, int reviewMetricId);
@@ -40,7 +49,7 @@ namespace IntranetPortal.Base.Repositories.PmsRepositories
         Task<IList<ResultSummary>> GetSummaryByReviewSessionIdAndAppraiseeName(int reviewSessionId, string appraiseeName);
         Task<IList<ResultSummary>> GetSummaryByReviewSessionIdAndDepartmentCode(int reviewSessionId, int departmentId);
         Task<IList<ResultSummary>> GetSummaryByReviewSessionIdAndUnitCode(int reviewSessionId, int unitId);
-        Task<bool> UpdateAsync(ReviewResult reviewResult);
-        Task<bool> UpdateSummaryAsync(ResultSummary resultSummary);
+
+        #endregion
     }
 }

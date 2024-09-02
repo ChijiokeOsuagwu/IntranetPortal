@@ -36,8 +36,13 @@
                                     </a>
                                 </li>
                                 <li>
-                                    <a class="dropdown-item text-dark" asp-area="UserAdministration" asp-controller="Staff" asp-action="AssetsPermissions" asp-route-id="@Model.UserID" title="Asset & Equipment Permissions">
-                                        <i class="bi bi-tag fw-bolder" style="font-size: 1.0rem;"></i>&nbsp;<span class="fw-bold" style="font-size: 0.8rem;">Assets & Equipment</span>
+                                    <a class="dropdown-item text-dark" asp-area="UserAdministration" asp-controller="Staff" asp-action="AssetsPermissions" asp-route-id="@Model.UserID" title="Asset Control Unit Permissions">
+                                        <i class="bi bi-tag fw-bolder" style="font-size: 1.0rem;"></i>&nbsp;<span class="fw-bold" style="font-size: 0.8rem;">Asset Control Units</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item text-dark" asp-area="UserAdministration" asp-controller="Home" asp-action="LocationPermissions" asp-route-id="@Model.UserID" title="Asset Locations Permissions">
+                                        <i class="bi bi-tag fw-bolder" style="font-size: 1.0rem;"></i>&nbsp;<span class="fw-bold" style="font-size: 0.8rem;">Asset Locations</span>
                                     </a>
                                 </li>
                             </ul>

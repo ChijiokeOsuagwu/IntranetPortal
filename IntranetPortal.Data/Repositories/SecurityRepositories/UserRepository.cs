@@ -23,56 +23,53 @@ namespace IntranetPortal.Data.Repositories.SecurityRepositories
 
             List<ApplicationUser> applicationUserList = new List<ApplicationUser>();
             var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
-            string query = String.Empty;
             StringBuilder sb = new StringBuilder();
-            sb.Append($"SELECT u.usr_id, u.usr_nm, u.usr_typ, u.usr_afc, u.usr_ccs, u.usr_mlc, u.lck_enb, u.lck_end, u.usr_pwh, u.usr_stp, u.usr_tfe, ");
-            sb.Append($" u.coy_cd, u.usr_cb, u.usr_cd, u.usr_md, u.usr_mb, p.id, p.fullname, p.sex, p.phone1, p.phone2, p.email, p.sex ");
-            sb.Append($"FROM public.sct_usr_acct u INNER JOIN public.gst_prsns p ON u.usr_id = p.id WHERE LOWER(u.usr_nm) = LOWER(@login);");
-            query = sb.ToString();
-            try
+            sb.Append("SELECT u.usr_id, u.usr_nm, u.usr_typ, u.usr_afc, u.usr_ccs, ");
+            sb.Append("u.usr_mlc, u.lck_enb, u.lck_end, u.usr_pwh, u.usr_stp, u.usr_tfe, ");
+            sb.Append("u.coy_cd, u.usr_cb, u.usr_cd, u.usr_md, u.usr_mb, p.id, p.fullname, ");
+            sb.Append("p.sex, p.phone1, p.phone2, p.email, p.sex  ");
+            sb.Append("FROM public.sct_usr_acct u ");
+            sb.Append("INNER JOIN public.gst_prsns p ON u.usr_id = p.id ");
+            sb.Append("WHERE LOWER(u.usr_nm) = LOWER(@login) ");
+            sb.Append("AND (u.is_dx = false);");
+            string query = sb.ToString();
+
+            await conn.OpenAsync();
+            // Retrieve all rows
+            using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
             {
-                await conn.OpenAsync();
-                // Retrieve all rows
-                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+                var appUserLogin = cmd.Parameters.Add("@login", NpgsqlDbType.Text);
+                await cmd.PrepareAsync();
+                appUserLogin.Value = login;
+                var reader = await cmd.ExecuteReaderAsync();
+                while (await reader.ReadAsync())
                 {
-                    var appUserLogin = cmd.Parameters.Add("@login", NpgsqlDbType.Text);
-                    await cmd.PrepareAsync();
-                    appUserLogin.Value = login;
-                    var reader = await cmd.ExecuteReaderAsync();
-                    while (await reader.ReadAsync())
+                    applicationUserList.Add(new ApplicationUser()
                     {
-                        applicationUserList.Add(new ApplicationUser()
-                        {
-                            Id = reader["usr_id"] == DBNull.Value ? string.Empty : (reader["usr_id"]).ToString(),
-                            UserName = reader["usr_nm"] == DBNull.Value ? string.Empty : (reader["usr_nm"]).ToString(),
-                            UserType = reader["usr_typ"] == DBNull.Value ? string.Empty : (reader["usr_typ"]).ToString(),
-                            AccessFailedCount = reader["usr_afc"] == DBNull.Value ? 0 : (int)reader["usr_afc"],
-                            CompanyCode = reader["coy_cd"] == DBNull.Value ? string.Empty : (reader["coy_cd"]).ToString(),
-                            ConcurrencyStamp = reader["usr_ccs"] == DBNull.Value ? string.Empty : (reader["usr_ccs"]).ToString(),
-                            EmailConfirmed = reader["usr_mlc"] == DBNull.Value ? false : (bool)reader["usr_mlc"],
-                            LockoutEnabled = reader["lck_enb"] == DBNull.Value ? false : (bool)reader["lck_enb"],
-                            LockoutEnd = reader["lck_end"] == DBNull.Value ? (DateTime?)null : Convert.ToDateTime(reader["lck_end"]),
-                            PasswordHash = reader["usr_pwh"] == DBNull.Value ? string.Empty : reader["usr_pwh"].ToString(),
-                            SecurityStamp = reader["usr_stp"] == DBNull.Value ? string.Empty : reader["usr_stp"].ToString(),
-                            TwoFactorEnabled = reader["usr_tfe"] == DBNull.Value ? false : (bool)reader["usr_tfe"],
-                            FullName = reader["fullname"] == DBNull.Value ? string.Empty : reader["fullname"].ToString(),
-                            Sex = reader["sex"] == DBNull.Value ? string.Empty : reader["sex"].ToString(),
-                            PhoneNo1 = reader["phone1"] == DBNull.Value ? string.Empty : reader["phone1"].ToString(),
-                            PhoneNo2 = reader["phone2"] == DBNull.Value ? string.Empty : reader["phone2"].ToString(),
-                            ModifiedBy = reader["usr_mb"] == DBNull.Value ? string.Empty : reader["usr_mb"].ToString(),
-                            ModifiedTime = reader["usr_md"] == DBNull.Value ? string.Empty : reader["usr_md"].ToString(),
-                            CreatedTime = reader["usr_cd"] == DBNull.Value ? string.Empty : reader["usr_cd"].ToString(),
-                            CreatedBy = reader["usr_cb"] == DBNull.Value ? string.Empty : reader["usr_cb"].ToString(),
-                        });
-                    }
+                        Id = reader["usr_id"] == DBNull.Value ? string.Empty : (reader["usr_id"]).ToString(),
+                        UserName = reader["usr_nm"] == DBNull.Value ? string.Empty : (reader["usr_nm"]).ToString(),
+                        UserType = reader["usr_typ"] == DBNull.Value ? string.Empty : (reader["usr_typ"]).ToString(),
+                        AccessFailedCount = reader["usr_afc"] == DBNull.Value ? 0 : (int)reader["usr_afc"],
+                        CompanyCode = reader["coy_cd"] == DBNull.Value ? string.Empty : (reader["coy_cd"]).ToString(),
+                        ConcurrencyStamp = reader["usr_ccs"] == DBNull.Value ? string.Empty : (reader["usr_ccs"]).ToString(),
+                        EmailConfirmed = reader["usr_mlc"] == DBNull.Value ? false : (bool)reader["usr_mlc"],
+                        LockoutEnabled = reader["lck_enb"] == DBNull.Value ? false : (bool)reader["lck_enb"],
+                        LockoutEnd = reader["lck_end"] == DBNull.Value ? (DateTime?)null : Convert.ToDateTime(reader["lck_end"]),
+                        PasswordHash = reader["usr_pwh"] == DBNull.Value ? string.Empty : reader["usr_pwh"].ToString(),
+                        SecurityStamp = reader["usr_stp"] == DBNull.Value ? string.Empty : reader["usr_stp"].ToString(),
+                        TwoFactorEnabled = reader["usr_tfe"] == DBNull.Value ? false : (bool)reader["usr_tfe"],
+                        FullName = reader["fullname"] == DBNull.Value ? string.Empty : reader["fullname"].ToString(),
+                        Sex = reader["sex"] == DBNull.Value ? string.Empty : reader["sex"].ToString(),
+                        PhoneNo1 = reader["phone1"] == DBNull.Value ? string.Empty : reader["phone1"].ToString(),
+                        PhoneNo2 = reader["phone2"] == DBNull.Value ? string.Empty : reader["phone2"].ToString(),
+                        ModifiedBy = reader["usr_mb"] == DBNull.Value ? string.Empty : reader["usr_mb"].ToString(),
+                        ModifiedTime = reader["usr_md"] == DBNull.Value ? string.Empty : reader["usr_md"].ToString(),
+                        CreatedTime = reader["usr_cd"] == DBNull.Value ? string.Empty : reader["usr_cd"].ToString(),
+                        CreatedBy = reader["usr_cb"] == DBNull.Value ? string.Empty : reader["usr_cb"].ToString(),
+                    });
                 }
-                await conn.CloseAsync();
             }
-            catch (Exception ex)
-            {
-                await conn.CloseAsync();
-                applicationUserList = null;
-            }
+            await conn.CloseAsync();
             return applicationUserList;
         }
 
@@ -83,57 +80,52 @@ namespace IntranetPortal.Data.Repositories.SecurityRepositories
 
             List<ApplicationUser> applicationUserList = new List<ApplicationUser>();
             var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
-            string query = String.Empty;
             StringBuilder sb = new StringBuilder();
-            sb.Append($"SELECT usr_id, usr_nm, usr_typ, usr_afc, usr_ccs, usr_mlc, lck_enb, lck_end, usr_pwh, usr_stp, usr_tfe, coy_cd, ");
-            sb.Append($"usr_cb, usr_cd, usr_md, usr_mb FROM public.sct_usr_acct WHERE (LOWER(usr_nm) = LOWER(@login)) AND (usr_id <> @usr_id);  ");
-            query = sb.ToString();
-            try
+            sb.Append("SELECT usr_id, usr_nm, usr_typ, usr_afc, usr_ccs, usr_mlc, ");
+            sb.Append("lck_enb, lck_end, usr_pwh, usr_stp, usr_tfe, coy_cd, ");
+            sb.Append("usr_cb, usr_cd, usr_md, usr_mb FROM public.sct_usr_acct ");
+            sb.Append("WHERE (LOWER(usr_nm) = LOWER(@login)) AND (usr_id <> @usr_id) ");
+            sb.Append("AND (is_dx = false);");
+            string query = sb.ToString();
+
+            await conn.OpenAsync();
+            // Retrieve all rows
+            using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
             {
-                await conn.OpenAsync();
-                // Retrieve all rows
-                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+                var appUserLogin = cmd.Parameters.Add("@login", NpgsqlDbType.Text);
+                var appUserId = cmd.Parameters.Add("@usr_id", NpgsqlDbType.Text);
+                await cmd.PrepareAsync();
+                appUserLogin.Value = login;
+                appUserId.Value = userId;
+                var reader = await cmd.ExecuteReaderAsync();
+                while (await reader.ReadAsync())
                 {
-                    var appUserLogin = cmd.Parameters.Add("@login", NpgsqlDbType.Text);
-                    var appUserId = cmd.Parameters.Add("@usr_id", NpgsqlDbType.Text);
-                    await cmd.PrepareAsync();
-                    appUserLogin.Value = login;
-                    appUserId.Value = userId;
-                    var reader = await cmd.ExecuteReaderAsync();
-                    while (await reader.ReadAsync())
+                    applicationUserList.Add(new ApplicationUser()
                     {
-                        applicationUserList.Add(new ApplicationUser()
-                        {
-                            Id = reader["usr_id"] == DBNull.Value ? string.Empty : (reader["usr_id"]).ToString(),
-                            UserName = reader["usr_nm"] == DBNull.Value ? string.Empty : (reader["usr_nm"]).ToString(),
-                            UserType = reader["usr_typ"] == DBNull.Value ? string.Empty : (reader["usr_typ"]).ToString(),
-                            AccessFailedCount = reader["usr_afc"] == DBNull.Value ? 0 : (int)reader["usr_afc"],
-                            CompanyCode = reader["coy_cd"] == DBNull.Value ? string.Empty : (reader["coy_cd"]).ToString(),
-                            ConcurrencyStamp = reader["usr_ccs"] == DBNull.Value ? string.Empty : (reader["usr_ccs"]).ToString(),
-                            EmailConfirmed = reader["usr_mlc"] == DBNull.Value ? false : (bool)reader["usr_mlc"],
-                            LockoutEnabled = reader["lck_enb"] == DBNull.Value ? false : (bool)reader["lck_enb"],
-                            LockoutEnd = reader["lck_end"] == DBNull.Value ? (DateTime?)null : Convert.ToDateTime(reader["lck_end"]),
-                            PasswordHash = reader["usr_pwh"] == DBNull.Value ? string.Empty : reader["usr_pwh"].ToString(),
-                            SecurityStamp = reader["usr_stp"] == DBNull.Value ? string.Empty : reader["usr_stp"].ToString(),
-                            TwoFactorEnabled = reader["usr_tfe"] == DBNull.Value ? false : (bool)reader["usr_tfe"],
-                            FullName = reader["fullname"] == DBNull.Value ? string.Empty : reader["fullname"].ToString(),
-                            Sex = reader["sex"] == DBNull.Value ? string.Empty : reader["sex"].ToString(),
-                            PhoneNo1 = reader["phone1"] == DBNull.Value ? string.Empty : reader["phone1"].ToString(),
-                            PhoneNo2 = reader["phone2"] == DBNull.Value ? string.Empty : reader["phone2"].ToString(),
-                            ModifiedBy = reader["usr_mb"] == DBNull.Value ? string.Empty : reader["usr_mb"].ToString(),
-                            ModifiedTime = reader["usr_md"] == DBNull.Value ? string.Empty : reader["usr_md"].ToString(),
-                            CreatedTime = reader["usr_cd"] == DBNull.Value ? string.Empty : reader["usr_cd"].ToString(),
-                            CreatedBy = reader["usr_cb"] == DBNull.Value ? string.Empty : reader["usr_cb"].ToString(),
-                        });
-                    }
+                        Id = reader["usr_id"] == DBNull.Value ? string.Empty : (reader["usr_id"]).ToString(),
+                        UserName = reader["usr_nm"] == DBNull.Value ? string.Empty : (reader["usr_nm"]).ToString(),
+                        UserType = reader["usr_typ"] == DBNull.Value ? string.Empty : (reader["usr_typ"]).ToString(),
+                        AccessFailedCount = reader["usr_afc"] == DBNull.Value ? 0 : (int)reader["usr_afc"],
+                        CompanyCode = reader["coy_cd"] == DBNull.Value ? string.Empty : (reader["coy_cd"]).ToString(),
+                        ConcurrencyStamp = reader["usr_ccs"] == DBNull.Value ? string.Empty : (reader["usr_ccs"]).ToString(),
+                        EmailConfirmed = reader["usr_mlc"] == DBNull.Value ? false : (bool)reader["usr_mlc"],
+                        LockoutEnabled = reader["lck_enb"] == DBNull.Value ? false : (bool)reader["lck_enb"],
+                        LockoutEnd = reader["lck_end"] == DBNull.Value ? (DateTime?)null : Convert.ToDateTime(reader["lck_end"]),
+                        PasswordHash = reader["usr_pwh"] == DBNull.Value ? string.Empty : reader["usr_pwh"].ToString(),
+                        SecurityStamp = reader["usr_stp"] == DBNull.Value ? string.Empty : reader["usr_stp"].ToString(),
+                        TwoFactorEnabled = reader["usr_tfe"] == DBNull.Value ? false : (bool)reader["usr_tfe"],
+                        FullName = reader["fullname"] == DBNull.Value ? string.Empty : reader["fullname"].ToString(),
+                        Sex = reader["sex"] == DBNull.Value ? string.Empty : reader["sex"].ToString(),
+                        PhoneNo1 = reader["phone1"] == DBNull.Value ? string.Empty : reader["phone1"].ToString(),
+                        PhoneNo2 = reader["phone2"] == DBNull.Value ? string.Empty : reader["phone2"].ToString(),
+                        ModifiedBy = reader["usr_mb"] == DBNull.Value ? string.Empty : reader["usr_mb"].ToString(),
+                        ModifiedTime = reader["usr_md"] == DBNull.Value ? string.Empty : reader["usr_md"].ToString(),
+                        CreatedTime = reader["usr_cd"] == DBNull.Value ? string.Empty : reader["usr_cd"].ToString(),
+                        CreatedBy = reader["usr_cb"] == DBNull.Value ? string.Empty : reader["usr_cb"].ToString(),
+                    });
                 }
-                await conn.CloseAsync();
             }
-            catch (Exception ex)
-            {
-                await conn.CloseAsync();
-                applicationUserList = null;
-            }
+            await conn.CloseAsync();
             return applicationUserList;
         }
 
@@ -145,9 +137,13 @@ namespace IntranetPortal.Data.Repositories.SecurityRepositories
             var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
             string query = String.Empty;
             StringBuilder sb = new StringBuilder();
-            sb.Append("SELECT u.usr_id, u.usr_nm, u.usr_typ, u.usr_afc, u.usr_ccs, u.usr_mlc, u.lck_enb, u.lck_end, u.usr_pwh, u.usr_stp, u.usr_tfe, ");
-            sb.Append(" u.coy_cd, u.usr_cb, u.usr_cd, u.usr_md, u.usr_mb, p.id, p.fullname, p.sex, p.phone1, p.phone2, p.email, p.sex ");
-            sb.Append("FROM public.sct_usr_acct u INNER JOIN public.gst_prsns p ON u.usr_id = p.id WHERE LOWER(u.usr_id)=LOWER(@userId);");
+            sb.Append("SELECT u.usr_id, u.usr_nm, u.usr_typ, u.usr_afc, u.usr_ccs, ");
+            sb.Append("u.usr_mlc, u.lck_enb, u.lck_end, u.usr_pwh, u.usr_stp, u.usr_tfe, ");
+            sb.Append("u.coy_cd, u.usr_cb, u.usr_cd, u.usr_md, u.usr_mb, p.id, ");
+            sb.Append("p.fullname, p.sex, p.phone1, p.phone2, p.email, p.sex ");
+            sb.Append("FROM public.sct_usr_acct u INNER JOIN public.gst_prsns p ");
+            sb.Append("ON u.usr_id = p.id WHERE LOWER(u.usr_id)=LOWER(@userId)  ");
+            sb.Append("AND (u.is_dx = false);");
             query = sb.ToString();
             try
             {
@@ -339,6 +335,42 @@ namespace IntranetPortal.Data.Repositories.SecurityRepositories
             }
             return rows > 0;
         }
+
+
+        public async Task<bool> UpdateUserActivationAsync(string userId, string modifiedBy, bool deactivate)
+        {
+            int rows = 0;
+            var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
+            StringBuilder sb = new StringBuilder();
+            sb.Append("UPDATE public.sct_usr_acct SET is_dx = @is_dx, dx_dt = @dx_dt, ");
+            sb.Append("usr_md=@usr_md, usr_mb=@usr_mb, dx_by = @dx_by  ");
+            sb.Append("WHERE usr_id = @usr_id;");
+            string query = sb.ToString();
+
+            await conn.OpenAsync();
+            //Insert data
+            using (var cmd = new NpgsqlCommand(query, conn))
+            {
+                var usr_id = cmd.Parameters.Add("@usr_id", NpgsqlDbType.Text);
+                var is_dx = cmd.Parameters.Add("@is_dx", NpgsqlDbType.Boolean);
+                var usr_mb = cmd.Parameters.Add("@usr_mb", NpgsqlDbType.Text);
+                var usr_md = cmd.Parameters.Add("@usr_md", NpgsqlDbType.Text);
+                var dx_by = cmd.Parameters.Add("@dx_by", NpgsqlDbType.Text);
+                var dx_dt = cmd.Parameters.Add("@dx_dt", NpgsqlDbType.TimestampTz);
+                cmd.Prepare();
+                usr_id.Value = userId;
+                is_dx.Value = deactivate;
+                usr_mb.Value = modifiedBy ?? (object)DBNull.Value;
+                usr_md.Value = DateTime.UtcNow;
+                dx_by.Value = modifiedBy ?? (object)DBNull.Value;
+                dx_dt.Value = DateTime.UtcNow; ;
+
+                rows = await cmd.ExecuteNonQueryAsync();
+            }
+            await conn.CloseAsync();
+            return rows > 0;
+        }
+
 
         public async Task<bool> DeleteUserAccountByIdAsync(string userId)
         {

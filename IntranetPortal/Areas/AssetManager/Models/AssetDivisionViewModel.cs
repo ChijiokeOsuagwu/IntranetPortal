@@ -18,9 +18,6 @@ namespace IntranetPortal.Areas.AssetManager.Models
         [MaxLength(250, ErrorMessage = "Description must not exceed 250 characters.")]
         public string Description { get; set; }
 
-        [Required]
-        [Display(Name = "Location")]
-        public int LocationID { get; set; }
 
         public AssetDivision ConvertToAssetDivision()
         {
@@ -29,7 +26,6 @@ namespace IntranetPortal.Areas.AssetManager.Models
                 ID = ID,
                 Name = Name,
                 Description = Description,
-                LocationID = LocationID,
             };
         }
     }

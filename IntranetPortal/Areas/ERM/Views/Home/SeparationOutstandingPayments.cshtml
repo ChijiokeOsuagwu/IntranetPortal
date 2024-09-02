@@ -1,0 +1,106 @@
+﻿@model IntranetPortal.Areas.ERM.Models.EmployeeSeparationPaymentsListViewModel
+<div class="container">
+    <h4 class="mb-1">Employee Exit Payments for: @Model.EmployeeName</h4>
+    <hr />
+    <div class="row">
+        <div class="col-md-12 text-start">
+            <a asp-area="ERM" asp-controller="Home" asp-action="SeparationOutstanding" asp-route-id="@Model.EmployeeSeparationId" asp-route-en="@Model.EmployeeName" title="Go Back" class="btn btn-sm btn-outline-light text-dark mr-3">
+                <i class="bi bi-backspace fw-bolder" style="font-size: 1.0rem;"></i><span class="fw-bold ml-1" style="font-size: 0.9rem;">Back</span>
+            </a>
+            @*<a asp-area="ERM" asp-controller="Home" asp-action="DownloadEmployeeSeparationsReport" asp-route-sd="@Model.sd" asp-route-ed="@Model.ed" title="Download Excel" class="btn btn-sm btn-outline-light mr-5 text-dark">
+                    <i class="bi bi-download fw-bolder" style="font-size: 1.0rem;"></i><span class="fw-bold ml-1" style="font-size: 0.9rem;">Download</span>
+                </a>
+                <a asp-area="ERM" asp-controller="Home" asp-action="ManageSeparationPayment" asp-route-id="0" title="Add New Payment" class="text-dark mr-3">
+                    <i class="bi bi-plus-lg fw-bolder" style="font-size: 1.0rem;"></i><span class="fw-bold ml-1" style="font-size: 0.9rem;">Add New</span>
+                </a>*@
+        </div>
+    </div>
+    @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+    {<div class="row">
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-x-circle"></i>
+                <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        </div>
+    }
+    <div class="row">
+        @if (Model == null || Model.EmployeeSeparationPayments == null || Model.EmployeeSeparationPayments.Count < 1)
+        {
+            <div class="alert alert-info fade show" role="alert">
+                <i class="bi bi-info-circle"></i>
+                <span class="fw-bold">No record was found.</span>
+            </div>
+        }
+        else
+        {
+            <div class="row">
+                <div class="table-responsive" style="max-height:400px; max-width:1300px">
+                    <table class="table table-sm table-striped caption-top">
+                        <thead>
+                            <tr class="table-dark">
+                                <th><span class="text-white fw-bolder">Payment Date</span></th>
+                                <th><span class="text-white fw-bolder">Item Description</span>
+                                <th><span class="text-white fw-bolder">Type</span>
+                                <th><span class="text-white fw-bolder">Amount Paid</span></th>
+                                <th><span class="text-white fw-bolder">Paid By</span>
+                                <th><span class="text-white fw-bolder">Details</span>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody class="table-success">
+                            @foreach (var item in Model.EmployeeSeparationPayments)
+                            {
+                            <tr>
+                                @if (item.PaymentDate != null)
+                                {
+                                    <td><span class="fw-bold">@item.PaymentDate.Value.ToLongDateString()</span></td>
+                                }
+                                else
+                                {
+                                    <td><span class="fw-bold">[Not Specified]</span></td>
+                                }
+                                <td><span class="fw-bold">@item.ItemDescription</span></td>
+                                <td><span class="fw-bold">@item.ItemTypeDescription</span></td>
+                                <td><span class="fw-bold">@item.Currency @item.PaymentAmount.ToString("N")</span></td>
+                                <td><span class="fw-bold">@item.PaidBy</span></td>
+                                <td><span class="fw-bold">@item.PaymentDetails</span></td>
+                                <td class="p-1 text-end">
+                                    <div class="btn-group dropstart">
+                                        <button type="button" class="bg-light" style="border:0px; height:10px" data-bs-toggle="dropdown" aria-expanded="false">
+                                            <span class="text-dark fw-bold"><i class="bi bi-three-dots" style="font-size:1.0rem"></i></span>
+                                        </button>
+                                        <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton2">
+                                            <li>
+                                                <a asp-area="ERM" asp-controller="Home" asp-action="ViewSeparationPayment" asp-route-id="@item.Id" title="View Payment Details">
+                                                    <i class="bi bi-file-text text-white pl-2"></i>
+                                                    <span class="text-white">View</span>
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a asp-area="ERM" asp-controller="Home" asp-action="ManageSeparationPayment" asp-route-id="@item.Id" asp-route-od="@item.OutstandingId" title="Edit Payment">
+                                                    <i class="bi bi-pencil-square text-white pl-2"></i>
+                                                    <span class="text-white">Edit</span>
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a asp-area="ERM" asp-controller="Home" asp-action="DeleteSeparationPayment" asp-route-id="@item.Id" title="Delete Payment">
+                                                    <i class="bi bi-trash2 text-white pl-2"></i>
+                                                    <span class="text-white">Delete</span>
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </td>
+                            </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+@section Scripts{
+
+}

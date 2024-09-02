@@ -1,0 +1,97 @@
+﻿
+@model IntranetPortal.Areas.PMS.Models.ReturnforCorrectionViewModel
+<h3 class="mb-1">Return for Correction</h3>
+<hr />
+<div class="card mt-1" style="max-width:1000px">
+    <div class="card-header bg-info">
+        <h4 class="text-white">Return for Correction</h4>
+    </div>
+    <div class="card-body bg-secondary">
+        @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-x-circle"></i>
+                <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (!String.IsNullOrEmpty(Model.ViewModelSuccessMessage))
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="bi bi-check-circle"></i>
+                <span class="fw-bold">@Model.ViewModelSuccessMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (!String.IsNullOrEmpty(Model.ViewModelWarningMessage))
+        {
+            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                <i class="bi bi-exclamation-circle"></i>
+                <span class="fw-bold">@Model.ViewModelWarningMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        <form asp-area="PMS" asp-controller="Home" asp-action="ReturnforCorrection" method="post" autocomplete="off">
+            <div class="row">
+                <div class="col-md-6 mb-2">
+                    <input type="hidden" asp-for="CurrentStageID" />
+                    <input type="hidden" asp-for="ReviewSessionID" />
+                    <input type="hidden" asp-for="ReviewHeaderID" />
+                    <input type="hidden" asp-for="AppraiseeID" />
+                    <label class="form-label text-white fw-bold">Return To:</label>
+                    <input asp-for="AppraiseeName" class="form-control fw-bold" readonly />
+                </div>
+                <div class="col-md-6 mb-2">
+                    <label asp-for="ReturnToStageID" class="form-label text-white fw-bold">To Make Changes to:</label>
+                    <select asp-for="ReturnToStageID" class="form-control fw-bold">
+                        <option value=""> Select </option>
+                        <option value="1"> Performance Contract </option>
+                        <option value="7"> Performance Evaluation </option>
+                    </select>
+                    <div><span asp-validation-for="ReturnToStageID" class="text-white"></span></div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12 mb-3">
+                    <label class="form-label text-white fw-bold">Add Note/Instruction:</label>
+                    <textarea asp-for="ReturnInstruction" class="form-control fw-bold" rows="6" style="font-size:1.0rem">@Model.ReturnInstruction</textarea>
+                    <div><span asp-validation-for="ReturnInstruction" class="text-white"></span></div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <a asp-area="PMS" asp-controller="Home" asp-action="CheckEntries" asp-route-id="@Model.ReviewSessionID" class="btn btn-dark" style="width:100px" title="Back">
+                        <span class="text-white">Back</span>
+                    </a>
+                    @if (!Model.OperationIsSuccessful)
+                    {
+                        <button id="btnSubmit" type="submit" class="btn btn-info" title="Return" style="width:200px" ><span class="text-white">Return Now</span></button>
+                        <partial name="_SendingPartial" />
+                    }
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+@section Scripts{
+    <script>
+        console.log("Js function started");
+        document.getElementById("btnSubmit").addEventListener("click", function (event) {
+            console.log("Inside function")
+            let isConfirmed = confirm('Previous Approvals and Sign Offs may be deleted. Do you want to proceed?');
+            console.log("confirm returned: " + isConfirmed);
+            if (isConfirmed) {
+                if (document.getElementById("ReturnInstruction").value != "" ||
+                    document.getElementById("ReturnToStageID").value != "" ||
+                    document.getElementById("ReviewHeaderID").value != "") {
+                    console.log("loader display activated.");
+                    document.getElementById("sending").style.display = "block";
+                }
+            }
+            else {
+                console.log("About to call prevent default.")
+                event.preventDefault();
+            }
+        });
+    </script>
+}

@@ -79,7 +79,15 @@
                                     <span class="fw-bolder">@item.PostTypeName</span>
                                 </td>
                                 <td class="p-1">
-                                    <span class="fw-bolder">@item.CreatedDate.Value.ToLongDateString()</span>
+
+                                    @if (item.CreatedDate != null)
+                                    {
+                                        <span class="fw-bolder">@item.CreatedDate.Value.ToLongDateString()</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="fw-bolder">[N/A]</span>
+                                    }
                                 </td>
                                 <td class="p-1">
                                     <!-- Default dropstart button -->
