@@ -9,9 +9,9 @@ using System.Threading.Tasks;
 
 namespace IntranetPortal.Areas.ContentManager.Models
 {
-    public class PostEditViewModel: BaseViewModel
+    public class PostEditViewModel : BaseViewModel
     {
-        public int? PostId { get; set; }
+        public long? PostId { get; set; }
 
         [Required]
         [MaxLength(100, ErrorMessage = "Title must not exceed 100 characters.")]
@@ -53,6 +53,22 @@ namespace IntranetPortal.Areas.ContentManager.Models
                 PostTypeId = PostTypeId,
                 PostDetails = PostDetails,
                 PostDetailsRaw = PostDetailsRaw
+            };
+        }
+
+        public PostEditViewModel ExtraFromPost(Post p)
+        {
+            return new PostEditViewModel
+            {
+                EnableComments = p.EnableComment,
+                ImagePath = p.ImagePath,
+                IsHidden = p.IsHidden,
+                PostId = PostId == null ? 0 : PostId.Value,
+                PostTitle = p.PostTitle,
+                PostSummary = p.PostSummary,
+                PostTypeId = p.PostTypeId,
+                PostDetails = p.PostDetails,
+                PostDetailsRaw = p.PostDetailsRaw,
             };
         }
     }

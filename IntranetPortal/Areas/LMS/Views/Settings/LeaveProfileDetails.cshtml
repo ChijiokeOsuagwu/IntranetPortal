@@ -1,0 +1,118 @@
+﻿
+@model IntranetPortal.Areas.LMS.Models.LeaveProfileDetailsListViewModel
+<div class="container">
+    <h3 class="mb-1">@Model.LeaveProfileName Options</h3>
+    <hr />
+    <div class="mb-2">
+        <a asp-area="LMS" asp-controller="Settings" asp-action="LeaveProfiles" class="btn btn-dark" style="width:100px" title="Exit">
+            <span class="text-white">Back</span>
+        </a>
+        <a asp-area="LMS" asp-controller="Settings" asp-action="NewProfileDetail" asp-route-id="@Model.LeaveProfileId" asp-route-nm="@Model.LeaveProfileName" class="btn btn-success" style="width:150px" title="Add New Profile Detail">
+            <span class="text-white">Add New</span>
+        </a>
+
+        @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-x-circle"></i>
+                <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+    </div>
+    <div class="row">
+        @if (Model == null || Model.LeaveProfileDetailList == null || Model.LeaveProfileDetailList.Count < 1)
+        {
+            <div class="alert alert-info fade show" role="alert">
+                <i class="bi bi-info-circle"></i>
+                <span class="fw-bold">No record was found.</span>
+            </div>
+        }
+        else
+        {
+            <div class="table-responsive" style="min-height:400px">
+                <table class="table table-sm table-hover">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>
+                                <span class="text-white fw-bolder">Leave Type</span>
+                            </th>
+                            <th>
+                                <span class="text-white fw-bolder">Duration</span>
+                            </th>
+                            <th>
+                                <span class="text-white fw-bolder">Is Yearly</span>
+                            </th>
+                            <th>
+                                <span class="text-white fw-bolder">Is Deferrable</span>
+                            </th>
+                            <th>
+                                <span class="text-white fw-bolder">Is Monetizable</span>
+                            </th>
+                            <th>
+
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="table-light">
+                        @foreach (var item in Model.LeaveProfileDetailList)
+                        {
+                        <tr>
+                            <td class="p-2">
+                                <span class="fw-bolder">@item.LeaveTypeName</span>
+                            </td>
+                            <td class="p-2">
+                                <span class="fw-bolder">@item.Duration @item.DurationTypeDescription</span>
+                            </td>
+                            <td>
+                                @if (item.IsYearly)
+                                {<span class="fw-bolder text-dark"><i class="bi bi-check-lg"></i></span>}
+                                else
+                                {<span class="fw-bolder text-dark"><i class="bi bi-x-lg"></i></span>}
+                            </td>
+                            <td>
+                                @if (item.CanBeCarriedOver)
+                                {<span class="fw-bolder text-dark"><i class="bi bi-check-lg"></i></span>}
+                                else
+                                {<span class="fw-bolder text-dark"><i class="bi bi-x-lg"></i></span>}
+                            </td>
+                            <td>
+                                @if (item.CanBeMonetized)
+                                {<span class="fw-bolder text-dark"><i class="bi bi-check-lg"></i></span>}
+                                else
+                                {<span class="fw-bolder text-dark"><i class="bi bi-x-lg"></i></span>}
+                            </td>
+                            <td>
+                                 <div class="dropdown">
+                                    <button class="btn btn-light btn-sm" type="button" id="dropdownMenuButton2" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <span class="fw-bold text-dark"><i class="bi bi-three-dots"></i></span>
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton2">
+                                        <li>
+                                            <a asp-area="LMS" asp-controller="Settings" asp-action="ViewProfileDetail" asp-route-id="@item.Id" title="Details" class="dropdown-item">
+                                                <span class="text-white"><i class="bi bi-info-circle"></i> View</span>
+</a>
+                                        </li>
+                                        <li>
+                                            <a asp-area="LMS" asp-controller="Settings" asp-action="EditProfileDetail" asp-route-id="@item.Id" title="Edit" class="dropdown-item">
+                                                <span class="text-white"><i class="bi bi-pencil-square"></i> Edit</span>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a asp-area="LMS" asp-controller="Settings" asp-action="DeleteProfileDetail" asp-route-id="@item.Id" title="Delete" class="dropdown-item">
+                                                <span class="text-white"><i class="bi bi-trash"></i> Delete</span>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </td>
+                        </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+
+    </div>
+</div>
+

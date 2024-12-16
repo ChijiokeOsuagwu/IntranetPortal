@@ -8,6 +8,7 @@ using IntranetPortal.Base.Enums;
 using IntranetPortal.Base.Models.ContentManagerModels;
 using IntranetPortal.Base.Services;
 using IntranetPortal.Configurations;
+using IntranetPortal.Helpers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Hosting;
@@ -75,35 +76,46 @@ namespace IntranetPortal.Areas.ContentManager.Controllers
                     }
                     uploadsFolder = "uploads/cms/" + Guid.NewGuid().ToString() + "_" + model.ArticleImage.FileName;
                     absoluteFilePath = Path.Combine(_webHostEnvironment.WebRootPath, uploadsFolder);
-                    await model.ArticleImage.CopyToAsync(new FileStream(absoluteFilePath, FileMode.Create));
+                    //await model.ArticleImage.CopyToAsync(new FileStream(absoluteFilePath, FileMode.Create));
+                    using (var fileStream = new FileStream(absoluteFilePath, FileMode.Create))
+                    {
+                        await model.ArticleImage.CopyToAsync(fileStream);
+                    }
                 }
-                    Post post = new Post
-                    {
-                        PostTitle = model.Title,
-                        ImagePath = uploadsFolder,
-                        EnableComment = model.EnableComments,
-                        IsHidden = model.IsHidden,
-                        PostSummary = model.Summary,
-                        PostTypeId = (int)PostType.Article,
-                        ModifiedDate = DateTime.UtcNow,
-                        CreatedDate = DateTime.UtcNow,
-                        ModifiedBy = HttpContext.User.Identity.Name ?? "System Administrator",
-                        CreatedBy = HttpContext.User.Identity.Name ?? "System Administrator"
-                    };
+                Post post = new Post
+                {
+                    PostTitle = model.Title,
+                    ImagePath = "/" + uploadsFolder,
+                    ImageFullPath = absoluteFilePath,
+                    EnableComment = model.EnableComments,
+                    IsHidden = model.IsHidden,
+                    PostSummary = model.Summary,
+                    PostTypeId = (int)PostType.Article,
+                    ModifiedDate = DateTime.UtcNow,
+                    CreatedDate = DateTime.UtcNow,
+                    ModifiedBy = HttpContext.User.Identity.Name ?? string.Empty,
+                    CreatedBy = HttpContext.User.Identity.Name ?? string.Empty
+                };
 
-                    if (await _contentManager.CreatePostAsync(post))
+                if (await _contentManager.CreatePostAsync(post))
+                {
+                    model.ViewModelSuccessMessage = $"Congratulations! New Article was added successfully.";
+                }
+                else
+                {
+                    FileInfo file = new FileInfo(absoluteFilePath);
+                    if (file.Exists)
                     {
-                        model.ViewModelSuccessMessage = $"Congratulations! New Article was added successfully.";
-                    }
-                    else
-                    {
-                        FileInfo file = new FileInfo(absoluteFilePath);
-                        if (file.Exists)
+                        if (!file.IsFileOpen())
                         {
-                            file.Delete();
+                            await Task.Run(() =>
+                            {
+                                file.Delete();
+                            });
                         }
-                        model.ViewModelErrorMessage = $"Error! An error was encountered. New article could not be added.";
                     }
+                    model.ViewModelErrorMessage = "Sorry, an error was encountered. New article could not be added.";
+                }
             }
             return View(model);
         }
@@ -127,10 +139,10 @@ namespace IntranetPortal.Areas.ContentManager.Controllers
         {
             if (model == null || model.Id < 1)
             {
-                model.ViewModelErrorMessage = $"Error! Sorry, an error was encountered. Article could not be deleted.";
+                model.ViewModelErrorMessage = "Sorry, an error was encountered. Article could not be deleted.";
                 return View(model);
             }
-            int PostId = model.Id;
+            long PostId = model.Id;
             string filePath = string.Empty;
             if (!string.IsNullOrEmpty(model.ImagePath))
             {
@@ -139,12 +151,18 @@ namespace IntranetPortal.Areas.ContentManager.Controllers
             FileInfo file = new FileInfo(filePath);
             if (file.Exists)
             {
-                file.Delete();
+                if (!file.IsFileOpen())
+                {
+                    await Task.Run(() =>
+                    {
+                        file.Delete();
+                    });
+                }
             }
             var result = await _contentManager.DeletePostAsync(PostId);
             if (!result)
             {
-                model.ViewModelErrorMessage = $"Error! Sorry, an error was encountered. Article could not be deleted.";
+                model.ViewModelErrorMessage = "Sorry, an error was encountered. Article could not be deleted.";
                 return View(model);
             }
             TempData["DeleteSuccessMessage"] = "The Article was successfully deleted!";
@@ -154,7 +172,7 @@ namespace IntranetPortal.Areas.ContentManager.Controllers
         [Authorize(Roles = "PCMMGACNT, XYALLACCZ")]
         public async Task<IActionResult> Edit(string id)
         {
-            int PostId = 0;
+            long PostId = 0;
             if (!string.IsNullOrEmpty(id)) { PostId = Convert.ToInt32(_dataProtector.Unprotect(id)); }
             ArticleEditViewModel model = new ArticleEditViewModel();
             var article = await _contentManager.GetPostByIdAsync(PostId);
@@ -177,8 +195,18 @@ namespace IntranetPortal.Areas.ContentManager.Controllers
                 Post post = new Post();
                 string absoluteFilePath = string.Empty;
                 string uploadsFolder = string.Empty;
+                string previousUploadsFolder = null;
+                string previousAbsoluteFilePath = null;
+                bool newFileUploadedSuccessfully = false;
 
-                if (model.ArticleImage != null)
+                var entity = await _contentManager.GetPostByIdAsync(model.Id);
+                if (entity != null)
+                {
+                    previousAbsoluteFilePath = entity.ImageFullPath;
+                    previousUploadsFolder = entity.ImagePath;
+                }
+
+                if (model.ArticleImage != null &&  model.ArticleImage.Length > 0)
                 {
                     var supportedTypes = new[] { ".jpg", ".jpeg", ".png", ".gif" };
                     FileInfo fileInfo = new FileInfo(model.ArticleImage.FileName);
@@ -190,7 +218,17 @@ namespace IntranetPortal.Areas.ContentManager.Controllers
                     }
                     uploadsFolder = "uploads/cms/" + Guid.NewGuid().ToString() + "_" + model.ArticleImage.FileName;
                     absoluteFilePath = Path.Combine(_webHostEnvironment.WebRootPath, uploadsFolder);
-                    await model.ArticleImage.CopyToAsync(new FileStream(absoluteFilePath, FileMode.Create));
+                    //await model.ArticleImage.CopyToAsync(new FileStream(absoluteFilePath, FileMode.Create));
+                    using (var fileStream = new FileStream(absoluteFilePath, FileMode.Create))
+                    {
+                        await model.ArticleImage.CopyToAsync(fileStream);
+                        newFileUploadedSuccessfully = true;
+                    }
+                }
+                else
+                {
+                    uploadsFolder = previousUploadsFolder;
+                    absoluteFilePath = previousAbsoluteFilePath;
                 }
 
                 post.IsHidden = model.IsHidden;
@@ -199,21 +237,39 @@ namespace IntranetPortal.Areas.ContentManager.Controllers
                 post.ModifiedDate = DateTime.UtcNow;
                 post.ModifiedBy = HttpContext.User.Identity.Name ?? "System Administrator";
                 post.PostTitle = model.Title;
-                post.ImagePath = uploadsFolder;
+                post.ImagePath = "/"+uploadsFolder;
+                post.ImageFullPath = absoluteFilePath;
                 post.EnableComment = model.EnableComments;
 
                 if (await _contentManager.UpdatePostAsync(post))
                 {
-                    model.ViewModelSuccessMessage = $"Congratulations! Article was updated successfully.";
+                    if (newFileUploadedSuccessfully)
+                    {
+                        FileInfo file = new FileInfo(previousAbsoluteFilePath);
+                        if (file.Exists)
+                        {
+                            if (!file.IsFileOpen())
+                            {
+                                await Task.Run(() =>
+                                {
+                                    file.Delete();
+                                });
+                            }
+                        }
+                    }
+                    model.ViewModelSuccessMessage = "Congratulations! Article was updated successfully.";
                 }
                 else
                 {
                     FileInfo file = new FileInfo(absoluteFilePath);
-                    if (file.Exists)
+                    if (!file.IsFileOpen())
                     {
-                        file.Delete();
+                        await Task.Run(() =>
+                        {
+                            file.Delete();
+                        });
                     }
-                    model.ViewModelErrorMessage = $"Error! An error was encountered. Article could not be added.";
+                    model.ViewModelErrorMessage = "Sorry, an error was encountered. Article could not be updated.";
                 }
             }
             return View(model);

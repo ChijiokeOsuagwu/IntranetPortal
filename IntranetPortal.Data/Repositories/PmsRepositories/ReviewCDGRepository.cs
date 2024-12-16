@@ -62,6 +62,403 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
             return reviewCDGList;
         }
 
+
+        //without all
+        public async Task<List<ReviewCDG>> GetByReviewSessionIdAsync(int reviewSessionId)
+        {
+            List<ReviewCDG> reviewCDGList = new List<ReviewCDG>();
+            var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
+            StringBuilder sb = new StringBuilder();
+            sb.Append("SELECT c.rvw_cdg_id, c.rvw_hdr_id, c.rvw_sxn_id, c.rvw_yr_id, ");
+            sb.Append("c.rvw_cdg_ds, c.rvw_cdg_obj, c.rvw_cdg_xtn, c.rvw_emp_id, ");
+            sb.Append("s.rvw_sxn_nm, e.fullname AS rvw_emp_nm ");
+            sb.Append("FROM public.pmsrvwcdgs c ");
+            sb.Append("INNER JOIN public.pmsrvwsxns s ON s.rvw_sxn_id = c.rvw_sxn_id ");
+            sb.Append("INNER JOIN public.gst_prsns e ON e.id = c.rvw_emp_id ");
+            sb.Append("WHERE (c.rvw_sxn_id = @rvw_sxn_id) ");
+            sb.Append("ORDER BY e.fullname;");
+            string query = sb.ToString();
+            await conn.OpenAsync();
+            // Retrieve all rows
+            using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+            {
+                var rvw_sxn_id = cmd.Parameters.Add("@rvw_sxn_id", NpgsqlDbType.Integer);
+                await cmd.PrepareAsync();
+                rvw_sxn_id.Value = reviewSessionId;
+
+                var reader = await cmd.ExecuteReaderAsync();
+                while (await reader.ReadAsync())
+                {
+                    reviewCDGList.Add(new ReviewCDG()
+                    {
+                        ReviewCdgId = reader["rvw_cdg_id"] == DBNull.Value ? 0 : (int)reader["rvw_cdg_id"],
+                        ReviewHeaderId = reader["rvw_hdr_id"] == DBNull.Value ? 0 : (int)reader["rvw_hdr_id"],
+                        ReviewSessionId = reader["rvw_sxn_id"] == DBNull.Value ? 0 : (int)reader["rvw_sxn_id"],
+                        ReviewSessionName = reader["rvw_sxn_nm"] == DBNull.Value ? string.Empty : reader["rvw_sxn_nm"].ToString(),
+                        ReviewYearId = reader["rvw_yr_id"] == DBNull.Value ? 0 : (int)reader["rvw_yr_id"],
+                        ReviewCdgDescription = reader["rvw_cdg_ds"] == DBNull.Value ? string.Empty : reader["rvw_cdg_ds"].ToString(),
+                        ReviewCdgObjective = reader["rvw_cdg_obj"] == DBNull.Value ? string.Empty : reader["rvw_cdg_obj"].ToString(),
+                        ReviewCdgActionPlan = reader["rvw_cdg_xtn"] == DBNull.Value ? string.Empty : reader["rvw_cdg_xtn"].ToString(),
+                        AppraiseeId = reader["rvw_emp_id"] == DBNull.Value ? string.Empty : reader["rvw_emp_id"].ToString(),
+                        AppraiseeName = reader["rvw_emp_nm"] == DBNull.Value ? string.Empty : reader["rvw_emp_nm"].ToString(),
+                    });
+                }
+            }
+            await conn.CloseAsync();
+            return reviewCDGList;
+        }
+
+        //without none
+        public async Task<List<ReviewCDG>> GetByReviewSessionIdnLocationIdnDepartmentIdnUnitIdAsync(int reviewSessionId, int locationId, int departmentId, int unitId)
+        {
+            List<ReviewCDG> reviewCDGList = new List<ReviewCDG>();
+            var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
+            StringBuilder sb = new StringBuilder();
+            sb.Append("SELECT c.rvw_cdg_id, c.rvw_hdr_id, c.rvw_sxn_id, c.rvw_yr_id, ");
+            sb.Append("c.rvw_cdg_ds, c.rvw_cdg_obj, c.rvw_cdg_xtn, c.rvw_emp_id, ");
+            sb.Append("s.rvw_sxn_nm, e.fullname AS rvw_emp_nm, f.unit_id, f.dept_id, ");
+            sb.Append("f.loc_id FROM public.pmsrvwcdgs c ");
+            sb.Append("INNER JOIN public.pmsrvwsxns s ON s.rvw_sxn_id = c.rvw_sxn_id ");
+            sb.Append("INNER JOIN public.erm_emp_inf f ON f.emp_id = c.rvw_emp_id ");
+            sb.Append("INNER JOIN public.gst_prsns e ON e.id = c.rvw_emp_id ");
+            sb.Append("WHERE (c.rvw_sxn_id = @rvw_sxn_id) ");
+            sb.Append("AND (f.loc_id = @loc_id) AND (f.dept_id = @dept_id) ");
+            sb.Append("AND (f.unit_id = @unit_id) ");
+            sb.Append("ORDER BY e.fullname;");
+            string query = sb.ToString();
+            await conn.OpenAsync();
+            // Retrieve all rows
+            using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+            {
+                var rvw_sxn_id = cmd.Parameters.Add("@rvw_sxn_id", NpgsqlDbType.Integer);
+                var loc_id = cmd.Parameters.Add("@loc_id", NpgsqlDbType.Integer);
+                var dept_id = cmd.Parameters.Add("@dept_id", NpgsqlDbType.Integer);
+                var unit_id = cmd.Parameters.Add("@unit_id", NpgsqlDbType.Integer);
+                await cmd.PrepareAsync();
+                rvw_sxn_id.Value = reviewSessionId;
+                loc_id.Value = locationId;
+                dept_id.Value = departmentId;
+                unit_id.Value = unitId;
+
+                var reader = await cmd.ExecuteReaderAsync();
+                while (await reader.ReadAsync())
+                {
+                    reviewCDGList.Add(new ReviewCDG()
+                    {
+                        ReviewCdgId = reader["rvw_cdg_id"] == DBNull.Value ? 0 : (int)reader["rvw_cdg_id"],
+                        ReviewHeaderId = reader["rvw_hdr_id"] == DBNull.Value ? 0 : (int)reader["rvw_hdr_id"],
+                        ReviewSessionId = reader["rvw_sxn_id"] == DBNull.Value ? 0 : (int)reader["rvw_sxn_id"],
+                        ReviewSessionName = reader["rvw_sxn_nm"] == DBNull.Value ? string.Empty : reader["rvw_sxn_nm"].ToString(),
+                        ReviewYearId = reader["rvw_yr_id"] == DBNull.Value ? 0 : (int)reader["rvw_yr_id"],
+                        ReviewCdgDescription = reader["rvw_cdg_ds"] == DBNull.Value ? string.Empty : reader["rvw_cdg_ds"].ToString(),
+                        ReviewCdgObjective = reader["rvw_cdg_obj"] == DBNull.Value ? string.Empty : reader["rvw_cdg_obj"].ToString(),
+                        ReviewCdgActionPlan = reader["rvw_cdg_xtn"] == DBNull.Value ? string.Empty : reader["rvw_cdg_xtn"].ToString(),
+                        AppraiseeId = reader["rvw_emp_id"] == DBNull.Value ? string.Empty : reader["rvw_emp_id"].ToString(),
+                        AppraiseeName = reader["rvw_emp_nm"] == DBNull.Value ? string.Empty : reader["rvw_emp_nm"].ToString(),
+                    });
+                }
+            }
+            await conn.CloseAsync();
+            return reviewCDGList;
+        }
+
+        //without LocationId
+        public async Task<List<ReviewCDG>> GetByReviewSessionIdnDepartmentIdnUnitIdAsync(int reviewSessionId, int departmentId, int unitId)
+        {
+            List<ReviewCDG> reviewCDGList = new List<ReviewCDG>();
+            var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
+            StringBuilder sb = new StringBuilder();
+            sb.Append("SELECT c.rvw_cdg_id, c.rvw_hdr_id, c.rvw_sxn_id, c.rvw_yr_id, ");
+            sb.Append("c.rvw_cdg_ds, c.rvw_cdg_obj, c.rvw_cdg_xtn, c.rvw_emp_id, ");
+            sb.Append("s.rvw_sxn_nm, e.fullname AS rvw_emp_nm, f.unit_id, f.dept_id, ");
+            sb.Append("f.loc_id FROM public.pmsrvwcdgs c ");
+            sb.Append("INNER JOIN public.pmsrvwsxns s ON s.rvw_sxn_id = c.rvw_sxn_id ");
+            sb.Append("INNER JOIN public.erm_emp_inf f ON f.emp_id = c.rvw_emp_id ");
+            sb.Append("INNER JOIN public.gst_prsns e ON e.id = c.rvw_emp_id ");
+            sb.Append("WHERE (c.rvw_sxn_id = @rvw_sxn_id) ");
+            sb.Append("AND (f.dept_id = @dept_id) ");
+            sb.Append("AND (f.unit_id = @unit_id) ");
+            sb.Append("ORDER BY e.fullname;");
+            string query = sb.ToString();
+            await conn.OpenAsync();
+            // Retrieve all rows
+            using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+            {
+                var rvw_sxn_id = cmd.Parameters.Add("@rvw_sxn_id", NpgsqlDbType.Integer);
+                var dept_id = cmd.Parameters.Add("@dept_id", NpgsqlDbType.Integer);
+                var unit_id = cmd.Parameters.Add("@unit_id", NpgsqlDbType.Integer);
+                await cmd.PrepareAsync();
+                rvw_sxn_id.Value = reviewSessionId;
+                dept_id.Value = departmentId;
+                unit_id.Value = unitId;
+
+                var reader = await cmd.ExecuteReaderAsync();
+                while (await reader.ReadAsync())
+                {
+                    reviewCDGList.Add(new ReviewCDG()
+                    {
+                        ReviewCdgId = reader["rvw_cdg_id"] == DBNull.Value ? 0 : (int)reader["rvw_cdg_id"],
+                        ReviewHeaderId = reader["rvw_hdr_id"] == DBNull.Value ? 0 : (int)reader["rvw_hdr_id"],
+                        ReviewSessionId = reader["rvw_sxn_id"] == DBNull.Value ? 0 : (int)reader["rvw_sxn_id"],
+                        ReviewSessionName = reader["rvw_sxn_nm"] == DBNull.Value ? string.Empty : reader["rvw_sxn_nm"].ToString(),
+                        ReviewYearId = reader["rvw_yr_id"] == DBNull.Value ? 0 : (int)reader["rvw_yr_id"],
+                        ReviewCdgDescription = reader["rvw_cdg_ds"] == DBNull.Value ? string.Empty : reader["rvw_cdg_ds"].ToString(),
+                        ReviewCdgObjective = reader["rvw_cdg_obj"] == DBNull.Value ? string.Empty : reader["rvw_cdg_obj"].ToString(),
+                        ReviewCdgActionPlan = reader["rvw_cdg_xtn"] == DBNull.Value ? string.Empty : reader["rvw_cdg_xtn"].ToString(),
+                        AppraiseeId = reader["rvw_emp_id"] == DBNull.Value ? string.Empty : reader["rvw_emp_id"].ToString(),
+                        AppraiseeName = reader["rvw_emp_nm"] == DBNull.Value ? string.Empty : reader["rvw_emp_nm"].ToString(),
+                    });
+                }
+            }
+            await conn.CloseAsync();
+            return reviewCDGList;
+        }
+        public async Task<List<ReviewCDG>> GetByReviewSessionIdnUnitIdAsync(int reviewSessionId, int unitId)
+        {
+            List<ReviewCDG> reviewCDGList = new List<ReviewCDG>();
+            var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
+            StringBuilder sb = new StringBuilder();
+            sb.Append("SELECT c.rvw_cdg_id, c.rvw_hdr_id, c.rvw_sxn_id, c.rvw_yr_id, ");
+            sb.Append("c.rvw_cdg_ds, c.rvw_cdg_obj, c.rvw_cdg_xtn, c.rvw_emp_id, ");
+            sb.Append("s.rvw_sxn_nm, e.fullname AS rvw_emp_nm, f.unit_id, f.dept_id, ");
+            sb.Append("f.loc_id FROM public.pmsrvwcdgs c ");
+            sb.Append("INNER JOIN public.pmsrvwsxns s ON s.rvw_sxn_id = c.rvw_sxn_id ");
+            sb.Append("INNER JOIN public.erm_emp_inf f ON f.emp_id = c.rvw_emp_id ");
+            sb.Append("INNER JOIN public.gst_prsns e ON e.id = c.rvw_emp_id ");
+            sb.Append("WHERE (c.rvw_sxn_id = @rvw_sxn_id) ");
+            sb.Append("AND (f.unit_id = @unit_id) ");
+            sb.Append("ORDER BY e.fullname;");
+            string query = sb.ToString();
+            await conn.OpenAsync();
+            // Retrieve all rows
+            using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+            {
+                var rvw_sxn_id = cmd.Parameters.Add("@rvw_sxn_id", NpgsqlDbType.Integer);
+                var unit_id = cmd.Parameters.Add("@unit_id", NpgsqlDbType.Integer);
+                await cmd.PrepareAsync();
+                rvw_sxn_id.Value = reviewSessionId;
+                unit_id.Value = unitId;
+
+                var reader = await cmd.ExecuteReaderAsync();
+                while (await reader.ReadAsync())
+                {
+                    reviewCDGList.Add(new ReviewCDG()
+                    {
+                        ReviewCdgId = reader["rvw_cdg_id"] == DBNull.Value ? 0 : (int)reader["rvw_cdg_id"],
+                        ReviewHeaderId = reader["rvw_hdr_id"] == DBNull.Value ? 0 : (int)reader["rvw_hdr_id"],
+                        ReviewSessionId = reader["rvw_sxn_id"] == DBNull.Value ? 0 : (int)reader["rvw_sxn_id"],
+                        ReviewSessionName = reader["rvw_sxn_nm"] == DBNull.Value ? string.Empty : reader["rvw_sxn_nm"].ToString(),
+                        ReviewYearId = reader["rvw_yr_id"] == DBNull.Value ? 0 : (int)reader["rvw_yr_id"],
+                        ReviewCdgDescription = reader["rvw_cdg_ds"] == DBNull.Value ? string.Empty : reader["rvw_cdg_ds"].ToString(),
+                        ReviewCdgObjective = reader["rvw_cdg_obj"] == DBNull.Value ? string.Empty : reader["rvw_cdg_obj"].ToString(),
+                        ReviewCdgActionPlan = reader["rvw_cdg_xtn"] == DBNull.Value ? string.Empty : reader["rvw_cdg_xtn"].ToString(),
+                        AppraiseeId = reader["rvw_emp_id"] == DBNull.Value ? string.Empty : reader["rvw_emp_id"].ToString(),
+                        AppraiseeName = reader["rvw_emp_nm"] == DBNull.Value ? string.Empty : reader["rvw_emp_nm"].ToString(),
+                    });
+                }
+            }
+            await conn.CloseAsync();
+            return reviewCDGList;
+        }
+
+
+        //without DepartmentId
+        public async Task<List<ReviewCDG>> GetByReviewSessionIdnLocationIdnUnitIdAsync(int reviewSessionId, int locationId, int unitId)
+        {
+            List<ReviewCDG> reviewCDGList = new List<ReviewCDG>();
+            var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
+            StringBuilder sb = new StringBuilder();
+            sb.Append("SELECT c.rvw_cdg_id, c.rvw_hdr_id, c.rvw_sxn_id, c.rvw_yr_id, ");
+            sb.Append("c.rvw_cdg_ds, c.rvw_cdg_obj, c.rvw_cdg_xtn, c.rvw_emp_id, ");
+            sb.Append("s.rvw_sxn_nm, e.fullname AS rvw_emp_nm, f.unit_id, f.dept_id, ");
+            sb.Append("f.loc_id FROM public.pmsrvwcdgs c ");
+            sb.Append("INNER JOIN public.pmsrvwsxns s ON s.rvw_sxn_id = c.rvw_sxn_id ");
+            sb.Append("INNER JOIN public.erm_emp_inf f ON f.emp_id = c.rvw_emp_id ");
+            sb.Append("INNER JOIN public.gst_prsns e ON e.id = c.rvw_emp_id ");
+            sb.Append("WHERE (c.rvw_sxn_id = @rvw_sxn_id) ");
+            sb.Append("AND (f.loc_id = @loc_id) ");
+            sb.Append("AND (f.unit_id = @unit_id) ");
+            sb.Append("ORDER BY e.fullname;");
+            string query = sb.ToString();
+            await conn.OpenAsync();
+            // Retrieve all rows
+            using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+            {
+                var rvw_sxn_id = cmd.Parameters.Add("@rvw_sxn_id", NpgsqlDbType.Integer);
+                var loc_id = cmd.Parameters.Add("@loc_id", NpgsqlDbType.Integer);
+                var unit_id = cmd.Parameters.Add("@unit_id", NpgsqlDbType.Integer);
+                await cmd.PrepareAsync();
+                rvw_sxn_id.Value = reviewSessionId;
+                loc_id.Value = locationId;
+                unit_id.Value = unitId;
+
+                var reader = await cmd.ExecuteReaderAsync();
+                while (await reader.ReadAsync())
+                {
+                    reviewCDGList.Add(new ReviewCDG()
+                    {
+                        ReviewCdgId = reader["rvw_cdg_id"] == DBNull.Value ? 0 : (int)reader["rvw_cdg_id"],
+                        ReviewHeaderId = reader["rvw_hdr_id"] == DBNull.Value ? 0 : (int)reader["rvw_hdr_id"],
+                        ReviewSessionId = reader["rvw_sxn_id"] == DBNull.Value ? 0 : (int)reader["rvw_sxn_id"],
+                        ReviewSessionName = reader["rvw_sxn_nm"] == DBNull.Value ? string.Empty : reader["rvw_sxn_nm"].ToString(),
+                        ReviewYearId = reader["rvw_yr_id"] == DBNull.Value ? 0 : (int)reader["rvw_yr_id"],
+                        ReviewCdgDescription = reader["rvw_cdg_ds"] == DBNull.Value ? string.Empty : reader["rvw_cdg_ds"].ToString(),
+                        ReviewCdgObjective = reader["rvw_cdg_obj"] == DBNull.Value ? string.Empty : reader["rvw_cdg_obj"].ToString(),
+                        ReviewCdgActionPlan = reader["rvw_cdg_xtn"] == DBNull.Value ? string.Empty : reader["rvw_cdg_xtn"].ToString(),
+                        AppraiseeId = reader["rvw_emp_id"] == DBNull.Value ? string.Empty : reader["rvw_emp_id"].ToString(),
+                        AppraiseeName = reader["rvw_emp_nm"] == DBNull.Value ? string.Empty : reader["rvw_emp_nm"].ToString(),
+                    });
+                }
+            }
+            await conn.CloseAsync();
+            return reviewCDGList;
+        }
+        public async Task<List<ReviewCDG>> GetByReviewSessionIdnLocationIdAsync(int reviewSessionId, int locationId)
+        {
+            List<ReviewCDG> reviewCDGList = new List<ReviewCDG>();
+            var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
+            StringBuilder sb = new StringBuilder();
+            sb.Append("SELECT c.rvw_cdg_id, c.rvw_hdr_id, c.rvw_sxn_id, c.rvw_yr_id, ");
+            sb.Append("c.rvw_cdg_ds, c.rvw_cdg_obj, c.rvw_cdg_xtn, c.rvw_emp_id, ");
+            sb.Append("s.rvw_sxn_nm, e.fullname AS rvw_emp_nm, f.unit_id, f.dept_id, ");
+            sb.Append("f.loc_id FROM public.pmsrvwcdgs c ");
+            sb.Append("INNER JOIN public.pmsrvwsxns s ON s.rvw_sxn_id = c.rvw_sxn_id ");
+            sb.Append("INNER JOIN public.erm_emp_inf f ON f.emp_id = c.rvw_emp_id ");
+            sb.Append("INNER JOIN public.gst_prsns e ON e.id = c.rvw_emp_id ");
+            sb.Append("WHERE (c.rvw_sxn_id = @rvw_sxn_id) ");
+            sb.Append("AND (f.loc_id = @loc_id) ");
+            sb.Append("ORDER BY e.fullname;");
+            string query = sb.ToString();
+            await conn.OpenAsync();
+            // Retrieve all rows
+            using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+            {
+                var rvw_sxn_id = cmd.Parameters.Add("@rvw_sxn_id", NpgsqlDbType.Integer);
+                var loc_id = cmd.Parameters.Add("@loc_id", NpgsqlDbType.Integer);
+                await cmd.PrepareAsync();
+                rvw_sxn_id.Value = reviewSessionId;
+                loc_id.Value = locationId;
+                var reader = await cmd.ExecuteReaderAsync();
+                while (await reader.ReadAsync())
+                {
+                    reviewCDGList.Add(new ReviewCDG()
+                    {
+                        ReviewCdgId = reader["rvw_cdg_id"] == DBNull.Value ? 0 : (int)reader["rvw_cdg_id"],
+                        ReviewHeaderId = reader["rvw_hdr_id"] == DBNull.Value ? 0 : (int)reader["rvw_hdr_id"],
+                        ReviewSessionId = reader["rvw_sxn_id"] == DBNull.Value ? 0 : (int)reader["rvw_sxn_id"],
+                        ReviewSessionName = reader["rvw_sxn_nm"] == DBNull.Value ? string.Empty : reader["rvw_sxn_nm"].ToString(),
+                        ReviewYearId = reader["rvw_yr_id"] == DBNull.Value ? 0 : (int)reader["rvw_yr_id"],
+                        ReviewCdgDescription = reader["rvw_cdg_ds"] == DBNull.Value ? string.Empty : reader["rvw_cdg_ds"].ToString(),
+                        ReviewCdgObjective = reader["rvw_cdg_obj"] == DBNull.Value ? string.Empty : reader["rvw_cdg_obj"].ToString(),
+                        ReviewCdgActionPlan = reader["rvw_cdg_xtn"] == DBNull.Value ? string.Empty : reader["rvw_cdg_xtn"].ToString(),
+                        AppraiseeId = reader["rvw_emp_id"] == DBNull.Value ? string.Empty : reader["rvw_emp_id"].ToString(),
+                        AppraiseeName = reader["rvw_emp_nm"] == DBNull.Value ? string.Empty : reader["rvw_emp_nm"].ToString(),
+                    });
+                }
+            }
+            await conn.CloseAsync();
+            return reviewCDGList;
+        }
+
+
+        //without UnitId
+        public async Task<List<ReviewCDG>> GetByReviewSessionIdnLocationIdnDepartmentIdAsync(int reviewSessionId, int locationId, int departmentId)
+        {
+            List<ReviewCDG> reviewCDGList = new List<ReviewCDG>();
+            var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
+            StringBuilder sb = new StringBuilder();
+            sb.Append("SELECT c.rvw_cdg_id, c.rvw_hdr_id, c.rvw_sxn_id, c.rvw_yr_id, ");
+            sb.Append("c.rvw_cdg_ds, c.rvw_cdg_obj, c.rvw_cdg_xtn, c.rvw_emp_id, ");
+            sb.Append("s.rvw_sxn_nm, e.fullname AS rvw_emp_nm, f.unit_id, f.dept_id, ");
+            sb.Append("f.loc_id FROM public.pmsrvwcdgs c ");
+            sb.Append("INNER JOIN public.pmsrvwsxns s ON s.rvw_sxn_id = c.rvw_sxn_id ");
+            sb.Append("INNER JOIN public.erm_emp_inf f ON f.emp_id = c.rvw_emp_id ");
+            sb.Append("INNER JOIN public.gst_prsns e ON e.id = c.rvw_emp_id ");
+            sb.Append("WHERE (c.rvw_sxn_id = @rvw_sxn_id) ");
+            sb.Append("AND (f.loc_id = @loc_id) AND (f.dept_id = @dept_id) ");
+            sb.Append("ORDER BY e.fullname;");
+            string query = sb.ToString();
+            await conn.OpenAsync();
+            // Retrieve all rows
+            using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+            {
+                var rvw_sxn_id = cmd.Parameters.Add("@rvw_sxn_id", NpgsqlDbType.Integer);
+                var loc_id = cmd.Parameters.Add("@loc_id", NpgsqlDbType.Integer);
+                var dept_id = cmd.Parameters.Add("@dept_id", NpgsqlDbType.Integer);
+                await cmd.PrepareAsync();
+                rvw_sxn_id.Value = reviewSessionId;
+                loc_id.Value = locationId;
+                dept_id.Value = departmentId;
+                var reader = await cmd.ExecuteReaderAsync();
+                while (await reader.ReadAsync())
+                {
+                    reviewCDGList.Add(new ReviewCDG()
+                    {
+                        ReviewCdgId = reader["rvw_cdg_id"] == DBNull.Value ? 0 : (int)reader["rvw_cdg_id"],
+                        ReviewHeaderId = reader["rvw_hdr_id"] == DBNull.Value ? 0 : (int)reader["rvw_hdr_id"],
+                        ReviewSessionId = reader["rvw_sxn_id"] == DBNull.Value ? 0 : (int)reader["rvw_sxn_id"],
+                        ReviewSessionName = reader["rvw_sxn_nm"] == DBNull.Value ? string.Empty : reader["rvw_sxn_nm"].ToString(),
+                        ReviewYearId = reader["rvw_yr_id"] == DBNull.Value ? 0 : (int)reader["rvw_yr_id"],
+                        ReviewCdgDescription = reader["rvw_cdg_ds"] == DBNull.Value ? string.Empty : reader["rvw_cdg_ds"].ToString(),
+                        ReviewCdgObjective = reader["rvw_cdg_obj"] == DBNull.Value ? string.Empty : reader["rvw_cdg_obj"].ToString(),
+                        ReviewCdgActionPlan = reader["rvw_cdg_xtn"] == DBNull.Value ? string.Empty : reader["rvw_cdg_xtn"].ToString(),
+                        AppraiseeId = reader["rvw_emp_id"] == DBNull.Value ? string.Empty : reader["rvw_emp_id"].ToString(),
+                        AppraiseeName = reader["rvw_emp_nm"] == DBNull.Value ? string.Empty : reader["rvw_emp_nm"].ToString(),
+                    });
+                }
+            }
+            await conn.CloseAsync();
+            return reviewCDGList;
+        }
+
+
+
+        public async Task<List<ReviewCDG>> GetByReviewSessionIdnEmployeeNameAsync(int reviewSessionId, string employeeName)
+        {
+            List<ReviewCDG> reviewCDGList = new List<ReviewCDG>();
+            var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
+            StringBuilder sb = new StringBuilder();
+            sb.Append("SELECT c.rvw_cdg_id, c.rvw_hdr_id, c.rvw_sxn_id, c.rvw_yr_id, ");
+            sb.Append("c.rvw_cdg_ds, c.rvw_cdg_obj, c.rvw_cdg_xtn, c.rvw_emp_id, ");
+            sb.Append("s.rvw_sxn_nm, e.fullname AS rvw_emp_nm ");
+            sb.Append("FROM public.pmsrvwcdgs c ");
+            sb.Append("INNER JOIN public.pmsrvwsxns s ON s.rvw_sxn_id = c.rvw_sxn_id ");
+            sb.Append("INNER JOIN public.gst_prsns e ON e.id = c.rvw_emp_id ");
+            sb.Append("WHERE (c.rvw_sxn_id = @rvw_sxn_id) ");
+            sb.Append("AND (e.fullname = @fullname);");
+            string query = sb.ToString();
+            await conn.OpenAsync();
+            // Retrieve all rows
+            using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+            {
+                var rvw_sxn_id = cmd.Parameters.Add("@rvw_sxn_id", NpgsqlDbType.Integer);
+                var fullname = cmd.Parameters.Add("@fullname", NpgsqlDbType.Text);
+                await cmd.PrepareAsync();
+                rvw_sxn_id.Value = reviewSessionId;
+                fullname.Value = employeeName;
+
+                var reader = await cmd.ExecuteReaderAsync();
+                while (await reader.ReadAsync())
+                {
+                    reviewCDGList.Add(new ReviewCDG()
+                    {
+                        ReviewCdgId = reader["rvw_cdg_id"] == DBNull.Value ? 0 : (int)reader["rvw_cdg_id"],
+                        ReviewHeaderId = reader["rvw_hdr_id"] == DBNull.Value ? 0 : (int)reader["rvw_hdr_id"],
+                        ReviewSessionId = reader["rvw_sxn_id"] == DBNull.Value ? 0 : (int)reader["rvw_sxn_id"],
+                        ReviewSessionName = reader["rvw_sxn_nm"] == DBNull.Value ? string.Empty : reader["rvw_sxn_nm"].ToString(),
+                        ReviewYearId = reader["rvw_yr_id"] == DBNull.Value ? 0 : (int)reader["rvw_yr_id"],
+                        ReviewCdgDescription = reader["rvw_cdg_ds"] == DBNull.Value ? string.Empty : reader["rvw_cdg_ds"].ToString(),
+                        ReviewCdgObjective = reader["rvw_cdg_obj"] == DBNull.Value ? string.Empty : reader["rvw_cdg_obj"].ToString(),
+                        ReviewCdgActionPlan = reader["rvw_cdg_xtn"] == DBNull.Value ? string.Empty : reader["rvw_cdg_xtn"].ToString(),
+                        AppraiseeId = reader["rvw_emp_id"] == DBNull.Value ? string.Empty : reader["rvw_emp_id"].ToString(),
+                        AppraiseeName = reader["rvw_emp_nm"] == DBNull.Value ? string.Empty : reader["rvw_emp_nm"].ToString(),
+                    });
+                }
+            }
+            await conn.CloseAsync();
+            return reviewCDGList;
+        }
+
         public async Task<List<ReviewCDG>> GetByIdAsync(int reviewCdgId)
         {
             List<ReviewCDG> reviewCDGList = new List<ReviewCDG>();

@@ -245,11 +245,11 @@ namespace IntranetPortal.Base.Services
         public async Task<List<Employee>> GetAppraisalNonParticipants(int ReviewSessionId, int? LocationId = null, int? UnitId = null)
         {
             List<Employee> employees = new List<Employee>();
-            if(ReviewSessionId > 0)
+            if (ReviewSessionId > 0)
             {
-                if(LocationId != null && LocationId > 0)
+                if (LocationId != null && LocationId > 0)
                 {
-                    if(UnitId != null && UnitId > 0)
+                    if (UnitId != null && UnitId > 0)
                     {
                         var entities = await _reviewSessionRepository.GetNonParticipantsByReviewSessionIdnLocationIdnUnitIdAsync(ReviewSessionId, LocationId.Value, UnitId.Value);
                         if (entities != null) { employees = entities.ToList(); }
@@ -263,7 +263,7 @@ namespace IntranetPortal.Base.Services
                 else
                 {
                     var entities = await _reviewSessionRepository.GetNonParticipantsByReviewSessionIdAsync(ReviewSessionId);
-                    if(entities != null) { employees = entities.ToList(); }
+                    if (entities != null) { employees = entities.ToList(); }
                 }
             }
             return employees;
@@ -921,7 +921,6 @@ namespace IntranetPortal.Base.Services
             return await _reviewHeaderRepository.UpdateStageAndAgreementsAsync(reviewHeader);
         }
 
-
         public async Task<bool> UpdatePerformanceGoalAsync(int reviewHeaderId, string performanceGoal, string appraiserId)
         {
             if (reviewHeaderId < 1) { throw new ArgumentNullException(nameof(reviewHeaderId)); }
@@ -1458,6 +1457,78 @@ namespace IntranetPortal.Base.Services
             }
             return reviewCDG;
         }
+
+        public async Task<List<ReviewCDG>> SearchReviewCdgsAsync(int reviewSessionId, int? locationId = null, int? departmentId = null, int? unitId = null, string employeeName = "")
+        {
+            int LocationId = locationId ?? 0;
+            int DepartmentId = departmentId ?? 0;
+            int UnitId = unitId ?? 0;
+
+            List<ReviewCDG> reviewCdgs = new List<ReviewCDG>();
+            if (reviewSessionId < 1)
+            {
+                return reviewCdgs;
+            }
+            else if (reviewSessionId > 0 && !string.IsNullOrWhiteSpace(employeeName))
+            {
+                var entities = await _reviewCDGRepository.GetByReviewSessionIdnEmployeeNameAsync(reviewSessionId, employeeName);
+                if (entities != null && entities.Count > 0)
+                {
+                    reviewCdgs = entities;
+                }
+            }
+            else if (reviewSessionId > 0 && LocationId > 0 && DepartmentId > 0 && UnitId > 0)
+            {
+                var entities = await _reviewCDGRepository.GetByReviewSessionIdnLocationIdnDepartmentIdnUnitIdAsync(reviewSessionId, LocationId, DepartmentId, UnitId);
+                if (entities != null && entities.Count > 0)
+                {
+                    reviewCdgs = entities;
+                }
+            }
+            else if(reviewSessionId > 0 && LocationId > 0 && DepartmentId > 0 && UnitId < 1)
+            {
+                var entities = await _reviewCDGRepository.GetByReviewSessionIdnLocationIdnDepartmentIdAsync(reviewSessionId, LocationId, DepartmentId);
+                if (entities != null && entities.Count > 0)
+                {
+                    reviewCdgs = entities;
+                }
+            }
+            else if (reviewSessionId > 0 && LocationId > 0 && DepartmentId < 1 && UnitId < 1)
+            {
+                var entities = await _reviewCDGRepository.GetByReviewSessionIdnLocationIdAsync(reviewSessionId, LocationId);
+                if (entities != null && entities.Count > 0)
+                {
+                    reviewCdgs = entities;
+                }
+            }
+            else if (reviewSessionId > 0 && LocationId < 1 && DepartmentId < 1 && UnitId < 1)
+            {
+                var entities = await _reviewCDGRepository.GetByReviewSessionIdAsync(reviewSessionId);
+                if (entities != null && entities.Count > 0)
+                {
+                    reviewCdgs = entities;
+                }
+            }
+            else if (reviewSessionId > 0 && LocationId < 1 && DepartmentId < 1 && UnitId > 0)
+            {
+                var entities = await _reviewCDGRepository.GetByReviewSessionIdnUnitIdAsync(reviewSessionId, UnitId);
+                if (entities != null && entities.Count > 0)
+                {
+                    reviewCdgs = entities;
+                }
+            }
+            else if (reviewSessionId > 0 && LocationId < 1 && DepartmentId > 0 && UnitId > 0)
+            {
+                var entities = await _reviewCDGRepository.GetByReviewSessionIdnDepartmentIdnUnitIdAsync(reviewSessionId, DepartmentId, UnitId);
+                if (entities != null && entities.Count > 0)
+                {
+                    reviewCdgs = entities;
+                }
+            }
+
+            return reviewCdgs;
+        }
+
 
         public async Task<bool> AddReviewCdgAsync(ReviewCDG reviewCdg)
         {
@@ -2148,8 +2219,8 @@ namespace IntranetPortal.Base.Services
             {
                 return true;
             }
-            else 
-            { 
+            else
+            {
                 int noOfRecords = entities.Count;
                 int noDeleted = 0;
                 foreach (ReviewApproval approval in entities)
@@ -2165,6 +2236,17 @@ namespace IntranetPortal.Base.Services
         #endregion
 
         #region Review Result Service Methods
+        public async Task<List<EvaluationHeader>> GetEvaluationHeadersAsync(int reviewHeaderId)
+        {
+            List<EvaluationHeader> evaluationHeaders = new List<EvaluationHeader>();
+            var entities = await _reviewResultRepository.GetEvaluationHeadersByReviewHeaderId(reviewHeaderId);
+            if (entities != null && entities.Count > 0)
+            {
+                evaluationHeaders = entities.ToList();
+            }
+            return evaluationHeaders;
+        }
+
         public async Task<List<ReviewResult>> GetInitialReviewResultKpasAsync(int reviewHeaderId, string appraiserId)
         {
             List<ReviewResult> reviewResults = new List<ReviewResult>();

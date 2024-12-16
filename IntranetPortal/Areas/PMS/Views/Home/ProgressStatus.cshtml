@@ -109,15 +109,15 @@
                                         <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton2">
                                             <li>
                                                 <a asp-area="PMS" asp-controller="Process" asp-action="ShowContractInfo" asp-route-id="@item.ReviewHeaderId" asp-route-sd="@item.AppraiseeId" asp-route-sp="pgs" title="View Performance Contract" >
-                                                    <i class="bi bi-file-text"></i>
+                                                    <i class="bi bi-file-text" style="color:white"></i>
                                                     <span class="text-white">View Contract</span>
                                                 </a>
                                             </li>
-                                            @if (item.ReviewStageId > 9)
+                                            @if (item.ReviewStageId > 7)
                                             {
                                             <li>
                                                 <a asp-area="PMS" asp-controller="Process" asp-action="ShowEvaluations" asp-route-id="@item.ReviewHeaderId" title="View Evaluations">
-                                                    <i class="bi bi-file-text"></i>
+                                                    <i class="bi bi-file-text" style="color:white"></i>
                                                     <span class="text-white">View Evaluations</span>
                                                 </a>
                                             </li>

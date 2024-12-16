@@ -1,0 +1,94 @@
+﻿@model IntranetPortal.Areas.LMS.Models.LeaveProfileEmployeesListViewModel
+@{
+    ViewData["Title"] = "OfficeManager | Employees Register";
+}
+<div class="container">
+    <h3 class="mb-1">Leave Profile Employees</h3>
+    <hr />
+    <div class="row mb-1">
+        <div class="row">
+            <div class="col-md-12 mb-3 text-start">
+                <a asp-area="LMS" asp-controller="Settings" asp-action="LeaveProfiles" title="Go Back" class="btn btn-sm btn-outline-light text-dark">
+                    <i class="bi bi-backspace fw-bolder" style="font-size: 1.0rem;"></i><span class="fw-bold ml-1" style="font-size: 0.9rem;">Back</span>
+                </a>
+            </div>
+        </div>
+        <hr />
+        <div class="row">
+            @if (!string.IsNullOrEmpty(ViewBag.ErrorMessage))
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bi bi-x-circle"></i>
+                    <span class="fw-bold">@ViewBag.ErrorMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            @if (Model == null || Model.EmployeeRollsList == null || Model.EmployeeRollsList.Count < 1)
+            {
+                <div class="alert alert-info fade show" role="alert">
+                    <i class="bi bi-info-circle"></i>
+                    <span class="fw-bold">No record was found.</span>
+                </div>
+            }
+            else
+            {
+                int row_no = 0;
+                <div class="table-responsive">
+                    <table class="table table-sm table-hover">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>
+                                    <span class="text-white fw-bolder">Full Name</span>
+                                </th>
+                                <th>
+                                    <span class="text-white fw-bolder">Sex</span>
+                                </th>
+                                <th>
+                                    <span class="text-white fw-bolder">Phone</span>
+                                </th>
+                                <th>
+                                    <span class="text-white fw-bolder">Unit</span>
+                                </th>
+                                <th>
+                                    <span class="text-white fw-bolder">Location</span>
+                                </th>
+                                <th>
+                                    <span class="text-white fw-bolder">(@Model.EmployeeRollsList.Count)</span>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody class="table-success">
+                            @foreach (var item in Model.EmployeeRollsList)
+                            {
+                                row_no++;
+                                <tr>
+                                    <td>
+                                        <span class="fw-bolder">@item.FullName</span>
+                                    </td>
+                                    <td>
+                                        <span class="fw-bolder">@item.Sex</span>
+                                    </td>
+                                    <td>
+                                        <span class="fw-bolder">@item.PhoneNo1</span>
+                                    </td>
+                                    <td>
+                                        <span class="fw-bolder">@item.UnitName</span>
+                                    </td>
+                                    <td>
+                                        <span class="fw-bolder">@item.LocationName</span>
+                                    </td>
+                                    <td>
+                                        <a asp-area="ERM" asp-controller="Employees" asp-action="profile" asp-route-id="@item.EmployeeID" title="Select" class="btn btn-sm btn-dark" style="width:75px">
+                                            <span class="text-white fw-bold">Select</span>
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+
+        </div>
+    </div>
+</div>

@@ -1,0 +1,79 @@
+﻿
+@model IntranetPortal.Areas.LMS.Models.LeaveTypesListViewModel
+<div class="container">
+    <h3 class="mb-1">Leave Types Settings</h3>
+    <hr />
+    <div class="mb-2">
+            <a asp-area="LMS" asp-controller="Settings" asp-action="Index" class="btn btn-dark" style="width:100px" title="Exit">
+                <span class="text-white">Back</span>
+            </a>
+            <a asp-area="LMS" asp-controller="Settings" asp-action="NewLeaveType" class="btn btn-success" style="width:150px" title="Add New Leave Type">
+                <span class="text-white">New Leave Type</span>
+            </a>
+
+        @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-x-circle"></i>
+                <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+    </div>
+    <div class="row">
+        @if (Model == null || Model.LeaveTypesList == null || Model.LeaveTypesList.Count < 1)
+        {
+            <div class="alert alert-info fade show" role="alert">
+                <i class="bi bi-info-circle"></i>
+                <span class="fw-bold">No record was found.</span>
+            </div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-sm table-hover" style="max-width:1000px">
+                    <thead class="table-dark">
+                        <tr>
+                            <th><span class="text-white fw-bolder">Code</span></th>
+                            <th>
+                                <span class="text-white fw-bolder">Name</span>
+                            </th>
+                            <th>
+                                <span class="text-white fw-bolder">Description</span>
+                            </th>
+                            <th>
+
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="table-light">
+                        @foreach (var item in Model.LeaveTypesList)
+                        {
+                            <tr>
+                                <td class="p-2">
+                                    <span class="fw-bolder">@item.Code</span>
+                                </td>
+                                <td class="p-2">
+                                    <span class="fw-bolder">@item.Name</span>
+                                </td>
+                                <td class="p-2">
+                                    <span class="fw-bolder">@item.Description</span>
+                                </td>
+                                <td class="text-end">
+                                    <a asp-area="LMS" asp-controller="Settings" asp-action="EditLeaveType" asp-route-id="@item.Code" title="Edit" class="btn btn-sm btn-info" style="width:100px">
+                                        <span class="text-white fw-bold">Edit</span>
+                                    </a>
+                                    <a asp-area="LMS" asp-controller="Settings" asp-action="DeleteLeaveType" asp-route-id="@item.Code" title="Delete" class="btn btn-sm btn-danger" style="width:100px">
+                                        <span class="text-white fw-bold">Delete</span>
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+
+    </div>
+
+</div>

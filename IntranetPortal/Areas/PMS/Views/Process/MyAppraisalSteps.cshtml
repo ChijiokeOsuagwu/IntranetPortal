@@ -79,11 +79,22 @@
                 <div class="table-responsive">
                     <table class="table border-0">
                         <thead style="background-color:#273746">
-                            <tr>
-                                <th colspan="3">
-                                    <span class="text-white fw-bolder" style="font-size:1.1rem">Please follow the steps below to complete this Performance Appraisal Session.</span>
-                                </th>
-                            </tr>
+                            @if (Model.CurrentReviewStageId > 11)
+                            {
+                                <tr>
+                                    <th colspan="3">
+                                        <span class="text-white fw-bolder" style="font-size:1.1rem">Congratulations! You have successfully completed this Performance Appraisal Session.</span>
+                                    </th>
+                                </tr>
+                            }
+                            else
+                            {
+                                <tr>
+                                    <th colspan="3">
+                                        <span class="text-white fw-bolder" style="font-size:1.1rem">Please follow the steps below to complete this Performance Appraisal Session.</span>
+                                    </th>
+                                </tr>
+                            }
                         </thead>
                         <tbody style="background-color:#ebedef">
                             <tr>

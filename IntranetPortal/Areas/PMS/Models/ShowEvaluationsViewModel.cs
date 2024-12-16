@@ -11,8 +11,9 @@ namespace IntranetPortal.Areas.PMS.Models
     {
         public int ReviewHeaderID { get; set; }
         public int ReviewSessionID { get; set; }
+        public string ReviewSessionName { get; set; }
         public string AppraiseeID { get; set; }
-        public int AppraiseeName { get; set; }
-        public List<ReviewSubmission> Submissions { get; set; }
+        public string AppraiseeName { get; set; }
+        public List<EvaluationHeader> Evaluations { get; set; }
     }
 }

@@ -10,6 +10,6 @@ namespace IntranetPortal.Base.Enums
         Celebrant,
         Article,
         Announcement,
-        Event
+        Photos
     }
 }

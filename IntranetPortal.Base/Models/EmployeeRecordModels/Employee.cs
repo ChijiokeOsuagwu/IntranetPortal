@@ -61,7 +61,7 @@ namespace IntranetPortal.Base.Models.EmployeeRecordModels
         public string EmployeeCreatedBy { get; set; }
         public string EmployeeCreatedDate { get; set; }
         public bool IsDeactivated { get; set; }
-        public string DeactivationTime { get; set; }
+        public DateTime? DeactivationTime { get; set; }
         public string DeactivatedBy { get; set; }
 
         public Person ToPerson()

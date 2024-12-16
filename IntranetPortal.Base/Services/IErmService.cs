@@ -21,37 +21,39 @@ namespace IntranetPortal.Base.Services
 
         Task<bool> EmployeeExistsAsync(string EmployeeName);
 
-        Task<List<Employee>> SearchEmployeesByNameAsync(string employeeName);
+        Task<List<Employee>> SearchEmployeesByNameAsync(string employeeName, DateTime? TerminalDate = null);
 
-        Task<List<Employee>> SearchOtherEmployeesByNameAsync(string employeeId, string otherEmployeeName);
+        Task<List<Employee>> SearchOtherEmployeesByNameAsync(string employeeId, string otherEmployeeName, DateTime? TerminalDate = null);
 
 
-        Task<List<Employee>> GetAllEmployeesAsync();
+        Task<List<Employee>> GetAllEmployeesAsync(DateTime? TerminalDate = null);
 
-        Task<List<Employee>> GetEmployeesByCompanyAsync(string CompanyID);
+        Task<List<Employee>> GetEmployeesByCompanyAsync(string CompanyID, DateTime? TerminalDate = null);
 
-        Task<List<Employee>> GetEmployeesByLocationAsync(int LocationID, int DepartmentID, int UnitID);
+        Task<List<Employee>> GetEmployeesByLocationAsync(int LocationID, int DepartmentID, int UnitID, DateTime? TerminalDate = null);
 
-        Task<List<Employee>> GetEmployeesByLocationAsync(int LocationID, int DepartmentID);
+        Task<List<Employee>> GetEmployeesByLocationAsync(int LocationID, int DepartmentID, DateTime? TerminalDate = null);
 
-        Task<List<Employee>> GetEmployeesByLocationAsync(int LocationID);
-        Task<List<Employee>> GetEmployeesByLocationAndUnitAsync(int LocationID, int UnitID);
-        Task<List<Employee>> GetEmployeesByDepartmentIDAsync(int DepartmentID);
-        Task<List<Employee>> GetEmployeesByUnitIDAsync(int UnitID);
-        Task<List<Employee>> GetEmployeesByCompanyAndDepartmentAsync(string CompanyID, int DepartmentID);
-        Task<List<Employee>> GetEmployeesByCompanyAndUnitAsync(string CompanyID, int UnitID);
-        Task<List<Employee>> GetEmployeesByCompanyAndUnitAsync(string CompanyID, int LocationID, int UnitID);
-        Task<List<Employee>> GetEmployeesByCompanyAndLocationAsync(string CompanyID, int LocationID);
-        Task<List<Employee>> GetEmployeesByCompanyAndLocationAsync(string CompanyID, int LocationID, int DepartmentID);
+        Task<List<Employee>> GetEmployeesByLocationAsync(int LocationID, DateTime? TerminalDate = null);
+        Task<List<Employee>> GetEmployeesByLocationAndUnitAsync(int LocationID, int UnitID, DateTime? TerminalDate = null);
+        Task<List<Employee>> GetEmployeesByDepartmentIDAsync(int DepartmentID, DateTime? TerminalDate = null);
+        Task<List<Employee>> GetEmployeesByUnitIDAsync(int UnitID, DateTime? TerminalDate = null);
+        Task<List<Employee>> GetEmployeesByCompanyAndDepartmentAsync(string CompanyID, int DepartmentID, DateTime? TerminalDate = null);
+        Task<List<Employee>> GetEmployeesByCompanyAndUnitAsync(string CompanyID, int UnitID, DateTime? TerminalDate = null);
+        Task<List<Employee>> GetEmployeesByCompanyAndUnitAsync(string CompanyID, int LocationID, int UnitID, DateTime? TerminalDate = null);
+        Task<List<Employee>> GetEmployeesByCompanyAndLocationAsync(string CompanyID, int LocationID, DateTime? TerminalDate = null);
+        Task<List<Employee>> GetEmployeesByCompanyAndLocationAsync(string CompanyID, int LocationID, int DepartmentID, DateTime? TerminalDate = null);
         Task<List<Employee>> GetEmployeesByBirthDayAsync(int? BirthMonth, int? BirthDay);
 
 
+        Task<List<Employee>> GetAllNonUserEmployeesAsync(DateTime? TerminalDate = null);
 
+        Task<List<Employee>> GetNonUserEmployeesByNameAsync(string employeeName, DateTime? TerminalDate = null);
 
-        Task<List<Employee>> GetAllNonUserEmployeesAsync();
+        #endregion
 
-        Task<List<Employee>> GetNonUserEmployeesByNameAsync(string employeeName);
-
+        #region Employee Rolls Service Method Interfaces
+        Task<List<EmployeeRoll>> GetEmployeeRollsByLeaveProfileIdAsync(int LeaveProfileId);
         #endregion
 
         #region EmployeeReportLine Action Methods
@@ -117,6 +119,11 @@ namespace IntranetPortal.Base.Services
         Task<bool> UpdateEmployeeSeparationReasonAsync(EmployeeSeparationReason t);
         Task<IList<EmployeeSeparationReason>> GetEmployeeSeparationReasonsAsync();
         Task<EmployeeSeparationReason> GetEmployeeSeparationReasonByIdAsync(int id);
+        #endregion
+
+        #region Employee Options Service Methods
+        Task<EmployeeOptions> GetEmployeeOptionsAsync(string employeeId);
+        Task<bool> UpdateEmployeeOptionsAsync(EmployeeOptions o);
         #endregion
     }
 }

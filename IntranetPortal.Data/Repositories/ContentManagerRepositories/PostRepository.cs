@@ -20,56 +20,57 @@ namespace IntranetPortal.Data.Repositories.ContentManagerRepositories
 
         //======= Posts Read Action Methods ========//
         #region Post Read Action Methods
-        public async Task<Post> GetPostByIdAsync(int id)
+        public async Task<Post> GetPostByIdAsync(long id)
         {
             Post post = new Post();
             var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
             string query = String.Empty;
             StringBuilder sb = new StringBuilder();
             if (id < 1) { return null; }
-            sb.Append("SELECT id, title, summary, details, imgp, mdby, ");
-            sb.Append("crby, typ_id, enable_com, is_hdn, crdt, mddt, ");
-            sb.Append("hs_cm, hs_md, dtl_rw, flpth FROM public.pcm_psts ");
+            sb.Append("SELECT p.id, p.title, p.summary, p.details, p.imgp, p.mdby, ");
+            sb.Append("p.crby, p.typ_id, p.enable_com, p.is_hdn, p.crdt, p.mddt, ");
+            sb.Append("p.dtl_rw, p.flpth, ");
+
+            sb.Append("(SELECT COALESCE(COUNT(id),0) FROM public.pcm_pstm ");
+            sb.Append("WHERE mpid = p.id) hs_md, ");
+
+            sb.Append("(SELECT COALESCE(COUNT(cid),0) FROM public.pcm_pstc ");
+            sb.Append("WHERE cpid = p.id) hs_cm ");
+
+            sb.Append("FROM public.pcm_psts p ");
             sb.Append("WHERE id = @id;");
             query = sb.ToString();
-            try
-            {
-                await conn.OpenAsync();
-                // Retrieve all rows
-                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
-                {
-                    var postId = cmd.Parameters.Add("@id", NpgsqlDbType.Integer);
-                    await cmd.PrepareAsync();
-                    postId.Value = id;
-                    using (var reader = await cmd.ExecuteReaderAsync())
-                        while (await reader.ReadAsync())
-                        {
-                            post.PostId = reader["id"] == DBNull.Value ? 0 : Convert.ToInt32(reader["id"]);
-                            post.PostTitle = reader["title"] == DBNull.Value ? String.Empty : reader["title"].ToString();
-                            post.PostSummary = reader["summary"] == DBNull.Value ? String.Empty : reader["summary"].ToString();
-                            post.ImagePath = reader["imgp"] == DBNull.Value ? String.Empty : reader["imgp"].ToString();
-                            post.ImageFullPath = reader["flpth"] == DBNull.Value ? String.Empty : reader["flpth"].ToString();
-                            post.ModifiedBy = reader["mdby"] == DBNull.Value ? string.Empty : reader["mdby"].ToString();
-                            post.ModifiedDate = reader["mddt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["mddt"];
-                            post.CreatedBy = reader["crby"] == DBNull.Value ? string.Empty : reader["crby"].ToString();
-                            post.CreatedDate = reader["crdt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["crdt"];
-                            post.EnableComment = reader["enable_com"] == DBNull.Value ? false : (bool)reader["enable_com"];
-                            post.IsHidden = reader["is_hdn"] == DBNull.Value ? false : (bool)reader["is_hdn"];
-                            post.PostTypeId = reader["typ_id"] == DBNull.Value ? -1 : (int)reader["typ_id"];
-                            post.HasComments = reader["hs_cm"] == DBNull.Value ? false : (bool)reader["hs_cm"];
-                            post.HasMedia = reader["hs_md"] == DBNull.Value ? false : (bool)reader["hs_md"];
-                            post.PostDetails = reader["details"] == DBNull.Value ? String.Empty : reader["details"].ToString();
-                            post.PostDetailsRaw = reader["dtl_rw"] == DBNull.Value ? String.Empty : reader["dtl_rw"].ToString();
 
-                        }
-                }
-                await conn.CloseAsync();
-            }
-            catch (Exception)
+            await conn.OpenAsync();
+            // Retrieve all rows
+            using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
             {
-                await conn.CloseAsync();
-                return null;
+                var postId = cmd.Parameters.Add("@id", NpgsqlDbType.Bigint);
+                await cmd.PrepareAsync();
+                postId.Value = id;
+                using (var reader = await cmd.ExecuteReaderAsync())
+                    while (await reader.ReadAsync())
+                    {
+                        post.PostId = reader["id"] == DBNull.Value ? 0 : Convert.ToInt64(reader["id"]);
+                        post.PostTitle = reader["title"] == DBNull.Value ? String.Empty : reader["title"].ToString();
+                        post.PostSummary = reader["summary"] == DBNull.Value ? String.Empty : reader["summary"].ToString();
+                        post.PostDetails = reader["details"] == DBNull.Value ? string.Empty : reader["details"].ToString();
+                        post.ImagePath = reader["imgp"] == DBNull.Value ? String.Empty : reader["imgp"].ToString();
+                        post.ImageFullPath = reader["flpth"] == DBNull.Value ? String.Empty : reader["flpth"].ToString();
+                        post.ModifiedBy = reader["mdby"] == DBNull.Value ? string.Empty : reader["mdby"].ToString();
+                        post.ModifiedDate = reader["mddt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["mddt"];
+                        post.CreatedBy = reader["crby"] == DBNull.Value ? string.Empty : reader["crby"].ToString();
+                        post.CreatedDate = reader["crdt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["crdt"];
+                        post.EnableComment = reader["enable_com"] == DBNull.Value ? false : (bool)reader["enable_com"];
+                        post.IsHidden = reader["is_hdn"] == DBNull.Value ? false : (bool)reader["is_hdn"];
+                        post.PostTypeId = reader["typ_id"] == DBNull.Value ? -1 : (int)reader["typ_id"];
+                        post.HasComments = (long)reader["hs_cm"] < 1 ? false : true;
+                        post.HasMedia = (long)reader["hs_md"] < 1 ? false : true;
+                        post.PostDetails = reader["details"] == DBNull.Value ? String.Empty : reader["details"].ToString();
+                        post.PostDetailsRaw = reader["dtl_rw"] == DBNull.Value ? String.Empty : reader["dtl_rw"].ToString();
+                    }
             }
+            await conn.CloseAsync();
             return post;
         }
 
@@ -80,47 +81,49 @@ namespace IntranetPortal.Data.Repositories.ContentManagerRepositories
             string query = String.Empty;
             StringBuilder sb = new StringBuilder();
 
-            sb.Append("SELECT id, title, summary, imgp, mdby, crby, typ_id, enable_com, ");
-            sb.Append("is_hdn, crdt, mddt, hs_cm, hs_md, flpth FROM public.pcm_psts ");
+            sb.Append("SELECT p.id, p.title, p.summary, p.details, p.imgp, p.mdby, ");
+            sb.Append("p.crby, p.typ_id, p.enable_com, p.is_hdn, p.crdt, p.mddt, ");
+            sb.Append("p.dtl_rw, p.flpth, ");
+
+            sb.Append("(SELECT COALESCE(COUNT(id),0) FROM public.pcm_pstm ");
+            sb.Append("WHERE mpid = p.id) hs_md, ");
+
+            sb.Append("(SELECT COALESCE(COUNT(cid),0) FROM public.pcm_pstc ");
+            sb.Append("WHERE cpid = p.id) hs_cm ");
+
+            sb.Append("FROM public.pcm_psts p ");
             sb.Append("WHERE (typ_id != 0) ORDER BY crdt DESC;");
             query = sb.ToString();
-            try
-            {
-                await conn.OpenAsync();
-                // Retrieve all rows
-                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
-                {
-                    await cmd.PrepareAsync();
-                    var reader = await cmd.ExecuteReaderAsync();
-                    while (await reader.ReadAsync())
-                    {
-                        postlist.Add(new Post()
-                        {
-                            PostId = reader["id"] == DBNull.Value ? 0 : Convert.ToInt32(reader["id"]),
-                            PostTitle = reader["title"] == DBNull.Value ? String.Empty : reader["title"].ToString(),
-                            PostSummary = reader["summary"] == DBNull.Value ? String.Empty : reader["summary"].ToString(),
-                            ImagePath = reader["imgp"] == DBNull.Value ? String.Empty : reader["imgp"].ToString(),
-                            ImageFullPath = reader["flpth"] == DBNull.Value ? string.Empty : reader["flpth"].ToString(),
-                            ModifiedBy = reader["mdby"] == DBNull.Value ? string.Empty : reader["mdby"].ToString(),
-                            ModifiedDate = reader["mddt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["mddt"],
-                            CreatedBy = reader["crby"] == DBNull.Value ? string.Empty : reader["crby"].ToString(),
-                            CreatedDate = reader["crdt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["crdt"],
-                            EnableComment = reader["enable_com"] == DBNull.Value ? false : (bool)reader["enable_com"],
-                            IsHidden = reader["is_hdn"] == DBNull.Value ? false : (bool)reader["is_hdn"],
-                            PostTypeId = reader["typ_id"] == DBNull.Value ? -1 : (int)reader["typ_id"],
-                            HasComments = reader["hs_cm"] == DBNull.Value ? false : (bool)reader["hs_cm"],
-                            HasMedia = reader["hs_md"] == DBNull.Value ? false : (bool)reader["hs_md"]
-                        });
-                    }
-                }
-                await conn.CloseAsync();
-            }
-            catch (Exception ex)
-            {
 
-                await conn.CloseAsync();
-                throw new Exception(ex.Message);
+            await conn.OpenAsync();
+            // Retrieve all rows
+            using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+            {
+                await cmd.PrepareAsync();
+                var reader = await cmd.ExecuteReaderAsync();
+                while (await reader.ReadAsync())
+                {
+                    postlist.Add(new Post()
+                    {
+                        PostId = reader["id"] == DBNull.Value ? 0 : Convert.ToInt64(reader["id"]),
+                        PostTitle = reader["title"] == DBNull.Value ? String.Empty : reader["title"].ToString(),
+                        PostSummary = reader["summary"] == DBNull.Value ? String.Empty : reader["summary"].ToString(),
+                        PostDetails = reader["details"] == DBNull.Value ? string.Empty : reader["details"].ToString(),
+                        ImagePath = reader["imgp"] == DBNull.Value ? String.Empty : reader["imgp"].ToString(),
+                        ImageFullPath = reader["flpth"] == DBNull.Value ? string.Empty : reader["flpth"].ToString(),
+                        ModifiedBy = reader["mdby"] == DBNull.Value ? string.Empty : reader["mdby"].ToString(),
+                        ModifiedDate = reader["mddt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["mddt"],
+                        CreatedBy = reader["crby"] == DBNull.Value ? string.Empty : reader["crby"].ToString(),
+                        CreatedDate = reader["crdt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["crdt"],
+                        EnableComment = reader["enable_com"] == DBNull.Value ? false : (bool)reader["enable_com"],
+                        IsHidden = reader["is_hdn"] == DBNull.Value ? false : (bool)reader["is_hdn"],
+                        PostTypeId = reader["typ_id"] == DBNull.Value ? -1 : (int)reader["typ_id"],
+                        HasComments = (long)reader["hs_cm"] < 1 ? false : true,
+                        HasMedia = (long)reader["hs_md"] < 1 ? false : true,
+                    });
+                }
             }
+            await conn.CloseAsync();
             return postlist;
 
         }
@@ -132,47 +135,49 @@ namespace IntranetPortal.Data.Repositories.ContentManagerRepositories
             string query = String.Empty;
             StringBuilder sb = new StringBuilder();
 
-            sb.Append("SELECT id, title, summary, imgp, mdby, crby, typ_id, enable_com, ");
-            sb.Append("is_hdn, crdt, mddt, hs_cm, hs_md, flpth FROM public.pcm_psts ");
-            sb.Append("WHERE (typ_id != 0 AND typ_id != 3) ORDER BY crdt DESC;");
-            query = sb.ToString();
-            try
-            {
-                await conn.OpenAsync();
-                // Retrieve all rows
-                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
-                {
-                    await cmd.PrepareAsync();
-                    var reader = await cmd.ExecuteReaderAsync();
-                    while (await reader.ReadAsync())
-                    {
-                        postlist.Add(new Post()
-                        {
-                            PostId = reader["id"] == DBNull.Value ? 0 : Convert.ToInt32(reader["id"]),
-                            PostTitle = reader["title"] == DBNull.Value ? String.Empty : reader["title"].ToString(),
-                            PostSummary = reader["summary"] == DBNull.Value ? String.Empty : reader["summary"].ToString(),
-                            ImagePath = reader["imgp"] == DBNull.Value ? String.Empty : reader["imgp"].ToString(),
-                            ImageFullPath = reader["flpth"] == DBNull.Value ? string.Empty : reader["flpth"].ToString(),
-                            ModifiedBy = reader["mdby"] == DBNull.Value ? string.Empty : reader["mdby"].ToString(),
-                            ModifiedDate = reader["mddt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["mddt"],
-                            CreatedBy = reader["crby"] == DBNull.Value ? string.Empty : reader["crby"].ToString(),
-                            CreatedDate = reader["crdt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["crdt"],
-                            EnableComment = reader["enable_com"] == DBNull.Value ? false : (bool)reader["enable_com"],
-                            IsHidden = reader["is_hdn"] == DBNull.Value ? false : (bool)reader["is_hdn"],
-                            PostTypeId = reader["typ_id"] == DBNull.Value ? -1 : (int)reader["typ_id"],
-                            HasComments = reader["hs_cm"] == DBNull.Value ? false : (bool)reader["hs_cm"],
-                            HasMedia = reader["hs_md"] == DBNull.Value ? false : (bool)reader["hs_md"]
-                        });
-                    }
-                }
-                await conn.CloseAsync();
-            }
-            catch (Exception ex)
-            {
+            sb.Append("SELECT p.id, p.title, p.summary, p.details, p.imgp, p.mdby, ");
+            sb.Append("p.crby, p.typ_id, p.enable_com, p.is_hdn, p.crdt, p.mddt, ");
+            sb.Append("p.dtl_rw, p.flpth, ");
 
-                await conn.CloseAsync();
-                throw new Exception(ex.Message);
+            sb.Append("(SELECT COALESCE(COUNT(id),0) FROM public.pcm_pstm ");
+            sb.Append("WHERE mpid = p.id) hs_md, ");
+
+            sb.Append("(SELECT COALESCE(COUNT(cid),0) FROM public.pcm_pstc ");
+            sb.Append("WHERE cpid = p.id) hs_cm ");
+
+            sb.Append("FROM public.pcm_psts p ");
+            sb.Append("WHERE typ_id NOT IN (0,3) ORDER BY crdt DESC;");
+            query = sb.ToString();
+
+            await conn.OpenAsync();
+            // Retrieve all rows
+            using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+            {
+                await cmd.PrepareAsync();
+                var reader = await cmd.ExecuteReaderAsync();
+                while (await reader.ReadAsync())
+                {
+                    postlist.Add(new Post()
+                    {
+                        PostId = reader["id"] == DBNull.Value ? 0 : Convert.ToInt32(reader["id"]),
+                        PostTitle = reader["title"] == DBNull.Value ? String.Empty : reader["title"].ToString(),
+                        PostSummary = reader["summary"] == DBNull.Value ? String.Empty : reader["summary"].ToString(),
+                        PostDetails = reader["details"] == DBNull.Value ? string.Empty : reader["details"].ToString(),
+                        ImagePath = reader["imgp"] == DBNull.Value ? String.Empty : reader["imgp"].ToString(),
+                        ImageFullPath = reader["flpth"] == DBNull.Value ? string.Empty : reader["flpth"].ToString(),
+                        ModifiedBy = reader["mdby"] == DBNull.Value ? string.Empty : reader["mdby"].ToString(),
+                        ModifiedDate = reader["mddt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["mddt"],
+                        CreatedBy = reader["crby"] == DBNull.Value ? string.Empty : reader["crby"].ToString(),
+                        CreatedDate = reader["crdt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["crdt"],
+                        EnableComment = reader["enable_com"] == DBNull.Value ? false : (bool)reader["enable_com"],
+                        IsHidden = reader["is_hdn"] == DBNull.Value ? false : (bool)reader["is_hdn"],
+                        PostTypeId = reader["typ_id"] == DBNull.Value ? -1 : (int)reader["typ_id"],
+                        HasComments = (long)reader["hs_cm"] < 1 ? false : true,
+                        HasMedia = (long)reader["hs_md"] < 1 ? false : true,
+                    });
+                }
             }
+            await conn.CloseAsync();
             return postlist;
 
         }
@@ -184,48 +189,50 @@ namespace IntranetPortal.Data.Repositories.ContentManagerRepositories
             string query = String.Empty;
             StringBuilder sb = new StringBuilder();
 
-            sb.Append("SELECT id, title, summary, imgp, mdby, crby, typ_id, enable_com, ");
-            sb.Append("is_hdn, crdt, mddt, hs_cm, hs_md, flpth FROM public.pcm_psts ");
-            sb.Append("WHERE (typ_id != 0 AND typ_id != 3 AND is_hdn = false) ");
+            sb.Append("SELECT p.id, p.title, p.summary, p.details, p.imgp, p.mdby, ");
+            sb.Append("p.crby, p.typ_id, p.enable_com, p.is_hdn, p.crdt, p.mddt, ");
+            sb.Append("p.dtl_rw, p.flpth, ");
+
+            sb.Append("(SELECT COALESCE(COUNT(id),0) FROM public.pcm_pstm ");
+            sb.Append("WHERE mpid = p.id) hs_md, ");
+
+            sb.Append("(SELECT COALESCE(COUNT(cid),0) FROM public.pcm_pstc ");
+            sb.Append("WHERE cpid = p.id) hs_cm ");
+
+            sb.Append("FROM public.pcm_psts p ");
+            sb.Append("WHERE typ_id NOT IN (0,3) AND (is_hdn = false) ");
             sb.Append("ORDER BY crdt DESC;");
             query = sb.ToString();
-            try
-            {
-                await conn.OpenAsync();
-                // Retrieve all rows
-                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
-                {
-                    await cmd.PrepareAsync();
-                    var reader = await cmd.ExecuteReaderAsync();
-                    while (await reader.ReadAsync())
-                    {
-                        postlist.Add(new Post()
-                        {
-                            PostId = reader["id"] == DBNull.Value ? 0 : Convert.ToInt32(reader["id"]),
-                            PostTitle = reader["title"] == DBNull.Value ? String.Empty : reader["title"].ToString(),
-                            PostSummary = reader["summary"] == DBNull.Value ? String.Empty : reader["summary"].ToString(),
-                            ImagePath = reader["imgp"] == DBNull.Value ? String.Empty : reader["imgp"].ToString(),
-                            ImageFullPath = reader["flpth"] == DBNull.Value ? string.Empty : reader["flpth"].ToString(),
-                            ModifiedBy = reader["mdby"] == DBNull.Value ? string.Empty : reader["mdby"].ToString(),
-                            ModifiedDate = reader["mddt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["mddt"],
-                            CreatedBy = reader["crby"] == DBNull.Value ? string.Empty : reader["crby"].ToString(),
-                            CreatedDate = reader["crdt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["crdt"],
-                            EnableComment = reader["enable_com"] == DBNull.Value ? false : (bool)reader["enable_com"],
-                            IsHidden = reader["is_hdn"] == DBNull.Value ? false : (bool)reader["is_hdn"],
-                            PostTypeId = reader["typ_id"] == DBNull.Value ? -1 : (int)reader["typ_id"],
-                            HasComments = reader["hs_cm"] == DBNull.Value ? false : (bool)reader["hs_cm"],
-                            HasMedia = reader["hs_md"] == DBNull.Value ? false : (bool)reader["hs_md"]
-                        });
-                    }
-                }
-                await conn.CloseAsync();
-            }
-            catch (Exception ex)
-            {
 
-                await conn.CloseAsync();
-                throw new Exception(ex.Message);
+            await conn.OpenAsync();
+            // Retrieve all rows
+            using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+            {
+                await cmd.PrepareAsync();
+                var reader = await cmd.ExecuteReaderAsync();
+                while (await reader.ReadAsync())
+                {
+                    postlist.Add(new Post()
+                    {
+                        PostId = reader["id"] == DBNull.Value ? 0 : Convert.ToInt32(reader["id"]),
+                        PostTitle = reader["title"] == DBNull.Value ? String.Empty : reader["title"].ToString(),
+                        PostSummary = reader["summary"] == DBNull.Value ? String.Empty : reader["summary"].ToString(),
+                        PostDetails = reader["details"] == DBNull.Value ? string.Empty : reader["details"].ToString(),
+                        ImagePath = reader["imgp"] == DBNull.Value ? String.Empty : reader["imgp"].ToString(),
+                        ImageFullPath = reader["flpth"] == DBNull.Value ? string.Empty : reader["flpth"].ToString(),
+                        ModifiedBy = reader["mdby"] == DBNull.Value ? string.Empty : reader["mdby"].ToString(),
+                        ModifiedDate = reader["mddt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["mddt"],
+                        CreatedBy = reader["crby"] == DBNull.Value ? string.Empty : reader["crby"].ToString(),
+                        CreatedDate = reader["crdt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["crdt"],
+                        EnableComment = reader["enable_com"] == DBNull.Value ? false : (bool)reader["enable_com"],
+                        IsHidden = reader["is_hdn"] == DBNull.Value ? false : (bool)reader["is_hdn"],
+                        PostTypeId = reader["typ_id"] == DBNull.Value ? -1 : (int)reader["typ_id"],
+                        HasComments = (long)reader["hs_cm"] < 1 ? false : true,
+                        HasMedia = (long)reader["hs_md"] < 1 ? false : true,
+                    });
+                }
             }
+            await conn.CloseAsync();
             return postlist;
 
         }
@@ -236,51 +243,53 @@ namespace IntranetPortal.Data.Repositories.ContentManagerRepositories
             var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
             string query = String.Empty;
             StringBuilder sb = new StringBuilder();
-            sb.Append("SELECT id, title, summary, details, imgp, mdby, crby, typ_id, ");
-            sb.Append("enable_com, is_hdn, crdt, mddt, hs_cm, hs_md, dtl_rw, flpth ");
-            sb.Append("FROM public.pcm_psts WHERE (typ_id = @typ_id) ");
+
+            sb.Append("SELECT p.id, p.title, p.summary, p.details, p.imgp, p.mdby, ");
+            sb.Append("p.crby, p.typ_id, p.enable_com, p.is_hdn, p.crdt, p.mddt, ");
+            sb.Append("p.dtl_rw, p.flpth, ");
+
+            sb.Append("(SELECT COALESCE(COUNT(id),0) FROM public.pcm_pstm ");
+            sb.Append("WHERE mpid = p.id) hs_md, ");
+
+            sb.Append("(SELECT COALESCE(COUNT(cid),0) FROM public.pcm_pstc ");
+            sb.Append("WHERE cpid = p.id) hs_cm ");
+
+            sb.Append("FROM public.pcm_psts p ");
+            sb.Append("WHERE (p.typ_id = @typ_id) ");
             sb.Append("ORDER BY crdt DESC;");
             query = sb.ToString();
-            try
+
+            await conn.OpenAsync();
+            // Retrieve all rows
+            using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
             {
-                await conn.OpenAsync();
-                // Retrieve all rows
-                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
-                {
-                    var typ_id = cmd.Parameters.Add("@typ_id", NpgsqlDbType.Integer);
-                    await cmd.PrepareAsync();
-                    typ_id.Value = typeId;
-                    using (var reader = await cmd.ExecuteReaderAsync())
-                        while (await reader.ReadAsync())
+                var typ_id = cmd.Parameters.Add("@typ_id", NpgsqlDbType.Integer);
+                await cmd.PrepareAsync();
+                typ_id.Value = typeId;
+                using (var reader = await cmd.ExecuteReaderAsync())
+                    while (await reader.ReadAsync())
+                    {
+                        postlist.Add(new Post()
                         {
-                            postlist.Add(new Post()
-                            {
-                                PostId = reader["id"] == DBNull.Value ? 0 : Convert.ToInt32(reader["id"]),
-                                PostTitle = reader["title"] == DBNull.Value ? String.Empty : reader["title"].ToString(),
-                                PostSummary = reader["summary"] == DBNull.Value ? String.Empty : reader["summary"].ToString(),
-                                ImagePath = reader["imgp"] == DBNull.Value ? String.Empty : reader["imgp"].ToString(),
-                                ImageFullPath = reader["flpth"] == DBNull.Value ? string.Empty : reader["flpth"].ToString(),
-                                ModifiedBy = reader["mdby"] == DBNull.Value ? string.Empty : reader["mdby"].ToString(),
-                                ModifiedDate = reader["mddt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["mddt"],
-                                CreatedBy = reader["crby"] == DBNull.Value ? string.Empty : reader["crby"].ToString(),
-                                CreatedDate = reader["crdt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["crdt"],
-                                EnableComment = reader["enable_com"] == DBNull.Value ? false : (bool)reader["enable_com"],
-                                IsHidden = reader["is_hdn"] == DBNull.Value ? false : (bool)reader["is_hdn"],
-                                PostTypeId = reader["typ_id"] == DBNull.Value ? -1 : (int)reader["typ_id"],
-                                HasComments = reader["hs_cm"] == DBNull.Value ? false : (bool)reader["hs_cm"],
-                                HasMedia = reader["hs_md"] == DBNull.Value ? false : (bool)reader["hs_md"]
-                            });
-                        }
-                }
+                            PostId = reader["id"] == DBNull.Value ? 0 : Convert.ToInt32(reader["id"]),
+                            PostTitle = reader["title"] == DBNull.Value ? string.Empty : reader["title"].ToString(),
+                            PostSummary = reader["summary"] == DBNull.Value ? string.Empty : reader["summary"].ToString(),
+                            PostDetails = reader["details"] == DBNull.Value ? string.Empty : reader["details"].ToString(),
+                            ImagePath = reader["imgp"] == DBNull.Value ? string.Empty : reader["imgp"].ToString(),
+                            ImageFullPath = reader["flpth"] == DBNull.Value ? string.Empty : reader["flpth"].ToString(),
+                            ModifiedBy = reader["mdby"] == DBNull.Value ? string.Empty : reader["mdby"].ToString(),
+                            ModifiedDate = reader["mddt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["mddt"],
+                            CreatedBy = reader["crby"] == DBNull.Value ? string.Empty : reader["crby"].ToString(),
+                            CreatedDate = reader["crdt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["crdt"],
+                            EnableComment = reader["enable_com"] == DBNull.Value ? false : (bool)reader["enable_com"],
+                            IsHidden = reader["is_hdn"] == DBNull.Value ? false : (bool)reader["is_hdn"],
+                            PostTypeId = reader["typ_id"] == DBNull.Value ? -1 : (int)reader["typ_id"],
+                            HasComments = (long)reader["hs_cm"] < 1 ? false : true,
+                            HasMedia = (long)reader["hs_md"] < 1 ? false : true,
+                        });
+                    }
             }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
-            finally 
-            { 
-                await conn.CloseAsync(); 
-            }
+            await conn.CloseAsync();
             return postlist;
         }
 
@@ -290,10 +299,18 @@ namespace IntranetPortal.Data.Repositories.ContentManagerRepositories
             var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
             StringBuilder sb = new StringBuilder();
 
-            sb.Append("SELECT id, title, summary, details, imgp, mdby, ");
-            sb.Append("crby, typ_id, enable_com, is_hdn, crdt, mddt, ");
-            sb.Append("hs_cm, hs_md, dtl_rw, flpth FROM public.pcm_psts ");
-            sb.Append("WHERE (typ_id = @typ_id) AND (is_hdn = @is_hdn) ");
+            sb.Append("SELECT p.id, p.title, p.summary, p.details, p.imgp, p.mdby, ");
+            sb.Append("p.crby, p.typ_id, p.enable_com, p.is_hdn, p.crdt, p.mddt, ");
+            sb.Append("p.dtl_rw, p.flpth, ");
+
+            sb.Append("(SELECT COALESCE(COUNT(id),0) FROM public.pcm_pstm ");
+            sb.Append("WHERE mpid = p.id) hs_md, ");
+
+            sb.Append("(SELECT COALESCE(COUNT(cid),0) FROM public.pcm_pstc ");
+            sb.Append("WHERE cpid = p.id) hs_cm ");
+
+            sb.Append("FROM public.pcm_psts p ");
+            sb.Append("WHERE (p.typ_id = @typ_id) AND (is_hdn = @is_hdn) ");
             sb.Append("ORDER BY id DESC;");
             string query = sb.ToString();
 
@@ -315,8 +332,9 @@ namespace IntranetPortal.Data.Repositories.ContentManagerRepositories
                         PostId = reader["id"] == DBNull.Value ? 0 : Convert.ToInt32(reader["id"]),
                         PostTitle = reader["title"] == DBNull.Value ? String.Empty : reader["title"].ToString(),
                         PostSummary = reader["summary"] == DBNull.Value ? String.Empty : reader["summary"].ToString(),
-                        //ImagePath = reader["imgp"] == DBNull.Value ? String.Empty : reader["imgp"].ToString(),
-                        //ImageFullPath = reader["flpth"] == DBNull.Value ? String.Empty : reader["flpth"].ToString(),
+                        PostDetails = reader["details"] == DBNull.Value ? string.Empty : reader["details"].ToString(),
+                        ImagePath = reader["imgp"] == DBNull.Value ? String.Empty : reader["imgp"].ToString(),
+                        ImageFullPath = reader["flpth"] == DBNull.Value ? string.Empty : reader["flpth"].ToString(),
                         ModifiedBy = reader["mdby"] == DBNull.Value ? string.Empty : reader["mdby"].ToString(),
                         ModifiedDate = reader["mddt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["mddt"],
                         CreatedBy = reader["crby"] == DBNull.Value ? string.Empty : reader["crby"].ToString(),
@@ -324,9 +342,8 @@ namespace IntranetPortal.Data.Repositories.ContentManagerRepositories
                         EnableComment = reader["enable_com"] == DBNull.Value ? false : (bool)reader["enable_com"],
                         IsHidden = reader["is_hdn"] == DBNull.Value ? false : (bool)reader["is_hdn"],
                         PostTypeId = reader["typ_id"] == DBNull.Value ? -1 : (int)reader["typ_id"],
-                        HasComments = reader["hs_cm"] == DBNull.Value ? false : (bool)reader["hs_cm"],
-                        HasMedia = reader["hs_md"] == DBNull.Value ? false : (bool)reader["hs_md"],
-                        PostDetails = reader["details"] == DBNull.Value ? String.Empty : reader["details"].ToString(),
+                        HasComments = (long)reader["hs_cm"] < 1 ? false : true,
+                        HasMedia = (long)reader["hs_md"] < 1 ? false : true,
                         PostDetailsRaw = reader["dtl_rw"] == DBNull.Value ? String.Empty : reader["dtl_rw"].ToString(),
                     });
                 }
@@ -341,50 +358,114 @@ namespace IntranetPortal.Data.Repositories.ContentManagerRepositories
             var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
             string query = String.Empty;
             StringBuilder sb = new StringBuilder();
-            sb.Append("SELECT id, title, summary, details, imgp, mdby, crby, typ_id, ");
-            sb.Append("enable_com, is_hdn, crdt, mddt, hs_cm, hs_md, dtl_rw, flpth ");
-            sb.Append("FROM public.pcm_psts  WHERE (typ_id != 0) ");
+
+            sb.Append("SELECT p.id, p.title, p.summary, p.details, p.imgp, p.mdby, ");
+            sb.Append("p.crby, p.typ_id, p.enable_com, p.is_hdn, p.crdt, p.mddt, ");
+            sb.Append("p.dtl_rw, p.flpth, ");
+
+            sb.Append("(SELECT COALESCE(COUNT(id),0) FROM public.pcm_pstm ");
+            sb.Append("WHERE mpid = p.id) hs_md, ");
+
+            sb.Append("(SELECT COALESCE(COUNT(cid),0) FROM public.pcm_pstc ");
+            sb.Append("WHERE cpid = p.id) hs_cm ");
+
+            sb.Append("FROM public.pcm_psts p ");
+
+            sb.Append("WHERE (p.typ_id != 0) ");
             sb.Append("AND (LOWER(title) LIKE '%'||LOWER(@title)||'%') ");
             sb.Append("ORDER BY crdt DESC;");
             query = sb.ToString();
-            try
+
+            await conn.OpenAsync();
+            // Retrieve all rows
+            using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
             {
-                await conn.OpenAsync();
-                // Retrieve all rows
-                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
-                {
-                    var title = cmd.Parameters.Add("@title", NpgsqlDbType.Text);
-                    await cmd.PrepareAsync();
-                    title.Value = postTitle;
-                    using (var reader = await cmd.ExecuteReaderAsync())
-                        while (await reader.ReadAsync())
+                var title = cmd.Parameters.Add("@title", NpgsqlDbType.Text);
+                await cmd.PrepareAsync();
+                title.Value = postTitle;
+                using (var reader = await cmd.ExecuteReaderAsync())
+                    while (await reader.ReadAsync())
+                    {
+                        postlist.Add(new Post()
                         {
-                            postlist.Add(new Post()
-                            {
-                                PostId = reader["id"] == DBNull.Value ? 0 : Convert.ToInt32(reader["id"]),
-                                PostTitle = reader["title"] == DBNull.Value ? String.Empty : reader["title"].ToString(),
-                                PostSummary = reader["summary"] == DBNull.Value ? String.Empty : reader["summary"].ToString(),
-                                ImagePath = reader["imgp"] == DBNull.Value ? String.Empty : reader["imgp"].ToString(),
-                                ImageFullPath = reader["flpth"] == DBNull.Value ? string.Empty : reader["flpth"].ToString(),
-                                ModifiedBy = reader["mdby"] == DBNull.Value ? string.Empty : reader["mdby"].ToString(),
-                                ModifiedDate = reader["mddt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["mddt"],
-                                CreatedBy = reader["crby"] == DBNull.Value ? string.Empty : reader["crby"].ToString(),
-                                CreatedDate = reader["crdt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["crdt"],
-                                EnableComment = reader["enable_com"] == DBNull.Value ? false : (bool)reader["enable_com"],
-                                IsHidden = reader["is_hdn"] == DBNull.Value ? false : (bool)reader["is_hdn"],
-                                PostTypeId = reader["typ_id"] == DBNull.Value ? -1 : (int)reader["typ_id"],
-                                HasComments = reader["hs_cm"] == DBNull.Value ? false : (bool)reader["hs_cm"],
-                                HasMedia = reader["hs_md"] == DBNull.Value ? false : (bool)reader["hs_md"]
-                            });
-                        }
-                }
-                await conn.CloseAsync();
+                            PostId = reader["id"] == DBNull.Value ? 0 : Convert.ToInt32(reader["id"]),
+                            PostTitle = reader["title"] == DBNull.Value ? string.Empty : reader["title"].ToString(),
+                            PostSummary = reader["summary"] == DBNull.Value ? string.Empty : reader["summary"].ToString(),
+                            PostDetails = reader["details"] == DBNull.Value ? string.Empty : reader["details"].ToString(),
+                            ImagePath = reader["imgp"] == DBNull.Value ? string.Empty : reader["imgp"].ToString(),
+                            ImageFullPath = reader["flpth"] == DBNull.Value ? string.Empty : reader["flpth"].ToString(),
+                            ModifiedBy = reader["mdby"] == DBNull.Value ? string.Empty : reader["mdby"].ToString(),
+                            ModifiedDate = reader["mddt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["mddt"],
+                            CreatedBy = reader["crby"] == DBNull.Value ? string.Empty : reader["crby"].ToString(),
+                            CreatedDate = reader["crdt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["crdt"],
+                            EnableComment = reader["enable_com"] == DBNull.Value ? false : (bool)reader["enable_com"],
+                            IsHidden = reader["is_hdn"] == DBNull.Value ? false : (bool)reader["is_hdn"],
+                            PostTypeId = reader["typ_id"] == DBNull.Value ? -1 : (int)reader["typ_id"],
+                            HasComments = (long)reader["hs_cm"] < 1 ? false : true,
+                            HasMedia = (long)reader["hs_md"] < 1 ? false : true,
+                        });
+                    }
             }
-            catch (Exception ex)
+            await conn.CloseAsync();
+            return postlist;
+        }
+
+        public async Task<IList<Post>> GetByTitleAsync(string postTitle, int postTypeId)
+        {
+            List<Post> postlist = new List<Post>();
+            var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
+            string query = String.Empty;
+            StringBuilder sb = new StringBuilder();
+            sb.Append("SELECT p.id, p.title, p.summary, p.details, p.imgp, p.mdby, ");
+            sb.Append("p.crby, p.typ_id, p.enable_com, p.is_hdn, p.crdt, p.mddt, ");
+            sb.Append("p.dtl_rw, p.flpth, ");
+
+            sb.Append("(SELECT COALESCE(COUNT(id),0) FROM public.pcm_pstm ");
+            sb.Append("WHERE mpid = p.id) hs_md, ");
+
+            sb.Append("(SELECT COALESCE(COUNT(cid),0) FROM public.pcm_pstc ");
+            sb.Append("WHERE cpid = p.id) hs_cm ");
+
+            sb.Append("FROM public.pcm_psts p ");
+            sb.Append("WHERE (p.typ_id = @typ_id) ");
+            sb.Append("AND (LOWER(title) LIKE '%'||LOWER(@title)||'%') ");
+            sb.Append("ORDER BY crdt DESC;");
+            query = sb.ToString();
+
+            await conn.OpenAsync();
+            // Retrieve all rows
+            using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
             {
-                await conn.CloseAsync();
-                throw new Exception(ex.Message);
+                var title = cmd.Parameters.Add("@title", NpgsqlDbType.Text);
+                var typ_id = cmd.Parameters.Add("@typ_id", NpgsqlDbType.Integer);
+                await cmd.PrepareAsync();
+                title.Value = postTitle;
+                typ_id.Value = postTypeId;
+
+                using (var reader = await cmd.ExecuteReaderAsync())
+                    while (await reader.ReadAsync())
+                    {
+                        postlist.Add(new Post()
+                        {
+                            PostId = reader["id"] == DBNull.Value ? 0 : Convert.ToInt32(reader["id"]),
+                            PostTitle = reader["title"] == DBNull.Value ? string.Empty : reader["title"].ToString(),
+                            PostSummary = reader["summary"] == DBNull.Value ? string.Empty : reader["summary"].ToString(),
+                            PostDetails = reader["details"] == DBNull.Value ? string.Empty : reader["details"].ToString(),
+                            ImagePath = reader["imgp"] == DBNull.Value ? string.Empty : reader["imgp"].ToString(),
+                            ImageFullPath = reader["flpth"] == DBNull.Value ? string.Empty : reader["flpth"].ToString(),
+                            ModifiedBy = reader["mdby"] == DBNull.Value ? string.Empty : reader["mdby"].ToString(),
+                            ModifiedDate = reader["mddt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["mddt"],
+                            CreatedBy = reader["crby"] == DBNull.Value ? string.Empty : reader["crby"].ToString(),
+                            CreatedDate = reader["crdt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["crdt"],
+                            EnableComment = reader["enable_com"] == DBNull.Value ? false : (bool)reader["enable_com"],
+                            IsHidden = reader["is_hdn"] == DBNull.Value ? false : (bool)reader["is_hdn"],
+                            PostTypeId = reader["typ_id"] == DBNull.Value ? -1 : (int)reader["typ_id"],
+                            HasComments = (long)reader["hs_cm"] < 1 ? false : true,
+                            HasMedia = (long)reader["hs_md"] < 1 ? false : true,
+                        });
+                    }
             }
+            await conn.CloseAsync();
             return postlist;
         }
 
@@ -445,37 +526,22 @@ namespace IntranetPortal.Data.Repositories.ContentManagerRepositories
             return rows > 0;
         }
 
-        public async Task<bool> DeletePostAsync(int id)
+        public async Task<bool> DeletePostAsync(long id)
         {
             int rows = 0;
             var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
             string query = $"DELETE FROM public.pcm_psts WHERE (id = @id);";
-            try
+
+            await conn.OpenAsync();
+            //Delete data
+            using (var cmd = new NpgsqlCommand(query, conn))
             {
-                await conn.OpenAsync();
-                //Delete data
-                using (var cmd = new NpgsqlCommand(query, conn))
-                {
-                    var postid = cmd.Parameters.Add("@id", NpgsqlDbType.Integer);
-                    cmd.Prepare();
-                    postid.Value = id;
-                    rows = await cmd.ExecuteNonQueryAsync();
-                    await conn.CloseAsync();
-                }
+                var postid = cmd.Parameters.Add("@id", NpgsqlDbType.Bigint);
+                cmd.Prepare();
+                postid.Value = id;
+                rows = await cmd.ExecuteNonQueryAsync();
             }
-            catch (Exception ex)
-            {
-                //ErrorRepository errorRepository = new ErrorRepository(_config);
-                //ErrorEntity errorEntity = new ErrorEntity();
-                //errorEntity.ErrorMessage = ex.Message;
-                //errorEntity.ErrorDetail = ex.ToString();
-                //errorEntity.ErrorTime = $"{DateTime.UtcNow.ToLongDateString()} {DateTime.UtcNow.ToLongTimeString()} (UTC)";
-                //errorEntity.ErrorInnerSource = ex.Source;
-                //errorEntity.ErrorSource = "ApplicationUserRepository_AddApplicationUserAsync";
-                //errorRepository.AddError(errorEntity);
-                await conn.CloseAsync();
-                rows = -1;
-            }
+            await conn.CloseAsync();
             return rows > 0;
         }
 
@@ -571,107 +637,9 @@ namespace IntranetPortal.Data.Repositories.ContentManagerRepositories
         }
         #endregion
 
-        //======= Posts Read Action Methods =======//
-        #region Posts Action Methods
-
-        public async Task<IList<Post>> GetAllAnnouncementsAsync()
-        {
-            List<Post> postlist = new List<Post>();
-            var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
-            string query = String.Empty;
-            StringBuilder sb = new StringBuilder();
-
-            sb.Append("SELECT id, title, summary, details, imgp, mdby, ");
-            sb.Append("crby, typ_id, enable_com, is_hdn, crdt, mddt, ");
-            sb.Append("hs_cm, hs_md, dtl_rw, flpth FROM public.pcm_psts ");
-            sb.Append("WHERE (typ_id = 3) ORDER BY id DESC;");
-            query = sb.ToString();
-
-            await conn.OpenAsync();
-            // Retrieve all rows
-            using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
-            {
-                await cmd.PrepareAsync();
-                var reader = await cmd.ExecuteReaderAsync();
-                while (await reader.ReadAsync())
-                {
-                    postlist.Add(new Post()
-                    {
-                        PostId = reader["id"] == DBNull.Value ? 0 : Convert.ToInt32(reader["id"]),
-                        PostTitle = reader["title"] == DBNull.Value ? String.Empty : reader["title"].ToString(),
-                        PostSummary = reader["summary"] == DBNull.Value ? String.Empty : reader["summary"].ToString(),
-                        //ImagePath = reader["imgp"] == DBNull.Value ? String.Empty : reader["imgp"].ToString(),
-                        //ImageFullPath = reader["flpth"] == DBNull.Value ? String.Empty : reader["flpth"].ToString(),
-                        ModifiedBy = reader["mdby"] == DBNull.Value ? string.Empty : reader["mdby"].ToString(),
-                        ModifiedDate = reader["mddt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["mddt"],
-                        CreatedBy = reader["crby"] == DBNull.Value ? string.Empty : reader["crby"].ToString(),
-                        CreatedDate = reader["crdt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["crdt"],
-                        EnableComment = reader["enable_com"] == DBNull.Value ? false : (bool)reader["enable_com"],
-                        IsHidden = reader["is_hdn"] == DBNull.Value ? false : (bool)reader["is_hdn"],
-                        PostTypeId = reader["typ_id"] == DBNull.Value ? -1 : (int)reader["typ_id"],
-                        HasComments = reader["hs_cm"] == DBNull.Value ? false : (bool)reader["hs_cm"],
-                        HasMedia = reader["hs_md"] == DBNull.Value ? false : (bool)reader["hs_md"],
-                        PostDetails = reader["details"] == DBNull.Value ? String.Empty : reader["details"].ToString(),
-                        PostDetailsRaw = reader["dtl_rw"] == DBNull.Value ? String.Empty : reader["dtl_rw"].ToString(),
-                    });
-                }
-            }
-
-            await conn.CloseAsync();
-            return postlist;
-
-        }
-
-        public async Task<IList<Post>> GetUnhiddenAnnouncementsAsync()
-        {
-            List<Post> postlist = new List<Post>();
-            var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
-            string query = String.Empty;
-            StringBuilder sb = new StringBuilder();
-
-            sb.Append("SELECT id, title, summary, imgp, mdby, crby, typ_id, enable_com, ");
-            sb.Append("is_hdn, crdt, mddt, hs_cm, hs_md FROM public.pcm_psts  ");
-            sb.Append("WHERE typ_id = 3 AND is_hdn = false;");
-            query = sb.ToString();
-
-                await conn.OpenAsync();
-                // Retrieve all rows
-                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
-                {
-                    await cmd.PrepareAsync();
-                    var reader = await cmd.ExecuteReaderAsync();
-                    while (await reader.ReadAsync())
-                    {
-                        postlist.Add(new Post()
-                        {
-                            PostId = reader["id"] == DBNull.Value ? 0 : Convert.ToInt32(reader["id"]),
-                            PostTitle = reader["title"] == DBNull.Value ? String.Empty : reader["title"].ToString(),
-                            PostSummary = reader["summary"] == DBNull.Value ? String.Empty : reader["summary"].ToString(),
-                            ImagePath = reader["imgp"] == DBNull.Value ? String.Empty : reader["imgp"].ToString(),
-                            ModifiedBy = reader["mdby"] == DBNull.Value ? string.Empty : reader["mdby"].ToString(),
-                            ModifiedDate = reader["mddt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["mddt"],
-                            CreatedBy = reader["crby"] == DBNull.Value ? string.Empty : reader["crby"].ToString(),
-                            CreatedDate = reader["crdt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["crdt"],
-                            EnableComment = reader["enable_com"] == DBNull.Value ? false : (bool)reader["enable_com"],
-                            IsHidden = reader["is_hdn"] == DBNull.Value ? false : (bool)reader["is_hdn"],
-                            PostTypeId = reader["typ_id"] == DBNull.Value ? -1 : (int)reader["typ_id"],
-                            HasComments = reader["hs_cm"] == DBNull.Value ? false : (bool)reader["hs_cm"],
-                            HasMedia = reader["hs_md"] == DBNull.Value ? false : (bool)reader["hs_md"]
-                        });
-                    }
-                }
-                
-            await conn.CloseAsync();
-            return postlist;
-        }
-
-
-        #endregion
-
-
         //======= PostDetails Action Methods =========//
         #region Post Details
-        public async Task<PostDetail> GetPostDetailsByIdAsync(int id)
+        public async Task<PostDetail> GetPostDetailsByIdAsync(long id)
         {
             PostDetail post = new PostDetail();
             var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
@@ -681,45 +649,30 @@ namespace IntranetPortal.Data.Repositories.ContentManagerRepositories
             sb.Append($"SELECT id, title, details, typ_id, mdby, mddt, dtl_rw  ");
             sb.Append($"FROM public.pcm_psts WHERE (id = @id);");
             query = sb.ToString();
-            try
+
+            await conn.OpenAsync();
+            // Retrieve all rows
+            using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
             {
-                await conn.OpenAsync();
-                // Retrieve all rows
-                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
-                {
-                    var postId = cmd.Parameters.Add("@id", NpgsqlDbType.Integer);
-                    await cmd.PrepareAsync();
-                    postId.Value = id;
-                    using (var reader = await cmd.ExecuteReaderAsync())
-                        while (await reader.ReadAsync())
-                        {
-                            post.PostId = reader["id"] == DBNull.Value ? 0 : Convert.ToInt32(reader["id"]);
-                            post.PostTitle = reader["title"] == DBNull.Value ? String.Empty : reader["title"].ToString();
-                            post.PostDetailsHtml = reader["details"] == DBNull.Value ? String.Empty : reader["details"].ToString();
-                            post.PostDetailsRaw = reader["dtl_rw"] == DBNull.Value ? String.Empty : reader["dtl_rw"].ToString();
-                            post.ModifiedBy = reader["mdby"] == DBNull.Value ? string.Empty : reader["mdby"].ToString();
-                            post.ModifiedDate = reader["mddt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["mddt"];
-                            post.PostTypeId = reader["typ_id"] == DBNull.Value ? -1 : (int)reader["typ_id"];
-                        }
-                }
-                await conn.CloseAsync();
+                var postId = cmd.Parameters.Add("@id", NpgsqlDbType.Bigint);
+                await cmd.PrepareAsync();
+                postId.Value = id;
+                using (var reader = await cmd.ExecuteReaderAsync())
+                    while (await reader.ReadAsync())
+                    {
+                        post.PostId = reader["id"] == DBNull.Value ? 0 : Convert.ToInt64(reader["id"]);
+                        post.PostTitle = reader["title"] == DBNull.Value ? String.Empty : reader["title"].ToString();
+                        post.PostDetailsHtml = reader["details"] == DBNull.Value ? String.Empty : reader["details"].ToString();
+                        post.PostDetailsRaw = reader["dtl_rw"] == DBNull.Value ? String.Empty : reader["dtl_rw"].ToString();
+                        post.ModifiedBy = reader["mdby"] == DBNull.Value ? string.Empty : reader["mdby"].ToString();
+                        post.ModifiedDate = reader["mddt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["mddt"];
+                        post.PostTypeId = reader["typ_id"] == DBNull.Value ? -1 : (int)reader["typ_id"];
+                    }
             }
-            catch (Exception ex)
-            {
-                //ErrorRepository errorRepository = new ErrorRepository(_config);
-                //ErrorEntity errorEntity = new ErrorEntity();
-                //errorEntity.ErrorMessage = ex.Message;
-                //errorEntity.ErrorDetail = ex.ToString();
-                //errorEntity.ErrorTime = $"{DateTime.UtcNow.ToLongDateString()} {DateTime.UtcNow.ToLongTimeString()} (UTC)";
-                //errorEntity.ErrorInnerSource = ex.Source;
-                //errorEntity.ErrorSource = "ApplicationUserRepository_GetUsersByLoginIdAsync";
-                //errorRepository.AddError(errorEntity);
-                await conn.CloseAsync();
-                return null;
-            }
+            await conn.CloseAsync();
             return post;
         }
-        public async Task<bool> AddPostDetailAsync(int postId, string htmlContent, string modifiedBy, DateTime modifiedDate)
+        public async Task<bool> AddPostDetailAsync(long postId, string htmlContent, string modifiedBy, DateTime modifiedDate)
         {
             int rows = 0;
             var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
@@ -746,300 +699,6 @@ namespace IntranetPortal.Data.Repositories.ContentManagerRepositories
             return rows > 0;
         }
 
-        #endregion
-
-        //======= Banners Action Methods =============//
-        #region Banners Action Methods
-        public async Task<IList<Post>> GetAllBannersAsync()
-        {
-            List<Post> postlist = new List<Post>();
-            var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
-            string query = String.Empty;
-            StringBuilder sb = new StringBuilder();
-
-            sb.Append("SELECT id, title, summary, imgp, mdby, crby, typ_id, ");
-            sb.Append("enable_com, is_hdn, crdt, mddt, hs_cm, hs_md,");
-            sb.Append("flpth FROM public.pcm_psts WHERE typ_id = 0 ; ");
-
-            query = sb.ToString();
-            try
-            {
-                await conn.OpenAsync();
-                // Retrieve all rows
-                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
-                {
-                    await cmd.PrepareAsync();
-                    var reader = await cmd.ExecuteReaderAsync();
-                    while (await reader.ReadAsync())
-                    {
-                        postlist.Add(new Post()
-                        {
-                            PostId = reader["id"] == DBNull.Value ? 0 : Convert.ToInt32(reader["id"]),
-                            PostTitle = reader["title"] == DBNull.Value ? string.Empty : reader["title"].ToString(),
-                            PostSummary = reader["summary"] == DBNull.Value ? string.Empty : reader["summary"].ToString(),
-                            ImagePath = reader["imgp"] == DBNull.Value ? string.Empty : reader["imgp"].ToString(),
-                            ImageFullPath = reader["flpth"] == DBNull.Value ? string.Empty : reader["flpth"].ToString(),
-                            ModifiedBy = reader["mdby"] == DBNull.Value ? string.Empty : reader["mdby"].ToString(),
-                            ModifiedDate = reader["mddt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["mddt"],
-                            CreatedBy = reader["crby"] == DBNull.Value ? string.Empty : reader["crby"].ToString(),
-                            CreatedDate = reader["crdt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["crdt"],
-                            EnableComment = reader["enable_com"] == DBNull.Value ? false : (bool)reader["enable_com"],
-                            IsHidden = reader["is_hdn"] == DBNull.Value ? false : (bool)reader["is_hdn"],
-                            PostTypeId = reader["typ_id"] == DBNull.Value ? -1 : (int)reader["typ_id"],
-                            HasComments = reader["hs_cm"] == DBNull.Value ? false : (bool)reader["hs_cm"],
-                            HasMedia = reader["hs_md"] == DBNull.Value ? false : (bool)reader["hs_md"]
-                        });
-                    }
-                }
-                await conn.CloseAsync();
-            }
-            catch (Exception)
-            {
-                await conn.CloseAsync();
-                postlist = null;
-            }
-            return postlist;
-
-        }
-
-        public async Task<IList<Post>> GetUnhiddenBannersAsync()
-        {
-            List<Post> postlist = new List<Post>();
-            var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
-            string query = String.Empty;
-            StringBuilder sb = new StringBuilder();
-
-            sb.Append("SELECT id, title, summary, imgp, mdby, crby, typ_id, ");
-            sb.Append("enable_com, is_hdn, crdt, mddt, hs_cm, hs_md, flpth ");
-            sb.Append("FROM public.pcm_psts WHERE typ_id = 0 AND is_hdn = false; ");
-
-            query = sb.ToString();
-            try
-            {
-                await conn.OpenAsync();
-                // Retrieve all rows
-                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
-                {
-                    await cmd.PrepareAsync();
-                    var reader = await cmd.ExecuteReaderAsync();
-                    while (await reader.ReadAsync())
-                    {
-                        postlist.Add(new Post()
-                        {
-                            PostId = reader["id"] == DBNull.Value ? 0 : Convert.ToInt32(reader["id"]),
-                            PostTitle = reader["title"] == DBNull.Value ? string.Empty : reader["title"].ToString(),
-                            PostSummary = reader["summary"] == DBNull.Value ? string.Empty : reader["summary"].ToString(),
-                            ImagePath = reader["imgp"] == DBNull.Value ? string.Empty : reader["imgp"].ToString(),
-                            ImageFullPath = reader["flpth"] == DBNull.Value ? string.Empty : reader["flpth"].ToString(),
-                            ModifiedBy = reader["mdby"] == DBNull.Value ? string.Empty : reader["mdby"].ToString(),
-                            ModifiedDate = reader["mddt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["mddt"],
-                            CreatedBy = reader["crby"] == DBNull.Value ? string.Empty : reader["crby"].ToString(),
-                            CreatedDate = reader["crdt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["crdt"],
-                            EnableComment = reader["enable_com"] == DBNull.Value ? false : (bool)reader["enable_com"],
-                            IsHidden = reader["is_hdn"] == DBNull.Value ? false : (bool)reader["is_hdn"],
-                            PostTypeId = reader["typ_id"] == DBNull.Value ? -1 : (int)reader["typ_id"],
-                            HasComments = reader["hs_cm"] == DBNull.Value ? false : (bool)reader["hs_cm"],
-                            HasMedia = reader["hs_md"] == DBNull.Value ? false : (bool)reader["hs_md"]
-                        });
-                    }
-                }
-                await conn.CloseAsync();
-            }
-            catch (Exception)
-            {
-                await conn.CloseAsync();
-                postlist = null;
-            }
-            return postlist;
-        }
-
-        #endregion
-
-        //======= Other Action Methods ===============//
-        #region Other Action Methods
-        public Task<IList<Post>> GetAnnouncementsAsync()
-        {
-            throw new NotImplementedException();
-        }
-
-        public async Task<IList<Post>> GetUnhiddenArticlesAsync()
-        {
-            List<Post> postlist = new List<Post>();
-            var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
-            string query = String.Empty;
-            StringBuilder sb = new StringBuilder();
-
-            sb.Append($"SELECT id, title, summary, imgp, mdby, crby, typ_id, enable_com, ");
-            sb.Append($"is_hdn, crdt, mddt, hs_cm, hs_md FROM public.pcm_psts ");
-            sb.Append($"WHERE typ_id = 2 AND is_hdn = false;");
-            query = sb.ToString();
-            try
-            {
-                await conn.OpenAsync();
-                // Retrieve all rows
-                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
-                {
-                    await cmd.PrepareAsync();
-                    var reader = await cmd.ExecuteReaderAsync();
-                    while (await reader.ReadAsync())
-                    {
-                        postlist.Add(new Post()
-                        {
-                            PostId = reader["id"] == DBNull.Value ? 0 : Convert.ToInt32(reader["id"]),
-                            PostTitle = reader["title"] == DBNull.Value ? String.Empty : reader["title"].ToString(),
-                            PostSummary = reader["summary"] == DBNull.Value ? String.Empty : reader["summary"].ToString(),
-                            ImagePath = reader["imgp"] == DBNull.Value ? String.Empty : reader["imgp"].ToString(),
-                            ModifiedBy = reader["mdby"] == DBNull.Value ? string.Empty : reader["mdby"].ToString(),
-                            ModifiedDate = reader["mddt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["mddt"],
-                            CreatedBy = reader["crby"] == DBNull.Value ? string.Empty : reader["crby"].ToString(),
-                            CreatedDate = reader["crdt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["crdt"],
-                            EnableComment = reader["enable_com"] == DBNull.Value ? false : (bool)reader["enable_com"],
-                            IsHidden = reader["is_hdn"] == DBNull.Value ? false : (bool)reader["is_hdn"],
-                            PostTypeId = reader["typ_id"] == DBNull.Value ? -1 : (int)reader["typ_id"],
-                            HasComments = reader["hs_cm"] == DBNull.Value ? false : (bool)reader["hs_cm"],
-                            HasMedia = reader["hs_md"] == DBNull.Value ? false : (bool)reader["hs_md"]
-
-                        });
-                    }
-                }
-                await conn.CloseAsync();
-            }
-            catch (Exception ex)
-            {
-                //ErrorRepository errorRepository = new ErrorRepository(_config);
-                //ErrorEntity errorEntity = new ErrorEntity();
-                //errorEntity.ErrorMessage = ex.Message;
-                //errorEntity.ErrorDetail = ex.ToString();
-                //errorEntity.ErrorTime = $"{DateTime.UtcNow.ToLongDateString()} {DateTime.UtcNow.ToLongTimeString()} (UTC)";
-                //errorEntity.ErrorInnerSource = ex.Source;
-                //errorEntity.ErrorSource = "ApplicationUserRepository_GetUsersByDatabaseId";
-                //errorRepository.AddError(errorEntity);
-                await conn.CloseAsync();
-                postlist = null;
-            }
-            return postlist;
-
-        }
-
-        public async Task<IList<Post>> GetAllArticlesAsync()
-        {
-            List<Post> postlist = new List<Post>();
-            var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
-            string query = String.Empty;
-            StringBuilder sb = new StringBuilder();
-
-            sb.Append($"SELECT id, title, summary, imgp, mdby, crby, typ_id, enable_com, ");
-            sb.Append($"is_hdn, crdt, mddt, hs_cm, hs_md FROM public.pcm_psts ");
-            sb.Append($"WHERE typ_id = 2;");
-            query = sb.ToString();
-            try
-            {
-                await conn.OpenAsync();
-                // Retrieve all rows
-                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
-                {
-                    await cmd.PrepareAsync();
-                    var reader = await cmd.ExecuteReaderAsync();
-                    while (await reader.ReadAsync())
-                    {
-                        postlist.Add(new Post()
-                        {
-                            PostId = reader["id"] == DBNull.Value ? 0 : Convert.ToInt32(reader["id"]),
-                            PostTitle = reader["title"] == DBNull.Value ? String.Empty : reader["title"].ToString(),
-                            PostSummary = reader["summary"] == DBNull.Value ? String.Empty : reader["summary"].ToString(),
-                            ImagePath = reader["imgp"] == DBNull.Value ? String.Empty : reader["imgp"].ToString(),
-                            ModifiedBy = reader["mdby"] == DBNull.Value ? string.Empty : reader["mdby"].ToString(),
-                            ModifiedDate = reader["mddt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["mddt"],
-                            CreatedBy = reader["crby"] == DBNull.Value ? string.Empty : reader["crby"].ToString(),
-                            CreatedDate = reader["crdt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["crdt"],
-                            EnableComment = reader["enable_com"] == DBNull.Value ? false : (bool)reader["enable_com"],
-                            IsHidden = reader["is_hdn"] == DBNull.Value ? false : (bool)reader["is_hdn"],
-                            PostTypeId = reader["typ_id"] == DBNull.Value ? -1 : (int)reader["typ_id"],
-                            HasComments = reader["hs_cm"] == DBNull.Value ? false : (bool)reader["hs_cm"],
-                            HasMedia = reader["hs_md"] == DBNull.Value ? false : (bool)reader["hs_md"]
-
-                        });
-                    }
-                }
-                await conn.CloseAsync();
-            }
-            catch (Exception ex)
-            {
-                //ErrorRepository errorRepository = new ErrorRepository(_config);
-                //ErrorEntity errorEntity = new ErrorEntity();
-                //errorEntity.ErrorMessage = ex.Message;
-                //errorEntity.ErrorDetail = ex.ToString();
-                //errorEntity.ErrorTime = $"{DateTime.UtcNow.ToLongDateString()} {DateTime.UtcNow.ToLongTimeString()} (UTC)";
-                //errorEntity.ErrorInnerSource = ex.Source;
-                //errorEntity.ErrorSource = "ApplicationUserRepository_GetUsersByDatabaseId";
-                //errorRepository.AddError(errorEntity);
-                await conn.CloseAsync();
-                postlist = null;
-            }
-            return postlist;
-
-        }
-
-        public async Task<IList<Post>> GetBannersAsync()
-        {
-            List<Post> postlist = new List<Post>();
-            var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
-            string query = String.Empty;
-            StringBuilder sb = new StringBuilder();
-
-            sb.Append($"SELECT id, title, summary, imgp, mdby, crby, typ_id, enable_com, ");
-            sb.Append($"is_hdn, crdt, mddt, hs_cm, hs_md, flpth FROM public.pcm_psts ");
-            sb.Append($"WHERE typ_id = 0 AND is_hdn = false;");
-            query = sb.ToString();
-            try
-            {
-                await conn.OpenAsync();
-                // Retrieve all rows
-                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
-                {
-                    await cmd.PrepareAsync();
-                    var reader = await cmd.ExecuteReaderAsync();
-                    while (await reader.ReadAsync())
-                    {
-                        postlist.Add(new Post()
-                        {
-                            PostId = reader["id"] == DBNull.Value ? 0 : Convert.ToInt32(reader["id"]),
-                            PostTitle = reader["title"] == DBNull.Value ? string.Empty : reader["title"].ToString(),
-                            PostSummary = reader["summary"] == DBNull.Value ? string.Empty : reader["summary"].ToString(),
-                            ImagePath = reader["imgp"] == DBNull.Value ? string.Empty : reader["imgp"].ToString(),
-                            ImageFullPath = reader["flpth"] == DBNull.Value ? string.Empty : reader["flpth"].ToString(),
-                            ModifiedBy = reader["mdby"] == DBNull.Value ? string.Empty : reader["mdby"].ToString(),
-                            ModifiedDate = reader["mddt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["mddt"],
-                            CreatedBy = reader["crby"] == DBNull.Value ? string.Empty : reader["crby"].ToString(),
-                            CreatedDate = reader["crdt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["crdt"],
-                            EnableComment = reader["enable_com"] == DBNull.Value ? false : (bool)reader["enable_com"],
-                            IsHidden = reader["is_hdn"] == DBNull.Value ? false : (bool)reader["is_hdn"],
-                            PostTypeId = reader["typ_id"] == DBNull.Value ? -1 : (int)reader["typ_id"],
-                            HasComments = reader["hs_cm"] == DBNull.Value ? false : (bool)reader["hs_cm"],
-                            HasMedia = reader["hs_md"] == DBNull.Value ? false : (bool)reader["hs_md"]
-
-                        });
-                    }
-                }
-                await conn.CloseAsync();
-            }
-            catch (Exception)
-            {
-                await conn.CloseAsync();
-                postlist = null;
-            }
-            return postlist;
-        }
-
-        public Task<IList<Post>> GetCelebrantsAsync()
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<IList<Post>> GetEventsAsync()
-        {
-            throw new NotImplementedException();
-        }
         #endregion
     }
 }

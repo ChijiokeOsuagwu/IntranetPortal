@@ -10,7 +10,7 @@ namespace IntranetPortal.Base.Repositories.ErmRepositories
     {
         #region Employee Action Methods
         Task<bool> AddEmployeeAsync(Employee employee);
-        Task<bool> UpdateEmployeeSeparationAsync(string empId, string recordedBy, string recordedTime);
+        Task<bool> UpdateEmployeeSeparationAsync(string empId, string recordedBy, DateTime? exitDate);
         Task<bool> DeleteEmployeeAsync(string Id, string deletedBy, string deletedTime);
 
         Task<bool> EditEmployeeAsync(Employee employee);
@@ -19,44 +19,47 @@ namespace IntranetPortal.Base.Repositories.ErmRepositories
 
         Task<Employee> GetEmployeeByNameAsync(string employeeName);
 
-        Task<IList<Employee>> GetEmployeesAsync();
+        Task<IList<Employee>> GetEmployeesAsync(DateTime? terminalDate = null);
 
-        Task<IList<Employee>> GetEmployeesByNameAsync(string employeeName);
+        Task<IList<Employee>> GetEmployeesByNameAsync(string employeeName, DateTime? terminalDate = null);
 
-        Task<IList<Employee>> GetOtherEmployeesByNameAsync(string employeeId, string otherEmployeeName);
+        Task<IList<Employee>> GetOtherEmployeesByNameAsync(string employeeId, string otherEmployeeName, DateTime? terminalDate = null);
 
-        Task<IList<Employee>> GetEmployeesByLocationAsync(int locationId);
+        Task<IList<Employee>> GetEmployeesByLocationAsync(int locationId, DateTime? terminalDate = null);
 
-        Task<IList<Employee>> GetEmployeesByLocationAsync(int locationId, int deptId);
+        Task<IList<Employee>> GetEmployeesByLocationAsync(int locationId, int deptId, DateTime? terminalDate = null);
 
-        Task<IList<Employee>> GetEmployeesByLocationAsync(int locationId, int deptId, int unitId);
+        Task<IList<Employee>> GetEmployeesByLocationAsync(int locationId, int deptId, int unitId, DateTime? terminalDate = null);
 
-        Task<IList<Employee>> GetEmployeesByCompanyCodeAsync(string companyCode);
+        Task<IList<Employee>> GetEmployeesByCompanyCodeAsync(string companyCode, DateTime? terminalDate = null);
 
-        Task<IList<Employee>> GetEmployeesByCompanyCodeAsync(string companyCode, int locationId);
+        Task<IList<Employee>> GetEmployeesByCompanyCodeAsync(string companyCode, int locationId, DateTime? terminalDate = null);
 
-        Task<IList<Employee>> GetEmployeesByCompanyCodeAsync(string companyCode, int locationId, int departmentId);
+        Task<IList<Employee>> GetEmployeesByCompanyCodeAsync(string companyCode, int locationId, int departmentId, DateTime? terminalDate = null);
 
-        Task<IList<Employee>> GetEmployeesByCompanyCodeAndUnitAsync(string companyCode, int locationId, int unitId);
+        Task<IList<Employee>> GetEmployeesByCompanyCodeAndUnitAsync(string companyCode, int locationId, int unitId, DateTime? terminalDate = null);
 
-        Task<IList<Employee>> GetEmployeesByCompanyCodeAndUnitAsync(string companyCode, int unitId);
-        Task<IList<Employee>> GetEmployeesByCompanyCodeAndDeptAsync(string companyCode, int deptId);
+        Task<IList<Employee>> GetEmployeesByCompanyCodeAndUnitAsync(string companyCode, int unitId, DateTime? terminalDate = null);
+        Task<IList<Employee>> GetEmployeesByCompanyCodeAndDeptAsync(string companyCode, int deptId, DateTime? terminalDate = null);
 
-        Task<IList<Employee>> GetEmployeesByLocationAndUnitAsync(int locationId, int unitId);
+        Task<IList<Employee>> GetEmployeesByLocationAndUnitAsync(int locationId, int unitId, DateTime? terminalDate = null);
 
-        Task<IList<Employee>> GetEmployeesByUnitAsync(int unitId);
+        Task<IList<Employee>> GetEmployeesByUnitAsync(int unitId, DateTime? terminalDate = null);
 
-        Task<IList<Employee>> GetEmployeesByDeptAsync(int deptId);
+        Task<IList<Employee>> GetEmployeesByDeptAsync(int deptId, DateTime? terminalDate = null);
 
         Task<IList<Employee>> GetEmployeesByBirthMonthAsync(int birthMonth);
 
         Task<IList<Employee>> GetEmployeesByBirthMonthAndBirthDayAsync(int birthMonth, int birthDay);
 
-        Task<IList<Employee>> GetEmployeesWithoutUserAccountsByNameAsync(string employeeName);
+        Task<IList<Employee>> GetEmployeesWithoutUserAccountsByNameAsync(string employeeName, DateTime? TerminalDate = null);
 
-        Task<int> GetEmployeesCountByStartUpDateAsync(int startUpYear, int startUpMonth, int startUpDay);
+        Task<long> GetEmployeesCountByStartUpDateAsync(int startUpYear, int startUpMonth, int startUpDay);
 
-        Task<IList<Employee>> GetAllEmployeesWithoutUserAccountsAsync();
+        Task<IList<Employee>> GetAllEmployeesWithoutUserAccountsAsync(DateTime? TerminalDate = null);
+
+        Task<IList<Employee>> GetEmployeesByLeaveProfileIdAsync(int leaveProfileId);
+        Task<IList<EmployeeRoll>> GetEmployeeRollsByLeaveProfileIdAsync(int leaveProfileId);
 
         #endregion
 

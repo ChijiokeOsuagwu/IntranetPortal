@@ -37,7 +37,7 @@
             }
         })
 
-    //===== Script to populate fields with the EmployeeName retrieved by the autocomplete function =====//
+    //===== Script to get the expected last worked date =====//
     getExpectedLastWorkedDate = function () {
         let notice_date = $("#NoticeServeDate").val();
         let notice_period = $("#NoticePeriodInMonths").val();
@@ -82,6 +82,33 @@
             });
         }
     }
+
+    //===== Script to get the last leave date from the start date and duration =====//
+    getLastLeaveDate = function () {
+        let leave_start_date = $("#LeaveStartDate").val();
+        let leave_duration = $("#Duration").val();
+        let duration_type_id = $("#DurationTypeId").val();
+
+        if ((leave_start_date != "" || leave_start_date != undefined) && (leave_duration != 0 || leave_duration != undefined) && (duration_type_id != "" || duration_type_id != undefined)) {
+            console.log(leave_start_date);
+            console.log(leave_duration);
+            console.log(duration_type_id);
+
+            $.get("/LMS/Home/GetLeaveEndDate?sd=" + leave_start_date + "&dr=" + leave_duration + "&dt=" + duration_type_id, function (data) {
+                const obj = JSON.parse(data)
+                console.log(obj);
+                if (obj.errormsg !== "" || obj.errormsg !== null || obj.errormsg !== undefined) {
+                    $("#LeaveEndDate").val(obj.result);
+                    //$("#LeaveEndDate").focus();
+                }
+                else {
+                    $("#LeaveEndDate").focus();
+                    document.getElementById("errorSpan").innerText = obj.errormsg;
+                }
+            });
+        }
+    }
+
 
     //===== Script to populate fields with the EmployeeName retrieved by the autocomplete function =====//
     //var getEmployeeParameters = function () {

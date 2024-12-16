@@ -1454,7 +1454,7 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
             StringBuilder sb = new StringBuilder();
             sb.Append("UPDATE public.pmsrvwhdrs SET pry_apr_id=@pry_apr_id ");
             sb.Append("WHERE (rvw_sxn_id=@rvw_sxn_id) AND (rvw_emp_id = @rvw_emp_id) ");
-            sb.Append("AND (rvw_stg_id < 9);");
+            sb.Append("AND (rvw_stg_id < 11);");
 
             string query = sb.ToString();
 
@@ -1483,7 +1483,7 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
             StringBuilder sb = new StringBuilder();
             sb.Append("UPDATE public.pmsrvwhdrs SET pry_apr_id=@pry_apr_id ");
             sb.Append("WHERE (rvw_sxn_id=@rvw_sxn_id) AND (unit_cd = @unit_cd) ");
-            sb.Append("AND (rvw_stg_id < 9);");
+            sb.Append("AND (rvw_stg_id < 11);");
 
             string query = sb.ToString();
 

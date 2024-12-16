@@ -2681,17 +2681,20 @@ namespace IntranetPortal.Areas.PMS.Controllers
         public async Task<IActionResult> ShowEvaluations(int id)
         {
             ShowEvaluationsViewModel model = new ShowEvaluationsViewModel();
-            ReviewSubmission reviewSubmission = new ReviewSubmission();
+
             try
             {
                 if (id > 0)
                 {
                     model.ReviewHeaderID = id;
-                    var entities = await _performanceService.GetReviewSubmissionsByReviewHeaderIdAsync(id, (int)ReviewSubmissionPurpose.FinalEvaluation);
+                    var entities = await _performanceService.GetEvaluationHeadersAsync(model.ReviewHeaderID);
                     if (entities != null && entities.Count > 0)
                     {
-                        model.Submissions = entities;
-                        reviewSubmission = entities.FirstOrDefault();
+                        model.Evaluations = entities;
+                        model.AppraiseeID = entities.First().AppraiseeId;
+                        model.AppraiseeName = entities.First().AppraiseeName;
+                        model.ReviewSessionID = entities.First().ReviewSessionId;
+                        model.ReviewSessionName = entities.First().ReviewSessionName;
                     }
                 }
             }
@@ -2701,7 +2704,6 @@ namespace IntranetPortal.Areas.PMS.Controllers
             }
             return View(model);
         }
-
         public async Task<IActionResult> ShowResultSummary(int id, string ad)
         {
             EvaluationResultViewModel model = new EvaluationResultViewModel();
@@ -2761,7 +2763,6 @@ namespace IntranetPortal.Areas.PMS.Controllers
             }
             return View(model);
         }
-
         public async Task<IActionResult> ShowFullResult(int id, string ad)
         {
             ShowSelectedResultViewModel model = new ShowSelectedResultViewModel();
@@ -2936,7 +2937,6 @@ namespace IntranetPortal.Areas.PMS.Controllers
             //}
             //return View(model);
         }
-
         public async Task<IActionResult> ShowSelectedResult(int id, string ad)
         {
             ShowSelectedResultViewModel model = new ShowSelectedResultViewModel();

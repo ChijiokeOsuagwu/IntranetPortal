@@ -9,6 +9,7 @@ using IntranetPortal.Areas.ERM.Models;
 using IntranetPortal.Base.Models.EmployeeRecordModels;
 using IntranetPortal.Base.Services;
 using IntranetPortal.Configurations;
+using IntranetPortal.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Mvc;
@@ -45,6 +46,145 @@ namespace IntranetPortal.Areas.ERM.Controllers
         }
 
         [Authorize(Roles = "ERMVWAEMR, XYALLACCZ")]
+        public async Task<IActionResult> ActiveList(EmployeeListViewModel model)
+        {
+            List<Employee> employees = new List<Employee>();
+
+            try
+            {
+                if (model.TerminalDate == null)
+                {
+                    model.TerminalDate = DateTime.Today;
+                }
+
+                if (string.IsNullOrWhiteSpace(model.CompanyCode))
+                {
+                    if (model.LocationID != null && model.LocationID > 0)
+                    {
+                        if (model.DepartmentID != null && model.DepartmentID > 0)
+                        {
+                            if (model.UnitID != null && model.UnitID > 0)
+                            {
+                                employees = await _ermService.GetEmployeesByLocationAsync(model.LocationID.Value, model.DepartmentID.Value, model.UnitID.Value, model.TerminalDate);
+                            }
+                            else
+                            {
+                                employees = await _ermService.GetEmployeesByLocationAsync(model.LocationID.Value, model.DepartmentID.Value, model.TerminalDate);
+                            }
+                        }
+                        else
+                        {
+                            if (model.UnitID != null && model.UnitID > 0)
+                            {
+                                employees = await _ermService.GetEmployeesByLocationAndUnitAsync(model.LocationID.Value, model.UnitID.Value, model.TerminalDate);
+                            }
+                            else
+                            {
+                                employees = await _ermService.GetEmployeesByLocationAsync(model.LocationID.Value, model.TerminalDate);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if (model.DepartmentID != null && model.DepartmentID > 0)
+                        {
+                            if (model.UnitID != null && model.UnitID > 0)
+                            {
+                                employees = await _ermService.GetEmployeesByUnitIDAsync(model.UnitID.Value, model.TerminalDate);
+                            }
+                            else
+                            {
+                                employees = await _ermService.GetEmployeesByDepartmentIDAsync(model.DepartmentID.Value, model.TerminalDate);
+                            }
+                        }
+                        else
+                        {
+                            if (model.UnitID != null && model.UnitID > 0)
+                            {
+                                employees = await _ermService.GetEmployeesByUnitIDAsync(model.UnitID.Value, model.TerminalDate);
+                            }
+                            else
+                            {
+                                employees = await _ermService.GetAllEmployeesAsync(model.TerminalDate);
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    if (model.LocationID != null && model.LocationID > 0)
+                    {
+                        if (model.DepartmentID != null && model.DepartmentID > 0)
+                        {
+                            if (model.UnitID != null && model.UnitID > 0)
+                            {
+                                employees = await _ermService.GetEmployeesByCompanyAndUnitAsync(model.CompanyCode, model.LocationID.Value, model.UnitID.Value, model.TerminalDate);
+                            }
+                            else
+                            {
+                                employees = await _ermService.GetEmployeesByCompanyAndLocationAsync(model.CompanyCode, model.LocationID.Value, model.DepartmentID.Value, model.TerminalDate);
+                            }
+                        }
+                        else
+                        {
+                            if (model.UnitID != null && model.UnitID > 0)
+                            {
+                                employees = await _ermService.GetEmployeesByCompanyAndUnitAsync(model.CompanyCode, model.LocationID.Value, model.UnitID.Value, model.TerminalDate);
+                            }
+                            else
+                            {
+                                employees = await _ermService.GetEmployeesByCompanyAndLocationAsync(model.CompanyCode, model.LocationID.Value, model.TerminalDate);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if (model.DepartmentID != null && model.DepartmentID > 0)
+                        {
+                            if (model.UnitID != null && model.UnitID > 0)
+                            {
+                                employees = await _ermService.GetEmployeesByCompanyAndUnitAsync(model.CompanyCode, model.UnitID.Value, model.TerminalDate);
+                            }
+                            else
+                            {
+                                employees = await _ermService.GetEmployeesByCompanyAndDepartmentAsync(model.CompanyCode, model.DepartmentID.Value, model.TerminalDate);
+                            }
+                        }
+                        else
+                        {
+                            if (model.UnitID != null && model.UnitID > 0)
+                            {
+                                employees = await _ermService.GetEmployeesByCompanyAndUnitAsync(model.CompanyCode, model.UnitID.Value, model.TerminalDate);
+                            }
+                            else
+                            {
+                                employees = await _ermService.GetEmployeesByCompanyAsync(model.CompanyCode, model.TerminalDate);
+                            }
+                        }
+                    }
+                }
+            }
+            catch(Exception ex)
+            {
+                model.ViewModelErrorMessage = ex.Message;
+            }
+            finally
+            {
+                model.EmployeesList = employees;
+                var locations = await _globalSettingsService.GetAllLocationsAsync();
+                var companies = await _globalSettingsService.GetCompaniesAsync();
+                var units = await _globalSettingsService.GetUnitsAsync();
+                var depts = await _globalSettingsService.GetDepartmentsAsync();
+
+                ViewBag.LocationList = new SelectList(locations, "LocationID", "LocationName");
+                ViewBag.CompanyList = new SelectList(companies, "CompanyCode", "CompanyName");
+                ViewBag.DepartmentList = new SelectList(depts, "DepartmentID", "DepartmentName");
+                ViewBag.UnitList = new SelectList(units, "UnitID", "UnitName");
+            }
+            return View(model);
+        }
+
+        [Authorize(Roles = "ERMVWAEMR, XYALLACCZ")]
         public async Task<IActionResult> BirthDayList(int? mm, int? dd)
         {
             BirthDayListViewModel model = new BirthDayListViewModel();
@@ -63,13 +203,14 @@ namespace IntranetPortal.Areas.ERM.Controllers
             return View(model);
         }
 
-        public async Task<FileResult> DownloadEmployeeRegister(string cd, int? ld = null, int? dd = null, int? ud = null)
+        public async Task<FileResult> DownloadEmployeeRegister(DateTime? td = null, string cd = null, int? ld = null, int? dd = null, int? ud = null)
         {
             List<Employee> employees = new List<Employee>();
             string CompanyCode = cd;
             int LocationID = ld ?? 0;
             int DepartmentID = dd ?? 0;
             int UnitID = ud ?? 0;
+            DateTime TerminalDate = td ?? DateTime.Today;
 
             string fileName = $"Staff Register {DateTime.UtcNow.ToString("yyyyMMddHHmmssfff")}.xlsx";
             try
@@ -82,22 +223,22 @@ namespace IntranetPortal.Areas.ERM.Controllers
                         {
                             if (UnitID > 0)
                             {
-                                employees = await _ermService.GetEmployeesByLocationAsync(LocationID, DepartmentID, UnitID);
+                                employees = await _ermService.GetEmployeesByLocationAsync(LocationID, DepartmentID, UnitID, TerminalDate);
                             }
                             else
                             {
-                                employees = await _ermService.GetEmployeesByLocationAsync(LocationID, DepartmentID);
+                                employees = await _ermService.GetEmployeesByLocationAsync(LocationID, DepartmentID, TerminalDate);
                             }
                         }
                         else
                         {
                             if (UnitID > 0)
                             {
-                                employees = await _ermService.GetEmployeesByLocationAndUnitAsync(LocationID, UnitID);
+                                employees = await _ermService.GetEmployeesByLocationAndUnitAsync(LocationID, UnitID, TerminalDate);
                             }
                             else
                             {
-                                employees = await _ermService.GetEmployeesByLocationAsync(LocationID);
+                                employees = await _ermService.GetEmployeesByLocationAsync(LocationID, TerminalDate);
                             }
                         }
                     }
@@ -107,18 +248,22 @@ namespace IntranetPortal.Areas.ERM.Controllers
                         {
                             if (UnitID > 0)
                             {
-                                employees = await _ermService.GetEmployeesByUnitIDAsync(UnitID);
+                                employees = await _ermService.GetEmployeesByUnitIDAsync(UnitID, TerminalDate);
                             }
                             else
                             {
-                                employees = await _ermService.GetEmployeesByDepartmentIDAsync(DepartmentID);
+                                employees = await _ermService.GetEmployeesByDepartmentIDAsync(DepartmentID, TerminalDate);
                             }
                         }
                         else
                         {
                             if (UnitID > 0)
                             {
-                                employees = await _ermService.GetEmployeesByUnitIDAsync(UnitID);
+                                employees = await _ermService.GetEmployeesByUnitIDAsync(UnitID, TerminalDate);
+                            }
+                            else
+                            {
+                                employees = await _ermService.GetAllEmployeesAsync(TerminalDate);
                             }
                         }
                     }
@@ -131,22 +276,22 @@ namespace IntranetPortal.Areas.ERM.Controllers
                         {
                             if (UnitID > 0)
                             {
-                                employees = await _ermService.GetEmployeesByCompanyAndUnitAsync(CompanyCode, LocationID, UnitID);
+                                employees = await _ermService.GetEmployeesByCompanyAndUnitAsync(CompanyCode, LocationID, UnitID, TerminalDate);
                             }
                             else
                             {
-                                employees = await _ermService.GetEmployeesByCompanyAndLocationAsync(CompanyCode, LocationID, DepartmentID);
+                                employees = await _ermService.GetEmployeesByCompanyAndLocationAsync(CompanyCode, LocationID, DepartmentID, TerminalDate);
                             }
                         }
                         else
                         {
                             if (UnitID > 0)
                             {
-                                employees = await _ermService.GetEmployeesByCompanyAndUnitAsync(CompanyCode, LocationID, UnitID);
+                                employees = await _ermService.GetEmployeesByCompanyAndUnitAsync(CompanyCode, LocationID, UnitID, TerminalDate);
                             }
                             else
                             {
-                                employees = await _ermService.GetEmployeesByCompanyAndLocationAsync(CompanyCode, LocationID);
+                                employees = await _ermService.GetEmployeesByCompanyAndLocationAsync(CompanyCode, LocationID, TerminalDate);
                             }
                         }
                     }
@@ -156,22 +301,22 @@ namespace IntranetPortal.Areas.ERM.Controllers
                         {
                             if (UnitID > 0)
                             {
-                                employees = await _ermService.GetEmployeesByCompanyAndUnitAsync(CompanyCode, UnitID);
+                                employees = await _ermService.GetEmployeesByCompanyAndUnitAsync(CompanyCode, UnitID, TerminalDate);
                             }
                             else
                             {
-                                employees = await _ermService.GetEmployeesByCompanyAndDepartmentAsync(CompanyCode, DepartmentID);
+                                employees = await _ermService.GetEmployeesByCompanyAndDepartmentAsync(CompanyCode, DepartmentID, TerminalDate);
                             }
                         }
                         else
                         {
                             if (UnitID > 0)
                             {
-                                employees = await _ermService.GetEmployeesByCompanyAndUnitAsync(CompanyCode, UnitID);
+                                employees = await _ermService.GetEmployeesByCompanyAndUnitAsync(CompanyCode, UnitID, TerminalDate);
                             }
                             else
                             {
-                                employees = await _ermService.GetEmployeesByCompanyAsync(CompanyCode);
+                                employees = await _ermService.GetEmployeesByCompanyAsync(CompanyCode, TerminalDate);
                             }
                         }
                     }
@@ -183,7 +328,6 @@ namespace IntranetPortal.Areas.ERM.Controllers
             }
             return GenerateEmployeeRegisterInExcel(fileName, employees);
         }
-
 
         #region Employee Separation Controller Actions
 
@@ -808,6 +952,8 @@ namespace IntranetPortal.Areas.ERM.Controllers
 
         #endregion
 
+
+
         //======== Employees Helper Methods =======//
         #region Employees Helper Methods
 
@@ -862,6 +1008,7 @@ namespace IntranetPortal.Areas.ERM.Controllers
 
         public JsonResult GetExpectedLastWorkDate(string nd, int np)
         {
+            ResultObject returnObj = new ResultObject();
             DateTime expectedLastWorkDate = DateTime.Today.Date;
             string errorMessage = string.Empty;
             try
@@ -876,7 +1023,8 @@ namespace IntranetPortal.Areas.ERM.Controllers
             {
                 errorMessage = ex.Message;
             }
-            ResultObject returnObj = new ResultObject { errorMessage = errorMessage, result = expectedLastWorkDate.ToString("yyyy-MM-dd") };
+            returnObj.errorMessage = errorMessage;
+            returnObj.result = expectedLastWorkDate.ToString("yyyy-MM-dd");
             var jsonObj = System.Text.Json.JsonSerializer.Serialize(returnObj);
             return Json(jsonObj);
         }
@@ -903,7 +1051,6 @@ namespace IntranetPortal.Areas.ERM.Controllers
             var jsonObj = System.Text.Json.JsonSerializer.Serialize(returnObj);
             return Json(jsonObj);
         }
-
 
         private FileResult GenerateEmployeeRegisterInExcel(string fileName, IEnumerable<Employee> employees)
         {
@@ -955,12 +1102,6 @@ namespace IntranetPortal.Areas.ERM.Controllers
             }
         }
 
-
-        class ResultObject
-        {
-            public string errorMessage { get; set; } = string.Empty;
-            public string result { get; set; } = DateTime.Today.ToString("yyyy-MM-dd");
-        }
         #endregion
     }
 }

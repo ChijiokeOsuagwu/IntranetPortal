@@ -8,6 +8,7 @@ using IntranetPortal.Base.Enums;
 using IntranetPortal.Base.Models.ContentManagerModels;
 using IntranetPortal.Base.Services;
 using IntranetPortal.Configurations;
+using IntranetPortal.Helpers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Hosting;
@@ -35,40 +36,37 @@ namespace IntranetPortal.Areas.ContentManager.Controllers
         }
 
         [Authorize(Roles = "PCMMGACNT, XYALLACCZ")]
-        public async Task<IActionResult> List(string ss, int? pt)
+        public async Task<IActionResult> List(string ss)
         {
             PostListViewModel model = new PostListViewModel();
             IList<Post> entities = new List<Post>();
-            if(pt != null)
-            {
-                model.pt = pt.Value;
-                entities = await _contentManager.GetPostsByPostTypeId(pt.Value);
-            }
-            else if(!string.IsNullOrWhiteSpace(ss))
+
+            if(!string.IsNullOrWhiteSpace(ss))
             {
                 model.ss = ss;
-                entities = await _contentManager.SearchPostsByTitle(ss);
+                entities = await _contentManager.SearchPostsByTitle(ss, (int)PostType.Article);
             }
             else
             {
-                entities = await _contentManager.GetAllPostsAsync();
+                entities = await _contentManager.GetPostsByPostTypeId((int)PostType.Article);
             }
-            
-            if(entities != null) {
-                foreach( var i in entities)
-                {
-                    i.PostTypeName = i.PostTypeId switch
-                    {
-                        0 => "Banner",
-                        1 => "Celebrant",
-                        2 => "Article",
-                        3 => "Announcement",
-                        4 => "Event",
-                        _ => "Post",
-                    };
-                }
-                model.PostList = entities.ToList(); 
-            }
+
+            //if (entities != null) {
+            //    foreach( var i in entities)
+            //    {
+            //        i.PostTypeName = i.PostTypeId switch
+            //        {
+            //            0 => "Banner",
+            //            1 => "Celebrant",
+            //            2 => "Article",
+            //            3 => "Announcement",
+            //            4 => "Photos",
+            //            _ => "Post",
+            //        };
+            //    }
+            //     
+            //}
+            model.PostList = entities.ToList();
             return View(model);
         }
 
@@ -112,7 +110,8 @@ namespace IntranetPortal.Areas.ContentManager.Controllers
                 Post post = new Post
                 {
                     PostTitle = model.PostTitle,
-                    ImagePath = uploadsFolder,
+                    ImagePath = "/" + uploadsFolder,
+                    ImageFullPath = absoluteFilePath,
                     PostDetails = model.PostDetails,
                     PostDetailsRaw = model.PostDetailsRaw,
                     EnableComment = model.EnableComments,
@@ -127,7 +126,6 @@ namespace IntranetPortal.Areas.ContentManager.Controllers
 
                 if (await _contentManager.CreatePostAsync(post))
                 {
-                    //model.ViewModelSuccessMessage = $"Congratulations! New Post was added successfully.";
                     return RedirectToAction("List", "Posts");
                 }
                 else
@@ -135,7 +133,12 @@ namespace IntranetPortal.Areas.ContentManager.Controllers
                     FileInfo file = new FileInfo(absoluteFilePath);
                     if (file.Exists)
                     {
-                        file.Delete();
+                        if (!file.IsFileOpen())
+                        {
+                            await Task.Run(() => {
+                                file.Delete();
+                            });
+                        }
                     }
                     model.ViewModelErrorMessage = "Sorry, an error was encountered. New Post could not be added.";
                 }
@@ -165,16 +168,22 @@ namespace IntranetPortal.Areas.ContentManager.Controllers
                 model.ViewModelErrorMessage = $"Error! Sorry, an error was encountered. Article could not be deleted.";
                 return View(model);
             }
-            int PostId = model.PostId.Value;
+            var entity = await _contentManager.GetPostByIdAsync(model.PostId.Value);
+            long PostId = model.PostId.Value;
             string filePath = string.Empty;
-            if (!string.IsNullOrEmpty(model.ImagePath))
-            {
-                filePath = Path.Combine(_webHostEnvironment.WebRootPath, model.ImagePath);
-            }
-            FileInfo file = new FileInfo(filePath);
+            //if (!string.IsNullOrEmpty(entity.ImageFullPath))
+            //{
+            //    filePath = Path.Combine(_webHostEnvironment.WebRootPath, entity.ImageFullPath);
+            //}
+            FileInfo file = new FileInfo(entity.ImageFullPath);
             if (file.Exists)
             {
-                file.Delete();
+                if (!file.IsFileOpen())
+                {
+                    await Task.Run(() => {
+                        file.Delete();
+                    });
+                }
             }
             var result = await _contentManager.DeletePostAsync(PostId);
             if (!result)
@@ -187,9 +196,9 @@ namespace IntranetPortal.Areas.ContentManager.Controllers
         }
 
         [Authorize(Roles = "PCMMGACNT, XYALLACCZ")]
-        public async Task<IActionResult> Edit(int id)
+        public async Task<IActionResult> Edit(long id)
         {
-            int PostId = 0;
+            long PostId = 0;
             if (id > 0) { PostId = id; }
             PostEditViewModel model = new PostEditViewModel();
             var post = await _contentManager.GetPostByIdAsync(PostId);
@@ -230,20 +239,31 @@ namespace IntranetPortal.Areas.ContentManager.Controllers
                     absoluteFilePath = Path.Combine(_webHostEnvironment.WebRootPath, uploadedFilePath);
                     await model.ImageFile.CopyToAsync(new FileStream(absoluteFilePath, FileMode.Create));
 
-                    FileInfo oldFile = new FileInfo(Path.Combine(_webHostEnvironment.WebRootPath, model.OldImagePath));
-                    if (oldFile.Exists)
+                    var entity = await _contentManager.GetPostByIdAsync(model.PostId.Value);
+                    if(entity != null)
                     {
-                        oldFile.Delete();
+                        FileInfo oldFile = new FileInfo(entity.ImageFullPath); //(Path.Combine(_webHostEnvironment.WebRootPath, model.OldImagePath));
+                        if (oldFile.Exists)
+                        {
+                            if (!oldFile.IsFileOpen())
+                            {
+                                await Task.Run(() => {
+                                    oldFile.Delete();
+                                });
+                            }
+                        }
                     }
                 }
 
                 post.IsHidden = model.IsHidden;
                 post.PostSummary = model.PostSummary;
+                post.PostDetails = model.PostDetails;
                 post.PostTypeId = model.PostTypeId;
                 post.ModifiedDate = DateTime.UtcNow;
                 post.ModifiedBy = HttpContext.User.Identity.Name ?? string.Empty;
                 post.PostTitle = model.PostTitle;
-                post.ImagePath = uploadedFilePath;
+                post.ImagePath = "/"+ uploadedFilePath;
+                post.ImageFullPath = absoluteFilePath;
                 post.EnableComment = model.EnableComments;
                 post.PostDetailsRaw = model.PostDetailsRaw;
                 post.PostId = model.PostId.Value;
@@ -254,10 +274,15 @@ namespace IntranetPortal.Areas.ContentManager.Controllers
                 }
                 else
                 {
-                    FileInfo file = new FileInfo( Path.Combine(_webHostEnvironment.WebRootPath, model.ImagePath));
+                    FileInfo file = new FileInfo(absoluteFilePath);
                     if (file.Exists)
                     {
-                        file.Delete();
+                        if (!file.IsFileOpen())
+                        {
+                            await Task.Run(() => {
+                                file.Delete();
+                            });
+                        }
                     }
                     model.ViewModelErrorMessage = "Sorry, an error was encountered. Post Could not be added. Please try again.";
                 }
@@ -324,8 +349,6 @@ namespace IntranetPortal.Areas.ContentManager.Controllers
             }
             return View(model);
         }
-
-
 
         #region Helper Controller Action Methods
         public string DeletePost(int id)

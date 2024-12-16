@@ -6,7 +6,7 @@ namespace IntranetPortal.Base.Models.ContentManagerModels
 {
     public class PostDetail
     {
-        public int PostId { get; set; }
+        public long PostId { get; set; }
         public string CodedPostId { get; set; }
         public string PostTitle { get; set; }
         public string PostDetailsHtml { get; set; }

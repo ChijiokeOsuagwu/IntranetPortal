@@ -8,7 +8,7 @@
     <!-- ============================================================== -->
     <!-- Cards  -->
     <!-- ============================================================== -->
-    <h4 class="fw-bold">Employees Management</h4>
+    <h4 class="fw-bold">Employees Records Management</h4>
     <hr />
     <div class="row">
         <!-- Column -->
@@ -22,6 +22,7 @@
                 </div>
             </a>
         </div>
+        <!-- Column -->
         <div class="col-md-6 col-lg-2 col-xlg-3">
             <a asp-area="ERM" asp-controller="Employees" asp-action="Search">
                 <div class="card card-hover">
@@ -34,11 +35,22 @@
         </div>
         <!-- Column -->
         <div class="col-md-6 col-lg-2 col-xlg-3">
-            <a asp-area="ERM" asp-controller="Employees" asp-action="List">
+            <a asp-area="ERM" asp-controller="Home" asp-action="ActiveList">
                 <div class="card card-hover">
                     <div class="box bg-light text-center">
-                        <h1 class="font-light text-dark" style="font-size:3em"><i class="bi bi-file-person"></i></h1>
+                        <h1 class="font-light text-dark" style="font-size:3em"><i class="bi bi-people"></i></h1>
                         <h6 class="text-dark">Register</h6>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <!-- Column -->
+        <div class="col-md-6 col-lg-2 col-xlg-3">
+            <a asp-area="ERM" asp-controller="Employees" asp-action="Create">
+                <div class="card card-hover">
+                    <div class="box bg-light text-center">
+                        <h1 class="font-light text-dark" style="font-size:3em"><i class="bi bi-person-plus"></i></h1>
+                        <h6 class="text-dark">Add New</h6>
                     </div>
                 </div>
             </a>
@@ -56,22 +68,22 @@
         </div>
         <!-- Column -->
         <div class="col-md-6 col-lg-2 col-xlg-3">
-            <a asp-area="ERM" asp-controller="Employees" asp-action="Create">
+            <a asp-area="ERM" asp-controller="Home" asp-action="Separation">
                 <div class="card card-hover">
                     <div class="box bg-light text-center">
-                        <h1 class="font-light text-dark" style="font-size:3em"><i class="bi bi-person-plus"></i></h1>
-                        <h6 class="text-dark">New Employee</h6>
+                        <h1 class="font-light text-dark" style="font-size:3em"><i class="bi bi-person-dash"></i></h1>
+                        <h6 class="text-dark">Exits</h6>
                     </div>
                 </div>
             </a>
         </div>
         <!-- Column -->
         <div class="col-md-6 col-lg-2 col-xlg-3">
-            <a asp-area="ERM" asp-controller="Home" asp-action="Separation">
+            <a asp-area="ERM" asp-controller="Home" asp-action="Reports">
                 <div class="card card-hover">
                     <div class="box bg-light text-center">
-                        <h1 class="font-light text-dark" style="font-size:3em"><i class="bi bi-person-x"></i></h1>
-                        <h6 class="text-dark">Employee Exits</h6>
+                        <h1 class="font-light text-dark" style="font-size:3em"><i class="bi bi-file-earmark-bar-graph"></i></h1>
+                        <h6 class="text-dark">Reports</h6>
                     </div>
                 </div>
             </a>

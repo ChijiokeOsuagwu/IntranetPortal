@@ -146,6 +146,7 @@ namespace IntranetPortal.Base.Services
         #endregion
 
         #region Review CDG Service Methods
+        Task<List<ReviewCDG>> SearchReviewCdgsAsync(int reviewSessionId, int? locationId = null, int? departmentId = null, int? unitId = null, string employeeName = "");
         Task<List<ReviewCDG>> GetReviewCdgsAsync(int reviewHeaderId);
         Task<ReviewCDG> GetReviewCdgAsync(int reviewCdgId);
         Task<bool> AddReviewCdgAsync(ReviewCDG reviewCdg);
@@ -196,6 +197,7 @@ namespace IntranetPortal.Base.Services
 
         #region Review Result Service Methods
         //===================== Review Result Read Service Methods =========================================//
+        Task<List<EvaluationHeader>> GetEvaluationHeadersAsync(int reviewHeaderId);
         Task<int> GetEvaluatedMetricCountAsync(int reviewHeaderId, string appraiserId, ReviewMetricType reviewMetricType);
         Task<List<ReviewResult>> GetInitialReviewResultKpasAsync(int reviewHeaderId, string appraiserId);
         Task<List<ReviewResult>> GetInitialReviewResultAsync(int reviewHeaderId, string appraiserId, int reviewMetricId);

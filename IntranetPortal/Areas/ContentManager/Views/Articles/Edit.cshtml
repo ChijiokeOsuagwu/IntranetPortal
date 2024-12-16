@@ -32,7 +32,7 @@
             </div>
         }
         <div class="pb-3">
-            <img class="card-img-top" src="/@Model.ImagePath" alt="Article Image" />
+            <img class="card-img-top" src="@Model.ImagePath" alt="Article Image" />
         </div>
         <form enctype="multipart/form-data" asp-area="ContentManager" asp-controller="Articles" asp-action="Edit" method="post">
             <input id="Id" name="Id" value="@Model.Id" type="hidden" />
@@ -64,7 +64,7 @@
                 <div class="col-md-6">
                     <div class="form-check">
                         <input asp-for="IsHidden" class="form-check-input">
-                        <label class="form-check-label fw-bold">Hide Banner</label>
+                        <label class="form-check-label fw-bold">Hide this Article</label>
                     </div>
                 </div>
             </div>

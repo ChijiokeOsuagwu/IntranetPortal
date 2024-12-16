@@ -1,0 +1,76 @@
+﻿@model IntranetPortal.Areas.ContentManager.Models.PostMediaListViewModel
+@{
+    ViewData["Title"] = "OfficeManager | Media Gallery";
+}
+    <div class="container">
+        <a asp-area="" asp-controller="Home" asp-action="AlbumList" class="mr-2 ml-2" title="Click to Go Back">
+            <i class="bi bi-skip-backward-fill" style="color:black; font-size:1.6rem; font-weight:bold"></i>
+        </a>
+        <span class="fw-bold" style="font-size:1.2rem">@Model.MasterPost.PostTitle</span>
+        <hr />
+        <div class="mb-1">
+
+            @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bi bi-x-circle"></i>
+                    <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            @if (!String.IsNullOrEmpty(Model.ViewModelSuccessMessage))
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="bi bi-check-circle"></i>
+                    <span class="fw-bold">@Model.ViewModelSuccessMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+        </div>
+        @if (Model == null || Model.MediaList.Count < 1)
+        {
+            <div class="alert alert-info fade show" role="alert">
+                <i class="bi bi-info-circle"></i>
+                <span class="fw-bold">No record was found.</span>
+            </div>
+        }
+        else
+        {
+            <div class="row">
+                @foreach (var media in Model.MediaList)
+                {
+                    if (media.MediaType == IntranetPortal.Base.Enums.MediaType.Image)
+                    {
+                        <div class="col-lg-3 col-sm-6">
+                            <div class="card h-100">
+                                <a asp-area="" asp-controller="Home" asp-action="FullScreen" asp-route-id="@media.PostMediaId" title="See in Full Screen">
+                                    <img class="card-img-top" src="@media.MediaLocationPath" alt="Gallery Image" width="300" height="200" />
+                                </a>
+                                <div class="card-body">
+                                    <span class="card-title fw-bold">
+                                        @media.Caption
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                    else if (media.MediaType == IntranetPortal.Base.Enums.MediaType.Video)
+                    {
+                        <div class="col-lg-3 col-sm-6 mb-2">
+                            <div class="card h-100">
+                                <video width="300" height="200" controls>
+                                    <source src="@media.MediaLocationPath" type="video/mp4">
+                                    Your browser does not have support for video tag.
+                                </video>
+                                <div class="card-body">
+                                    <span class="card-title fw-bold">
+                                        @media.Caption
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                }
+            </div>
+        }
+    </div>

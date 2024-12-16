@@ -1,0 +1,95 @@
+﻿@model IntranetPortal.Areas.LMS.Models.HolidaysListViewModel
+<div class="container">
+    <h3 class="mb-1">Holiday Settings</h3>
+    <hr />
+    <div class="mb-1">
+        <div class="mb-2">
+            <form asp-area="LMS" asp-controller="Settings" asp-action="Holidays" method="get">
+                <a asp-area="LMS" asp-controller="Settings" asp-action="Index" class="btn btn-dark" style="width:100px; margin-right:10em;" title="Exit">
+                    <span class="text-white">Back</span>
+                </a>
+                <input asp-for="yr" class="border-0" style="width:100px" min="2020"/>
+                <input type="submit" value="Search" class="btn btn-dark text-white" style="width:150px; margin-right:10em;" />
+                <a asp-area="LMS" asp-controller="Settings" asp-action="NewHoliday" asp-route-id="0" class="btn btn-success" style="width:150px" title="Add New Holiday">
+                    <span class="text-white">New Holiday</span>
+                </a>
+            </form>
+
+            @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bi bi-x-circle"></i>
+                    <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+        </div>
+        <div class="row">
+            @if (Model == null || Model.HolidayList == null || Model.HolidayList.Count < 1)
+            {
+                <div class="alert alert-info fade show" role="alert">
+                    <i class="bi bi-info-circle"></i>
+                    <span class="fw-bold">No record was found.</span>
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-sm table-hover">
+                        <thead class="table-dark">
+                            <tr>
+                                <th><span class="text-white fw-bolder">Name</span></th>
+                                <th>
+                                    <span class="text-white fw-bolder">Type</span>
+                                </th>
+                                <th>
+                                    <span class="text-white fw-bolder">Start Date</span>
+                                </th>
+                                <th>
+                                    <span class="text-white fw-bolder">End Date</span>
+                                </th>
+                                <th>
+                                    <span class="text-white fw-bolder">No. of Days</span>
+                                </th>
+                                <th>
+
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody class="table-light">
+                            @foreach (var item in Model.HolidayList)
+                            {
+                            <tr>
+                                <td class="p-2">
+                                    <span class="fw-bolder">@item.Name</span>
+                                </td>
+                                <td class="p-2">
+                                    <span class="fw-bolder">@item.Type</span>
+                                </td>
+                                <td class="p-2">
+                                    <span class="fw-bolder">@item.StartDate.ToLongDateString()</span>
+                                </td>
+                                <td class="p-2">
+                                    <span class="fw-bolder">@item.EndDate.ToLongDateString()</span>
+                                </td>
+                                <td class="p-2">
+                                    <span class="fw-bolder">@item.NoOfDays</span>
+                                </td>
+                                <td class="text-end">
+                                    <a asp-area="LMS" asp-controller="Settings" asp-action="EditHoliday" asp-route-id="@item.Id" title="Edit" class="btn btn-sm btn-info" style="width:100px">
+                                        <span class="text-white fw-bold">Edit</span>
+                                    </a>
+                                    <a asp-area="LMS" asp-controller="Settings" asp-action="DeleteHoliday" asp-route-id="@item.Id" title="Delete" class="btn btn-sm btn-danger" style="width:100px">
+                                        <span class="text-white fw-bold">Delete</span>
+                                    </a>
+                                </td>
+                            </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+
+        </div>
+    </div>
+</div>

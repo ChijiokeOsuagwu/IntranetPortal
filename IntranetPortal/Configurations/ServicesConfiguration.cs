@@ -7,6 +7,7 @@ using IntranetPortal.Base.Repositories.ContentManagerRepositories;
 using IntranetPortal.Base.Repositories.ErmRepositories;
 //using IntranetPortal.Base.Repositories.ErmRepository;
 using IntranetPortal.Base.Repositories.GlobalSettingsRepositories;
+using IntranetPortal.Base.Repositories.LmsRepositories;
 using IntranetPortal.Base.Repositories.PmsRepositories;
 using IntranetPortal.Base.Repositories.SecurityRepositories;
 using IntranetPortal.Base.Repositories.WksRepositories;
@@ -19,6 +20,7 @@ using IntranetPortal.Data.Repositories.ClmRepositories;
 using IntranetPortal.Data.Repositories.ContentManagerRepositories;
 using IntranetPortal.Data.Repositories.ErmRepositories;
 using IntranetPortal.Data.Repositories.GlobalSettingsRepositories;
+using IntranetPortal.Data.Repositories.LmsRepositories;
 using IntranetPortal.Data.Repositories.PmsRepositories;
 using IntranetPortal.Data.Repositories.SecurityRepositories;
 using IntranetPortal.Data.Repositories.WksRepositories;
@@ -34,7 +36,7 @@ namespace IntranetPortal.Configurations
     {
         public static void ConfigureRepositories(this IServiceCollection services)
         {
-            services.AddScoped<IPostRepository, PostRepository>();
+            //======== User Administration Repositories =============//
             services.AddScoped<IPersonRepository, PersonRepository>();
             services.AddScoped<IUtilityRepository, UtilityRepository>();
             services.AddScoped<IUserRepository, UserRepository>();
@@ -42,6 +44,10 @@ namespace IntranetPortal.Configurations
             services.AddScoped<IEmployeeUserRepository, EmployeeUserRepository>();
             services.AddScoped<IUserPermissionRepository, UserPermissionRepository>();
             services.AddScoped<IEntityPermissionRepository, EntityPermissionRepository>();
+
+            //======= Content Management Repositories ===============//
+            services.AddScoped<IPostRepository, PostRepository>();
+            services.AddScoped<IPostMediaRepository, PostMediaRepository>();
 
             //======= Global Settings Repositories ===================//
             services.AddScoped<ICurrencyRepository, CurrencyRepository>();
@@ -51,11 +57,13 @@ namespace IntranetPortal.Configurations
             services.AddScoped<IUnitRepository, UnitRepository>();
             services.AddScoped<ICompanyRepository, CompanyRepository>();
             services.AddScoped<ILocationPermissionRepository, LocationPermissionRepository>();
+            services.AddScoped<IPublicHolidayRepository, PublicHolidayRepository>();
 
             //======= Employee Records Management Repositories ========//
             services.AddScoped<IEmployeesRepository, EmployeesRepository>();
             services.AddScoped<IEmployeeSeparationRepository, EmployeeSeparationRepository>();
             services.AddScoped<IEmployeeSeparationOutstandingRepository, EmployeeSeparationOutstandingRepository>();
+            services.AddScoped<IEmployeeOptionsRepository, EmployeeOptionsRepository>();
 
             //======== Asset Management System Repositories ===========//
             services.AddScoped<IAssetRepository, AssetRepository>();
@@ -120,6 +128,12 @@ namespace IntranetPortal.Configurations
             services.AddScoped<ISubjectAreaRepository, SubjectAreaRepository>();
             services.AddScoped<ICourseRepository, CourseRepository>();
             services.AddScoped<ICourseContentRepository, CourseContentRepository>();
+
+            //====== Leave Management Repositories ============//
+            services.AddScoped<ILeaveTypesRepository, LeaveTypesRepository>();
+            services.AddScoped<ILeaveProfileRepository, LeaveProfileRepository>();
+            services.AddScoped<ILeaveProfileDetailRepository, LeaveProfileDetailRepository>();
+            services.AddScoped<IEmployeeLeaveRepository, EmployeeLeaveRepository>();
         }
 
         public static void ConfigureServiceManagers(this IServiceCollection services)
@@ -135,6 +149,7 @@ namespace IntranetPortal.Configurations
             services.AddScoped<IWorkspaceService, WorkspaceService>();
             services.AddScoped<IPerformanceService, PerformanceService>();
             services.AddScoped<IClmService, ClmService>();
+            services.AddScoped<ILmsService, LmsService>();
         }
 
     }

@@ -347,6 +347,61 @@ namespace IntranetPortal.Areas.PMS.Controllers
             return View(model);
         }
 
+        [Authorize(Roles = "PMSSTTMGA, XYALLACCZ")]
+        public async Task<IActionResult> CareerDevelopmentGoals(int id, int? ld = null, int? ud = null, string nm = null)
+        {
+            ReviewCdgReportViewModel model = new ReviewCdgReportViewModel();
+            model.ReviewCDGList = new List<ReviewCDG>();
+            model.id = id;
+            model.ld = ld ?? 0;
+            model.nm = nm;
+            model.ud = ud ?? 0;
+
+            model.ReviewCDGList = new List<ReviewCDG>();
+            try
+            {
+                if (id > 0)
+                {
+                    var entities = await _performanceService.SearchReviewCdgsAsync(id, ld, null, ud, nm);
+                    if (entities != null && entities.Count > 0)
+                    {
+                        model.ReviewCDGList = entities;
+                        model.RecordCount = entities.Count;
+                        model.ReviewSessionDescription = entities.FirstOrDefault().ReviewSessionName;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                model.ViewModelErrorMessage = ex.Message;
+            }
+
+            var sessions_entities = await _performanceService.GetReviewSessionsAsync();
+            if (sessions_entities != null && sessions_entities.Count > 0)
+            {
+                ViewBag.SessionsList = new SelectList(sessions_entities, "Id", "Name", id);
+            }
+
+            var loc_entities = await _globalSettingsService.GetAllLocationsAsync();
+            if (loc_entities != null && loc_entities.Count > 0)
+            {
+                ViewBag.LocationList = new SelectList(loc_entities, "LocationID", "LocationName", ld);
+            }
+
+            var unit_entities = await _globalSettingsService.GetUnitsAsync();
+            if (unit_entities != null && unit_entities.Count > 0)
+            {
+                ViewBag.UnitList = new SelectList(unit_entities, "UnitID", "UnitName", ud);
+            }
+
+            if (TempData["ErrorMessage"] != null)
+            {
+                model.ViewModelErrorMessage = TempData["ErrorMessage"].ToString();
+            }
+
+            return View(model);
+        }
+
         #endregion
 
         #region Download Action Methods
@@ -406,7 +461,6 @@ namespace IntranetPortal.Areas.PMS.Controllers
             return GenerateProgressStatusReportExcel(fileName, ReviewHeaderList);
         }
 
-
         public async Task<FileResult> DownloadAppraisalNonParticipantsReport(int id, int? ld = null, int? ud = null)
         {
             List<Employee> EmployeesList = new List<Employee>();
@@ -433,6 +487,32 @@ namespace IntranetPortal.Areas.PMS.Controllers
             return GenerateAppraisalNonParticipantsReportExcel(fileName, EmployeesList);
         }
 
+        public async Task<FileResult> DownloadCareerDevelopmentGoalsReport(int id, int? ld = null, int? ud = null, string nm = null)
+        {
+            List<ReviewCDG> ReviewCDGList = new List<ReviewCDG>();
+            string ReviewSessionDescription = string.Empty;
+            int RecordCount = 0;
+            string fileName = string.Empty;
+            try
+            {
+                if (id > 0)
+                {
+                    var entities = await _performanceService.SearchReviewCdgsAsync(id, ld, null, ud, nm);
+                    if (entities != null && entities.Count > 0)
+                    {
+                        ReviewCDGList = entities;
+                        RecordCount = entities.Count;
+                        ReviewSessionDescription = entities.FirstOrDefault().ReviewSessionName;
+                        fileName = $"Career Development Goals Report {DateTime.UtcNow.ToString("yyyyMMddHHmmssfff")}.xlsx";
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+            return GenerateCareerDevelopmentGoalsReportExcel(fileName, ReviewCDGList);
+        }
 
         #endregion
 
@@ -875,6 +955,43 @@ new DataColumn("ManagementComments"),
                     result.PrimaryAppraiserName,
                     result.PrimaryAppraiserDesignation,
                     result.ReviewStageDescription
+                  );
+            }
+
+            using (XLWorkbook workbook = new XLWorkbook())
+            {
+                workbook.Worksheets.Add(dataTable);
+                using (MemoryStream stream = new MemoryStream())
+                {
+                    workbook.SaveAs(stream);
+                    return File(stream.ToArray(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
+                }
+            }
+        }
+
+        private FileResult GenerateCareerDevelopmentGoalsReportExcel(string fileName, IEnumerable<ReviewCDG> records)
+        {
+            DataTable dataTable = new DataTable("records");
+            int RowNumber = 0;
+            int RecordCount = records.ToList().Count;
+            dataTable.Columns.AddRange(new DataColumn[]
+            {
+                new DataColumn(RecordCount.ToString()),
+                new DataColumn("Name"),
+                new DataColumn("Description"),
+                new DataColumn("Objective"),
+                new DataColumn("Action Plan"),
+            });
+
+            foreach (var result in records)
+            {
+                RowNumber++;
+                dataTable.Rows.Add(
+                    RowNumber.ToString(),
+                    result.AppraiseeName,
+                    result.ReviewCdgDescription,
+                    result.ReviewCdgObjective,
+                    result.ReviewCdgActionPlan
                   );
             }
 

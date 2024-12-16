@@ -1,0 +1,96 @@
+﻿
+@model IntranetPortal.Areas.LMS.Models.LeaveProfileDetailViewModel
+<h3 class="mb-1">@Model.ProfileName Options</h3>
+<hr />
+<div class="card mt-1" style="max-width:1000px">
+    <div class="card-header bg-dark">
+        <h4 class="text-white">View Profile Option</h4>
+    </div>
+    <div class="card-body bg-secondary">
+        @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-x-circle"></i>
+                <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (!String.IsNullOrEmpty(Model.ViewModelSuccessMessage))
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="bi bi-check-circle"></i>
+                <span class="fw-bold">@Model.ViewModelSuccessMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (!String.IsNullOrEmpty(Model.ViewModelWarningMessage))
+        {
+            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                <i class="bi bi-exclamation-circle"></i>
+                <span class="fw-bold">@Model.ViewModelWarningMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        <form asp-area="LMS" asp-controller="Settings" asp-action="ViewProfileDetail" method="post" autocomplete="off">
+            <div class="row">
+                <div class="col-md-5 mb-3">
+                    <input type="hidden" asp-for="Id">
+                    <input type="hidden" asp-for="ProfileId">
+                    <label asp-for="ProfileName" class="form-label text-white fw-bold"></label>
+                    <input asp-for="ProfileName" class="form-control fw-bold" readonly>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label asp-for="LeaveTypeName" class="form-label text-white fw-bold"></label>
+                    <div class="form-control fw-bold">@Model.LeaveTypeName</div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label asp-for="Duration" class="form-label text-white fw-bold"></label>
+                    <div class="form-control fw-bold">@Model.Duration @Model.DurationTypeDescription</div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3 mb-3" style="padding-top:10px">
+                        @if (Model.IsYearly)
+                        {
+                            <i class="bi bi-check-square" style="font-size:1.2rem; margin-right:5px; color:white; font-weight:bold"></i><span class="text-white fw-bold">Is yearly renewable</span>
+                        }
+                        else
+                        {
+                            <i class="bi bi-x-square" style="font-size:1.2rem; margin-right:5px; color:white; font-weight:bold"></i><span class="text-white fw-bold">Is yearly renewable</span>
+                        }
+                    </div>
+                    <div class="col-md-3 mb-3" style="padding-top:10px">
+                        @if (Model.CanBeMonetized)
+                        {
+                            <i class="bi bi-check-square" style="font-size:1.2rem; margin-right:5px; color:white; font-weight:bold"></i><span class="text-white fw-bold">Can be monetized.</span>
+                        }
+                        else
+                        {
+                            <i class="bi bi-x-square" style="font-size:1.2rem; margin-right:5px; color:white; font-weight:bold"></i><span class="text-white fw-bold">Can be monetized.</span>
+                        }
+                    </div>
+                    <div class="col-md-3 mb-3" style="padding-top:10px">
+                        @if (Model.CanBeCarriedOver)
+                        {
+                            <i class="bi bi-check-square" style="font-size:1.2rem; margin-right:5px; color:white; font-weight:bold"></i><span class="text-white fw-bold">Can be carried forward.</span>
+                        }
+                        else
+                        {
+                            <i class="bi bi-x-square" style="font-size:1.2rem; margin-right:5px; color:white; font-weight:bold"></i><span class="text-white fw-bold">Can be carried forward.</span>
+                        }
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label asp-for="CarryOverEndMonthName" class="form-label text-white fw-bold"></label>
+                        <div class="form-control fw-bold">@Model.CarryOverEndMonthName</div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12 text-end">
+                        <a asp-area="LMS" asp-controller="Settings" asp-action="LeaveProfileDetails" asp-route-id="@Model.ProfileId" asp-route-nm="@Model.ProfileName" class="btn btn-dark" style="width:100px" title="Exit">
+                            <span class="text-white">Exit</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

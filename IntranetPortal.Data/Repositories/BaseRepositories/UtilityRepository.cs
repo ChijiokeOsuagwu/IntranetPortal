@@ -6,7 +6,6 @@ using Npgsql;
 using NpgsqlTypes;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -20,7 +19,7 @@ namespace IntranetPortal.Data.Repositories.BaseRepositories
             _config = configuration;
         }
 
-        //=============== Database Connectivity Test Action Method  ===============================//
+        //========== Database Connectivity Action Method  ======//
         #region Database Connectivity Test Action Methods
         public async Task<bool> CheckDatabaseConnectionAsync()
         {
@@ -42,7 +41,7 @@ namespace IntranetPortal.Data.Repositories.BaseRepositories
 
         #endregion
 
-        //=============== Auto Number Action Methods ============================================//
+        //=============== Auto Number Action Methods ===========//
         #region Auto Number Action Methods
         public async Task<string> GetAutoNumberAsync(string numberType)
         {
@@ -107,31 +106,24 @@ namespace IntranetPortal.Data.Repositories.BaseRepositories
             sb.Append("SELECT COUNT(cdn_rgr_id) FROM public.gst_cdn_rgr ");
             sb.Append("WHERE(cdn_typ = @cdn_typ AND dd = @dd AND mm = @mm AND yy = @yy);");
             string query = sb.ToString();
-            try
+
+            await conn.OpenAsync();
+            // Retrieve all rows
+            using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
             {
-                await conn.OpenAsync();
-                // Retrieve all rows
-                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
-                {
-                    var cdn_typ = cmd.Parameters.Add("@cdn_typ", NpgsqlDbType.Integer);
-                    var dd = cmd.Parameters.Add("@dd", NpgsqlDbType.Integer);
-                    var mm = cmd.Parameters.Add("@mm", NpgsqlDbType.Integer);
-                    var yy = cmd.Parameters.Add("@yy", NpgsqlDbType.Integer);
-                    await cmd.PrepareAsync();
-                    cdn_typ.Value = Convert.ToInt64(type);
-                    dd.Value = day;
-                    mm.Value = month;
-                    yy.Value = year;
-                    var result = await cmd.ExecuteScalarAsync();
-                    recordCount = Convert.ToInt32(result);
-                }
-                await conn.CloseAsync();
+                var cdn_typ = cmd.Parameters.Add("@cdn_typ", NpgsqlDbType.Integer);
+                var dd = cmd.Parameters.Add("@dd", NpgsqlDbType.Integer);
+                var mm = cmd.Parameters.Add("@mm", NpgsqlDbType.Integer);
+                var yy = cmd.Parameters.Add("@yy", NpgsqlDbType.Integer);
+                await cmd.PrepareAsync();
+                cdn_typ.Value = Convert.ToInt64(type);
+                dd.Value = day;
+                mm.Value = month;
+                yy.Value = year;
+                var result = await cmd.ExecuteScalarAsync();
+                recordCount = Convert.ToInt32(result);
             }
-            catch (Exception ex)
-            {
-                await conn.CloseAsync();
-                throw new Exception(ex.Message);
-            }
+            await conn.CloseAsync();
             return recordCount;
         }
 
@@ -175,7 +167,7 @@ namespace IntranetPortal.Data.Repositories.BaseRepositories
 
         #endregion
 
-        //=============== Messages Action Methods ================================================//
+        //=============== Messages Action Methods ==============//
         #region Messages Action Methods
         public async Task<List<Message>> GetMessagesByReceipientIdAsync(string recipientId)
         {
@@ -367,7 +359,7 @@ namespace IntranetPortal.Data.Repositories.BaseRepositories
             {
                 throw new Exception(ex.Message);
             }
-            finally { await conn.CloseAsync();}
+            finally { await conn.CloseAsync(); }
             return rows > 0;
         }
 
@@ -406,7 +398,7 @@ namespace IntranetPortal.Data.Repositories.BaseRepositories
             {
                 throw new Exception(ex.Message);
             }
-            finally {await conn.CloseAsync(); }
+            finally { await conn.CloseAsync(); }
             return rows > 0;
         }
 
@@ -450,7 +442,7 @@ namespace IntranetPortal.Data.Repositories.BaseRepositories
 
             sb.Append("DELETE FROM public.gst_msgrs ");
             sb.Append("WHERE (rcpt_id = @rcpt_id) AND (is_rd = true);");
-   
+
             string query = sb.ToString();
             try
             {
@@ -468,7 +460,7 @@ namespace IntranetPortal.Data.Repositories.BaseRepositories
             {
                 throw new Exception(ex.Message);
             }
-            finally { await conn.CloseAsync();}
+            finally { await conn.CloseAsync(); }
 
             return rows > 0;
         }
@@ -539,7 +531,7 @@ namespace IntranetPortal.Data.Repositories.BaseRepositories
 
         #endregion
 
-        //=============== Activity History Action methods ====================//
+        //========= Activity History Action methods ============//
         #region Activity History Action Methods
         public async Task<bool> InsertActivityHistoryAsync(ActivityHistory activityHistory)
         {
@@ -584,7 +576,7 @@ namespace IntranetPortal.Data.Repositories.BaseRepositories
         }
         #endregion
 
-        //=============== Entity Activity History Action methods =============//
+        //======== Entity Activity History Action methods =====//
         #region Entity Activity History Action Methods
         public async Task<bool> InsertTaskItemActivityHistoryAsync(TaskItemActivityHistory taskItemActivityHistory)
         {
@@ -684,7 +676,7 @@ namespace IntranetPortal.Data.Repositories.BaseRepositories
 
         #endregion
 
-        //=============== Applications Action Methods ========================//
+        //======== Applications Action Methods ================//
         #region Applications Action Methods
         public async Task<List<SystemApplication>> GetApplicationsAsync()
         {
@@ -722,7 +714,7 @@ namespace IntranetPortal.Data.Repositories.BaseRepositories
         }
         #endregion
 
-        //=============== Industry Types Action Methods =======================//
+        //======= Industry Types Action Methods ===============//
         #region Industry Types Action Methods
         public async Task<List<IndustryType>> GetIndustryTypesAsync()
         {

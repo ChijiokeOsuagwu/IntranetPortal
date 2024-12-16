@@ -13,6 +13,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.DataProtection;
 using IntranetPortal.Configurations;
 using Microsoft.AspNetCore.Authorization;
+using IntranetPortal.Helpers;
 
 namespace IntranetPortal.Areas.ContentManager.Controllers
 {
@@ -109,7 +110,13 @@ namespace IntranetPortal.Areas.ContentManager.Controllers
                         FileInfo file = new FileInfo(absoluteFilePath);
                         if (file.Exists)
                         {
-                            file.Delete();
+                            if (!file.IsFileOpen())
+                            {
+                                await Task.Run(() =>
+                                {
+                                    file.Delete();
+                                });
+                            }
                         }
                         model.ViewModelErrorMessage = $"Error! An error was encountered. New banner could not be added.";
                     }
@@ -121,7 +128,7 @@ namespace IntranetPortal.Areas.ContentManager.Controllers
         [Authorize(Roles = "PCMMGACNT, XYALLACCZ")]
         public async Task<IActionResult> Delete(string id)
         {
-            int PostId = Convert.ToInt32(_dataProtector.Unprotect(id));
+            long PostId = Convert.ToInt32(_dataProtector.Unprotect(id));
             BannerDeleteViewModel model = new BannerDeleteViewModel();
             var banner = await _contentManager.GetPostByIdAsync(PostId);
             model.Id = banner.PostId;
@@ -135,37 +142,57 @@ namespace IntranetPortal.Areas.ContentManager.Controllers
         [Authorize(Roles = "PCMMGACNT, XYALLACCZ")]
         public async Task<IActionResult> Delete(BannerDeleteViewModel model)
         {
+            string fileFullPath = "";
             if (model == null || model.Id < 1)
             {
-                model.ViewModelErrorMessage = $"Error! Sorry, an error was encountered. New banner could not be deleted.";
+                model.ViewModelErrorMessage = $"Banner could not be deleted because a key parameter is missing.";
                 return View(model);
             }
-
-            Post post = await _contentManager.GetPostByIdAsync(model.Id);
-            if (post != null && !string.IsNullOrWhiteSpace(post.ImageFullPath))
+            try
             {
-                FileInfo file = new FileInfo(post.ImageFullPath);
-
-                if (file.Exists)
+                Post post = await _contentManager.GetPostByIdAsync(model.Id);
+                if (post != null)
                 {
-                    file.Delete();
+                    fileFullPath = post.ImageFullPath;
+                    var result = await _contentManager.DeletePostAsync(model.Id);
+                    if (!result)
+                    {
+                        model.ViewModelErrorMessage = "Sorry, an error was encountered. Banner could not be deleted.";
+                        return View(model);
+                    }
+                    else
+                    {
+                        if (!string.IsNullOrWhiteSpace(fileFullPath))
+                        {
+                            FileInfo file = new FileInfo(fileFullPath);
+                            if (file.Exists)
+                            {
+                                if (!file.IsFileOpen())
+                                {
+                                    await Task.Run(() =>
+                                    {
+                                        file.Delete();
+                                    });
+                                }
+                            }
+                        }
+
+                        TempData["DeleteSuccessMessage"] = "The Banner was successfully deleted!";
+                        return RedirectToAction("List", "Banners");
+                    }
                 }
             }
-
-            var result = await _contentManager.DeletePostAsync(model.Id);
-            if (!result)
+            catch (Exception ex)
             {
-                model.ViewModelErrorMessage = $"Error! Sorry, an error was encountered. Banner could not be deleted.";
-                return View(model);
+                model.ViewModelErrorMessage = ex.Message;
             }
-            TempData["DeleteSuccessMessage"] = "The Banner was successfully deleted!";
-            return RedirectToAction("List", "Banners");
+            return View(model);
         }
 
         [Authorize(Roles = "PCMMGACNT, XYALLACCZ")]
         public async Task<IActionResult> Edit(string id)
         {
-            int PostId = 0;
+            long PostId = 0;
             if (!string.IsNullOrEmpty(id)) { PostId = Convert.ToInt32(_dataProtector.Unprotect(id)); }
             BannerEditViewModel model = new BannerEditViewModel();
             var banner = await _contentManager.GetPostByIdAsync(PostId);
@@ -217,7 +244,12 @@ namespace IntranetPortal.Areas.ContentManager.Controllers
                     FileInfo oldFile = new FileInfo(oldAbsoluteFilePath);
                     if (oldFile.Exists)
                     {
-                        oldFile.Delete();
+                        if (!oldFile.IsFileOpen())
+                        {
+                            await Task.Run(() => {
+                                oldFile.Delete();
+                            });
+                        }
                     }
                 }
 
@@ -234,16 +266,21 @@ namespace IntranetPortal.Areas.ContentManager.Controllers
 
                 if (await _contentManager.UpdatePostAsync(post))
                 {
-                    model.ViewModelSuccessMessage = $"Congratulations! Banner was updated successfully.";
+                    model.ViewModelSuccessMessage = "Congratulations! Banner was updated successfully.";
                 }
                 else
                 {
                     FileInfo file = new FileInfo(newAbsoluteFilePath);
                     if (file.Exists)
                     {
-                        file.Delete();
+                        if (!file.IsFileOpen())
+                        {
+                            await Task.Run(() => {
+                                file.Delete();
+                            });
+                        }
                     }
-                    model.ViewModelErrorMessage = $"Error! An error was encountered. New banner could not be added.";
+                    model.ViewModelErrorMessage = "An error was encountered. Banner could not be updated.";
                 }
             }
             return View(model);

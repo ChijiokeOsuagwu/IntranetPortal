@@ -1,0 +1,116 @@
+﻿
+@model IntranetPortal.Areas.LMS.Models.LeaveProfileDetailViewModel
+    <h3 class="mb-1">@Model.ProfileName Options</h3>
+<hr />
+<div class="card mt-1" style="max-width:1000px">
+    <div class="card-header bg-success">
+        <h4 class="text-white">New Option</h4>
+    </div>
+    <div class="card-body bg-secondary">
+        @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-x-circle"></i>
+                <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (!String.IsNullOrEmpty(Model.ViewModelSuccessMessage))
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="bi bi-check-circle"></i>
+                <span class="fw-bold">@Model.ViewModelSuccessMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (!String.IsNullOrEmpty(Model.ViewModelWarningMessage))
+        {
+            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                <i class="bi bi-exclamation-circle"></i>
+                <span class="fw-bold">@Model.ViewModelWarningMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+    <form asp-area="LMS" asp-controller="Settings" asp-action="NewProfileDetail" method="post" autocomplete="off">
+        <div class="row">
+            <div class="col-md-5 mb-3">
+                <input type="hidden" asp-for="Id">
+                <input type="hidden" asp-for="ProfileId">
+                <label asp-for="ProfileName" class="form-label text-white fw-bold"></label>
+                <input asp-for="ProfileName" class="form-control" readonly>
+            </div>
+            <div class="col-md-3 mb-3">
+                <label asp-for="LeaveTypeCode" class="form-label text-white fw-bold"></label>
+                <select asp-for="LeaveTypeCode" class="form-control" asp-items="@ViewBag.LeaveTypeCodeList" autofocus>
+                    <option value="">Select</option>
+                </select>
+                <div><span asp-validation-for="LeaveTypeCode" class="text-danger"></span></div>
+            </div>
+            <div class="col-md-2 mb-3">
+                <label asp-for="Duration" class="form-label text-white fw-bold"></label>
+                <input asp-for="Duration" class="form-control" min="0">
+                <div><span asp-validation-for="Duration" class="text-danger"></span></div>
+            </div>
+            <div class="col-md-2 mb-3">
+                <label asp-for="DurationTypeId" class="form-label text-white fw-bold"></label>
+                <select asp-for="DurationTypeId" class="form-control">
+                    <option value="">Select</option>
+                    <option value="0">Working Day(s)</option>
+                    <option value="1">Day(s)</option>
+                    <option value="2">Week(s)</option>
+                    <option value="3">Month(s)</option>
+                    <option value="4">Year(s)</option>
+                </select>
+                <div><span asp-validation-for="DurationTypeId" class="text-danger"></span></div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-3 mb-3" style="padding-top:10px">
+                <input asp-for="IsYearly" type="checkbox" style="width:15px; height:15px; margin-right:5px" /><span class="text-white fw-bold">Is yearly renewable</span>
+                <div><span asp-validation-for="IsYearly" class="text-danger"></span></div>
+            </div>
+            <div class="col-md-3 mb-3" style="padding-top:10px">
+                <input asp-for="CanBeMonetized" type="checkbox" style="width:15px; height:15px; margin-right:5px" /><span class="text-white fw-bold">Can be monetized</span>
+                <div><span asp-validation-for="CanBeMonetized" class="text-danger"></span></div>
+            </div>
+            <div class="col-md-3 mb-3" style="padding-top:10px">
+                <input asp-for="CanBeCarriedOver" type="checkbox" style="width:15px; height:15px; margin-right:5px" /><span class="text-white fw-bold">Can be carried forward.</span>
+                <div><span asp-validation-for="CanBeCarriedOver" class="text-danger"></span></div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <label asp-for="CarryOverEndMonth" class="form-label text-white fw-bold"></label>
+                <select asp-for="CarryOverEndMonth" class="form-control">
+                    <option value="0">Select</option>
+                    <option value="1">January</option>
+                    <option value="2">February</option>
+                    <option value="3">March</option>
+                    <option value="4">April</option>
+                    <option value="5">May</option>
+                    <option value="6">June</option>
+                    <option value="7">July</option>
+                    <option value="8">August</option>
+                    <option value="9">September</option>
+                    <option value="10">October</option>
+                    <option value="11">November</option>
+                    <option value="12">December</option>
+                </select>
+                <div><span asp-validation-for="CarryOverEndMonth" class="text-danger"></span></div>
+            </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12 text-end">
+                    <a asp-area="LMS" asp-controller="Settings" asp-action="LeaveProfileDetails" asp-route-id="@Model.ProfileId" asp-route-nm="@Model.ProfileName" class="btn btn-dark" style="width:100px" title="Exit">
+                        <span class="text-white">Exit</span>
+                    </a>
+                    <a asp-area="LMS" asp-controller="Settings" asp-action="NewProfileDetail" asp-route-id="@Model.ProfileId" asp-route-nm="@Model.ProfileName" class="btn btn-warning" style="width:100px" title="Clear">
+                        <span class="text-white">Clear</span>
+                    </a>
+                    @if (!Model.OperationIsSuccessful)
+                    {
+                        <button type="submit" class="btn btn-success" title="Save" style="width:200px"><span class="text-white">Save</span></button>
+                    }
+                </div>
+            </div>
+</form>
+    </div>
+</div>

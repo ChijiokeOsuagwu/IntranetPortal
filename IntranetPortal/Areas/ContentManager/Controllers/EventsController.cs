@@ -76,7 +76,7 @@ namespace IntranetPortal.Areas.ContentManager.Controllers
                         EnableComment = model.EnableComments,
                         IsHidden = model.IsHidden,
                         PostSummary = model.Summary,
-                        PostTypeId = (int)PostType.Event,
+                        PostTypeId = (int)PostType.Photos,
                         ModifiedDate = DateTime.UtcNow,
                         CreatedDate = DateTime.UtcNow,
                         ModifiedBy = HttpContext.User.Identity.Name ?? "System Administrator",
@@ -123,7 +123,7 @@ namespace IntranetPortal.Areas.ContentManager.Controllers
                 model.ViewModelErrorMessage = $"Error! Sorry, an error was encountered. Event could not be deleted.";
                 return View(model);
             }
-            int PostId = model.Id;
+            long PostId = model.Id;
             string filePath = string.Empty;
             if (!string.IsNullOrEmpty(model.ImagePath))
             {
@@ -188,7 +188,7 @@ namespace IntranetPortal.Areas.ContentManager.Controllers
 
                 post.IsHidden = model.IsHidden;
                 post.PostSummary = model.Summary;
-                post.PostTypeId = (int)PostType.Event;
+                post.PostTypeId = (int)PostType.Photos;
                 post.ModifiedDate = DateTime.UtcNow;
                 post.ModifiedBy = HttpContext.User.Identity.Name ?? "System Administrator";
                 post.PostTitle = model.Title;

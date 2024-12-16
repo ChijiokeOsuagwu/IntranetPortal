@@ -10,7 +10,7 @@ namespace IntranetPortal.Areas.ContentManager.Models
 {
     public class EventEditViewModel:BaseViewModel
     {
-        public int Id { get; set; }
+        public long Id { get; set; }
         public string CodedId { get; set; }
         [Required]
         [MaxLength(50, ErrorMessage = "Title cannot be more than 50 characters.")]

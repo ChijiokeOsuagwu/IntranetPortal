@@ -720,7 +720,6 @@ namespace IntranetPortal.Data.Repositories.WksRepositories
             return taskItem;
         }
 
-
         public async Task<List<TaskItem>> GetByOwnerIdOrAssignedToIdAsync(string empId)
         {
             List<TaskItem> taskItems = new List<TaskItem>();

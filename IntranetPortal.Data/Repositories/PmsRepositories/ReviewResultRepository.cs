@@ -703,6 +703,60 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
             return reviewResultsList;
         }
 
+
+        public async Task<IList<EvaluationHeader>> GetEvaluationHeadersByReviewHeaderId(int reviewHeaderId)
+        {
+            List<EvaluationHeader> evaluationHeadersList = new List<EvaluationHeader>();
+            var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
+            StringBuilder sb = new StringBuilder();
+            sb.Append("SELECT DISTINCT d.rvw_sxn_id, d.rvw_hdr_id, d.rvw_emp_id, ");
+            sb.Append("d.rvw_aprsr_id, d.aprsr_rl_id, d.aprsr_typ_id, ");
+            sb.Append("s.rvw_sxn_nm, e.fullname as appraisee_nm, r.aprv_rl_nm, ");
+            sb.Append("CASE d.aprsr_typ_id WHEN 0 THEN 'Self Appraiser' ");
+            sb.Append("WHEN 1 THEN 'Principal Appraiser' WHEN 2 THEN '3rd Party Appraiser' ");
+            sb.Append("END aprsr_typ_ds, f.fullname as appraiser_nm ");
+            sb.Append("FROM public.pmsrvwrdtls d ");
+            sb.Append("INNER JOIN public.pmsrvwsxns s ON s.rvw_sxn_id = d.rvw_sxn_id ");
+            sb.Append("INNER JOIN public.gst_prsns e ON e.id = d.rvw_emp_id ");
+            sb.Append("LEFT JOIN public.gst_prsns f ON f.id = d.rvw_aprsr_id ");
+            sb.Append("LEFT JOIN public.pmsaprvrls r ON r.aprv_rl_id = d.aprsr_rl_id ");
+            sb.Append("WHERE (d.rvw_hdr_id = @rvw_hdr_id) ");
+            sb.Append("ORDER BY d.rvw_aprsr_id;");
+
+            string query = sb.ToString();
+            await conn.OpenAsync();
+            // Retrieve all rows
+            using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+            {
+                var rvw_hdr_id = cmd.Parameters.Add("@rvw_hdr_id", NpgsqlDbType.Integer);
+                await cmd.PrepareAsync();
+                rvw_hdr_id.Value = reviewHeaderId;
+
+                var reader = await cmd.ExecuteReaderAsync();
+                while (await reader.ReadAsync())
+                {
+                    evaluationHeadersList.Add(new EvaluationHeader()
+                    {
+                        ReviewHeaderId = reader["rvw_hdr_id"] == DBNull.Value ? 0 : (int)reader["rvw_hdr_id"],
+                        ReviewSessionId = reader["rvw_sxn_id"] == DBNull.Value ? 0 : (int)reader["rvw_sxn_id"],
+                        ReviewSessionName = reader["rvw_sxn_nm"] == DBNull.Value ? string.Empty : reader["rvw_sxn_nm"].ToString(),
+                        AppraiseeId = reader["rvw_emp_id"] == DBNull.Value ? string.Empty : reader["rvw_emp_id"].ToString(),
+                        AppraiseeName = reader["appraisee_nm"] == DBNull.Value ? string.Empty : reader["appraisee_nm"].ToString(),
+                        AppraiserId = reader["rvw_aprsr_id"] == DBNull.Value ? string.Empty : reader["rvw_aprsr_id"].ToString(),
+                        AppraiserName = reader["appraiser_nm"] == DBNull.Value ? string.Empty : reader["appraiser_nm"].ToString(),
+                        AppraiserRoleId = reader["aprsr_rl_id"] == DBNull.Value ? (int?)null : (int)reader["aprsr_rl_id"],
+                        AppraiserRoleName = reader["aprv_rl_nm"] == DBNull.Value ? "Appraisee" : reader["aprv_rl_nm"].ToString(),
+                        AppraiserTypeId = reader["aprsr_typ_id"] == DBNull.Value ? 0 : (int)reader["aprsr_typ_id"],
+                        AppraiserTypeDescription = reader["aprsr_typ_ds"] == DBNull.Value ? string.Empty : reader["aprsr_typ_ds"].ToString(),
+                        //TimeEvaluated = reader["score_time"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["score_time"],
+                    });
+                }
+            }
+            await conn.CloseAsync();
+            return evaluationHeadersList;
+        }
+
+
         public async Task<List<string>> GetAppraisersByReviewHeaderId(int reviewHeaderId)
         {
             List<string> appraisersList = new List<string>();

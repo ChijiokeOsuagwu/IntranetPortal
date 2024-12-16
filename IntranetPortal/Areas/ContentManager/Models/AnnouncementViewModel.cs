@@ -9,7 +9,7 @@ namespace IntranetPortal.Areas.ContentManager.Models
 {
     public class AnnouncementViewModel:BaseViewModel
     {
-        public int? PostId { get; set; }
+        public long? PostId { get; set; }
 
         [Required]
         public int PostTypeId { get; set; }

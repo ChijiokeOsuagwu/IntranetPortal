@@ -12,6 +12,7 @@ namespace IntranetPortal.Areas.ERM.Models
         public int? LocationID { get; set; }
         public int? DepartmentID { get; set; }
         public int? UnitID { get; set; }
+        public DateTime? TerminalDate { get; set; }
         public string CompanyCode { get; set; }
         public string ListLabel { get; set; }
         public List<Employee> EmployeesList { get; set; }

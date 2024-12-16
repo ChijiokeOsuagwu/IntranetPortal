@@ -1,0 +1,88 @@
+﻿@model IntranetPortal.Areas.ContentManager.Models.PostMediaListViewModel
+@{
+    ViewData["Title"] = "Content Manager | Media List";
+}
+<div class="container">
+    <h3 class="mb-4">Media List</h3>
+    <hr />
+    <div class="mb-3">
+        <a asp-area="ContentManager" asp-controller="Photos" asp-action="Index" class="btn btn-dark" style="width:100px" title="Click to Go Back">
+            <span class="text-white">Back</span>
+        </a>
+        <a asp-area="ContentManager" asp-controller="Photos" asp-action="UploadPhoto" asp-route-id="@Model.MasterPost.PostId" title="New Upload" class="btn btn-sm btn-dark">
+            <i class="bi bi-upload mr-2" style="font-size: 1.0rem;"></i> <span class="text-white">New Upload</span>
+        </a>
+        @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-x-circle"></i>
+                <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (!String.IsNullOrEmpty(Model.ViewModelSuccessMessage))
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="bi bi-check-circle"></i>
+                <span class="fw-bold">@Model.ViewModelSuccessMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+    </div>
+    @if (Model == null || Model.MediaList.Count < 1)
+    {
+        <div class="alert alert-info fade show" role="alert">
+            <i class="bi bi-info-circle"></i>
+            <span class="fw-bold">No record was found.</span>
+        </div>
+    }
+    else
+    {
+        <div class="row">
+            @foreach (var media in Model.MediaList)
+            {
+                if (media.MediaType == IntranetPortal.Base.Enums.MediaType.Image)
+                {
+                    <div class="col-lg-3 col-sm-6">
+                        <div class="card h-100">
+                            <a asp-area="ContentManager" asp-controller="Photos" asp-action="FullScreen" asp-route-id="@media.PostMediaId" title="See in Full Screen">
+                                <img class="card-img-top" src="@media.MediaLocationPath" alt="Gallery Image" width="300" height="200" />
+                            </a>
+                            <div class="card-body">
+                                <form asp-area="ContentManager" asp-controller="Photos" asp-action="DeletePhoto" asp-route-id="@media.PostMediaId" asp-route-pd="@media.MasterPostId" method="post">
+                                    <button type="submit" onclick="return confirm('Are you sure you want to delete this media permanently?')" style="border:none; padding:0px">
+                                        <i class="bi bi-trash-fill mr-2" style="font-size: 0.9rem; color:red"></i>
+                                   </button>
+                                    <span class="card-title fw-bold">
+                                        @media.Caption
+                                    </span>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                }
+                else if (media.MediaType == IntranetPortal.Base.Enums.MediaType.Video)
+                {
+                    <div class="col-lg-3 col-sm-6 mb-2">
+                        <div class="card h-100">
+                            <video width="300" height="200" controls>
+                                <source src="@media.MediaLocationPath" type="video/mp4">
+                                Your browser does not have support for video tag.
+                            </video>
+                            <div class="card-body">
+                                <form asp-area="ContentManager" asp-controller="Photos" asp-action="DeletePhoto" asp-route-id="@media.PostMediaId" asp-route-pd="@media.MasterPostId" method="post">
+                                    <button type="submit" onclick="return confirm('Are you sure you want to delete this media permanently?')" style="border:none; padding:0px">
+                                        <i class="bi bi-trash-fill mr-2" style="font-size: 0.9rem; color:red"></i>
+                                    </button>
+                                    <span class="card-title fw-bold">
+                                        @media.Caption
+                                    </span>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+    }
+</div>

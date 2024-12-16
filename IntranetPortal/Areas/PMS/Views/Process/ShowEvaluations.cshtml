@@ -36,7 +36,7 @@
             }
         </div>
         <div class="row">
-            @if (Model == null || Model.Submissions == null || Model.Submissions.Count < 1)
+            @if (Model == null || Model.Evaluations == null || Model.Evaluations.Count < 1)
             {
                 <div class="alert alert-info fade show" role="alert">
                     <i class="bi bi-info-circle"></i>
@@ -48,50 +48,42 @@
                 <div class="table-responsive">
                     <table class="table border-0">
                         <tbody style="background-color:#ebedef">
-                            @foreach (var item in Model.Submissions)
+                            <tr style="border-bottom:2px solid #abb2b9">
+                                <td>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <span class="fw-bold" style="font-size:1.2rem; color:#145a32"> Appraisee:  @Model.AppraiseeName </span>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <span class="fw-bold" style="font-size:1.2rem; color:#145a32">Session:  @Model.ReviewSessionName</span>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            @foreach (var item in Model.Evaluations)
                             {
                                 <tr style="border-bottom:2px solid #abb2b9">
                                     <td>
                                         <div class="row">
                                             <div class="card">
                                                 <div class="card-header" style="background-color:#145a32">
-                                                    <span class="fw-bold text-white" style="font-size:1.0rem">Appraiser: @item.ToEmployeeName</span>
+                                                    <span class="fw-bold text-white" style="font-size:1.0rem">Appraiser: @item.AppraiserName</span>
                                                 </div>
                                                 <div class="card-body" style="background-color:#d5f5e3">
                                                     <div class="row">
-                                                        <div class="col-md-4 mb-3">
+                                                        <div class="col-md-3 mb-3">
+                                                            <label class="form-label text-dark fw-bold">Appraiser Type:</label>
+                                                            <div class="form-control fw-bold" style="font-size:1.0rem">@item.AppraiserTypeDescription</div>
+                                                        </div>
+                                                        <div class="col-md-3 mb-3">
                                                             <label class="form-label text-dark fw-bold">Appraiser Role:</label>
-                                                            <div class="form-control fw-bold" style="font-size:1.0rem">@item.ToEmployeeRoleName</div>
+                                                            <div class="form-control fw-bold" style="font-size:1.0rem">@item.AppraiserRoleName</div>
                                                         </div>
-                                                        <div class="col-md-4 mb-3">
-                                                            <label class="form-label text-dark fw-bold">Time Submitted:</label>
-                                                            @if (item.TimeSubmitted != null)
-                                                            {
-                                                                <div class="form-control fw-bold" style="font-size:1.0rem">@item.TimeSubmitted.Value.ToLongDateString() @item.TimeSubmitted.Value.ToLongTimeString()</div>
-                                                            }
-                                                            else
-                                                            {
-                                                                <div class="form-control fw-bold" style="font-size:1.0rem">[Unspecified]</div>
-                                                            }
-                                                        </div>
-                                                        <div class="col-md-4 mb-3">
-                                                            <label class="form-label text-dark fw-bold">Time Appraised</label>
-                                                            @if (item.TimeActioned != null)
-                                                            {
-                                                                <div class="form-control fw-bold" style="font-size:1.0rem">@item.TimeActioned.Value.ToLongDateString() @item.TimeActioned.Value.ToLongTimeString()</div>
-                                                            }
-                                                            else
-                                                            {
-                                                                <div class="form-control fw-bold" style="font-size:1.0rem">[Unspecified]</div>
-                                                            }
-                                                        </div>
-                                                    </div>
-                                                    <div class="row">
-                                                        <div class="col-md-12 mt-2 text-end">
-                                                            <a asp-area="PMS" asp-controller="Process" asp-action="ShowResultSummary" asp-route-id="@Model.ReviewHeaderID" asp-route-ad="@item.ToEmployeeId" title="View Summary Result" class="btn" style="width:200px; background-color:#145a32">
+                                                        <div class="col-md-6 text-end">
+                                                            <a asp-area="PMS" asp-controller="Process" asp-action="ShowResultSummary" asp-route-id="@Model.ReviewHeaderID" asp-route-ad="@item.AppraiserId" title="View Summary Result" class="btn mr-3" style="width:200px; margin-top:40px; background-color:#145a32">
                                                                 <span class="text-white fw-bold">View Summary Result</span>
                                                             </a>
-                                                            <a asp-area="PMS" asp-controller="Process" asp-action="ShowFullResult" asp-route-id="@Model.ReviewHeaderID" asp-route-ad="@item.ToEmployeeId" title="View Full Result" class="btn" style="width:200px; background-color:#145a32">
+                                                            <a asp-area="PMS" asp-controller="Process" asp-action="ShowFullResult" asp-route-id="@Model.ReviewHeaderID" asp-route-ad="@item.AppraiserId" title="View Full Result" class="btn" style="width:200px; margin-top:40px; background-color:#145a32">
                                                                 <span class="text-white fw-bold">View Full Result</span>
                                                             </a>
                                                         </div>

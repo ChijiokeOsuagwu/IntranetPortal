@@ -92,7 +92,7 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
                             employee.EmployeeCreatedBy = reader["created_by"] == DBNull.Value ? string.Empty : reader["created_by"].ToString();
                             employee.EmployeeCreatedDate = reader["created_date"] == DBNull.Value ? string.Empty : reader["created_date"].ToString();
                             employee.IsDeactivated = reader["is_dx"] == DBNull.Value ? true : (bool)reader["is_dx"];
-                            employee.DeactivationTime = reader["dx_time"] == DBNull.Value ? string.Empty : reader["dx_time"].ToString();
+                            employee.DeactivationTime = reader["dx_time"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["dx_time"];
                             employee.DeactivatedBy = reader["dx_by"] == DBNull.Value ? string.Empty : reader["dx_by"].ToString();
 
                             employee.PersonID = reader["id"] == DBNull.Value ? String.Empty : reader["id"].ToString();
@@ -217,9 +217,8 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
                             employee.EmployeeCreatedBy = reader["created_by"] == DBNull.Value ? string.Empty : reader["created_by"].ToString();
                             employee.EmployeeCreatedDate = reader["created_date"] == DBNull.Value ? string.Empty : reader["created_date"].ToString();
                             employee.IsDeactivated = reader["is_dx"] == DBNull.Value ? true : (bool)reader["is_dx"];
-                            employee.DeactivationTime = reader["dx_time"] == DBNull.Value ? string.Empty : reader["dx_time"].ToString();
+                            employee.DeactivationTime = reader["dx_time"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["dx_time"];
                             employee.DeactivatedBy = reader["dx_by"] == DBNull.Value ? string.Empty : reader["dx_by"].ToString();
-
 
                             employee.PersonID = reader["id"] == DBNull.Value ? String.Empty : reader["id"].ToString();
                             employee.Title = reader["title"] == DBNull.Value ? string.Empty : reader["title"].ToString();
@@ -267,139 +266,15 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
             return employee;
         }
 
-        public async Task<IList<Employee>> GetEmployeesAsync()
-        {
-            List<Employee> employeeList = new List<Employee>();
-            var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
-            string query = String.Empty;
-            StringBuilder sb = new StringBuilder();
-
-            sb.Append("SELECT e.emp_id, e.emp_no_1, e.emp_no_2, e.start_up_date, ");
-            sb.Append("e.yrs_of_experience, e.start_up_designation, e.place_of_engagement, ");
-            sb.Append("e.confirmation_date, e.current_designation, e.job_grade, e.employment_status, ");
-            sb.Append("e.date_of_last_promotion, e.official_email, e.state_of_origin, e.is_dx, ");
-            sb.Append("e.lga_of_origin, e.religion, e.geo_political_region, e.next_of_kin_name, ");
-            sb.Append("e.next_of_kin_relationship, e.modified_by, e.modified_date, e.dx_time, e.dx_by, ");
-            sb.Append("e.created_by, e.created_date, e.next_of_kin_address, e.next_of_kin_phone, ");
-            sb.Append("e.next_of_kin_email, e.dept_id, e.unit_id, e.loc_id, e.coy_id, p.id, p.title, ");
-            sb.Append("p.sname, p.fname, p.oname, p.fullname, p.sex, p.phone1, p.phone2,");
-            sb.Append("p.email AS personal_email, p.address, p.mdb, p.mdt, p.ctb, p.ctt, ");
-            sb.Append("p.imgp, p.birthday, p.birthmonth, p.birthyear, p.maritalstatus, l.locname, ");
-            sb.Append("l.loctype, l.lochq1, l.lochq2, l.locmb, l.locmd, l.loccb, l.loccd, l.locctr, ");
-            sb.Append("l.locst, l.locqk, c.coy_code, c.coy_name, d.deptname, d.depthd1, d.depthd2, ");
-            sb.Append("d.deptqk, u.unitname, u.unithd1, u.unithd2, u.unitqk ");
-            sb.Append("FROM erm_emp_inf e JOIN gst_prsns p ON e.emp_id = p.id ");
-            sb.Append("AND e.is_dx = false ");
-            sb.Append("LEFT JOIN gst_locs l ON e.loc_id = l.locqk ");
-            sb.Append("LEFT JOIN gst_coys c ON e.coy_id = c.coy_code ");
-            sb.Append("LEFT JOIN gst_depts d ON e.dept_id = d.deptqk ");
-            sb.Append("LEFT JOIN gst_units u ON e.unit_id = u.unitqk ");
-            sb.Append("WHERE (e.is_dx = false) ORDER BY p.fullname;");
-            query = sb.ToString();
-            try
-            {
-                await conn.OpenAsync();
-                // Retrieve all rows
-                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
-                {
-                    await cmd.PrepareAsync();
-                    var reader = await cmd.ExecuteReaderAsync();
-                    while (await reader.ReadAsync())
-                    {
-                        employeeList.Add(new Employee()
-                        {
-                            EmployeeID = reader["emp_id"] == DBNull.Value ? string.Empty : (reader["emp_id"]).ToString(),
-                            EmployeeNo1 = reader["emp_no_1"] == DBNull.Value ? string.Empty : (reader["emp_no_1"]).ToString(),
-                            EmployeeNo2 = reader["emp_no_2"] == DBNull.Value ? string.Empty : (reader["emp_no_2"]).ToString(),
-                            StartUpDate = reader["start_up_date"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["start_up_date"],
-                            YearsOfExperience = reader["yrs_of_experience"] == DBNull.Value ? 0 : (int)reader["yrs_of_experience"],
-                            StartUpDesignation = reader["start_up_designation"] == DBNull.Value ? String.Empty : reader["start_up_designation"].ToString(),
-                            PlaceOfEngagement = reader["place_of_engagement"] == DBNull.Value ? String.Empty : reader["place_of_engagement"].ToString(),
-                            ConfirmationDate = reader["confirmation_date"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["confirmation_date"],
-                            CurrentDesignation = reader["current_designation"] == DBNull.Value ? String.Empty : reader["current_designation"].ToString(),
-                            JobGrade = reader["job_grade"] == DBNull.Value ? String.Empty : reader["job_grade"].ToString(),
-                            EmploymentStatus = reader["employment_status"] == DBNull.Value ? String.Empty : reader["employment_status"].ToString(),
-                            DateOfLastPromotion = reader["date_of_last_promotion"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["date_of_last_promotion"],
-                            LengthOfService = reader["start_up_date"] == DBNull.Value ? 0 : (int)((DateTime.Now - (DateTime)reader["start_up_date"]).TotalDays),
-
-                            OfficialEmail = reader["official_email"] == DBNull.Value ? String.Empty : reader["official_email"].ToString(),
-                            StateOfOrigin = reader["state_of_origin"] == DBNull.Value ? String.Empty : reader["state_of_origin"].ToString(),
-                            LgaOfOrigin = reader["lga_of_origin"] == DBNull.Value ? String.Empty : reader["lga_of_origin"].ToString(),
-                            Religion = reader["religion"] == DBNull.Value ? String.Empty : reader["religion"].ToString(),
-                            GeoPoliticalRegion = reader["geo_political_region"] == DBNull.Value ? String.Empty : reader["geo_political_region"].ToString(),
-                            NextOfKinName = reader["next_of_kin_name"] == DBNull.Value ? String.Empty : reader["next_of_kin_name"].ToString(),
-                            NextOfKinRelationship = reader["next_of_kin_relationship"] == DBNull.Value ? String.Empty : reader["next_of_kin_relationship"].ToString(),
-                            NextOfKinAddress = reader["next_of_kin_address"] == DBNull.Value ? String.Empty : reader["next_of_kin_address"].ToString(),
-                            NextOfKinPhone = reader["next_of_kin_phone"] == DBNull.Value ? String.Empty : reader["next_of_kin_phone"].ToString(),
-                            NextOfKinEmail = reader["next_of_kin_email"] == DBNull.Value ? String.Empty : reader["next_of_kin_email"].ToString(),
-                            CompanyID = reader["coy_id"] == DBNull.Value ? string.Empty : (reader["coy_id"]).ToString(),
-                            DepartmentID = reader["dept_id"] == DBNull.Value ? 0 : (int)(reader["dept_id"]),
-                            UnitID = reader["unit_id"] == DBNull.Value ? 0 : (int)(reader["unit_id"]),
-                            LocationID = reader["loc_id"] == DBNull.Value ? 0 : (int)(reader["loc_id"]),
-                            EmployeeModifiedBy = reader["modified_by"] == DBNull.Value ? string.Empty : reader["modified_by"].ToString(),
-                            EmployeeModifiedDate = reader["modified_date"] == DBNull.Value ? string.Empty : reader["modified_date"].ToString(),
-                            EmployeeCreatedBy = reader["created_by"] == DBNull.Value ? string.Empty : reader["created_by"].ToString(),
-                            EmployeeCreatedDate = reader["created_date"] == DBNull.Value ? string.Empty : reader["created_date"].ToString(),
-                            IsDeactivated = reader["is_dx"] == DBNull.Value ? true : (bool)reader["is_dx"],
-                            DeactivationTime = reader["dx_time"] == DBNull.Value ? string.Empty : reader["dx_time"].ToString(),
-                            DeactivatedBy = reader["dx_by"] == DBNull.Value ? string.Empty : reader["dx_by"].ToString(),
-
-                            PersonID = reader["id"] == DBNull.Value ? String.Empty : reader["id"].ToString(),
-                            Title = reader["title"] == DBNull.Value ? string.Empty : reader["title"].ToString(),
-                            Surname = reader["sname"] == DBNull.Value ? string.Empty : reader["sname"].ToString(),
-                            FirstName = reader["fname"] == DBNull.Value ? string.Empty : reader["fname"].ToString(),
-                            OtherNames = reader["oname"] == DBNull.Value ? string.Empty : reader["oname"].ToString(),
-                            FullName = reader["fullname"] == DBNull.Value ? string.Empty : reader["fullname"].ToString(),
-                            Sex = reader["sex"] == DBNull.Value ? string.Empty : reader["sex"].ToString(),
-                            MaritalStatus = reader["maritalstatus"] == DBNull.Value ? String.Empty : reader["maritalstatus"].ToString(),
-                            BirthDay = reader["birthday"] == DBNull.Value ? 0 : (int)reader["birthday"],
-                            BirthMonth = reader["birthmonth"] == DBNull.Value ? 0 : (int)reader["birthmonth"],
-                            BirthYear = reader["birthyear"] == DBNull.Value ? 0 : (int)reader["birthyear"],
-                            PhoneNo1 = reader["phone1"] == DBNull.Value ? string.Empty : reader["phone1"].ToString(),
-                            PhoneNo2 = reader["phone2"] == DBNull.Value ? string.Empty : reader["phone2"].ToString(),
-                            Email = reader["personal_email"] == DBNull.Value ? string.Empty : reader["personal_email"].ToString(),
-                            Address = reader["address"] == DBNull.Value ? string.Empty : reader["address"].ToString(),
-                            ImagePath = reader["imgp"] == DBNull.Value ? string.Empty : reader["imgp"].ToString(),
-                            ModifiedBy = reader["mdb"] == DBNull.Value ? string.Empty : reader["mdb"].ToString(),
-                            ModifiedTime = reader["mdt"] == DBNull.Value ? string.Empty : reader["mdt"].ToString(),
-                            CreatedTime = reader["ctt"] == DBNull.Value ? string.Empty : reader["ctt"].ToString(),
-                            CreatedBy = reader["ctb"] == DBNull.Value ? string.Empty : reader["ctb"].ToString(),
-
-                            LocationName = reader["locname"] == DBNull.Value ? string.Empty : reader["locname"].ToString(),
-                            LocationType = reader["loctype"] == DBNull.Value ? string.Empty : reader["loctype"].ToString(),
-                            LocationHead1 = reader["lochq1"] == DBNull.Value ? string.Empty : reader["lochq1"].ToString(),
-                            LocationHead2 = reader["lochq2"] == DBNull.Value ? string.Empty : reader["lochq2"].ToString(),
-                            LocationCountry = reader["locctr"] == DBNull.Value ? string.Empty : reader["locctr"].ToString(),
-                            LocationState = reader["locst"] == DBNull.Value ? string.Empty : reader["locst"].ToString(),
-                            CompanyName = reader["coy_name"] == DBNull.Value ? string.Empty : reader["coy_name"].ToString(),
-                            DepartmentHead1 = reader["depthd1"] == DBNull.Value ? string.Empty : reader["depthd1"].ToString(),
-                            DepartmentHead2 = reader["depthd2"] == DBNull.Value ? string.Empty : reader["depthd2"].ToString(),
-                            DepartmentName = reader["deptname"] == DBNull.Value ? string.Empty : reader["deptname"].ToString(),
-                            UnitHead1 = reader["unithd1"] == DBNull.Value ? string.Empty : reader["unithd1"].ToString(),
-                            UnitHead2 = reader["unithd2"] == DBNull.Value ? string.Empty : reader["unithd2"].ToString(),
-                            UnitName = reader["unitname"] == DBNull.Value ? string.Empty : reader["unitname"].ToString(),
-                        });
-                    }
-                }
-                await conn.CloseAsync();
-            }
-            catch (Exception ex)
-            {
-
-                await conn.CloseAsync();
-                throw new Exception(ex.Message);
-            }
-            return employeeList;
-        }
-
-        public async Task<IList<Employee>> GetEmployeesByNameAsync(string employeeName)
+        public async Task<IList<Employee>> GetEmployeesByNameAsync(string employeeName, DateTime? terminalDate = null)
         {
             List<Employee> employeeList = new List<Employee>();
             if (string.IsNullOrWhiteSpace(employeeName)) { throw new ArgumentNullException(nameof(employeeName)); }
-            var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
-            string query = String.Empty;
-            StringBuilder sb = new StringBuilder();
+            string _terminalDate;
+            if (terminalDate == null) { _terminalDate = DateTime.Today.ToString("dd-MM-yyyy"); }
+            else { _terminalDate = terminalDate.Value.ToString("dd-MM-yyyy"); }
 
+            StringBuilder sb = new StringBuilder();
             sb.Append("SELECT e.emp_id, e.emp_no_1, e.emp_no_2, e.start_up_date, ");
             sb.Append("e.yrs_of_experience, e.start_up_designation, e.place_of_engagement, ");
             sb.Append("e.confirmation_date, e.current_designation, e.job_grade, e.employment_status, ");
@@ -415,27 +290,29 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
             sb.Append("l.locst, l.locqk, c.coy_code, c.coy_name, d.deptname, d.depthd1, d.depthd2, ");
             sb.Append("d.deptqk, u.unitname, u.unithd1, u.unithd2, u.unitqk ");
             sb.Append("FROM erm_emp_inf e JOIN gst_prsns p ON e.emp_id = p.id ");
-            sb.Append("AND e.is_dx = false ");
+            //sb.Append("AND e.is_dx = false ");
             sb.Append("LEFT JOIN gst_locs l ON e.loc_id = l.locqk ");
             sb.Append("LEFT JOIN gst_coys c ON e.coy_id = c.coy_code ");
             sb.Append("LEFT JOIN gst_depts d ON e.dept_id = d.deptqk ");
             sb.Append("LEFT JOIN gst_units u ON e.unit_id = u.unitqk ");
             sb.Append("WHERE(LOWER(p.fullname) LIKE '%'||LOWER(@name)||'%') ");
-            //sb.Append("OR (LOWER(p.sname) LIKE '%'||LOWER(@name)||'%') ");
-            //sb.Append("OR (LOWER(p.oname) LIKE '%'||LOWER(@name)||'%') ");
-            //sb.Append("OR (LOWER(p.fullname) LIKE '%'||LOWER(@name)||'%') ");
-            sb.Append("AND (e.is_dx = false OR p.is_dx = false) ");
+            sb.Append("AND (e.dx_time IS NULL ");
+            sb.Append("OR e.dx_time >= to_date(@dx_time,'DD-MM-YYYY')) ");
+            sb.Append("AND ((e.start_up_date IS NULL) ");
+            sb.Append("OR (e.start_up_date <= to_date(@dx_time,'DD-MM-YYYY'))) ");
             sb.Append("ORDER BY p.fullname;");
-            query = sb.ToString();
-            try
+            string query = sb.ToString();
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
             {
                 await conn.OpenAsync();
                 // Retrieve all rows
                 using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
                 {
                     var name = cmd.Parameters.Add("@name", NpgsqlDbType.Text);
+                    var dx_time = cmd.Parameters.Add("@dx_time", NpgsqlDbType.Text);
                     await cmd.PrepareAsync();
                     name.Value = employeeName;
+                    dx_time.Value = _terminalDate;
 
                     var reader = await cmd.ExecuteReaderAsync();
                     while (await reader.ReadAsync())
@@ -475,7 +352,7 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
                             EmployeeCreatedBy = reader["created_by"] == DBNull.Value ? string.Empty : reader["created_by"].ToString(),
                             EmployeeCreatedDate = reader["created_date"] == DBNull.Value ? string.Empty : reader["created_date"].ToString(),
                             IsDeactivated = reader["is_dx"] == DBNull.Value ? true : (bool)reader["is_dx"],
-                            DeactivationTime = reader["dx_time"] == DBNull.Value ? string.Empty : reader["dx_time"].ToString(),
+                            DeactivationTime = reader["dx_time"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["dx_time"],
                             DeactivatedBy = reader["dx_by"] == DBNull.Value ? string.Empty : reader["dx_by"].ToString(),
 
                             PersonID = reader["id"] == DBNull.Value ? String.Empty : reader["id"].ToString(),
@@ -517,23 +394,18 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
                 }
                 await conn.CloseAsync();
             }
-            catch (Exception ex)
-            {
-
-                await conn.CloseAsync();
-                throw new Exception(ex.Message);
-            }
             return employeeList;
         }
 
-        public async Task<IList<Employee>> GetOtherEmployeesByNameAsync(string employeeId, string otherEmployeeName)
+        public async Task<IList<Employee>> GetOtherEmployeesByNameAsync(string employeeId, string otherEmployeeName, DateTime? terminalDate = null)
         {
             List<Employee> employeeList = new List<Employee>();
             if (string.IsNullOrWhiteSpace(otherEmployeeName)) { throw new ArgumentNullException(nameof(otherEmployeeName)); }
-            var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
-            string query = String.Empty;
-            StringBuilder sb = new StringBuilder();
+            string _terminalDate;
+            if (terminalDate == null) { _terminalDate = DateTime.Today.ToString("dd-MM-yyyy"); }
+            else { _terminalDate = terminalDate.Value.ToString("dd-MM-yyyy"); }
 
+            StringBuilder sb = new StringBuilder();
             sb.Append("SELECT e.emp_id, e.emp_no_1, e.emp_no_2, e.start_up_date, ");
             sb.Append("e.yrs_of_experience, e.start_up_designation, e.place_of_engagement, ");
             sb.Append("e.confirmation_date, e.current_designation, e.job_grade, e.employment_status, ");
@@ -549,7 +421,7 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
             sb.Append("l.locst, l.locqk, c.coy_code, c.coy_name, d.deptname, d.depthd1, d.depthd2, ");
             sb.Append("d.deptqk, u.unitname, u.unithd1, u.unithd2, u.unitqk ");
             sb.Append("FROM erm_emp_inf e JOIN gst_prsns p ON e.emp_id = p.id ");
-            sb.Append("AND e.is_dx = false ");
+            //sb.Append("AND e.is_dx = false ");
             sb.Append("LEFT JOIN gst_locs l ON e.loc_id = l.locqk ");
             sb.Append("LEFT JOIN gst_coys c ON e.coy_id = c.coy_code ");
             sb.Append("LEFT JOIN gst_depts d ON e.dept_id = d.deptqk ");
@@ -559,9 +431,13 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
             sb.Append("OR (LOWER(p.sname) LIKE '%'||LOWER(@name)||'%') ");
             sb.Append("OR (LOWER(p.oname) LIKE '%'||LOWER(@name)||'%') ");
             sb.Append("OR (LOWER(p.fullname) LIKE '%'||LOWER(@name)||'%')) ");
-            sb.Append("AND (e.is_dx = false) ORDER BY p.fullname;");
-            query = sb.ToString();
-            try
+            sb.Append("AND (e.dx_time IS NULL ");
+            sb.Append("OR e.dx_time >= to_date(@dx_time,'DD-MM-YYYY')) ");
+            sb.Append("AND ((e.start_up_date IS NULL) ");
+            sb.Append("OR (e.start_up_date <= to_date(@dx_time,'DD-MM-YYYY'))) ");
+            sb.Append("ORDER BY p.fullname;");
+            string query = sb.ToString();
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
             {
                 await conn.OpenAsync();
                 // Retrieve all rows
@@ -569,9 +445,11 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
                 {
                     var emp_id = cmd.Parameters.Add("@emp_id", NpgsqlDbType.Text);
                     var name = cmd.Parameters.Add("@name", NpgsqlDbType.Text);
+                    var dx_time = cmd.Parameters.Add("@dx_time", NpgsqlDbType.Text);
                     await cmd.PrepareAsync();
                     emp_id.Value = employeeId;
                     name.Value = otherEmployeeName;
+                    dx_time.Value = _terminalDate;
 
                     var reader = await cmd.ExecuteReaderAsync();
                     while (await reader.ReadAsync())
@@ -611,7 +489,7 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
                             EmployeeCreatedBy = reader["created_by"] == DBNull.Value ? string.Empty : reader["created_by"].ToString(),
                             EmployeeCreatedDate = reader["created_date"] == DBNull.Value ? string.Empty : reader["created_date"].ToString(),
                             IsDeactivated = reader["is_dx"] == DBNull.Value ? true : (bool)reader["is_dx"],
-                            DeactivationTime = reader["dx_time"] == DBNull.Value ? string.Empty : reader["dx_time"].ToString(),
+                            DeactivationTime = reader["dx_time"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["dx_time"],
                             DeactivatedBy = reader["dx_by"] == DBNull.Value ? string.Empty : reader["dx_by"].ToString(),
 
                             PersonID = reader["id"] == DBNull.Value ? String.Empty : reader["id"].ToString(),
@@ -653,23 +531,22 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
                 }
                 await conn.CloseAsync();
             }
-            catch (Exception ex)
-            {
-
-                await conn.CloseAsync();
-                throw new Exception(ex.Message);
-            }
             return employeeList;
         }
 
-        public async Task<IList<Employee>> GetEmployeesByCompanyCodeAsync(string companyCode)
+        #endregion
+
+        #region Employee Register Read Action Methods
+        //============= Start Employee Registers Action Methods ====================//
+
+        public async Task<IList<Employee>> GetEmployeesAsync(DateTime? terminalDate = null)
         {
             List<Employee> employeeList = new List<Employee>();
-            if (string.IsNullOrWhiteSpace(companyCode)) { throw new ArgumentNullException(nameof(companyCode)); }
-            var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
-            string query = String.Empty;
-            StringBuilder sb = new StringBuilder();
+            string _terminalDate;
+            if (terminalDate == null) { _terminalDate = DateTime.Today.ToString("dd-MM-yyyy"); }
+            else { _terminalDate = terminalDate.Value.ToString("dd-MM-yyyy"); }
 
+            StringBuilder sb = new StringBuilder();
             sb.Append("SELECT e.emp_id, e.emp_no_1, e.emp_no_2, e.start_up_date, ");
             sb.Append("e.yrs_of_experience, e.start_up_designation, e.place_of_engagement, ");
             sb.Append("e.confirmation_date, e.current_designation, e.job_grade, e.employment_status, ");
@@ -685,23 +562,157 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
             sb.Append("l.locst, l.locqk, c.coy_code, c.coy_name, d.deptname, d.depthd1, d.depthd2, ");
             sb.Append("d.deptqk, u.unitname, u.unithd1, u.unithd2, u.unitqk ");
             sb.Append("FROM erm_emp_inf e JOIN gst_prsns p ON e.emp_id = p.id ");
-            sb.Append("AND e.is_dx = false ");
+            //sb.Append("AND e.is_dx = false ");
             sb.Append("LEFT JOIN gst_locs l ON e.loc_id = l.locqk ");
             sb.Append("LEFT JOIN gst_coys c ON e.coy_id = c.coy_code ");
             sb.Append("LEFT JOIN gst_depts d ON e.dept_id = d.deptqk ");
             sb.Append("LEFT JOIN gst_units u ON e.unit_id = u.unitqk ");
-            sb.Append("WHERE(e.coy_id = @coy_id) ");
-            sb.Append("AND (e.is_dx = false) ORDER BY p.fullname;");
-            query = sb.ToString();
-            try
+            sb.Append("WHERE (e.dx_time IS NULL ");
+            sb.Append("OR e.dx_time >= to_date(@dx_time,'DD-MM-YYYY')) ");
+            sb.Append("AND ((e.start_up_date IS NULL) ");
+            sb.Append("OR (e.start_up_date <= to_date(@dx_time,'DD-MM-YYYY'))) ");
+            sb.Append("ORDER BY p.fullname;");
+            string query = sb.ToString();
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
+            {
+                await conn.OpenAsync();
+                // Retrieve all rows
+                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+                {
+                    var dx_time = cmd.Parameters.Add("@dx_time", NpgsqlDbType.Text);
+                    await cmd.PrepareAsync();
+                    dx_time.Value = _terminalDate;
+
+                    var reader = await cmd.ExecuteReaderAsync();
+                    while (await reader.ReadAsync())
+                    {
+                        employeeList.Add(new Employee()
+                        {
+                            EmployeeID = reader["emp_id"] == DBNull.Value ? string.Empty : (reader["emp_id"]).ToString(),
+                            EmployeeNo1 = reader["emp_no_1"] == DBNull.Value ? string.Empty : (reader["emp_no_1"]).ToString(),
+                            EmployeeNo2 = reader["emp_no_2"] == DBNull.Value ? string.Empty : (reader["emp_no_2"]).ToString(),
+                            StartUpDate = reader["start_up_date"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["start_up_date"],
+                            YearsOfExperience = reader["yrs_of_experience"] == DBNull.Value ? 0 : (int)reader["yrs_of_experience"],
+                            StartUpDesignation = reader["start_up_designation"] == DBNull.Value ? String.Empty : reader["start_up_designation"].ToString(),
+                            PlaceOfEngagement = reader["place_of_engagement"] == DBNull.Value ? String.Empty : reader["place_of_engagement"].ToString(),
+                            ConfirmationDate = reader["confirmation_date"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["confirmation_date"],
+                            CurrentDesignation = reader["current_designation"] == DBNull.Value ? String.Empty : reader["current_designation"].ToString(),
+                            JobGrade = reader["job_grade"] == DBNull.Value ? String.Empty : reader["job_grade"].ToString(),
+                            EmploymentStatus = reader["employment_status"] == DBNull.Value ? String.Empty : reader["employment_status"].ToString(),
+                            DateOfLastPromotion = reader["date_of_last_promotion"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["date_of_last_promotion"],
+                            LengthOfService = reader["start_up_date"] == DBNull.Value ? 0 : (int)((DateTime.Now - (DateTime)reader["start_up_date"]).TotalDays),
+
+                            OfficialEmail = reader["official_email"] == DBNull.Value ? String.Empty : reader["official_email"].ToString(),
+                            StateOfOrigin = reader["state_of_origin"] == DBNull.Value ? String.Empty : reader["state_of_origin"].ToString(),
+                            LgaOfOrigin = reader["lga_of_origin"] == DBNull.Value ? String.Empty : reader["lga_of_origin"].ToString(),
+                            Religion = reader["religion"] == DBNull.Value ? String.Empty : reader["religion"].ToString(),
+                            GeoPoliticalRegion = reader["geo_political_region"] == DBNull.Value ? String.Empty : reader["geo_political_region"].ToString(),
+                            NextOfKinName = reader["next_of_kin_name"] == DBNull.Value ? String.Empty : reader["next_of_kin_name"].ToString(),
+                            NextOfKinRelationship = reader["next_of_kin_relationship"] == DBNull.Value ? String.Empty : reader["next_of_kin_relationship"].ToString(),
+                            NextOfKinAddress = reader["next_of_kin_address"] == DBNull.Value ? String.Empty : reader["next_of_kin_address"].ToString(),
+                            NextOfKinPhone = reader["next_of_kin_phone"] == DBNull.Value ? String.Empty : reader["next_of_kin_phone"].ToString(),
+                            NextOfKinEmail = reader["next_of_kin_email"] == DBNull.Value ? String.Empty : reader["next_of_kin_email"].ToString(),
+                            CompanyID = reader["coy_id"] == DBNull.Value ? string.Empty : (reader["coy_id"]).ToString(),
+                            DepartmentID = reader["dept_id"] == DBNull.Value ? 0 : (int)(reader["dept_id"]),
+                            UnitID = reader["unit_id"] == DBNull.Value ? 0 : (int)(reader["unit_id"]),
+                            LocationID = reader["loc_id"] == DBNull.Value ? 0 : (int)(reader["loc_id"]),
+                            EmployeeModifiedBy = reader["modified_by"] == DBNull.Value ? string.Empty : reader["modified_by"].ToString(),
+                            EmployeeModifiedDate = reader["modified_date"] == DBNull.Value ? string.Empty : reader["modified_date"].ToString(),
+                            EmployeeCreatedBy = reader["created_by"] == DBNull.Value ? string.Empty : reader["created_by"].ToString(),
+                            EmployeeCreatedDate = reader["created_date"] == DBNull.Value ? string.Empty : reader["created_date"].ToString(),
+                            IsDeactivated = reader["is_dx"] == DBNull.Value ? true : (bool)reader["is_dx"],
+                            DeactivationTime = reader["dx_time"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["dx_time"],
+                            DeactivatedBy = reader["dx_by"] == DBNull.Value ? string.Empty : reader["dx_by"].ToString(),
+
+                            PersonID = reader["id"] == DBNull.Value ? String.Empty : reader["id"].ToString(),
+                            Title = reader["title"] == DBNull.Value ? string.Empty : reader["title"].ToString(),
+                            Surname = reader["sname"] == DBNull.Value ? string.Empty : reader["sname"].ToString(),
+                            FirstName = reader["fname"] == DBNull.Value ? string.Empty : reader["fname"].ToString(),
+                            OtherNames = reader["oname"] == DBNull.Value ? string.Empty : reader["oname"].ToString(),
+                            FullName = reader["fullname"] == DBNull.Value ? string.Empty : reader["fullname"].ToString(),
+                            Sex = reader["sex"] == DBNull.Value ? string.Empty : reader["sex"].ToString(),
+                            MaritalStatus = reader["maritalstatus"] == DBNull.Value ? String.Empty : reader["maritalstatus"].ToString(),
+                            BirthDay = reader["birthday"] == DBNull.Value ? 0 : (int)reader["birthday"],
+                            BirthMonth = reader["birthmonth"] == DBNull.Value ? 0 : (int)reader["birthmonth"],
+                            BirthYear = reader["birthyear"] == DBNull.Value ? 0 : (int)reader["birthyear"],
+                            PhoneNo1 = reader["phone1"] == DBNull.Value ? string.Empty : reader["phone1"].ToString(),
+                            PhoneNo2 = reader["phone2"] == DBNull.Value ? string.Empty : reader["phone2"].ToString(),
+                            Email = reader["personal_email"] == DBNull.Value ? string.Empty : reader["personal_email"].ToString(),
+                            Address = reader["address"] == DBNull.Value ? string.Empty : reader["address"].ToString(),
+                            ImagePath = reader["imgp"] == DBNull.Value ? string.Empty : reader["imgp"].ToString(),
+                            ModifiedBy = reader["mdb"] == DBNull.Value ? string.Empty : reader["mdb"].ToString(),
+                            ModifiedTime = reader["mdt"] == DBNull.Value ? string.Empty : reader["mdt"].ToString(),
+                            CreatedTime = reader["ctt"] == DBNull.Value ? string.Empty : reader["ctt"].ToString(),
+                            CreatedBy = reader["ctb"] == DBNull.Value ? string.Empty : reader["ctb"].ToString(),
+
+                            LocationName = reader["locname"] == DBNull.Value ? string.Empty : reader["locname"].ToString(),
+                            LocationType = reader["loctype"] == DBNull.Value ? string.Empty : reader["loctype"].ToString(),
+                            LocationHead1 = reader["lochq1"] == DBNull.Value ? string.Empty : reader["lochq1"].ToString(),
+                            LocationHead2 = reader["lochq2"] == DBNull.Value ? string.Empty : reader["lochq2"].ToString(),
+                            LocationCountry = reader["locctr"] == DBNull.Value ? string.Empty : reader["locctr"].ToString(),
+                            LocationState = reader["locst"] == DBNull.Value ? string.Empty : reader["locst"].ToString(),
+                            CompanyName = reader["coy_name"] == DBNull.Value ? string.Empty : reader["coy_name"].ToString(),
+                            DepartmentHead1 = reader["depthd1"] == DBNull.Value ? string.Empty : reader["depthd1"].ToString(),
+                            DepartmentHead2 = reader["depthd2"] == DBNull.Value ? string.Empty : reader["depthd2"].ToString(),
+                            DepartmentName = reader["deptname"] == DBNull.Value ? string.Empty : reader["deptname"].ToString(),
+                            UnitHead1 = reader["unithd1"] == DBNull.Value ? string.Empty : reader["unithd1"].ToString(),
+                            UnitHead2 = reader["unithd2"] == DBNull.Value ? string.Empty : reader["unithd2"].ToString(),
+                            UnitName = reader["unitname"] == DBNull.Value ? string.Empty : reader["unitname"].ToString(),
+                        });
+                    }
+                }
+                await conn.CloseAsync();
+            }
+            return employeeList;
+        }
+
+        public async Task<IList<Employee>> GetEmployeesByCompanyCodeAsync(string companyCode, DateTime? terminalDate = null)
+        {
+            List<Employee> employeeList = new List<Employee>();
+            if (string.IsNullOrWhiteSpace(companyCode)) { throw new ArgumentNullException(nameof(companyCode)); }
+            string _terminalDate;
+            if (terminalDate == null) { _terminalDate = DateTime.Today.ToString("dd-MM-yyyy"); }
+            else { _terminalDate = terminalDate.Value.ToString("dd-MM-yyyy"); }
+
+            StringBuilder sb = new StringBuilder();
+            sb.Append("SELECT e.emp_id, e.emp_no_1, e.emp_no_2, e.start_up_date, ");
+            sb.Append("e.yrs_of_experience, e.start_up_designation, e.place_of_engagement, ");
+            sb.Append("e.confirmation_date, e.current_designation, e.job_grade, e.employment_status, ");
+            sb.Append("e.date_of_last_promotion, e.official_email, e.state_of_origin, e.is_dx, ");
+            sb.Append("e.lga_of_origin, e.religion, e.geo_political_region, e.next_of_kin_name, ");
+            sb.Append("e.next_of_kin_relationship, e.modified_by, e.modified_date, e.dx_time, e.dx_by, ");
+            sb.Append("e.created_by, e.created_date, e.next_of_kin_address, e.next_of_kin_phone, ");
+            sb.Append("e.next_of_kin_email, e.dept_id, e.unit_id, e.loc_id, e.coy_id, p.id, p.title, ");
+            sb.Append("p.sname, p.fname, p.oname, p.fullname, p.sex, p.phone1, p.phone2,");
+            sb.Append("p.email AS personal_email, p.address, p.mdb, p.mdt, p.ctb, p.ctt, ");
+            sb.Append("p.imgp, p.birthday, p.birthmonth, p.birthyear, p.maritalstatus, l.locname, ");
+            sb.Append("l.loctype, l.lochq1, l.lochq2, l.locmb, l.locmd, l.loccb, l.loccd, l.locctr, ");
+            sb.Append("l.locst, l.locqk, c.coy_code, c.coy_name, d.deptname, d.depthd1, d.depthd2, ");
+            sb.Append("d.deptqk, u.unitname, u.unithd1, u.unithd2, u.unitqk ");
+            sb.Append("FROM erm_emp_inf e JOIN gst_prsns p ON e.emp_id = p.id ");
+            //sb.Append("AND e.is_dx = false ");
+            sb.Append("LEFT JOIN gst_locs l ON e.loc_id = l.locqk ");
+            sb.Append("LEFT JOIN gst_coys c ON e.coy_id = c.coy_code ");
+            sb.Append("LEFT JOIN gst_depts d ON e.dept_id = d.deptqk ");
+            sb.Append("LEFT JOIN gst_units u ON e.unit_id = u.unitqk ");
+            sb.Append("WHERE(e.coy_id = @coy_id) AND (e.dx_time IS NULL ");
+            sb.Append("OR e.dx_time >= to_date(@dx_time, 'DD-MM-YYYY')) ");
+            sb.Append("AND ((e.start_up_date IS NULL) ");
+            sb.Append("OR (e.start_up_date <= to_date(@dx_time,'DD-MM-YYYY'))) ");
+            sb.Append("ORDER BY p.fullname; ");
+            string query = sb.ToString();
+
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
             {
                 await conn.OpenAsync();
                 // Retrieve all rows
                 using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
                 {
                     var coy_id = cmd.Parameters.Add("@coy_id", NpgsqlDbType.Text);
+                    var dx_time = cmd.Parameters.Add("@dx_time", NpgsqlDbType.Text);
                     await cmd.PrepareAsync();
                     coy_id.Value = companyCode;
+                    dx_time.Value = _terminalDate;
 
                     var reader = await cmd.ExecuteReaderAsync();
                     while (await reader.ReadAsync())
@@ -741,7 +752,7 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
                             EmployeeCreatedBy = reader["created_by"] == DBNull.Value ? string.Empty : reader["created_by"].ToString(),
                             EmployeeCreatedDate = reader["created_date"] == DBNull.Value ? string.Empty : reader["created_date"].ToString(),
                             IsDeactivated = reader["is_dx"] == DBNull.Value ? true : (bool)reader["is_dx"],
-                            DeactivationTime = reader["dx_time"] == DBNull.Value ? string.Empty : reader["dx_time"].ToString(),
+                            DeactivationTime = reader["dx_time"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["dx_time"],
                             DeactivatedBy = reader["dx_by"] == DBNull.Value ? string.Empty : reader["dx_by"].ToString(),
 
                             PersonID = reader["id"] == DBNull.Value ? String.Empty : reader["id"].ToString(),
@@ -783,25 +794,19 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
                 }
                 await conn.CloseAsync();
             }
-            catch (Exception ex)
-            {
-
-                await conn.CloseAsync();
-                throw new Exception(ex.Message);
-            }
             return employeeList;
         }
 
-        public async Task<IList<Employee>> GetEmployeesByCompanyCodeAsync(string companyCode, int locationId)
+        public async Task<IList<Employee>> GetEmployeesByCompanyCodeAsync(string companyCode, int locationId, DateTime? terminalDate = null)
         {
             List<Employee> employeeList = new List<Employee>();
             if (string.IsNullOrWhiteSpace(companyCode)) { throw new ArgumentNullException(nameof(companyCode)); }
             if (locationId < 1) { throw new ArgumentNullException(nameof(locationId)); }
+            string _terminalDate;
+            if (terminalDate == null) { _terminalDate = DateTime.Today.ToString("dd-MM-yyyy"); }
+            else { _terminalDate = terminalDate.Value.ToString("dd-MM-yyyy"); }
 
-            var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
-            string query = String.Empty;
             StringBuilder sb = new StringBuilder();
-
             sb.Append("SELECT e.emp_id, e.emp_no_1, e.emp_no_2, e.start_up_date, ");
             sb.Append("e.yrs_of_experience, e.start_up_designation, e.place_of_engagement, ");
             sb.Append("e.confirmation_date, e.current_designation, e.job_grade, e.employment_status, ");
@@ -817,15 +822,20 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
             sb.Append("l.locst, l.locqk, c.coy_code, c.coy_name, d.deptname, d.depthd1, d.depthd2, ");
             sb.Append("d.deptqk, u.unitname, u.unithd1, u.unithd2, u.unitqk ");
             sb.Append("FROM erm_emp_inf e JOIN gst_prsns p ON e.emp_id = p.id ");
-            sb.Append("AND e.is_dx = false ");
+            //sb.Append("AND e.is_dx = false ");
             sb.Append("LEFT JOIN gst_locs l ON e.loc_id = l.locqk ");
             sb.Append("LEFT JOIN gst_coys c ON e.coy_id = c.coy_code ");
             sb.Append("LEFT JOIN gst_depts d ON e.dept_id = d.deptqk ");
             sb.Append("LEFT JOIN gst_units u ON e.unit_id = u.unitqk ");
             sb.Append("WHERE(e.coy_id = @coy_id) AND (e.loc_id = @loc_id) ");
-            sb.Append("AND (e.is_dx = false) ORDER BY p.fullname;");
-            query = sb.ToString();
-            try
+            sb.Append("AND (e.dx_time IS NULL ");
+            sb.Append("OR e.dx_time >= to_date(@dx_time,'DD-MM-YYYY')) ");
+            sb.Append("AND ((e.start_up_date IS NULL) ");
+            sb.Append("OR (e.start_up_date <= to_date(@dx_time,'DD-MM-YYYY'))) ");
+            sb.Append("ORDER BY p.fullname;");
+            string query = sb.ToString();
+
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
             {
                 await conn.OpenAsync();
                 // Retrieve all rows
@@ -833,9 +843,11 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
                 {
                     var coy_id = cmd.Parameters.Add("@coy_id", NpgsqlDbType.Text);
                     var loc_id = cmd.Parameters.Add("@loc_id", NpgsqlDbType.Integer);
+                    var dx_time = cmd.Parameters.Add("@dx_time", NpgsqlDbType.Text);
                     await cmd.PrepareAsync();
                     coy_id.Value = companyCode;
                     loc_id.Value = locationId;
+                    dx_time.Value = _terminalDate;
 
                     var reader = await cmd.ExecuteReaderAsync();
                     while (await reader.ReadAsync())
@@ -875,7 +887,7 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
                             EmployeeCreatedBy = reader["created_by"] == DBNull.Value ? string.Empty : reader["created_by"].ToString(),
                             EmployeeCreatedDate = reader["created_date"] == DBNull.Value ? string.Empty : reader["created_date"].ToString(),
                             IsDeactivated = reader["is_dx"] == DBNull.Value ? true : (bool)reader["is_dx"],
-                            DeactivationTime = reader["dx_time"] == DBNull.Value ? string.Empty : reader["dx_time"].ToString(),
+                            DeactivationTime = reader["dx_time"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["dx_time"],
                             DeactivatedBy = reader["dx_by"] == DBNull.Value ? string.Empty : reader["dx_by"].ToString(),
 
                             PersonID = reader["id"] == DBNull.Value ? String.Empty : reader["id"].ToString(),
@@ -917,26 +929,21 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
                 }
                 await conn.CloseAsync();
             }
-            catch (Exception ex)
-            {
-
-                await conn.CloseAsync();
-                throw new Exception(ex.Message);
-            }
             return employeeList;
         }
 
-        public async Task<IList<Employee>> GetEmployeesByCompanyCodeAsync(string companyCode, int locationId, int departmentId)
+        public async Task<IList<Employee>> GetEmployeesByCompanyCodeAsync(string companyCode, int locationId, int departmentId, DateTime? terminalDate = null)
         {
             List<Employee> employeeList = new List<Employee>();
             if (string.IsNullOrWhiteSpace(companyCode)) { throw new ArgumentNullException(nameof(companyCode)); }
             if (locationId < 1) { throw new ArgumentNullException(nameof(locationId)); }
             if (departmentId < 1) { throw new ArgumentNullException(nameof(departmentId)); }
 
-            var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
-            string query = String.Empty;
-            StringBuilder sb = new StringBuilder();
+            string _terminalDate;
+            if (terminalDate == null) { _terminalDate = DateTime.Today.ToString("dd-MM-yyyy"); }
+            else { _terminalDate = terminalDate.Value.ToString("dd-MM-yyyy"); }
 
+            StringBuilder sb = new StringBuilder();
             sb.Append("SELECT e.emp_id, e.emp_no_1, e.emp_no_2, e.start_up_date, ");
             sb.Append("e.yrs_of_experience, e.start_up_designation, e.place_of_engagement, ");
             sb.Append("e.confirmation_date, e.current_designation, e.job_grade, e.employment_status, ");
@@ -952,16 +959,21 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
             sb.Append("l.locst, l.locqk, c.coy_code, c.coy_name, d.deptname, d.depthd1, d.depthd2, ");
             sb.Append("d.deptqk, u.unitname, u.unithd1, u.unithd2, u.unitqk ");
             sb.Append("FROM erm_emp_inf e JOIN gst_prsns p ON e.emp_id = p.id ");
-            sb.Append("AND e.is_dx = false ");
+            //sb.Append("AND e.is_dx = false ");
             sb.Append("LEFT JOIN gst_locs l ON e.loc_id = l.locqk ");
             sb.Append("LEFT JOIN gst_coys c ON e.coy_id = c.coy_code ");
             sb.Append("LEFT JOIN gst_depts d ON e.dept_id = d.deptqk ");
             sb.Append("LEFT JOIN gst_units u ON e.unit_id = u.unitqk ");
             sb.Append("WHERE(e.coy_id = @coy_id) AND (e.loc_id = @loc_id) ");
             sb.Append("AND (e.dept_id = @dept_id) ");
-            sb.Append("AND (e.is_dx = false) ORDER BY p.fullname;");
-            query = sb.ToString();
-            try
+            sb.Append("AND (e.dx_time IS NULL ");
+            sb.Append("OR e.dx_time >= to_date(@dx_time,'DD-MM-YYYY')) ");
+            sb.Append("AND ((e.start_up_date IS NULL) ");
+            sb.Append("OR (e.start_up_date <= to_date(@dx_time,'DD-MM-YYYY'))) ");
+            sb.Append("ORDER BY p.fullname;");
+            string query = sb.ToString();
+
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
             {
                 await conn.OpenAsync();
                 // Retrieve all rows
@@ -970,11 +982,12 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
                     var coy_id = cmd.Parameters.Add("@coy_id", NpgsqlDbType.Text);
                     var loc_id = cmd.Parameters.Add("@loc_id", NpgsqlDbType.Integer);
                     var dept_id = cmd.Parameters.Add("@dept_id", NpgsqlDbType.Integer);
-
+                    var dx_time = cmd.Parameters.Add("@dx_time", NpgsqlDbType.Text);
                     await cmd.PrepareAsync();
                     coy_id.Value = companyCode;
                     loc_id.Value = locationId;
                     dept_id.Value = departmentId;
+                    dx_time.Value = _terminalDate;
 
                     var reader = await cmd.ExecuteReaderAsync();
                     while (await reader.ReadAsync())
@@ -1014,7 +1027,7 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
                             EmployeeCreatedBy = reader["created_by"] == DBNull.Value ? string.Empty : reader["created_by"].ToString(),
                             EmployeeCreatedDate = reader["created_date"] == DBNull.Value ? string.Empty : reader["created_date"].ToString(),
                             IsDeactivated = reader["is_dx"] == DBNull.Value ? true : (bool)reader["is_dx"],
-                            DeactivationTime = reader["dx_time"] == DBNull.Value ? string.Empty : reader["dx_time"].ToString(),
+                            DeactivationTime = reader["dx_time"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["dx_time"],
                             DeactivatedBy = reader["dx_by"] == DBNull.Value ? string.Empty : reader["dx_by"].ToString(),
 
                             PersonID = reader["id"] == DBNull.Value ? String.Empty : reader["id"].ToString(),
@@ -1056,26 +1069,21 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
                 }
                 await conn.CloseAsync();
             }
-            catch (Exception ex)
-            {
-
-                await conn.CloseAsync();
-                throw new Exception(ex.Message);
-            }
             return employeeList;
         }
 
-        public async Task<IList<Employee>> GetEmployeesByCompanyCodeAndUnitAsync(string companyCode, int locationId, int unitId)
+        public async Task<IList<Employee>> GetEmployeesByCompanyCodeAndUnitAsync(string companyCode, int locationId, int unitId, DateTime? terminalDate = null)
         {
             List<Employee> employeeList = new List<Employee>();
             if (string.IsNullOrWhiteSpace(companyCode)) { throw new ArgumentNullException(nameof(companyCode)); }
             if (locationId < 1) { throw new ArgumentNullException(nameof(locationId)); }
             if (unitId < 1) { throw new ArgumentNullException(nameof(unitId)); }
 
-            var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
-            string query = String.Empty;
-            StringBuilder sb = new StringBuilder();
+            string _terminalDate;
+            if (terminalDate == null) { _terminalDate = DateTime.Today.ToString("dd-MM-yyyy"); }
+            else { _terminalDate = terminalDate.Value.ToString("dd-MM-yyyy"); }
 
+            StringBuilder sb = new StringBuilder();
             sb.Append("SELECT e.emp_id, e.emp_no_1, e.emp_no_2, e.start_up_date, ");
             sb.Append("e.yrs_of_experience, e.start_up_designation, e.place_of_engagement, ");
             sb.Append("e.confirmation_date, e.current_designation, e.job_grade, e.employment_status, ");
@@ -1091,16 +1099,22 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
             sb.Append("l.locst, l.locqk, c.coy_code, c.coy_name, d.deptname, d.depthd1, d.depthd2, ");
             sb.Append("d.deptqk, u.unitname, u.unithd1, u.unithd2, u.unitqk ");
             sb.Append("FROM erm_emp_inf e JOIN gst_prsns p ON e.emp_id = p.id ");
-            sb.Append("AND e.is_dx = false ");
+            //sb.Append("AND e.is_dx = false ");
             sb.Append("LEFT JOIN gst_locs l ON e.loc_id = l.locqk ");
             sb.Append("LEFT JOIN gst_coys c ON e.coy_id = c.coy_code ");
             sb.Append("LEFT JOIN gst_depts d ON e.dept_id = d.deptqk ");
             sb.Append("LEFT JOIN gst_units u ON e.unit_id = u.unitqk ");
             sb.Append("WHERE(e.coy_id = @coy_id) AND (e.loc_id = @loc_id) ");
             sb.Append("AND (e.unit_id = @unit_id) ");
-            sb.Append("AND (e.is_dx = false) ORDER BY p.fullname;");
-            query = sb.ToString();
-            try
+            sb.Append("AND (e.dx_time IS NULL ");
+            sb.Append("OR e.dx_time >= to_date(@dx_time,'DD-MM-YYYY')) ");
+            sb.Append("AND ((e.start_up_date IS NULL) ");
+            sb.Append("OR (e.start_up_date <= to_date(@dx_time,'DD-MM-YYYY'))) ");
+            sb.Append("ORDER BY p.fullname;");
+
+            string query = sb.ToString();
+
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
             {
                 await conn.OpenAsync();
                 // Retrieve all rows
@@ -1109,11 +1123,12 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
                     var coy_id = cmd.Parameters.Add("@coy_id", NpgsqlDbType.Text);
                     var loc_id = cmd.Parameters.Add("@loc_id", NpgsqlDbType.Integer);
                     var unit_id = cmd.Parameters.Add("@unit_id", NpgsqlDbType.Integer);
-
+                    var dx_time = cmd.Parameters.Add("@dx_time", NpgsqlDbType.Text);
                     await cmd.PrepareAsync();
                     coy_id.Value = companyCode;
                     loc_id.Value = locationId;
                     unit_id.Value = unitId;
+                    dx_time.Value = _terminalDate;
 
                     var reader = await cmd.ExecuteReaderAsync();
                     while (await reader.ReadAsync())
@@ -1153,7 +1168,7 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
                             EmployeeCreatedBy = reader["created_by"] == DBNull.Value ? string.Empty : reader["created_by"].ToString(),
                             EmployeeCreatedDate = reader["created_date"] == DBNull.Value ? string.Empty : reader["created_date"].ToString(),
                             IsDeactivated = reader["is_dx"] == DBNull.Value ? true : (bool)reader["is_dx"],
-                            DeactivationTime = reader["dx_time"] == DBNull.Value ? string.Empty : reader["dx_time"].ToString(),
+                            DeactivationTime = reader["dx_time"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["dx_time"],
                             DeactivatedBy = reader["dx_by"] == DBNull.Value ? string.Empty : reader["dx_by"].ToString(),
 
                             PersonID = reader["id"] == DBNull.Value ? String.Empty : reader["id"].ToString(),
@@ -1195,25 +1210,20 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
                 }
                 await conn.CloseAsync();
             }
-            catch (Exception ex)
-            {
-
-                await conn.CloseAsync();
-                throw new Exception(ex.Message);
-            }
             return employeeList;
         }
 
-        public async Task<IList<Employee>> GetEmployeesByCompanyCodeAndUnitAsync(string companyCode, int unitId)
+        public async Task<IList<Employee>> GetEmployeesByCompanyCodeAndUnitAsync(string companyCode, int unitId, DateTime? terminalDate = null)
         {
             List<Employee> employeeList = new List<Employee>();
             if (string.IsNullOrWhiteSpace(companyCode)) { throw new ArgumentNullException(nameof(companyCode)); }
             if (unitId < 1) { throw new ArgumentNullException(nameof(unitId)); }
 
-            var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
-            string query = String.Empty;
-            StringBuilder sb = new StringBuilder();
+            string _terminalDate;
+            if (terminalDate == null) { _terminalDate = DateTime.Today.ToString("dd-MM-yyyy"); }
+            else { _terminalDate = terminalDate.Value.ToString("dd-MM-yyyy"); }
 
+            StringBuilder sb = new StringBuilder();
             sb.Append("SELECT e.emp_id, e.emp_no_1, e.emp_no_2, e.start_up_date, ");
             sb.Append("e.yrs_of_experience, e.start_up_designation, e.place_of_engagement, ");
             sb.Append("e.confirmation_date, e.current_designation, e.job_grade, e.employment_status, ");
@@ -1229,16 +1239,21 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
             sb.Append("l.locst, l.locqk, c.coy_code, c.coy_name, d.deptname, d.depthd1, d.depthd2, ");
             sb.Append("d.deptqk, u.unitname, u.unithd1, u.unithd2, u.unitqk ");
             sb.Append("FROM erm_emp_inf e JOIN gst_prsns p ON e.emp_id = p.id ");
-            sb.Append("AND e.is_dx = false ");
+            //sb.Append("AND e.is_dx = false ");
             sb.Append("LEFT JOIN gst_locs l ON e.loc_id = l.locqk ");
             sb.Append("LEFT JOIN gst_coys c ON e.coy_id = c.coy_code ");
             sb.Append("LEFT JOIN gst_depts d ON e.dept_id = d.deptqk ");
             sb.Append("LEFT JOIN gst_units u ON e.unit_id = u.unitqk ");
             sb.Append("WHERE(e.coy_id = @coy_id) ");
             sb.Append("AND (e.unit_id = @unit_id) ");
-            sb.Append("AND (e.is_dx = false) ORDER BY p.fullname;");
-            query = sb.ToString();
-            try
+            sb.Append("AND (e.dx_time IS NULL ");
+            sb.Append("OR e.dx_time >= to_date(@dx_time,'DD-MM-YYYY')) ");
+            sb.Append("AND ((e.start_up_date IS NULL) ");
+            sb.Append("OR (e.start_up_date <= to_date(@dx_time,'DD-MM-YYYY'))) ");
+            sb.Append("ORDER BY p.fullname;");
+            string query = sb.ToString();
+
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
             {
                 await conn.OpenAsync();
                 // Retrieve all rows
@@ -1246,10 +1261,11 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
                 {
                     var coy_id = cmd.Parameters.Add("@coy_id", NpgsqlDbType.Text);
                     var unit_id = cmd.Parameters.Add("@unit_id", NpgsqlDbType.Integer);
-
+                    var dx_time = cmd.Parameters.Add("@dx_time", NpgsqlDbType.Text);
                     await cmd.PrepareAsync();
                     coy_id.Value = companyCode;
                     unit_id.Value = unitId;
+                    dx_time.Value = _terminalDate;
 
                     var reader = await cmd.ExecuteReaderAsync();
                     while (await reader.ReadAsync())
@@ -1289,7 +1305,7 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
                             EmployeeCreatedBy = reader["created_by"] == DBNull.Value ? string.Empty : reader["created_by"].ToString(),
                             EmployeeCreatedDate = reader["created_date"] == DBNull.Value ? string.Empty : reader["created_date"].ToString(),
                             IsDeactivated = reader["is_dx"] == DBNull.Value ? true : (bool)reader["is_dx"],
-                            DeactivationTime = reader["dx_time"] == DBNull.Value ? string.Empty : reader["dx_time"].ToString(),
+                            DeactivationTime = reader["dx_time"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["dx_time"],
                             DeactivatedBy = reader["dx_by"] == DBNull.Value ? string.Empty : reader["dx_by"].ToString(),
 
                             PersonID = reader["id"] == DBNull.Value ? String.Empty : reader["id"].ToString(),
@@ -1331,25 +1347,20 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
                 }
                 await conn.CloseAsync();
             }
-            catch (Exception ex)
-            {
-
-                await conn.CloseAsync();
-                throw new Exception(ex.Message);
-            }
             return employeeList;
         }
 
-        public async Task<IList<Employee>> GetEmployeesByCompanyCodeAndDeptAsync(string companyCode, int deptId)
+        public async Task<IList<Employee>> GetEmployeesByCompanyCodeAndDeptAsync(string companyCode, int deptId, DateTime? terminalDate = null)
         {
             List<Employee> employeeList = new List<Employee>();
             if (string.IsNullOrWhiteSpace(companyCode)) { throw new ArgumentNullException(nameof(companyCode)); }
             if (deptId < 1) { throw new ArgumentNullException(nameof(deptId)); }
 
-            var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
-            string query = String.Empty;
-            StringBuilder sb = new StringBuilder();
+            string _terminalDate;
+            if (terminalDate == null) { _terminalDate = DateTime.Today.ToString("dd-MM-yyyy"); }
+            else { _terminalDate = terminalDate.Value.ToString("dd-MM-yyyy"); }
 
+            StringBuilder sb = new StringBuilder();
             sb.Append("SELECT e.emp_id, e.emp_no_1, e.emp_no_2, e.start_up_date, ");
             sb.Append("e.yrs_of_experience, e.start_up_designation, e.place_of_engagement, ");
             sb.Append("e.confirmation_date, e.current_designation, e.job_grade, e.employment_status, ");
@@ -1365,16 +1376,21 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
             sb.Append("l.locst, l.locqk, c.coy_code, c.coy_name, d.deptname, d.depthd1, d.depthd2, ");
             sb.Append("d.deptqk, u.unitname, u.unithd1, u.unithd2, u.unitqk ");
             sb.Append("FROM erm_emp_inf e JOIN gst_prsns p ON e.emp_id = p.id ");
-            sb.Append("AND e.is_dx = false ");
+            //sb.Append("AND e.is_dx = false ");
             sb.Append("LEFT JOIN gst_locs l ON e.loc_id = l.locqk ");
             sb.Append("LEFT JOIN gst_coys c ON e.coy_id = c.coy_code ");
             sb.Append("LEFT JOIN gst_depts d ON e.dept_id = d.deptqk ");
             sb.Append("LEFT JOIN gst_units u ON e.unit_id = u.unitqk ");
             sb.Append("WHERE(e.coy_id = @coy_id) ");
             sb.Append("AND (e.unit_id = @unit_id) ");
-            sb.Append("AND (e.is_dx = false) ORDER BY p.fullname;");
-            query = sb.ToString();
-            try
+            sb.Append("AND (e.dx_time IS NULL ");
+            sb.Append("OR e.dx_time >= to_date(@dx_time,'DD-MM-YYYY')) ");
+            sb.Append("AND ((e.start_up_date IS NULL) ");
+            sb.Append("OR (e.start_up_date <= to_date(@dx_time,'DD-MM-YYYY'))) ");
+            sb.Append("ORDER BY p.fullname;");
+            string query = sb.ToString();
+
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
             {
                 await conn.OpenAsync();
                 // Retrieve all rows
@@ -1382,10 +1398,11 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
                 {
                     var coy_id = cmd.Parameters.Add("@coy_id", NpgsqlDbType.Text);
                     var dept_id = cmd.Parameters.Add("@dept_id", NpgsqlDbType.Integer);
-
+                    var dx_time = cmd.Parameters.Add("@dx_time", NpgsqlDbType.Text);
                     await cmd.PrepareAsync();
                     coy_id.Value = companyCode;
                     dept_id.Value = deptId;
+                    dx_time.Value = _terminalDate;
 
                     var reader = await cmd.ExecuteReaderAsync();
                     while (await reader.ReadAsync())
@@ -1425,7 +1442,7 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
                             EmployeeCreatedBy = reader["created_by"] == DBNull.Value ? string.Empty : reader["created_by"].ToString(),
                             EmployeeCreatedDate = reader["created_date"] == DBNull.Value ? string.Empty : reader["created_date"].ToString(),
                             IsDeactivated = reader["is_dx"] == DBNull.Value ? true : (bool)reader["is_dx"],
-                            DeactivationTime = reader["dx_time"] == DBNull.Value ? string.Empty : reader["dx_time"].ToString(),
+                            DeactivationTime = reader["dx_time"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["dx_time"],
                             DeactivatedBy = reader["dx_by"] == DBNull.Value ? string.Empty : reader["dx_by"].ToString(),
 
                             PersonID = reader["id"] == DBNull.Value ? String.Empty : reader["id"].ToString(),
@@ -1467,23 +1484,18 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
                 }
                 await conn.CloseAsync();
             }
-            catch (Exception ex)
-            {
-
-                await conn.CloseAsync();
-                throw new Exception(ex.Message);
-            }
             return employeeList;
         }
 
-        public async Task<IList<Employee>> GetEmployeesByLocationAsync(int locationId)
+        public async Task<IList<Employee>> GetEmployeesByLocationAsync(int locationId, DateTime? terminalDate = null)
         {
             List<Employee> employeeList = new List<Employee>();
             if (locationId < 1) { throw new ArgumentNullException(nameof(locationId)); }
-            var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
-            string query = String.Empty;
-            StringBuilder sb = new StringBuilder();
+            string _terminalDate;
+            if (terminalDate == null) { _terminalDate = DateTime.Today.ToString("dd-MM-yyyy"); }
+            else { _terminalDate = terminalDate.Value.ToString("dd-MM-yyyy"); }
 
+            StringBuilder sb = new StringBuilder();
             sb.Append("SELECT e.emp_id, e.emp_no_1, e.emp_no_2, e.start_up_date, ");
             sb.Append("e.yrs_of_experience, e.start_up_designation, e.place_of_engagement, ");
             sb.Append("e.confirmation_date, e.current_designation, e.job_grade, e.employment_status, ");
@@ -1499,15 +1511,19 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
             sb.Append("l.locst, l.locqk, c.coy_code, c.coy_name, d.deptname, d.depthd1, d.depthd2, ");
             sb.Append("d.deptqk, u.unitname, u.unithd1, u.unithd2, u.unitqk ");
             sb.Append("FROM erm_emp_inf e JOIN gst_prsns p ON e.emp_id = p.id ");
-            sb.Append("AND e.is_dx = false ");
+            //sb.Append("AND e.is_dx = false ");
             sb.Append("LEFT JOIN gst_locs l ON e.loc_id = l.locqk ");
             sb.Append("LEFT JOIN gst_coys c ON e.coy_id = c.coy_code ");
             sb.Append("LEFT JOIN gst_depts d ON e.dept_id = d.deptqk ");
             sb.Append("LEFT JOIN gst_units u ON e.unit_id = u.unitqk ");
-            sb.Append("WHERE(e.loc_id = @loc_id) AND (e.is_dx = false) ");
+            sb.Append("WHERE(e.loc_id = @loc_id) ");
+            sb.Append("AND (e.dx_time IS NULL ");
+            sb.Append("OR e.dx_time >= to_date(@dx_time,'DD-MM-YYYY')) ");
+            sb.Append("AND ((e.start_up_date IS NULL) ");
+            sb.Append("OR (e.start_up_date <= to_date(@dx_time,'DD-MM-YYYY'))) ");
             sb.Append("ORDER BY p.fullname;");
-            query = sb.ToString();
-            try
+            string query = sb.ToString();
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
             {
                 await conn.OpenAsync();
                 // Retrieve all rows
@@ -1555,7 +1571,7 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
                             EmployeeCreatedBy = reader["created_by"] == DBNull.Value ? string.Empty : reader["created_by"].ToString(),
                             EmployeeCreatedDate = reader["created_date"] == DBNull.Value ? string.Empty : reader["created_date"].ToString(),
                             IsDeactivated = reader["is_dx"] == DBNull.Value ? true : (bool)reader["is_dx"],
-                            DeactivationTime = reader["dx_time"] == DBNull.Value ? string.Empty : reader["dx_time"].ToString(),
+                            DeactivationTime = reader["dx_time"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["dx_time"],
                             DeactivatedBy = reader["dx_by"] == DBNull.Value ? string.Empty : reader["dx_by"].ToString(),
 
                             PersonID = reader["id"] == DBNull.Value ? String.Empty : reader["id"].ToString(),
@@ -1597,23 +1613,20 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
                 }
                 await conn.CloseAsync();
             }
-            catch (Exception ex)
-            {
-                await conn.CloseAsync();
-                throw new Exception(ex.Message);
-            }
             return employeeList;
         }
 
-        public async Task<IList<Employee>> GetEmployeesByLocationAsync(int locationId, int deptId)
+        public async Task<IList<Employee>> GetEmployeesByLocationAsync(int locationId, int deptId, DateTime? terminalDate = null)
         {
             List<Employee> employeeList = new List<Employee>();
             if (locationId < 1) { throw new ArgumentNullException(nameof(locationId)); }
             if (deptId < 1) { throw new ArgumentNullException(nameof(deptId)); }
-            var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
-            string query = String.Empty;
-            StringBuilder sb = new StringBuilder();
 
+            string _terminalDate;
+            if (terminalDate == null) { _terminalDate = DateTime.Today.ToString("dd-MM-yyyy"); }
+            else { _terminalDate = terminalDate.Value.ToString("dd-MM-yyyy"); }
+
+            StringBuilder sb = new StringBuilder();
             sb.Append("SELECT e.emp_id, e.emp_no_1, e.emp_no_2, e.start_up_date, ");
             sb.Append("e.yrs_of_experience, e.start_up_designation, e.place_of_engagement, ");
             sb.Append("e.confirmation_date, e.current_designation, e.job_grade, e.employment_status, ");
@@ -1629,15 +1642,20 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
             sb.Append("l.locst, l.locqk, c.coy_code, c.coy_name, d.deptname, d.depthd1, d.depthd2, ");
             sb.Append("d.deptqk, u.unitname, u.unithd1, u.unithd2, u.unitqk ");
             sb.Append("FROM erm_emp_inf e JOIN gst_prsns p ON e.emp_id = p.id ");
-            sb.Append("AND e.is_dx = false ");
+            //sb.Append("AND e.is_dx = false ");
             sb.Append("LEFT JOIN gst_locs l ON e.loc_id = l.locqk ");
             sb.Append("LEFT JOIN gst_coys c ON e.coy_id = c.coy_code ");
             sb.Append("LEFT JOIN gst_depts d ON e.dept_id = d.deptqk ");
             sb.Append("LEFT JOIN gst_units u ON e.unit_id = u.unitqk ");
             sb.Append("WHERE(e.loc_id = @loc_id) AND (e.dept_id = @dept_id) ");
-            sb.Append("AND (e.is_dx = false) ORDER BY p.fullname;");
-            query = sb.ToString();
-            try
+            sb.Append("AND (e.dx_time IS NULL ");
+            sb.Append("OR e.dx_time >= to_date(@dx_time,'DD-MM-YYYY')) ");
+            sb.Append("AND ((e.start_up_date IS NULL) ");
+            sb.Append("OR (e.start_up_date <= to_date(@dx_time,'DD-MM-YYYY'))) ");
+            sb.Append("ORDER BY p.fullname;");
+
+            string query = sb.ToString();
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
             {
                 await conn.OpenAsync();
                 // Retrieve all rows
@@ -1645,9 +1663,11 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
                 {
                     var loc_id = cmd.Parameters.Add("@loc_id", NpgsqlDbType.Integer);
                     var dept_id = cmd.Parameters.Add("@dept_id", NpgsqlDbType.Integer);
+                    var dx_time = cmd.Parameters.Add("@dx_time", NpgsqlDbType.Text);
                     await cmd.PrepareAsync();
                     loc_id.Value = locationId;
                     dept_id.Value = deptId;
+                    dx_time.Value = _terminalDate;
 
                     var reader = await cmd.ExecuteReaderAsync();
                     while (await reader.ReadAsync())
@@ -1687,7 +1707,7 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
                             EmployeeCreatedBy = reader["created_by"] == DBNull.Value ? string.Empty : reader["created_by"].ToString(),
                             EmployeeCreatedDate = reader["created_date"] == DBNull.Value ? string.Empty : reader["created_date"].ToString(),
                             IsDeactivated = reader["is_dx"] == DBNull.Value ? true : (bool)reader["is_dx"],
-                            DeactivationTime = reader["dx_time"] == DBNull.Value ? string.Empty : reader["dx_time"].ToString(),
+                            DeactivationTime = reader["dx_time"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["dx_time"],
                             DeactivatedBy = reader["dx_by"] == DBNull.Value ? string.Empty : reader["dx_by"].ToString(),
 
                             PersonID = reader["id"] == DBNull.Value ? String.Empty : reader["id"].ToString(),
@@ -1729,24 +1749,21 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
                 }
                 await conn.CloseAsync();
             }
-            catch (Exception ex)
-            {
-                await conn.CloseAsync();
-                throw new Exception(ex.Message);
-            }
             return employeeList;
         }
 
-        public async Task<IList<Employee>> GetEmployeesByLocationAsync(int locationId, int deptId, int unitId)
+        public async Task<IList<Employee>> GetEmployeesByLocationAsync(int locationId, int deptId, int unitId, DateTime? terminalDate = null)
         {
             List<Employee> employeeList = new List<Employee>();
             if (locationId < 1) { throw new ArgumentNullException(nameof(locationId)); }
             if (deptId < 1) { throw new ArgumentNullException(nameof(deptId)); }
             if (unitId < 1) { throw new ArgumentNullException(nameof(unitId)); }
-            var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
-            string query = String.Empty;
-            StringBuilder sb = new StringBuilder();
 
+            string _terminalDate;
+            if (terminalDate == null) { _terminalDate = DateTime.Today.ToString("dd-MM-yyyy"); }
+            else { _terminalDate = terminalDate.Value.ToString("dd-MM-yyyy"); }
+
+            StringBuilder sb = new StringBuilder();
             sb.Append("SELECT e.emp_id, e.emp_no_1, e.emp_no_2, e.start_up_date, ");
             sb.Append("e.yrs_of_experience, e.start_up_designation, e.place_of_engagement, ");
             sb.Append("e.confirmation_date, e.current_designation, e.job_grade, e.employment_status, ");
@@ -1762,16 +1779,21 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
             sb.Append("l.locst, l.locqk, c.coy_code, c.coy_name, d.deptname, d.depthd1, d.depthd2, ");
             sb.Append("d.deptqk, u.unitname, u.unithd1, u.unithd2, u.unitqk ");
             sb.Append("FROM erm_emp_inf e JOIN gst_prsns p ON e.emp_id = p.id ");
-            sb.Append("AND e.is_dx = false ");
+            //sb.Append("AND e.is_dx = false ");
             sb.Append("LEFT JOIN gst_locs l ON e.loc_id = l.locqk ");
             sb.Append("LEFT JOIN gst_coys c ON e.coy_id = c.coy_code ");
             sb.Append("LEFT JOIN gst_depts d ON e.dept_id = d.deptqk ");
             sb.Append("LEFT JOIN gst_units u ON e.unit_id = u.unitqk ");
             sb.Append("WHERE(e.loc_id = @loc_id) AND (e.dept_id = @dept_id) ");
-            sb.Append("AND (e.unit_id = @unit_id) AND (e.is_dx = false) ");
+            sb.Append("AND (e.unit_id = @unit_id) ");
+            sb.Append("AND (e.dx_time IS NULL ");
+            sb.Append("OR e.dx_time >= to_date(@dx_time,'DD-MM-YYYY')) ");
+            sb.Append("AND ((e.start_up_date IS NULL) ");
+            sb.Append("OR (e.start_up_date <= to_date(@dx_time,'DD-MM-YYYY'))) ");
             sb.Append("ORDER BY p.fullname;");
-            query = sb.ToString();
-            try
+
+            string query = sb.ToString();
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
             {
                 await conn.OpenAsync();
                 // Retrieve all rows
@@ -1780,10 +1802,12 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
                     var loc_id = cmd.Parameters.Add("@loc_id", NpgsqlDbType.Integer);
                     var dept_id = cmd.Parameters.Add("@dept_id", NpgsqlDbType.Integer);
                     var unit_id = cmd.Parameters.Add("@unit_id", NpgsqlDbType.Integer);
+                    var dx_time = cmd.Parameters.Add("@dx_time", NpgsqlDbType.Text);
                     await cmd.PrepareAsync();
                     loc_id.Value = locationId;
                     dept_id.Value = deptId;
                     unit_id.Value = unitId;
+                    dx_time.Value = _terminalDate;
 
                     var reader = await cmd.ExecuteReaderAsync();
                     while (await reader.ReadAsync())
@@ -1823,7 +1847,7 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
                             EmployeeCreatedBy = reader["created_by"] == DBNull.Value ? string.Empty : reader["created_by"].ToString(),
                             EmployeeCreatedDate = reader["created_date"] == DBNull.Value ? string.Empty : reader["created_date"].ToString(),
                             IsDeactivated = reader["is_dx"] == DBNull.Value ? true : (bool)reader["is_dx"],
-                            DeactivationTime = reader["dx_time"] == DBNull.Value ? string.Empty : reader["dx_time"].ToString(),
+                            DeactivationTime = reader["dx_time"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["dx_time"],
                             DeactivatedBy = reader["dx_by"] == DBNull.Value ? string.Empty : reader["dx_by"].ToString(),
 
                             PersonID = reader["id"] == DBNull.Value ? String.Empty : reader["id"].ToString(),
@@ -1865,23 +1889,20 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
                 }
                 await conn.CloseAsync();
             }
-            catch (Exception ex)
-            {
-                await conn.CloseAsync();
-                throw new Exception(ex.Message);
-            }
             return employeeList;
         }
 
-        public async Task<IList<Employee>> GetEmployeesByLocationAndUnitAsync(int locationId, int unitId)
+        public async Task<IList<Employee>> GetEmployeesByLocationAndUnitAsync(int locationId, int unitId, DateTime? terminalDate = null)
         {
             List<Employee> employeeList = new List<Employee>();
             if (locationId < 1) { throw new ArgumentNullException(nameof(locationId)); }
             if (unitId < 1) { throw new ArgumentNullException(nameof(unitId)); }
-            var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
-            string query = String.Empty;
-            StringBuilder sb = new StringBuilder();
 
+            string _terminalDate;
+            if (terminalDate == null) { _terminalDate = DateTime.Today.ToString("dd-MM-yyyy"); }
+            else { _terminalDate = terminalDate.Value.ToString("dd-MM-yyyy"); }
+
+            StringBuilder sb = new StringBuilder();
             sb.Append("SELECT e.emp_id, e.emp_no_1, e.emp_no_2, e.start_up_date, ");
             sb.Append("e.yrs_of_experience, e.start_up_designation, e.place_of_engagement, ");
             sb.Append("e.confirmation_date, e.current_designation, e.job_grade, e.employment_status, ");
@@ -1897,15 +1918,20 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
             sb.Append("l.locst, l.locqk, c.coy_code, c.coy_name, d.deptname, d.depthd1, d.depthd2, ");
             sb.Append("d.deptqk, u.unitname, u.unithd1, u.unithd2, u.unitqk ");
             sb.Append("FROM erm_emp_inf e JOIN gst_prsns p ON e.emp_id = p.id ");
-            sb.Append("AND e.is_dx = false ");
+            //sb.Append("AND e.is_dx = false ");
             sb.Append("LEFT JOIN gst_locs l ON e.loc_id = l.locqk ");
             sb.Append("LEFT JOIN gst_coys c ON e.coy_id = c.coy_code ");
             sb.Append("LEFT JOIN gst_depts d ON e.dept_id = d.deptqk ");
             sb.Append("LEFT JOIN gst_units u ON e.unit_id = u.unitqk ");
             sb.Append("WHERE(e.loc_id = @loc_id) AND (e.unit_id = @unit_id) ");
-            sb.Append("AND (e.is_dx = false) ORDER BY p.fullname;");
-            query = sb.ToString();
-            try
+            sb.Append("AND (e.dx_time IS NULL ");
+            sb.Append("OR e.dx_time >= to_date(@dx_time,'DD-MM-YYYY')) ");
+            sb.Append("AND ((e.start_up_date IS NULL) ");
+            sb.Append("OR (e.start_up_date <= to_date(@dx_time,'DD-MM-YYYY'))) ");
+            sb.Append("ORDER BY p.fullname;");
+            string query = sb.ToString();
+
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
             {
                 await conn.OpenAsync();
                 // Retrieve all rows
@@ -1913,9 +1939,11 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
                 {
                     var loc_id = cmd.Parameters.Add("@loc_id", NpgsqlDbType.Integer);
                     var unit_id = cmd.Parameters.Add("@unit_id", NpgsqlDbType.Integer);
+                    var dx_time = cmd.Parameters.Add("@dx_time", NpgsqlDbType.Text);
                     await cmd.PrepareAsync();
                     loc_id.Value = locationId;
                     unit_id.Value = unitId;
+                    dx_time.Value = _terminalDate;
 
                     var reader = await cmd.ExecuteReaderAsync();
                     while (await reader.ReadAsync())
@@ -1955,7 +1983,7 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
                             EmployeeCreatedBy = reader["created_by"] == DBNull.Value ? string.Empty : reader["created_by"].ToString(),
                             EmployeeCreatedDate = reader["created_date"] == DBNull.Value ? string.Empty : reader["created_date"].ToString(),
                             IsDeactivated = reader["is_dx"] == DBNull.Value ? true : (bool)reader["is_dx"],
-                            DeactivationTime = reader["dx_time"] == DBNull.Value ? string.Empty : reader["dx_time"].ToString(),
+                            DeactivationTime = reader["dx_time"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["dx_time"],
                             DeactivatedBy = reader["dx_by"] == DBNull.Value ? string.Empty : reader["dx_by"].ToString(),
 
                             PersonID = reader["id"] == DBNull.Value ? String.Empty : reader["id"].ToString(),
@@ -1997,22 +2025,19 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
                 }
                 await conn.CloseAsync();
             }
-            catch (Exception ex)
-            {
-                await conn.CloseAsync();
-                throw new Exception(ex.Message);
-            }
             return employeeList;
         }
 
-        public async Task<IList<Employee>> GetEmployeesByUnitAsync(int unitId)
+        public async Task<IList<Employee>> GetEmployeesByUnitAsync(int unitId, DateTime? terminalDate = null)
         {
             List<Employee> employeeList = new List<Employee>();
             if (unitId < 1) { throw new ArgumentNullException(nameof(unitId)); }
-            var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
-            string query = String.Empty;
-            StringBuilder sb = new StringBuilder();
 
+            string _terminalDate;
+            if (terminalDate == null) { _terminalDate = DateTime.Today.ToString("dd-MM-yyyy"); }
+            else { _terminalDate = terminalDate.Value.ToString("dd-MM-yyyy"); }
+
+            StringBuilder sb = new StringBuilder();
             sb.Append("SELECT e.emp_id, e.emp_no_1, e.emp_no_2, e.start_up_date, ");
             sb.Append("e.yrs_of_experience, e.start_up_designation, e.place_of_engagement, ");
             sb.Append("e.confirmation_date, e.current_designation, e.job_grade, e.employment_status, ");
@@ -2028,23 +2053,31 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
             sb.Append("l.locst, l.locqk, c.coy_code, c.coy_name, d.deptname, d.depthd1, d.depthd2, ");
             sb.Append("d.deptqk, u.unitname, u.unithd1, u.unithd2, u.unitqk ");
             sb.Append("FROM erm_emp_inf e JOIN gst_prsns p ON e.emp_id = p.id ");
-            sb.Append("AND e.is_dx = false ");
+            //sb.Append("AND e.is_dx = false ");
             sb.Append("LEFT JOIN gst_locs l ON e.loc_id = l.locqk ");
             sb.Append("LEFT JOIN gst_coys c ON e.coy_id = c.coy_code ");
             sb.Append("LEFT JOIN gst_depts d ON e.dept_id = d.deptqk ");
             sb.Append("LEFT JOIN gst_units u ON e.unit_id = u.unitqk ");
             sb.Append("WHERE (e.unit_id = @unit_id) ");
-            sb.Append("AND (e.is_dx = false) ORDER BY p.fullname;");
-            query = sb.ToString();
-            try
+            sb.Append("AND (e.dx_time IS NULL ");
+            sb.Append("OR e.dx_time >= to_date(@dx_time,'DD-MM-YYYY')) ");
+            sb.Append("AND ((e.start_up_date IS NULL) ");
+            sb.Append("OR (e.start_up_date <= to_date(@dx_time,'DD-MM-YYYY'))) ");
+            sb.Append("ORDER BY p.fullname;");
+
+            string query = sb.ToString();
+
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
             {
                 await conn.OpenAsync();
                 // Retrieve all rows
                 using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
                 {
                     var unit_id = cmd.Parameters.Add("@unit_id", NpgsqlDbType.Integer);
+                    var dx_time = cmd.Parameters.Add("@dx_time", NpgsqlDbType.Text);
                     await cmd.PrepareAsync();
                     unit_id.Value = unitId;
+                    dx_time.Value = _terminalDate;
 
                     var reader = await cmd.ExecuteReaderAsync();
                     while (await reader.ReadAsync())
@@ -2084,7 +2117,7 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
                             EmployeeCreatedBy = reader["created_by"] == DBNull.Value ? string.Empty : reader["created_by"].ToString(),
                             EmployeeCreatedDate = reader["created_date"] == DBNull.Value ? string.Empty : reader["created_date"].ToString(),
                             IsDeactivated = reader["is_dx"] == DBNull.Value ? true : (bool)reader["is_dx"],
-                            DeactivationTime = reader["dx_time"] == DBNull.Value ? string.Empty : reader["dx_time"].ToString(),
+                            DeactivationTime = reader["dx_time"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["dx_time"],
                             DeactivatedBy = reader["dx_by"] == DBNull.Value ? string.Empty : reader["dx_by"].ToString(),
 
                             PersonID = reader["id"] == DBNull.Value ? String.Empty : reader["id"].ToString(),
@@ -2126,22 +2159,18 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
                 }
                 await conn.CloseAsync();
             }
-            catch (Exception ex)
-            {
-                await conn.CloseAsync();
-                throw new Exception(ex.Message);
-            }
             return employeeList;
         }
 
-        public async Task<IList<Employee>> GetEmployeesByDeptAsync(int deptId)
+        public async Task<IList<Employee>> GetEmployeesByDeptAsync(int deptId, DateTime? terminalDate = null)
         {
             List<Employee> employeeList = new List<Employee>();
             if (deptId < 1) { throw new ArgumentNullException(nameof(deptId)); }
-            var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
-            string query = String.Empty;
-            StringBuilder sb = new StringBuilder();
+            string _terminalDate;
+            if (terminalDate == null) { _terminalDate = DateTime.Today.ToString("dd-MM-yyyy"); }
+            else { _terminalDate = terminalDate.Value.ToString("dd-MM-yyyy"); }
 
+            StringBuilder sb = new StringBuilder();
             sb.Append("SELECT e.emp_id, e.emp_no_1, e.emp_no_2, e.start_up_date, ");
             sb.Append("e.yrs_of_experience, e.start_up_designation, e.place_of_engagement, ");
             sb.Append("e.confirmation_date, e.current_designation, e.job_grade, e.employment_status, ");
@@ -2157,23 +2186,30 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
             sb.Append("l.locst, l.locqk, c.coy_code, c.coy_name, d.deptname, d.depthd1, d.depthd2, ");
             sb.Append("d.deptqk, u.unitname, u.unithd1, u.unithd2, u.unitqk ");
             sb.Append("FROM erm_emp_inf e JOIN gst_prsns p ON e.emp_id = p.id ");
-            sb.Append("AND e.is_dx = false ");
+            //sb.Append("AND e.is_dx = false ");
             sb.Append("LEFT JOIN gst_locs l ON e.loc_id = l.locqk ");
             sb.Append("LEFT JOIN gst_coys c ON e.coy_id = c.coy_code ");
             sb.Append("LEFT JOIN gst_depts d ON e.dept_id = d.deptqk ");
             sb.Append("LEFT JOIN gst_units u ON e.unit_id = u.unitqk ");
             sb.Append("WHERE (e.dept_id = @dept_id) ");
-            sb.Append("AND (e.is_dx = false) ORDER BY p.fullname;");
-            query = sb.ToString();
-            try
+            sb.Append("AND (e.dx_time IS NULL ");
+            sb.Append("OR e.dx_time >= to_date(@dx_time,'DD-MM-YYYY')) ");
+            sb.Append("AND ((e.start_up_date IS NULL) ");
+            sb.Append("OR (e.start_up_date <= to_date(@dx_time,'DD-MM-YYYY'))) ");
+            sb.Append("ORDER BY p.fullname;");
+
+            string query = sb.ToString();
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
             {
                 await conn.OpenAsync();
                 // Retrieve all rows
                 using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
                 {
                     var dept_id = cmd.Parameters.Add("@dept_id", NpgsqlDbType.Integer);
+                    var dx_time = cmd.Parameters.Add("@dx_time", NpgsqlDbType.Text);
                     await cmd.PrepareAsync();
                     dept_id.Value = deptId;
+                    dx_time.Value = _terminalDate;
 
                     var reader = await cmd.ExecuteReaderAsync();
                     while (await reader.ReadAsync())
@@ -2213,7 +2249,7 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
                             EmployeeCreatedBy = reader["created_by"] == DBNull.Value ? string.Empty : reader["created_by"].ToString(),
                             EmployeeCreatedDate = reader["created_date"] == DBNull.Value ? string.Empty : reader["created_date"].ToString(),
                             IsDeactivated = reader["is_dx"] == DBNull.Value ? true : (bool)reader["is_dx"],
-                            DeactivationTime = reader["dx_time"] == DBNull.Value ? string.Empty : reader["dx_time"].ToString(),
+                            DeactivationTime = reader["dx_time"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["dx_time"],
                             DeactivatedBy = reader["dx_by"] == DBNull.Value ? string.Empty : reader["dx_by"].ToString(),
 
                             PersonID = reader["id"] == DBNull.Value ? String.Empty : reader["id"].ToString(),
@@ -2255,13 +2291,12 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
                 }
                 await conn.CloseAsync();
             }
-            catch (Exception ex)
-            {
-                await conn.CloseAsync();
-                throw new Exception(ex.Message);
-            }
             return employeeList;
         }
+        //============ End Employee Register Action Methods ==================//
+        #endregion
+
+        #region Employee BirthDays Read Action Methods
 
         public async Task<IList<Employee>> GetEmployeesByBirthMonthAsync(int birthMonth)
         {
@@ -2342,7 +2377,7 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
                             EmployeeCreatedBy = reader["created_by"] == DBNull.Value ? string.Empty : reader["created_by"].ToString(),
                             EmployeeCreatedDate = reader["created_date"] == DBNull.Value ? string.Empty : reader["created_date"].ToString(),
                             IsDeactivated = reader["is_dx"] == DBNull.Value ? true : (bool)reader["is_dx"],
-                            DeactivationTime = reader["dx_time"] == DBNull.Value ? string.Empty : reader["dx_time"].ToString(),
+                            DeactivationTime = reader["dx_time"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["dx_time"],
                             DeactivatedBy = reader["dx_by"] == DBNull.Value ? string.Empty : reader["dx_by"].ToString(),
 
                             PersonID = reader["id"] == DBNull.Value ? String.Empty : reader["id"].ToString(),
@@ -2475,7 +2510,7 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
                             EmployeeCreatedBy = reader["created_by"] == DBNull.Value ? string.Empty : reader["created_by"].ToString(),
                             EmployeeCreatedDate = reader["created_date"] == DBNull.Value ? string.Empty : reader["created_date"].ToString(),
                             IsDeactivated = reader["is_dx"] == DBNull.Value ? true : (bool)reader["is_dx"],
-                            DeactivationTime = reader["dx_time"] == DBNull.Value ? string.Empty : reader["dx_time"].ToString(),
+                            DeactivationTime = reader["dx_time"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["dx_time"],
                             DeactivatedBy = reader["dx_by"] == DBNull.Value ? string.Empty : reader["dx_by"].ToString(),
 
                             PersonID = reader["id"] == DBNull.Value ? String.Empty : reader["id"].ToString(),
@@ -2525,9 +2560,12 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
             return employeeList;
         }
 
-        public async Task<int> GetEmployeesCountByStartUpDateAsync(int startUpYear, int startUpMonth, int startUpDay)
+        #endregion
+
+        #region Employee Other Read Action Methods
+        public async Task<long> GetEmployeesCountByStartUpDateAsync(int startUpYear, int startUpMonth, int startUpDay)
         {
-            int employeeCount = 0;
+            long employeeCount = 0;
             if (startUpYear < 1) { throw new ArgumentNullException(nameof(startUpYear)); }
             if (startUpMonth < 1) { throw new ArgumentNullException(nameof(startUpMonth)); }
             if (startUpDay < 1) { throw new ArgumentNullException(nameof(startUpDay)); }
@@ -2536,7 +2574,7 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
             string query = String.Empty;
             StringBuilder sb = new StringBuilder();
 
-            sb.Append("SELECT COUNT (emp_id) as no_count ");
+            sb.Append("SELECT COALESCE(COUNT(emp_id),0) as no_count ");
             sb.Append("FROM erm_emp_inf ");
             sb.Append("WHERE (date_part('year', start_up_date) = @start_up_year) ");
             sb.Append("AND (date_part('month', start_up_date) = @start_up_month) ");
@@ -2557,41 +2595,46 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
                 start_up_day.Value = startUpDay;
 
                 var no_count = await cmd.ExecuteScalarAsync();
-                employeeCount = Convert.ToInt32(no_count);
+                employeeCount = Convert.ToInt64(no_count);
             }
             await conn.CloseAsync();
             return employeeCount;
         }
 
-        public async Task<IList<Employee>> GetAllEmployeesWithoutUserAccountsAsync()
+        public async Task<IList<Employee>> GetAllEmployeesWithoutUserAccountsAsync(DateTime? terminalDate = null)
         {
             List<Employee> employeeList = new List<Employee>();
-            var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
-            string query = String.Empty;
-            StringBuilder sb = new StringBuilder();
+            string _terminalDate;
+            if (terminalDate == null) { _terminalDate = DateTime.Today.ToString("dd-MM-yyyy"); }
+            else { _terminalDate = terminalDate.Value.ToString("dd-MM-yyyy"); }
 
+            StringBuilder sb = new StringBuilder();
             sb.Append("SELECT e.emp_id, e.emp_no_1, e.emp_no_2, e.official_email, e.dept_id,  ");
             sb.Append("e.unit_id, e.loc_id, e.coy_id, e.is_dx, e.dx_time, e.dx_by, p.id, ");
             sb.Append("p.fullname, p.sex, p.phone1, p.phone2, p.is_dx, p.dx_by, p.dx_time, ");
             sb.Append("p.imgp, a.usr_id, a.usr_nm, a.usr_typ, u.unitname, d.deptname, ");
             sb.Append("l.locname FROM public.erm_emp_inf e ");
             sb.Append("INNER JOIN public.gst_prsns p ON e.emp_id = p.id ");
-            sb.Append("AND e.is_dx = false ");
+            //sb.Append("AND e.is_dx = false ");
             sb.Append("INNER JOIN public.gst_units u ON e.unit_id = u.unitqk ");
             sb.Append("INNER JOIN public.gst_depts d ON e.dept_id = d.deptqk ");
             sb.Append("INNER JOIN public.gst_locs l ON e.loc_id = l.locqk ");
             sb.Append("LEFT OUTER JOIN public.sct_usr_acct a ON p.id = a.usr_id ");
-            sb.Append("WHERE (e.is_dx = false OR p.is_dx = false) AND (a.usr_id IS NULL) ");
+            sb.Append("WHERE (a.usr_id IS NULL) ");
+            sb.Append("AND (e.dx_time IS NULL ");
+            sb.Append("OR e.dx_time >= to_date(@dx_time,'DD-MM-YYYY')) ");
             sb.Append("ORDER BY p.fullname;");
 
-            query = sb.ToString();
-            try
+            string query = sb.ToString();
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
             {
                 await conn.OpenAsync();
                 // Retrieve all rows
                 using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
                 {
+                    var dx_time = cmd.Parameters.Add("@dx_time", NpgsqlDbType.Text);
                     await cmd.PrepareAsync();
+                    dx_time.Value = _terminalDate;
                     var reader = await cmd.ExecuteReaderAsync();
                     while (await reader.ReadAsync())
                     {
@@ -2622,50 +2665,51 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
                 }
                 await conn.CloseAsync();
             }
-            catch (Exception ex)
-            {
-
-                await conn.CloseAsync();
-                throw new Exception(ex.Message);
-            }
             return employeeList;
         }
 
-        public async Task<IList<Employee>> GetEmployeesWithoutUserAccountsByNameAsync(string employeeName)
+        public async Task<IList<Employee>> GetEmployeesWithoutUserAccountsByNameAsync(string employeeName, DateTime? terminalDate = null)
         {
             List<Employee> employeeList = new List<Employee>();
             if (string.IsNullOrWhiteSpace(employeeName)) { throw new ArgumentNullException(nameof(employeeName)); }
-            var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
-            string query = String.Empty;
-            StringBuilder sb = new StringBuilder();
 
+            string _terminalDate;
+            if (terminalDate == null) { _terminalDate = DateTime.Today.ToString("dd-MM-yyyy"); }
+            else { _terminalDate = terminalDate.Value.ToString("dd-MM-yyyy"); }
+
+            StringBuilder sb = new StringBuilder();
             sb.Append("SELECT e.emp_id, e.emp_no_1, e.emp_no_2, e.official_email, e.dept_id, ");
             sb.Append("e.unit_id, e.loc_id, e.coy_id, e.is_dx, e.dx_time, e.dx_by, p.id, ");
             sb.Append("p.fullname, p.sex, p.phone1, p.phone2, p.is_dx, p.dx_by, p.dx_time, ");
             sb.Append("p.fname, p.sname, p.oname, p.imgp, a.usr_id, a.usr_nm, a.usr_typ, ");
             sb.Append("u.unitname, d.deptname, l.locname FROM public.erm_emp_inf e ");
             sb.Append("INNER JOIN public.gst_prsns p ON e.emp_id = p.id ");
-            sb.Append("AND e.is_dx = false ");
+            //sb.Append("AND e.is_dx = false ");
             sb.Append("INNER JOIN public.gst_units u ON e.unit_id = u.unitqk ");
             sb.Append("INNER JOIN public.gst_depts d ON e.dept_id = d.deptqk ");
             sb.Append("INNER JOIN public.gst_locs l ON e.loc_id = l.locqk ");
             sb.Append("LEFT OUTER JOIN public.sct_usr_acct a ON p.id = a.usr_id ");
-            sb.Append("WHERE (e.is_dx = false OR p.is_dx = false) AND (a.usr_id IS NULL) ");
+            sb.Append("WHERE (a.usr_id IS NULL) ");
+            sb.Append("AND (e.dx_time IS NULL ");
+            sb.Append("OR e.dx_time >= to_date(@dx_time,'DD-MM-YYYY')) ");
             sb.Append("AND ((LOWER(p.fname) LIKE '%'||LOWER(@name)||'%') ");
             sb.Append("OR (LOWER(p.sname) LIKE '%'||LOWER(@name)||'%') ");
             sb.Append("OR (LOWER(p.oname) LIKE '%'||LOWER(@name)||'%') ");
             sb.Append("OR (LOWER(p.fullname) LIKE '%'||LOWER(@name)||'%')) ");
             sb.Append("ORDER BY p.fullname;");
-            query = sb.ToString();
-            try
+
+            string query = sb.ToString();
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
             {
                 await conn.OpenAsync();
                 // Retrieve all rows
                 using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
                 {
                     var name = cmd.Parameters.Add("@name", NpgsqlDbType.Text);
+                    var dx_time = cmd.Parameters.Add("@dx_time", NpgsqlDbType.Text);
                     await cmd.PrepareAsync();
                     name.Value = employeeName;
+                    dx_time.Value = _terminalDate;
 
                     var reader = await cmd.ExecuteReaderAsync();
                     while (await reader.ReadAsync())
@@ -2697,11 +2741,186 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
                 }
                 await conn.CloseAsync();
             }
-            catch (Exception ex)
-            {
+            return employeeList;
+        }
 
+        #endregion
+
+        #region Employee Leave Read Action Methods
+        public async Task<IList<Employee>> GetEmployeesByLeaveProfileIdAsync(int leaveProfileId)
+        {
+            List<Employee> employeeList = new List<Employee>();
+            if (leaveProfileId < 1) { throw new ArgumentNullException(nameof(leaveProfileId)); }
+            StringBuilder sb = new StringBuilder();
+            sb.Append("SELECT e.emp_id, e.emp_no_1, e.emp_no_2, e.start_up_date, ");
+            sb.Append("e.yrs_of_experience, e.start_up_designation, e.place_of_engagement, ");
+            sb.Append("e.confirmation_date, e.current_designation, e.job_grade, e.employment_status, ");
+            sb.Append("e.date_of_last_promotion, e.official_email, e.state_of_origin, e.is_dx, ");
+            sb.Append("e.lga_of_origin, e.religion, e.geo_political_region, e.next_of_kin_name, ");
+            sb.Append("e.next_of_kin_relationship, e.modified_by, e.modified_date, e.dx_time, e.dx_by, ");
+            sb.Append("e.created_by, e.created_date, e.next_of_kin_address, e.next_of_kin_phone, ");
+            sb.Append("e.next_of_kin_email, e.dept_id, e.unit_id, e.loc_id, e.coy_id, p.id, p.title, ");
+            sb.Append("p.sname, p.fname, p.oname, p.fullname, p.sex, p.phone1, p.phone2,");
+            sb.Append("p.email AS personal_email, p.address, p.mdb, p.mdt, p.ctb, p.ctt, ");
+            sb.Append("p.imgp, p.birthday, p.birthmonth, p.birthyear, p.maritalstatus, l.locname, ");
+            sb.Append("l.loctype, l.lochq1, l.lochq2, l.locmb, l.locmd, l.loccb, l.loccd, l.locctr, ");
+            sb.Append("l.locst, l.locqk, c.coy_code, c.coy_name, d.deptname, d.depthd1, d.depthd2, ");
+            sb.Append("d.deptqk, u.unitname, u.unithd1, u.unithd2, u.unitqk ");
+            sb.Append("FROM erm_emp_inf e JOIN gst_prsns p ON e.emp_id = p.id ");
+            sb.Append("AND e.is_dx = false ");
+            sb.Append("LEFT JOIN gst_locs l ON e.loc_id = l.locqk ");
+            sb.Append("LEFT JOIN gst_coys c ON e.coy_id = c.coy_code ");
+            sb.Append("LEFT JOIN gst_depts d ON e.dept_id = d.deptqk ");
+            sb.Append("LEFT JOIN gst_units u ON e.unit_id = u.unitqk ");
+            sb.Append("WHERE(e.lvs_pfl_id = @lvs_pfl_id); ");
+
+            string query = sb.ToString();
+
+            using (NpgsqlConnection conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
+            {
+                await conn.OpenAsync();
+                // Retrieve all rows
+                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+                {
+                    var lvs_pfl_id = cmd.Parameters.Add("@lvs_pfl_id", NpgsqlDbType.Integer);
+                    await cmd.PrepareAsync();
+                    lvs_pfl_id.Value = leaveProfileId;
+
+                    var reader = await cmd.ExecuteReaderAsync();
+                    while (await reader.ReadAsync())
+                    {
+                        employeeList.Add(new Employee()
+                        {
+                            EmployeeID = reader["emp_id"] == DBNull.Value ? string.Empty : (reader["emp_id"]).ToString(),
+                            EmployeeNo1 = reader["emp_no_1"] == DBNull.Value ? string.Empty : (reader["emp_no_1"]).ToString(),
+                            EmployeeNo2 = reader["emp_no_2"] == DBNull.Value ? string.Empty : (reader["emp_no_2"]).ToString(),
+                            StartUpDate = reader["start_up_date"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["start_up_date"],
+                            YearsOfExperience = reader["yrs_of_experience"] == DBNull.Value ? 0 : (int)reader["yrs_of_experience"],
+                            StartUpDesignation = reader["start_up_designation"] == DBNull.Value ? String.Empty : reader["start_up_designation"].ToString(),
+                            PlaceOfEngagement = reader["place_of_engagement"] == DBNull.Value ? String.Empty : reader["place_of_engagement"].ToString(),
+                            ConfirmationDate = reader["confirmation_date"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["confirmation_date"],
+                            CurrentDesignation = reader["current_designation"] == DBNull.Value ? String.Empty : reader["current_designation"].ToString(),
+                            JobGrade = reader["job_grade"] == DBNull.Value ? String.Empty : reader["job_grade"].ToString(),
+                            EmploymentStatus = reader["employment_status"] == DBNull.Value ? String.Empty : reader["employment_status"].ToString(),
+                            DateOfLastPromotion = reader["date_of_last_promotion"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["date_of_last_promotion"],
+                            LengthOfService = reader["start_up_date"] == DBNull.Value ? 0 : (int)((DateTime.Now - (DateTime)reader["start_up_date"]).TotalDays),
+
+                            OfficialEmail = reader["official_email"] == DBNull.Value ? String.Empty : reader["official_email"].ToString(),
+                            StateOfOrigin = reader["state_of_origin"] == DBNull.Value ? String.Empty : reader["state_of_origin"].ToString(),
+                            LgaOfOrigin = reader["lga_of_origin"] == DBNull.Value ? String.Empty : reader["lga_of_origin"].ToString(),
+                            Religion = reader["religion"] == DBNull.Value ? String.Empty : reader["religion"].ToString(),
+                            GeoPoliticalRegion = reader["geo_political_region"] == DBNull.Value ? String.Empty : reader["geo_political_region"].ToString(),
+                            NextOfKinName = reader["next_of_kin_name"] == DBNull.Value ? String.Empty : reader["next_of_kin_name"].ToString(),
+                            NextOfKinRelationship = reader["next_of_kin_relationship"] == DBNull.Value ? String.Empty : reader["next_of_kin_relationship"].ToString(),
+                            NextOfKinAddress = reader["next_of_kin_address"] == DBNull.Value ? String.Empty : reader["next_of_kin_address"].ToString(),
+                            NextOfKinPhone = reader["next_of_kin_phone"] == DBNull.Value ? String.Empty : reader["next_of_kin_phone"].ToString(),
+                            NextOfKinEmail = reader["next_of_kin_email"] == DBNull.Value ? String.Empty : reader["next_of_kin_email"].ToString(),
+                            CompanyID = reader["coy_id"] == DBNull.Value ? string.Empty : (reader["coy_id"]).ToString(),
+                            DepartmentID = reader["dept_id"] == DBNull.Value ? 0 : (int)(reader["dept_id"]),
+                            UnitID = reader["unit_id"] == DBNull.Value ? 0 : (int)(reader["unit_id"]),
+                            LocationID = reader["loc_id"] == DBNull.Value ? 0 : (int)(reader["loc_id"]),
+                            EmployeeModifiedBy = reader["modified_by"] == DBNull.Value ? string.Empty : reader["modified_by"].ToString(),
+                            EmployeeModifiedDate = reader["modified_date"] == DBNull.Value ? string.Empty : reader["modified_date"].ToString(),
+                            EmployeeCreatedBy = reader["created_by"] == DBNull.Value ? string.Empty : reader["created_by"].ToString(),
+                            EmployeeCreatedDate = reader["created_date"] == DBNull.Value ? string.Empty : reader["created_date"].ToString(),
+                            IsDeactivated = reader["is_dx"] == DBNull.Value ? true : (bool)reader["is_dx"],
+                            DeactivationTime = reader["dx_time"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["dx_time"],
+                            DeactivatedBy = reader["dx_by"] == DBNull.Value ? string.Empty : reader["dx_by"].ToString(),
+
+                            PersonID = reader["id"] == DBNull.Value ? String.Empty : reader["id"].ToString(),
+                            Title = reader["title"] == DBNull.Value ? string.Empty : reader["title"].ToString(),
+                            Surname = reader["sname"] == DBNull.Value ? string.Empty : reader["sname"].ToString(),
+                            FirstName = reader["fname"] == DBNull.Value ? string.Empty : reader["fname"].ToString(),
+                            OtherNames = reader["oname"] == DBNull.Value ? string.Empty : reader["oname"].ToString(),
+                            FullName = reader["fullname"] == DBNull.Value ? string.Empty : reader["fullname"].ToString(),
+                            Sex = reader["sex"] == DBNull.Value ? string.Empty : reader["sex"].ToString(),
+                            MaritalStatus = reader["maritalstatus"] == DBNull.Value ? String.Empty : reader["maritalstatus"].ToString(),
+                            BirthDay = reader["birthday"] == DBNull.Value ? 0 : (int)reader["birthday"],
+                            BirthMonth = reader["birthmonth"] == DBNull.Value ? 0 : (int)reader["birthmonth"],
+                            BirthYear = reader["birthyear"] == DBNull.Value ? 0 : (int)reader["birthyear"],
+                            PhoneNo1 = reader["phone1"] == DBNull.Value ? string.Empty : reader["phone1"].ToString(),
+                            PhoneNo2 = reader["phone2"] == DBNull.Value ? string.Empty : reader["phone2"].ToString(),
+                            Email = reader["personal_email"] == DBNull.Value ? string.Empty : reader["personal_email"].ToString(),
+                            Address = reader["address"] == DBNull.Value ? string.Empty : reader["address"].ToString(),
+                            ImagePath = reader["imgp"] == DBNull.Value ? string.Empty : reader["imgp"].ToString(),
+                            ModifiedBy = reader["mdb"] == DBNull.Value ? string.Empty : reader["mdb"].ToString(),
+                            ModifiedTime = reader["mdt"] == DBNull.Value ? string.Empty : reader["mdt"].ToString(),
+                            CreatedTime = reader["ctt"] == DBNull.Value ? string.Empty : reader["ctt"].ToString(),
+                            CreatedBy = reader["ctb"] == DBNull.Value ? string.Empty : reader["ctb"].ToString(),
+
+                            LocationName = reader["locname"] == DBNull.Value ? string.Empty : reader["locname"].ToString(),
+                            LocationType = reader["loctype"] == DBNull.Value ? string.Empty : reader["loctype"].ToString(),
+                            LocationHead1 = reader["lochq1"] == DBNull.Value ? string.Empty : reader["lochq1"].ToString(),
+                            LocationHead2 = reader["lochq2"] == DBNull.Value ? string.Empty : reader["lochq2"].ToString(),
+                            LocationCountry = reader["locctr"] == DBNull.Value ? string.Empty : reader["locctr"].ToString(),
+                            LocationState = reader["locst"] == DBNull.Value ? string.Empty : reader["locst"].ToString(),
+                            CompanyName = reader["coy_name"] == DBNull.Value ? string.Empty : reader["coy_name"].ToString(),
+                            DepartmentHead1 = reader["depthd1"] == DBNull.Value ? string.Empty : reader["depthd1"].ToString(),
+                            DepartmentHead2 = reader["depthd2"] == DBNull.Value ? string.Empty : reader["depthd2"].ToString(),
+                            DepartmentName = reader["deptname"] == DBNull.Value ? string.Empty : reader["deptname"].ToString(),
+                            UnitHead1 = reader["unithd1"] == DBNull.Value ? string.Empty : reader["unithd1"].ToString(),
+                            UnitHead2 = reader["unithd2"] == DBNull.Value ? string.Empty : reader["unithd2"].ToString(),
+                            UnitName = reader["unitname"] == DBNull.Value ? string.Empty : reader["unitname"].ToString(),
+                        });
+                    }
+                }
                 await conn.CloseAsync();
-                throw new Exception(ex.Message);
+            }
+            return employeeList;
+        }
+
+        public async Task<IList<EmployeeRoll>> GetEmployeeRollsByLeaveProfileIdAsync(int leaveProfileId)
+        {
+            List<EmployeeRoll> employeeList = new List<EmployeeRoll>();
+            if (leaveProfileId < 1) { throw new ArgumentNullException(nameof(leaveProfileId)); }
+            StringBuilder sb = new StringBuilder();
+            sb.Append("SELECT e.emp_id, e.emp_no_1, e.dept_id, e.unit_id, e.loc_id, ");
+            sb.Append("p.fullname, p.sex, p.phone1, p.phone2, e.official_email, ");
+            sb.Append("l.locname, d.deptname, u.unitname ");
+            sb.Append("FROM erm_emp_inf e ");
+            sb.Append("JOIN gst_prsns p ON e.emp_id = p.id AND e.is_dx = false ");
+            sb.Append("LEFT JOIN gst_locs l ON e.loc_id = l.locqk ");
+            sb.Append("LEFT JOIN gst_depts d ON e.dept_id = d.deptqk ");
+            sb.Append("LEFT JOIN gst_units u ON e.unit_id = u.unitqk ");
+            sb.Append("WHERE(e.lvs_pfl_id = @lvs_pfl_id); ");
+
+            string query = sb.ToString();
+
+            using (NpgsqlConnection conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
+            {
+                await conn.OpenAsync();
+                // Retrieve all rows
+                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+                {
+                    var lvs_pfl_id = cmd.Parameters.Add("@lvs_pfl_id", NpgsqlDbType.Integer);
+                    await cmd.PrepareAsync();
+                    lvs_pfl_id.Value = leaveProfileId;
+
+                    var reader = await cmd.ExecuteReaderAsync();
+                    while (await reader.ReadAsync())
+                    {
+                        employeeList.Add(new EmployeeRoll()
+                        {
+                            EmployeeID = reader["emp_id"] == DBNull.Value ? string.Empty : (reader["emp_id"]).ToString(),
+                            EmployeeNo1 = reader["emp_no_1"] == DBNull.Value ? string.Empty : (reader["emp_no_1"]).ToString(),
+
+                            OfficialEmail = reader["official_email"] == DBNull.Value ? String.Empty : reader["official_email"].ToString(),
+                            DepartmentID = reader["dept_id"] == DBNull.Value ? 0 : (int)(reader["dept_id"]),
+                            UnitID = reader["unit_id"] == DBNull.Value ? 0 : (int)(reader["unit_id"]),
+                            LocationID = reader["loc_id"] == DBNull.Value ? 0 : (int)(reader["loc_id"]),
+
+                            FullName = reader["fullname"] == DBNull.Value ? string.Empty : reader["fullname"].ToString(),
+                            Sex = reader["sex"] == DBNull.Value ? string.Empty : reader["sex"].ToString(),
+                            PhoneNo1 = reader["phone1"] == DBNull.Value ? string.Empty : reader["phone1"].ToString(),
+                            PhoneNo2 = reader["phone2"] == DBNull.Value ? string.Empty : reader["phone2"].ToString(),
+
+                            LocationName = reader["locname"] == DBNull.Value ? string.Empty : reader["locname"].ToString(),
+                            DepartmentName = reader["deptname"] == DBNull.Value ? string.Empty : reader["deptname"].ToString(),
+                            UnitName = reader["unitname"] == DBNull.Value ? string.Empty : reader["unitname"].ToString(),
+                        });
+                    }
+                }
+                await conn.CloseAsync();
             }
             return employeeList;
         }
@@ -2765,7 +2984,7 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
                     var locationId = cmd.Parameters.Add("@loc_id", NpgsqlDbType.Integer);
                     var yearsOfExperience = cmd.Parameters.Add("@yrs_of_experience", NpgsqlDbType.Integer);
                     var isDeactivated = cmd.Parameters.Add("@is_dx", NpgsqlDbType.Boolean);
-                    var deactivatedTime = cmd.Parameters.Add("@dx_time", NpgsqlDbType.Text);
+                    var deactivatedTime = cmd.Parameters.Add("@dx_time", NpgsqlDbType.Date);
                     var deactivatedBy = cmd.Parameters.Add("@dx_by", NpgsqlDbType.Text);
 
                     cmd.Prepare();
@@ -2816,31 +3035,32 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
             return rows > 0;
         }
 
-        public async Task<bool> UpdateEmployeeSeparationAsync(string empId, string recordedBy, string recordedTime)
+        public async Task<bool> UpdateEmployeeSeparationAsync(string empId, string recordedBy, DateTime? exitDate)
         {
             if (string.IsNullOrEmpty(empId)) { return false; }
             int rows = 0;
-            var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
             StringBuilder sb = new StringBuilder();
             sb.Append("UPDATE public.erm_emp_inf SET is_dx = true, dx_time = @dx_time, ");
             sb.Append("dx_by = @dx_by WHERE (emp_id = @emp_id);");
             string query = sb.ToString();
-  
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
+            {
                 await conn.OpenAsync();
                 //Delete data
                 using (var cmd = new NpgsqlCommand(query, conn))
                 {
                     var emp_id = cmd.Parameters.Add("@emp_id", NpgsqlDbType.Text);
-                    var dx_time = cmd.Parameters.Add("@dx_time", NpgsqlDbType.Text);
+                    var dx_time = cmd.Parameters.Add("@dx_time", NpgsqlDbType.Date);
                     var dx_by = cmd.Parameters.Add("@dx_by", NpgsqlDbType.Text);
                     cmd.Prepare();
                     emp_id.Value = empId;
-                    dx_time.Value = recordedTime;
+                    dx_time.Value = exitDate;
                     dx_by.Value = recordedBy;
 
                     rows = await cmd.ExecuteNonQueryAsync();
                 }
-            await conn.CloseAsync();
+                await conn.CloseAsync();
+            }
             return rows > 0;
         }
 
@@ -2967,7 +3187,6 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
             return rows > 0;
         }
 
-
         #endregion
 
         #region Employee Report Line Action Methods
@@ -2976,7 +3195,7 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
             int rows = 0;
             DateTime _startDate = DateTime.Now.Date;
             DateTime _endDate = new DateTime(2060, 12, 31);
-            if(employeeReportLine.ReportStartDate != null)
+            if (employeeReportLine.ReportStartDate != null)
             {
                 _startDate = employeeReportLine.ReportStartDate.Value;
             }

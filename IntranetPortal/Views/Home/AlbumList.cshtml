@@ -1,0 +1,58 @@
+﻿@model IntranetPortal.Areas.ContentManager.Models.PostListViewModel
+@{
+    ViewData["Title"] = "Home | Album List";
+}
+    <div class="container">
+        <a asp-area="" asp-controller="Home" asp-action="Index" class="mr-2 ml-2" title="Click to Go Back">
+            <i class="bi bi-skip-backward-fill" style="color:black; font-size:1.6rem; font-weight:bold"></i>
+        </a>
+        <span class="fw-bold mb-2" style="font-size:1.2rem">Albums Library</span>
+        <hr />
+        <div class="mb-1">
+            @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bi bi-x-circle"></i>
+                    <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            @if (!String.IsNullOrEmpty(Model.ViewModelSuccessMessage))
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="bi bi-check-circle"></i>
+                    <span class="fw-bold">@Model.ViewModelSuccessMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+        </div>
+        @if (Model == null || Model.PostList.Count < 1)
+        {
+            <div class="alert alert-info fade show" role="alert">
+                <i class="bi bi-info-circle"></i>
+                <span class="fw-bold">No record was found.</span>
+            </div>
+        }
+        else
+        {
+            <div class="row">
+                @foreach (var post in Model.PostList)
+                {
+                    <div class="col-lg-4 col-sm-6 mb-4">
+                        <div class="card h-100">
+                            <a asp-area="" asp-controller="Home" asp-action="Gallery" asp-route-id="@post.PostId" title="Go to Gallery">
+                                <img class="card-img-top" src="@post.ImagePath" alt="Album Header Image" />
+                            </a>
+                            <div class="card-body">
+                                <h4 class="card-title">
+                                    @post.PostTitle  @if (post.IsHidden)
+                                    {<i class="bi bi-eye-slash-fill" title="Is Hidden" style="font-size: 1.0rem; color: red;"></i>}
+                                </h4>
+                                <p class="card-text">@post.PostSummary</p>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </div>

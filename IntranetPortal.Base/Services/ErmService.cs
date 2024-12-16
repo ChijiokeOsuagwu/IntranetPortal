@@ -23,12 +23,13 @@ namespace IntranetPortal.Base.Services
         private readonly IEmployeeSeparationRepository _employeeSeparationRepository;
         private readonly IEmployeeSeparationOutstandingRepository _separationOutstandingRepository;
         private readonly IUserRepository _userRepository;
+        private readonly IEmployeeOptionsRepository _employeeOptionsRepository;
 
         public ErmService(IEmployeesRepository employeesRepository, IPersonRepository personRepository,
                           IUtilityRepository utilityRepository, ILocationRepository locationRepository,
                           IUnitRepository unitRepository, IEmployeeSeparationRepository employeeSeparationRepository,
                           IEmployeeSeparationOutstandingRepository separationOutstandingRespository,
-                          IUserRepository userRepository)
+                          IUserRepository userRepository, IEmployeeOptionsRepository employeeOptionsRepository)
         {
             _employeesRepository = employeesRepository;
             _personRepository = personRepository;
@@ -38,6 +39,7 @@ namespace IntranetPortal.Base.Services
             _userRepository = userRepository;
             _employeeSeparationRepository = employeeSeparationRepository;
             _separationOutstandingRepository = separationOutstandingRespository;
+            _employeeOptionsRepository = employeeOptionsRepository;
         }
 
         #region Employee Service Methods
@@ -73,7 +75,7 @@ namespace IntranetPortal.Base.Services
                     }
 
                     // int recordCount = await _utilityRepository.GetNumberCount(AutoNumberType.EmployeeNumber, day, month, year);
-                    int recordCount = await _employeesRepository.GetEmployeesCountByStartUpDateAsync(year, month, day);
+                    long recordCount = await _employeesRepository.GetEmployeesCountByStartUpDateAsync(year, month, day);
                     string yy = year.ToString().Substring(2, 2);
                     string mm = month.ToString().PadLeft(2, '0');
                     string dd = day.ToString().PadLeft(2, '0');
@@ -213,69 +215,41 @@ namespace IntranetPortal.Base.Services
         public async Task<Employee> GetEmployeeByNameAsync(string employeeName)
         {
             Employee employee = new Employee();
-            try
-            {
-                var entity = await _employeesRepository.GetEmployeeByNameAsync(employeeName);
-                employee = entity;
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
+            var entity = await _employeesRepository.GetEmployeeByNameAsync(employeeName);
+            employee = entity;
             return employee;
         }
 
-        public async Task<List<Employee>> SearchEmployeesByNameAsync(string employeeName)
+        public async Task<List<Employee>> SearchEmployeesByNameAsync(string employeeName, DateTime? TerminalDate = null)
         {
             List<Employee> employees = new List<Employee>();
-            try
-            {
-                var entities = await _employeesRepository.GetEmployeesByNameAsync(employeeName);
-                if (entities != null) { employees = entities.ToList(); }
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
+            var entities = await _employeesRepository.GetEmployeesByNameAsync(employeeName, TerminalDate);
+            if (entities != null) { employees = entities.ToList(); }
             return employees;
         }
 
-        public async Task<List<Employee>> SearchOtherEmployeesByNameAsync(string employeeId, string otherEmployeeName)
+        public async Task<List<Employee>> SearchOtherEmployeesByNameAsync(string employeeId, string otherEmployeeName, DateTime? TerminalDate = null)
         {
             List<Employee> employees = new List<Employee>();
-            try
-            {
-                var entities = await _employeesRepository.GetOtherEmployeesByNameAsync(employeeId, otherEmployeeName);
-                if (entities != null) { employees = entities.ToList(); }
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
+            var entities = await _employeesRepository.GetOtherEmployeesByNameAsync(employeeId, otherEmployeeName, TerminalDate);
+            if (entities != null) { employees = entities.ToList(); }
             return employees;
         }
 
-        public async Task<List<Employee>> GetAllEmployeesAsync()
+        public async Task<List<Employee>> GetAllEmployeesAsync(DateTime? TerminalDate = null)
         {
             List<Employee> employees = new List<Employee>();
-            try
-            {
-                var entities = await _employeesRepository.GetEmployeesAsync();
-                if (entities != null) { employees = entities.ToList(); }
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
+            var entities = await _employeesRepository.GetEmployeesAsync(TerminalDate);
+            if (entities != null) { employees = entities.ToList(); }
             return employees;
         }
 
-        public async Task<List<Employee>> GetEmployeesByCompanyAsync(string CompanyID)
+        public async Task<List<Employee>> GetEmployeesByCompanyAsync(string CompanyID, DateTime? TerminalDate = null)
         {
             List<Employee> employees = new List<Employee>();
             try
             {
-                var entities = await _employeesRepository.GetEmployeesByCompanyCodeAsync(CompanyID);
+                var entities = await _employeesRepository.GetEmployeesByCompanyCodeAsync(CompanyID, TerminalDate);
                 employees = entities.ToList();
             }
             catch (Exception ex)
@@ -285,168 +259,91 @@ namespace IntranetPortal.Base.Services
             return employees;
         }
 
-        public async Task<List<Employee>> GetEmployeesByLocationAsync(int LocationID, int DepartmentID, int UnitID)
+        public async Task<List<Employee>> GetEmployeesByLocationAsync(int LocationID, int DepartmentID, int UnitID, DateTime? TerminalDate = null)
         {
             List<Employee> employees = new List<Employee>();
-            try
-            {
-                var entities = await _employeesRepository.GetEmployeesByLocationAsync(LocationID, DepartmentID, UnitID);
-                employees = entities.ToList();
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
+            var entities = await _employeesRepository.GetEmployeesByLocationAsync(LocationID, DepartmentID, UnitID, TerminalDate);
+            employees = entities.ToList();
             return employees;
         }
 
-        public async Task<List<Employee>> GetEmployeesByLocationAsync(int LocationID, int DepartmentID)
+        public async Task<List<Employee>> GetEmployeesByLocationAsync(int LocationID, int DepartmentID, DateTime? TerminalDate = null)
         {
             List<Employee> employees = new List<Employee>();
-            try
-            {
-                var entities = await _employeesRepository.GetEmployeesByLocationAsync(LocationID, DepartmentID);
-                employees = entities.ToList();
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
+            var entities = await _employeesRepository.GetEmployeesByLocationAsync(LocationID, DepartmentID, TerminalDate);
+            employees = entities.ToList();
             return employees;
         }
 
-        public async Task<List<Employee>> GetEmployeesByLocationAsync(int LocationID)
+        public async Task<List<Employee>> GetEmployeesByLocationAsync(int LocationID, DateTime? TerminalDate = null)
         {
             List<Employee> employees = new List<Employee>();
-            try
-            {
-                var entities = await _employeesRepository.GetEmployeesByLocationAsync(LocationID);
-                employees = entities.ToList();
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
+            var entities = await _employeesRepository.GetEmployeesByLocationAsync(LocationID, TerminalDate);
+            employees = entities.ToList();
             return employees;
         }
 
-        public async Task<List<Employee>> GetEmployeesByLocationAndUnitAsync(int LocationID, int UnitID)
+        public async Task<List<Employee>> GetEmployeesByLocationAndUnitAsync(int LocationID, int UnitID, DateTime? TerminalDate = null)
         {
             List<Employee> employees = new List<Employee>();
-            try
-            {
-                var entities = await _employeesRepository.GetEmployeesByLocationAndUnitAsync(LocationID, UnitID);
-                employees = entities.ToList();
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
+            var entities = await _employeesRepository.GetEmployeesByLocationAndUnitAsync(LocationID, UnitID, TerminalDate);
+            employees = entities.ToList();
             return employees;
         }
 
-        public async Task<List<Employee>> GetEmployeesByUnitIDAsync(int UnitID)
+        public async Task<List<Employee>> GetEmployeesByUnitIDAsync(int UnitID, DateTime? TerminalDate = null)
         {
             List<Employee> employees = new List<Employee>();
-            try
-            {
-                var entities = await _employeesRepository.GetEmployeesByUnitAsync(UnitID);
-                employees = entities.ToList();
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
+            var entities = await _employeesRepository.GetEmployeesByUnitAsync(UnitID, TerminalDate);
+            employees = entities.ToList();
             return employees;
         }
 
-        public async Task<List<Employee>> GetEmployeesByDepartmentIDAsync(int DepartmentID)
+        public async Task<List<Employee>> GetEmployeesByDepartmentIDAsync(int DepartmentID, DateTime? TerminalDate = null)
         {
             List<Employee> employees = new List<Employee>();
-            try
-            {
-                var entities = await _employeesRepository.GetEmployeesByDeptAsync(DepartmentID);
-                employees = entities.ToList();
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
+            var entities = await _employeesRepository.GetEmployeesByDeptAsync(DepartmentID, TerminalDate);
+            employees = entities.ToList();
             return employees;
         }
 
-        public async Task<List<Employee>> GetEmployeesByCompanyAndLocationAsync(string CompanyID, int LocationID, int DepartmentID)
+        public async Task<List<Employee>> GetEmployeesByCompanyAndLocationAsync(string CompanyID, int LocationID, int DepartmentID, DateTime? TerminalDate = null)
         {
             List<Employee> employees = new List<Employee>();
-            try
-            {
-                var entities = await _employeesRepository.GetEmployeesByCompanyCodeAsync(CompanyID, LocationID, DepartmentID);
-                employees = entities.ToList();
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
+            var entities = await _employeesRepository.GetEmployeesByCompanyCodeAsync(CompanyID, LocationID, DepartmentID, TerminalDate);
+            employees = entities.ToList();
             return employees;
         }
 
-        public async Task<List<Employee>> GetEmployeesByCompanyAndLocationAsync(string CompanyID, int LocationID)
+        public async Task<List<Employee>> GetEmployeesByCompanyAndLocationAsync(string CompanyID, int LocationID, DateTime? TerminalDate = null)
         {
             List<Employee> employees = new List<Employee>();
-            try
-            {
-                var entities = await _employeesRepository.GetEmployeesByCompanyCodeAsync(CompanyID, LocationID);
-                employees = entities.ToList();
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
+            var entities = await _employeesRepository.GetEmployeesByCompanyCodeAsync(CompanyID, LocationID, TerminalDate);
+            employees = entities.ToList();
             return employees;
         }
 
-        public async Task<List<Employee>> GetEmployeesByCompanyAndUnitAsync(string CompanyID, int LocationID, int UnitID)
+        public async Task<List<Employee>> GetEmployeesByCompanyAndUnitAsync(string CompanyID, int LocationID, int UnitID, DateTime? TerminalDate = null)
         {
             List<Employee> employees = new List<Employee>();
-            try
-            {
-                var entities = await _employeesRepository.GetEmployeesByCompanyCodeAndUnitAsync(CompanyID, LocationID, UnitID);
-                employees = entities.ToList();
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
+            var entities = await _employeesRepository.GetEmployeesByCompanyCodeAndUnitAsync(CompanyID, LocationID, UnitID, TerminalDate);
+            employees = entities.ToList();
             return employees;
         }
 
-        public async Task<List<Employee>> GetEmployeesByCompanyAndUnitAsync(string CompanyID, int UnitID)
+        public async Task<List<Employee>> GetEmployeesByCompanyAndUnitAsync(string CompanyID, int UnitID, DateTime? TerminalDate = null)
         {
             List<Employee> employees = new List<Employee>();
-            try
-            {
-                var entities = await _employeesRepository.GetEmployeesByCompanyCodeAndUnitAsync(CompanyID, UnitID);
-                employees = entities.ToList();
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
+            var entities = await _employeesRepository.GetEmployeesByCompanyCodeAndUnitAsync(CompanyID, UnitID, TerminalDate);
+            employees = entities.ToList();
             return employees;
         }
 
-        public async Task<List<Employee>> GetEmployeesByCompanyAndDepartmentAsync(string CompanyID, int DepartmentID)
+        public async Task<List<Employee>> GetEmployeesByCompanyAndDepartmentAsync(string CompanyID, int DepartmentID, DateTime? TerminalDate = null)
         {
             List<Employee> employees = new List<Employee>();
-            try
-            {
-                var entities = await _employeesRepository.GetEmployeesByCompanyCodeAndDeptAsync(CompanyID, DepartmentID);
-                employees = entities.ToList();
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
+            var entities = await _employeesRepository.GetEmployeesByCompanyCodeAndDeptAsync(CompanyID, DepartmentID, TerminalDate);
+            employees = entities.ToList();
             return employees;
         }
 
@@ -491,13 +388,32 @@ namespace IntranetPortal.Base.Services
             return employees;
         }
 
-        public async Task<List<Employee>> GetAllNonUserEmployeesAsync()
+        public async Task<List<Employee>> GetAllNonUserEmployeesAsync(DateTime? TerminalDate = null)
         {
             List<Employee> employees = new List<Employee>();
+            var entities = await _employeesRepository.GetAllEmployeesWithoutUserAccountsAsync(TerminalDate);
+            if (entities != null) { employees = entities.ToList(); }
+            return employees;
+        }
+
+        public async Task<List<Employee>> GetNonUserEmployeesByNameAsync(string employeeName, DateTime? TerminalDate = null)
+        {
+            List<Employee> employees = new List<Employee>();
+            var entities = await _employeesRepository.GetEmployeesWithoutUserAccountsByNameAsync(employeeName, TerminalDate);
+            if (entities != null) { employees = entities.ToList(); }
+            return employees;
+        }
+
+        #endregion
+
+        #region Employee Rolls Service Methods
+        public async Task<List<EmployeeRoll>> GetEmployeeRollsByLeaveProfileIdAsync(int LeaveProfileId)
+        {
+            List<EmployeeRoll> employees = new List<EmployeeRoll>();
             try
             {
-                var entities = await _employeesRepository.GetAllEmployeesWithoutUserAccountsAsync();
-                if (entities != null) { employees = entities.ToList(); }
+                var entities = await _employeesRepository.GetEmployeeRollsByLeaveProfileIdAsync(LeaveProfileId);
+                employees = entities.ToList();
             }
             catch (Exception ex)
             {
@@ -506,20 +422,6 @@ namespace IntranetPortal.Base.Services
             return employees;
         }
 
-        public async Task<List<Employee>> GetNonUserEmployeesByNameAsync(string employeeName)
-        {
-            List<Employee> employees = new List<Employee>();
-            try
-            {
-                var entities = await _employeesRepository.GetEmployeesWithoutUserAccountsByNameAsync(employeeName);
-                if (entities != null) { employees = entities.ToList(); }
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
-            return employees;
-        }
 
         #endregion
 
@@ -647,8 +549,8 @@ namespace IntranetPortal.Base.Services
             EmployeeSeparationRecordIsAdded = await _employeeSeparationRepository.AddAsync(e);
             if (EmployeeSeparationRecordIsAdded)
             {
-                string recordedDate = $"{e.RecordCreatedDate.Value.ToLongDateString() } {e.RecordCreatedDate.Value.ToLongTimeString()} WAT";
-                EmployeeRecordIsUpdated = await _employeesRepository.UpdateEmployeeSeparationAsync(e.EmployeeId, e.RecordCreatedBy, recordedDate);
+                // string recordedDate = $"{e.RecordCreatedDate.Value.ToLongDateString() } {e.RecordCreatedDate.Value.ToLongTimeString()} WAT";
+                EmployeeRecordIsUpdated = await _employeesRepository.UpdateEmployeeSeparationAsync(e.EmployeeId, e.RecordCreatedBy, e.ActualLastWorkedDate);
                 if (EmployeeRecordIsUpdated)
                 {
                     UserRecordIsUpdated = await _userRepository.UpdateUserActivationAsync(e.EmployeeId, e.RecordCreatedBy, true);
@@ -681,8 +583,8 @@ namespace IntranetPortal.Base.Services
                 RecordIsAdded = await _employeeSeparationRepository.EditAsync(e);
                 if (RecordIsAdded)
                 {
-                    string recordedDate = $"{e.RecordCreatedDate.Value.ToLongDateString() } {e.RecordCreatedDate.Value.ToLongTimeString()} WAT";
-                    UpdateIsSuccessful = await _employeesRepository.UpdateEmployeeSeparationAsync(e.EmployeeId, e.RecordCreatedBy, recordedDate);
+                    //string recordedDate = $"{e.RecordCreatedDate.Value.ToLongDateString() } {e.RecordCreatedDate.Value.ToLongTimeString()} WAT";
+                    UpdateIsSuccessful = await _employeesRepository.UpdateEmployeeSeparationAsync(e.EmployeeId, e.RecordCreatedBy, e.ActualLastWorkedDate);
                     if (UpdateIsSuccessful) { return true; }
                     else
                     {
@@ -706,12 +608,14 @@ namespace IntranetPortal.Base.Services
             bool RecordIsDeleted = false;
             if (EmployeeSeparationId < 1) { throw new ArgumentNullException(nameof(EmployeeSeparationId), "The required parameter [Employee Exit ID] is missing."); }
             string EmployeeID = string.Empty;
+            //DateTime? ExitDate = null;
             try
             {
                 var entity = await _employeeSeparationRepository.GetByIdAsync(EmployeeSeparationId);
                 if (entity != null)
                 {
                     EmployeeID = entity.EmployeeId;
+                    //ExitDate = entity.ActualLastWorkedDate;
                 }
 
                 RecordIsDeleted = await _employeeSeparationRepository.DeleteAsync(EmployeeSeparationId);
@@ -719,7 +623,7 @@ namespace IntranetPortal.Base.Services
                 {
                     string recordedDate = string.Empty;
                     string RecordCreatedBy = string.Empty;
-                    await _employeesRepository.UpdateEmployeeSeparationAsync(EmployeeID, RecordCreatedBy, recordedDate);
+                    await _employeesRepository.UpdateEmployeeSeparationAsync(EmployeeID, RecordCreatedBy, null);
                 }
                 else
                 {
@@ -1215,6 +1119,24 @@ namespace IntranetPortal.Base.Services
                 throw new Exception(ex.Message);
             }
             return t;
+        }
+
+        #endregion
+
+        #region Employee Options Service Methods
+        public async Task<EmployeeOptions> GetEmployeeOptionsAsync(string employeeId)
+        {
+            EmployeeOptions o = new EmployeeOptions();
+            if (string.IsNullOrWhiteSpace(employeeId)) { throw new ArgumentNullException(nameof(employeeId), "The required parameter [Employee ID] is missing. The request cannot be processed."); }
+            var entity = await _employeeOptionsRepository.GetAllAsync(employeeId);
+            if (entity != null) { o = entity; }
+            return o;
+        }
+
+        public async Task<bool> UpdateEmployeeOptionsAsync(EmployeeOptions o)
+        {
+            if (o == null) { throw new ArgumentNullException(nameof(o), "Required parameter [Employee Options] is missing."); }
+            return await _employeeOptionsRepository.EditAsync(o);
         }
 
         #endregion

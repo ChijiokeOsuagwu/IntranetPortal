@@ -1,0 +1,77 @@
+﻿@model IntranetPortal.Areas.ContentManager.Models.PostMediaViewModel
+@{
+    ViewData["Title"] = "OfficeManager | Upload Photos";
+}
+<div>
+    <div class="card" style="max-width:700px">
+        <div class="card-header bg-info">
+            <h4 class="text-white">Upload Media</h4>
+        </div>
+        <div class="card-body bg-secondary">
+            @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bi bi-x-circle"></i>
+                    <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            @if (!String.IsNullOrEmpty(Model.ViewModelSuccessMessage))
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="bi bi-check-circle"></i>
+                    <span class="fw-bold">@Model.ViewModelSuccessMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            @if (!String.IsNullOrEmpty(Model.ViewModelWarningMessage))
+            {
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                    <i class="bi bi-exclamation-circle"></i>
+                    <span class="fw-bold">@Model.ViewModelWarningMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+        <form asp-area="ContentManager" asp-controller="Photos" asp-action="UploadPhoto" method="post" enctype="multipart/form-data">
+            <div class="row">
+                <div class="col-md-12 mb-2">
+                    <label class="form-label text-white fw-bold">Select File</label><span class="text-white fw-light">  (Supported Formats: jpg, jpeg, png, gif, mp3, mp4)</span>
+                    <input asp-for="MediaFile" class="form-control fw-bold">
+                    <div><span asp-validation-for="MediaFile" class="text-danger"></span></div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12 mb-2">
+                    <input type="hidden" asp-for="MasterPostId" />
+                    <label asp-for="Caption" class="form-label text-white fw-bold"></label>
+                    <input asp-for="Caption" class="form-control fw-bold" autocomplete="off">
+                    <div><span asp-validation-for="Caption" class="text-danger"></span></div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12 mb-3">
+                    <label asp-for="MediaTypeId" class="form-label text-white fw-bold"></label>
+                    <select asp-for="MediaTypeId" class="form-control fw-bold">
+                        <option value="">Select</option>
+                        <option value="0">Image</option>
+                        <option value="1">Video</option>
+                        <option value="2">Audio</option>
+                    </select>
+                    <div><span asp-validation-for="MediaTypeId" class="text-danger"></span></div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12 mb-2 text-end">
+                    <a asp-area="ContentManager" asp-controller="Photos" asp-action="MediaList" asp-route-id="@Model.MasterPostId" class="btn btn-dark ml-2" style="width:100px" title="Exit">
+                        <span class="text-white">Back</span>
+                    </a>
+                    @if (!Model.OperationIsCompleted)
+                    {
+                        <button type="submit" class="btn btn-primary ml-2" title="Save" style="width:200px"><span class="text-white">Upload</span></button>
+                    }
+                </div>
+            </div>
+        </form>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,80 @@
+﻿@model IntranetPortal.Areas.ERM.Models.EmployeeOptionsViewModel
+@{
+    ViewData["Title"] = "OfficeManager | Employee Options";
+}
+<div class="row">
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container-fluid">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNavDropdown">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a asp-area="ERM" asp-controller="Employees" asp-action="Profile"  asp-route-id="@Model.EmployeeId"  title="Go Back" class="btn btn-sm btn-outline-light text-dark">
+                            <i class="bi bi-backspace fw-bolder" style="font-size: 0.8rem;"></i>&nbsp;<span class="fw-bold" style="font-size: 0.8rem;">Back</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+</div>
+<div class="card mt-1" style="max-width:800px; min-height:300px">
+    <div class="card-header bg-info">
+        <h4 class="text-white">Employee Options</h4>
+    </div>
+    <div class="card-body bg-secondary">
+        @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-x-circle"></i>
+                <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (!String.IsNullOrEmpty(Model.ViewModelSuccessMessage))
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="bi bi-check-circle"></i>
+                <span class="fw-bold">@Model.ViewModelSuccessMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (!String.IsNullOrEmpty(Model.ViewModelWarningMessage))
+        {
+            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                <i class="bi bi-exclamation-circle"></i>
+                <span class="fw-bold">@Model.ViewModelWarningMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+    <form asp-area="ERM" asp-controller="Employees" asp-action="Options" method="post">
+        <div class="row">
+            <div class="col-md-12 mb-2">
+                <input type="hidden" asp-for="EmployeeId" />
+                <label asp-for="EmployeeFullName" class="form-label text-white fw-bold"></label>
+                <input asp-for="EmployeeFullName" class="form-control fw-bold" readonly="readonly">
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6 mb-5">
+                <label asp-for="LeaveProfileId" class="form-label text-white fw-bold"></label>
+                <select asp-for="LeaveProfileId" asp-items="@ViewBag.LeaveProfileList" class="form-select fw-bold">
+                    <option value="0">Select</option>
+                </select>
+            </div>
+            <div class="col-md-6 mb-5">
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12 text-end">
+                <a asp-area="ERM" asp-controller="Employees" asp-action="profile" asp-route-id="@Model.EmployeeId" class="btn btn-dark" style="width:100px" title="Exit">
+                    <span class="text-white">Exit</span>
+                </a>
+                <button type="submit" class="btn btn-info" title="Save Changes" style="width:200px"><span class="text-white">Save Changes</span></button>
+            </div>
+        </div>
+    </form>
+    </div>
+</div>

@@ -11,13 +11,15 @@
                 <a asp-area="ContentManager" asp-controller="Home" asp-action="Index" class="btn btn-dark" style="width:100px" title="Back">
                     <span class="text-white">Back</span>
                 </a>
-                <select asp-for="pt" asp-items="@Html.GetEnumSelectList<IntranetPortal.Base.Enums.PostType>()" class="border-0 ml-3" style="width:200px">
+                @*<select asp-for="pt" class="border-0 ml-3" style="width:200px">
                     <option value="">- ALL -</option>
-                </select>
+                    <option value="2">Article</option>
+                    <option value="4">Photos</option>
+                </select>*@
                 <input asp-for="ss" class="border-0" placeholder="Enter Title" style="width:300px">
-                <input type="submit" value="Search" class="btn btn-dark" style="width:100px" />
+                <input type="submit" value="Search" class="btn btn-dark mr-5" style="width:100px" />
                 <a asp-area="ContentManager" asp-controller="Posts" asp-action="Add" class="btn btn-info ml-3" style="width:150px" title="Add New Post">
-                    <span class="text-white pr-2">New Post</span>
+                    <span class="text-white pr-2">New Article</span>
                 </a>
             </form>
 

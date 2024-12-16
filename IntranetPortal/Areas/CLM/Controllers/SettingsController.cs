@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Configuration;
 using System.IO;
+using IntranetPortal.Helpers;
 
 namespace IntranetPortal.Areas.CLM.Controllers
 {
@@ -539,26 +540,32 @@ namespace IntranetPortal.Areas.CLM.Controllers
         {
             try
             {
+                string contentFilePath = null;
                 if (model.CourseContentId > 0)
                 {
                     CourseContent courseContent = await _clmService.GetCourseContentAsync(model.CourseContentId);
                     if (courseContent != null && !string.IsNullOrWhiteSpace(courseContent.ContentFullPath))
                     {
-                        FileInfo file = new FileInfo(courseContent.ContentFullPath);
-                        if (file.Exists)
+                        contentFilePath = courseContent.ContentFullPath;
+                        bool IsDeleted = await _clmService.DeleteCourseContentAsync(model.CourseContentId);
+                        if (IsDeleted)
                         {
-                            file.Delete();
+                            FileInfo file = new FileInfo(contentFilePath);
+                            if (file.Exists)
+                            {
+                                if (!file.IsFileOpen())
+                                {
+                                    await Task.Run(() => {
+                                        file.Delete();
+                                    });
+                                }
+                            }
+                            return RedirectToAction("CourseContents", new { id = model.CourseId, fm = 0 });
                         }
-                    }
-
-                    bool IsDeleted = await _clmService.DeleteCourseContentAsync(model.CourseContentId);
-                    if (IsDeleted)
-                    {
-                        return RedirectToAction("CourseContents", new { id = model.CourseId, fm = 0 });
-                    }
-                    else
-                    {
-                        model.ViewModelErrorMessage = "Sorry, an error was encountered. Delete operation failed.";
+                        else
+                        {
+                            model.ViewModelErrorMessage = "Sorry, an error was encountered. Delete operation failed.";
+                        }
                     }
                 }
             }
@@ -706,7 +713,12 @@ namespace IntranetPortal.Areas.CLM.Controllers
                                 FileInfo file = new FileInfo(previousFilePath);
                                 if (file.Exists)
                                 {
-                                    file.Delete();
+                                    if (!file.IsFileOpen())
+                                    {
+                                        await Task.Run(() => {
+                                            file.Delete();
+                                        });
+                                    }
                                 }
                             }
                             model.ViewModelSuccessMessage = $"Congratulations! File was uploaded successfully.";
@@ -716,7 +728,12 @@ namespace IntranetPortal.Areas.CLM.Controllers
                             FileInfo file = new FileInfo(filePath);
                             if (file.Exists)
                             {
-                                file.Delete();
+                                if (!file.IsFileOpen())
+                                {
+                                    await Task.Run(() => {
+                                        file.Delete();
+                                    });
+                                }
                             }
                             model.ViewModelErrorMessage = $"Error! An error was encountered. File upload failed.";
                         }

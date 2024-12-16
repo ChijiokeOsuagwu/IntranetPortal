@@ -22,6 +22,7 @@ namespace IntranetPortal.Base.Repositories.PmsRepositories
 
         #region Result Read Action Interfaces
         Task<List<string>> GetAppraisersByReviewHeaderId(int reviewHeaderId);
+        Task<IList<EvaluationHeader>> GetEvaluationHeadersByReviewHeaderId(int reviewHeaderId);
         Task<List<AppraiserDetail>> GetAppraisersDetailsByReviewHeaderId(int reviewHeaderId);
         Task<IList<ReviewResult>> GetByAppraiserIdAndMetricId(int reviewHeaderId, string appraiserId, int reviewMetricId);
         Task<IList<ReviewResult>> GetByAppraiserIdAndMetricTypeId(int reviewHeaderId, string appraiserId, int reviewMetricTypeId);

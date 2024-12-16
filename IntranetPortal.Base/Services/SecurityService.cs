@@ -574,7 +574,7 @@ namespace IntranetPortal.Base.Services
 
         #endregion
 
-        //============= Location Permissions Action Methods ===============//
+        //============= Location Permissions Action Methods ============//
         #region Location Permissions Action Methods
         public async Task<IList<LocationPermission>> GetLocationPermissionsByUserIdAsync(string userId)
         {

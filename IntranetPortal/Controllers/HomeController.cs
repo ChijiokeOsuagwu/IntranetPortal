@@ -16,6 +16,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using IntranetPortal.Base.Models.BaseModels;
+using IntranetPortal.Areas.ContentManager.Models;
 
 namespace IntranetPortal.Controllers
 {
@@ -44,7 +45,7 @@ namespace IntranetPortal.Controllers
             if (await _baseModelService.DbConnectionIsOpenAsync())
             {
                 var bs = await _contentManager.GetUnhiddenBannersAsync();
-                var ts = await _contentManager.GetAllOtherUnhiddenPostsAsync();
+                var ts = await _contentManager.GetAllUnhiddenPostsExceptBannersnAnnouncementsAsync();
                 var an = await _contentManager.GetAllAnnouncementsAsync();
 
                 if (!string.IsNullOrWhiteSpace(recipientId))
@@ -103,7 +104,7 @@ namespace IntranetPortal.Controllers
 
             try
             {
-                string UserName = model.Login.Trim();
+                model.Login = model.Login.Trim();
                 //string PasswordHash = _securityService.CreatePasswordHash(model.Password);
                 bool IsPersistent = model.RememberMe;
 
@@ -116,7 +117,7 @@ namespace IntranetPortal.Controllers
                     return View(model);
                 }
                 ApplicationUser user = users.FirstOrDefault();
-                if (user.UserName == UserName && _securityService.ValidatePassword(model.Password, user.PasswordHash))
+                if (user.UserName == model.Login && _securityService.ValidatePassword(model.Password, user.PasswordHash))
                 {
                     var claims = new List<Claim>();
                     if (!string.IsNullOrEmpty(user.FullName)) { claims.Add(new Claim(ClaimTypes.Name, user.FullName)); }
@@ -271,7 +272,6 @@ namespace IntranetPortal.Controllers
             return View(model);
         }
 
-
         public async Task<IActionResult> Read(int? id)
         {
             Post post = new Post();
@@ -310,7 +310,6 @@ namespace IntranetPortal.Controllers
             model.TotalMesssagesCount = await _baseModelService.GetTotalMessagesCount(recipientId);
             return View(model);
         }
-
 
         [HttpPost]
         public async Task<string> DeleteMessage(int id)
@@ -375,6 +374,51 @@ namespace IntranetPortal.Controllers
             }
         }
 
+        public async Task<IActionResult> AlbumList()
+        {
+            PostListViewModel model = new PostListViewModel();
+            if (TempData["DeleteSuccessMessage"] != null)
+            {
+                model.ViewModelSuccessMessage = TempData["DeleteSuccessMessage"].ToString();
+            }
+
+            var result = await _contentManager.GetAllPhotosAsync();
+            model.PostList = result.ToList();
+            return View(model);
+        }
+
+        public async Task<IActionResult> Gallery(long id)
+        {
+            PostMediaListViewModel model = new PostMediaListViewModel();
+            Post post = await _contentManager.GetPostByIdAsync(id);
+            if (post != null)
+            {
+                model.MasterPost = post;
+            }
+
+            var entities = await _contentManager.GetPostMediasByMasterPostId(id);
+            if (entities != null)
+            {
+                model.MediaList = entities.ToList();
+            }
+
+            return View(model);
+        }
+
+        public async Task<IActionResult> FullScreen(long id)
+        {
+            PostMediaViewModel model = new PostMediaViewModel();
+            PostMedia media = await _contentManager.GetPostMediaByIdAsync(id);
+            if (media != null)
+            {
+                model.Caption = media.Caption;
+                model.MasterPostId = media.MasterPostId;
+                model.MediaLocationPath = media.MediaLocationPath;
+                model.MediaTypeId = (int)media.MediaType;
+                model.PostMediaId = media.PostMediaId;
+            }
+            return View(model);
+        }
 
         public IActionResult Blank()
         {

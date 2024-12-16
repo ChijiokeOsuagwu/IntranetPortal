@@ -1,0 +1,55 @@
+﻿@model IntranetPortal.Areas.ContentManager.Models.PostMediaViewModel
+@{
+    ViewData["Title"] = "OfficeManager | Media Gallery";
+}
+<div class="container">
+    <a asp-area="ContentManager" asp-controller="Photos" asp-action="MediaList" asp-route-id="@Model.MasterPostId" class="mr-2 ml-2" title="Click to Go Back">
+        <i class="bi bi-skip-backward-fill" style="color:black; font-size:1.6rem; font-weight:bold"></i>
+    </a>
+    <span class="fw-bold" style="font-size:1.2rem">@Model.Caption</span>
+    <hr />
+    @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-x-circle"></i>
+            <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    @if (!String.IsNullOrEmpty(Model.ViewModelSuccessMessage))
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle"></i>
+            <span class="fw-bold">@Model.ViewModelSuccessMessage</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (Model == null)
+    {
+        <div class="alert alert-info fade show" role="alert">
+            <i class="bi bi-info-circle"></i>
+            <span class="fw-bold">No record was found.</span>
+        </div>
+    }
+    else
+    {
+        <div class="text-center">
+            @if (Model.MediaTypeId == (int)IntranetPortal.Base.Enums.MediaType.Image)
+            {
+                <div class="card h-100 w-100">
+                    <img class="card-img-top" src="@Model.MediaLocationPath" alt="Gallery Image" />
+                </div>
+            }
+            else if (Model.MediaTypeId == (int)IntranetPortal.Base.Enums.MediaType.Video)
+            {
+                <div class="card h-100">
+                    <video width="1200" height="500" controls>
+                        <source src="@Model.MediaLocationPath" type="video/mp4">
+                        Your browser does not have support for video tag.
+                    </video>
+                </div>
+            }
+        </div>
+    }
+</div>

@@ -11,7 +11,7 @@ namespace IntranetPortal.Areas.ContentManager.Models
 {
     public class PostViewModel:BaseViewModel
     {
-        public int? PostId { get; set; }
+        public long? PostId { get; set; }
 
         [Required]
         [MaxLength(100, ErrorMessage = "Title must not exceed 100 characters.")]
@@ -52,6 +52,22 @@ namespace IntranetPortal.Areas.ContentManager.Models
                 PostTypeId = PostTypeId,
                 PostDetails = PostDetails,
                 PostDetailsRaw = PostDetailsRaw
+            };
+        }
+
+        public PostViewModel ExtraFromPost(Post p)
+        {
+            return new PostViewModel
+            {
+                EnableComments = p.EnableComment,
+                ImagePath = p.ImagePath,
+                IsHidden = p.IsHidden,
+                PostId = PostId == null ? 0 : PostId.Value,
+                PostTitle = p.PostTitle,
+                PostSummary = p.PostSummary,
+                PostTypeId = p.PostTypeId,
+                PostDetails = p.PostDetails,
+                PostDetailsRaw = p.PostDetailsRaw,
             };
         }
     }

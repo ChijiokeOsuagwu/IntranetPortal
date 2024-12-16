@@ -34,7 +34,25 @@
         <form enctype="multipart/form-data" asp-area="ERM" asp-controller="Employees" asp-action="Delete" asp-route-id="@Model.EmployeeID" method="post">
             <div class="row">
                 <div class="col-md-3 mb-1">
-                    <img src="@Model.ImagePath" class="img-fluid" alt="Employee Image">
+                    @if (Model == null || string.IsNullOrWhiteSpace(Model.Sex))
+                    {
+
+                    }
+                    else if (!string.IsNullOrWhiteSpace(Model.ImagePath))
+                    {
+                        <img src="@Model.ImagePath" class="img-fluid" style="height:250px; width:350px" alt="Employee Image">
+                    }
+                    else
+                    {
+                        if (Model.Sex.ToUpper() == "FEMALE")
+                        {
+                            <img src="~/img/female_emp_500.jpg" class="img-fluid" style="height:250px; width:350px" alt="Employee Image" />
+                        }
+                        else
+                        {
+                            <img src="~/img/male_emp_500.jpg" class="img-fluid" style="height:250px; width:350px" alt="Employee Image" />
+                        }
+                    }
                 </div>
                 <div class="col-md-9 mb-1">
                     <div class="row">

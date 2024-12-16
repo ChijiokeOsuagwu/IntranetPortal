@@ -67,6 +67,11 @@
                                         <i class="bi bi-trash fw-bolder" style="font-size: 1.0rem;"></i>&nbsp;<span class="fw-bold" style="font-size: 0.8rem;">Delete</span>
                                     </a>
                                 </li>
+                                <li>
+                                    <a asp-area="ERM" asp-controller="Employees" asp-action="Options" asp-route-id="@Model.EmployeeID" title="Options" class="btn btn-sm btn-light text-dark">
+                                        <i class="bi bi-list-check fw-bolder" style="font-size: 1.0rem;"></i>&nbsp;<span class="fw-bold" style="font-size: 0.8rem;">Options</span>
+                                    </a>
+                                </li>
                             </ul>
                         </li>
                     }

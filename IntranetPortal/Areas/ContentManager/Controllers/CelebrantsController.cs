@@ -123,7 +123,7 @@ namespace IntranetPortal.Areas.ContentManager.Controllers
                 model.ViewModelErrorMessage = $"Error! Sorry, an error was encountered. Celebrant could not be deleted.";
                 return View(model);
             }
-            int PostId = model.Id;
+            long PostId = model.Id;
             string filePath = string.Empty;
             if (!string.IsNullOrEmpty(model.ImagePath))
             {
@@ -147,7 +147,7 @@ namespace IntranetPortal.Areas.ContentManager.Controllers
         [Authorize(Roles = "PCMMGACNT, XYALLACCZ")]
         public async Task<IActionResult> Edit(string id)
         {
-            int PostId = 0;
+            long PostId = 0;
             if (!string.IsNullOrEmpty(id)) { PostId = Convert.ToInt32(_dataProtector.Unprotect(id)); }
             CelebrantEditViewModel model = new CelebrantEditViewModel();
             var article = await _contentManager.GetPostByIdAsync(PostId);
