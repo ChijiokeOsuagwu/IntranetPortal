@@ -429,7 +429,7 @@ namespace IntranetPortal.Areas.PMS.Controllers
                 }
                 else { model.ParticipantsInPercentage = "0%"; model.NonParticipantsInPercentage = "100%"; }
 
-                
+
 
                 //if (model.NoOfNonParticipants > 0)
                 //{
@@ -593,6 +593,45 @@ namespace IntranetPortal.Areas.PMS.Controllers
                 return null;
             }
             return GenerateCareerDevelopmentGoalsReportExcel(fileName, ReviewCDGList);
+        }
+
+
+
+        public async Task<FileResult> DownloadParticipationSummaryReport(int id, int? ld = null, int? dd = null, int? ud = null)
+        {
+            ParticipationSummaryReportViewModel model = new ParticipationSummaryReportViewModel();
+            model.ParticipationSummaryList = new List<ParticipationSummary>();
+            model.Id = id;
+            model.Ld = ld ?? 0;
+            model.Dd = dd ?? 0;
+            model.Ud = ud ?? 0;
+            string fileName = $"Participation Summary Report {DateTime.UtcNow.ToString("yyyyMMddHHmmssfff")}.xlsx"; 
+            try
+            {
+                model.NoOfParticipants = await _performanceService.GetAppraisalParticipantsCount(model.Id, model.Ld, model.Dd, model.Ud);
+                model.TotalNoOfActiveEmployees = await _ermService.GetEmployeesCountAsync(model.Ld, model.Dd, model.Ud);
+                model.NoOfNonParticipants = model.TotalNoOfActiveEmployees - model.NoOfParticipants;
+                if (model.NoOfParticipants > 0)
+                {
+                    decimal percentage_participants = (Convert.ToDecimal(model.NoOfParticipants) / Convert.ToDecimal(model.TotalNoOfActiveEmployees)) * 100.00M;
+                    model.ParticipantsInPercentage = $"{Math.Round(percentage_participants, 2)}%";
+                    decimal percentage_non_participants = 100.00M - percentage_participants;
+                    model.NonParticipantsInPercentage = $"{Math.Round(percentage_non_participants, 2)}%";
+                }
+                else { model.ParticipantsInPercentage = "0%"; model.NonParticipantsInPercentage = "100%"; }
+
+                var participation_summary = await _performanceService.GetAppraisalParticipationSummary(model.Id, model.Ld, model.Dd, model.Ud);
+                if (participation_summary != null && participation_summary.Count > 0)
+                {
+                    model.ParticipationSummaryList = participation_summary;
+                }
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+
+            return GenerateParticipationSummaryReportExcel(fileName, model);
         }
 
         #endregion
@@ -1132,81 +1171,58 @@ new DataColumn("ManagementComments"),
             }
         }
 
-
         private FileResult GenerateParticipationSummaryReportExcel(string fileName, ParticipationSummaryReportViewModel records)
         {
             DataTable dataTable = new DataTable("records");
             dataTable.Columns.AddRange(new DataColumn[]
             {
-new DataColumn("Appraisee No"),
-new DataColumn("Appraisee Name"),
-new DataColumn("Appraisee Designation"),
-new DataColumn("Appraisee Unit"),
-new DataColumn("Appraisee Department"),
-new DataColumn("Appraisee Location"),
-new DataColumn("Feedback Problems"),
-new DataColumn("Feedback Solutions"),
-new DataColumn("Appraisee Disagrees"),
-new DataColumn("Appraiser Name"),
-new DataColumn("Appraiser Designation"),
-new DataColumn("Appraiser Role"),
-new DataColumn("Appraiser Type"),
-new DataColumn("Kpa Score"),
-new DataColumn("Competency Score"),
-new DataColumn("Total Score"),
-new DataColumn("Rating"),
-new DataColumn("Line Manager Recommendation"),
-new DataColumn("Line Manager Comments"),
-new DataColumn("Line Manager Name"),
-new DataColumn("Unit Head Recommendation"),
-new DataColumn("Unit Head Comments"),
-new DataColumn("Unit Head Name"),
-new DataColumn("Department Head Recommendation"),
-new DataColumn("Department Head Comments"),
-new DataColumn("Department Head Name"),
-new DataColumn("HR Recommendation"),
-new DataColumn("HR Comments"),
-new DataColumn("Management Decision"),
-new DataColumn("ManagementComments"),
+new DataColumn("Description"),
+new DataColumn("Number (#)"),
+new DataColumn("Percent (%)"),
             });
 
-            foreach (var result in results)
+            dataTable.Rows.Add(
+                "Participation Summary", "", ""
+                );
+
+            dataTable.Rows.Add(
+    "Category", "", ""
+    );
+            dataTable.Rows.Add(
+                    "Total Number of Employees",
+                    records.TotalNoOfActiveEmployees,
+                    "100%"
+                    );
+
+            dataTable.Rows.Add(
+        "Number of Participants",
+        records.NoOfParticipants,
+        records.ParticipantsInPercentage
+        );
+
+            dataTable.Rows.Add(
+"Number of Non Participants",
+records.NoOfNonParticipants,
+records.NonParticipantsInPercentage
+);
+
+            dataTable.Rows.Add(
+    "Breakdown of Participants by Stages ", "", ""
+    );
+            dataTable.Rows.Add(
+"Review Stage", "", ""
+);
+            foreach(var item in records.ParticipationSummaryList)
             {
                 dataTable.Rows.Add(
-                    result.EmployeeNo,
-                    result.AppraiseeName,
-                    result.AppraiseeDesignation,
-                    result.UnitName,
-                    result.DepartmentName,
-                    result.LocationName,
-                    result.FeedbackProblems,
-                    result.FeedbackSolutions,
-                    result.IsFlagged,
-                    result.AppraiserName,
-                    result.AppraiserDesignation,
-                    result.AppraiserRoleDescription,
-                    result.AppraiserTypeDescription,
-                    result.KpaScoreObtained,
-                    result.CompetencyScoreObtained,
-                    result.CombinedScoreObtained,
-                    result.PerformanceRating,
-                    result.LineManagerRecommendation,
-                    result.LineManagerComments,
-                    result.LineManagerName,
-                    result.UnitHeadRecommendation,
-                    result.UnitHeadComments,
-                    result.UnitHeadName,
-                    result.DepartmentHeadRecommendation,
-                    result.DepartmentHeadComments,
-                    result.DepartmentHeadName,
-                    result.HrRecommendation,
-                    result.HrComments,
-                    result.ManagementDecision,
-                    result.ManagementComments
-                    );
+item.ReviewStageName,
+item.NoOfParticipants,
+item.PercentageParticipantsFormatted
+);
             }
 
-            using (XLWorkbook workbook = new XLWorkbook())
+
+                using (XLWorkbook workbook = new XLWorkbook())
             {
                 workbook.Worksheets.Add(dataTable);
                 using (MemoryStream stream = new MemoryStream())

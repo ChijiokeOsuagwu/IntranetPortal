@@ -9,7 +9,7 @@
                 <a asp-area="PMS" asp-controller="Home" asp-action="Reports" title="Go Back" class="btn btn-sm btn-outline-light text-dark">
                     <i class="bi bi-backspace fw-bolder" style="font-size: 1.0rem;"></i><span class="fw-bold ml-1" style="font-size: 0.9rem;">Back</span>
                 </a>
-                <a asp-area="PMS" asp-controller="Home" asp-action="DownloadParticipationReport" asp-route-id="@Model.Id" asp-route-lc="@Model.Ld" asp-route-dc="@Model.Dd" asp-route-uc="@Model.Ud" title="Download Excel" class="btn btn-sm btn-outline-light ml-2 text-dark">
+                <a asp-area="PMS" asp-controller="Home" asp-action="DownloadParticipationSummaryReport" asp-route-id="@Model.Id" asp-route-ld="@Model.Ld" asp-route-dd="@Model.Dd" asp-route-ud="@Model.Ud" title="Download Excel" class="btn btn-sm btn-outline-light ml-2 text-dark">
                     <i class="bi bi-download fw-bolder" style="font-size: 1.0rem;"></i><span class="fw-bold ml-1" style="font-size: 0.9rem;">Download</span>
                 </a>
             </div>
