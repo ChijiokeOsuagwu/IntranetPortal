@@ -1109,7 +1109,7 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
             sb.Append("WHERE (r.is_main = true) ");
             sb.Append("AND (r.rvw_sxn_id = @rvw_sxn_id) ");
             sb.Append("AND (e.dept_id = @dept_id) ");
-            sb.Append("ORDER BY d.deptname, u.unitname, rvw_emp_nm;");
+            sb.Append("ORDER BY d.deptname, u.unitname, rvw_emp_nm, rvw_aprsr_nm;");
 
             string query = sb.ToString();
             await conn.OpenAsync();
@@ -1201,7 +1201,7 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
             sb.Append("WHERE (r.is_main = true) ");
             sb.Append("AND (r.rvw_sxn_id = @rvw_sxn_id) ");
             sb.Append("AND (e.unit_id = @unit_cd) ");
-            sb.Append("ORDER BY d.deptname, u.unitname, e.fullname;");
+            sb.Append("ORDER BY d.deptname, u.unitname, rvw_emp_nm, rvw_aprsr_nm;");
 
             string query = sb.ToString();
             await conn.OpenAsync();
@@ -1293,7 +1293,7 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
             sb.Append("WHERE (r.is_main = true) ");
             sb.Append("AND (r.rvw_sxn_id = @rvw_sxn_id) ");
             sb.Append("AND ((SELECT fullname FROM gst_prsns WHERE id = r.rvw_emp_id) = @appraisee_name) ");
-            sb.Append("ORDER BY d.deptname, u.unitname, rvw_emp_nm;");
+            sb.Append("ORDER BY d.deptname, u.unitname, rvw_emp_nm, rvw_aprsr_nm;");
 
             string query = sb.ToString();
             await conn.OpenAsync();
@@ -1384,7 +1384,7 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
             sb.Append("INNER JOIN public.gst_locs l ON l.locqk = e.loc_id ");
             sb.Append("WHERE (r.rvw_hdr_id = @rvw_hdr_id) ");
             sb.Append("AND (r.rvw_aprsr_id = @rvw_aprsr_id) ");
-            sb.Append("ORDER BY r.rvw_smr_id;");
+            sb.Append("ORDER BY rvw_emp_nm, rvw_aprsr_nm;");
 
             string query = sb.ToString();
             await conn.OpenAsync();

@@ -481,8 +481,6 @@ namespace IntranetPortal.Areas.PMS.Controllers
             return View(model);
         }
 
-
-
         #endregion
 
         #region Download Action Methods
@@ -594,8 +592,6 @@ namespace IntranetPortal.Areas.PMS.Controllers
             }
             return GenerateCareerDevelopmentGoalsReportExcel(fileName, ReviewCDGList);
         }
-
-
 
         public async Task<FileResult> DownloadParticipationSummaryReport(int id, int? ld = null, int? dd = null, int? ud = null)
         {

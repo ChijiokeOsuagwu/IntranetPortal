@@ -98,12 +98,12 @@
                                                 </button>
                                                 <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton2">
                                                     <li>
-                                                        <a asp-area="PMS" asp-controller="Process" asp-action="ShowContractInfo" asp-route-id="@item.ReviewHeaderId" title="View Performance Contract" class="dropdown-item">
+                                                        <a  class="dropdown-item" asp-area="PMS" asp-controller="Process" asp-action="ShowContractInfo" asp-route-id="@item.ReviewHeaderId" title="View Performance Contract" class="dropdown-item">
                                                             <span class="text-white fw-bold">View Contract</span>
                                                         </a>
                                                     </li>
                                                     <li>
-                                                        <a asp-area="PMS" asp-controller="Process" asp-action="ShowSelectedResult" asp-route-id="@item.ReviewHeaderId" asp-route-ad="@item.AppraiserId" title="View Evaluation Result" class="dropdown-item">
+                                                        <a class="dropdown-item" asp-area="PMS" asp-controller="Process" asp-action="ShowSelectedResult" asp-route-id="@item.ReviewHeaderId" asp-route-ad="@item.AppraiserId" title="View Evaluation Result" class="dropdown-item">
                                                             <span class="text-white fw-bold">View Evaluations</span>
                                                         </a>
                                                     </li>

@@ -108,19 +108,19 @@
                                             </button>
                                             <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton2">
                                                 <li>
-                                                    <a asp-area="PMS" asp-controller="Home" asp-action="ReturnforCorrection" asp-route-id="@item.ReviewHeaderId" title="Return for Correction">
+                                                    <a class="dropdown-item" asp-area="PMS" asp-controller="Home" asp-action="ReturnforCorrection" asp-route-id="@item.ReviewHeaderId" title="Return for Correction">
                                                         <span class="text-white">Return for Correction</span>
                                                     </a>
                                                 </li>
                                                 <li>
-                                                    <a asp-area="PMS" asp-controller="Process" asp-action="ShowContractInfo" asp-route-id="@item.ReviewHeaderId" asp-route-sd="@item.AppraiseeId" asp-route-sp="chk" title="View Performance Contract">
+                                                    <a class="dropdown-item" asp-area="PMS" asp-controller="Process" asp-action="ShowContractInfo" asp-route-id="@item.ReviewHeaderId" asp-route-sd="@item.AppraiseeId" asp-route-sp="chk" title="View Performance Contract">
                                                         <span class="text-white">View Contract</span>
                                                     </a>
                                                 </li>
                                                 @if (item.ReviewStageId > 9)
                                                 {
                                                     <li>
-                                                        <a asp-area="PMS" asp-controller="Process" asp-action="ShowEvaluations" asp-route-id="@item.ReviewHeaderId" title="View Evaluations">
+                                                        <a class="dropdown-item" asp-area="PMS" asp-controller="Process" asp-action="ShowEvaluations" asp-route-id="@item.ReviewHeaderId" title="View Evaluations">
                                                             <span class="text-white">View Evaluations</span>
                                                         </a>
                                                     </li>
