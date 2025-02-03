@@ -197,6 +197,38 @@ namespace IntranetPortal.Data.Repositories.LmsRepositories
             return leaveTypes;
         }
 
+        public async Task<List<LeaveType>> GetAllExcludingSystemAsync()
+        {
+            List<LeaveType> leaveTypes = new List<LeaveType>();
+            string query = string.Empty;
+            StringBuilder sb = new StringBuilder();
+
+            sb.Append("SELECT lvs_typ_cd, lvs_typ_nm, lvs_typ_ds ");
+            sb.Append("FROM public.lms_lvs_typs WHERE lvs_typ_sy = false ");
+            sb.Append("ORDER BY lvs_typ_nm; ");
+            query = sb.ToString();
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
+            {
+                await conn.OpenAsync();
+                // Retrieve all rows
+                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+                {
+                    await cmd.PrepareAsync();
+                    var reader = await cmd.ExecuteReaderAsync();
+                    while (await reader.ReadAsync())
+                    {
+                        leaveTypes.Add(new LeaveType()
+                        {
+                            Code = reader["lvs_typ_cd"] == DBNull.Value ? string.Empty : (reader["lvs_typ_cd"]).ToString(),
+                            Name = reader["lvs_typ_nm"] == DBNull.Value ? string.Empty : reader["lvs_typ_nm"].ToString(),
+                            Description = reader["lvs_typ_ds"] == DBNull.Value ? string.Empty : reader["lvs_typ_ds"].ToString()
+                        });
+                    }
+                }
+                await conn.CloseAsync();
+            }
+            return leaveTypes;
+        }
         #endregion
 
     }

@@ -10,7 +10,7 @@ namespace IntranetPortal.Base.Repositories.ErmRepositories
     {
         #region Employee Action Methods
         Task<bool> AddEmployeeAsync(Employee employee);
-        Task<bool> UpdateEmployeeSeparationAsync(string empId, string recordedBy, DateTime? exitDate);
+        Task<bool> UpdateEmployeeSeparationAsync(string empId, string recordedBy, DateTime? exitDate, bool isExitted = true);
         Task<bool> DeleteEmployeeAsync(string Id, string deletedBy, string deletedTime);
 
         Task<bool> EditEmployeeAsync(Employee employee);
@@ -61,6 +61,17 @@ namespace IntranetPortal.Base.Repositories.ErmRepositories
         Task<IList<Employee>> GetEmployeesByLeaveProfileIdAsync(int leaveProfileId);
         Task<IList<EmployeeRoll>> GetEmployeeRollsByLeaveProfileIdAsync(int leaveProfileId);
 
+        #endregion
+
+        #region Employee Count Action Methods
+        Task<long> GetEmployeesCountAsync(DateTime? terminalDate = null);
+        Task<long> GetEmployeesCountByLocationIdAsync(int locationId, DateTime? terminalDate = null);
+        Task<long> GetEmployeesCountByLocationIdnDepartmentIdAsync(int locationId, int deptId, DateTime? terminalDate = null);
+        Task<long> GetEmployeesCountByLocationIdnDepartmentIdnUnitIdAsync(int locationId, int deptId, int unitId, DateTime? terminalDate = null);
+        Task<long> GetEmployeesCountByLocationIdnUnitIdAsync(int locationId, int unitId, DateTime? terminalDate = null);
+        Task<long> GetEmployeesCountByDepartmentIdAsync(int deptId, DateTime? terminalDate = null);
+        Task<long> GetEmployeesCountByDepartmentIdnUnitIdAsync(int deptId, int unitId, DateTime? terminalDate = null);
+        Task<long> GetEmployeesCountByUnitIdAsync(int unitId, DateTime? terminalDate = null);
         #endregion
 
         #region Employee Reporting Lines Action Methods

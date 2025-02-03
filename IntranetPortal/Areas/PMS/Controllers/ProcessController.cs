@@ -1377,7 +1377,15 @@ namespace IntranetPortal.Areas.PMS.Controllers
                         UtilityHelper utilityHelper = new UtilityHelper(_configuration);
                         EmailModel recipientEmailCopy = new EmailModel();
                         recipientEmailCopy.RecipientName = approver.FullName;
-                        recipientEmailCopy.RecipientEmail = approver.OfficialEmail;
+                        if (!string.IsNullOrWhiteSpace(approver.OfficialEmail))
+                        {
+                            recipientEmailCopy.RecipientEmail = approver.OfficialEmail;
+                        }
+                        else
+                        {
+                            recipientEmailCopy.RecipientEmail = approver.Email;
+                        }
+
                         recipientEmailCopy.SenderName = sender.FullName;
                         switch (reviewSubmission.SubmissionPurposeId)
                         {
@@ -1411,7 +1419,10 @@ namespace IntranetPortal.Areas.PMS.Controllers
                         }
 
                         bool messageSent = await _baseModelService.SendMessageAsync(message);
-                        approverEmailCopySent = utilityHelper.SendEmailWithSendGrid(recipientEmailCopy);
+                        if(!string.IsNullOrWhiteSpace(recipientEmailCopy.RecipientEmail))
+                        {
+                            approverEmailCopySent = utilityHelper.SendEmailWithSendGrid(recipientEmailCopy);
+                        }
                         return RedirectToAction("AppraisalSubmissionHistory", new { id = model.ReviewHeaderID });
                     }
                     else

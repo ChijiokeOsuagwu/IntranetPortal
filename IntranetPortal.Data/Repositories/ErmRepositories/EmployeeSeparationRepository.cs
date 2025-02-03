@@ -29,7 +29,7 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
             sb.Append("spx_rsn_id, spx_rsn_desc, exp_last_wk_dt, ");
             sb.Append("ntc_srv_dt, cnb_rhd, rtnd_asst, ctd_dt, mdf_dt, ctd_by, ");
             sb.Append("mdf_by, notc_prd_mnth, outs_lv_dys, act_last_wk_dt, ");
-            sb.Append("outs_wk_dys, unit_id, dept_id, loc_id) VALUES (");
+            sb.Append("outs_wk_dys, unit_id, dept_id, loc_id) VALUES (" );
             sb.Append("@emp_id, @spx_typ_id, @spx_rsn_id, @spx_rsn_desc,");
             sb.Append("@exp_last_wk_dt, @ntc_srv_dt, @cnb_rhd, @rtnd_asst, ");
             sb.Append("@ctd_dt, @ctd_dt, @ctd_by, @ctd_by, @notc_prd_mnth, ");
@@ -178,7 +178,7 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
             return rows > 0;
         }
 
-        public async Task<bool> DeleteAsync(string employeeId, DateTime createdDate)
+        public async Task<bool> DeleteAsync(string employeeId, DateTime exitDate)
         {
             int rows = 0;
             var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
@@ -196,7 +196,7 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
                 var spx_dt = cmd.Parameters.Add("@spx_dt", NpgsqlDbType.Date);
                 cmd.Prepare();
                 emp_id.Value = employeeId;
-                spx_dt.Value = createdDate;
+                spx_dt.Value = exitDate;
 
                 rows = await cmd.ExecuteNonQueryAsync();
             }
@@ -307,8 +307,8 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
 
         public async Task<List<EmployeeSeparation>> GetByDateRangeAsync(DateTime startDate, DateTime endDate)
         {
-            string StartDate = startDate.ToString("dd-MM-yyyy");
-            string EndDate = endDate.ToString("dd-MM-yyyy");
+            string StartDate = startDate.ToString("yyyy-MM-dd");
+            string EndDate = endDate.ToString("yyyy-MM-dd");
 
             List<EmployeeSeparation> employeeSeparations = new List<EmployeeSeparation>();
             var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
@@ -347,8 +347,8 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
             sb.Append("LEFT OUTER JOIN public.gst_depts d ON s.dept_id = d.deptqk ");
             sb.Append("LEFT OUTER JOIN public.gst_units u ON s.unit_id = u.unitqk ");
             sb.Append("LEFT OUTER JOIN public.erm_spx_rsns r ON s.spx_rsn_id = r.spx_rsn_id ");
-            sb.Append("WHERE (s.act_last_wk_dt >= to_date(@start_date, 'DD-MM-YYYY')) ");
-            sb.Append("AND (s.act_last_wk_dt <= to_date(@end_date, 'DD-MM-YYYY')) ");
+            sb.Append("WHERE (s.act_last_wk_dt >= to_date(@start_date, 'YYYY-MM-DD')) ");
+            sb.Append("AND (s.act_last_wk_dt <= to_date(@end_date, 'YYYY-MM-DD')) ");
             sb.Append("OR (s.act_last_wk_dt IS NULL) ");
             sb.Append("ORDER BY s.act_last_wk_dt DESC; ");
 

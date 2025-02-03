@@ -164,7 +164,7 @@ namespace IntranetPortal.Areas.ERM.Controllers
                     }
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 model.ViewModelErrorMessage = ex.Message;
             }
@@ -334,7 +334,6 @@ namespace IntranetPortal.Areas.ERM.Controllers
         public async Task<IActionResult> Separation(DateTime? sd = null, DateTime? ed = null)
         {
             EmployeeSeparationViewModel model = new EmployeeSeparationViewModel();
-
             try
             {
                 if (sd == null) { model.sd = DateTime.Today.AddYears(-1); }
@@ -371,10 +370,10 @@ namespace IntranetPortal.Areas.ERM.Controllers
                 }
                 else
                 {
-                    model.ExpectedLastWorkedDate = DateTime.Today.AddMonths(1);
-                    model.ActualLastWorkedDate = DateTime.Today.AddMonths(1);
+                    model.ExpectedLastWorkedDate = DateTime.Today;
+                    model.ActualLastWorkedDate = DateTime.Today;
                     model.NoticeServedDate = DateTime.Today;
-                    model.NoticePeriodInMonths = 1;
+                    model.NoticePeriodInMonths = 0;
                     model.EligibleForRehire = true;
                     model.ReturnedAssignedAssets = true;
                 }
@@ -405,38 +404,41 @@ namespace IntranetPortal.Areas.ERM.Controllers
                 try
                 {
                     employeeSeparation = model.Convert();
-                    Employee employee = await _ermService.GetEmployeeByNameAsync(model.EmployeeName);
-                    if (employee != null)
+                    if (string.IsNullOrWhiteSpace(employeeSeparation.EmployeeId) || employeeSeparation.UnitId < 1 || employeeSeparation.DepartmentId < 1 || employeeSeparation.LocationId < 1)
                     {
-                        employeeSeparation.EmployeeId = employee.EmployeeID;
-                        employeeSeparation.UnitId = employee.UnitID.Value;
-                        employeeSeparation.DepartmentId = employee.DepartmentID.Value;
-                        employeeSeparation.LocationId = employee.LocationID.Value;
-
-                        if (employeeSeparation.EmployeeSeparationId < 1)
+                        Employee employee = await _ermService.GetEmployeeByNameAsync(model.EmployeeName);
+                        if (employee != null)
                         {
-                            employeeSeparation.RecordCreatedBy = HttpContext.User.Identity.Name;
-                            employeeSeparation.RecordCreatedDate = DateTime.UtcNow;
-                            IsSuccessful = await _ermService.AddEmployeeSeparationAsync(employeeSeparation);
-                            if (IsSuccessful)
-                            {
-                                model.OperationIsCompleted = true;
-                                model.OperationIsSuccessful = true;
-                                model.ViewModelSuccessMessage = "New Employee Separation added successfully!";
-                            }
+                            employeeSeparation.EmployeeId = employee.EmployeeID;
+                            employeeSeparation.UnitId = employee.UnitID.Value;
+                            employeeSeparation.DepartmentId = employee.DepartmentID.Value;
+                            employeeSeparation.LocationId = employee.LocationID.Value;
                         }
-                        else
-                        {
-                            employeeSeparation.RecordModifiedBy = HttpContext.User.Identity.Name;
-                            employeeSeparation.RecordModifiedDate = DateTime.UtcNow;
+                    }
 
-                            IsSuccessful = await _ermService.EditEmployeeSeparationAsync(employeeSeparation);
-                            if (IsSuccessful)
-                            {
-                                model.OperationIsCompleted = true;
-                                model.OperationIsSuccessful = true;
-                                model.ViewModelSuccessMessage = "Employee Separation updated successfully!";
-                            }
+                    if (employeeSeparation.EmployeeSeparationId < 1)
+                    {
+                        employeeSeparation.RecordCreatedBy = HttpContext.User.Identity.Name;
+                        employeeSeparation.RecordCreatedDate = DateTime.UtcNow;
+                        IsSuccessful = await _ermService.AddEmployeeSeparationAsync(employeeSeparation);
+                        if (IsSuccessful)
+                        {
+                            model.OperationIsCompleted = true;
+                            model.OperationIsSuccessful = true;
+                            model.ViewModelSuccessMessage = "New Employee Separation added successfully!";
+                        }
+                    }
+                    else
+                    {
+                        employeeSeparation.RecordModifiedBy = HttpContext.User.Identity.Name;
+                        employeeSeparation.RecordModifiedDate = DateTime.UtcNow;
+
+                        IsSuccessful = await _ermService.EditEmployeeSeparationAsync(employeeSeparation);
+                        if (IsSuccessful)
+                        {
+                            model.OperationIsCompleted = true;
+                            model.OperationIsSuccessful = true;
+                            model.ViewModelSuccessMessage = "Employee Separation updated successfully!";
                         }
                     }
                 }
@@ -515,12 +517,14 @@ namespace IntranetPortal.Areas.ERM.Controllers
         [HttpPost]
         public async Task<IActionResult> DeleteSeparation(ManageSeparationViewModel model)
         {
+            string DeletedBy = HttpContext.User.Identity.Name;
+
             try
             {
                 var entities = await _ermService.GetSeparationOutstandingsAsync(model.EmployeeSeparationId);
                 if (entities != null && entities.Count < 1)
                 {
-                    if (await _ermService.DeleteEmployeeSeparationAsync(model.EmployeeSeparationId))
+                    if (await _ermService.DeleteEmployeeSeparationAsync(model.EmployeeSeparationId, DeletedBy))
                     {
                         return RedirectToAction("Separation");
                     }
@@ -542,6 +546,27 @@ namespace IntranetPortal.Areas.ERM.Controllers
             }
 
             return View(model);
+        }
+
+        public async Task<FileResult> DownloadEmployeeSeparationsReport(DateTime? sd = null, DateTime? ed = null)
+        {
+            List<EmployeeSeparation> employeeSeparationList = new List<EmployeeSeparation>();
+            DateTime StartDate = sd ?? DateTime.Today.AddYears(-1);
+            DateTime EndDate = ed ?? DateTime.Today;
+            string fileName = $"Staff Separation Report {DateTime.UtcNow.ToString("yyyyMMddHHmmssfff")}.xlsx";
+            try
+            {
+                var entities = await _ermService.GetEmployeeSeparationsAsync(StartDate, EndDate);
+                if (entities != null)
+                {
+                    employeeSeparationList = entities;
+                }
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+            return GenerateEmployeeSeparationReportInExcel(fileName, employeeSeparationList);
         }
 
         #endregion
@@ -600,18 +625,16 @@ namespace IntranetPortal.Areas.ERM.Controllers
                         }
                     }
                 }
+                var items = await _ermService.GetSeparationOutstandingItemsAsync();
+                var currencies = await _globalSettingsService.GetCurrenciesAsync();
+
+                if (items != null) { ViewBag.ItemsList = new SelectList(items, "Description", "Description"); }
+                if (currencies != null) { ViewBag.CurrenciesList = new SelectList(currencies, "Code", "Name"); }
             }
             catch (Exception ex)
             {
                 model.ViewModelErrorMessage = ex.Message;
             }
-
-            var items = await _ermService.GetSeparationOutstandingItemsAsync();
-            var currencies = await _globalSettingsService.GetCurrenciesAsync();
-
-            if (items != null) { ViewBag.ItemsList = new SelectList(items, "Description", "Description"); }
-            if (currencies != null) { ViewBag.CurrenciesList = new SelectList(currencies, "Code", "Name"); }
-
             return View(model);
         }
 
@@ -952,8 +975,6 @@ namespace IntranetPortal.Areas.ERM.Controllers
 
         #endregion
 
-
-
         //======== Employees Helper Methods =======//
         #region Employees Helper Methods
 
@@ -1101,6 +1122,55 @@ namespace IntranetPortal.Areas.ERM.Controllers
                 }
             }
         }
+
+        private FileResult GenerateEmployeeSeparationReportInExcel(string fileName, IEnumerable<EmployeeSeparation> employeeSeparations)
+        {
+            DataTable dataTable = new DataTable("Separations");
+            dataTable.Columns.AddRange(new DataColumn[]
+            {
+                new DataColumn("#"),
+                new DataColumn("Full Name"),
+                new DataColumn("Last Work Date"),
+                new DataColumn("Unit"),
+                new DataColumn("Department"),
+                new DataColumn("Location"),
+                new DataColumn("Type"),
+                new DataColumn("Reason"),
+                new DataColumn("Details"),
+                new DataColumn("Is Indebted"),
+                new DataColumn("Is Owed"),
+            });
+
+            int rowCount = 0;
+            foreach (var e in employeeSeparations)
+            {
+                rowCount++;
+                dataTable.Rows.Add(
+                    rowCount.ToString(),
+                    e.EmployeeName,
+                    e.ActualLastWorkedDate.Value.ToString("yyyy-MM-dd"),
+                    e.UnitName,
+                    e.DepartmentName,
+                    e.LocationName,
+                    e.SeparationTypeDescription,
+                    e.SeparationReasonDescription,
+                    e.SeparationReasonExplanation,
+                    e.IsIndebted,
+                    e.IsOwed
+                    );
+            }
+
+            using (XLWorkbook workbook = new XLWorkbook())
+            {
+                workbook.Worksheets.Add(dataTable);
+                using (MemoryStream stream = new MemoryStream())
+                {
+                    workbook.SaveAs(stream);
+                    return File(stream.ToArray(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
+                }
+            }
+        }
+
 
         #endregion
     }

@@ -137,8 +137,8 @@ namespace IntranetPortal.Helpers
             }
         }
 
-        
-        //================ Final Evaluation Notification Contents ======================//
+        #region Performance Management System Email Alerts
+        //================ Contract Approval Notification Contents ======================//
         public static string GetPerformanceContractApprovalEmailHtmlContent(string RecipientName, string AppraiseeName)
         {
             StringBuilder sb = new StringBuilder();
@@ -342,6 +342,107 @@ namespace IntranetPortal.Helpers
 
             return sb.ToString();
         }
+        #endregion
 
+        #region Leave Management System Alerts
+        //================ Leave Plan Approval Alert Contents ======================//
+        public static string GetLeavePlanApprovalEmailHtmlContent(string RecipientName, string ApplicantName)
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append("<html><head></head>");
+            sb.Append("<body style='font-family:sans-serif; font-size:1.2rem;'>");
+            sb.Append($"<div>Dear {RecipientName},</div>");
+            sb.Append("<p>I trust this email finds you well.</p>");
+            sb.Append("<p>A Leave Plan has just been submitted to you ");
+            sb.Append($"by <strong>{ApplicantName}</strong>, on ");
+            sb.Append($"{DateTime.Now.ToLongDateString()} at ");
+            sb.Append($"{DateTime.Now.ToLongTimeString()} WAT, for your kind approval. ");
+            sb.Append("Kindly log in to Channels OfficeManager to action this request. </p>");
+            sb.Append("<p>Thank you.</p><div>Regards</div>");
+            sb.AppendLine("<div><strong>Channels OfficeManager</strong></div><br/>");
+            sb.Append("<div><em>[This is an auto-generated email. <strong>Please do not reply.</strong>]</em></div>");
+            sb.Append("</body></html>");
+            return sb.ToString();
+        }
+
+        public static string GetLeavePlanApprovalEmailPlainContent(string RecipientName, string ApplicantName)
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine($"Dear {RecipientName},");
+            sb.AppendLine("I trust this email meets you well.");
+            sb.Append("A Leave Plan has just been submitted to you. ");
+            sb.Append($"by {ApplicantName}, on ");
+            sb.Append($"{DateTime.Now.ToLongDateString()} at ");
+            sb.Append($"{DateTime.Now.ToLongTimeString()} WAT, for your kind approval. ");
+            sb.AppendLine("Kindly log in to Channels OfficeManager to action this request. ");
+            sb.AppendLine("Thank you.");
+            sb.AppendLine("Regards");
+            sb.AppendLine("OfficeManager");
+            sb.AppendLine(" ");
+            sb.Append("[This is an auto-generated email. Please do not reply.]");
+            return sb.ToString();
+        }
+
+        public static string GetLeavePlanApprovalMessageContent(string ApplicantName)
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append("A Leave Plan has just been submitted to you. ");
+            sb.Append($"It was submitted by {ApplicantName}, on ");
+            sb.Append($"{DateTime.Now.ToLongDateString()} at ");
+            sb.Append($"{DateTime.Now.ToLongTimeString()} WAT, for your kind approval. ");
+            return sb.ToString();
+        }
+
+        //================ Leave Plan Notification Alert Contents ======================//
+        public static string GetLeavePlanNoticeEmailHtmlContent(string RecipientName, string ApplicantName)
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append("<html><head></head>");
+            sb.Append("<body style='font-family:sans-serif; font-size:1.2rem;'>");
+            sb.Append($"<div>Dear {RecipientName},</div>");
+            sb.Append("<p>I trust this email finds you well.</p>");
+            sb.Append("<p>A Leave Plan has just been submitted to you ");
+            sb.Append($"by <strong>{ApplicantName}</strong>, on ");
+            sb.Append($"{DateTime.Now.ToLongDateString()} at ");
+            sb.Append($"{DateTime.Now.ToLongTimeString()} WAT, for your information. ");
+            sb.Append("This is purely for information purposes. No action is required of you. </p>");
+            sb.Append("<p>Thank you.</p><div>Regards</div>");
+            sb.AppendLine("<div><strong>Channels OfficeManager</strong></div><br/>");
+            sb.Append("<div><em>[This is an auto-generated email. <strong>Please do not reply.</strong>]</em></div>");
+            sb.Append("</body></html>");
+            return sb.ToString();
+        }
+
+        public static string GetLeavePlanNoticeEmailPlainContent(string RecipientName, string ApplicantName)
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine($"Dear {RecipientName},");
+            sb.AppendLine("I trust this email meets you well.");
+            sb.Append("A Leave Plan has just been submitted to you. ");
+            sb.Append($"by {ApplicantName}, on ");
+            sb.Append($"{DateTime.Now.ToLongDateString()} at ");
+            sb.Append($"{DateTime.Now.ToLongTimeString()} WAT, for your information. ");
+            sb.AppendLine("This is purely for information purposes. No action is required of you.");
+            sb.AppendLine("Thank you.");
+            sb.AppendLine("Regards");
+            sb.AppendLine("OfficeManager");
+            sb.AppendLine(" ");
+            sb.Append("[This is an auto-generated email. Please do not reply.]");
+            return sb.ToString();
+        }
+
+        public static string GetLeavePlanNoticeMessageContent(string ApplicantName)
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append("A Leave Plan has just been submitted to you. ");
+            sb.Append($"It was submitted by {ApplicantName}, on ");
+            sb.Append($"{DateTime.Now.ToLongDateString()} at ");
+            sb.Append($"{DateTime.Now.ToLongTimeString()} WAT, for your information. ");
+            sb.Append("This is purely for information purposes. No action is required of you.");
+            return sb.ToString();
+        }
+
+
+        #endregion
     }
 }

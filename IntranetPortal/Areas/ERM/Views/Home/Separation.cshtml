@@ -4,28 +4,29 @@
     <h4 class="mb-1">Employee Exit</h4>
     <hr />
     <div class="row">
-            <div class="col-md-12 text-start">
-                <a asp-area="ERM" asp-controller="Home" asp-action="Index" title="Go Back" class="btn btn-sm btn-outline-light text-dark mr-3">
-                    <i class="bi bi-backspace fw-bolder" style="font-size: 1.0rem;"></i><span class="fw-bold ml-1" style="font-size: 0.9rem;">Back</span>
-                </a>
-                @*<a asp-area="ERM" asp-controller="Home" asp-action="DownloadEmployeeSeparationsReport" asp-route-sd="@Model.sd" asp-route-ed="@Model.ed" title="Download Excel" class="btn btn-sm btn-outline-light mr-5 text-dark">
-                    <i class="bi bi-download fw-bolder" style="font-size: 1.0rem;"></i><span class="fw-bold ml-1" style="font-size: 0.9rem;">Download</span>
-                </a>*@
-                <a asp-area="ERM" asp-controller="Home" asp-action="ManageSeparation" asp-route-id="0" title="Add New Separation" class="text-dark mr-3">
-                    <i class="bi bi-plus-lg fw-bolder" style="font-size: 1.0rem;"></i><span class="fw-bold ml-1" style="font-size: 0.9rem;">Add New</span>
-                </a>
-            </div>
-            <div class="col-md-12 mb-3 text-end">
-                <form asp-area="ERM" asp-controller="Home" asp-action="Separation" method="get">
+        <form asp-area="ERM" asp-controller="Home" asp-action="Separation" method="get">
+            <div class="row">
+                <div class="col-md-4">
+                    <a asp-area="ERM" asp-controller="Home" asp-action="Index" title="Go Back" class="btn btn-sm btn-outline-light text-dark mr-3">
+                        <i class="bi bi-backspace fw-bolder" style="font-size: 1.0rem;"></i><span class="fw-bold ml-1" style="font-size: 0.9rem;">Back</span>
+                    </a>
+                    <a asp-area="ERM" asp-controller="Home" asp-action="DownloadEmployeeSeparationsReport" asp-route-sd="@Model.sd" asp-route-ed="@Model.ed" title="Download Excel" class="btn btn-sm btn-outline-light mr-5 text-dark">
+                            <i class="bi bi-download fw-bolder" style="font-size: 1.0rem;"></i><span class="fw-bold ml-1" style="font-size: 0.9rem;">Download</span>
+                        </a>
+                    <a asp-area="ERM" asp-controller="Home" asp-action="ManageSeparation" asp-route-id="0" title="Add New Separation" class="text-dark mr-3">
+                        <i class="bi bi-plus-lg fw-bolder" style="font-size: 1.0rem;"></i><span class="fw-bold ml-1" style="font-size: 0.9rem;">Add New</span>
+                    </a>
+                </div>
+                <div class="col-md-8 text-end">
                     <span class="fw-bold mr-1">From:</span>
-                    <input type="date" asp-for="sd" class="fw-bold mr-3" style="max-width:500px; height:30px; border:0px" />
+                    <input type="date" asp-for="sd" class="fw-bold mr-3" style="width:200px; height:30px; border:0px" />
                     <span class="fw-bold mr-1">To:</span>
-                    <input type="date" asp-for="ed" class="fw-bold mr-5" style="max-width:500px; height:30px; border:0px" />
+                    <input type="date" asp-for="ed" class="fw-bold mr-5" style="width:200px; height:30px; border:0px" />
                     <input type="submit" value="Search" class="btn btn-dark btn-sm text-white fw-bold" style="width:100px" />
-                </form>
+                </div>
             </div>
-
-        </div>
+        </form>
+    </div>
     @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
     {<div class="row">
             <div class="alert alert-danger alert-dismissible fade show" role="alert">
@@ -67,89 +68,89 @@
                             @foreach (var item in Model.EmployeeSeparationList)
                             {
                                 row_count++;
-                            <tr>
-                                <td><span class="fw-bold">@row_count.ToString()</span></td>
-                                <td><span class="fw-bold">@item.EmployeeName</span></td>
-                                @if (item.ActualLastWorkedDate != null)
-                                {
-                                    <td><span class="fw-bold">@item.ActualLastWorkedDate.Value.ToLongDateString()</span></td>
-                                }
-                                else
-                                {
-                                    <td><span class="fw-bold">Unavailable</span></td>
-                                }
-                                <td><span class="fw-bold">@item.UnitName</span></td>
-                                <td><span class="fw-bold">@item.LocationName</span></td>
-                                <td><span class="fw-bold">@item.SeparationTypeDescription</span></td>
-                                <td><span class="fw-bold">@item.SeparationReasonDescription</span></td>
-                                @if (item.IsIndebted)
-                                {
-                                    <td><span class="fw-bold">Yes</span></td>
-                                }
-                                else
-                                {
-                                    <td><span class="fw-bold">No</span></td>
-                                }
-                                @if (item.IsOwed)
-                                {
-                                    <td><span class="fw-bold">Yes</span></td>
-                                }
-                                else
-                                {
-                                    <td><span class="fw-bold">No</span></td>
-                                }
-                                <td class="p-1 text-end">
-                                    <div class="btn-group dropstart">
-                                        <button type="button" class="bg-light" style="border:0px; height:10px" data-bs-toggle="dropdown" aria-expanded="false">
-                                            <span class="text-dark fw-bold"><i class="bi bi-three-dots" style="font-size:1.0rem"></i></span>
-                                        </button>
-                                        <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton2">
-                                            <li>
-                                                <a asp-area="ERM" asp-controller="Home" asp-action="ViewSeparation" asp-route-id="@item.EmployeeSeparationId" title="View Separation Details">
-                                                    <i class="bi bi-file-text text-white pl-2"></i>
-                                                    <span class="text-white">View</span>
-                                                </a>
-                                            </li>
-                                            <li>
-                                                <a asp-area="ERM" asp-controller="Home" asp-action="ManageSeparation" asp-route-id="@item.EmployeeSeparationId" title="Edit Separation">
-                                                    <i class="bi bi-pencil-square text-white pl-2"></i>
-                                                    <span class="text-white">Edit</span>
-                                                </a>
-                                            </li>
-                                            <li>
-                                                <a asp-area="ERM" asp-controller="Home" asp-action="DeleteSeparation" asp-route-id="@item.EmployeeSeparationId" title="Delete Separation">
-                                                    <i class="bi bi-trash2 text-white pl-2"></i>
-                                                    <span class="text-white">Delete</span>
-                                                </a>
-                                            </li>
-                                            <li>
-                                                <a asp-area="ERM" asp-controller="Home" asp-action="ManageSeparationOutstanding" asp-route-id="0" asp-route-sd="@item.EmployeeSeparationId" title="Add New Outstanding">
-                                                    <i class="bi bi-file-plus text-white pl-2"></i>
-                                                    <span class="text-white">Add Outstanding</span>
-                                                </a>
-                                            </li>
-                                            @if (item.HasOutstandings)
-                                            {
+                                <tr>
+                                    <td><span class="fw-bold">@row_count.ToString()</span></td>
+                                    <td><span class="fw-bold">@item.EmployeeName</span></td>
+                                    @if (item.ActualLastWorkedDate != null)
+                                    {
+                                        <td><span class="fw-bold">@item.ActualLastWorkedDate.Value.ToLongDateString()</span></td>
+                                    }
+                                    else
+                                    {
+                                        <td><span class="fw-bold">Unavailable</span></td>
+                                    }
+                                    <td><span class="fw-bold">@item.UnitName</span></td>
+                                    <td><span class="fw-bold">@item.LocationName</span></td>
+                                    <td><span class="fw-bold">@item.SeparationTypeDescription</span></td>
+                                    <td><span class="fw-bold">@item.SeparationReasonDescription</span></td>
+                                    @if (item.IsIndebted)
+                                    {
+                                        <td><span class="fw-bold">Yes</span></td>
+                                    }
+                                    else
+                                    {
+                                        <td><span class="fw-bold">No</span></td>
+                                    }
+                                    @if (item.IsOwed)
+                                    {
+                                        <td><span class="fw-bold">Yes</span></td>
+                                    }
+                                    else
+                                    {
+                                        <td><span class="fw-bold">No</span></td>
+                                    }
+                                    <td class="p-1 text-end">
+                                        <div class="btn-group dropstart">
+                                            <button type="button" class="bg-light" style="border:0px; height:10px" data-bs-toggle="dropdown" aria-expanded="false">
+                                                <span class="text-dark fw-bold"><i class="bi bi-three-dots" style="font-size:1.0rem"></i></span>
+                                            </button>
+                                            <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton2">
                                                 <li>
-                                                    <a asp-area="ERM" asp-controller="Home" asp-action="SeparationOutstanding" asp-route-id="@item.EmployeeSeparationId" asp-route-en="@item.EmployeeName" title="Outstanding Obligations">
-                                                        <i class="bi bi-list-ol text-white pl-2"></i>
-                                                        <span class="text-white">Outstanding List</span>
+                                                    <a asp-area="ERM" asp-controller="Home" asp-action="ViewSeparation" asp-route-id="@item.EmployeeSeparationId" title="View Separation Details">
+                                                        <i class="bi bi-file-text text-white pl-2"></i>
+                                                        <span class="text-white">View</span>
                                                     </a>
                                                 </li>
-                                            }
-                                            @if (item.HasPayments)
-                                            {
                                                 <li>
-                                                    <a asp-area="ERM" asp-controller="Home" asp-action="SeparationOutstandingPayments" asp-route-id="@item.EmployeeSeparationId" asp-route-ed="@item.EmployeeId" asp-route-en="@item.EmployeeName" title="Payment History">
-                                                        <i class="bi bi-credit-card text-white pl-2"></i>
-                                                        <span class="text-white">Payment History</span>
+                                                    <a asp-area="ERM" asp-controller="Home" asp-action="ManageSeparation" asp-route-id="@item.EmployeeSeparationId" title="Edit Separation">
+                                                        <i class="bi bi-pencil-square text-white pl-2"></i>
+                                                        <span class="text-white">Edit</span>
                                                     </a>
                                                 </li>
-                                            }
-                                        </ul>
-                                    </div>
-                                </td>
-                            </tr>
+                                                <li>
+                                                    <a asp-area="ERM" asp-controller="Home" asp-action="DeleteSeparation" asp-route-id="@item.EmployeeSeparationId" title="Delete Separation">
+                                                        <i class="bi bi-trash2 text-white pl-2"></i>
+                                                        <span class="text-white">Delete</span>
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <a asp-area="ERM" asp-controller="Home" asp-action="ManageSeparationOutstanding" asp-route-id="0" asp-route-sd="@item.EmployeeSeparationId" title="Add New Outstanding">
+                                                        <i class="bi bi-file-plus text-white pl-2"></i>
+                                                        <span class="text-white">Add Outstanding</span>
+                                                    </a>
+                                                </li>
+                                                @if (item.HasOutstandings)
+                                                {
+                                                    <li>
+                                                        <a asp-area="ERM" asp-controller="Home" asp-action="SeparationOutstanding" asp-route-id="@item.EmployeeSeparationId" asp-route-en="@item.EmployeeName" title="Outstanding Obligations">
+                                                            <i class="bi bi-list-ol text-white pl-2"></i>
+                                                            <span class="text-white">Outstanding List</span>
+                                                        </a>
+                                                    </li>
+                                                }
+                                                @if (item.HasPayments)
+                                                {
+                                                    <li>
+                                                        <a asp-area="ERM" asp-controller="Home" asp-action="SeparationOutstandingPayments" asp-route-id="@item.EmployeeSeparationId" asp-route-ed="@item.EmployeeId" asp-route-en="@item.EmployeeName" title="Payment History">
+                                                            <i class="bi bi-credit-card text-white pl-2"></i>
+                                                            <span class="text-white">Payment History</span>
+                                                        </a>
+                                                    </li>
+                                                }
+                                            </ul>
+                                        </div>
+                                    </td>
+                                </tr>
                             }
                         </tbody>
                     </table>

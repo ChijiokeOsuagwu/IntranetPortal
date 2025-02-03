@@ -31,7 +31,7 @@ namespace IntranetPortal.Data.Repositories.BaseRepositories
                 IsOpen = true;
                 await conn.CloseAsync();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 await conn.CloseAsync();
                 IsOpen = false;

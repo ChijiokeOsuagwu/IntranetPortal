@@ -81,7 +81,8 @@
                 </div>
                 <div class="col-md-2 mb-4">
                     <label asp-for="NoticePeriodInMonths" class="form-label text-white fw-bold"></label>
-                    <select id="NoticePeriodInMonths" asp-for="NoticePeriodInMonths" class="form-control fw-bold" onchange="getExpectedLastWorkedDate()">
+                    <select id="NoticePeriodInMonths" asp-for="NoticePeriodInMonths" class="form-control fw-bold" >
+                        <option value="0">None</option>
                         <option value="1">1 Month</option>
                         <option value="2">2 Months</option>
                         <option value="3">3 Months</option>
@@ -93,17 +94,17 @@
                 </div>
                 <div class="col-md-2 mb-4">
                     <label asp-for="ExpectedLastWorkedDate" class="form-label text-white fw-bold"></label>
-                    <input id="ExpectedLastWorkedDate" asp-for="ExpectedLastWorkedDate" type="date" class="form-control fw-bold" />
+                    <input id="ExpectedLastWorkedDate" asp-for="ExpectedLastWorkedDate" type="date" class="form-control fw-bold" onclick="getExpectedLastWorkedDate()" />
                     <div><span id="errorSpan" asp-validation-for="ExpectedLastWorkedDate" class="text-white"></span></div>
                 </div>
                 <div class="col-md-2 mb-4">
                     <label asp-for="ActualLastWorkedDate" class="form-label text-white fw-bold"></label>
-                    <input id="ActualLastWorkedDate" asp-for="ActualLastWorkedDate" type="date" class="form-control fw-bold" onchange="getOutstandingWorkDays()" />
+                    <input id="ActualLastWorkedDate" asp-for="ActualLastWorkedDate" type="date" class="form-control fw-bold" />
                     <div><span asp-validation-for="ActualLastWorkedDate" class="text-white"></span></div>
                 </div>
                 <div class="col-md-2 mb-4">
                     <label asp-for="OutstandingWorkDays" class="form-label text-white fw-bold"></label>
-                    <input id="OutstandingWorkDays" asp-for="OutstandingWorkDays" class="form-control fw-bold" />
+                    <input id="OutstandingWorkDays" asp-for="OutstandingWorkDays" class="form-control fw-bold"  onclick="getOutstandingWorkDays()"  />
                     <div><span id="noErrorSpan" asp-validation-for="OutstandingWorkDays" class="text-white"></span></div>
                 </div>
                 <div class="col-md-2 mb-4">

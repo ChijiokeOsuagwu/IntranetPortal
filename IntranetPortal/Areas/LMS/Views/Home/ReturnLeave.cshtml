@@ -1,0 +1,73 @@
+﻿
+@model IntranetPortal.Areas.LMS.Models.ReturnLeaveViewModel
+<h3 class="mb-1">Leave Management System</h3>
+<hr />
+<div class="card mt-1" style="max-width:600px">
+    <div class="card-header bg-warning">
+        @if (Model.DocumentType == "P")
+        {<h4 class="text-dark fw-bold">Return Leave Plan</h4>}
+        else
+        { <h4 class="text-dark fw-bold">Return Leave Request</h4>}
+    </div>
+    <div class="card-body bg-secondary">
+        @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-x-circle"></i>
+                <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (!String.IsNullOrEmpty(Model.ViewModelSuccessMessage))
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="bi bi-check-circle"></i>
+                <span class="fw-bold">@Model.ViewModelSuccessMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (!String.IsNullOrEmpty(Model.ViewModelWarningMessage))
+        {
+            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                <i class="bi bi-exclamation-circle"></i>
+                <span class="fw-bold">@Model.ViewModelWarningMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        <form asp-area="LMS" asp-controller="Home" asp-action="ReturnLeave" method="post" autocomplete="off">
+            <div class="row">
+                <div class="col-md-12 mb-3">
+                    <label asp-for="ReturnNote" class="form-label text-white fw-bold"></label>
+                    <textarea asp-for="ReturnNote" class="form-control fw-bold" rows="4">@Model.ReturnNote</textarea>
+                    <div><span asp-validation-for="ReturnNote" class="text-danger"></span></div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12 text-end">
+                    @if (Model.DocumentType == "P")
+                    {
+                        <a asp-area="LMS" asp-controller="Home" asp-action="MyTeamsLeavePlans" class="btn btn-dark" style="width:100px" title="Exit">
+                            <span class="text-white">Exit</span>
+                        </a>
+                    }
+                    else
+                    {
+                        <a asp-area="LMS" asp-controller="Home" asp-action="MyTeamsLeaveRequests" class="btn btn-dark" style="width:100px" title="Exit">
+                            <span class="text-white">Exit</span>
+                        </a>
+                    }
+
+                    @if (!Model.OperationIsSuccessful)
+                    {
+                        <button type="submit" class="btn btn-warning" title="Submit" style="width:200px"><span class="text-dark">Return</span></button>
+                    }
+                </div>
+            </div>
+            <input type="hidden" asp-for="LeaveId" />
+            <input type="hidden" asp-for="ApproverName" />
+            <input type="hidden" asp-for="DocumentType" />
+        </form>
+    </div>
+</div>
+@section Scripts{
+}

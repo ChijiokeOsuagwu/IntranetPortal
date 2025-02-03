@@ -1,0 +1,82 @@
+﻿
+@model IntranetPortal.Areas.LMS.Models.LeaveAttachmentViewModel
+<h3 class="mb-1">Leave Request Attachments</h3>
+<hr />
+<div class="card mt-1" style="max-width:800px">
+    <div class="card-header bg-info">
+        <h4 class="text-white">New Attachment</h4>
+    </div>
+    <div class="card-body bg-secondary">
+        @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-x-circle"></i>
+                <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (!String.IsNullOrEmpty(Model.ViewModelSuccessMessage))
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="bi bi-check-circle"></i>
+                <span class="fw-bold">@Model.ViewModelSuccessMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (!String.IsNullOrEmpty(Model.ViewModelWarningMessage))
+        {
+            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                <i class="bi bi-exclamation-circle"></i>
+                <span class="fw-bold">@Model.ViewModelWarningMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+    <form asp-area="LMS" asp-controller="Home" asp-action="NewAttachment" method="post" autocomplete="off" enctype="multipart/form-data">
+        <div class="row">
+            <div class="col-md-10 mb-3">
+                <label asp-for="DocumentTitle" class="form-label text-white fw-bold"></label>
+                <input asp-for="DocumentTitle" class="form-control fw-bold" autofocus>
+                <div><span asp-validation-for="DocumentTitle" class="text-danger"></span></div>
+            </div>
+            <div class="col-md-2 mb-3">
+                <label asp-for="DocumentFormat" class="form-label text-white fw-bold"></label>
+                <select asp-for="DocumentFormat" class="form-control fw-bold">
+                    <option value="">Select</option>
+                    <option value="Image"> Image </option>
+                    <option value="Pdf"> Pdf </option>
+                </select>
+                <div><span asp-validation-for="DocumentFormat" class="text-danger"></span></div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12 mb-3">
+                <label asp-for="DocumentDescription" class="form-label text-white fw-bold"></label>
+                <textarea asp-for="DocumentDescription" class="form-control fw-bold">@Model.DocumentDescription</textarea>
+                <div><span asp-validation-for="DocumentDescription" class="text-danger"></span></div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12 mb-3">
+                <label asp-for="UploadedFile" class="form-label text-white fw-bold"></label>
+                <input asp-for="UploadedFile" class="form-control fw-bold" >
+                <div><span asp-validation-for="UploadedFile" class="text-danger"></span></div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12 text-end">
+                <a asp-area="LMS" asp-controller="Home" asp-action="MyLeaveRequests" class="btn btn-dark" style="width:100px" title="Exit">
+                    <span class="text-white">Exit</span>
+                </a>
+                <a asp-area="LMS" asp-controller="Home" asp-action="NewAttachment" class="btn btn-warning" style="width:100px" title="Clear">
+                    <span class="text-white">Clear</span>
+                </a>
+                @if (!Model.OperationIsSuccessful)
+                {
+                    <button type="submit" class="btn btn-info" title="Upload" style="width:200px"><span class="text-white">Upload</span></button>
+                }
+            </div>
+        </div>
+        <input type="hidden" asp-for="LeaveId">
+    </form>
+    </div>
+</div>

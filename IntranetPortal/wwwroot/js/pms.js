@@ -67,7 +67,7 @@ function saveKpaScore(review_result_id, review_header_id, review_metric_id, appr
     }
     actualAchievementValidationLabel.innerHTML = "";
 
-    if (isNaN(appraiser_score) || appraiser_score === undefined || appraiser_score < 1) {
+    if (isNaN(appraiser_score) || appraiser_score === undefined || appraiser_score < 1 || appraiser_score > 100) {
         scoreValidationLabel.innerHTML = "<span style='color:#FF0000; background-color:#cfd8dc'>Please enter a valid score!</span>";
         appraiserScoreTextBox.focus();
         return;

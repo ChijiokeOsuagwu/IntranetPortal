@@ -34,5 +34,11 @@ namespace IntranetPortal.Base.Models.LmsModels
         public string LineManagerConfirmResumptionBy { get; set; }
         public DateTime? HrConfirmResumptionDate { get; set; }
         public string HrConfirmResumptionBy { get; set; }
+
+        public bool ApprovedByLineManager { get; set; }
+        public bool ApprovedByStationManager { get; set; }
+        public bool ApprovedByHeadOfDepartment { get; set; }
+        public bool ApprovedByHR { get; set; }
+        public bool ApprovedByExecutiveManagement { get; set; }
     }
 }

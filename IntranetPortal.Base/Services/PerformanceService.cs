@@ -242,33 +242,6 @@ namespace IntranetPortal.Base.Services
             return reviewSession;
         }
 
-        public async Task<List<Employee>> GetAppraisalNonParticipants(int ReviewSessionId, int? LocationId = null, int? UnitId = null)
-        {
-            List<Employee> employees = new List<Employee>();
-            if (ReviewSessionId > 0)
-            {
-                if (LocationId != null && LocationId > 0)
-                {
-                    if (UnitId != null && UnitId > 0)
-                    {
-                        var entities = await _reviewSessionRepository.GetNonParticipantsByReviewSessionIdnLocationIdnUnitIdAsync(ReviewSessionId, LocationId.Value, UnitId.Value);
-                        if (entities != null) { employees = entities.ToList(); }
-                    }
-                    else
-                    {
-                        var entities = await _reviewSessionRepository.GetNonParticipantsByReviewSessionIdnLocationIdAsync(ReviewSessionId, LocationId.Value);
-                        if (entities != null) { employees = entities.ToList(); }
-                    }
-                }
-                else
-                {
-                    var entities = await _reviewSessionRepository.GetNonParticipantsByReviewSessionIdAsync(ReviewSessionId);
-                    if (entities != null) { employees = entities.ToList(); }
-                }
-            }
-            return employees;
-        }
-
         #endregion
 
         #region Review Session Write Service Methods
@@ -1485,7 +1458,7 @@ namespace IntranetPortal.Base.Services
                     reviewCdgs = entities;
                 }
             }
-            else if(reviewSessionId > 0 && LocationId > 0 && DepartmentId > 0 && UnitId < 1)
+            else if (reviewSessionId > 0 && LocationId > 0 && DepartmentId > 0 && UnitId < 1)
             {
                 var entities = await _reviewCDGRepository.GetByReviewSessionIdnLocationIdnDepartmentIdAsync(reviewSessionId, LocationId, DepartmentId);
                 if (entities != null && entities.Count > 0)
@@ -2674,6 +2647,279 @@ namespace IntranetPortal.Base.Services
             return await _reviewResultRepository.DeleteSummaryExceptSelfEvaluationAsync(reviewHeaderId);
         }
 
+        #endregion
+
+        #region Participation Report Service Methods
+        public async Task<List<Employee>> GetAppraisalNonParticipants(int ReviewSessionId, int? LocationId = null, int? UnitId = null, int? DepartmentId = null)
+        {
+            List<Employee> employees = new List<Employee>();
+            if (ReviewSessionId > 0)
+            {
+                if (LocationId != null && LocationId > 0)
+                {
+                    if (DepartmentId != null && DepartmentId > 0)
+                    {
+                        if (UnitId != null && UnitId > 0)
+                        {
+                            var entities = await _reviewSessionRepository.GetNonParticipantsByReviewSessionIdnLocationIdnDepartmentIdnUnitIdAsync(ReviewSessionId, LocationId.Value, UnitId.Value, DepartmentId.Value);
+                            if (entities != null) { employees = entities.ToList(); }
+                        }
+                        else
+                        {
+                            var entities = await _reviewSessionRepository.GetNonParticipantsByReviewSessionIdnLocationIdnDepartmentIdAsync(ReviewSessionId, LocationId.Value, DepartmentId.Value);
+                            if (entities != null) { employees = entities.ToList(); }
+                        }
+                    }
+                    else
+                    {
+                        if (UnitId != null && UnitId > 0)
+                        {
+                            var entities = await _reviewSessionRepository.GetNonParticipantsByReviewSessionIdnLocationIdnUnitIdAsync(ReviewSessionId, LocationId.Value, UnitId.Value);
+                            if (entities != null) { employees = entities.ToList(); }
+                        }
+                        else
+                        {
+                            var entities = await _reviewSessionRepository.GetNonParticipantsByReviewSessionIdnLocationIdAsync(ReviewSessionId, LocationId.Value);
+                            if (entities != null) { employees = entities.ToList(); }
+                        }
+                    }
+                }
+                else
+                {
+                    if (DepartmentId != null && DepartmentId > 0)
+                    {
+                        if (UnitId != null && UnitId > 0)
+                        {
+                            var entities = await _reviewSessionRepository.GetNonParticipantsByReviewSessionIdnDepartmentIdnUnitIdAsync(ReviewSessionId, UnitId.Value, DepartmentId.Value);
+                            if (entities != null) { employees = entities.ToList(); }
+                        }
+                        else
+                        {
+                            var entities = await _reviewSessionRepository.GetNonParticipantsByReviewSessionIdnDepartmentIdAsync(ReviewSessionId, DepartmentId.Value);
+                            if (entities != null) { employees = entities.ToList(); }
+                        }
+                    }
+                    else
+                    {
+                        if (UnitId != null && UnitId > 0)
+                        {
+                            var entities = await _reviewSessionRepository.GetNonParticipantsByReviewSessionIdnUnitIdAsync(ReviewSessionId, UnitId.Value);
+                            if (entities != null) { employees = entities.ToList(); }
+                        }
+                        else
+                        {
+                            var entities = await _reviewSessionRepository.GetNonParticipantsByReviewSessionIdAsync(ReviewSessionId);
+                            if (entities != null) { employees = entities.ToList(); }
+                        }
+                    }
+                }
+            }
+            return employees;
+        }
+        public async Task<long> GetAppraisalParticipantsCount(int ReviewSessionId, int? LocationId = null, int? DepartmentId = null, int? UnitId = null)
+        {
+            long totalParticipantCount = 0;
+            if (ReviewSessionId < 1) { return 0; }
+            if (LocationId > 0)
+            {
+                if (DepartmentId > 0)
+                {
+                    if (UnitId > 0)
+                    {
+                        totalParticipantCount = await _reviewHeaderRepository.GetParticipantsCountByReviewSessionIdnLocationIdnDepartmentIdnUnitIdAsync(ReviewSessionId, LocationId.Value, DepartmentId.Value, UnitId.Value);
+                    }
+                    else
+                    {
+                        totalParticipantCount = await _reviewHeaderRepository.GetParticipantsCountByReviewSessionIdnLocationIdnDepartmentIdAsync(ReviewSessionId, LocationId.Value, DepartmentId.Value);
+                    }
+                }
+                else
+                {
+                    if (UnitId > 0)
+                    {
+                        totalParticipantCount = await _reviewHeaderRepository.GetParticipantsCountByReviewSessionIdnLocationIdnUnitIdAsync(ReviewSessionId, LocationId.Value, UnitId.Value);
+                    }
+                    else
+                    {
+                        totalParticipantCount = await _reviewHeaderRepository.GetParticipantsCountByReviewSessionIdnLocationIdAsync(ReviewSessionId, LocationId.Value);
+                    }
+                }
+            }
+            else
+            {
+                if (DepartmentId > 0)
+                {
+                    if (UnitId > 0)
+                    {
+                        totalParticipantCount = await _reviewHeaderRepository.GetParticipantsCountByReviewSessionIdnDepartmentIdnUnitIdAsync(ReviewSessionId, DepartmentId.Value, UnitId.Value);
+                    }
+                    else
+                    {
+                        totalParticipantCount = await _reviewHeaderRepository.GetParticipantsCountByReviewSessionIdnDepartmentIdAsync(ReviewSessionId, DepartmentId.Value);
+                    }
+                }
+                else
+                {
+                    if (UnitId > 0)
+                    {
+                        totalParticipantCount = await _reviewHeaderRepository.GetParticipantsCountByReviewSessionIdnUnitIdAsync(ReviewSessionId, UnitId.Value);
+                    }
+                    else
+                    {
+                        totalParticipantCount = await _reviewHeaderRepository.GetParticipantsCountByReviewSessionIdAsync(ReviewSessionId);
+                    }
+                }
+            }
+            return totalParticipantCount;
+        }
+        public async Task<List<ParticipationSummary>> GetAppraisalParticipationSummary(int ReviewSessionId, int? LocationId = null, int? DepartmentId = null, int? UnitId = null)
+        {
+            List<ParticipationSummary> summaryList = new List<ParticipationSummary>();
+            long totalParticipants = 0;
+            //var all_participants = await _reviewHeaderRepository.GetParticipantsCountByReviewSessionIdAsync()
+            if (ReviewSessionId > 0)
+            {
+                if (LocationId > 0)
+                {
+                    if (DepartmentId > 0)
+                    {
+                        if (UnitId > 0)
+                        {
+                            totalParticipants = await _employeesRepository.GetEmployeesCountByLocationIdnDepartmentIdnUnitIdAsync(LocationId.Value, DepartmentId.Value, UnitId.Value);
+                            var entities = await _reviewHeaderRepository.GetParticipationSummaryByReviewSessionIdnLocationIdnDepartmentIdnUnitIdAsync(ReviewSessionId, LocationId.Value, DepartmentId.Value, UnitId.Value);
+                            if (entities != null && entities.Count > 0)
+                            {
+                                foreach (var item in entities)
+                                {
+                                    decimal percentParticipant = (Convert.ToDecimal(item.NoOfParticipants) / Convert.ToDecimal(totalParticipants)) * 100M;
+                                    item.PercentageOfParticipants = Math.Round(percentParticipant, 2);
+                                    item.PercentageParticipantsFormatted = $"{item.PercentageOfParticipants}%";
+                                }
+                                summaryList = entities;
+                            }
+                        }
+                        else
+                        {
+                            totalParticipants = await _employeesRepository.GetEmployeesCountByLocationIdnDepartmentIdAsync(LocationId.Value, DepartmentId.Value);
+                            var entities = await _reviewHeaderRepository.GetParticipationSummaryByReviewSessionIdnLocationIdnDepartmentIdAsync(ReviewSessionId, LocationId.Value, DepartmentId.Value);
+                            if (entities != null && entities.Count > 0)
+                            {
+                                foreach (var item in entities)
+                                {
+                                    decimal percentParticipant = (Convert.ToDecimal(item.NoOfParticipants) / Convert.ToDecimal(totalParticipants)) * 100M;
+                                    item.PercentageOfParticipants = Math.Round(percentParticipant, 2);
+                                    item.PercentageParticipantsFormatted = $"{item.PercentageOfParticipants}%";
+                                }
+                                summaryList = entities;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if (UnitId > 0)
+                        {
+                            totalParticipants = await _employeesRepository.GetEmployeesCountByLocationIdnUnitIdAsync(LocationId.Value, UnitId.Value);
+                            var entities = await _reviewHeaderRepository.GetParticipationSummaryByReviewSessionIdnLocationIdnUnitIdAsync(ReviewSessionId, LocationId.Value, UnitId.Value);
+                            if (entities != null && entities.Count > 0)
+                            {
+                                foreach (var item in entities)
+                                {
+                                    decimal percentParticipant = (Convert.ToDecimal(item.NoOfParticipants) / Convert.ToDecimal(totalParticipants)) * 100M;
+                                    item.PercentageOfParticipants = Math.Round(percentParticipant, 2);
+                                    item.PercentageParticipantsFormatted = $"{item.PercentageOfParticipants}%";
+                                }
+                                summaryList = entities;
+                            }
+                        }
+                        else
+                        {
+                            totalParticipants = await _employeesRepository.GetEmployeesCountByLocationIdAsync(LocationId.Value);
+                            var entities = await _reviewHeaderRepository.GetParticipationSummaryByReviewSessionIdnLocationIdAsync(ReviewSessionId, LocationId.Value);
+                            if (entities != null && entities.Count > 0)
+                            {
+                                foreach (var item in entities)
+                                {
+                                    decimal percentParticipant = (Convert.ToDecimal(item.NoOfParticipants) / Convert.ToDecimal(totalParticipants)) * 100M;
+                                    item.PercentageOfParticipants = Math.Round(percentParticipant, 2);
+                                    item.PercentageParticipantsFormatted = $"{item.PercentageOfParticipants}%";
+                                }
+                                summaryList = entities;
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    if (DepartmentId > 0)
+                    {
+                        if (UnitId > 0)
+                        {
+                            totalParticipants = await _employeesRepository.GetEmployeesCountByDepartmentIdnUnitIdAsync(DepartmentId.Value, UnitId.Value);
+                            var entities = await _reviewHeaderRepository.GetParticipationSummaryByReviewSessionIdnDepartmentIdnUnitIdAsync(ReviewSessionId, DepartmentId.Value, UnitId.Value);
+                            if (entities != null && entities.Count > 0)
+                            {
+                                foreach (var item in entities)
+                                {
+                                    decimal percentParticipant = (Convert.ToDecimal(item.NoOfParticipants) / Convert.ToDecimal(totalParticipants)) * 100M;
+                                    item.PercentageOfParticipants = Math.Round(percentParticipant, 2);
+                                    item.PercentageParticipantsFormatted = $"{item.PercentageOfParticipants}%";
+                                }
+                                summaryList = entities;
+                            }
+                        }
+                        else
+                        {
+                            totalParticipants = await _employeesRepository.GetEmployeesCountByDepartmentIdAsync(DepartmentId.Value);
+                            var entities = await _reviewHeaderRepository.GetParticipationSummaryByReviewSessionIdnDepartmentIdAsync(ReviewSessionId, DepartmentId.Value);
+                            if (entities != null && entities.Count > 0)
+                            {
+                                foreach (var item in entities)
+                                {
+                                    decimal percentParticipant = (Convert.ToDecimal(item.NoOfParticipants) / Convert.ToDecimal(totalParticipants)) * 100M;
+                                    item.PercentageOfParticipants = Math.Round(percentParticipant, 2);
+                                    item.PercentageParticipantsFormatted = $"{item.PercentageOfParticipants}%";
+                                }
+                                summaryList = entities;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if (UnitId > 0)
+                        {
+                            totalParticipants = await _employeesRepository.GetEmployeesCountByUnitIdAsync(UnitId.Value);
+                            var entities = await _reviewHeaderRepository.GetParticipationSummaryByReviewSessionIdnUnitIdAsync(ReviewSessionId, UnitId.Value);
+                            if (entities != null && entities.Count > 0)
+                            {
+                                foreach (var item in entities)
+                                {
+                                    decimal percentParticipant = (Convert.ToDecimal(item.NoOfParticipants) / Convert.ToDecimal(totalParticipants)) * 100M;
+                                    item.PercentageOfParticipants = Math.Round(percentParticipant, 2);
+                                    item.PercentageParticipantsFormatted = $"{item.PercentageOfParticipants}%";
+                                }
+                                summaryList = entities;
+                            }
+                        }
+                        else
+                        {
+                            totalParticipants = await _employeesRepository.GetEmployeesCountAsync();
+                            var entities = await _reviewHeaderRepository.GetParticipationSummaryByReviewSessionIdAsync(ReviewSessionId);
+                            if (entities != null && entities.Count > 0)
+                            {
+                                foreach (var item in entities)
+                                {
+                                    decimal percentParticipant = (Convert.ToDecimal(item.NoOfParticipants) / Convert.ToDecimal(totalParticipants)) * 100M;
+                                    item.PercentageOfParticipants = Math.Round(percentParticipant);
+                                    item.PercentageParticipantsFormatted = $"{item.PercentageOfParticipants}%";
+                                }
+                                summaryList = entities;
+                            }
+                        }
+                    }
+                }
+            }
+            return summaryList;
+        }
         #endregion
     }
 }

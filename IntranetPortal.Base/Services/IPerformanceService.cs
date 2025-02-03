@@ -30,7 +30,6 @@ namespace IntranetPortal.Base.Services
         Task<List<ReviewSession>> GetReviewSessionsAsync();
         Task<List<ReviewSession>> GetReviewSessionsAsync(int PerformanceYearId);
         Task<ReviewSession> GetReviewSessionAsync(int ReviewSessionId);
-        Task<List<Employee>> GetAppraisalNonParticipants(int ReviewSessionId, int? LocationId = null, int? UnitId = null);
         Task<bool> AddReviewSessionAsync(ReviewSession reviewSession);
         Task<bool> EditReviewSessionAsync(ReviewSession reviewSession);
         Task<bool> DeleteReviewSessionAsync(int ReviewSessionId);
@@ -234,6 +233,11 @@ namespace IntranetPortal.Base.Services
         Task<List<ResultDetail>> GetRejectedPrincipalResultDetailAsync(int reviewSessionId, int? locationId = null);
         #endregion
 
+        #region Participation Service Methods
+        Task<List<Employee>> GetAppraisalNonParticipants(int ReviewSessionId, int? LocationId = null, int? UnitId = null, int? DepartmentId = null);
+        Task<long> GetAppraisalParticipantsCount(int ReviewSessionId, int? LocationId = null, int? DepartmentId = null, int? UnitId = null);
+        Task<List<ParticipationSummary>> GetAppraisalParticipationSummary(int ReviewSessionId, int? LocationId = null, int? DepartmentId = null, int? UnitId = null);
+        #endregion
     }
 
 }

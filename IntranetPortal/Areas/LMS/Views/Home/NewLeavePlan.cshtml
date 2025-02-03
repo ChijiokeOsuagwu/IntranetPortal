@@ -2,7 +2,7 @@
 @model IntranetPortal.Areas.LMS.Models.LeavePlanViewModel
 <h3 class="mb-1">My Leave Plans</h3>
 <hr />
-<div class="card mt-1" style="max-width:800px">
+<div class="card mt-1" style="max-width:1000px">
     <div class="card-header bg-success">
         <h4 class="text-white">New Leave Plan</h4>
     </div>
@@ -31,73 +31,83 @@
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         }
-        <form asp-area="LMS" asp-controller="Home" asp-action="NewLeavePlan" method="post" autocomplete="off">
-            <div class="row">
-                <div class="col-md-8 mb-3">
-                    <input type="hidden" asp-for="Id">
-                    <input type="hidden" asp-for="EmployeeId">
-                    <label asp-for="EmployeeFullName" class="form-label text-white fw-bold"></label>
-                    <input asp-for="EmployeeFullName" class="form-control" readonly>
-                </div>
-                <div class="col-md-4 mb-3">
-                    <label asp-for="LeaveTypeCode" class="form-label text-white fw-bold"></label>
-                    <select asp-for="LeaveTypeCode" class="form-control" asp-items="@ViewBag.LeaveTypeCodeList" autofocus>
-                        <option value="">Select</option>
-                    </select>
-                    <div><span asp-validation-for="LeaveTypeCode" class="text-danger"></span></div>
-                </div>
+    <form asp-area="LMS" asp-controller="Home" asp-action="NewLeavePlan" method="post" autocomplete="off">
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label asp-for="EmployeeFullName" class="form-label text-white fw-bold"></label>
+                <input asp-for="EmployeeFullName" class="form-control fw-bold" readonly>
             </div>
-            <div class="row">
-                <div class="col-md-3 mb-3">
-                    <label asp-for="LeaveStartDate" class="form-label text-white fw-bold"></label>
-                    <input asp-for="LeaveStartDate" class="form-control" type="date">
-                    <div><span asp-validation-for="LeaveStartDate" class="text-danger"></span></div>
-                </div>
-                <div class="col-md-2 mb-3">
-                    <label asp-for="Duration" class="form-label text-white fw-bold"></label>
-                    <input asp-for="Duration" class="form-control" min="0">
-                    <div><span asp-validation-for="Duration" class="text-danger"></span></div>
-                </div>
-                <div class="col-md-3 mb-3">
-                    <label asp-for="DurationTypeId" class="form-label text-white fw-bold"></label>
-                    <select asp-for="DurationTypeId" class="form-control" >
-                        <option value="">Select</option>
-                        <option value="0">Working Day(s)</option>
-                        <option value="1">Day(s)</option>
-                        <option value="2">Week(s)</option>
-                        <option value="3">Month(s)</option>
-                        <option value="4">Year(s)</option>
-                    </select>
-                    <div><span asp-validation-for="DurationTypeId" class="text-danger"></span></div>
-                </div>
-                <div class="col-md-4 mb-3">
-                    <label asp-for="LeaveEndDate" class="form-label text-white fw-bold"></label>
-                    <input asp-for="LeaveEndDate" class="form-control" type="date" onclick="getLastLeaveDate()" readonly>
-                    <div><span id="errorSpan" asp-validation-for="LeaveEndDate" class="text-danger"></span></div>
-                </div>
+            <div class="col-md-2 mb-3">
+                <label asp-for="LeaveYear" class="form-label text-white fw-bold"></label>
+                <input asp-for="LeaveYear" class="form-control fw-bold" min="2020" max="2060" autofocus>
+                <div><span asp-validation-for="LeaveYear" class="text-danger"></span></div>
             </div>
-            <div class="row">
-                <div class="col-md-12 mb-3">
-                    <label asp-for="LeaveReason" class="form-label text-white fw-bold"></label>
-                    <textarea asp-for="LeaveReason" class="form-control">@Model.LeaveReason</textarea>
-                    <div><span asp-validation-for="LeaveReason" class="text-danger"></span></div>
-                </div>
+            <div class="col-md-4 mb-3">
+                <label asp-for="LeaveTypeCode" class="form-label text-white fw-bold"></label>
+                <select asp-for="LeaveTypeCode" class="form-control fw-bold" asp-items="@ViewBag.LeaveTypeCodeList" autofocus>
+                    <option value="">Select</option>
+                </select>
+                <div><span asp-validation-for="LeaveTypeCode" class="text-danger"></span></div>
             </div>
-            <div class="row">
-                <div class="col-md-12 text-end">
-                    <a asp-area="LMS" asp-controller="Home" asp-action="MyLeavePlans" class="btn btn-dark" style="width:100px" title="Exit">
-                        <span class="text-white">Exit</span>
-                    </a>
-                    <a asp-area="LMS" asp-controller="Home" asp-action="NewLeavePlan" class="btn btn-warning" style="width:100px" title="Clear">
-                        <span class="text-white">Clear</span>
-                    </a>
-                    @if (!Model.OperationIsSuccessful)
-                    {
-                        <button type="submit" class="btn btn-success" title="Save" style="width:200px"><span class="text-white">Save</span></button>
-                    }
-                </div>
+        </div>
+        <div class="row">
+            <div class="col-md-4 mb-3">
+                <label asp-for="LeaveStartDate" class="form-label text-white fw-bold"></label>
+                <input asp-for="LeaveStartDate" class="form-control fw-bold" type="date">
+                <div><span asp-validation-for="LeaveStartDate" class="text-danger"></span></div>
             </div>
-        </form>
+            <div class="col-md-1 mb-3">
+                <label asp-for="Duration" class="form-label text-white fw-bold"></label>
+                <input asp-for="Duration" class="form-control fw-bold" min="0">
+                <div><span asp-validation-for="Duration" class="text-danger"></span></div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <label asp-for="DurationTypeId" class="form-label text-white fw-bold"></label>
+                <select asp-for="DurationTypeId" class="form-control fw-bold">
+                    <option value="">Select</option>
+                    <option value="0">Working Day(s)</option>
+                    <option value="1">Day(s)</option>
+                    <option value="2">Week(s)</option>
+                    <option value="3">Month(s)</option>
+                    <option value="4">Year(s)</option>
+                </select>
+                <div><span asp-validation-for="DurationTypeId" class="text-danger"></span></div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <label asp-for="LeaveEndDate" class="form-label text-white fw-bold"></label>
+                <input asp-for="LeaveEndDate" class="form-control fw-bold" type="date" onclick="getLastLeaveDate()" readonly>
+                <div><span id="errorSpan" asp-validation-for="LeaveEndDate" class="text-danger"></span></div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12 mb-3">
+                <label asp-for="LeaveReason" class="form-label text-white fw-bold"></label>
+                <textarea asp-for="LeaveReason" class="form-control fw-bold">@Model.LeaveReason</textarea>
+                <div><span asp-validation-for="LeaveReason" class="text-danger"></span></div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12 text-end">
+                <a asp-area="LMS" asp-controller="Home" asp-action="MyLeavePlans" class="btn btn-dark" style="width:100px" title="Exit">
+                    <span class="text-white">Exit</span>
+                </a>
+                <a asp-area="LMS" asp-controller="Home" asp-action="NewLeavePlan" class="btn btn-warning" style="width:100px" title="Clear">
+                    <span class="text-white">Clear</span>
+                </a>
+                @if (!Model.OperationIsSuccessful)
+                {
+                    <button type="submit" class="btn btn-success" title="Save" style="width:200px"><span class="text-white">Save</span></button>
+                }
+            </div>
+        </div>
+        <input type="hidden" asp-for="Id">
+        <input type="hidden" asp-for="EmployeeId">
+        <input type="hidden" asp-for="UnitId">
+        <input type="hidden" asp-for="DepartmentId">
+        <input type="hidden" asp-for="LocationId">
+        <input type="hidden" asp-for="IsPlan" />
+        <input type="hidden" asp-for="LeaveStatus" />
+    </form>
     </div>
 </div>
 @section Scripts{

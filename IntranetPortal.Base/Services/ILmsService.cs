@@ -12,10 +12,9 @@ namespace IntranetPortal.Base.Services
         Task<bool> CreateLeaveType(LeaveType leaveType);
         Task<bool> DeleteLeaveType(string code);
         Task<bool> UpdateLeaveType(LeaveType leaveType);
-
         Task<LeaveType> GetLeaveType(string LeaveTypeCode);
         Task<LeaveType> GetLeaveTypeByName(string Name);
-        Task<List<LeaveType>> GetLeaveTypes();
+        Task<List<LeaveType>> GetLeaveTypes(bool ExcludeSystem = true);
         #endregion
 
         #region Leave Profile Service Interfaces
@@ -50,10 +49,44 @@ namespace IntranetPortal.Base.Services
         Task<bool> DeleteLeaveProfileDetail(int Id);
         #endregion
 
-        #region Employee Leave Plan Service Interfaces
-        Task<List<EmployeeLeave>> GetLeavePlans(string EmployeeId, int LeaveYear);
-        Task<EmployeeLeave> GetLeavePlan(long Id);
-        Task<bool> CreateLeavePlan(EmployeeLeave e);
+        #region Employee Leave Write Service Interfaces
+        Task<long> CreateLeaveAsync(EmployeeLeave e);
+        Task<bool> UpdateLeaveAsync(EmployeeLeave e);
+        Task<bool> DeleteLeaveAsync(long id);
+        Task<bool> UpdateLeaveStatusAsync(long LeaveId, string NewStatus);
+        #endregion
+
+        #region Employee Leaves Read Service Interfaces
+        Task<List<EmployeeLeave>> GetEmployeeLeavesAsync(string EmployeeId, int LeaveYear, bool IsPlan);
+        Task<EmployeeLeave> GetEmployeeLeaveAsync(long Id);
+        Task<List<EmployeeLeave>> SearchMyTeamsEmployeeLeavesAsync(string TeamLeadId, int LeaveYear, int LeaveMonth, string EmployeeId = null, string LeaveStatus = null, bool IsPlan = true);
+        Task<List<EmployeeLeave>> SearchAllEmployeeLeavesAsync(int LeaveYear, int LeaveMonth, string EmployeeName = null, string LeaveStatus = null, bool IsPlan = true);
+        #endregion
+
+        #region Leave Submission Service Interfaces
+        Task<bool> SubmitLeaveAsync(LeaveSubmission e, string DocumentType);
+        #endregion
+
+        #region Leave Approval Service Interfaces
+        Task<bool> ApproveLeaveAsync(LeaveApproval e, string DocumentType);
+        Task<List<LeaveApproval>> GetLeaveApprovalsAsync(long LeaveId);
+        #endregion
+
+        #region Leave Notes Service Interfaces
+        Task<List<LeaveNote>> GetLeaveNotesAsync(long LeaveId);
+        Task<bool> AddLeaveNoteAsync(LeaveNote e);
+        #endregion
+
+        #region Leave Activities Service Interfaces
+        Task<List<LeaveActivityLog>> GetLeaveActivitiesAsync(long LeaveId);
+        Task<bool> AddActivityLogAsync(LeaveActivityLog e);
+        #endregion
+
+        #region Leave Documents Service Interfaces
+        Task<List<LeaveDocument>> GetLeaveDocumentsAsync(long LeaveId);
+        Task<LeaveDocument> GetLeaveDocumentAsync(long DocumentId);
+        Task<bool> AddLeaveDocumentAsync(LeaveDocument e);
+        Task<bool> DeleteLeaveDocumentAsync(long LeaveDocumentId);
         #endregion
 
         #region LMS Helper Service Interfaces

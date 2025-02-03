@@ -406,6 +406,65 @@ namespace IntranetPortal.Base.Services
 
         #endregion
 
+        #region Employees Count Service Methods
+        public async Task<long> GetEmployeesCountAsync(int? LocationId = null, int? DepartmentId = null, int? UnitId = null, DateTime? terminalDate = null)
+        {
+            long totalCount = 0;
+            if(LocationId != null && LocationId.Value > 0)
+            {
+                if(DepartmentId != null && DepartmentId.Value > 0)
+                {
+                    if(UnitId != null && UnitId.Value > 0)
+                    {
+                        totalCount = await _employeesRepository.GetEmployeesCountByLocationIdnDepartmentIdnUnitIdAsync(LocationId.Value, DepartmentId.Value, UnitId.Value, terminalDate);
+                    }
+                    else
+                    {
+                        totalCount = await _employeesRepository.GetEmployeesCountByLocationIdnDepartmentIdAsync(LocationId.Value, DepartmentId.Value, terminalDate);
+                    }
+                }
+                else
+                {
+                    if (UnitId != null && UnitId.Value > 0)
+                    {
+                        totalCount = await _employeesRepository.GetEmployeesCountByLocationIdnUnitIdAsync(LocationId.Value, UnitId.Value, terminalDate);
+                    }
+                    else
+                    {
+                        totalCount = await _employeesRepository.GetEmployeesCountByLocationIdAsync(LocationId.Value, terminalDate);
+                    }
+                }
+            }
+            else
+            {
+                if (DepartmentId != null && DepartmentId.Value > 0)
+                {
+                    if (UnitId != null && UnitId.Value > 0)
+                    {
+                        totalCount = await _employeesRepository.GetEmployeesCountByDepartmentIdnUnitIdAsync(DepartmentId.Value, UnitId.Value, terminalDate);
+                    }
+                    else
+                    {
+                        totalCount = await _employeesRepository.GetEmployeesCountByDepartmentIdAsync(DepartmentId.Value, terminalDate);
+                    }
+                }
+                else
+                {
+                    if (UnitId != null && UnitId.Value > 0)
+                    {
+                        totalCount = await _employeesRepository.GetEmployeesCountByUnitIdAsync(UnitId.Value, terminalDate);
+                    }
+                    else
+                    {
+                        totalCount = await _employeesRepository.GetEmployeesCountAsync(terminalDate);
+                    }
+                }
+            }
+            return totalCount;
+        }
+            
+            #endregion
+
         #region Employee Rolls Service Methods
         public async Task<List<EmployeeRoll>> GetEmployeeRollsByLeaveProfileIdAsync(int LeaveProfileId)
         {
@@ -549,16 +608,16 @@ namespace IntranetPortal.Base.Services
             EmployeeSeparationRecordIsAdded = await _employeeSeparationRepository.AddAsync(e);
             if (EmployeeSeparationRecordIsAdded)
             {
-                // string recordedDate = $"{e.RecordCreatedDate.Value.ToLongDateString() } {e.RecordCreatedDate.Value.ToLongTimeString()} WAT";
                 EmployeeRecordIsUpdated = await _employeesRepository.UpdateEmployeeSeparationAsync(e.EmployeeId, e.RecordCreatedBy, e.ActualLastWorkedDate);
                 if (EmployeeRecordIsUpdated)
                 {
                     UserRecordIsUpdated = await _userRepository.UpdateUserActivationAsync(e.EmployeeId, e.RecordCreatedBy, true);
-                    if (UserRecordIsUpdated) { return true; }
-                    else
-                    {
-                        throw new Exception("Operation was successful but the employee's user account was not deactivated. Please deactivate user account manually.");
-                    }
+                    return true;
+                    //if (UserRecordIsUpdated) { return true; }
+                    //else
+                    //{
+                    //    throw new Exception("Operation was successful but the employee's user account was not deactivated. Please deactivate user account manually.");
+                    //}
                 }
                 else
                 {
@@ -575,7 +634,6 @@ namespace IntranetPortal.Base.Services
         public async Task<bool> EditEmployeeSeparationAsync(EmployeeSeparation e)
         {
             if (e == null) { throw new ArgumentNullException(nameof(e), "The required parameter [employee] is missing."); }
-
             try
             {
                 bool RecordIsAdded = false;
@@ -583,12 +641,11 @@ namespace IntranetPortal.Base.Services
                 RecordIsAdded = await _employeeSeparationRepository.EditAsync(e);
                 if (RecordIsAdded)
                 {
-                    //string recordedDate = $"{e.RecordCreatedDate.Value.ToLongDateString() } {e.RecordCreatedDate.Value.ToLongTimeString()} WAT";
-                    UpdateIsSuccessful = await _employeesRepository.UpdateEmployeeSeparationAsync(e.EmployeeId, e.RecordCreatedBy, e.ActualLastWorkedDate);
+                    UpdateIsSuccessful = await _employeesRepository.UpdateEmployeeSeparationAsync(e.EmployeeId, e.RecordModifiedBy, e.ActualLastWorkedDate);
                     if (UpdateIsSuccessful) { return true; }
                     else
                     {
-                        await _employeeSeparationRepository.DeleteAsync(e.EmployeeId, e.RecordCreatedDate.Value);
+                        await _employeeSeparationRepository.DeleteAsync(e.EmployeeId, e.RecordModifiedDate.Value);
                         return false;
                     }
                 }
@@ -603,7 +660,7 @@ namespace IntranetPortal.Base.Services
             }
         }
 
-        public async Task<bool> DeleteEmployeeSeparationAsync(int EmployeeSeparationId)
+        public async Task<bool> DeleteEmployeeSeparationAsync(int EmployeeSeparationId, string DeletedBy)
         {
             bool RecordIsDeleted = false;
             if (EmployeeSeparationId < 1) { throw new ArgumentNullException(nameof(EmployeeSeparationId), "The required parameter [Employee Exit ID] is missing."); }
@@ -615,15 +672,23 @@ namespace IntranetPortal.Base.Services
                 if (entity != null)
                 {
                     EmployeeID = entity.EmployeeId;
-                    //ExitDate = entity.ActualLastWorkedDate;
                 }
 
                 RecordIsDeleted = await _employeeSeparationRepository.DeleteAsync(EmployeeSeparationId);
                 if (RecordIsDeleted)
                 {
-                    string recordedDate = string.Empty;
-                    string RecordCreatedBy = string.Empty;
-                    await _employeesRepository.UpdateEmployeeSeparationAsync(EmployeeID, RecordCreatedBy, null);
+                    bool employeeRecordUpdated = false;
+                    employeeRecordUpdated = await _employeesRepository.UpdateEmployeeSeparationAsync(EmployeeID, DeletedBy, null, false);
+                    if (employeeRecordUpdated)
+                    {
+                        bool UserRecordIsUpdated = await _userRepository.UpdateUserActivationAsync(EmployeeID, DeletedBy, false);
+                        return true;
+                        //if (UserRecordIsUpdated) { return true; }
+                        //else
+                        //{
+                        //    throw new Exception("Operation was successful but the employee's user account was not reactivated. Please deactivate user account manually.");
+                        //}
+                    }
                 }
                 else
                 {

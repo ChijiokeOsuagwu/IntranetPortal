@@ -336,7 +336,6 @@ namespace IntranetPortal.Data.Repositories.SecurityRepositories
             return rows > 0;
         }
 
-
         public async Task<bool> UpdateUserActivationAsync(string userId, string modifiedBy, bool deactivate)
         {
             int rows = 0;
@@ -361,9 +360,9 @@ namespace IntranetPortal.Data.Repositories.SecurityRepositories
                 usr_id.Value = userId;
                 is_dx.Value = deactivate;
                 usr_mb.Value = modifiedBy ?? (object)DBNull.Value;
-                usr_md.Value = DateTime.UtcNow;
+                usr_md.Value = $"{DateTime.UtcNow.ToLongDateString()} {DateTime.UtcNow.ToLongTimeString()}";
                 dx_by.Value = modifiedBy ?? (object)DBNull.Value;
-                dx_dt.Value = DateTime.UtcNow; ;
+                dx_dt.Value = DateTime.UtcNow;
 
                 rows = await cmd.ExecuteNonQueryAsync();
             }

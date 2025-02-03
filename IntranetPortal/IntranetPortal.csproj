@@ -36,6 +36,7 @@
     <Folder Include="wwwroot\uploads\clm\docs\" />
     <Folder Include="wwwroot\uploads\clm\vids\" />
     <Folder Include="wwwroot\uploads\erm\" />
+    <Folder Include="wwwroot\uploads\lms\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\IntranetPortal.Base\IntranetPortal.Base.csproj" />

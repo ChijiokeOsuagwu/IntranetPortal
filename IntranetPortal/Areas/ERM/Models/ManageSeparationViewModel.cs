@@ -14,7 +14,7 @@ namespace IntranetPortal.Areas.ERM.Models
         public string EmployeeId { get; set; }
 
         [Required]
-        [Display(Name="Staff Name")]
+        [Display(Name="Staff Name*")]
         public string EmployeeName { get; set; }
         
         [Required]
@@ -37,7 +37,7 @@ namespace IntranetPortal.Areas.ERM.Models
         public string LocationName { get; set; }
 
         [Required]
-        [Display(Name ="Type")]
+        [Display(Name ="Type*")]
         public int SeparationTypeId { get; set; }
 
         [Display(Name ="Type")]
@@ -50,7 +50,7 @@ namespace IntranetPortal.Areas.ERM.Models
         public string SeparationReasonDescription { get; set; }
 
         [Required]
-        [Display(Name = "Reason Explanation")]
+        [Display(Name = "Reason Explanation*")]
         public string SeparationReasonExplanation { get; set; }
 
         [Display(Name = "Notice Submitted Date")]
@@ -60,7 +60,7 @@ namespace IntranetPortal.Areas.ERM.Models
         public string NoticeServedDateFormatted { get; set; }
 
         [Required]
-        [Display(Name ="Notice Period")]
+        [Display(Name ="Notice Period*")]
         public int NoticePeriodInMonths { get; set; }
 
         [Display(Name = "Expected Last Work Date" )]

@@ -91,29 +91,29 @@
                 <div class="col-md-8 text-end">
                     @if (Model.Source == "sbt")
                     {
-                        <a asp-area="WKS" asp-controller="Tasks" asp-action="SubmittedTasks" asp-route-id="@Model.TaskListID" class="btn btn-dark pt-3" style="width:100px" title="Go Back">
+                        <a asp-area="WKS" asp-controller="Tasks" asp-action="SubmittedTasks" asp-route-id="@Model.TaskListID" class="btn btn-dark mt-5" style="width:100px" title="Go Back">
                             <span class="text-white">Back</span>
                         </a>
                     }
                     else if (Model.Source == "sbv")
                     {
-                        <a asp-area="WKS" asp-controller="Tasks" asp-action="SubmittedEvaluations" asp-route-id="@Model.TaskListID" asp-route-ed="@Model.EvaluatorID" asp-route-od="@Model.TaskOwnerID" class="btn btn-dark pt-3" style="width:100px" title="Go Back">
+                        <a asp-area="WKS" asp-controller="Tasks" asp-action="SubmittedEvaluations" asp-route-id="@Model.TaskListID" asp-route-ed="@Model.EvaluatorID" asp-route-od="@Model.TaskOwnerID" class="btn btn-dark mt-5" style="width:100px" title="Go Back">
                             <span class="text-white">Back</span>
                         </a>
                     }
                     else if (Model.Source == "txb")
                     {
-                        <a asp-area="WKS" asp-controller="Tasks" asp-action="Taskboard" asp-route-id="@Model.TaskListID" class="btn btn-dark pt-3" style="width:100px" title="Go Back">
+                        <a asp-area="WKS" asp-controller="Tasks" asp-action="Taskboard" asp-route-id="@Model.TaskListID" class="btn btn-dark mt-5" style="width:100px" title="Go Back">
                             <span class="text-white">Back</span>
                         </a>
                     }
                     else
                     {
-                        <a asp-area="WKS" asp-controller="Tasks" asp-action="Index" class="btn btn-dark pt-3" style="width:100px" title="Go Back">
+                        <a asp-area="WKS" asp-controller="Tasks" asp-action="Index" class="btn btn-dark mt-5" style="width:100px" title="Go Back">
                             <span class="text-white">Back</span>
                         </a>
                     }
-                    <button type="submit" class="btn btn-info ml-2 pt-3" title="Save" style="width:200px"><span class="text-white">Save</span></button>
+                    <button type="submit" class="btn btn-info ml-2 mt-5" title="Save" style="width:200px"><span class="text-white">Save</span></button>
                 </div>
             </div>
             <input type="hidden" asp-for="TaskListID" />

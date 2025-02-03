@@ -1,0 +1,154 @@
+﻿
+@model IntranetPortal.Areas.LMS.Models.LeavePlanViewModel
+<h3 class="mb-1">Leave Management System</h3>
+<hr />
+<div class="card mt-1" style="max-width:1000px">
+    <div class="card-header bg-dark">
+        <h4 class="text-white">Leave Plan Details</h4>
+    </div>
+    <div class="card-body bg-secondary">
+        @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-x-circle"></i>
+                <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (!String.IsNullOrEmpty(Model.ViewModelSuccessMessage))
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="bi bi-check-circle"></i>
+                <span class="fw-bold">@Model.ViewModelSuccessMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (!String.IsNullOrEmpty(Model.ViewModelWarningMessage))
+        {
+            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                <i class="bi bi-exclamation-circle"></i>
+                <span class="fw-bold">@Model.ViewModelWarningMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <input type="hidden" asp-for="Id">
+                <input type="hidden" asp-for="EmployeeId">
+                <label asp-for="EmployeeFullName" class="form-label text-white fw-bold"></label>
+                <div class="form-control fw-bold">@Model.EmployeeFullName</div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <label asp-for="LeaveTypeCode" class="form-label text-white fw-bold"></label>
+                <div class="form-control fw-bold">@Model.LeaveTypeName</div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <label asp-for="LeaveStatus" class="form-label text-white fw-bold"></label>
+                <div class="form-control fw-bold">@Model.LeaveStatus</div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-1 mb-3">
+                <label asp-for="LeaveYear" class="form-label text-white fw-bold"></label>
+                <div class="form-control fw-bold">@Model.LeaveYear</div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <label asp-for="LeaveStartDate" class="form-label text-white fw-bold"></label>
+                @if (Model.LeaveStartDate != null)
+                {
+                    <div class="form-control fw-bold">@Model.LeaveStartDate.ToLongDateString()</div>
+                }
+                else
+                {
+                    <div class="form-control fw-bold">[Not Specified]</div>
+                }
+            </div>
+            <div class="col-md-4 mb-3">
+                <label asp-for="LeaveEndDate" class="form-label text-white fw-bold"></label>
+                @if (Model.LeaveEndDate != null)
+                {
+                    <div class="form-control fw-bold">@Model.LeaveEndDate.Value.ToLongDateString()</div>
+                }
+                else
+                {
+                    <div class="form-control fw-bold">[Not Specified]</div>
+                }
+            </div>
+            <div class="col-md-3 mb-3">
+                <label asp-for="Duration" class="form-label text-white fw-bold"></label>
+                <div class="form-control fw-bold">@Model.Duration @Model.DurationTypeDescription </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12 mb-3">
+                <label asp-for="LeaveReason" class="form-label text-white fw-bold"></label>
+                <textarea asp-for="LeaveReason" class="form-control fw-bold" readonly>@Model.LeaveReason</textarea>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-4 mb-3">
+                @if (Model.ApprovedByLineManager)
+                {
+                    <i class="bi bi-check-square" style="font-size:1.2rem; margin-right:5px; color:white; font-weight:bold"></i><span class="text-white fw-bold"> Approved by Line Manager</span>
+                }
+                else
+                {
+                    <i class="bi bi-x-square" style="font-size:1.2rem; margin-right:5px; color:white; font-weight:bold"></i><span class="text-white fw-bold"> Approved by Line Manager</span>
+                }
+            </div>
+            <div class="col-md-4 mb-3">
+                @if (Model.ApprovedByHeadOfDepartment)
+                {
+                    <i class="bi bi-check-square" style="font-size:1.2rem; margin-right:5px; color:white; font-weight:bold"></i><span class="text-white fw-bold"> Approved by Department Head</span>
+                }
+                else
+                {
+                    <i class="bi bi-x-square" style="font-size:1.2rem; margin-right:5px; color:white; font-weight:bold"></i><span class="text-white fw-bold"> Approved by Department Head</span>
+                }
+            </div>
+            <div class="col-md-4 mb-3">
+                @if (Model.ApprovedByStationManager)
+                {
+                    <i class="bi bi-check-square" style="font-size:1.2rem; margin-right:5px; color:white; font-weight:bold"></i><span class="text-white fw-bold"> Approved by Station Manager</span>
+                }
+                else
+                {
+                    <i class="bi bi-x-square" style="font-size:1.2rem; margin-right:5px; color:white; font-weight:bold"></i><span class="text-white fw-bold"> Approved by Station Manager</span>
+                }
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-4 mb-3">
+                @if (Model.ApprovedByHR)
+                {
+                    <i class="bi bi-check-square" style="font-size:1.2rem; margin-right:5px; color:white; font-weight:bold"></i><span class="text-white fw-bold"> Approved by HR</span>
+                }
+                else
+                {
+                    <i class="bi bi-x-square" style="font-size:1.2rem; margin-right:5px; color:white; font-weight:bold"></i><span class="text-white fw-bold"> Approved by HR</span>
+                }
+            </div>
+            <div class="col-md-4 mb-3">
+                @if (Model.ApprovedByExecutiveManagement)
+                {
+                    <i class="bi bi-check-square" style="font-size:1.2rem; margin-right:5px; color:white; font-weight:bold"></i><span class="text-white fw-bold"> Approved by Executive Management</span>
+                }
+                else
+                {
+                    <i class="bi bi-x-square" style="font-size:1.2rem; margin-right:5px; color:white; font-weight:bold"></i><span class="text-white fw-bold"> Approved by Executive Management</span>
+                }
+            </div>
+            <div class="col-md-4 mb-3">
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12 text-end">
+                <button title="Go Back" class="btn btn-dark" onclick="history.back();">
+                    <span class="text-white">Exit</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+@section Scripts{
+}

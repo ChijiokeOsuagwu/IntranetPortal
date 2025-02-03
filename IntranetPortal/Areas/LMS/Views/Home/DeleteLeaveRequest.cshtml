@@ -1,0 +1,110 @@
+﻿
+@model IntranetPortal.Areas.LMS.Models.LeavePlanViewModel
+<h3 class="mb-1">My Leave Requests</h3>
+<hr />
+<div class="card mt-1" style="max-width:1000px">
+    <div class="card-header bg-danger">
+        <h4 class="text-white">Delete Leave Request</h4>
+    </div>
+    <div class="card-body bg-secondary">
+        @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-x-circle"></i>
+                <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (!String.IsNullOrEmpty(Model.ViewModelSuccessMessage))
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="bi bi-check-circle"></i>
+                <span class="fw-bold">@Model.ViewModelSuccessMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (!String.IsNullOrEmpty(Model.ViewModelWarningMessage))
+        {
+            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                <i class="bi bi-exclamation-circle"></i>
+                <span class="fw-bold">@Model.ViewModelWarningMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        <form asp-area="LMS" asp-controller="Home" asp-action="DeleteLeaveRequest" method="post" autocomplete="off">
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label asp-for="EmployeeFullName" class="form-label text-white fw-bold"></label>
+                    <div class="form-control fw-bold">@Model.EmployeeFullName</div>
+                </div>
+                <div class="col-md-1 mb-3">
+                    <label asp-for="LeaveYear" class="form-label text-white fw-bold"></label>
+                    <div class="form-control fw-bold">@Model.LeaveYear</div>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label asp-for="LeaveTypeCode" class="form-label text-white fw-bold"></label>
+                    <div class="form-control fw-bold">@Model.LeaveTypeName</div>
+                </div>
+                <div class="col-md-2 mb-3">
+                    <label asp-for="LeaveStatus" class="form-label text-white fw-bold"></label>
+                    <div class="form-control fw-bold">@Model.LeaveStatus</div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label asp-for="LeaveStartDate" class="form-label text-white fw-bold"></label>
+                    @if (Model.LeaveStartDate != null)
+                    {
+                        <div class="form-control fw-bold">@Model.LeaveStartDate.ToLongDateString()</div>
+                    }
+                    else
+                    {
+                        <div class="form-control fw-bold">[Not Specified]</div>
+                    }
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label asp-for="LeaveEndDate" class="form-label text-white fw-bold"></label>
+                    @if (Model.LeaveEndDate != null)
+                    {
+                        <div class="form-control fw-bold">@Model.LeaveEndDate.Value.ToLongDateString()</div>
+                    }
+                    else
+                    {
+                        <div class="form-control fw-bold">[Not Specified]</div>
+                    }
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label asp-for="Duration" class="form-label text-white fw-bold"></label>
+                    <div class="form-control fw-bold">@Model.Duration @Model.DurationTypeDescription </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12 mb-3">
+                    <label asp-for="LeaveReason" class="form-label text-white fw-bold"></label>
+                    <textarea asp-for="LeaveReason" class="form-control fw-bold" readonly>@Model.LeaveReason</textarea>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12 text-end">
+                    <a asp-area="LMS" asp-controller="Home" asp-action="MyLeaveRequests" asp-route-yr="@Model.LeaveStartDate.Year" class="btn btn-dark" style="width:100px" title="Exit">
+                        <span class="text-white">Exit</span>
+                    </a>
+                    @if (!Model.OperationIsSuccessful)
+                    {
+                        <button type="submit" class="btn btn-danger" title="Delete" style="width:200px" onclick="return confirm('Are you sure you want to delete this item permanently?')"><span class="text-white">Delete</span></button>
+                    }
+                </div>
+            </div>
+            <input type="hidden" asp-for="Id" />
+            <input type="hidden" asp-for="EmployeeId" />
+            <input type="hidden" asp-for="LeaveYear" />
+            <input type="hidden" asp-for="LeaveStartDate" />
+            <input type="hidden" asp-for="LeaveEndDate" />
+            <input type="hidden" asp-for="Duration" />
+            <input type="hidden" asp-for="DurationTypeDescription" />
+            <input type="hidden" asp-for="IsPlan" />
+        </form>
+    </div>
+</div>
+@section Scripts{
+}

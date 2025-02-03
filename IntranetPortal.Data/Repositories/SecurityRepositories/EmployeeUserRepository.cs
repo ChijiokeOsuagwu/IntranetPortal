@@ -102,12 +102,11 @@ namespace IntranetPortal.Data.Repositories.SecurityRepositories
             sb.Append("l.locname, e.dept_id, d.deptname, e.unit_id, t.unitname, e.coy_id, c.coy_name ");
             sb.Append("FROM public.sct_usr_acct u INNER JOIN public.erm_emp_inf e ON u.usr_id = e.emp_id ");
             sb.Append("INNER JOIN public.gst_prsns p ON e.emp_id = p.id ");
-            sb.Append("INNER JOIN public.gst_locs l ON e.loc_id = l.locqk ");
-            sb.Append("INNER JOIN public.gst_depts d ON e.dept_id = d.deptqk ");
-            sb.Append("INNER JOIN public.gst_units t ON e.unit_id = t.unitqk ");
-            sb.Append("INNER JOIN public.gst_coys c ON e.coy_id = c.coy_code ");
-            sb.Append("WHERE (e.is_dx = false AND p.is_dx = false ");
-            sb.Append("AND u.is_dx = false) ");
+            sb.Append("LEFT JOIN public.gst_locs l ON e.loc_id = l.locqk ");
+            sb.Append("LEFT JOIN public.gst_depts d ON e.dept_id = d.deptqk ");
+            sb.Append("LEFT JOIN public.gst_units t ON e.unit_id = t.unitqk ");
+            sb.Append("LEFT JOIN public.gst_coys c ON e.coy_id = c.coy_code ");
+            sb.Append("WHERE (e.is_dx = false AND u.is_dx = false) ");
             sb.Append("AND (LOWER(p.fullname) LIKE '%'||LOWER(@fullname)||'%') ");
             sb.Append("ORDER BY p.fullname;");
             query = sb.ToString();

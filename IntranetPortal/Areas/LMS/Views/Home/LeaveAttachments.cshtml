@@ -1,0 +1,108 @@
+﻿@model IntranetPortal.Areas.LMS.Models.LeaveAttachmentsListViewModel
+<div class="container">
+    <h3 class="mb-1">Leave Request Attachments</h3>
+    <hr />
+    <div class="mb-2">
+        <div class="row">
+            <div class="col-md-10">
+                <a asp-area="LMS" asp-controller="Home" asp-action="Index" class="btn btn-sm btn-dark" style="width:100px;" title="Exit">
+                    <span class="text-white">Back</span>
+                </a>
+            </div>
+            <div class="col-md-2">
+                <a asp-area="LMS" asp-controller="Home" asp-action="NewAttachment" asp-route-id="@Model.LeaveId" class="btn btn-sm btn-info" style="width:150px" title="Add New Leave Plan">
+                    <span class="text-white">New Attachment</span>
+                </a>
+            </div>
+        </div>
+        @if (!String.IsNullOrEmpty(Model.ViewModelSuccessMessage))
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="bi bi-check-circle"></i>
+                <span class="fw-bold">@Model.ViewModelSuccessMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-x-circle"></i>
+                <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+    </div>
+    <div class="row">
+        @if (Model == null || Model.AttachmentList == null || Model.AttachmentList.Count < 1)
+        {
+            <div class="alert alert-info fade show" role="alert">
+                <i class="bi bi-info-circle"></i>
+                <span class="fw-bold">No record was found.</span>
+            </div>
+        }
+        else
+        {
+            int row_no = 0;
+            <div class="table-responsive" style="min-height:400px">
+                <table class="table table-sm table-hover">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>
+                                <span class="text-white fw-bolder">#</span>
+                            </th>
+                            <th>
+                                <span class="text-white fw-bolder">Title</span>
+                            </th>
+                            <th>
+                                <span class="text-white fw-bolder">Description</span>
+                            </th>
+                            <th>
+
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="table-light">
+                        @foreach (var item in Model.AttachmentList)
+                        {
+                            row_no++;
+                            <tr>
+                                <td>
+                                    <span class="fw-bolder">@row_no.ToString()</span>
+                                </td>
+                                <td>
+                                    <span class="fw-bolder">@item.DocumentTitle</span>
+                                </td>
+                                <td>
+                                    <span class="fw-bolder">@item.DocumentDescription</span>
+                                </td>
+                                <td>
+                                    <div class="dropdown">
+                                        <button class="btn btn-light btn-sm" type="button" id="dropdownMenuButton2" data-bs-toggle="dropdown" aria-expanded="false">
+                                            <span class="fw-bold text-dark"><i class="bi bi-three-dots"></i></span>
+                                        </button>
+                                        <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton2">
+                                            <li>
+                                                <a href="/@item.DocumentLink" title="View Attachment" class="dropdown-item" target="_blank">
+                                                    <span class="text-white"><i class="bi bi-info-circle"></i> View Attachement</span>
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <form asp-area="LMS" asp-controller="Home" asp-action="DeleteAttachement" asp-route-id="@item.DocumentId" asp-route-ld="@item.LeaveId" method="post">
+                                                    <button type="submit" class="dropdown-item" onclick="return confirm('Are you sure you want to permanently delete this attachment?')">
+                                                        <span class="text-white"><i class="bi bi-trash"></i> Delete</span>
+                                                    </button>
+                                                </form>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+
+    </div>
+</div>
+

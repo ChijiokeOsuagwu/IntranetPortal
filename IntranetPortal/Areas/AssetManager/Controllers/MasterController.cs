@@ -17,6 +17,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using ClosedXML.Excel;
+using IntranetPortal.Helpers;
 
 namespace IntranetPortal.Areas.AssetManager.Controllers
 {
@@ -98,7 +99,6 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
             }
             return View(model);
         }
-
 
         #region Asset Master Write Action Controller Methods
 
@@ -202,7 +202,8 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
                         }
                         uploadsFolder = "uploads/asm/" + Guid.NewGuid().ToString() + fileExt; //"_" + model.ImageUpload.FileName;
                         absoluteFilePath = Path.Combine(_webHostEnvironment.WebRootPath, uploadsFolder);
-                        await model.ImageUpload.CopyToAsync(new FileStream(absoluteFilePath, FileMode.Create));
+                        using var fileStream = new FileStream(absoluteFilePath, FileMode.Create);
+                        await model.ImageUpload.CopyToAsync(fileStream);
                     }
 
                     if (!string.IsNullOrWhiteSpace(model.BinLocationName))
@@ -229,23 +230,6 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
                     asset.CreatedBy = HttpContext.User.Identity.Name;
                     asset.CreatedDate = $"{DateTime.UtcNow.ToLongDateString()} {DateTime.UtcNow.ToLongTimeString()} + GMT";
 
-
-                    //if (string.IsNullOrWhiteSpace(asset.ConditionDescription))
-                    //{
-                    //    switch (asset.ConditionStatus)
-                    //    {
-                    //        case AssetCondition.InGoodCondition:
-                    //            asset.ConditionDescription = "In Good Working Condition";
-                    //            break;
-                    //        case AssetCondition.BeyondRepair:
-                    //            asset.ConditionDescription = "Faulty (Beyond Repair)";
-                    //            break;
-                    //        case AssetCondition.RequiresRepair:
-                    //            asset.ConditionDescription = "Faulty (Requires Repairs)";
-                    //            break;
-                    //    }
-                    //}
-
                     if (await _assetManagerService.CreateAssetAsync(asset))
                     {
                         return RedirectToAction("List", new { tp = asset.AssetTypeID });
@@ -257,9 +241,16 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
                             FileInfo file = new FileInfo(absoluteFilePath);
                             if (file.Exists)
                             {
-                                file.Delete();
+                                if (!file.IsFileOpen())
+                                {
+                                    await Task.Run(() =>
+                                    {
+                                        file.Delete();
+                                    });
+                                }
                             }
                         }
+
                         model.ViewModelErrorMessage = $"Error! An error was encountered. New asset could not be added.";
                     }
                 }
@@ -381,7 +372,9 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
                         }
                         uploadsFolder = "uploads/asm/" + Guid.NewGuid().ToString() + fileExt; //model.ImageUpload.FileName;
                         absoluteFilePath = Path.Combine(_webHostEnvironment.WebRootPath, uploadsFolder);
-                        await model.ImageUpload.CopyToAsync(new FileStream(absoluteFilePath, FileMode.Create));
+
+                        using var fileStream = new FileStream(absoluteFilePath, FileMode.Create);
+                        await model.ImageUpload.CopyToAsync(fileStream);
                         ImageChanged = true;
                     }
 
@@ -422,7 +415,13 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
                             FileInfo file = new FileInfo(oldAbsoluteFilePath);
                             if (file.Exists)
                             {
-                                file.Delete();
+                                if (!file.IsFileOpen())
+                                {
+                                    await Task.Run(() =>
+                                    {
+                                        file.Delete();
+                                    });
+                                }
                             }
                         }
                         return RedirectToAction("Details", new { id = model.AssetID });
@@ -434,7 +433,13 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
                             FileInfo file = new FileInfo(absoluteFilePath);
                             if (file.Exists)
                             {
-                                file.Delete();
+                                if (!file.IsFileOpen())
+                                {
+                                    await Task.Run(() =>
+                                    {
+                                        file.Delete();
+                                    });
+                                }
                             }
                         }
                         model.ViewModelErrorMessage = $"Error! An error was encountered. New asset was not added.";
@@ -616,15 +621,21 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
                     }
 
                     string deletedBy = HttpContext.User.Identity.Name;
-                    bool succeeded = await _assetManagerService.DeleteAssetAsync(model.AssetID, deletedBy);
-                    if (succeeded)
+                    bool IsDeleted = await _assetManagerService.DeleteAssetAsync(model.AssetID, deletedBy);
+                    if (IsDeleted)
                     {
                         if (!string.IsNullOrEmpty(absoluteFilePath))
                         {
                             FileInfo file = new FileInfo(absoluteFilePath);
                             if (file.Exists)
                             {
-                                file.Delete();
+                                if (!file.IsFileOpen())
+                                {
+                                    await Task.Run(() =>
+                                    {
+                                        file.Delete();
+                                    });
+                                }
                             }
                         }
                         return RedirectToAction("List");

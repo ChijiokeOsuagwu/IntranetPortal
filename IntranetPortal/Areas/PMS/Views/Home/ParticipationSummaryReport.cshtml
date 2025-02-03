@@ -1,0 +1,116 @@
+﻿
+@model IntranetPortal.Areas.PMS.Models.ParticipationSummaryReportViewModel
+<div class="container">
+    <h4 class="mb-1">Appraisal Report</h4>
+    <hr />
+    <div class="row">
+        <div class="row">
+            <div class="col-md-12 mb-3 text-start">
+                <a asp-area="PMS" asp-controller="Home" asp-action="Reports" title="Go Back" class="btn btn-sm btn-outline-light text-dark">
+                    <i class="bi bi-backspace fw-bolder" style="font-size: 1.0rem;"></i><span class="fw-bold ml-1" style="font-size: 0.9rem;">Back</span>
+                </a>
+                <a asp-area="PMS" asp-controller="Home" asp-action="DownloadParticipationReport" asp-route-id="@Model.Id" asp-route-lc="@Model.Ld" asp-route-dc="@Model.Dd" asp-route-uc="@Model.Ud" title="Download Excel" class="btn btn-sm btn-outline-light ml-2 text-dark">
+                    <i class="bi bi-download fw-bolder" style="font-size: 1.0rem;"></i><span class="fw-bold ml-1" style="font-size: 0.9rem;">Download</span>
+                </a>
+            </div>
+        </div>
+        <div class="row">
+            <form asp-area="PMS" asp-controller="Home" asp-action="ParticipationSummaryReport" method="get">
+                <div class="row">
+                    <div class="col-md-4 mb-2">
+                        <select asp-for="Id" asp-items="@ViewBag.SessionsList" class="form-control fw-bold">
+                            <option value="0"> Session </option>
+                        </select>
+                    </div>
+                    <div class="col-md-2 mb-2">
+                        <select asp-for="Ld" asp-items="@ViewBag.LocationList" class="form-control fw-bold">
+                            <option value="0"> Location </option>
+                        </select>
+                    </div>
+                    <div class="col-md-2 mb-2">
+                        <select asp-for="Dd" asp-items="@ViewBag.DepartmentList" class="form-control fw-bold">
+                            <option value="0"> Department </option>
+                        </select>
+                    </div>
+                    <div class="col-md-2 mb-2">
+                        <select asp-for="Ud" asp-items="@ViewBag.UnitList" class="form-control fw-bold">
+                            <option value="0"> Unit </option>
+                        </select>
+                    </div>
+                    <div class="col-md-2 mb-2">
+                        <input type="submit" value="Search" class="btn btn-dark btn-sm text-white" />
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+    {<div class="row">
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-x-circle"></i>
+                <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        </div>
+    }
+    <div class="row">
+        @if (Model == null || Model.ParticipationSummaryList == null || Model.ParticipationSummaryList.Count < 1)
+        {
+            <div class="alert alert-info fade show" role="alert">
+                <i class="bi bi-info-circle"></i>
+                <span class="fw-bold">No record was found.</span>
+            </div>
+        }
+        else
+        {
+            <div class="row">
+                <div class="table-responsive" style="min-height:350px;">
+                    <table class="table table-sm caption-top">
+                        <caption>Performance Appraisal Participation Report</caption>
+                        <tbody>
+                            <tr><td colspan="3" class="bg-info"><span class="fw-bold text-white">Participation Summary</span></td></tr>
+                            <tr>
+                                <td class="bg-warning" style="padding-top:0px; padding-bottom:0px;"><span class="fw-bold"> Category </span></td>
+                                <td class="bg-warning" style="padding-top:0px; padding-bottom:0px;"><span class="fw-bold">Number(#)</span></td>
+                                <td class="bg-warning" style="padding-top:0px; padding-bottom:0px;"><span class="fw-bold">Percent(%)</span>
+                            </tr>
+                            <tr>
+                                <td><span class="fw-bold">Total No. of Employees</span></td>
+                                <td><span class="fw-bold">@Model.TotalNoOfActiveEmployees</span></td>
+                                <td><span class="fw-bold"> 100% </span>
+                            </tr>
+                            <tr>
+                                <td><span class="fw-bold">Number of Participants</span></td>
+                                <td><span class="fw-bold">@Model.NoOfParticipants</span></td>
+                                <td><span class="fw-bold">@Model.ParticipantsInPercentage</span>
+                            </tr>
+                            <tr>
+                                <td><span class="fw-bold">Number of Non Participants</span></td>
+                                <td><span class="fw-bold">@Model.NoOfNonParticipants</span></td>
+                                <td><span class="fw-bold">@Model.NonParticipantsInPercentage</span>
+                            </tr>
+                            <tr><td colspan="3" class="bg-info"><span class="fw-bold text-white">Breakdown of Participation by Stages</span></td></tr>
+                            <tr>
+                                <td class="bg-warning" style="padding-top:0px; padding-bottom:0px;"><span class="fw-bold">Review Stage </span></td>
+                                <td class="bg-warning" style="padding-top:0px; padding-bottom:0px;"><span class="fw-bold">Number(#)</span></td>
+                                <td class="bg-warning" style="padding-top:0px; padding-bottom:0px;"><span class="fw-bold">Percent(%)</span>
+                            </tr>
+                            @foreach (var item in Model.ParticipationSummaryList)
+                            {
+                                <tr>
+                                    <td><span class="fw-bold">@item.ReviewStageName</span></td>
+                                    <td><span class="fw-bold">@item.NoOfParticipants</span></td>
+                                    <td><span class="fw-bold">@item.PercentageParticipantsFormatted</span>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+@section Scripts{
+    <script src="~/js/pms.js"></script>
+}

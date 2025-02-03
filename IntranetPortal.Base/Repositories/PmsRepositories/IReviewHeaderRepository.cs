@@ -40,5 +40,27 @@ namespace IntranetPortal.Base.Repositories.PmsRepositories
         Task<bool> UpdatePrincipalAppraiserByUnitIdAsync(int reviewSessionId, int unitId, string newPrincipalAppraiserId);
 
         #endregion
+
+        #region Participation Summary Read Methods
+        Task<List<ParticipationSummary>> GetParticipationSummaryByReviewSessionIdAsync(int reviewSessionId);
+        Task<List<ParticipationSummary>> GetParticipationSummaryByReviewSessionIdnLocationIdAsync(int reviewSessionId, int locationId);
+        Task<List<ParticipationSummary>> GetParticipationSummaryByReviewSessionIdnLocationIdnDepartmentIdAsync(int reviewSessionId, int locationId, int departmentId);
+        Task<List<ParticipationSummary>> GetParticipationSummaryByReviewSessionIdnLocationIdnDepartmentIdnUnitIdAsync(int reviewSessionId, int locationId, int departmentId, int unitId);
+        Task<List<ParticipationSummary>> GetParticipationSummaryByReviewSessionIdnDepartmentIdAsync(int reviewSessionId, int departmentId);
+        Task<List<ParticipationSummary>> GetParticipationSummaryByReviewSessionIdnDepartmentIdnUnitIdAsync(int reviewSessionId, int departmentId, int unitId);
+        Task<List<ParticipationSummary>> GetParticipationSummaryByReviewSessionIdnLocationIdnUnitIdAsync(int reviewSessionId, int locationId, int unitId);
+        Task<List<ParticipationSummary>> GetParticipationSummaryByReviewSessionIdnUnitIdAsync(int reviewSessionId, int unitId);
+        #endregion
+
+        #region Participants Count Read Methods
+        Task<long> GetParticipantsCountByReviewSessionIdAsync(int reviewSessionId);
+        Task<long> GetParticipantsCountByReviewSessionIdnLocationIdAsync(int reviewSessionId, int locationId);
+        Task<long> GetParticipantsCountByReviewSessionIdnLocationIdnDepartmentIdAsync(int reviewSessionId, int locationId, int departmentId);
+        Task<long> GetParticipantsCountByReviewSessionIdnLocationIdnDepartmentIdnUnitIdAsync(int reviewSessionId, int locationId, int departmentId, int unitId);
+        Task<long> GetParticipantsCountByReviewSessionIdnDepartmentIdAsync(int reviewSessionId, int departmentId);
+        Task<long> GetParticipantsCountByReviewSessionIdnDepartmentIdnUnitIdAsync(int reviewSessionId, int departmentId, int unitId);
+        Task<long> GetParticipantsCountByReviewSessionIdnLocationIdnUnitIdAsync(int reviewSessionId, int locationId, int unitId);
+        Task<long> GetParticipantsCountByReviewSessionIdnUnitIdAsync(int reviewSessionId, int unitId);
+        #endregion
     }
 }

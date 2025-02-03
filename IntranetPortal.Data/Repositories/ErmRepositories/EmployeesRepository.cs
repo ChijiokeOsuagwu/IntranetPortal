@@ -2296,6 +2296,312 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
         //============ End Employee Register Action Methods ==================//
         #endregion
 
+
+        #region Employee Count Read Action Methods
+        public async Task<long> GetEmployeesCountAsync(DateTime? terminalDate = null)
+        {
+            long totalCount = 0;
+            string _terminalDate;
+            if (terminalDate == null) { _terminalDate = DateTime.Today.ToString("dd-MM-yyyy"); }
+            else { _terminalDate = terminalDate.Value.ToString("dd-MM-yyyy"); }
+
+            StringBuilder sb = new StringBuilder();
+            sb.Append("SELECT COUNT(emp_id) as total_count ");
+            sb.Append("FROM erm_emp_inf ");
+            sb.Append("WHERE (dx_time IS NULL ");
+            sb.Append("OR dx_time >= to_date(@dx_time,'DD-MM-YYYY')) ");
+            sb.Append("AND ((start_up_date IS NULL) ");
+            sb.Append("OR (start_up_date <= to_date(@dx_time,'DD-MM-YYYY'))); ");
+
+            string query = sb.ToString();
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
+            {
+                await conn.OpenAsync();
+                // Retrieve all rows
+                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+                {
+                    var dx_time = cmd.Parameters.Add("@dx_time", NpgsqlDbType.Text);
+                    await cmd.PrepareAsync();
+                    dx_time.Value = _terminalDate;
+                    var obj = await cmd.ExecuteScalarAsync();
+                    totalCount = (long)obj;
+                }
+                await conn.CloseAsync();
+            }
+            return totalCount;
+        }
+        public async Task<long> GetEmployeesCountByLocationIdAsync(int locationId, DateTime? terminalDate = null)
+        {
+            long totalCount = 0;
+            string _terminalDate;
+            if(locationId < 1) { throw new ArgumentException("Invalid Argument value.", "Location ID"); }
+            if (terminalDate == null) { _terminalDate = DateTime.Today.ToString("dd-MM-yyyy"); }
+            else { _terminalDate = terminalDate.Value.ToString("dd-MM-yyyy"); }
+
+            StringBuilder sb = new StringBuilder();
+            sb.Append("SELECT COUNT(emp_id) as total_count ");
+            sb.Append("FROM erm_emp_inf ");
+            sb.Append("WHERE (loc_id = @loc_id) ");
+            sb.Append("AND (dx_time IS NULL ");
+            sb.Append("OR dx_time >= to_date(@dx_time,'DD-MM-YYYY')) ");
+            sb.Append("AND ((start_up_date IS NULL) ");
+            sb.Append("OR (start_up_date <= to_date(@dx_time,'DD-MM-YYYY'))); ");
+
+            string query = sb.ToString();
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
+            {
+                await conn.OpenAsync();
+                // Retrieve all rows
+                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+                {
+                    var loc_id = cmd.Parameters.Add("@loc_id", NpgsqlDbType.Integer);
+                    var dx_time = cmd.Parameters.Add("@dx_time", NpgsqlDbType.Text);
+                    await cmd.PrepareAsync();
+                    loc_id.Value = locationId;
+                    dx_time.Value = _terminalDate;
+                    var obj = await cmd.ExecuteScalarAsync();
+                    totalCount = (long)obj;
+                }
+                await conn.CloseAsync();
+            }
+            return totalCount;
+        }
+        public async Task<long> GetEmployeesCountByLocationIdnDepartmentIdAsync(int locationId, int deptId, DateTime? terminalDate = null)
+        {
+            long totalCount = 0;
+            string _terminalDate;
+            if (locationId < 1) { throw new ArgumentException("Invalid Argument value.", "Location ID"); }
+            if (deptId < 1) { throw new ArgumentException("Invalid Argument value.", "Department ID"); }
+            if (terminalDate == null) { _terminalDate = DateTime.Today.ToString("dd-MM-yyyy"); }
+            else { _terminalDate = terminalDate.Value.ToString("dd-MM-yyyy"); }
+
+            StringBuilder sb = new StringBuilder();
+            sb.Append("SELECT COUNT(emp_id) as total_count ");
+            sb.Append("FROM erm_emp_inf ");
+            sb.Append("WHERE (loc_id = @loc_id AND dept_id = @dept_id) ");
+            sb.Append("AND (dx_time IS NULL ");
+            sb.Append("OR dx_time >= to_date(@dx_time,'DD-MM-YYYY')) ");
+            sb.Append("AND ((start_up_date IS NULL) ");
+            sb.Append("OR (start_up_date <= to_date(@dx_time,'DD-MM-YYYY'))); ");
+
+            string query = sb.ToString();
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
+            {
+                await conn.OpenAsync();
+                // Retrieve all rows
+                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+                {
+                    var loc_id = cmd.Parameters.Add("@loc_id", NpgsqlDbType.Integer);
+                    var dept_id = cmd.Parameters.Add("@dept_id", NpgsqlDbType.Integer);
+                    var dx_time = cmd.Parameters.Add("@dx_time", NpgsqlDbType.Text);
+                    await cmd.PrepareAsync();
+                    loc_id.Value = locationId;
+                    dept_id.Value = deptId;
+                    dx_time.Value = _terminalDate;
+                    var obj = await cmd.ExecuteScalarAsync();
+                    totalCount = (long)obj;
+                }
+                await conn.CloseAsync();
+            }
+            return totalCount;
+        }
+        public async Task<long> GetEmployeesCountByLocationIdnDepartmentIdnUnitIdAsync(int locationId, int deptId, int unitId, DateTime? terminalDate = null)
+        {
+            long totalCount = 0;
+            string _terminalDate;
+            if (locationId < 1) { throw new ArgumentException("Invalid Argument value.", "Location ID"); }
+            if (deptId < 1) { throw new ArgumentException("Invalid Argument value.", "Department ID"); }
+            if (unitId < 1) { throw new ArgumentException("Invalid Argument value.", "Unit ID"); }
+            if (terminalDate == null) { _terminalDate = DateTime.Today.ToString("dd-MM-yyyy"); }
+            else { _terminalDate = terminalDate.Value.ToString("dd-MM-yyyy"); }
+
+            StringBuilder sb = new StringBuilder();
+            sb.Append("SELECT COUNT(emp_id) as total_count ");
+            sb.Append("FROM erm_emp_inf ");
+            sb.Append("WHERE (loc_id = @loc_id AND dept_id = @dept_id ");
+            sb.Append("AND unit_id = @unit_id) AND (dx_time IS NULL ");
+            sb.Append("OR dx_time >= to_date(@dx_time,'DD-MM-YYYY')) ");
+            sb.Append("AND ((start_up_date IS NULL) ");
+            sb.Append("OR (start_up_date <= to_date(@dx_time,'DD-MM-YYYY'))); ");
+
+            string query = sb.ToString();
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
+            {
+                await conn.OpenAsync();
+                // Retrieve all rows
+                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+                {
+                    var loc_id = cmd.Parameters.Add("@loc_id", NpgsqlDbType.Integer);
+                    var dept_id = cmd.Parameters.Add("@dept_id", NpgsqlDbType.Integer);
+                    var unit_id = cmd.Parameters.Add("@unit_id", NpgsqlDbType.Integer);
+                    var dx_time = cmd.Parameters.Add("@dx_time", NpgsqlDbType.Text);
+                    await cmd.PrepareAsync();
+                    loc_id.Value = locationId;
+                    dept_id.Value = deptId;
+                    unit_id.Value = unitId;
+                    dx_time.Value = _terminalDate;
+                    var obj = await cmd.ExecuteScalarAsync();
+                    totalCount = (long)obj;
+                }
+                await conn.CloseAsync();
+            }
+            return totalCount;
+        }
+        public async Task<long> GetEmployeesCountByLocationIdnUnitIdAsync(int locationId, int unitId, DateTime? terminalDate = null)
+        {
+            long totalCount = 0;
+            string _terminalDate;
+            if (locationId < 1) { throw new ArgumentException("Invalid Argument value.", "Location ID"); }
+            if (unitId < 1) { throw new ArgumentException("Invalid Argument value.", "Unit ID"); }
+            if (terminalDate == null) { _terminalDate = DateTime.Today.ToString("dd-MM-yyyy"); }
+            else { _terminalDate = terminalDate.Value.ToString("dd-MM-yyyy"); }
+
+            StringBuilder sb = new StringBuilder();
+            sb.Append("SELECT COUNT(emp_id) as total_count ");
+            sb.Append("FROM erm_emp_inf ");
+            sb.Append("WHERE (loc_id = @loc_id AND unit_id = @unit_id) ");
+            sb.Append("AND (dx_time IS NULL ");
+            sb.Append("OR dx_time >= to_date(@dx_time,'DD-MM-YYYY')) ");
+            sb.Append("AND ((start_up_date IS NULL) ");
+            sb.Append("OR (start_up_date <= to_date(@dx_time,'DD-MM-YYYY'))); ");
+
+            string query = sb.ToString();
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
+            {
+                await conn.OpenAsync();
+                // Retrieve all rows
+                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+                {
+                    var loc_id = cmd.Parameters.Add("@loc_id", NpgsqlDbType.Integer);
+                    var unit_id = cmd.Parameters.Add("@unit_id", NpgsqlDbType.Integer);
+                    var dx_time = cmd.Parameters.Add("@dx_time", NpgsqlDbType.Text);
+                    await cmd.PrepareAsync();
+                    loc_id.Value = locationId;
+                    unit_id.Value = unitId;
+                    dx_time.Value = _terminalDate;
+                    var obj = await cmd.ExecuteScalarAsync();
+                    totalCount = (long)obj;
+                }
+                await conn.CloseAsync();
+            }
+            return totalCount;
+        }
+        public async Task<long> GetEmployeesCountByDepartmentIdAsync(int deptId, DateTime? terminalDate = null)
+        {
+            long totalCount = 0;
+            string _terminalDate;
+            if (deptId < 1) { throw new ArgumentException("Invalid Argument value.", "Department ID"); }
+            if (terminalDate == null) { _terminalDate = DateTime.Today.ToString("dd-MM-yyyy"); }
+            else { _terminalDate = terminalDate.Value.ToString("dd-MM-yyyy"); }
+
+            StringBuilder sb = new StringBuilder();
+            sb.Append("SELECT COUNT(emp_id) as total_count ");
+            sb.Append("FROM erm_emp_inf ");
+            sb.Append("WHERE (dept_id = @dept_id) ");
+            sb.Append("AND (dx_time IS NULL ");
+            sb.Append("OR dx_time >= to_date(@dx_time,'DD-MM-YYYY')) ");
+            sb.Append("AND ((start_up_date IS NULL) ");
+            sb.Append("OR (start_up_date <= to_date(@dx_time,'DD-MM-YYYY'))); ");
+
+            string query = sb.ToString();
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
+            {
+                await conn.OpenAsync();
+                // Retrieve all rows
+                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+                {
+                    var dept_id = cmd.Parameters.Add("@dept_id", NpgsqlDbType.Integer);
+                    var dx_time = cmd.Parameters.Add("@dx_time", NpgsqlDbType.Text);
+                    await cmd.PrepareAsync();
+                    dept_id.Value = deptId;
+                    dx_time.Value = _terminalDate;
+                    var obj = await cmd.ExecuteScalarAsync();
+                    totalCount = (long)obj;
+                }
+                await conn.CloseAsync();
+            }
+            return totalCount;
+        }
+        public async Task<long> GetEmployeesCountByDepartmentIdnUnitIdAsync(int deptId, int unitId, DateTime? terminalDate = null)
+        {
+            long totalCount = 0;
+            string _terminalDate;
+            if (deptId < 1) { throw new ArgumentException("Invalid Argument value.", "Department ID"); }
+            if (unitId < 1) { throw new ArgumentException("Invalid Argument value.", "Unit ID"); }
+            if (terminalDate == null) { _terminalDate = DateTime.Today.ToString("dd-MM-yyyy"); }
+            else { _terminalDate = terminalDate.Value.ToString("dd-MM-yyyy"); }
+
+            StringBuilder sb = new StringBuilder();
+            sb.Append("SELECT COUNT(emp_id) as total_count ");
+            sb.Append("FROM erm_emp_inf ");
+            sb.Append("WHERE (dept_id = @dept_id ");
+            sb.Append("AND unit_id = @unit_id) AND (dx_time IS NULL ");
+            sb.Append("OR dx_time >= to_date(@dx_time,'DD-MM-YYYY')) ");
+            sb.Append("AND ((start_up_date IS NULL) ");
+            sb.Append("OR (start_up_date <= to_date(@dx_time,'DD-MM-YYYY'))); ");
+
+            string query = sb.ToString();
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
+            {
+                await conn.OpenAsync();
+                // Retrieve all rows
+                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+                {
+                    var dept_id = cmd.Parameters.Add("@dept_id", NpgsqlDbType.Integer);
+                    var unit_id = cmd.Parameters.Add("@unit_id", NpgsqlDbType.Integer);
+                    var dx_time = cmd.Parameters.Add("@dx_time", NpgsqlDbType.Text);
+                    await cmd.PrepareAsync();
+                    dept_id.Value = deptId;
+                    unit_id.Value = unitId;
+                    dx_time.Value = _terminalDate;
+                    var obj = await cmd.ExecuteScalarAsync();
+                    totalCount = (long)obj;
+                }
+                await conn.CloseAsync();
+            }
+            return totalCount;
+        }
+        public async Task<long> GetEmployeesCountByUnitIdAsync(int unitId, DateTime? terminalDate = null)
+        {
+            long totalCount = 0;
+            string _terminalDate;
+            if (unitId < 1) { throw new ArgumentException("Invalid Argument value.", "Unit ID"); }
+            if (terminalDate == null) { _terminalDate = DateTime.Today.ToString("dd-MM-yyyy"); }
+            else { _terminalDate = terminalDate.Value.ToString("dd-MM-yyyy"); }
+
+            StringBuilder sb = new StringBuilder();
+            sb.Append("SELECT COUNT(emp_id) as total_count ");
+            sb.Append("FROM erm_emp_inf ");
+            sb.Append("WHERE (unit_id = @unit_id) ");
+            sb.Append("AND (dx_time IS NULL ");
+            sb.Append("OR dx_time >= to_date(@dx_time,'DD-MM-YYYY')) ");
+            sb.Append("AND ((start_up_date IS NULL) ");
+            sb.Append("OR (start_up_date <= to_date(@dx_time,'DD-MM-YYYY'))); ");
+
+            string query = sb.ToString();
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
+            {
+                await conn.OpenAsync();
+                // Retrieve all rows
+                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+                {
+                    var unit_id = cmd.Parameters.Add("@unit_id", NpgsqlDbType.Integer);
+                    var dx_time = cmd.Parameters.Add("@dx_time", NpgsqlDbType.Text);
+                    await cmd.PrepareAsync();
+                    unit_id.Value = unitId;
+                    dx_time.Value = _terminalDate;
+                    var obj = await cmd.ExecuteScalarAsync();
+                    totalCount = (long)obj;
+                }
+                await conn.CloseAsync();
+            }
+            return totalCount;
+        }
+
+        #endregion
+
+
+
         #region Employee BirthDays Read Action Methods
 
         public async Task<IList<Employee>> GetEmployeesByBirthMonthAsync(int birthMonth)
@@ -3035,12 +3341,12 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
             return rows > 0;
         }
 
-        public async Task<bool> UpdateEmployeeSeparationAsync(string empId, string recordedBy, DateTime? exitDate)
+        public async Task<bool> UpdateEmployeeSeparationAsync(string empId, string recordedBy, DateTime? exitDate, bool isExitted = true)
         {
             if (string.IsNullOrEmpty(empId)) { return false; }
             int rows = 0;
             StringBuilder sb = new StringBuilder();
-            sb.Append("UPDATE public.erm_emp_inf SET is_dx = true, dx_time = @dx_time, ");
+            sb.Append("UPDATE public.erm_emp_inf SET is_dx = @is_dx, dx_time = @dx_time, ");
             sb.Append("dx_by = @dx_by WHERE (emp_id = @emp_id);");
             string query = sb.ToString();
             using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
@@ -3052,11 +3358,12 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
                     var emp_id = cmd.Parameters.Add("@emp_id", NpgsqlDbType.Text);
                     var dx_time = cmd.Parameters.Add("@dx_time", NpgsqlDbType.Date);
                     var dx_by = cmd.Parameters.Add("@dx_by", NpgsqlDbType.Text);
+                    var is_dx = cmd.Parameters.Add("@is_dx", NpgsqlDbType.Boolean);
                     cmd.Prepare();
                     emp_id.Value = empId;
-                    dx_time.Value = exitDate;
-                    dx_by.Value = recordedBy;
-
+                    dx_time.Value = exitDate ?? (object)DBNull.Value;
+                    dx_by.Value = recordedBy ?? (object)DBNull.Value;
+                    is_dx.Value = isExitted;
                     rows = await cmd.ExecuteNonQueryAsync();
                 }
                 await conn.CloseAsync();

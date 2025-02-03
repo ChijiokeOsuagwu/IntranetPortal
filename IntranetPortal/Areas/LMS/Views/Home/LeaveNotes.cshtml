@@ -1,0 +1,141 @@
+﻿@model IntranetPortal.Areas.LMS.Models.LeaveNoteListViewModel
+<div class="container">
+    <h4 class="mb-1">Notes</h4>
+    <hr />
+    <div class="row">
+        <div class="col-md-2">
+            <nav class="navbar navbar-expand-lg navbar-light bg-light">
+                <div class="container-fluid">
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <div class="collapse navbar-collapse" id="navbarNavDropdown">
+                        <ul class="navbar-nav">
+                            <li class="nav-item">
+                                @if (Model.SourcePage == "mlp")
+                                {
+                                    <a asp-area="LMS" asp-Controller="Home" asp-action="MyLeavePlans" asp-route-id="@Model.LeaveID" asp-route-yr="@Model.LeaveYear" title="Go Back" class="btn btn-sm btn-outline-light text-dark">
+                                        <i class="bi bi-backspace fw-bolder" style="font-size: 1.0rem;"></i>&nbsp;<span class="fw-bold ml-1" style="font-size: 0.9rem;">Back</span>
+                                    </a>
+                                }
+                                else if (Model.SourcePage == "tlp")
+                                {
+                                    <a asp-area="LMS" asp-Controller="Home" asp-action="MyTeamsLeavePlans" asp-route-id="@Model.LeaveID" asp-route-yr="@Model.LeaveYear" title="Go Back" class="btn btn-sm btn-outline-light text-dark">
+                                        <i class="bi bi-backspace fw-bolder" style="font-size: 1.0rem;"></i>&nbsp;<span class="fw-bold ml-1" style="font-size: 0.9rem;">Back</span>
+                                    </a>
+                                }
+                                else if (Model.SourcePage == "hlp")
+                                {
+                                    <a asp-area="LMS" asp-Controller="Home" asp-action="LeavePlans" asp-route-yr="@Model.LeaveYear" title="Go Back" class="btn btn-sm btn-outline-light text-dark">
+                                        <i class="bi bi-backspace fw-bolder" style="font-size: 1.0rem;"></i>&nbsp;<span class="fw-bold ml-1" style="font-size: 0.9rem;">Back</span>
+                                    </a>
+                                }
+                                else if (Model.SourcePage == "hlp")
+                                {
+                                    <a asp-area="PMS" asp-Controller="Process" asp-action="ShowContractInfo" asp-route-id="@Model.LeaveID" asp-route-yr="@Model.LeaveYear" title="Go Back" class="btn btn-sm btn-outline-light text-dark">
+                                        <i class="bi bi-backspace fw-bolder" style="font-size: 1.0rem;"></i>&nbsp;<span class="fw-bold ml-1" style="font-size: 0.9rem;">Back</span>
+                                    </a>
+                                }
+                                else if (Model.SourcePage == "mlr")
+                                {
+                                    <a asp-area="PMS" asp-Controller="Process" asp-action="ShowContractInfo" asp-route-id="@Model.LeaveID" asp-route-yr="@Model.LeaveYear" title="Go Back" class="btn btn-sm btn-outline-light text-dark">
+                                        <i class="bi bi-backspace fw-bolder" style="font-size: 1.0rem;"></i>&nbsp;<span class="fw-bold ml-1" style="font-size: 0.9rem;">Back</span>
+                                    </a>
+                                }
+                                else if (Model.SourcePage == "tlr")
+                                {
+                                    <a asp-area="PMS" asp-Controller="Process" asp-action="ShowContractInfo" asp-route-id="@Model.LeaveID" asp-route-yr="@Model.LeaveYear" title="Go Back" class="btn btn-sm btn-outline-light text-dark">
+                                        <i class="bi bi-backspace fw-bolder" style="font-size: 1.0rem;"></i>&nbsp;<span class="fw-bold ml-1" style="font-size: 0.9rem;">Back</span>
+                                    </a>
+                                }
+                                else if (Model.SourcePage == "hlr")
+                                {
+                                    <a asp-area="LMS" asp-Controller="Home" asp-action="ShowContractInfo" asp-route-id="@Model.LeaveID" asp-route-yr="@Model.LeaveYear" title="Go Back" class="btn btn-sm btn-outline-light text-dark">
+                                        <i class="bi bi-backspace fw-bolder" style="font-size: 1.0rem;"></i>&nbsp;<span class="fw-bold ml-1" style="font-size: 0.9rem;">Back</span>
+                                    </a>
+                                }
+                                else
+                                {
+                                    <a asp-area="LMS" asp-Controller="Home" asp-action="Index" title="Go Back" class="btn btn-sm btn-outline-light text-dark">
+                                        <i class="bi bi-backspace fw-bolder" style="font-size: 1.0rem;"></i>&nbsp;<span class="fw-bold ml-1" style="font-size: 0.9rem;">Back</span>
+                                    </a>
+                                }
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+
+        </div>
+        <div class="col-md-10 text-end">
+            <div id="div-error" class="text-danger"></div>
+            <div class="input-group">
+                <input id="leave_note" asp-for="NewLeaveNote" type="text" class="form-control fw-bold" placeholder="Enter Text Here ..." autocomplete="off" aria-label="Enter New Leave Note" aria-describedby="button-addon2">
+                <button class="btn btn-sm btn-dark text-white fw-bold" type="button" id="addnote" onclick="addLeaveNote()">Add Note</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div>
+            @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bi bi-x-circle"></i>
+                    <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+        </div>
+        <div class="row">
+            @if (Model == null || Model.LeaveNoteList == null || Model.LeaveNoteList.Count < 1)
+            {
+                <div class="alert alert-info fade show" role="alert">
+                    <i class="bi bi-info-circle"></i>
+                    <span class="fw-bold">No record was found.</span>
+                </div>
+            }
+            else
+            {
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="card">
+                            <div class="card-body">
+                            </div>
+                            <div class="comment-widgets scrollable">
+                                @foreach (var msg in Model.LeaveNoteList)
+                                {
+                                    <!-- Comment Row -->
+                                    <div class="d-flex flex-row comment-row mt-0">
+                                        <div class="p-2">
+                                            <img src="~/img/user_icon_128px.png" alt="Sender Image" width="50" class="rounded-circle">
+                                        </div>
+                                        <div class="comment-text w-100">
+                                            <h6 class="font-medium">@msg.FromEmployeeName</h6>
+                                            <span class="mb-3 d-block font-bold">@msg.NoteContent</span>
+                                            <div class="comment-footer">
+                                                <span class="text-muted float-end">@msg.TimeAdded.Value.ToLongDateString() @msg.TimeAdded.Value.ToLongTimeString()</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+    <input type="hidden" id="leave_id" asp-for="LeaveID" />
+    <input type="hidden" id="leave_year" asp-for="LeaveYear" />
+    <input type="hidden" asp-for="LoggedInEmployeeID" />
+    <input type="hidden" id="from_name" asp-for="LoggedInEmployeeName" />
+    <input type="hidden" asp-for="ApplicantID" />
+    <input type="hidden" asp-for="ApplicantName" />
+    <input type="hidden" id="source_page" asp-for="SourcePage" />
+</div>
+
+@section Scripts{
+    <script src="~/js/lms.js"></script>
+}
+

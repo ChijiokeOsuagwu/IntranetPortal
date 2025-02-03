@@ -1458,20 +1458,20 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
 
             string query = sb.ToString();
 
-                await conn.OpenAsync();
-                //Insert data
-                using (var cmd = new NpgsqlCommand(query, conn))
-                {
-                    var rvw_sxn_id = cmd.Parameters.Add("@rvw_sxn_id", NpgsqlDbType.Integer);
-                    var pry_apr_id = cmd.Parameters.Add("@pry_apr_id", NpgsqlDbType.Text);
-                    var rvw_emp_id = cmd.Parameters.Add("@rvw_emp_id", NpgsqlDbType.Text);
-                    cmd.Prepare();
-                    rvw_sxn_id.Value = reviewSessionId;
-                    pry_apr_id.Value = newPrincipalAppraiserId;
-                    rvw_emp_id.Value = appraiseeId;
+            await conn.OpenAsync();
+            //Insert data
+            using (var cmd = new NpgsqlCommand(query, conn))
+            {
+                var rvw_sxn_id = cmd.Parameters.Add("@rvw_sxn_id", NpgsqlDbType.Integer);
+                var pry_apr_id = cmd.Parameters.Add("@pry_apr_id", NpgsqlDbType.Text);
+                var rvw_emp_id = cmd.Parameters.Add("@rvw_emp_id", NpgsqlDbType.Text);
+                cmd.Prepare();
+                rvw_sxn_id.Value = reviewSessionId;
+                pry_apr_id.Value = newPrincipalAppraiserId;
+                rvw_emp_id.Value = appraiseeId;
 
-                    rows = await cmd.ExecuteNonQueryAsync();
-                }
+                rows = await cmd.ExecuteNonQueryAsync();
+            }
             await conn.CloseAsync();
             return rows > 0;
         }
@@ -1503,6 +1503,653 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
             }
             await conn.CloseAsync();
             return rows > 0;
+        }
+
+        #endregion
+
+        #region Appraisal Participation Summary Action Methods
+        public async Task<List<ParticipationSummary>> GetParticipationSummaryByReviewSessionIdAsync(int reviewSessionId)
+        {
+            List<ParticipationSummary> participantsList = new List<ParticipationSummary>();
+            StringBuilder sb = new StringBuilder();
+            sb.Append("SELECT r.rvw_sxn_id, l.locname, d.deptname, u.unitname, ");
+            sb.Append("r.rvw_stg_id, g.rvw_stg_nm, COUNT(rvw_hdr_id) as total_emp  ");
+            sb.Append("FROM public.pmsrvwhdrs r ");
+            sb.Append("INNER JOIN pmssttstgs g ON g.rvw_stg_id = r.rvw_stg_id ");
+            sb.Append("INNER JOIN pmsrvwsxns s ON s.rvw_sxn_id = r.rvw_sxn_id ");
+            sb.Append("INNER JOIN public.gst_units u ON u.unitqk = r.unit_cd ");
+            sb.Append("INNER JOIN public.gst_depts d ON d.deptqk = r.dept_cd ");
+            sb.Append("INNER JOIN public.gst_locs l ON l.locqk = r.loc_id ");
+            sb.Append("WHERE r.rvw_sxn_id = @rvw_sxn_id ");
+            sb.Append("GROUP BY r.rvw_sxn_id, l.locname, d.deptname, ");
+            sb.Append("u.unitname, r.rvw_stg_id, g.rvw_stg_nm ");
+            sb.Append("ORDER BY r.rvw_sxn_id, l.locname, d.deptname, u.unitname;");
+            string query = sb.ToString();
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
+            {
+                await conn.OpenAsync();
+                // Retrieve all rows
+                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+                {
+                    var rvw_sxn_id = cmd.Parameters.Add("@rvw_sxn_id", NpgsqlDbType.Integer);
+                    await cmd.PrepareAsync();
+                    rvw_sxn_id.Value = reviewSessionId;
+
+                    var reader = await cmd.ExecuteReaderAsync();
+                    while (await reader.ReadAsync())
+                    {
+                        participantsList.Add(new ParticipationSummary()
+                        {
+                            ReviewSessionId = reader["rvw_sxn_id"] == DBNull.Value ? 0 : (int)reader["rvw_sxn_id"],
+                            ReviewStageId = reader["rvw_stg_id"] == DBNull.Value ? 0 : (int)reader["rvw_stg_id"],
+                            ReviewStageName = reader["rvw_stg_nm"] == DBNull.Value ? string.Empty : reader["rvw_stg_nm"].ToString(),
+                            UnitName = reader["unitname"] == DBNull.Value ? string.Empty : reader["unitname"].ToString(),
+                            DepartmentName = reader["deptname"] == DBNull.Value ? string.Empty : reader["deptname"].ToString(),
+                            LocationName = reader["locname"] == DBNull.Value ? string.Empty : reader["locname"].ToString(),
+                            NoOfParticipants = reader["total_emp"] == DBNull.Value ? 0 : (long)reader["total_emp"],
+                        });
+                    }
+                }
+                await conn.CloseAsync();
+            }
+            return participantsList;
+        }
+        public async Task<List<ParticipationSummary>> GetParticipationSummaryByReviewSessionIdnLocationIdAsync(int reviewSessionId, int locationId)
+        {
+            List<ParticipationSummary> participantsList = new List<ParticipationSummary>();
+            StringBuilder sb = new StringBuilder();
+            sb.Append("SELECT r.rvw_sxn_id, l.locname, d.deptname, u.unitname, ");
+            sb.Append("r.rvw_stg_id, g.rvw_stg_nm, COUNT(rvw_hdr_id) as total_emp  ");
+            sb.Append("FROM public.pmsrvwhdrs r ");
+            sb.Append("INNER JOIN pmssttstgs g ON g.rvw_stg_id = r.rvw_stg_id ");
+            sb.Append("INNER JOIN pmsrvwsxns s ON s.rvw_sxn_id = r.rvw_sxn_id ");
+            sb.Append("INNER JOIN public.gst_units u ON u.unitqk = r.unit_cd ");
+            sb.Append("INNER JOIN public.gst_depts d ON d.deptqk = r.dept_cd ");
+            sb.Append("INNER JOIN public.gst_locs l ON l.locqk = r.loc_id ");
+            sb.Append("WHERE (r.rvw_sxn_id = @rvw_sxn_id ");
+            sb.Append("AND r.loc_id = @loc_id) ");
+            sb.Append("GROUP BY r.rvw_sxn_id, l.locname, d.deptname, ");
+            sb.Append("u.unitname, r.rvw_stg_id, g.rvw_stg_nm ");
+            sb.Append("ORDER BY r.rvw_sxn_id, l.locname, d.deptname, u.unitname;");
+            string query = sb.ToString();
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
+            {
+                await conn.OpenAsync();
+                // Retrieve all rows
+                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+                {
+                    var rvw_sxn_id = cmd.Parameters.Add("@rvw_sxn_id", NpgsqlDbType.Integer);
+                    var loc_id = cmd.Parameters.Add("@loc_id", NpgsqlDbType.Integer);
+                    await cmd.PrepareAsync();
+                    rvw_sxn_id.Value = reviewSessionId;
+                    loc_id.Value = locationId;
+
+                    var reader = await cmd.ExecuteReaderAsync();
+                    while (await reader.ReadAsync())
+                    {
+                        participantsList.Add(new ParticipationSummary()
+                        {
+                            ReviewSessionId = reader["rvw_sxn_id"] == DBNull.Value ? 0 : (int)reader["rvw_sxn_id"],
+                            ReviewStageId = reader["rvw_stg_id"] == DBNull.Value ? 0 : (int)reader["rvw_stg_id"],
+                            ReviewStageName = reader["rvw_stg_nm"] == DBNull.Value ? string.Empty : reader["rvw_stg_nm"].ToString(),
+                            UnitName = reader["unitname"] == DBNull.Value ? string.Empty : reader["unitname"].ToString(),
+                            DepartmentName = reader["deptname"] == DBNull.Value ? string.Empty : reader["deptname"].ToString(),
+                            LocationName = reader["locname"] == DBNull.Value ? string.Empty : reader["locname"].ToString(),
+                            NoOfParticipants = reader["total_emp"] == DBNull.Value ? 0 : (long)reader["total_emp"],
+                        });
+                    }
+                }
+                await conn.CloseAsync();
+            }
+            return participantsList;
+        }
+        public async Task<List<ParticipationSummary>> GetParticipationSummaryByReviewSessionIdnLocationIdnDepartmentIdAsync(int reviewSessionId, int locationId, int departmentId)
+        {
+            List<ParticipationSummary> participantsList = new List<ParticipationSummary>();
+            StringBuilder sb = new StringBuilder();
+            sb.Append("SELECT r.rvw_sxn_id, l.locname, d.deptname, u.unitname, ");
+            sb.Append("r.rvw_stg_id, g.rvw_stg_nm, COUNT(rvw_hdr_id) as total_emp  ");
+            sb.Append("FROM public.pmsrvwhdrs r ");
+            sb.Append("INNER JOIN pmssttstgs g ON g.rvw_stg_id = r.rvw_stg_id ");
+            sb.Append("INNER JOIN pmsrvwsxns s ON s.rvw_sxn_id = r.rvw_sxn_id ");
+            sb.Append("INNER JOIN public.gst_units u ON u.unitqk = r.unit_cd ");
+            sb.Append("INNER JOIN public.gst_depts d ON d.deptqk = r.dept_cd ");
+            sb.Append("INNER JOIN public.gst_locs l ON l.locqk = r.loc_id ");
+            sb.Append("WHERE (r.rvw_sxn_id = @rvw_sxn_id) ");
+            sb.Append("AND (r.loc_id = @loc_id) ");
+            sb.Append("AND (r.dept_cd = @dept_id) ");
+            sb.Append("GROUP BY r.rvw_sxn_id, l.locname, d.deptname, ");
+            sb.Append("u.unitname, r.rvw_stg_id, g.rvw_stg_nm ");
+            sb.Append("ORDER BY r.rvw_sxn_id, l.locname, d.deptname, u.unitname;");
+            string query = sb.ToString();
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
+            {
+                await conn.OpenAsync();
+                // Retrieve all rows
+                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+                {
+                    var rvw_sxn_id = cmd.Parameters.Add("@rvw_sxn_id", NpgsqlDbType.Integer);
+                    var loc_id = cmd.Parameters.Add("@loc_id", NpgsqlDbType.Integer);
+                    var dept_id = cmd.Parameters.Add("@dept_id", NpgsqlDbType.Integer);
+                    await cmd.PrepareAsync();
+                    rvw_sxn_id.Value = reviewSessionId;
+                    loc_id.Value = locationId;
+                    dept_id.Value = departmentId;
+
+                    var reader = await cmd.ExecuteReaderAsync();
+                    while (await reader.ReadAsync())
+                    {
+                        participantsList.Add(new ParticipationSummary()
+                        {
+                            ReviewSessionId = reader["rvw_sxn_id"] == DBNull.Value ? 0 : (int)reader["rvw_sxn_id"],
+                            ReviewStageId = reader["rvw_stg_id"] == DBNull.Value ? 0 : (int)reader["rvw_stg_id"],
+                            ReviewStageName = reader["rvw_stg_nm"] == DBNull.Value ? string.Empty : reader["rvw_stg_nm"].ToString(),
+                            UnitName = reader["unitname"] == DBNull.Value ? string.Empty : reader["unitname"].ToString(),
+                            DepartmentName = reader["deptname"] == DBNull.Value ? string.Empty : reader["deptname"].ToString(),
+                            LocationName = reader["locname"] == DBNull.Value ? string.Empty : reader["locname"].ToString(),
+                            NoOfParticipants = reader["total_emp"] == DBNull.Value ? 0 : (long)reader["total_emp"],
+                        });
+                    }
+                }
+                await conn.CloseAsync();
+            }
+            return participantsList;
+        }
+        public async Task<List<ParticipationSummary>> GetParticipationSummaryByReviewSessionIdnLocationIdnDepartmentIdnUnitIdAsync(int reviewSessionId, int locationId, int departmentId, int unitId)
+        {
+            List<ParticipationSummary> participantsList = new List<ParticipationSummary>();
+            StringBuilder sb = new StringBuilder();
+            sb.Append("SELECT r.rvw_sxn_id, l.locname, d.deptname, u.unitname, ");
+            sb.Append("r.rvw_stg_id, g.rvw_stg_nm, COUNT(rvw_hdr_id) as total_emp  ");
+            sb.Append("FROM public.pmsrvwhdrs r ");
+            sb.Append("INNER JOIN pmssttstgs g ON g.rvw_stg_id = r.rvw_stg_id ");
+            sb.Append("INNER JOIN pmsrvwsxns s ON s.rvw_sxn_id = r.rvw_sxn_id ");
+            sb.Append("INNER JOIN public.gst_units u ON u.unitqk = r.unit_cd ");
+            sb.Append("INNER JOIN public.gst_depts d ON d.deptqk = r.dept_cd ");
+            sb.Append("INNER JOIN public.gst_locs l ON l.locqk = r.loc_id ");
+            sb.Append("WHERE (r.rvw_sxn_id = @rvw_sxn_id) ");
+            sb.Append("AND (r.loc_id = @loc_id) ");
+            sb.Append("AND (r.dept_cd = @dept_id) ");
+            sb.Append("AND (r.unit_cd = @unit_id) ");
+            sb.Append("GROUP BY r.rvw_sxn_id, l.locname, d.deptname, ");
+            sb.Append("u.unitname, r.rvw_stg_id, g.rvw_stg_nm ");
+            sb.Append("ORDER BY r.rvw_sxn_id, l.locname, d.deptname, u.unitname;");
+            string query = sb.ToString();
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
+            {
+                await conn.OpenAsync();
+                // Retrieve all rows
+                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+                {
+                    var rvw_sxn_id = cmd.Parameters.Add("@rvw_sxn_id", NpgsqlDbType.Integer);
+                    var loc_id = cmd.Parameters.Add("@loc_id", NpgsqlDbType.Integer);
+                    var dept_id = cmd.Parameters.Add("@dept_id", NpgsqlDbType.Integer);
+                    var unit_id = cmd.Parameters.Add("@unit_id", NpgsqlDbType.Integer);
+                    await cmd.PrepareAsync();
+                    rvw_sxn_id.Value = reviewSessionId;
+                    loc_id.Value = locationId;
+                    dept_id.Value = departmentId;
+                    unit_id.Value = unitId;
+
+                    var reader = await cmd.ExecuteReaderAsync();
+                    while (await reader.ReadAsync())
+                    {
+                        participantsList.Add(new ParticipationSummary()
+                        {
+                            ReviewSessionId = reader["rvw_sxn_id"] == DBNull.Value ? 0 : (int)reader["rvw_sxn_id"],
+                            ReviewStageId = reader["rvw_stg_id"] == DBNull.Value ? 0 : (int)reader["rvw_stg_id"],
+                            ReviewStageName = reader["rvw_stg_nm"] == DBNull.Value ? string.Empty : reader["rvw_stg_nm"].ToString(),
+                            UnitName = reader["unitname"] == DBNull.Value ? string.Empty : reader["unitname"].ToString(),
+                            DepartmentName = reader["deptname"] == DBNull.Value ? string.Empty : reader["deptname"].ToString(),
+                            LocationName = reader["locname"] == DBNull.Value ? string.Empty : reader["locname"].ToString(),
+                            NoOfParticipants = reader["total_emp"] == DBNull.Value ? 0 : (long)reader["total_emp"],
+                        });
+                    }
+                }
+                await conn.CloseAsync();
+            }
+            return participantsList;
+        }
+
+
+        public async Task<List<ParticipationSummary>> GetParticipationSummaryByReviewSessionIdnDepartmentIdAsync(int reviewSessionId, int departmentId)
+        {
+            List<ParticipationSummary> participantsList = new List<ParticipationSummary>();
+            StringBuilder sb = new StringBuilder();
+            sb.Append("SELECT r.rvw_sxn_id, l.locname, d.deptname, u.unitname, ");
+            sb.Append("r.rvw_stg_id, g.rvw_stg_nm, COUNT(rvw_hdr_id) as total_emp  ");
+            sb.Append("FROM public.pmsrvwhdrs r ");
+            sb.Append("INNER JOIN pmssttstgs g ON g.rvw_stg_id = r.rvw_stg_id ");
+            sb.Append("INNER JOIN pmsrvwsxns s ON s.rvw_sxn_id = r.rvw_sxn_id ");
+            sb.Append("INNER JOIN public.gst_units u ON u.unitqk = r.unit_cd ");
+            sb.Append("INNER JOIN public.gst_depts d ON d.deptqk = r.dept_cd ");
+            sb.Append("INNER JOIN public.gst_locs l ON l.locqk = r.loc_id ");
+            sb.Append("WHERE (r.rvw_sxn_id = @rvw_sxn_id) ");
+            sb.Append("AND (r.dept_cd = @dept_id) ");
+            sb.Append("GROUP BY r.rvw_sxn_id, l.locname, d.deptname, ");
+            sb.Append("u.unitname, r.rvw_stg_id, g.rvw_stg_nm ");
+            sb.Append("ORDER BY r.rvw_sxn_id, l.locname, d.deptname, u.unitname;");
+            string query = sb.ToString();
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
+            {
+                await conn.OpenAsync();
+                // Retrieve all rows
+                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+                {
+                    var rvw_sxn_id = cmd.Parameters.Add("@rvw_sxn_id", NpgsqlDbType.Integer);
+                    var dept_id = cmd.Parameters.Add("@dept_id", NpgsqlDbType.Integer);
+                    await cmd.PrepareAsync();
+                    rvw_sxn_id.Value = reviewSessionId;
+                    dept_id.Value = departmentId;
+
+                    var reader = await cmd.ExecuteReaderAsync();
+                    while (await reader.ReadAsync())
+                    {
+                        participantsList.Add(new ParticipationSummary()
+                        {
+                            ReviewSessionId = reader["rvw_sxn_id"] == DBNull.Value ? 0 : (int)reader["rvw_sxn_id"],
+                            ReviewStageId = reader["rvw_stg_id"] == DBNull.Value ? 0 : (int)reader["rvw_stg_id"],
+                            ReviewStageName = reader["rvw_stg_nm"] == DBNull.Value ? string.Empty : reader["rvw_stg_nm"].ToString(),
+                            UnitName = reader["unitname"] == DBNull.Value ? string.Empty : reader["unitname"].ToString(),
+                            DepartmentName = reader["deptname"] == DBNull.Value ? string.Empty : reader["deptname"].ToString(),
+                            LocationName = reader["locname"] == DBNull.Value ? string.Empty : reader["locname"].ToString(),
+                            NoOfParticipants = reader["total_emp"] == DBNull.Value ? 0 : (long)reader["total_emp"],
+                        });
+                    }
+                }
+                await conn.CloseAsync();
+            }
+            return participantsList;
+        }
+        public async Task<List<ParticipationSummary>> GetParticipationSummaryByReviewSessionIdnDepartmentIdnUnitIdAsync(int reviewSessionId, int departmentId, int unitId)
+        {
+            List<ParticipationSummary> participantsList = new List<ParticipationSummary>();
+            StringBuilder sb = new StringBuilder();
+            sb.Append("SELECT r.rvw_sxn_id, l.locname, d.deptname, u.unitname, ");
+            sb.Append("r.rvw_stg_id, g.rvw_stg_nm, COUNT(rvw_hdr_id) as total_emp  ");
+            sb.Append("FROM public.pmsrvwhdrs r ");
+            sb.Append("INNER JOIN pmssttstgs g ON g.rvw_stg_id = r.rvw_stg_id ");
+            sb.Append("INNER JOIN pmsrvwsxns s ON s.rvw_sxn_id = r.rvw_sxn_id ");
+            sb.Append("INNER JOIN public.gst_units u ON u.unitqk = r.unit_cd ");
+            sb.Append("INNER JOIN public.gst_depts d ON d.deptqk = r.dept_cd ");
+            sb.Append("INNER JOIN public.gst_locs l ON l.locqk = r.loc_id ");
+            sb.Append("WHERE (r.rvw_sxn_id = @rvw_sxn_id) ");
+            sb.Append("AND (r.dept_cd = @dept_id) ");
+            sb.Append("AND (r.unit_cd = @unit_id) ");
+            sb.Append("GROUP BY r.rvw_sxn_id, l.locname, d.deptname, ");
+            sb.Append("u.unitname, r.rvw_stg_id, g.rvw_stg_nm ");
+            sb.Append("ORDER BY r.rvw_sxn_id, l.locname, d.deptname, u.unitname;");
+            string query = sb.ToString();
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
+            {
+                await conn.OpenAsync();
+                // Retrieve all rows
+                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+                {
+                    var rvw_sxn_id = cmd.Parameters.Add("@rvw_sxn_id", NpgsqlDbType.Integer);
+                    var dept_id = cmd.Parameters.Add("@dept_id", NpgsqlDbType.Integer);
+                    var unit_id = cmd.Parameters.Add("@unit_id", NpgsqlDbType.Integer);
+                    await cmd.PrepareAsync();
+                    rvw_sxn_id.Value = reviewSessionId;
+                    dept_id.Value = departmentId;
+                    unit_id.Value = unitId;
+
+                    var reader = await cmd.ExecuteReaderAsync();
+                    while (await reader.ReadAsync())
+                    {
+                        participantsList.Add(new ParticipationSummary()
+                        {
+                            ReviewSessionId = reader["rvw_sxn_id"] == DBNull.Value ? 0 : (int)reader["rvw_sxn_id"],
+                            ReviewStageId = reader["rvw_stg_id"] == DBNull.Value ? 0 : (int)reader["rvw_stg_id"],
+                            ReviewStageName = reader["rvw_stg_nm"] == DBNull.Value ? string.Empty : reader["rvw_stg_nm"].ToString(),
+                            UnitName = reader["unitname"] == DBNull.Value ? string.Empty : reader["unitname"].ToString(),
+                            DepartmentName = reader["deptname"] == DBNull.Value ? string.Empty : reader["deptname"].ToString(),
+                            LocationName = reader["locname"] == DBNull.Value ? string.Empty : reader["locname"].ToString(),
+                            NoOfParticipants = reader["total_emp"] == DBNull.Value ? 0 : (long)reader["total_emp"],
+                        });
+                    }
+                }
+                await conn.CloseAsync();
+            }
+            return participantsList;
+        }
+
+        public async Task<List<ParticipationSummary>> GetParticipationSummaryByReviewSessionIdnLocationIdnUnitIdAsync(int reviewSessionId, int locationId, int unitId)
+        {
+            List<ParticipationSummary> participantsList = new List<ParticipationSummary>();
+            StringBuilder sb = new StringBuilder();
+            sb.Append("SELECT r.rvw_sxn_id, l.locname, d.deptname, u.unitname, ");
+            sb.Append("r.rvw_stg_id, g.rvw_stg_nm, COUNT(rvw_hdr_id) as total_emp  ");
+            sb.Append("FROM public.pmsrvwhdrs r ");
+            sb.Append("INNER JOIN pmssttstgs g ON g.rvw_stg_id = r.rvw_stg_id ");
+            sb.Append("INNER JOIN pmsrvwsxns s ON s.rvw_sxn_id = r.rvw_sxn_id ");
+            sb.Append("INNER JOIN public.gst_units u ON u.unitqk = r.unit_cd ");
+            sb.Append("INNER JOIN public.gst_depts d ON d.deptqk = r.dept_cd ");
+            sb.Append("INNER JOIN public.gst_locs l ON l.locqk = r.loc_id ");
+            sb.Append("WHERE (r.rvw_sxn_id = @rvw_sxn_id) ");
+            sb.Append("AND (r.loc_id = @loc_id) ");
+            sb.Append("AND (r.unit_cd = @unit_id) ");
+            sb.Append("GROUP BY r.rvw_sxn_id, l.locname, d.deptname, ");
+            sb.Append("u.unitname, r.rvw_stg_id, g.rvw_stg_nm ");
+            sb.Append("ORDER BY r.rvw_sxn_id, l.locname, d.deptname, u.unitname;");
+            string query = sb.ToString();
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
+            {
+                await conn.OpenAsync();
+                // Retrieve all rows
+                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+                {
+                    var rvw_sxn_id = cmd.Parameters.Add("@rvw_sxn_id", NpgsqlDbType.Integer);
+                    var loc_id = cmd.Parameters.Add("@loc_id", NpgsqlDbType.Integer);
+                    var unit_id = cmd.Parameters.Add("@unit_id", NpgsqlDbType.Integer);
+                    await cmd.PrepareAsync();
+                    rvw_sxn_id.Value = reviewSessionId;
+                    loc_id.Value = locationId;
+                    unit_id.Value = unitId;
+
+                    var reader = await cmd.ExecuteReaderAsync();
+                    while (await reader.ReadAsync())
+                    {
+                        participantsList.Add(new ParticipationSummary()
+                        {
+                            ReviewSessionId = reader["rvw_sxn_id"] == DBNull.Value ? 0 : (int)reader["rvw_sxn_id"],
+                            ReviewStageId = reader["rvw_stg_id"] == DBNull.Value ? 0 : (int)reader["rvw_stg_id"],
+                            ReviewStageName = reader["rvw_stg_nm"] == DBNull.Value ? string.Empty : reader["rvw_stg_nm"].ToString(),
+                            UnitName = reader["unitname"] == DBNull.Value ? string.Empty : reader["unitname"].ToString(),
+                            DepartmentName = reader["deptname"] == DBNull.Value ? string.Empty : reader["deptname"].ToString(),
+                            LocationName = reader["locname"] == DBNull.Value ? string.Empty : reader["locname"].ToString(),
+                            NoOfParticipants = reader["total_emp"] == DBNull.Value ? 0 : (long)reader["total_emp"],
+                        });
+                    }
+                }
+                await conn.CloseAsync();
+            }
+            return participantsList;
+        }
+        public async Task<List<ParticipationSummary>> GetParticipationSummaryByReviewSessionIdnUnitIdAsync(int reviewSessionId, int unitId)
+        {
+            List<ParticipationSummary> participantsList = new List<ParticipationSummary>();
+            StringBuilder sb = new StringBuilder();
+            sb.Append("SELECT r.rvw_sxn_id, l.locname, d.deptname, u.unitname, ");
+            sb.Append("r.rvw_stg_id, g.rvw_stg_nm, COUNT(rvw_hdr_id) as total_emp  ");
+            sb.Append("FROM public.pmsrvwhdrs r ");
+            sb.Append("INNER JOIN pmssttstgs g ON g.rvw_stg_id = r.rvw_stg_id ");
+            sb.Append("INNER JOIN pmsrvwsxns s ON s.rvw_sxn_id = r.rvw_sxn_id ");
+            sb.Append("INNER JOIN public.gst_units u ON u.unitqk = r.unit_cd ");
+            sb.Append("INNER JOIN public.gst_depts d ON d.deptqk = r.dept_cd ");
+            sb.Append("INNER JOIN public.gst_locs l ON l.locqk = r.loc_id ");
+            sb.Append("WHERE (r.rvw_sxn_id = @rvw_sxn_id) ");
+            sb.Append("AND (r.unit_cd = @unit_id) ");
+            sb.Append("GROUP BY r.rvw_sxn_id, l.locname, d.deptname, ");
+            sb.Append("u.unitname, r.rvw_stg_id, g.rvw_stg_nm ");
+            sb.Append("ORDER BY r.rvw_sxn_id, l.locname, d.deptname, u.unitname;");
+            string query = sb.ToString();
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
+            {
+                await conn.OpenAsync();
+                // Retrieve all rows
+                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+                {
+                    var rvw_sxn_id = cmd.Parameters.Add("@rvw_sxn_id", NpgsqlDbType.Integer);
+                    var unit_id = cmd.Parameters.Add("@unit_id", NpgsqlDbType.Integer);
+                    await cmd.PrepareAsync();
+                    rvw_sxn_id.Value = reviewSessionId;
+                    unit_id.Value = unitId;
+
+                    var reader = await cmd.ExecuteReaderAsync();
+                    while (await reader.ReadAsync())
+                    {
+                        participantsList.Add(new ParticipationSummary()
+                        {
+                            ReviewSessionId = reader["rvw_sxn_id"] == DBNull.Value ? 0 : (int)reader["rvw_sxn_id"],
+                            ReviewStageId = reader["rvw_stg_id"] == DBNull.Value ? 0 : (int)reader["rvw_stg_id"],
+                            ReviewStageName = reader["rvw_stg_nm"] == DBNull.Value ? string.Empty : reader["rvw_stg_nm"].ToString(),
+                            UnitName = reader["unitname"] == DBNull.Value ? string.Empty : reader["unitname"].ToString(),
+                            DepartmentName = reader["deptname"] == DBNull.Value ? string.Empty : reader["deptname"].ToString(),
+                            LocationName = reader["locname"] == DBNull.Value ? string.Empty : reader["locname"].ToString(),
+                            NoOfParticipants = reader["total_emp"] == DBNull.Value ? 0 : (long)reader["total_emp"],
+                        });
+                    }
+                }
+                await conn.CloseAsync();
+            }
+            return participantsList;
+        }
+
+        #endregion
+
+        #region Appraisal Participants Count Action Methods
+        public async Task<long> GetParticipantsCountByReviewSessionIdAsync(int reviewSessionId)
+        {
+            long total = 0;
+            StringBuilder sb = new StringBuilder();
+            sb.Append("SELECT COUNT(rvw_hdr_id) as total_emp ");
+            sb.Append("FROM public.pmsrvwhdrs r ");
+            sb.Append("WHERE r.rvw_sxn_id = @rvw_sxn_id; ");
+            string query = sb.ToString();
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
+            {
+                await conn.OpenAsync();
+                // Retrieve all rows
+                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+                {
+                    var rvw_sxn_id = cmd.Parameters.Add("@rvw_sxn_id", NpgsqlDbType.Integer);
+                    await cmd.PrepareAsync();
+                    rvw_sxn_id.Value = reviewSessionId;
+                    var obj = await cmd.ExecuteScalarAsync();
+                    total = (long)obj;
+                }
+                await conn.CloseAsync();
+            }
+            return total;
+        }
+        public async Task<long> GetParticipantsCountByReviewSessionIdnLocationIdAsync(int reviewSessionId, int locationId)
+        {
+            long total = 0;
+            StringBuilder sb = new StringBuilder();
+            sb.Append("SELECT COUNT(rvw_hdr_id) as total_emp ");
+            sb.Append("FROM public.pmsrvwhdrs r ");
+            sb.Append("WHERE (r.rvw_sxn_id = @rvw_sxn_id) ");
+            sb.Append("AND (r.loc_id = @loc_id);");
+            string query = sb.ToString();
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
+            {
+                await conn.OpenAsync();
+                // Retrieve all rows
+                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+                {
+                    var rvw_sxn_id = cmd.Parameters.Add("@rvw_sxn_id", NpgsqlDbType.Integer);
+                    var loc_id = cmd.Parameters.Add("@loc_id", NpgsqlDbType.Integer);
+                    await cmd.PrepareAsync();
+                    rvw_sxn_id.Value = reviewSessionId;
+                    loc_id.Value = locationId;
+                    var obj = await cmd.ExecuteScalarAsync();
+                    total = (long)obj;
+                }
+                await conn.CloseAsync();
+            }
+            return total;
+        }
+        public async Task<long> GetParticipantsCountByReviewSessionIdnLocationIdnDepartmentIdAsync(int reviewSessionId, int locationId, int departmentId)
+        {
+            long total = 0;
+            StringBuilder sb = new StringBuilder();
+            sb.Append("SELECT COUNT(rvw_hdr_id) as total_emp ");
+            sb.Append("FROM public.pmsrvwhdrs r ");
+            sb.Append("WHERE (r.rvw_sxn_id = @rvw_sxn_id) ");
+            sb.Append("AND (r.loc_id = @loc_id) ");
+            sb.Append("AND (r.dept_cd = @dept_id);");
+            string query = sb.ToString();
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
+            {
+                await conn.OpenAsync();
+                // Retrieve all rows
+                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+                {
+                    var rvw_sxn_id = cmd.Parameters.Add("@rvw_sxn_id", NpgsqlDbType.Integer);
+                    var loc_id = cmd.Parameters.Add("@loc_id", NpgsqlDbType.Integer);
+                    var dept_id = cmd.Parameters.Add("@dept_id", NpgsqlDbType.Integer);
+                    await cmd.PrepareAsync();
+                    rvw_sxn_id.Value = reviewSessionId;
+                    loc_id.Value = locationId;
+                    dept_id.Value = departmentId;
+                    var obj = await cmd.ExecuteScalarAsync();
+                    total = (long)obj;
+                }
+                await conn.CloseAsync();
+            }
+            return total;
+        }
+        public async Task<long> GetParticipantsCountByReviewSessionIdnLocationIdnDepartmentIdnUnitIdAsync(int reviewSessionId, int locationId, int departmentId, int unitId)
+        {
+            long total = 0;
+            StringBuilder sb = new StringBuilder();
+            sb.Append("SELECT COUNT(rvw_hdr_id) as total_emp ");
+            sb.Append("FROM public.pmsrvwhdrs r ");
+            sb.Append("WHERE (r.rvw_sxn_id = @rvw_sxn_id) ");
+            sb.Append("AND (r.loc_id = @loc_id) ");
+            sb.Append("AND (r.dept_cd = @dept_id);");
+            sb.Append("AND (r.unit_cd = @unit_id);");
+            string query = sb.ToString();
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
+            {
+                await conn.OpenAsync();
+                // Retrieve all rows
+                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+                {
+                    var rvw_sxn_id = cmd.Parameters.Add("@rvw_sxn_id", NpgsqlDbType.Integer);
+                    var loc_id = cmd.Parameters.Add("@loc_id", NpgsqlDbType.Integer);
+                    var dept_id = cmd.Parameters.Add("@dept_id", NpgsqlDbType.Integer);
+                    var unit_id = cmd.Parameters.Add("@unit_id", NpgsqlDbType.Integer);
+                    await cmd.PrepareAsync();
+                    rvw_sxn_id.Value = reviewSessionId;
+                    loc_id.Value = locationId;
+                    dept_id.Value = departmentId;
+                    unit_id.Value = unitId;
+                    var obj = await cmd.ExecuteScalarAsync();
+                    total = (long)obj;
+                }
+                await conn.CloseAsync();
+            }
+            return total;
+        }
+
+
+        public async Task<long> GetParticipantsCountByReviewSessionIdnDepartmentIdAsync(int reviewSessionId, int departmentId)
+        {
+            long total = 0;
+            StringBuilder sb = new StringBuilder();
+            sb.Append("SELECT COUNT(rvw_hdr_id) as total_emp ");
+            sb.Append("FROM public.pmsrvwhdrs r ");
+            sb.Append("WHERE (r.rvw_sxn_id = @rvw_sxn_id) ");
+            sb.Append("AND (r.dept_cd = @dept_id);");
+            string query = sb.ToString();
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
+            {
+                await conn.OpenAsync();
+                // Retrieve all rows
+                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+                {
+                    var rvw_sxn_id = cmd.Parameters.Add("@rvw_sxn_id", NpgsqlDbType.Integer);
+                    var dept_id = cmd.Parameters.Add("@dept_id", NpgsqlDbType.Integer);
+                    await cmd.PrepareAsync();
+                    rvw_sxn_id.Value = reviewSessionId;
+                    dept_id.Value = departmentId;
+                    var obj = await cmd.ExecuteScalarAsync();
+                    total = (long)obj;
+                }
+                await conn.CloseAsync();
+            }
+            return total;
+        }
+        public async Task<long> GetParticipantsCountByReviewSessionIdnDepartmentIdnUnitIdAsync(int reviewSessionId, int departmentId, int unitId)
+        {
+            long total = 0;
+            StringBuilder sb = new StringBuilder();
+            sb.Append("SELECT COUNT(rvw_hdr_id) as total_emp ");
+            sb.Append("FROM public.pmsrvwhdrs r ");
+            sb.Append("WHERE (r.rvw_sxn_id = @rvw_sxn_id) ");
+            sb.Append("AND (r.dept_cd = @dept_id);");
+            sb.Append("AND (r.unit_cd = @unit_id);");
+            string query = sb.ToString();
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
+            {
+                await conn.OpenAsync();
+                // Retrieve all rows
+                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+                {
+                    var rvw_sxn_id = cmd.Parameters.Add("@rvw_sxn_id", NpgsqlDbType.Integer);
+                    var dept_id = cmd.Parameters.Add("@dept_id", NpgsqlDbType.Integer);
+                    var unit_id = cmd.Parameters.Add("@unit_id", NpgsqlDbType.Integer);
+                    await cmd.PrepareAsync();
+                    rvw_sxn_id.Value = reviewSessionId;
+                    dept_id.Value = departmentId;
+                    unit_id.Value = unitId;
+                    var obj = await cmd.ExecuteScalarAsync();
+                    total = (long)obj;
+                }
+                await conn.CloseAsync();
+            }
+            return total;
+        }
+
+
+        public async Task<long> GetParticipantsCountByReviewSessionIdnLocationIdnUnitIdAsync(int reviewSessionId, int locationId, int unitId)
+        {
+            long total = 0;
+            StringBuilder sb = new StringBuilder();
+            sb.Append("SELECT COUNT(rvw_hdr_id) as total_emp ");
+            sb.Append("FROM public.pmsrvwhdrs r ");
+            sb.Append("WHERE (r.rvw_sxn_id = @rvw_sxn_id) ");
+            sb.Append("AND (r.loc_id = @loc_id) ");
+            sb.Append("AND (r.unit_cd = @unit_id);");
+            string query = sb.ToString();
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
+            {
+                await conn.OpenAsync();
+                // Retrieve all rows
+                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+                {
+                    var rvw_sxn_id = cmd.Parameters.Add("@rvw_sxn_id", NpgsqlDbType.Integer);
+                    var loc_id = cmd.Parameters.Add("@loc_id", NpgsqlDbType.Integer);
+                    var unit_id = cmd.Parameters.Add("@unit_id", NpgsqlDbType.Integer);
+                    await cmd.PrepareAsync();
+                    rvw_sxn_id.Value = reviewSessionId;
+                    loc_id.Value = locationId;
+                    unit_id.Value = unitId;
+                    var obj = await cmd.ExecuteScalarAsync();
+                    total = (long)obj;
+                }
+                await conn.CloseAsync();
+            }
+            return total;
+        }
+        public async Task<long> GetParticipantsCountByReviewSessionIdnUnitIdAsync(int reviewSessionId, int unitId)
+        {
+            long total = 0;
+            StringBuilder sb = new StringBuilder();
+            sb.Append("SELECT COUNT(rvw_hdr_id) as total_emp ");
+            sb.Append("FROM public.pmsrvwhdrs r ");
+            sb.Append("WHERE (r.rvw_sxn_id = @rvw_sxn_id) ");
+            sb.Append("AND (r.unit_cd = @unit_id);");
+            string query = sb.ToString();
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
+            {
+                await conn.OpenAsync();
+                // Retrieve all rows
+                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+                {
+                    var rvw_sxn_id = cmd.Parameters.Add("@rvw_sxn_id", NpgsqlDbType.Integer);
+                    var unit_id = cmd.Parameters.Add("@unit_id", NpgsqlDbType.Integer);
+                    await cmd.PrepareAsync();
+                    rvw_sxn_id.Value = reviewSessionId;
+                    unit_id.Value = unitId;
+                    var obj = await cmd.ExecuteScalarAsync();
+                    total = (long)obj;
+                }
+                await conn.CloseAsync();
+            }
+            return total;
         }
 
         #endregion

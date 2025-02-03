@@ -627,32 +627,13 @@ namespace IntranetPortal.Base.Services
         public async Task<bool> DeleteAssetAsync(string assetId, string deletedBy)
         {
             if (string.IsNullOrWhiteSpace(assetId)) { throw new ArgumentNullException(nameof(assetId), "Required parameter [AssetID] is missing."); }
-            bool IsSuccessful = false;
-            try
-            {
-                IsSuccessful = await _assetRepository.DeletePermanentlyAsync(assetId);
-            }
-            catch (Exception ex)
-            {
-
-                throw new Exception(ex.Message);
-            }
-            return IsSuccessful;
+            return await _assetRepository.DeletePermanentlyAsync(assetId);
         }
 
         public async Task<bool> UpdateAssetAsync(Asset asset)
         {
             if (asset == null) { throw new ArgumentNullException(nameof(asset), "Required parameter [Asset] is missing."); }
-            bool IsSuccessful = false;
-            try
-            {
-                IsSuccessful = await _assetRepository.EditAsync(asset);
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
-            return IsSuccessful;
+            return await _assetRepository.EditAsync(asset);
         }
         #endregion
 

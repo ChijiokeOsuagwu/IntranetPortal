@@ -68,8 +68,8 @@ namespace IntranetPortal.Data.Repositories.SecurityRepositories
             var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
             StringBuilder sb = new StringBuilder();
             sb.Append("INSERT INTO public.sct_ntt_pms(usr_acct_id, ");
-            sb.Append("asst_dvsn_id, ntt_typ, loc_id) VALUES ");
-            sb.Append("(@usr_acct_id, @asst_dvsn_id, @ntt_typ, @loc_id);");
+            sb.Append("asst_dvsn_id, ntt_typ) VALUES ");
+            sb.Append("(@usr_acct_id, @asst_dvsn_id, @ntt_typ);");
             string query = sb.ToString();
 
             await conn.OpenAsync();
@@ -79,12 +79,10 @@ namespace IntranetPortal.Data.Repositories.SecurityRepositories
                 var usr_acct_id = cmd.Parameters.Add("@usr_acct_id", NpgsqlDbType.Text);
                 var ntt_typ = cmd.Parameters.Add("@ntt_typ", NpgsqlDbType.Integer);
                 var asst_dvsn_id = cmd.Parameters.Add("@asst_dvsn_id", NpgsqlDbType.Integer);
-                var loc_id = cmd.Parameters.Add("@loc_id", NpgsqlDbType.Integer);
                 cmd.Prepare();
                 usr_acct_id.Value = assetPermission.UserID;
                 ntt_typ.Value = (int)assetPermission.PermissionType;
                 asst_dvsn_id.Value = assetPermission.AssetDivisionID;
-                loc_id.Value = assetPermission.LocationID;
 
                 rows = await cmd.ExecuteNonQueryAsync();
                 await conn.CloseAsync();
