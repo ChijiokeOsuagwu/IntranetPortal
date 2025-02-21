@@ -1,0 +1,107 @@
+﻿@model IntranetPortal.Areas.WSP.Models.WorkItemNotesViewModel
+    <div class="container">
+        <h4 class="mb-1">Notes</h4>
+        <hr />
+        <div class="row">
+            <div class="col-md-2">
+                @if (Model.SourcePage == "mtf")
+                {
+                    <a asp-area="WSP" asp-Controller="Workspace" asp-action="MyTaskFolders" title="Go Back" class="btn btn-sm btn-dark text-white fw-bold">
+                        <i class="bi bi-backspace text-white" style="margin-right:2px;"></i><span class="text-white">Back</span>
+                    </a>
+                }
+                else if (Model.SourcePage == "ttf")
+                {
+                    <a asp-area="WSP" asp-Controller="Workspace" asp-action="TeamTaskFolders" title="Go Back" class="btn btn-sm btn-outline-light text-dark">
+                        <i class="bi bi-backspace fw-bolder" style="font-size: 1.0rem;"></i>&nbsp;<span class="fw-bold ml-1" style="font-size: 0.9rem;">Back</span>
+                    </a>
+                }
+                else if (Model.SourcePage == "mtl")
+                {
+                <a asp-area="WSP" asp-Controller="Workspace" asp-action="MyTaskList" asp-route-id="@Model.FolderID" title="Go Back" class="btn btn-sm btn-outline-light text-dark">
+                    <i class="bi bi-backspace fw-bolder" style="font-size: 1.0rem;"></i>&nbsp;<span class="fw-bold ml-1" style="font-size: 0.9rem;">Back</span>
+                </a>
+                }
+                else
+                {
+                <a asp-area="WSP" asp-Controller="Workspace" asp-action="Index" title="Go Back" class="btn btn-sm btn-outline-light text-dark">
+                    <i class="bi bi-backspace" style="font-size: 1.0rem; margin-right:2px;"></i><span class="text-white">Back</span>
+                </a>
+                }
+            </div>
+            <div class="col-md-6">
+                <div id="div-error" class="text-danger"></div>
+                <textarea id="note_content" type="text" class="form-control" placeholder="Enter Note Here ..." autocomplete="off" style="max-width:1300px; max-height:30px; border:1px solid #E2E0E0; border-radius:3px; " aria-label="Enter Note Here ..."></textarea>
+            </div>
+            <div class="col-md-4">
+                <button class="btn btn-sm btn-dark text-white" type="button" id="addnote" style="width:100px" onclick="addNote()">Save Note</button>
+            </div>
+        </div>
+        <div class="row">
+            <div>
+                @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+                {
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <i class="bi bi-x-circle"></i>
+                        <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                }
+            </div>
+            <div class="row">
+                @if (Model == null || Model.NoteList == null || Model.NoteList.Count < 1)
+                {
+                    <div class="alert alert-info fade show" role="alert">
+                        <i class="bi bi-info-circle"></i>
+                        <span class="fw-bold">No record was found.</span>
+                    </div>
+                }
+                else
+                {
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="card">
+                                <div class="card-body">
+                                </div>
+                                <div class="comment-widgets scrollable">
+                                    @foreach (var msg in Model.NoteList)
+                                    {
+                                        <!-- Comment Row -->
+                                        <div class="d-flex flex-row comment-row mt-0">
+                                            <div class="p-2">
+                                                <img src="~/img/user_icon_128px.png" alt="Sender Image" width="50" class="rounded-circle">
+                                            </div>
+                                            <div class="comment-text w-100">
+                                                <h6 class="font-medium">@msg.NoteWrittenBy</h6>
+                                                <span class="mb-2 d-block font-bold">@msg.NoteContent</span>
+                                                <div class="comment-footer">
+                                                    @if (msg.NoteTime != null)
+                                                    {
+                                                        <span class="text-muted">@msg.NoteTime.Value.ToLongDateString() @msg.NoteTime.Value.ToLongTimeString()</span>
+                                                    }
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+        <input type="hidden" id="folder_id" asp-for="FolderID" />
+        <input type="hidden" id="task_id" asp-for="TaskID" />
+        <input type="hidden" id="project_id" asp-for="ProjectID" />
+        <input type="hidden" id="note_type" asp-for="NoteType" />
+        <input type="hidden" asp-for="LoggedInEmployeeID" />
+        <input type="hidden" id="from_name" asp-for="LoggedInEmployeeName" />
+        <input type="hidden" asp-for="OwnerID" />
+        <input type="hidden" asp-for="OwnerName" />
+        <input type="hidden" id="source_page" asp-for="SourcePage" />
+    </div>
+
+@section Scripts{
+    <script src="~/js/wsp.js"></script>
+}
+

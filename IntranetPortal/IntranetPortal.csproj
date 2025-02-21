@@ -31,6 +31,7 @@
     <Folder Include="Areas\UserAdministration\Data\" />
     <Folder Include="Areas\WKS\Data\" />
     <Folder Include="Areas\WKS\Views\Shared\" />
+    <Folder Include="Areas\WSP\Data\" />
     <Folder Include="wwwroot\uploads\asm\" />
     <Folder Include="wwwroot\uploads\clm\imgs\" />
     <Folder Include="wwwroot\uploads\clm\docs\" />

@@ -12,5 +12,6 @@ namespace IntranetPortal.Base.Models.BaseModels
         public string NoteWrittenBy { get; set; }
         public bool IsCancelled { get; set; }
         public DateTime? CancelledOn { get; set; }
+        public string CancelledBy { get; set; }
     }
 }

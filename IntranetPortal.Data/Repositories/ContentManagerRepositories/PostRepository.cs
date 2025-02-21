@@ -120,6 +120,7 @@ namespace IntranetPortal.Data.Repositories.ContentManagerRepositories
                         PostTypeId = reader["typ_id"] == DBNull.Value ? -1 : (int)reader["typ_id"],
                         HasComments = (long)reader["hs_cm"] < 1 ? false : true,
                         HasMedia = (long)reader["hs_md"] < 1 ? false : true,
+                        PostDetailsRaw = reader["dtl_rw"] == DBNull.Value ? "" : reader["dtl_rw"].ToString(),
                     });
                 }
             }
@@ -163,6 +164,7 @@ namespace IntranetPortal.Data.Repositories.ContentManagerRepositories
                         PostTitle = reader["title"] == DBNull.Value ? String.Empty : reader["title"].ToString(),
                         PostSummary = reader["summary"] == DBNull.Value ? String.Empty : reader["summary"].ToString(),
                         PostDetails = reader["details"] == DBNull.Value ? string.Empty : reader["details"].ToString(),
+                        PostDetailsRaw = reader["dtl_rw"] == DBNull.Value ? "" : reader["dtl_rw"].ToString(),
                         ImagePath = reader["imgp"] == DBNull.Value ? String.Empty : reader["imgp"].ToString(),
                         ImageFullPath = reader["flpth"] == DBNull.Value ? string.Empty : reader["flpth"].ToString(),
                         ModifiedBy = reader["mdby"] == DBNull.Value ? string.Empty : reader["mdby"].ToString(),
@@ -218,6 +220,7 @@ namespace IntranetPortal.Data.Repositories.ContentManagerRepositories
                         PostTitle = reader["title"] == DBNull.Value ? String.Empty : reader["title"].ToString(),
                         PostSummary = reader["summary"] == DBNull.Value ? String.Empty : reader["summary"].ToString(),
                         PostDetails = reader["details"] == DBNull.Value ? string.Empty : reader["details"].ToString(),
+                        PostDetailsRaw = reader["dtl_rw"] == DBNull.Value ? "" : reader["dtl_rw"].ToString(),
                         ImagePath = reader["imgp"] == DBNull.Value ? String.Empty : reader["imgp"].ToString(),
                         ImageFullPath = reader["flpth"] == DBNull.Value ? string.Empty : reader["flpth"].ToString(),
                         ModifiedBy = reader["mdby"] == DBNull.Value ? string.Empty : reader["mdby"].ToString(),
@@ -275,6 +278,7 @@ namespace IntranetPortal.Data.Repositories.ContentManagerRepositories
                             PostTitle = reader["title"] == DBNull.Value ? string.Empty : reader["title"].ToString(),
                             PostSummary = reader["summary"] == DBNull.Value ? string.Empty : reader["summary"].ToString(),
                             PostDetails = reader["details"] == DBNull.Value ? string.Empty : reader["details"].ToString(),
+                            PostDetailsRaw = reader["dtl_rw"] == DBNull.Value ? "" : reader["dtl_rw"].ToString(),
                             ImagePath = reader["imgp"] == DBNull.Value ? string.Empty : reader["imgp"].ToString(),
                             ImageFullPath = reader["flpth"] == DBNull.Value ? string.Empty : reader["flpth"].ToString(),
                             ModifiedBy = reader["mdby"] == DBNull.Value ? string.Empty : reader["mdby"].ToString(),
@@ -333,6 +337,7 @@ namespace IntranetPortal.Data.Repositories.ContentManagerRepositories
                         PostTitle = reader["title"] == DBNull.Value ? String.Empty : reader["title"].ToString(),
                         PostSummary = reader["summary"] == DBNull.Value ? String.Empty : reader["summary"].ToString(),
                         PostDetails = reader["details"] == DBNull.Value ? string.Empty : reader["details"].ToString(),
+                        PostDetailsRaw = reader["dtl_rw"] == DBNull.Value ? "" : reader["dtl_rw"].ToString(),
                         ImagePath = reader["imgp"] == DBNull.Value ? String.Empty : reader["imgp"].ToString(),
                         ImageFullPath = reader["flpth"] == DBNull.Value ? string.Empty : reader["flpth"].ToString(),
                         ModifiedBy = reader["mdby"] == DBNull.Value ? string.Empty : reader["mdby"].ToString(),
@@ -344,7 +349,6 @@ namespace IntranetPortal.Data.Repositories.ContentManagerRepositories
                         PostTypeId = reader["typ_id"] == DBNull.Value ? -1 : (int)reader["typ_id"],
                         HasComments = (long)reader["hs_cm"] < 1 ? false : true,
                         HasMedia = (long)reader["hs_md"] < 1 ? false : true,
-                        PostDetailsRaw = reader["dtl_rw"] == DBNull.Value ? String.Empty : reader["dtl_rw"].ToString(),
                     });
                 }
             }
@@ -392,6 +396,7 @@ namespace IntranetPortal.Data.Repositories.ContentManagerRepositories
                             PostTitle = reader["title"] == DBNull.Value ? string.Empty : reader["title"].ToString(),
                             PostSummary = reader["summary"] == DBNull.Value ? string.Empty : reader["summary"].ToString(),
                             PostDetails = reader["details"] == DBNull.Value ? string.Empty : reader["details"].ToString(),
+                            PostDetailsRaw = reader["dtl_rw"] == DBNull.Value ? "" : reader["dtl_rw"].ToString(),
                             ImagePath = reader["imgp"] == DBNull.Value ? string.Empty : reader["imgp"].ToString(),
                             ImageFullPath = reader["flpth"] == DBNull.Value ? string.Empty : reader["flpth"].ToString(),
                             ModifiedBy = reader["mdby"] == DBNull.Value ? string.Empty : reader["mdby"].ToString(),
@@ -451,6 +456,7 @@ namespace IntranetPortal.Data.Repositories.ContentManagerRepositories
                             PostTitle = reader["title"] == DBNull.Value ? string.Empty : reader["title"].ToString(),
                             PostSummary = reader["summary"] == DBNull.Value ? string.Empty : reader["summary"].ToString(),
                             PostDetails = reader["details"] == DBNull.Value ? string.Empty : reader["details"].ToString(),
+                            PostDetailsRaw = reader["dtl_rw"] == DBNull.Value ? "" : reader["dtl_rw"].ToString(),
                             ImagePath = reader["imgp"] == DBNull.Value ? string.Empty : reader["imgp"].ToString(),
                             ImageFullPath = reader["flpth"] == DBNull.Value ? string.Empty : reader["flpth"].ToString(),
                             ModifiedBy = reader["mdby"] == DBNull.Value ? string.Empty : reader["mdby"].ToString(),

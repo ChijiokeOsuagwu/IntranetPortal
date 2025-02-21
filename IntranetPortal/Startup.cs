@@ -45,7 +45,6 @@ namespace IntranetPortal
 
             services.AddControllersWithViews();
 
-            
 
             services.Configure<KestrelServerOptions>(options =>
             {
@@ -97,6 +96,11 @@ namespace IntranetPortal
                     name: "WKS",
                 areaName: "WKS",
                  pattern: "WKS/{controller=Home}/{action=Index}/{id?}");
+
+                endpoints.MapAreaControllerRoute(
+                    name: "WSP",
+                areaName: "WSP",
+                 pattern: "WSP/{controller=Home}/{action=Index}/{id?}");
 
                 endpoints.MapAreaControllerRoute(
                     name: "AssetManager",

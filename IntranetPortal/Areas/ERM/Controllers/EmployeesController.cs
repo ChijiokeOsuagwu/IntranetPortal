@@ -406,6 +406,90 @@ namespace IntranetPortal.Areas.ERM.Controllers
             }
             return View(model);
         }
+       public async Task<IActionResult> Info(string id, string src)
+        {
+            EmployeeProfileViewModel model = new EmployeeProfileViewModel();
+            model.Source = src;
+            try
+            {
+                if (string.IsNullOrWhiteSpace(id))
+                {
+                    var claims = HttpContext.User.Claims.ToList();
+                    id = claims?.Where(x => x.Type == ClaimTypes.NameIdentifier).Select(c => c.Value).SingleOrDefault();
+                }
+
+                Employee employee = new Employee();
+                employee = await _ermService.GetEmployeeByIdAsync(id);
+                if (employee != null)
+                {
+                    model.Address = employee.Address.ToUpper();
+                    model.CompanyName = employee.CompanyName.ToUpper();
+                    model.CurrentDesignation = employee.CurrentDesignation.ToUpper();
+                    model.DepartmentName = employee.DepartmentName.ToUpper();
+                    model.Email = employee.Email;
+                    model.EmployeeID = employee.EmployeeID;
+                    model.EmployeeNo1 = employee.EmployeeNo1.ToUpper();
+                    model.EmployeeNo2 = employee.EmployeeNo2.ToUpper();
+                    model.EmploymentStatus = employee.EmploymentStatus.ToUpper();
+                    model.FullName = employee.FullName.ToUpper();
+                    model.GeoPoliticalRegion = employee.GeoPoliticalRegion.ToUpper();
+                    model.ImagePath = employee.ImagePath;
+                    model.JobGrade = employee.JobGrade.ToUpper();
+                    model.LgaOfOrigin = employee.LgaOfOrigin.ToUpper();
+                    model.LocationName = employee.LocationName.ToUpper();
+                    model.MaritalStatus = employee.MaritalStatus.ToUpper();
+                    model.OfficialEmail = employee.OfficialEmail;
+                    model.PersonID = employee.PersonID;
+                    model.PhoneNo1 = employee.PhoneNo1;
+                    model.PhoneNo2 = employee.PhoneNo2;
+                    model.PlaceOfEngagement = employee.PlaceOfEngagement.ToUpper();
+                    model.Religion = employee.Religion.ToUpper();
+                    model.Sex = employee.Sex.ToUpper();
+                    model.StateOfOrigin = employee.StateOfOrigin.ToUpper();
+                    model.UnitName = employee.UnitName.ToUpper();
+
+                    if (employee.ConfirmationDate != null && employee.ConfirmationDate.HasValue)
+                    { model.ConfirmationDateFormatted = $"{employee.ConfirmationDate.Value.ToLongDateString()}".ToUpper(); }
+                    else { model.ConfirmationDateFormatted = string.Empty; }
+
+                    if (employee.DateOfLastPromotion != null && employee.DateOfLastPromotion.HasValue)
+                    { model.DateOfLastPromotionFormatted = $"{employee.DateOfLastPromotion.Value.ToLongDateString()}".ToUpper(); }
+                    else { model.DateOfLastPromotionFormatted = string.Empty; }
+
+                    if (employee.StartUpDate != null && employee.StartUpDate.HasValue)
+                    { model.StartUpDateFormatted = $"{employee.StartUpDate.Value.ToLongDateString()}".ToUpper(); }
+                    else { model.StartUpDateFormatted = string.Empty; }
+
+                    if (employee.BirthDay != null && employee.BirthDay > 0 && employee.BirthMonth != null && employee.BirthMonth > 0)
+                    {
+                        DateTime dateOfBirth = new DateTime(2020, employee.BirthMonth.Value, employee.BirthDay.Value);
+                        model.DateOfBirth = $"{dateOfBirth.ToString("MMMM")} {employee.BirthDay.Value.ToString()}".ToUpper();
+                    }
+
+                    if (employee.LengthOfService != null && employee.LengthOfService.Value > 0)
+                    {
+                        if (employee.LengthOfService.Value < 365) { model.LengthOfServiceFormatted = $"{employee.LengthOfService} days".ToUpper(); }
+                        else
+                        {
+                            model.LengthOfServiceFormatted = $"~ {employee.LengthOfService.Value / 365} years {employee.LengthOfService % 365} days".ToUpper();
+                        }
+                    }
+                    else { model.LengthOfServiceFormatted = "0 days".ToUpper(); }
+                }
+                else
+                {
+                    model.ViewModelErrorMessage = "No profile record was found for the selected staff.";
+                }
+            }
+            catch (Exception ex)
+            {
+                StringBuilder sb = new StringBuilder();
+                sb.AppendLine("Sorry an error was encountered while attempting to retrieve the record.");
+                sb.Append(ex.Message);
+                model.ViewModelErrorMessage = sb.ToString();
+            }
+            return View(model);
+        }
 
         [Authorize(Roles = "ERMMGAEMR, XYALLACCZ")]
         public async Task<IActionResult> Delete(string id)

@@ -1,0 +1,98 @@
+﻿@model IntranetPortal.Areas.WSP.Models.ManageTaskFolderViewModel
+@{
+    ViewData["Title"] = "OfficeManager | Workspace";
+}
+<div class="container">
+    <h4>Manage Task Folders</h4>
+    <hr />
+    <div class="card" style="max-width:600px">
+        <div class="card-header bg-info">
+            @if (Model.Id == 0)
+            {
+                <h4 class="text-white">New Task Folder</h4>
+            }
+            else
+            {
+                <h4 class="text-white">Edit Task Folder</h4>
+
+            }
+        </div>
+        <div class="card-body table-secondary">
+            @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bi bi-x-circle"></i>
+                    <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            @if (!String.IsNullOrEmpty(Model.ViewModelSuccessMessage))
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="bi bi-check-circle"></i>
+                    <span class="fw-bold">@Model.ViewModelSuccessMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            @if (!String.IsNullOrEmpty(Model.ViewModelWarningMessage))
+            {
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                    <i class="bi bi-exclamation-circle"></i>
+                    <span class="fw-bold">@Model.ViewModelWarningMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            <form asp-area="WSP" asp-controller="Workspace" asp-action="ManageTaskFolder" method="post" autocomplete="off">
+                <div class="row">
+                    <div class="col-md-12 mb-3">
+                        <label asp-for="Title" class="form-label text-dark fw-bold"></label>
+                        <input asp-for="Title" class="form-control fw-bold" autofocus>
+                        <div><span asp-validation-for="Title" class="text-danger"></span></div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="PeriodStartDate" class="form-label text-dark fw-bold"></label>
+                        <input asp-for="PeriodStartDate" class="form-control fw-bold" type="date" placeholder="dd-mm-yyyy" min="2020-01-01" max="2060-12-31">
+                        <div><span asp-validation-for="PeriodStartDate" class="text-danger"></span></div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="PeriodEndDate" class="form-label text-dark fw-bold"></label>
+                        <input asp-for="PeriodEndDate" class="form-control fw-bold" type="date" placeholder="dd-mm-yyyy" min="2020-01-01" max="2060-12-31">
+                        <div><span asp-validation-for="PeriodEndDate" class="text-danger"></span></div>
+                    </div>
+                </div>
+                <div class="col-md-12 text-end">
+                    @if (Model.SourcePage == "ttf")
+                    {
+                        <a asp-area="WSP" asp-controller="Workspace" asp-action="TeamTaskFolders" asp-route-id="@Model.OwnerId" class="btn btn-sm btn-dark ml-1" style="width:100px" title="Return to Asset List">
+                            <span class="text-white">Back</span>
+                        </a>
+                    }
+                    else if (Model.SourcePage == "mtf")
+                    {
+                        <a asp-area="WSP" asp-controller="Workspace" asp-action="MyTaskFolders" class="btn btn-sm btn-dark ml-1" style="width:100px">
+                            <span class="text-white">Back</span>
+                        </a>
+                    }
+                    else
+                    {
+                        <a asp-area="WSP" asp-controller="Workspace" asp-action="MyTaskFolders" class="btn btn-sm btn-dark ml-1" style="width:100px">
+                            <span class="text-white">Back</span>
+                        </a>
+                    }
+                    <a asp-area="WSP" asp-controller="Workspace" asp-action="ManageTaskFolder" asp-route-id="@Model.Id" class="btn btn-sm btn-warning" style="width:100px" title="Clear">
+                        <span class="text-white">Clear</span>
+                    </a>
+                    <button type="submit" class="btn btn-sm btn-info" title="Save" style="width:150px"><span class="text-white">Save</span></button>
+                </div>
+                <input type="hidden" asp-for="Id" />
+                <input type="hidden" asp-for="OwnerId" />
+                <input type="hidden" asp-for="SourcePage" />
+            </form>
+        </div>
+    </div>
+</div>
+@section Scripts{
+
+}

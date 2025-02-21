@@ -429,15 +429,6 @@ namespace IntranetPortal.Areas.PMS.Controllers
                 }
                 else { model.ParticipantsInPercentage = "0%"; model.NonParticipantsInPercentage = "100%"; }
 
-
-
-                //if (model.NoOfNonParticipants > 0)
-                //{
-                //    decimal percentage_non_participants = (model.NoOfNonParticipants / model.TotalNoOfActiveEmployees) * 100;
-                //    model.NonParticipantsInPercentage = $"{Math.Round(percentage_non_participants)}%";
-                //}
-                //else { model.NonParticipantsInPercentage = "0%"; }
-
                 var participation_summary = await _performanceService.GetAppraisalParticipationSummary(model.Id, model.Ld, model.Dd, model.Ud);
                 if (participation_summary != null && participation_summary.Count > 0)
                 {
@@ -601,7 +592,7 @@ namespace IntranetPortal.Areas.PMS.Controllers
             model.Ld = ld ?? 0;
             model.Dd = dd ?? 0;
             model.Ud = ud ?? 0;
-            string fileName = $"Participation Summary Report {DateTime.UtcNow.ToString("yyyyMMddHHmmssfff")}.xlsx"; 
+            string fileName = $"Participation Summary Report {DateTime.UtcNow.ToString("yyyyMMddHHmmssfff")}.xlsx";
             try
             {
                 model.NoOfParticipants = await _performanceService.GetAppraisalParticipantsCount(model.Id, model.Ld, model.Dd, model.Ud);
@@ -1130,13 +1121,10 @@ new DataColumn("ManagementComments"),
             dataTable.Columns.AddRange(new DataColumn[]
             {
                 new DataColumn(RecordCount.ToString()),
-                new DataColumn("Staff No."),
                 new DataColumn("Full Name"),
                 new DataColumn("Gender"),
-                new DataColumn("Phone No."),
-                new DataColumn("Email"),
+                new DataColumn("Hire Date"),
                 new DataColumn("Unit"),
-                new DataColumn("Department"),
                 new DataColumn("Location"),
             });
 
@@ -1145,13 +1133,10 @@ new DataColumn("ManagementComments"),
                 RowNumber++;
                 dataTable.Rows.Add(
                     RowNumber.ToString(),
-                    e.EmployeeNo1,
                     e.FullName,
                     e.Sex,
-                    e.PhoneNo1,
-                    e.OfficialEmail,
+                    e.StartUpDate == null ? "" : e.StartUpDate.Value.ToString("yyyy-MMM-dd"),
                     e.UnitName,
-                    e.DepartmentName,
                     e.LocationName
                   );
             }
@@ -1208,7 +1193,7 @@ records.NonParticipantsInPercentage
             dataTable.Rows.Add(
 "Review Stage", "", ""
 );
-            foreach(var item in records.ParticipationSummaryList)
+            foreach (var item in records.ParticipationSummaryList)
             {
                 dataTable.Rows.Add(
 item.ReviewStageName,
@@ -1218,7 +1203,7 @@ item.PercentageParticipantsFormatted
             }
 
 
-                using (XLWorkbook workbook = new XLWorkbook())
+            using (XLWorkbook workbook = new XLWorkbook())
             {
                 workbook.Worksheets.Add(dataTable);
                 using (MemoryStream stream = new MemoryStream())

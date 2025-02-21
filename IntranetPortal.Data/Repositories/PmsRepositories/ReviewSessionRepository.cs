@@ -236,7 +236,8 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
             StringBuilder sb = new StringBuilder();
             sb.Append("SELECT e.emp_id, e.emp_no_1, e.official_email, e.dept_id, ");
             sb.Append("e.unit_id, e.loc_id, l.locname, d.deptname, u.unitname, ");
-            sb.Append("p.phone1, p.fullname, p.sex FROM public.erm_emp_inf e  ");
+            sb.Append("p.phone1, p.fullname, p.sex, e.start_up_date ");
+            sb.Append("FROM public.erm_emp_inf e ");
             sb.Append("INNER JOIN public.gst_prsns p ON p.id = e.emp_id ");
             sb.Append("INNER JOIN public.gst_locs l ON l.locqk = e.loc_id ");
             sb.Append("INNER JOIN public.gst_depts d ON d.deptqk = e.dept_id ");
@@ -273,7 +274,7 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
                         PhoneNo1 = reader["phone1"] == DBNull.Value ? string.Empty : (reader["phone1"]).ToString(),
                         FullName = reader["fullname"] == DBNull.Value ? string.Empty : (reader["fullname"]).ToString(),
                         Sex = reader["sex"] == DBNull.Value ? string.Empty : (reader["sex"]).ToString(),
-                        
+                        StartUpDate = reader["start_up_date"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["start_up_date"]
                     });
                 }
             }
@@ -288,7 +289,8 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
             StringBuilder sb = new StringBuilder();
             sb.Append("SELECT e.emp_id, e.emp_no_1, e.official_email, e.dept_id, ");
             sb.Append("e.unit_id, e.loc_id, l.locname, d.deptname, u.unitname, ");
-            sb.Append("p.phone1, p.fullname, p.sex FROM public.erm_emp_inf e  ");
+            sb.Append("p.phone1, p.fullname, p.sex, e.start_up_date ");
+            sb.Append("FROM public.erm_emp_inf e ");
             sb.Append("INNER JOIN public.gst_prsns p ON p.id = e.emp_id ");
             sb.Append("INNER JOIN public.gst_locs l ON l.locqk = e.loc_id ");
             sb.Append("INNER JOIN public.gst_depts d ON d.deptqk = e.dept_id ");
@@ -328,6 +330,7 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
                         PhoneNo1 = reader["phone1"] == DBNull.Value ? string.Empty : (reader["phone1"]).ToString(),
                         FullName = reader["fullname"] == DBNull.Value ? string.Empty : (reader["fullname"]).ToString(),
                         Sex = reader["sex"] == DBNull.Value ? string.Empty : (reader["sex"]).ToString(),
+                        StartUpDate = reader["start_up_date"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["start_up_date"],
 
                     });
                 }
@@ -342,7 +345,8 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
             StringBuilder sb = new StringBuilder();
             sb.Append("SELECT e.emp_id, e.emp_no_1, e.official_email, e.dept_id, ");
             sb.Append("e.unit_id, e.loc_id, l.locname, d.deptname, u.unitname, ");
-            sb.Append("p.phone1, p.fullname, p.sex FROM public.erm_emp_inf e  ");
+            sb.Append("p.phone1, p.fullname, p.sex, e.start_up_date ");
+            sb.Append("FROM public.erm_emp_inf e ");
             sb.Append("INNER JOIN public.gst_prsns p ON p.id = e.emp_id ");
             sb.Append("INNER JOIN public.gst_locs l ON l.locqk = e.loc_id ");
             sb.Append("INNER JOIN public.gst_depts d ON d.deptqk = e.dept_id ");
@@ -387,7 +391,7 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
                         PhoneNo1 = reader["phone1"] == DBNull.Value ? string.Empty : (reader["phone1"]).ToString(),
                         FullName = reader["fullname"] == DBNull.Value ? string.Empty : (reader["fullname"]).ToString(),
                         Sex = reader["sex"] == DBNull.Value ? string.Empty : (reader["sex"]).ToString(),
-
+                        StartUpDate = reader["start_up_date"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["start_up_date"],
                     });
                 }
             }
@@ -401,7 +405,8 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
             StringBuilder sb = new StringBuilder();
             sb.Append("SELECT e.emp_id, e.emp_no_1, e.official_email, e.dept_id, ");
             sb.Append("e.unit_id, e.loc_id, l.locname, d.deptname, u.unitname, ");
-            sb.Append("p.phone1, p.fullname, p.sex FROM public.erm_emp_inf e  ");
+            sb.Append("p.phone1, p.fullname, p.sex, e.start_up_date ");
+            sb.Append("FROM public.erm_emp_inf e ");
             sb.Append("INNER JOIN public.gst_prsns p ON p.id = e.emp_id ");
             sb.Append("INNER JOIN public.gst_locs l ON l.locqk = e.loc_id ");
             sb.Append("INNER JOIN public.gst_depts d ON d.deptqk = e.dept_id ");
@@ -443,7 +448,7 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
                         PhoneNo1 = reader["phone1"] == DBNull.Value ? string.Empty : (reader["phone1"]).ToString(),
                         FullName = reader["fullname"] == DBNull.Value ? string.Empty : (reader["fullname"]).ToString(),
                         Sex = reader["sex"] == DBNull.Value ? string.Empty : (reader["sex"]).ToString(),
-
+                        StartUpDate = reader["start_up_date"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["start_up_date"],
                     });
                 }
             }
@@ -457,7 +462,8 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
             StringBuilder sb = new StringBuilder();
             sb.Append("SELECT e.emp_id, e.emp_no_1, e.official_email, e.dept_id, ");
             sb.Append("e.unit_id, e.loc_id, l.locname, d.deptname, u.unitname, ");
-            sb.Append("p.phone1, p.fullname, p.sex FROM public.erm_emp_inf e  ");
+            sb.Append("p.phone1, p.fullname, p.sex, e.start_up_date ");
+            sb.Append("FROM public.erm_emp_inf e ");
             sb.Append("INNER JOIN public.gst_prsns p ON p.id = e.emp_id ");
             sb.Append("INNER JOIN public.gst_locs l ON l.locqk = e.loc_id ");
             sb.Append("INNER JOIN public.gst_depts d ON d.deptqk = e.dept_id ");
@@ -499,7 +505,7 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
                         PhoneNo1 = reader["phone1"] == DBNull.Value ? string.Empty : (reader["phone1"]).ToString(),
                         FullName = reader["fullname"] == DBNull.Value ? string.Empty : (reader["fullname"]).ToString(),
                         Sex = reader["sex"] == DBNull.Value ? string.Empty : (reader["sex"]).ToString(),
-
+                        StartUpDate = reader["start_up_date"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["start_up_date"],
                     });
                 }
             }
@@ -514,7 +520,8 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
             StringBuilder sb = new StringBuilder();
             sb.Append("SELECT e.emp_id, e.emp_no_1, e.official_email, e.dept_id, ");
             sb.Append("e.unit_id, e.loc_id, l.locname, d.deptname, u.unitname, ");
-            sb.Append("p.phone1, p.fullname, p.sex FROM public.erm_emp_inf e  ");
+            sb.Append("p.phone1, p.fullname, p.sex, e.start_up_date ");
+            sb.Append("FROM public.erm_emp_inf e ");
             sb.Append("INNER JOIN public.gst_prsns p ON p.id = e.emp_id ");
             sb.Append("INNER JOIN public.gst_locs l ON l.locqk = e.loc_id ");
             sb.Append("INNER JOIN public.gst_depts d ON d.deptqk = e.dept_id ");
@@ -557,7 +564,7 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
                         PhoneNo1 = reader["phone1"] == DBNull.Value ? string.Empty : (reader["phone1"]).ToString(),
                         FullName = reader["fullname"] == DBNull.Value ? string.Empty : (reader["fullname"]).ToString(),
                         Sex = reader["sex"] == DBNull.Value ? string.Empty : (reader["sex"]).ToString(),
-
+                        StartUpDate = reader["start_up_date"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["start_up_date"],
                     });
                 }
             }
@@ -571,7 +578,8 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
             StringBuilder sb = new StringBuilder();
             sb.Append("SELECT e.emp_id, e.emp_no_1, e.official_email, e.dept_id, ");
             sb.Append("e.unit_id, e.loc_id, l.locname, d.deptname, u.unitname, ");
-            sb.Append("p.phone1, p.fullname, p.sex FROM public.erm_emp_inf e  ");
+            sb.Append("p.phone1, p.fullname, p.sex, e.start_up_date ");
+            sb.Append("FROM public.erm_emp_inf e ");
             sb.Append("INNER JOIN public.gst_prsns p ON p.id = e.emp_id ");
             sb.Append("INNER JOIN public.gst_locs l ON l.locqk = e.loc_id ");
             sb.Append("INNER JOIN public.gst_depts d ON d.deptqk = e.dept_id ");
@@ -611,7 +619,7 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
                         PhoneNo1 = reader["phone1"] == DBNull.Value ? string.Empty : (reader["phone1"]).ToString(),
                         FullName = reader["fullname"] == DBNull.Value ? string.Empty : (reader["fullname"]).ToString(),
                         Sex = reader["sex"] == DBNull.Value ? string.Empty : (reader["sex"]).ToString(),
-
+                        StartUpDate = reader["start_up_date"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["start_up_date"],
                     });
                 }
             }
@@ -625,7 +633,8 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
             StringBuilder sb = new StringBuilder();
             sb.Append("SELECT e.emp_id, e.emp_no_1, e.official_email, e.dept_id, ");
             sb.Append("e.unit_id, e.loc_id, l.locname, d.deptname, u.unitname, ");
-            sb.Append("p.phone1, p.fullname, p.sex FROM public.erm_emp_inf e  ");
+            sb.Append("p.phone1, p.fullname, p.sex, e.start_up_date ");
+            sb.Append("FROM public.erm_emp_inf e ");
             sb.Append("INNER JOIN public.gst_prsns p ON p.id = e.emp_id ");
             sb.Append("INNER JOIN public.gst_locs l ON l.locqk = e.loc_id ");
             sb.Append("INNER JOIN public.gst_depts d ON d.deptqk = e.dept_id ");
@@ -665,7 +674,7 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
                         PhoneNo1 = reader["phone1"] == DBNull.Value ? string.Empty : (reader["phone1"]).ToString(),
                         FullName = reader["fullname"] == DBNull.Value ? string.Empty : (reader["fullname"]).ToString(),
                         Sex = reader["sex"] == DBNull.Value ? string.Empty : (reader["sex"]).ToString(),
-
+                        StartUpDate = reader["start_up_date"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["start_up_date"],
                     });
                 }
             }

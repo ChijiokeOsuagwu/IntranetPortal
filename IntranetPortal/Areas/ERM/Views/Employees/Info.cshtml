@@ -1,0 +1,192 @@
+﻿@model IntranetPortal.Areas.ERM.Models.EmployeeProfileViewModel
+@{
+    ViewData["Title"] = "OfficeManager | Employee Profile";
+}
+<div>
+    <button title="Go Back" class="btn btn-sm btn-outline-light text-dark" onclick="history.back()" style="width:75px">
+        <i class="bi bi-backspace fw-bolder" style="font-size: 1.0rem;"></i>&nbsp;<span class="fw-bold" style="font-size: 1.0rem;">Back</span>
+    </button>
+</div>
+<div class="card mt-1">
+    <div class="card-header bg-dark">
+        <h4 class="text-white">Employee Profile</h4>
+    </div>
+    <div class="card-body bg-secondary">
+        @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-x-circle"></i>
+                <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (!String.IsNullOrEmpty(Model.ViewModelSuccessMessage))
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="bi bi-check-circle"></i>
+                <span class="fw-bold">@Model.ViewModelSuccessMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (!String.IsNullOrEmpty(Model.ViewModelWarningMessage))
+        {
+            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                <i class="bi bi-exclamation-circle"></i>
+                <span class="fw-bold">@Model.ViewModelWarningMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        <form asp-area="ERM" asp-controller="Employees" asp-action="Profile" method="post">
+            <div class="row">
+                <div class="col-md-3 mb-1">
+                    @if (Model == null || string.IsNullOrWhiteSpace(Model.Sex))
+                    {
+
+                    }
+                    else if (!string.IsNullOrWhiteSpace(Model.ImagePath))
+                    {
+                        <img src="@Model.ImagePath" class="img-fluid" style="height:250px; width:350px" alt="Employee Image">
+                    }
+                    else
+                    {
+                        if (Model.Sex.ToUpper() == "FEMALE")
+                        {
+                            <img src="~/img/female_emp_500.jpg" class="img-fluid" style="height:250px; width:350px" alt="Employee Image" />
+                        }
+                        else
+                        {
+                            <img src="~/img/male_emp_500.jpg" class="img-fluid" style="height:250px; width:350px" alt="Employee Image" />
+                        }
+                    }
+                </div>
+                <div class="col-md-9 mb-1">
+                    <div class="row">
+                        <div class="col-md-6 mb-1">
+                            <input type="hidden" asp-for="PersonID" />
+                            <input type="hidden" asp-for="EmployeeID" />
+                            <label asp-for="FullName" class="form-label text-white fw-bold"></label>
+                            <input asp-for="FullName" class="form-control fw-bold" readonly="readonly">
+                        </div>
+                        <div class="col-md-3 mb-1">
+                            <label asp-for="EmployeeNo1" class="form-label text-white fw-bold"></label>
+                            <input asp-for="EmployeeNo1" class="form-control fw-bold" readonly="readonly">
+                        </div>
+                        <div class="col-md-3 mb-1">
+                            <label asp-for="EmployeeNo2" class="form-label text-white fw-bold"></label>
+                            <input asp-for="EmployeeNo2" class="form-control fw-bold" readonly="readonly">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-1">
+                            <label asp-for="Email" class="form-label text-white fw-bold"></label>
+                            <input asp-for="Email" class="form-control fw-bold" readonly="readonly">
+                        </div>
+                        <div class="col-md-3 mb-1">
+                            <label asp-for="DateOfBirth" class="form-label text-white fw-bold"></label>
+                            <input asp-for="DateOfBirth" class="form-control fw-bold" readonly="readonly">
+                        </div>
+                        <div class="col-md-3 mb-1">
+                            <label asp-for="Sex" class="form-label text-white fw-bold"></label>
+                            <input asp-for="Sex" class="form-control fw-bold" readonly="readonly">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-3 mb-1">
+                            <label asp-for="PhoneNo1" class="form-label text-white fw-bold"></label>
+                            <input asp-for="PhoneNo1" class="form-control fw-bold" readonly="readonly">
+                        </div>
+                        <div class="col-md-3 mb-1">
+                            <label asp-for="PhoneNo2" class="form-label text-white fw-bold"></label>
+                            <input asp-for="PhoneNo2" class="form-control fw-bold" readonly="readonly">
+                        </div>
+                        <div class="col-md-3 mb-1">
+                            <label asp-for="MaritalStatus" class="form-label text-white fw-bold"></label>
+                            <input asp-for="MaritalStatus" class="form-control fw-bold" readonly="readonly">
+                        </div>
+                        <div class="col-md-3 mb-1">
+                            <label asp-for="Religion" class="form-label text-white fw-bold"></label>
+                            <input asp-for="Religion" class="form-control fw-bold" readonly="readonly">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-3 mb-1">
+                            <label asp-for="LgaOfOrigin" class="form-label text-white fw-bold"></label>
+                            <input asp-for="LgaOfOrigin" class="form-control fw-bold" readonly="readonly">
+                        </div>
+                        <div class="col-md-3 mb-1">
+                            <label asp-for="StateOfOrigin" class="form-label text-white fw-bold"></label>
+                            <input asp-for="StateOfOrigin" class="form-control fw-bold" readonly="readonly">
+                        </div>
+                        <div class="col-md-3 mb-1">
+                            <label asp-for="GeoPoliticalRegion" class="form-label text-white fw-bold"></label>
+                            <input asp-for="GeoPoliticalRegion" class="form-control fw-bold" readonly="readonly">
+                        </div>
+                        <div class="col-md-3 mb-1">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-3 mb-1">
+                    <label asp-for="CompanyName" class="form-label text-white fw-bold"></label>
+                    <input asp-for="CompanyName" class="form-control fw-bold" readonly="readonly">
+                </div>
+                <div class="col-md-3 mb-1">
+                    <label asp-for="LocationName" class="form-label text-white fw-bold"></label>
+                    <input asp-for="LocationName" class="form-control fw-bold" readonly="readonly">
+                </div>
+                <div class="col-md-3 mb-1">
+                    <label asp-for="DepartmentName" class="form-label text-white fw-bold"></label>
+                    <input asp-for="DepartmentName" class="form-control fw-bold" readonly="readonly">
+                </div>
+                <div class="col-md-3 mb-1">
+                    <label asp-for="UnitName" class="form-label text-white fw-bold"></label>
+                    <input asp-for="UnitName" class="form-control fw-bold" readonly="readonly">
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-3 mb-1">
+                    <label asp-for="JobGrade" class="form-label text-white fw-bold"></label>
+                    <input asp-for="JobGrade" class="form-control fw-bold" readonly="readonly">
+                </div>
+                <div class="col-md-3 mb-1">
+                    <label asp-for="EmploymentStatus" class="form-label text-white fw-bold"></label>
+                    <input asp-for="EmploymentStatus" class="form-control fw-bold" readonly="readonly">
+                </div>
+                <div class="col-md-3 mb-1">
+                    <label asp-for="CurrentDesignation" class="form-label text-white fw-bold"></label>
+                    <input asp-for="CurrentDesignation" class="form-control fw-bold" readonly="readonly">
+                </div>
+                <div class="col-md-3 mb-1">
+                    <label asp-for="OfficialEmail" class="form-label text-white fw-bold"></label>
+                    <input asp-for="OfficialEmail" class="form-control fw-bold" readonly="readonly">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-3 mb-1">
+                    <label asp-for="StartUpDateFormatted" class="form-label text-white fw-bold"></label>
+                    <input asp-for="StartUpDateFormatted" class="form-control fw-bold" readonly="readonly">
+                </div>
+                <div class="col-md-3 mb-1">
+                    <label asp-for="ConfirmationDateFormatted" class="form-label text-white fw-bold"></label>
+                    <input asp-for="ConfirmationDateFormatted" class="form-control fw-bold" readonly="readonly">
+                </div>
+                <div class="col-md-3 mb-1">
+                    <label asp-for="LengthOfServiceFormatted" class="form-label text-white fw-bold"></label>
+                    <input asp-for="LengthOfServiceFormatted" class="form-control fw-bold" readonly="readonly">
+                </div>
+                <div class="col-md-3 mb-1">
+                    <label asp-for="DateOfLastPromotionFormatted" class="form-label text-white fw-bold"></label>
+                    <input asp-for="DateOfLastPromotionFormatted" class="form-control fw-bold" readonly="readonly">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12 mb-1">
+                    <label asp-for="Address" class="form-label text-white fw-bold"></label>
+                    <textarea asp-for="Address" class="form-control fw-bold" rows="3" readonly="readonly">@Model.Address</textarea>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

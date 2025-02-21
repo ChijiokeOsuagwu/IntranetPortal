@@ -1,0 +1,201 @@
+﻿@model IntranetPortal.Areas.WSP.Models.TaskFoldersViewModel
+@{
+    ViewData["Title"] = "OfficeManager | Workspace";
+}
+<div class="container">
+    <h4>My Task Folders</h4>
+    <hr />
+    <div class="row mb-2">
+        <form asp-area="WSP" asp-controller="Workspace" asp-action="MyTaskFolders" method="get">
+            <div class="row">
+                <div class="col-md-3">
+                    <a asp-area="WSP" asp-controller="Workspace" asp-action="index" class="btn btn-sm btn-dark" style="width:100px; margin-right:10px" title="Back">
+                        <span class="text-white">Back</span>
+                    </a>
+                </div>
+                <div class="col-md-6">
+                    <input asp-for="Yr" class="border-0" style="width:100px" type="number" min="2020" max="2060" />
+                    <select asp-for="Mn" class="border-0" style="width:100px">
+                        <option value="0">All</option>
+                        <option value="1">Jan</option>
+                        <option value="2">Feb</option>
+                        <option value="3">Mar</option>
+                        <option value="4">Apr</option>
+                        <option value="5">May</option>
+                        <option value="6">Jun</option>
+                        <option value="7">Jul</option>
+                        <option value="8">Aug</option>
+                        <option value="9">Sep</option>
+                        <option value="10">Oct</option>
+                        <option value="11">Nov</option>
+                        <option value="12">Dec</option>
+                    </select>
+                    <input type="submit" value="Search" class="btn btn-sm btn-dark ml-2" style="width:100px" />
+                </div>
+                <div class="col-md-3">
+                    <a asp-area="WSP" asp-controller="Workspace" asp-action="ManageTaskFolder" asp-route-src="mtf" class="btn btn-sm btn-success" style="width:150px" title="Add New Folder">
+                        <i class="bi bi-folder-plus text-white" style="font-size:1.0rem"></i><span class="text-white ml-2">New Folder</span>
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="row">
+        @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-x-circle"></i>
+                <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+    </div>
+
+    @if (Model == null || Model.TaskFolders == null || Model.TaskFolders.Count < 1)
+    {
+        <div class="alert alert-info fade show" role="alert">
+            <i class="bi bi-info-circle"></i>
+            <span class="fw-bold">No record was found.</span>
+        </div>
+    }
+    else
+    {
+        @if (Model != null && Model.TaskFolders != null && Model.TaskFolders.Count > 0)
+        {
+            <div class="row mt-5">
+                @foreach (var folder in Model.TaskFolders)
+                {
+                    @if (folder.IsLocked)
+                    {
+                        <div class="col-md-6 col-lg-2 col-xlg-3">
+                            <div class="card card-hover">
+                                <div class="box bg-light text-center">
+                                    <a asp-area="WSP" asp-controller="Workspace" asp-action="MyTaskList" asp-route-id="@folder.Id" asp-route-nm="@folder.Title" asp-route-src="mtf">
+                                        <h1 class="font-light text-dark" title="@folder.Title"><i class="bi bi-folder-symlink"></i></h1>
+                                        <h6 class="text-dark">@folder.Title</h6>
+                                    </a>
+                                </div>
+                                <div class="text-center">
+                                    <!-- Default dropstart button -->
+                                    <div class="btn-group dropstart">
+                                        <button type="button" data-bs-toggle="dropdown" aria-expanded="false" style="border:0px">
+                                            <span class="fw-bold" style="font-size:1.0rem;"><i class="bi bi-three-dots"></i></span>
+                                        </button>
+                                        <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton2">
+                                            <li>
+                                                <a class="dropdown-item" asp-area="WSP" asp-controller="Workspace" asp-action="MyTaskList" asp-route-id="@folder.Id" asp-route-nm="@folder.Title" asp-route-src="mtf">
+                                                    <i class="bi bi-folder2-open"></i> <span>Open</span>
+                                                </a>
+                                            <li>
+                                            <li>
+                                                <a class="dropdown-item" asp-area="WSP" asp-controller="Workspace" asp-action="SubmitTaskFolder" asp-route-id="@folder.Id">
+                                                    <i class="bi bi-mailbox"></i> <span>Submit</span>
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a class="dropdown-item" asp-area="WSP" asp-controller="Workspace" asp-action="TaskFolderInfo" asp-route-id="@folder.Id">
+                                                    <i class="bi bi-info-circle"></i>  <span>Detail</span>
+                                                </a>
+                                            </li>
+                                            <li><hr class="dropdown-divider"></li>
+                                            <li>
+                                                <a class="dropdown-item" href="#">
+                                                    <i class="bi bi-stickies"></i> <span>Notes</span>
+                                                </a>
+                                                <ul class="dropdown-menu dropdown-menu-dark dropdown-submenu">
+                                                    <li>
+                                                        <a class="dropdown-item" asp-area="WKS" asp-controller="Tasks" asp-action="AddTaskNote" asp-route-id="0" asp-route-tl="@folder.Id" asp-route-tp="l" asp-route-src="txb">
+                                                            <i class="bi bi-sticky"></i> <span>Drop a Note</span>
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <a class="dropdown-item" asp-area="WKS" asp-controller="Tasks" asp-action="TaskListNotes" asp-route-id="@folder.Id">
+                                                            <i class="bi bi-stickies"></i> <span>View Notes</span>
+                                                        </a>
+                                                    </li>
+                                                </ul>
+                                            </li>
+
+                                            <li>
+                                                <button class="dropdown-item" id="btn_archive_@folder.Id" onclick="archiveTaskList('@folder.Id')">
+                                                    <i class="bi bi-journal-album"></i> <span>Archive</span>
+                                                </button>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="col-md-6 col-lg-2 col-xlg-3 text-center">
+                            <div class="card card-hover">
+                                <a asp-area="WSP" asp-controller="Workspace" asp-action="MyTaskList" asp-route-id="@folder.Id" asp-route-nm="@folder.Title" asp-route-src="mtf">
+                                    <div class="box bg-light text-center">
+                                        <h1 class="font-light text-dark" title="@folder.Title"><i class="bi bi-folder"></i></h1>
+                                        <h6 class="text-dark">@folder.Title</h6>
+                                    </div>
+                                </a>
+                            </div>
+                                <!-- Default dropstart button -->
+                                <div class="btn-group dropstart">
+                                    <button type="button" data-bs-toggle="dropdown" aria-expanded="false" style="border:0px">
+                                        <span class="fw-bold" style="font-size:1.0rem;"><i class="bi bi-three-dots"></i></span>
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton2">
+                                        <li>
+                                            <a class="dropdown-item" asp-area="WSP" asp-controller="Workspace" asp-action="MyTaskList" asp-route-id="@folder.Id" asp-route-nm="@folder.Title" asp-route-src="mtf">
+                                                <i class="bi bi-folder2-open"></i> <span>Open</span>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item" asp-area="WSP" asp-controller="Workspace" asp-action="SubmitTaskFolder" asp-route-id="@folder.Id">
+                                                <i class="bi bi-mailbox"></i> <span>Submit</span>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item" asp-area="WSP" asp-controller="Workspace" asp-action="TaskFolderInfo" asp-route-id="@folder.Id">
+                                                <i class="bi bi-info-circle"></i>  <span>Detail</span>
+                                            </a>
+                                        </li>
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li>
+                                            <a class="dropdown-item" asp-area="WSP" asp-controller="Workspace" asp-action="Notes" asp-route-fd="@folder.Id" asp-route-sp="mtf">
+                                                <i class="bi bi-stickies"></i> <span>Notes</span>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item" asp-area="WSP" asp-controller="Workspace" asp-action="ManageTaskFolder" asp-route-id="@folder.Id" asp-route-src="mtf">
+                                                <i class="bi bi-pencil-fill"></i>  <span>Edit</span>
+                                            </a>
+                                        </li>
+
+                                        <li>
+                                            <a class="dropdown-item" asp-area="WSP" asp-controller="Workspace" asp-action="DeleteTaskFolder" asp-route-id="@folder.Id" asp-route-src="mtf">
+                                                <i class="bi bi-trash-fill"></i>  <span>Delete</span>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <button class="dropdown-item" id="btn_archive_@folder.Id" onclick="archiveTaskFolder('@folder.Id')">
+                                                <i class="bi bi-journal-album"></i> <span>Archive</span>
+                                            </button>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item" asp-area="WSP" asp-controller="Workspace" asp-action="Activities" asp-route-id="@folder.Id" asp-route-tp="f">
+                                                <i class="bi bi-file-text"></i> <span>History</span>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                        </div>
+                    }
+                }
+            </div>
+
+        }
+    }
+</div>
+@section Scripts{
+    <script src="~/js/js_wks/wks_tsk_lst.js"></script>
+}

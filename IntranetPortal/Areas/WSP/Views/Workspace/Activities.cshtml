@@ -1,0 +1,64 @@
+﻿@model IntranetPortal.Areas.WSP.Models.WorkItemActivitiesViewModel
+    <div class="container">
+        <h4 class="mb-1">Activity History</h4>
+        <hr />
+        <div class="row">
+            <button title="Go Back" class="btn btn-sm btn-dark text-white fw-bold" style="width:75px" onclick="history.back();">
+                <i class="bi bi-backspace text-white" style="margin-right:2px;"></i><span class="text-white">Back</span>
+            </button>
+        </div>
+        <div class="mb-1">
+            <div class="row">
+                @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+                {
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <i class="bi bi-x-circle"></i>
+                        <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                }
+            </div>
+            <div class="row">
+                @if (Model == null || Model.ActivityList == null || Model.ActivityList.Count < 1)
+                {
+                    <div class="alert alert-info fade show" role="alert">
+                        <i class="bi bi-info-circle"></i>
+                        <span class="fw-bold">No record was found.</span>
+                    </div>
+                }
+                else
+                {
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h4 class="card-title mb-0">Activity Timeline</h4>
+                                </div>
+                                <div class="comment-widgets scrollable">
+                                    @foreach (var activity in Model.ActivityList)
+                                    {
+                                        <!-- Comment Row -->
+                                        <div class="d-flex flex-row comment-row mt-0">
+                                            <div class="comment-text w-100">
+                                                @if (activity.Time != null)
+                                                {
+                                                    <h6 class="font-medium">@activity.Time.Value.ToLongDateString() @activity.Time.Value.ToLongTimeString()</h6>
+                                                }
+                                                <span class="d-block fw-bold">@activity.Description</span>
+                                            </div>
+                                        </div>
+                                        <hr />
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+        <input type="hidden" asp-for="TaskID" />
+        <input type="hidden" asp-for="FolderID" />
+        <input type="hidden" asp-for="ProjectID" />
+        <input type="hidden" asp-for="SourcePage" />
+    </div>
+

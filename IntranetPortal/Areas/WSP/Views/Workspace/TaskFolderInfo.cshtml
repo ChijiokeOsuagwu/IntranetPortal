@@ -1,0 +1,93 @@
+﻿@model IntranetPortal.Areas.WSP.Models.ManageTaskFolderViewModel
+@{
+    ViewData["Title"] = "OfficeManager | Workspace";
+}
+<div class="container">
+    <h4>Task Folder Details</h4>
+    <hr />
+    <div class="card" style="max-width:600px">
+        <div class="card-header bg-info">
+            <h4 class="text-white">Task Folder Details</h4>
+        </div>
+        <div class="card-body table-secondary">
+            @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bi bi-x-circle"></i>
+                    <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            @if (!String.IsNullOrEmpty(Model.ViewModelSuccessMessage))
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="bi bi-check-circle"></i>
+                    <span class="fw-bold">@Model.ViewModelSuccessMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            @if (!String.IsNullOrEmpty(Model.ViewModelWarningMessage))
+            {
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                    <i class="bi bi-exclamation-circle"></i>
+                    <span class="fw-bold">@Model.ViewModelWarningMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            <div class="row">
+                <div class="col-md-12 mb-3">
+                    <label asp-for="Title" class="form-label text-dark fw-bold"></label>
+                    <div class="form-control fw-bold">@Model.Title</div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12 mb-3">
+                    <label asp-for="OwnerName" class="form-label text-dark fw-bold"></label>
+                    <div class="form-control fw-bold">@Model.OwnerName</div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label asp-for="PeriodStartDate" class="form-label text-dark fw-bold"></label>
+                    @if (Model.PeriodStartDate != null)
+                    {<div class="form-control fw-bold">@Model.PeriodStartDate.Value.ToString("yyyy-MMM-dd")</div> }
+                else
+                {<div class="form-control fw-bold"> [N/A] </div>}
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label asp-for="PeriodEndDate" class="form-label text-dark fw-bold"></label>
+                    @if (Model.PeriodEndDate != null)
+                    {<div class="form-control fw-bold">@Model.PeriodEndDate.Value.ToString("yyyy-MMM-dd")</div> }
+                else
+                {<div class="form-control fw-bold"> [N/A] </div>}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    @if (Model.IsLocked)
+                    {<span class="fw-bold text-dark"><i class="bi bi-check-square"></i> Is Locked</span> }
+                    else
+                    {<span class="fw-bold text-dark"><i class="bi bi-x-square"></i> Is Locked </span>}
+                </div>
+                <div class="col-md-4 mb-3">
+                    @if (Model.IsArchived)
+                    {<span class="fw-bold text-dark"><i class="bi bi-check-square"></i> Is Archived</span> }
+                    else
+                    {<span class="fw-bold text-dark"><i class="bi bi-x-square"></i> Is Archived </span>}
+                </div>
+                <div class="col-md-4 mb-3">
+                    @if (Model.IsReuseable)
+                    {<span class="fw-bold text-dark"><i class="bi bi-check-square"></i> Is Reuseable</span> }
+                    else
+                    {<span class="fw-bold text-dark"><i class="bi bi-x-square"></i> Is Reuseable </span>}
+                </div>
+                <div class="col-md-12 text-end">
+                    <button class="btn btn-sm btn-info" title="Back" style="width:150px" onclick="history.back()"><span class="text-white">Back</span></button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@section Scripts{
+
+}

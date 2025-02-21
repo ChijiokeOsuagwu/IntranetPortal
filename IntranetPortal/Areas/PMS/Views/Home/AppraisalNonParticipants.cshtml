@@ -66,13 +66,10 @@
                         <thead class="table-dark">
                             <tr>
                                 <th><span class="text-white fw-bolder">(@Model.RecordCount)</span></th>
-                                <th><span class="text-white fw-bolder">Staff No.</span></th>
                                 <th><span class="text-white fw-bolder">Full Name</span></th>
-                                <th><span class="text-white fw-bolder">Gender</span></th>
-                                <th><span class="text-white fw-bolder">Phone No.</span>
-                                <th><span class="text-white fw-bolder">Email</span>
+                                <th><span class="text-white fw-bolder">Sex</span></th>
+                                <th><span class="text-white fw-bolder">Hire Date</span>
                                 <th><span class="text-white fw-bolder">Unit</span></th>
-                                <th><span class="text-white fw-bolder">Department</span></th>
                                 <th><span class="text-white fw-bolder">Location</span></th>
                                 <th></th>
                             </tr>
@@ -83,13 +80,28 @@
                                 row_count++;
                             <tr>
                                 <td><span class="fw-bold">@row_count.ToString()</span></td>
-                                <td><span class="fw-bold">@item.EmployeeNo1</span></td>
                                 <td><span class="fw-bold">@item.FullName</span></td>
-                                <td><span class="fw-bold">@item.Sex</span>
-                                <td><span class="fw-bold">@item.PhoneNo1</span></td>
-                                <td><span class="fw-bold">@item.Email</span></td>
+                                <td>
+                                    @if (item.Sex.ToUpper() == "FEMALE")
+                                    {
+                                        <span class="fw-bold">F</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="fw-bold">M</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (item.StartUpDate == null)
+                                    {
+                                        <span class="fw-bold">[N/A]</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="fw-bold">@item.StartUpDate.Value.ToString("yyyy-MMM-dd")</span>
+                                    }
+                                </td>
                                 <td><span class="fw-bold">@item.UnitName</span></td>
-                                <td><span class="fw-bold">@item.DepartmentName</span></td>
                                 <td><span class="fw-bold">@item.LocationName</span></td>
                                 <td class="p-1 text-end">
                                     <div class="btn-group dropstart">
@@ -98,7 +110,7 @@
                                         </button>
                                         <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton2">
                                             <li>
-                                                <a class="dropdown-item" asp-area="ERM" asp-controller="Employees" asp-action="Profile" asp-route-id="@item.EmployeeID" title="View Staff Profile">
+                                                <a class="dropdown-item" asp-area="ERM" asp-controller="Employees" asp-action="Info" asp-route-id="@item.EmployeeID" title="View Staff Profile">
                                                     <i class="bi bi-file-text"></i>
                                                     <span class="text-white">View Profile</span>
                                                 </a>

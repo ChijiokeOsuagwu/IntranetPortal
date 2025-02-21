@@ -1,0 +1,119 @@
+﻿@{
+    ViewData["Title"] = "Channels Workspace";
+}
+<link href="~/lib/matrix/dist/css/style.min.css" rel="stylesheet" />
+<div class="my-2">
+    <!-- ============================================================== -->
+    <!-- Sales Cards  -->
+    <!-- ============================================================== -->
+    <h4 class="fw-bold">Channels Workspace</h4>
+    <hr />
+    <div class="row">
+        <!-- Column -->
+        <div class="col-md-6 col-lg-2 col-xlg-3">
+            <a asp-area="" asp-controller="Home" asp-action="Apps">
+                <div class="card card-hover">
+                    <div class="box bg-light text-center">
+                        <h1 class="font-light text-dark"><i class="bi bi-arrow-left-square"></i></h1>
+                        <h6 class="text-dark">Go Back</h6>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <!-- Column -->
+        <div class="col-md-6 col-lg-2 col-xlg-3">
+            <a asp-area="WSP" asp-controller="Workspace" asp-action="MyTaskFolders">
+                <div class="card card-hover">
+                    <div class="box bg-light text-center">
+                        <h1 class="font-light text-dark"><i class="bi bi-folder2-open"></i></h1>
+                        <h6 class="text-dark">My Task Folders</h6>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <!-- Column -->
+        @*<div class="col-md-6 col-lg-2 col-xlg-3">
+            <a asp-area="WKS" asp-controller="Tasks" asp-action="SubmittedToMe">
+                <div class="card card-hover">
+                    <div class="box bg-light text-center">
+                        <h1 class="font-light text-dark"><i class="bi bi-mailbox"></i></h1>
+                        <h6 class="text-dark">Submitted Items</h6>
+                    </div>
+                </div>
+            </a>
+        </div>*@
+        <!-- Column -->
+        <div class="col-md-6 col-lg-2 col-xlg-3">
+            <a asp-area="WKS" asp-controller="Tasks" asp-action="ArchivedTaskList">
+                <div class="card card-hover">
+                    <div class="box bg-light text-center">
+                        <h1 class="font-light text-dark"><i class="bi bi-archive"></i></h1>
+                        <h6 class="text-dark">My Archived Folders</h6>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <!-- Column -->
+        <div class="col-md-6 col-lg-2 col-xlg-3">
+            <a asp-area="WKS" asp-controller="Tasks" asp-action="EvaluationLists">
+                <div class="card card-hover">
+                    <div class="box bg-light text-center">
+                        <h1 class="font-light text-dark"><i class="bi bi-card-checklist"></i></h1>
+                        <h6 class="text-dark">My Results</h6>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <!-- Column -->
+        <div class="col-md-6 col-lg-2 col-xlg-3">
+            <a asp-area="WKS" asp-controller="Tasks" asp-action="TeamTaskList">
+                <div class="card card-hover">
+                    <div class="box bg-light text-center">
+                        <h1 class="font-light text-dark"><i class="bi bi-people"></i></h1>
+                        <h6 class="text-dark">My Team's Folders</h6>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <!-- Column -->
+        <div class="col-md-6 col-lg-2 col-xlg-3">
+            <a asp-area="WKS" asp-controller="Tasks" asp-action="TeamEvaluationLists">
+                <div class="card card-hover">
+                    <div class="box bg-light text-center">
+                        <h1 class="font-light text-dark"><i class="bi bi-person-lines-fill"></i></h1>
+                        <h6 class="text-dark">My Team's Results</h6>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <!-- Column -->
+        <div class="col-md-6 col-lg-2 col-xlg-3">
+            <a asp-area="WKS" asp-controller="Tasks" asp-action="SearchEvaluationLists">
+                <div class="card card-hover">
+                    <div class="box bg-light text-center">
+                        <h1 class="font-light text-dark"><i class="bi bi-search"></i></h1>
+                        <h6 class="text-dark">Enquiries</h6>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <!-- Column -->
+        <div class="col-md-6 col-lg-2 col-xlg-3">
+            <a asp-area="WKS" asp-controller="Tasks" asp-action="Reports">
+                <div class="card card-hover">
+                    <div class="box bg-light text-center">
+                        <h1 class="font-light text-dark"><i class="bi bi-journal-bookmark"></i></h1>
+                        <h6 class="text-dark">Reports</h6>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <!-- Column -->
+    </div>
+</div>
+@section Scripts{
+
+}
+
+

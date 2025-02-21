@@ -11,6 +11,7 @@ using IntranetPortal.Base.Repositories.LmsRepositories;
 using IntranetPortal.Base.Repositories.PmsRepositories;
 using IntranetPortal.Base.Repositories.SecurityRepositories;
 using IntranetPortal.Base.Repositories.WksRepositories;
+using IntranetPortal.Base.Repositories.WspRepositories;
 using IntranetPortal.Base.Services;
 using IntranetPortal.Data.Repositories.AssetManagerRepositories;
 using IntranetPortal.Data.Repositories.BamsRepositories;
@@ -24,6 +25,7 @@ using IntranetPortal.Data.Repositories.LmsRepositories;
 using IntranetPortal.Data.Repositories.PmsRepositories;
 using IntranetPortal.Data.Repositories.SecurityRepositories;
 using IntranetPortal.Data.Repositories.WksRepositories;
+using IntranetPortal.Data.Repositories.WspRepositories;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
@@ -88,6 +90,8 @@ namespace IntranetPortal.Configurations
             services.AddScoped<IAssetEquipmentGroupRepository, AssetEquipmentGroupRepository>();
             services.AddScoped<IUserLoginRepository, UserLoginRepository>();
             services.AddScoped<IAssetBinLocationRepository, AssetBinLocationRepository>();
+
+            //======== Channels Workspaces System Repositories ===========//
             services.AddScoped<IWorkspaceRepository, WorkspaceRepository>();
             services.AddScoped<IProjectFolderRepository, ProjectFolderRepository>();
             services.AddScoped<IProjectRepository, ProjectRepository>();
@@ -101,6 +105,8 @@ namespace IntranetPortal.Configurations
             services.AddScoped<ITaskEvaluationHeaderRepository, TaskEvaluationHeaderRepository>();
             services.AddScoped<ITaskEvaluationDetailRepository, TaskEvaluationDetailRepository>();
             services.AddScoped<ITaskItemEvaluationRepository, TaskItemEvaluationRepository>();
+
+            services.AddScoped<IDeskspaceRepository, DeskspaceRepository>();
             
             //Performance Management System Repositories
             services.AddScoped<IPerformanceYearRepository, PerformanceYearRepository>();
@@ -150,6 +156,7 @@ namespace IntranetPortal.Configurations
             services.AddScoped<IPerformanceService, PerformanceService>();
             services.AddScoped<IClmService, ClmService>();
             services.AddScoped<ILmsService, LmsService>();
+            services.AddScoped<IWspService, WspService>();
         }
 
     }

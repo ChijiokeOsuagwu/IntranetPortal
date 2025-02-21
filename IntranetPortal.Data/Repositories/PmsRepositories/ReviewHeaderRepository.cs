@@ -1512,8 +1512,8 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
         {
             List<ParticipationSummary> participantsList = new List<ParticipationSummary>();
             StringBuilder sb = new StringBuilder();
-            sb.Append("SELECT r.rvw_sxn_id, l.locname, d.deptname, u.unitname, ");
-            sb.Append("r.rvw_stg_id, g.rvw_stg_nm, COUNT(rvw_hdr_id) as total_emp  ");
+            sb.Append("SELECT r.rvw_sxn_id, r.rvw_stg_id, g.rvw_stg_nm, ");
+            sb.Append("COUNT(rvw_hdr_id) as total_emp  ");
             sb.Append("FROM public.pmsrvwhdrs r ");
             sb.Append("INNER JOIN pmssttstgs g ON g.rvw_stg_id = r.rvw_stg_id ");
             sb.Append("INNER JOIN pmsrvwsxns s ON s.rvw_sxn_id = r.rvw_sxn_id ");
@@ -1521,9 +1521,8 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
             sb.Append("INNER JOIN public.gst_depts d ON d.deptqk = r.dept_cd ");
             sb.Append("INNER JOIN public.gst_locs l ON l.locqk = r.loc_id ");
             sb.Append("WHERE r.rvw_sxn_id = @rvw_sxn_id ");
-            sb.Append("GROUP BY r.rvw_sxn_id, l.locname, d.deptname, ");
-            sb.Append("u.unitname, r.rvw_stg_id, g.rvw_stg_nm ");
-            sb.Append("ORDER BY r.rvw_sxn_id, l.locname, d.deptname, u.unitname;");
+            sb.Append("GROUP BY r.rvw_sxn_id, r.rvw_stg_id, g.rvw_stg_nm ");
+            sb.Append("ORDER BY r.rvw_sxn_id, r.rvw_stg_id, g.rvw_stg_nm;");
             string query = sb.ToString();
             using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
             {
@@ -1543,9 +1542,6 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
                             ReviewSessionId = reader["rvw_sxn_id"] == DBNull.Value ? 0 : (int)reader["rvw_sxn_id"],
                             ReviewStageId = reader["rvw_stg_id"] == DBNull.Value ? 0 : (int)reader["rvw_stg_id"],
                             ReviewStageName = reader["rvw_stg_nm"] == DBNull.Value ? string.Empty : reader["rvw_stg_nm"].ToString(),
-                            UnitName = reader["unitname"] == DBNull.Value ? string.Empty : reader["unitname"].ToString(),
-                            DepartmentName = reader["deptname"] == DBNull.Value ? string.Empty : reader["deptname"].ToString(),
-                            LocationName = reader["locname"] == DBNull.Value ? string.Empty : reader["locname"].ToString(),
                             NoOfParticipants = reader["total_emp"] == DBNull.Value ? 0 : (long)reader["total_emp"],
                         });
                     }
@@ -1558,8 +1554,8 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
         {
             List<ParticipationSummary> participantsList = new List<ParticipationSummary>();
             StringBuilder sb = new StringBuilder();
-            sb.Append("SELECT r.rvw_sxn_id, l.locname, d.deptname, u.unitname, ");
-            sb.Append("r.rvw_stg_id, g.rvw_stg_nm, COUNT(rvw_hdr_id) as total_emp  ");
+            sb.Append("SELECT r.rvw_sxn_id, r.rvw_stg_id, g.rvw_stg_nm, ");
+            sb.Append("COUNT(rvw_hdr_id) as total_emp  ");
             sb.Append("FROM public.pmsrvwhdrs r ");
             sb.Append("INNER JOIN pmssttstgs g ON g.rvw_stg_id = r.rvw_stg_id ");
             sb.Append("INNER JOIN pmsrvwsxns s ON s.rvw_sxn_id = r.rvw_sxn_id ");
@@ -1568,9 +1564,8 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
             sb.Append("INNER JOIN public.gst_locs l ON l.locqk = r.loc_id ");
             sb.Append("WHERE (r.rvw_sxn_id = @rvw_sxn_id ");
             sb.Append("AND r.loc_id = @loc_id) ");
-            sb.Append("GROUP BY r.rvw_sxn_id, l.locname, d.deptname, ");
-            sb.Append("u.unitname, r.rvw_stg_id, g.rvw_stg_nm ");
-            sb.Append("ORDER BY r.rvw_sxn_id, l.locname, d.deptname, u.unitname;");
+            sb.Append("GROUP BY r.rvw_sxn_id, r.rvw_stg_id, g.rvw_stg_nm ");
+            sb.Append("ORDER BY r.rvw_sxn_id, r.rvw_stg_id, g.rvw_stg_nm;");
             string query = sb.ToString();
             using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
             {
@@ -1592,9 +1587,6 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
                             ReviewSessionId = reader["rvw_sxn_id"] == DBNull.Value ? 0 : (int)reader["rvw_sxn_id"],
                             ReviewStageId = reader["rvw_stg_id"] == DBNull.Value ? 0 : (int)reader["rvw_stg_id"],
                             ReviewStageName = reader["rvw_stg_nm"] == DBNull.Value ? string.Empty : reader["rvw_stg_nm"].ToString(),
-                            UnitName = reader["unitname"] == DBNull.Value ? string.Empty : reader["unitname"].ToString(),
-                            DepartmentName = reader["deptname"] == DBNull.Value ? string.Empty : reader["deptname"].ToString(),
-                            LocationName = reader["locname"] == DBNull.Value ? string.Empty : reader["locname"].ToString(),
                             NoOfParticipants = reader["total_emp"] == DBNull.Value ? 0 : (long)reader["total_emp"],
                         });
                     }
@@ -1607,8 +1599,8 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
         {
             List<ParticipationSummary> participantsList = new List<ParticipationSummary>();
             StringBuilder sb = new StringBuilder();
-            sb.Append("SELECT r.rvw_sxn_id, l.locname, d.deptname, u.unitname, ");
-            sb.Append("r.rvw_stg_id, g.rvw_stg_nm, COUNT(rvw_hdr_id) as total_emp  ");
+            sb.Append("SELECT r.rvw_sxn_id, r.rvw_stg_id, g.rvw_stg_nm, ");
+            sb.Append("COUNT(rvw_hdr_id) as total_emp  ");
             sb.Append("FROM public.pmsrvwhdrs r ");
             sb.Append("INNER JOIN pmssttstgs g ON g.rvw_stg_id = r.rvw_stg_id ");
             sb.Append("INNER JOIN pmsrvwsxns s ON s.rvw_sxn_id = r.rvw_sxn_id ");
@@ -1618,9 +1610,8 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
             sb.Append("WHERE (r.rvw_sxn_id = @rvw_sxn_id) ");
             sb.Append("AND (r.loc_id = @loc_id) ");
             sb.Append("AND (r.dept_cd = @dept_id) ");
-            sb.Append("GROUP BY r.rvw_sxn_id, l.locname, d.deptname, ");
-            sb.Append("u.unitname, r.rvw_stg_id, g.rvw_stg_nm ");
-            sb.Append("ORDER BY r.rvw_sxn_id, l.locname, d.deptname, u.unitname;");
+            sb.Append("GROUP BY r.rvw_sxn_id, r.rvw_stg_id, g.rvw_stg_nm ");
+            sb.Append("ORDER BY r.rvw_sxn_id, r.rvw_stg_id, g.rvw_stg_nm;");
             string query = sb.ToString();
             using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
             {
@@ -1644,9 +1635,6 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
                             ReviewSessionId = reader["rvw_sxn_id"] == DBNull.Value ? 0 : (int)reader["rvw_sxn_id"],
                             ReviewStageId = reader["rvw_stg_id"] == DBNull.Value ? 0 : (int)reader["rvw_stg_id"],
                             ReviewStageName = reader["rvw_stg_nm"] == DBNull.Value ? string.Empty : reader["rvw_stg_nm"].ToString(),
-                            UnitName = reader["unitname"] == DBNull.Value ? string.Empty : reader["unitname"].ToString(),
-                            DepartmentName = reader["deptname"] == DBNull.Value ? string.Empty : reader["deptname"].ToString(),
-                            LocationName = reader["locname"] == DBNull.Value ? string.Empty : reader["locname"].ToString(),
                             NoOfParticipants = reader["total_emp"] == DBNull.Value ? 0 : (long)reader["total_emp"],
                         });
                     }
@@ -1659,21 +1647,20 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
         {
             List<ParticipationSummary> participantsList = new List<ParticipationSummary>();
             StringBuilder sb = new StringBuilder();
-            sb.Append("SELECT r.rvw_sxn_id, l.locname, d.deptname, u.unitname, ");
-            sb.Append("r.rvw_stg_id, g.rvw_stg_nm, COUNT(rvw_hdr_id) as total_emp  ");
+            sb.Append("SELECT r.rvw_sxn_id, r.rvw_stg_id, g.rvw_stg_nm, ");
+            sb.Append("COUNT(rvw_hdr_id) as total_emp  ");
             sb.Append("FROM public.pmsrvwhdrs r ");
             sb.Append("INNER JOIN pmssttstgs g ON g.rvw_stg_id = r.rvw_stg_id ");
             sb.Append("INNER JOIN pmsrvwsxns s ON s.rvw_sxn_id = r.rvw_sxn_id ");
             sb.Append("INNER JOIN public.gst_units u ON u.unitqk = r.unit_cd ");
             sb.Append("INNER JOIN public.gst_depts d ON d.deptqk = r.dept_cd ");
             sb.Append("INNER JOIN public.gst_locs l ON l.locqk = r.loc_id ");
-            sb.Append("WHERE (r.rvw_sxn_id = @rvw_sxn_id) ");
-            sb.Append("AND (r.loc_id = @loc_id) ");
-            sb.Append("AND (r.dept_cd = @dept_id) ");
-            sb.Append("AND (r.unit_cd = @unit_id) ");
-            sb.Append("GROUP BY r.rvw_sxn_id, l.locname, d.deptname, ");
-            sb.Append("u.unitname, r.rvw_stg_id, g.rvw_stg_nm ");
-            sb.Append("ORDER BY r.rvw_sxn_id, l.locname, d.deptname, u.unitname;");
+            sb.Append("WHERE (r.rvw_sxn_id = @rvw_sxn_id ");
+            sb.Append("AND r.loc_id = @loc_id ");
+            sb.Append("AND r.dept_cd = @dept_id ");
+            sb.Append("AND r.unit_cd = @unit_id) ");
+            sb.Append("GROUP BY r.rvw_sxn_id, r.rvw_stg_id, g.rvw_stg_nm ");
+            sb.Append("ORDER BY r.rvw_sxn_id, r.rvw_stg_id, g.rvw_stg_nm;");
             string query = sb.ToString();
             using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
             {
@@ -1699,9 +1686,6 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
                             ReviewSessionId = reader["rvw_sxn_id"] == DBNull.Value ? 0 : (int)reader["rvw_sxn_id"],
                             ReviewStageId = reader["rvw_stg_id"] == DBNull.Value ? 0 : (int)reader["rvw_stg_id"],
                             ReviewStageName = reader["rvw_stg_nm"] == DBNull.Value ? string.Empty : reader["rvw_stg_nm"].ToString(),
-                            UnitName = reader["unitname"] == DBNull.Value ? string.Empty : reader["unitname"].ToString(),
-                            DepartmentName = reader["deptname"] == DBNull.Value ? string.Empty : reader["deptname"].ToString(),
-                            LocationName = reader["locname"] == DBNull.Value ? string.Empty : reader["locname"].ToString(),
                             NoOfParticipants = reader["total_emp"] == DBNull.Value ? 0 : (long)reader["total_emp"],
                         });
                     }
@@ -1710,14 +1694,12 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
             }
             return participantsList;
         }
-
-
         public async Task<List<ParticipationSummary>> GetParticipationSummaryByReviewSessionIdnDepartmentIdAsync(int reviewSessionId, int departmentId)
         {
             List<ParticipationSummary> participantsList = new List<ParticipationSummary>();
             StringBuilder sb = new StringBuilder();
-            sb.Append("SELECT r.rvw_sxn_id, l.locname, d.deptname, u.unitname, ");
-            sb.Append("r.rvw_stg_id, g.rvw_stg_nm, COUNT(rvw_hdr_id) as total_emp  ");
+            sb.Append("SELECT r.rvw_sxn_id, r.rvw_stg_id, g.rvw_stg_nm, ");
+            sb.Append("COUNT(rvw_hdr_id) as total_emp  ");
             sb.Append("FROM public.pmsrvwhdrs r ");
             sb.Append("INNER JOIN pmssttstgs g ON g.rvw_stg_id = r.rvw_stg_id ");
             sb.Append("INNER JOIN pmsrvwsxns s ON s.rvw_sxn_id = r.rvw_sxn_id ");
@@ -1726,9 +1708,8 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
             sb.Append("INNER JOIN public.gst_locs l ON l.locqk = r.loc_id ");
             sb.Append("WHERE (r.rvw_sxn_id = @rvw_sxn_id) ");
             sb.Append("AND (r.dept_cd = @dept_id) ");
-            sb.Append("GROUP BY r.rvw_sxn_id, l.locname, d.deptname, ");
-            sb.Append("u.unitname, r.rvw_stg_id, g.rvw_stg_nm ");
-            sb.Append("ORDER BY r.rvw_sxn_id, l.locname, d.deptname, u.unitname;");
+            sb.Append("GROUP BY r.rvw_sxn_id, r.rvw_stg_id, g.rvw_stg_nm ");
+            sb.Append("ORDER BY r.rvw_sxn_id, r.rvw_stg_id, g.rvw_stg_nm;");
             string query = sb.ToString();
             using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
             {
@@ -1750,9 +1731,6 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
                             ReviewSessionId = reader["rvw_sxn_id"] == DBNull.Value ? 0 : (int)reader["rvw_sxn_id"],
                             ReviewStageId = reader["rvw_stg_id"] == DBNull.Value ? 0 : (int)reader["rvw_stg_id"],
                             ReviewStageName = reader["rvw_stg_nm"] == DBNull.Value ? string.Empty : reader["rvw_stg_nm"].ToString(),
-                            UnitName = reader["unitname"] == DBNull.Value ? string.Empty : reader["unitname"].ToString(),
-                            DepartmentName = reader["deptname"] == DBNull.Value ? string.Empty : reader["deptname"].ToString(),
-                            LocationName = reader["locname"] == DBNull.Value ? string.Empty : reader["locname"].ToString(),
                             NoOfParticipants = reader["total_emp"] == DBNull.Value ? 0 : (long)reader["total_emp"],
                         });
                     }
@@ -1765,8 +1743,8 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
         {
             List<ParticipationSummary> participantsList = new List<ParticipationSummary>();
             StringBuilder sb = new StringBuilder();
-            sb.Append("SELECT r.rvw_sxn_id, l.locname, d.deptname, u.unitname, ");
-            sb.Append("r.rvw_stg_id, g.rvw_stg_nm, COUNT(rvw_hdr_id) as total_emp  ");
+            sb.Append("SELECT r.rvw_sxn_id, r.rvw_stg_id, g.rvw_stg_nm, ");
+            sb.Append("COUNT(rvw_hdr_id) as total_emp  ");
             sb.Append("FROM public.pmsrvwhdrs r ");
             sb.Append("INNER JOIN pmssttstgs g ON g.rvw_stg_id = r.rvw_stg_id ");
             sb.Append("INNER JOIN pmsrvwsxns s ON s.rvw_sxn_id = r.rvw_sxn_id ");
@@ -1776,9 +1754,8 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
             sb.Append("WHERE (r.rvw_sxn_id = @rvw_sxn_id) ");
             sb.Append("AND (r.dept_cd = @dept_id) ");
             sb.Append("AND (r.unit_cd = @unit_id) ");
-            sb.Append("GROUP BY r.rvw_sxn_id, l.locname, d.deptname, ");
-            sb.Append("u.unitname, r.rvw_stg_id, g.rvw_stg_nm ");
-            sb.Append("ORDER BY r.rvw_sxn_id, l.locname, d.deptname, u.unitname;");
+            sb.Append("GROUP BY r.rvw_sxn_id, r.rvw_stg_id, g.rvw_stg_nm  ");
+            sb.Append("ORDER BY r.rvw_sxn_id, r.rvw_stg_id, g.rvw_stg_nm;");
             string query = sb.ToString();
             using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
             {
@@ -1802,9 +1779,6 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
                             ReviewSessionId = reader["rvw_sxn_id"] == DBNull.Value ? 0 : (int)reader["rvw_sxn_id"],
                             ReviewStageId = reader["rvw_stg_id"] == DBNull.Value ? 0 : (int)reader["rvw_stg_id"],
                             ReviewStageName = reader["rvw_stg_nm"] == DBNull.Value ? string.Empty : reader["rvw_stg_nm"].ToString(),
-                            UnitName = reader["unitname"] == DBNull.Value ? string.Empty : reader["unitname"].ToString(),
-                            DepartmentName = reader["deptname"] == DBNull.Value ? string.Empty : reader["deptname"].ToString(),
-                            LocationName = reader["locname"] == DBNull.Value ? string.Empty : reader["locname"].ToString(),
                             NoOfParticipants = reader["total_emp"] == DBNull.Value ? 0 : (long)reader["total_emp"],
                         });
                     }
@@ -1813,13 +1787,12 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
             }
             return participantsList;
         }
-
         public async Task<List<ParticipationSummary>> GetParticipationSummaryByReviewSessionIdnLocationIdnUnitIdAsync(int reviewSessionId, int locationId, int unitId)
         {
             List<ParticipationSummary> participantsList = new List<ParticipationSummary>();
             StringBuilder sb = new StringBuilder();
-            sb.Append("SELECT r.rvw_sxn_id, l.locname, d.deptname, u.unitname, ");
-            sb.Append("r.rvw_stg_id, g.rvw_stg_nm, COUNT(rvw_hdr_id) as total_emp  ");
+            sb.Append("SELECT r.rvw_sxn_id, r.rvw_stg_id, g.rvw_stg_nm, ");
+            sb.Append("COUNT(rvw_hdr_id) as total_emp  ");
             sb.Append("FROM public.pmsrvwhdrs r ");
             sb.Append("INNER JOIN pmssttstgs g ON g.rvw_stg_id = r.rvw_stg_id ");
             sb.Append("INNER JOIN pmsrvwsxns s ON s.rvw_sxn_id = r.rvw_sxn_id ");
@@ -1827,11 +1800,10 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
             sb.Append("INNER JOIN public.gst_depts d ON d.deptqk = r.dept_cd ");
             sb.Append("INNER JOIN public.gst_locs l ON l.locqk = r.loc_id ");
             sb.Append("WHERE (r.rvw_sxn_id = @rvw_sxn_id) ");
-            sb.Append("AND (r.loc_id = @loc_id) ");
+            sb.Append("AND (= @loc_id) ");
             sb.Append("AND (r.unit_cd = @unit_id) ");
-            sb.Append("GROUP BY r.rvw_sxn_id, l.locname, d.deptname, ");
-            sb.Append("u.unitname, r.rvw_stg_id, g.rvw_stg_nm ");
-            sb.Append("ORDER BY r.rvw_sxn_id, l.locname, d.deptname, u.unitname;");
+            sb.Append("GROUP BY r.rvw_sxn_id, r.rvw_stg_id, g.rvw_stg_nm ");
+            sb.Append("ORDER BY r.rvw_sxn_id, r.rvw_stg_id, g.rvw_stg_nm;");
             string query = sb.ToString();
             using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
             {
@@ -1870,8 +1842,8 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
         {
             List<ParticipationSummary> participantsList = new List<ParticipationSummary>();
             StringBuilder sb = new StringBuilder();
-            sb.Append("SELECT r.rvw_sxn_id, l.locname, d.deptname, u.unitname, ");
-            sb.Append("r.rvw_stg_id, g.rvw_stg_nm, COUNT(rvw_hdr_id) as total_emp  ");
+            sb.Append("SELECT r.rvw_sxn_id, r.rvw_stg_id, g.rvw_stg_nm, ");
+            sb.Append("COUNT(rvw_hdr_id) as total_emp  ");
             sb.Append("FROM public.pmsrvwhdrs r ");
             sb.Append("INNER JOIN pmssttstgs g ON g.rvw_stg_id = r.rvw_stg_id ");
             sb.Append("INNER JOIN pmsrvwsxns s ON s.rvw_sxn_id = r.rvw_sxn_id ");
@@ -1880,9 +1852,8 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
             sb.Append("INNER JOIN public.gst_locs l ON l.locqk = r.loc_id ");
             sb.Append("WHERE (r.rvw_sxn_id = @rvw_sxn_id) ");
             sb.Append("AND (r.unit_cd = @unit_id) ");
-            sb.Append("GROUP BY r.rvw_sxn_id, l.locname, d.deptname, ");
-            sb.Append("u.unitname, r.rvw_stg_id, g.rvw_stg_nm ");
-            sb.Append("ORDER BY r.rvw_sxn_id, l.locname, d.deptname, u.unitname;");
+            sb.Append("GROUP BY r.rvw_sxn_id, r.rvw_stg_id, g.rvw_stg_nm ");
+            sb.Append("ORDER BY r.rvw_sxn_id, r.rvw_stg_id, g.rvw_stg_nm;");
             string query = sb.ToString();
             using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
             {
@@ -1904,9 +1875,6 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
                             ReviewSessionId = reader["rvw_sxn_id"] == DBNull.Value ? 0 : (int)reader["rvw_sxn_id"],
                             ReviewStageId = reader["rvw_stg_id"] == DBNull.Value ? 0 : (int)reader["rvw_stg_id"],
                             ReviewStageName = reader["rvw_stg_nm"] == DBNull.Value ? string.Empty : reader["rvw_stg_nm"].ToString(),
-                            UnitName = reader["unitname"] == DBNull.Value ? string.Empty : reader["unitname"].ToString(),
-                            DepartmentName = reader["deptname"] == DBNull.Value ? string.Empty : reader["deptname"].ToString(),
-                            LocationName = reader["locname"] == DBNull.Value ? string.Empty : reader["locname"].ToString(),
                             NoOfParticipants = reader["total_emp"] == DBNull.Value ? 0 : (long)reader["total_emp"],
                         });
                     }
@@ -2008,7 +1976,7 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
             sb.Append("FROM public.pmsrvwhdrs r ");
             sb.Append("WHERE (r.rvw_sxn_id = @rvw_sxn_id) ");
             sb.Append("AND (r.loc_id = @loc_id) ");
-            sb.Append("AND (r.dept_cd = @dept_id);");
+            sb.Append("AND (r.dept_cd = @dept_id) ");
             sb.Append("AND (r.unit_cd = @unit_id);");
             string query = sb.ToString();
             using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
@@ -2033,8 +2001,6 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
             }
             return total;
         }
-
-
         public async Task<long> GetParticipantsCountByReviewSessionIdnDepartmentIdAsync(int reviewSessionId, int departmentId)
         {
             long total = 0;
@@ -2069,7 +2035,7 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
             sb.Append("SELECT COUNT(rvw_hdr_id) as total_emp ");
             sb.Append("FROM public.pmsrvwhdrs r ");
             sb.Append("WHERE (r.rvw_sxn_id = @rvw_sxn_id) ");
-            sb.Append("AND (r.dept_cd = @dept_id);");
+            sb.Append("AND (r.dept_cd = @dept_id) ");
             sb.Append("AND (r.unit_cd = @unit_id);");
             string query = sb.ToString();
             using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
@@ -2092,8 +2058,6 @@ namespace IntranetPortal.Data.Repositories.PmsRepositories
             }
             return total;
         }
-
-
         public async Task<long> GetParticipantsCountByReviewSessionIdnLocationIdnUnitIdAsync(int reviewSessionId, int locationId, int unitId)
         {
             long total = 0;
