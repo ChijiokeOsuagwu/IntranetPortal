@@ -7,11 +7,12 @@ namespace IntranetPortal.Base.Models.WspModels
     public class TaskItemEvaluation : TaskItem
     {
         public long EvaluationDetailId { get; set; }
-        public int EvaluationHeaderId { get; set; }
+        public long EvaluationHeaderId { get; set; }
         public string EvaluatorId { get; set; }
+        public string EvaluatorName { get; set; }
         public DateTime? EvaluationDate { get; set; } 
-        public int PercentageCompletion { get; set; }
-        public int QualityRating { get; set; }
+        public long CompletionScore { get; set; }
+        public long QualityScore { get; set; }
         public string EvaluatorComments { get; set; }
     }
 }

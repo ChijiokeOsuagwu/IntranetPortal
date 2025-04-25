@@ -60,6 +60,37 @@ $(document).ready(function () {
 });
 
 
+
+//======= Script to Delete a Task Item =========//
+function deleteTask(task_item_id) {
+    if (confirm('Are you sure you want to delete this task permanently?')) {
+        $.ajax({
+            type: 'POST',
+            url: '/WSP/Workspace/DeleteTaskItem',
+            dataType: "text",
+            data: { id: task_item_id },
+            success: function (result) {
+                if (result == "success") {
+                    location.reload();
+                }
+                else {
+                    console.log(result);
+                }
+            },
+            error: function (error) {
+                console.log(error);
+            }
+        })
+    }
+}
+
+
+
+
+
+
+
+
 //======= Script to Archive  a TaskList =========//
 function archiveTaskList(task_list_id) {
     $.ajax({

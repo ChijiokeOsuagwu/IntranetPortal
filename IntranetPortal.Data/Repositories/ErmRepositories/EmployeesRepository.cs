@@ -2296,7 +2296,6 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
         //============ End Employee Register Action Methods ==================//
         #endregion
 
-
         #region Employee Count Read Action Methods
         public async Task<long> GetEmployeesCountAsync(DateTime? terminalDate = null)
         {
@@ -2334,7 +2333,7 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
         {
             long totalCount = 0;
             string _terminalDate;
-            if(locationId < 1) { throw new ArgumentException("Invalid Argument value.", "Location ID"); }
+            if (locationId < 1) { throw new ArgumentException("Invalid Argument value.", "Location ID"); }
             if (terminalDate == null) { _terminalDate = DateTime.Today.ToString("dd-MM-yyyy"); }
             else { _terminalDate = terminalDate.Value.ToString("dd-MM-yyyy"); }
 
@@ -2599,8 +2598,6 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
         }
 
         #endregion
-
-
 
         #region Employee BirthDays Read Action Methods
 
@@ -2872,41 +2869,37 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
         public async Task<long> GetEmployeesCountByStartUpDateAsync(int startUpYear, int startUpMonth, int startUpDay)
         {
             long employeeCount = 0;
-            if (startUpYear < 1) { throw new ArgumentNullException(nameof(startUpYear)); }
-            if (startUpMonth < 1) { throw new ArgumentNullException(nameof(startUpMonth)); }
-            if (startUpDay < 1) { throw new ArgumentNullException(nameof(startUpDay)); }
+            if (startUpYear < 1) { startUpYear = DateTime.Today.Year; }
+            if (startUpMonth < 1) { startUpMonth = DateTime.Today.Month; }
+            if (startUpDay < 1) {startUpDay = DateTime.Today.Day; }
 
-            var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
-            string query = String.Empty;
             StringBuilder sb = new StringBuilder();
-
             sb.Append("SELECT COALESCE(COUNT(emp_id),0) as no_count ");
             sb.Append("FROM erm_emp_inf ");
             sb.Append("WHERE (date_part('year', start_up_date) = @start_up_year) ");
             sb.Append("AND (date_part('month', start_up_date) = @start_up_month) ");
             sb.Append("AND (date_part('day', start_up_date) = @start_up_day); ");
-
-            query = sb.ToString();
-
-            await conn.OpenAsync();
-            // Retrieve all rows
-            using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+            string query = sb.ToString();
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
             {
-                var start_up_year = cmd.Parameters.Add("@start_up_year", NpgsqlDbType.Integer);
-                var start_up_month = cmd.Parameters.Add("@start_up_month", NpgsqlDbType.Integer);
-                var start_up_day = cmd.Parameters.Add("@start_up_day", NpgsqlDbType.Integer);
-                await cmd.PrepareAsync();
-                start_up_year.Value = startUpYear;
-                start_up_month.Value = startUpMonth;
-                start_up_day.Value = startUpDay;
-
-                var no_count = await cmd.ExecuteScalarAsync();
-                employeeCount = Convert.ToInt64(no_count);
+                await conn.OpenAsync();
+                // Retrieve all rows
+                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+                {
+                    var start_up_year = cmd.Parameters.Add("@start_up_year", NpgsqlDbType.Integer);
+                    var start_up_month = cmd.Parameters.Add("@start_up_month", NpgsqlDbType.Integer);
+                    var start_up_day = cmd.Parameters.Add("@start_up_day", NpgsqlDbType.Integer);
+                    await cmd.PrepareAsync();
+                    start_up_year.Value = startUpYear;
+                    start_up_month.Value = startUpMonth;
+                    start_up_day.Value = startUpDay;
+                    var no_count = await cmd.ExecuteScalarAsync();
+                    employeeCount = Convert.ToInt64(no_count);
+                }
+                await conn.CloseAsync();
             }
-            await conn.CloseAsync();
             return employeeCount;
         }
-
         public async Task<IList<Employee>> GetAllEmployeesWithoutUserAccountsAsync(DateTime? terminalDate = null)
         {
             List<Employee> employeeList = new List<Employee>();
@@ -2973,7 +2966,6 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
             }
             return employeeList;
         }
-
         public async Task<IList<Employee>> GetEmployeesWithoutUserAccountsByNameAsync(string employeeName, DateTime? terminalDate = null)
         {
             List<Employee> employeeList = new List<Employee>();

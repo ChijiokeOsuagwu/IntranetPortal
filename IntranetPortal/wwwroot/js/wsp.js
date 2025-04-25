@@ -1,4 +1,64 @@
 ﻿
+$(document).ready(function () {
+
+    //============ Search Employee Names =======//
+    $("#ToEmployeeName").autocomplete(
+        {
+            minLength: 3,
+            source: function (request, response) {
+                var text = $("#ToEmployeeName").val();
+                var emp = $("#FromEmployeeID").val();
+                $.ajax({
+                    type: "GET",
+                    url: "/ERM/Home/GetOtherEmployeeNames?text=" + text+ "&emp=" +emp,
+                    data: { text: request.term },
+                    success: function (data) {
+                        response($.map(data, function (item) {
+                            return { label: item, value: item }
+                        }))
+                    }
+                })
+            }
+        })
+
+    $("#FromEmployeeName").autocomplete(
+        {
+            minLength: 3,
+            source: function (request, response) {
+                var text = $("#FromEmployeeName").val();
+                $.ajax({
+                    type: "GET",
+                    url: "/ERM/Home/GetEmployeeNames?text=" + text,
+                    data: { text: request.term },
+                    success: function (data) {
+                        response($.map(data, function (item) {
+                            return { label: item, value: item }
+                        }))
+                    }
+                })
+            }
+        })
+
+    $("#sn").autocomplete(
+        {
+            minLength: 3,
+            source: function (request, response) {
+                var text = $("#sn").val();
+                $.ajax({
+                    type: "GET",
+                    url: "/ERM/Home/GetEmployeeNames?text=" + text,
+                    data: { text: request.term },
+                    success: function (data) {
+                        response($.map(data, function (item) {
+                            return { label: item, value: item }
+                        }))
+                    }
+                })
+            }
+        })
+
+});
+
 
 //===== Function to save New Note to the database ========//
 function addNote() {
@@ -59,12 +119,12 @@ function addNote() {
 }
 
 //======= Script to Archive  a Task Folder =========//
-function archiveTaskFolder(folder_id) {
+function updateTaskFolderArchive(folder_id, archive_folder) {
     $.ajax({
         type: 'POST',
         url: '/WSP/Workspace/UpdateTaskFolderArchive',
         dataType: "text",
-        data: { id: folder_id, st: true },
+        data: { id: folder_id, st: archive_folder },
         success: function (result) {
             if (result == "success") {
                 location.reload();
@@ -80,12 +140,12 @@ function archiveTaskFolder(folder_id) {
 }
 
 //======= Script to reactivate a TaskList =======//
-function reactivateTaskList(task_list_id) {
+function reactivateTaskFolder(folder_id) {
     $.ajax({
         type: 'POST',
-        url: '/WKS/Tasks/UpdateTaskListArchive',
+        url: '/WSP/Workspace/UpdateTaskFolderArchive',
         dataType: "text",
-        data: { id: task_list_id, st: false },
+        data: { id: folder_id, st: false },
         success: function (result) {
             if (result == "success") {
                 location.reload();
@@ -94,19 +154,106 @@ function reactivateTaskList(task_list_id) {
                 console.log(result);
             }
         },
-        error: function () {
-            console.log('Error Code: 500. Failure due to server error.');
+        error: function (err) {
+            console.log(err);
         }
     })
 }
 
 //======= Script to Return Approved Task List =========//
-function returnTaskList(task_list_id, submission_id) {
+function returnTaskFolder(folder_id, submission_id, submission_type) {
     $.ajax({
         type: 'POST',
-        url: '/WKS/Tasks/ReturnTaskList',
+        url: '/WSP/Workspace/ReturnTaskFolder',
         dataType: "text",
-        data: { id: task_list_id, sd: submission_id },
+        data: { id: folder_id, sd: submission_id, ps: submission_type},
+        success: function (result) {
+            if (result == "success") {
+                window.location.replace("/WSP/Workspace/SubmittedToMe")
+            }
+            else {
+                console.log(result);
+            }
+        },
+        error: function (err) {
+            console.log(err);
+            alert(err);
+        }
+    })
+}
+
+//======= Script to Delete a Task Item =========//
+function deleteTaskItem(task_item_id) {
+    if (confirm('Are you sure you want to delete this task permanently?')) {
+        $.ajax({
+            type: 'POST',
+            url: '/WSP/Workspace/DeleteTaskItem',
+            dataType: "text",
+            data: { id: task_item_id },
+            success: function (result) {
+                if (result == "success") {
+                    location.reload();
+                }
+                else {
+                    console.log(result);
+                }
+            },
+            error: function (error) {
+                console.log(error);
+            }
+        })
+    }
+}
+
+//======= Script to Close a Task Item =========//
+function closeTaskItem(task_item_id) {
+    $.ajax({
+        type: 'POST',
+        url: '/WSP/Workspace/UpdateTaskStatus',
+        dataType: "text",
+        data: { id: task_item_id, cls: true },
+        success: function (result) {
+            if (result == "success") {
+                location.reload();
+            }
+            else {
+                console.log(result);
+            }
+        },
+        error: function () {
+            console.log('Error Code: 500. Failure due to server error.');
+        }
+    })
+}
+
+//======= Script to Re-Open a Task Item =========//
+function ReopenTaskItem(task_item_id) {
+    $.ajax({
+        type: 'POST',
+        url: '/WSP/Workspace/UpdateTaskStatus',
+        dataType: "text",
+        data: { id: task_item_id, cls: false },
+        success: function (result) {
+            if (result == "success") {
+                location.reload();
+            }
+            else {
+                console.log(result);
+            }
+        },
+        error: function () {
+            console.log('Error Code: 500. Failure due to server error.');
+        }
+    })
+}
+
+//======= Script to Update a Task Item Progress Status =========//
+function updateTaskProgress(task_item_id, new_status, old_status) {
+    $.ajax({
+        type: 'POST',
+        url: '/WSP/Workspace/UpdateTaskItemProgressStatus',
+        dataType: "text",
+        data: { id: task_item_id, ns: new_status, os: old_status},
         success: function (result) {
             if (result == "success") {
                 location.reload();
@@ -123,4 +270,120 @@ function returnTaskList(task_list_id, submission_id) {
 
 
 
-//==== Task Items Action Scripts ===========//
+
+//======= Script to Approve a Task Item =========//
+function approveTaskItem(task_item_id) {
+    $.ajax({
+        type: 'POST',
+        url: '/WSP/Workspace/ApproveTaskItem',
+        dataType: "text",
+        data: { id: task_item_id },
+        success: function (result) {
+            if (result == "success") {
+                location.reload();
+            }
+            else {
+                alert(result);
+                console.log(result);
+            }
+        },
+        error: function (msg) {
+            alert(msg);
+            console.log(msg);
+        }
+    })
+}
+
+//======= Script to Decline a Task Item =========//
+function declineTaskItem(task_item_id) {
+    $.ajax({
+        type: 'POST',
+        url: '/WSP/Workspace/DeclineTaskItem',
+        dataType: "text",
+        data: { id: task_item_id },
+        success: function (result) {
+            if (result == "success") {
+                location.reload();
+            }
+            else {
+                alert(result);
+                console.log(result);
+            }
+        },
+        error: function (error_message) {
+            alert(error_message);
+            console.log(error_message);
+        }
+    })
+}
+
+//======= Script to Delete a Task List Submission =========//
+function deleteFolderSubmission(submission_id) {
+    if (confirm('Are you sure you want to remove this record?')) {
+        $.ajax({
+            type: 'POST',
+            url: '/WSP/Workspace/DeleteTaskFolderSubmission',
+            dataType: "text",
+            data: { id: submission_id },
+            success: function (result) {
+                if (result == "success") {
+                    location.reload();
+                }
+                else {
+                    console.log(result);
+                }
+            },
+            error: function (err) {
+                console.log(err);
+            }
+        })
+    }
+}
+
+//======= Script to Approve a Task Item =========//
+function evaluateTaskItem(task_item_id, task_folder_id, task_evaluator_id, quality_score, evaluation_header_id, evaluation_detail_id) {
+    console.log("Calling ajax function....")
+    $.ajax({
+        type: 'POST',
+        url: '/WSP/Workspace/EvaluateTaskItem',
+        dataType: "text",
+        data: { td: task_item_id, fd:task_folder_id, ed:task_evaluator_id, qs:quality_score, hd: evaluation_header_id, dd:evaluation_detail_id },
+        success: function (result) {
+            if (result == "success") {
+                console.log("Function completed successfully! ");
+                location.reload();
+            }
+            else {
+                alert(result);
+                console.log(result);
+            }
+        },
+        error: function (msg) {
+            alert(msg);
+            console.log(msg);
+        }
+    })
+}
+
+//======= Script to Approve a Task Item =========//
+function moveTaskToFolder(task_item_id, folder_id) {
+    $.ajax({
+        type: 'POST',
+        url: '/WSP/Workspace/MoveTaskToFolder',
+        dataType: "text",
+        data: { id: task_item_id, fd: folder_id },
+        success: function (result) {
+            if (result == "success") {
+                location.reload();
+            }
+            else {
+                alert(result);
+                console.log(result);
+            }
+        },
+        error: function (msg) {
+            alert(msg);
+            console.log(msg);
+        }
+    })
+}

@@ -1,0 +1,95 @@
+﻿@model IntranetPortal.Areas.WSP.Models.MyArchivedTaskFoldersViewModel
+@{
+    ViewData["Title"] = "OfficeManager | Workspace";
+}
+<div class="container">
+    <h4>Channels Workspace</h4>
+    <hr />
+    <div class="row">
+        <div class="col-md-4">
+            <a asp-area="WSP" asp-controller="Workspace" asp-action="index" class="btn btn-sm btn-info mr-3" style="width:100px" title="Back">
+                <span class="text-white">Back</span>
+            </a>
+            <span class="fw-bold">My Archived Folders</span>
+        </div>
+        <div class="col-md-8">
+            <form asp-area="WSP" asp-controller="Workspace" asp-action="MyArchivedTaskFolders" method="get">
+                <span class="fw-bold">From: </span>
+                <input asp-for="fd" class="border-0" style="width:100px; margin-right:5px;" type="date" />
+                <span class="fw-bold">To: </span>
+                <input asp-for="td" class="border-0" style="width:100px; margin-right:5px;" type="date" />
+                <input type="submit" value="Search" class="btn btn-sm btn-info" style="width:100px" />
+                <input type="hidden" asp-for="Id" />
+            </form>
+        </div>
+    </div>
+    <hr />
+    <div class="row">
+        @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-x-circle"></i>
+                <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+    </div>
+    @if (Model == null || Model.ArchivedFolders == null || Model.ArchivedFolders.Count < 1)
+    {
+        <div class="alert alert-info fade show" role="alert">
+            <i class="bi bi-info-circle"></i>
+            <span class="fw-bold">No record was found.</span>
+        </div>
+    }
+    else
+    {
+        <div class="row mt-2">
+            @foreach (var folder in Model.ArchivedFolders)
+            {
+               <div class="col-md-6 col-lg-3 col-xlg-2">
+                        <div class="card card-hover">
+                            <div class="box bg-light text-center">
+                                <div>
+                                    @*@if (submission.IsActioned)
+                                    {
+                                        <span class="badge badge-success fw-bold" style="width:150px; border-radius:3px">Approved</span> }
+                                    else
+                                    {
+                                        <span class="badge badge-warning fw-bold" style="width:150px; border-radius:3px; color:black">Pending Approval</span>}*@
+                                </div>
+                                <a asp-area="WSP" asp-controller="Workspace" asp-action="MyArchivedEvaluations" asp-route-id="@folder.Id" asp-route-fn="@folder.Title" asp-route-od="@folder.OwnerId" >
+                                    <h1 class="font-light text-dark" title="@folder.Title">
+                                            <i class="bi bi-archive" style="font-size:3.0rem"></i>
+                                    </h1>
+                                    <div><span class="text-dark fw-bold">@folder.Title</span></div>
+                                </a>
+                                @*<div class="text-center p-0 m-0">
+                                    <span class="fw-bold" style="font-size:0.6rem; padding:0px; margin:0px"><em><u>Submitted By: </u><br />@folder..FromEmployeeName (@submission.FromEmployeeUnitName) </em></span>
+                                </div>
+                                <div class="text-center p-0 m-0">
+                                    <span class="fw-bold" style="font-size:0.6rem; padding:0px; margin:0px"><em><u>Submitted On: </u><br />@submission.DateSubmitted.Value.ToLongDateString() @submission.DateSubmitted.Value.ToShortTimeString()</em></span>
+                                </div>*@
+                            </div>
+                            <div class="text-center">
+                                <div class="btn-group dropstart">
+                                    <button type="button" data-bs-toggle="dropdown" aria-expanded="false" style="border:0px">
+                                        <span class="fw-bold" style="font-size:1.0rem;"><i class="bi bi-three-dots"></i></span>
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton2">
+                                        <li>
+                                            <a class="dropdown-item" asp-area="WSP" asp-controller="Workspace" asp-action="Notes" asp-route-fd="@folder.Id" asp-route-sp="sbf">
+                                                <i class="bi bi-stickies"></i> <span>Notes</span>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+            }
+        </div>
+    }
+</div>
+@section Scripts{
+    <script src="~/js/wsp.js"></script>
+}

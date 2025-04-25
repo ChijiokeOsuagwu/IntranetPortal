@@ -8,7 +8,7 @@ namespace IntranetPortal.Base.Models.WspModels
     {
         public long? TimelineChangeId { get; set; }
         public long TaskItemId { get; set; }
-        public int TaskListId { get; set; }
+        public long WorkItemFolderId { get; set; }
         public DateTime? PreviousStartDate { get; set; }
         public DateTime? PreviousEndDate { get; set; }
         public DateTime? NewStartDate { get; set; }

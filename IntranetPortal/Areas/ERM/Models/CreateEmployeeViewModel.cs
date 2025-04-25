@@ -75,7 +75,8 @@ namespace IntranetPortal.Areas.ERM.Models
 
         [Display(Name = "Start Up Date")]
         [DataType(DataType.Date)]
-        public DateTime? StartUpDate { get; set; }
+        [Required]
+        public DateTime StartUpDate { get; set; }
 
         [Display(Name = "Job Grade")]
         public string JobGrade { get; set; }

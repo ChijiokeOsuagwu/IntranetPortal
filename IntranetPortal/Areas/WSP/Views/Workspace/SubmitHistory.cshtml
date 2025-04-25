@@ -1,0 +1,115 @@
+﻿
+@model IntranetPortal.Areas.WSP.Models.SubmitHistoryViewModel
+<div class="container">
+    <h4 class="mb-1">Channels Workspace</h4>
+    <hr />
+    <div class="row">
+        <div class="col-md-2">
+            <button class="btn btn-sm btn-dark" onclick="history.back()" style="width:75px">
+                <span class="text-white fw-bold">Back</span>
+            </button>
+        </div>
+        <div class="col-md-8">
+            <h5>Submit History for: @Model.FolderName</h5>
+        </div>
+        <div class="col-md-2">
+            <a class="btn btn-sm btn-info" asp-area="WSP" asp-controller="Workspace" asp-action="SubmitTaskFolder" asp-route-id="@Model.FolderID" style="width:75px">
+                 <span class="text-white fw-bold">Submit</span>
+            </a>
+        </div>
+    </div>
+    <div class="mb-1">
+        <div>
+            @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bi bi-x-circle"></i>
+                    <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+        </div>
+        <div class="row">
+            @if (Model == null || Model.FolderSumissions == null || Model.FolderSumissions.Count < 1)
+            {
+                <div class="alert alert-info fade show" role="alert">
+                    <i class="bi bi-info-circle"></i>
+                    <span class="fw-bold">No record was found.</span>
+                </div>
+            }
+            else
+            {
+                int row_number = 0;
+                <div class="table-responsive">
+                    <table class="table table-sm border-0 p-0">
+                        <thead style="background-color:#273746">
+                            <tr>
+                                <th>
+                                    <span class="text-white fw-bolder">#</span>
+                                </th>
+                                <th>
+                                    <span class="text-white fw-bolder" style="font-size:1.0rem">Submitted To</span>
+                                </th>
+                                <th>
+                                    <span class="text-white fw-bolder" style="font-size:1.0rem">Date</span>
+                                </th>
+                                <th>
+                                    <span class="text-white fw-bolder" style="font-size:1.0rem">Purpose</span>
+                                </th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var submission in Model.FolderSumissions)
+                            {
+                                row_number++;
+                                <tr style="border-bottom:2px solid #abb2b9">
+                                    <td>
+                                        <span class="text-dark fw-bolder" >@row_number.ToString()</span>
+                                    </td>
+                                    <td>
+                                        <span class="text-dark fw-bold">
+                                            @submission.ToEmployeeName
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="text-dark fw-bold">
+                                            @submission.DateSubmitted.Value.ToLongDateString() @submission.DateSubmitted.Value.ToLongTimeString()
+                                        </span>
+                                    </td>
+                                    <td>
+                                        @if (submission.SubmissionType == WorkItemSubmissionType.Approval)
+                                        {
+                                            <span class="text-dark fw-bold">
+                                                Approval
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-dark fw-bold" >
+                                                Evaluation
+                                            </span>
+                                        }
+                                    </td>
+                                    <td class="p-2 text-end">
+                                        @*<a asp-area="WSP" asp-controller="Workspace" asp-action="AppraisalSubmissionDetails" asp-route-id="@submission.ReviewSubmissionId" title="See Details" style="border:none">
+                                            <i class="bi bi-info-square" style="font-size:1.2rem; color:black; font-weight:600"></i>
+                                        </a>*@
+                                        <button title="Delete" style="border:none" onclick="deleteSubmission('@submission.FolderSubmissionId')">
+                                            <i class="bi bi-trash" style="font-size:1.2rem; color:black; font-weight:600"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+        <input type="hidden" asp-for="FolderID" />
+        <input type="hidden" asp-for="FolderName" />
+    </div>
+</div>
+@section Scripts{
+   
+}

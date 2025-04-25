@@ -16,9 +16,9 @@ namespace IntranetPortal.Areas.WSP.Models
         public bool FolderIsArchived { get; set; }
         public string FolderOwnerID { get; set; }
         public string FolderOwnerName { get; set; }
+        public string FolderOwnerUnitName { get; set; }
         public bool IsPendingTasks { get; set; }
-        public string SourcePage { get; set; }
         public List<TaskItem> TaskItems { get; set; }
-
+        public List<WorkItemFolder> TaskFolderList { get; set; }
     }
 }

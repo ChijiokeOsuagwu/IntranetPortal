@@ -5,8 +5,8 @@
 <div class="card mt-1">
     <div class="card-header bg-info">
         <div class="row">
-            <div class="col-md-6"><h4 class="text-white">Manage Task</h4></div>
-            <div class="col-md-6 text-end"><h5 class="text-white">Task No.: @Model.Number</h5></div>
+            @if(Model.Id > 0) {<div class="col-md-12"><h4 class="text-white">Edit Task</h4></div> }
+            else { <div class="col-md-12"><h4 class="text-white">New Task</h4></div>}
         </div>
     </div>
     <div class="card-body table-secondary">
@@ -36,29 +36,10 @@
         }
     <form asp-area="WSP" asp-controller="Workspace" asp-action="ManageTask" method="post" autocomplete="off">
         <div class="row">
-            <div class="col-md-12 mb-2">
-                <label class="form-label text-dark fw-bold">Description</label>
-                <textarea asp-for="Description" class="form-control fw-bold" autofocus>@Model.Description</textarea>
-                <div><span asp-validation-for="Description" class="text-danger"></span></div>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-md-12 mb-2">
-                <label class="form-label text-dark fw-bold">More Information</label>
-                <textarea asp-for="MoreInformation" class="form-control fw-bold" rows="2" >@Model.MoreInformation</textarea>
-                <div><span asp-validation-for="MoreInformation" class="text-danger"></span></div>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-md-2 mb-2">
-                <label class="form-label text-dark fw-bold">Start Date</label>
-                <input asp-for="ExpectedStartTime" class="form-control fw-bold"  type="date">
-                <div><span asp-validation-for="ExpectedStartTime" class="text-danger"></span></div>
-            </div>
-            <div class="col-md-2 mb-2">
-                <label class="form-label text-dark fw-bold">Due Date</label>
-                <input asp-for="ExpectedDueTime" class="form-control fw-bold" type="date">
-                <div><span asp-validation-for="ExpectedDueTime" class="text-danger"></span></div>
+            <div class="col-md-3 mb-2">
+                <label class="form-label text-dark fw-bold">Task No.</label>
+                <input asp-for="Number" class="form-control fw-bold" readonly>
+                <div><span asp-validation-for="Number" class="text-danger"></span></div>
             </div>
             <div class="col-md-3 mb-2">
                 <label class="form-label text-dark fw-bold">Status</label>
@@ -68,33 +49,54 @@
                     <option value="2">Completed</option>
                     <option value="3">On Hold</option>
                 </select>
+                <div><span asp-validation-for="ProgressStatusId" class="text-danger"></span></div>
+            </div>
+            <div class="col-md-3 mb-2">
+                <label class="form-label text-dark fw-bold">Start Date</label>
+                <input asp-for="ExpectedStartTime" class="form-control fw-bold" type="date">
+                <div><span asp-validation-for="ExpectedStartTime" class="text-danger"></span></div>
+            </div>
+            <div class="col-md-3 mb-2">
+                <label class="form-label text-dark fw-bold">Due Date</label>
+                <input asp-for="ExpectedDueTime" class="form-control fw-bold" type="date">
                 <div><span asp-validation-for="ExpectedDueTime" class="text-danger"></span></div>
             </div>
-            <div class="col-md-5 text-end">
-                <a asp-area="WSP" asp-controller="Workspace" asp-action="MyTaskList" asp-route-id="@Model.WorkFolderId" class="btn btn-dark" style="width:75px; margin-top:30px" title="Back">
-                    <span class="text-white">Back</span>
-                </a>
+        </div>
+        <div class="row">
+            <div class="col-md-12 mb-2">
+                <label class="form-label text-dark fw-bold">Description</label>
+                <textarea asp-for="Description" class="form-control fw-bold" autofocus>@Model.Description</textarea>
+                <div><span asp-validation-for="Description" class="text-danger"></span></div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12 text-end">
+                @if (Model.SourcePage == "sbt")
+                {
+                    <a asp-area="WSP" asp-controller="Workspace" asp-action="SubmittedTasks" asp-route-id="@Model.WorkFolderId" class="btn btn-dark" style="width:75px; margin-top:30px" title="Back">
+                        <span class="text-white">Back</span>
+                    </a>
+                }
+                else if (Model.SourcePage == "mtl")
+                {
+                    <a asp-area="WSP" asp-controller="Workspace" asp-action="MyTaskList" asp-route-id="@Model.WorkFolderId" asp-route-nm="@Model.WorkFolderName" class="btn btn-dark" style="width:75px; margin-top:30px" title="Back">
+                        <span class="text-white">Back</span>
+                    </a>
+                }
+                else
+                {
+                    <a asp-area="WSP" asp-controller="Workspace" asp-action="Index" class="btn btn-dark" style="width:75px; margin-top:30px" title="Back">
+                        <span class="text-white">Back</span>
+                    </a>
+
+                }
                 <a asp-area="WSP" asp-controller="Workspace" asp-action="ManageTask" asp-route-id="@Model.Id" asp-route-od="@Model.TaskOwnerId" asp-route-fd="@Model.WorkFolderId" class="btn btn-warning" style="width:75px; margin-top:30px" title="Clear">
                     <span class="text-white">Clear</span>
                 </a>
                 <button type="submit" class="btn btn-info" title="Save" style="width:100px; margin-top:30px"><span class="text-white">Save</span></button>
             </div>
         </div>
-        @*<div class="row">
-            <div class="col-md-2">
-            </div>
-            <div class="col-md-10 text-end">
-                <a asp-area="WSP" asp-controller="Workspace" asp-action="MyTaskList" asp-route-id="@Model.WorkFolderId" class="btn btn-dark" style="width:100px" title="Back">
-                    <span class="text-white">Back</span>
-                </a>
-                <a asp-area="WSP" asp-controller="Workspace" asp-action="ManageTask" asp-route-id="@Model.Id" asp-route-od="@Model.TaskOwnerId" asp-route-fd="@Model.WorkFolderId" class="btn btn-warning" style="width:100px" title="Clear">
-                    <span class="text-white">Clear</span>
-                </a>
-                    <button type="submit" class="btn btn-info" title="Save" style="width:200px"><span class="text-white">Save</span></button>
-            </div>
-        </div>*@
         <input type="hidden" asp-for="Id" />
-        <input type="hidden" asp-for="Number" />
         <input type="hidden" asp-for="WorkFolderId" />
         <input type="hidden" asp-for="TaskOwnerId" />
         <input type="hidden" asp-for="UnitId" />
@@ -102,6 +104,8 @@
         <input type="hidden" asp-for="LocationId" />
         <input type="hidden" asp-for="ApprovalStatusId" />
         <input type="hidden" asp-for="StageId" />
+        <input type="hidden" asp-for="SourcePage" />
+        <input type="hidden" asp-for="FolderSubmissionId" />
     </form>
     </div>
 </div>

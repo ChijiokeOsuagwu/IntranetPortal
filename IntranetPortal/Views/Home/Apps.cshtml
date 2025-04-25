@@ -16,8 +16,8 @@
             <div class="col-md-6 col-lg-2 col-xlg-3">
                 <a asp-area="" asp-controller="Home" asp-action="XDB">
                     <div class="card card-hover">
-                        <div class="box bg-info text-center">
-                            <h1 class="font-light text-white"><i class="fa fa-briefcase"></i></h1>
+                        <div class="box text-center" style="background-color:#4F2549">
+                            <h1 class="font-light text-white"><i class="fas fa-user-tie"></i></h1>
                             <h6 class="text-white">Executive Dashboard</h6>
                         </div>
                     </div>
@@ -26,20 +26,9 @@
         }
         <!-- Column -->
         <div class="col-md-6 col-lg-2 col-xlg-3">
-            <a asp-area="WKS" asp-controller="Tasks" asp-action="Index">
-                <div class="card card-hover">
-                    <div class="box bg-danger text-center">
-                        <h1 class="font-light text-white"><i class="fas fa-laptop-house"></i></h1>
-                        <h6 class="text-white">Channels Workspace</h6>
-                    </div>
-                </div>
-            </a>
-        </div>
-        <!-- Column -->
-        <div class="col-md-6 col-lg-2 col-xlg-3">
             <a asp-area="WSP" asp-controller="Workspace" asp-action="Index">
                 <div class="card card-hover">
-                    <div class="box bg-info text-center">
+                    <div class="box bg-danger text-center">
                         <h1 class="font-light text-white"><i class="fas fa-laptop-house"></i></h1>
                         <h6 class="text-white">Channels Workspace</h6>
                     </div>
@@ -59,20 +48,20 @@
         </div>
         <!-- Column -->
         <div class="col-md-6 col-lg-2 col-xlg-3">
-            <a asp-area="LMS" asp-controller="Home" asp-action="Index">
-                <div class="card card-hover">
-                    <div class="box bg-dark text-center">
-                        <h1 class="font-light text-white"><i class="bi bi-bag"></i></h1>
-                        <h6 class="text-white">Leave Management</h6>
-                    </div>
+            @*<a asp-area="LMS" asp-controller="Home" asp-action="Index">*@
+            <div class="card card-hover">
+                <div class="box text-center" style="background-color:#37912E">
+                    <h1 class="font-light text-white"><i class="bi bi-bag"></i></h1>
+                    <h6 class="text-white">Leave Management</h6>
                 </div>
-            </a>
+            </div>
+            @*</a>*@
         </div>
         <!-- Column -->
         <div class="col-md-6 col-lg-2 col-xlg-3">
             <a asp-area="CLM" asp-controller="Home" asp-action="Index">
                 <div class="card card-hover">
-                    <div class="box bg-success text-center">
+                    <div class="box text-center" style="background-color:#005D47">
                         <h1 class="font-light text-white"><i class="fas fa-chalkboard-teacher"></i></h1>
                         <h6 class="text-white">Channels Learning</h6>
                     </div>
@@ -83,7 +72,7 @@
         <div class="col-md-6 col-lg-2 col-xlg-3">
             <a asp-area="ContentManager" asp-controller="Home" asp-action="Index">
                 <div class="card card-hover">
-                    <div class="box bg-cyan text-center">
+                    <div class="box text-center" style="background-color:#A7781E">
                         <h1 class="font-light text-white"><i class="bi bi-window-sidebar"></i></h1>
                         <h6 class="text-white">Content Manager</h6>
                     </div>
@@ -92,72 +81,72 @@
         </div>
         <!-- Column -->
         @*@if (User.IsInRole("XYALLACCZ") || User.IsInRole("ERMVWAEMR"))
-        {*@
-        <div class="col-md-6 col-lg-2 col-xlg-3">
-            <a asp-area="ERM" asp-controller="Home" asp-action="Index">
-                <div class="card card-hover">
-                    <div class="box bg-success text-center">
-                        <h1 class="font-light text-white"><i class="far fa-address-card"></i></h1>
-                        <h6 class="text-white">Employee Records</h6>
+            {*@
+            <div class="col-md-6 col-lg-2 col-xlg-3">
+                <a asp-area="ERM" asp-controller="Home" asp-action="Index">
+                    <div class="card card-hover">
+                        <div class="box text-center" style="background-color:#37912E">
+                            <h1 class="font-light text-white"><i class="far fa-address-card"></i></h1>
+                            <h6 class="text-white">Employee Records</h6>
+                        </div>
                     </div>
-                </div>
-            </a>
-        </div>
-        @*}
+                </a>
+            </div>
+            @*}
 
         @if (User.IsInRole("XYALLACCZ") || User.IsInRole("AMSVWAINF") || User.IsInRole("AMSVWATXN") || User.IsInRole("AMSVWASTT"))
         {*@
-        <!-- Column -->
-        <div class="col-md-6 col-lg-2 col-xlg-3">
-            <a asp-area="AssetManager" asp-controller="Home" asp-action="Index">
-                <div class="card card-hover">
-                    <div class="box bg-danger text-center">
-                        <h1 class="font-light text-white"><i class="bi bi-tv"></i></h1>
-                        <h6 class="text-white">Assets & Equipment</h6>
+            <!-- Column -->
+            <div class="col-md-6 col-lg-2 col-xlg-3">
+                <a asp-area="AssetManager" asp-controller="Home" asp-action="Index">
+                    <div class="card card-hover">
+                        <div class="box text-center" style="background-color:#005D47">
+                            <h1 class="font-light text-white"><i class="bi bi-tv"></i></h1>
+                            <h6 class="text-white">Assets & Equipment</h6>
+                        </div>
                     </div>
-                </div>
-            </a>
-        </div>
-        @*}
+                </a>
+            </div>
+            @*}
         @if (User.IsInRole("XYALLACCZ") || User.IsInRole("BPSVWCUSR") || User.IsInRole("BPSVWSUPR"))
         {*@
-        <!-- Column -->
-        <div class="col-md-6 col-lg-2 col-xlg-3">
-            <a asp-area="PartnerServices" asp-controller="Home" asp-action="Index">
-                <div class="card card-hover">
-                    <div class="box bg-warning text-center">
-                        <h1 class="font-light text-white"><i class="fas fa-user-tie"></i></h1>
-                        <h6 class="text-white">Vendors & Customers</h6>
+            <!-- Column -->
+            <div class="col-md-6 col-lg-2 col-xlg-3">
+                <a asp-area="PartnerServices" asp-controller="Home" asp-action="Index">
+                    <div class="card card-hover">
+                        <div class="box text-center" style="background-color:#4F2549">
+                            <h1 class="font-light text-white"><i class="fa fa-briefcase"></i></h1>
+                            <h6 class="text-white">Vendors & Customers</h6>
+                        </div>
                     </div>
-                </div>
-            </a>
-        </div>
-        @*}
+                </a>
+            </div>
+            @*}
         @if (User.IsInRole("XYALLACCZ") || User.IsInRole("BAMVWASSG") || User.IsInRole("BAMVWDPLS"))
         {*@
-        <!-- Column -->
-        <div class="col-md-6 col-lg-2 col-xlg-3">
-            <a asp-area="Bams" asp-controller="Home" asp-action="Index">
+            <!-- Column -->
+            <div class="col-md-6 col-lg-2 col-xlg-3">
+                <a asp-area="Bams" asp-controller="Home" asp-action="Index">
+                    <div class="card card-hover">
+                        <div class="box bg-danger text-center">
+                            <h1 class="font-light text-white"><i class="bi bi-broadcast-pin"></i></h1>
+                            <h6 class="text-white">Broadcast Assignments</h6>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            @*}*@
+            <!-- Column -->
+            <div class="col-md-6 col-lg-2 col-xlg-3">
                 <div class="card card-hover">
-                    <div class="box bg-cyan text-center">
-                        <h1 class="font-light text-white"><i class="bi bi-broadcast-pin"></i></h1>
-                        <h6 class="text-white">Broadcast Assignments</h6>
+                    <div class="box bg-info text-center">
+                        <h1 class="font-light text-white"><i class="fas fa-file-invoice-dollar"></i></h1>
+                        <h6 class="text-white">Requisitions Processing</h6>
                     </div>
                 </div>
-            </a>
-        </div>
-        @*}*@
-        <!-- Column -->
-        <div class="col-md-6 col-lg-2 col-xlg-3">
-            <div class="card card-hover">
-                <div class="box bg-purple text-center">
-                    <h1 class="font-light text-white"><i class="fas fa-file-invoice-dollar"></i></h1>
-                    <h6 class="text-white">Requisitions Processing</h6>
-                </div>
             </div>
-        </div>
-        <!-- Column -->
-        @*<div class="col-md-6 col-lg-2 col-xlg-3">
+            <!-- Column -->
+            @*<div class="col-md-6 col-lg-2 col-xlg-3">
             <div class="card card-hover">
                 <div class="box bg-secondary text-center">
                     <h1 class="font-light text-white"><i class="mdi mdi-calendar-check"></i></h1>
@@ -165,36 +154,36 @@
                 </div>
             </div>
         </div>*@
-        @if (User.IsInRole("XYALLACCZ"))
-        {
-            <!-- Column -->
-            <div class="col-md-6 col-lg-2 col-xlg-3">
-                <a asp-area="UserAdministration" asp-controller="Home" asp-action="Index">
-                    <div class="card card-hover">
-                        <div class="box bg-dark text-center">
-                            <h1 class="font-light text-white"><i class="bi bi-people"></i></h1>
-                            <h6 class="text-white">Security</h6>
+            @if (User.IsInRole("XYALLACCZ"))
+            {
+                <!-- Column -->
+                <div class="col-md-6 col-lg-2 col-xlg-3">
+                    <a asp-area="UserAdministration" asp-controller="Home" asp-action="Index">
+                        <div class="card card-hover">
+                            <div class="box bg-dark text-center">
+                                <h1 class="font-light text-white"><i class="bi bi-people"></i></h1>
+                                <h6 class="text-white">Security</h6>
+                            </div>
                         </div>
-                    </div>
-                </a>
-            </div>
-        }
-        @if (User.IsInRole("XYALLACCZ") || User.IsInRole("GBSVWASTT") || User.IsInRole("GBSMGASTT"))
-        {
-            <!-- Column -->
-            <div class="col-md-6 col-lg-2 col-xlg-3">
-                <a asp-area="GlobalSettings" asp-controller="Home" asp-action="Index">
-                    <div class="card card-hover">
-                        <div class="box bg-dark text-center">
-                            <h1 class="font-light text-white"><i class="bi bi-sliders"></i></h1>
-                            <h6 class="text-white">Settings</h6>
+                    </a>
+                </div>
+            }
+            @if (User.IsInRole("XYALLACCZ") || User.IsInRole("GBSVWASTT") || User.IsInRole("GBSMGASTT"))
+            {
+                <!-- Column -->
+                <div class="col-md-6 col-lg-2 col-xlg-3">
+                    <a asp-area="GlobalSettings" asp-controller="Home" asp-action="Index">
+                        <div class="card card-hover">
+                            <div class="box bg-dark text-center">
+                                <h1 class="font-light text-white"><i class="bi bi-sliders"></i></h1>
+                                <h6 class="text-white">Settings</h6>
+                            </div>
                         </div>
-                    </div>
-                </a>
-            </div>
-        }
-        <!-- Column -->
-    </div>
+                    </a>
+                </div>
+            }
+            <!-- Column -->
+        </div>
 </div>
 @section Scripts{
 

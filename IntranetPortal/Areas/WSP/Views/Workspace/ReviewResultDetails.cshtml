@@ -1,0 +1,124 @@
+﻿@model IntranetPortal.Areas.WSP.Models.ReviewResultDetailsViewModel
+@{
+    ViewData["Title"] = "OfficeManager | Channels OfficeManager";
+}
+<div class="container">
+    <h4>Task Review Results</h4>
+    <hr />
+    <div class="row">
+        <div class="col-md-3 mb-1">
+            <button class="btn btn-dark" style="width:100px" title="Back" onclick="history.back();">
+                <span class="text-white"><i class="bi bi-backspace"></i> Back</span>
+            </button>
+        </div>
+        <div class="col-md-6 mb-1 text-end">
+
+        </div>
+        <div class="col-md-3 mb-1 text-end">
+
+        </div>
+    </div>
+    <div class="row">
+        @if (!String.IsNullOrEmpty(ViewBag.ErrorMessage))
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-x-circle"></i>
+                <span class="fw-bold">@ViewBag.ErrorMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+    </div>
+    @if (Model == null || Model.EvaluationDetailList == null || Model.EvaluationDetailList.Count < 1)
+    {
+        <div class="alert alert-info fade show" role="alert">
+            <i class="bi bi-info-circle"></i>
+            <span class="fw-bold">No record was found.</span>
+        </div>
+    }
+    else
+    {
+        @if (Model != null && Model.EvaluationDetailList != null && Model.EvaluationDetailList.Count > 0)
+        {
+            int row_no = 0;
+            <div class="row">
+                <div class="table-responsive" style="min-height:500px;">
+                    <table class="table table-hover">
+                        <thead class="table-dark">
+                            <tr>
+                                <th><span class="text-white fw-bold">#</span></th>
+                                <th><span class="text-white fw-bold">Task Description</span></th>
+                                <th><span class="text-white fw-bold">% Completion</span></th>
+                                <th><span class="text-white fw-bold">Quality Rating</span></th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody class="table-light">
+
+                            @foreach (var taskItemEvaluation in Model.EvaluationDetailList)
+                            {
+                                row_no++;
+                                <tr>
+                                    <td>
+                                        <span class="fw-bold ml-1" title="@taskItemEvaluation.TaskItemNo">@taskItemEvaluation.TaskItemNo</span>
+                                    </td>
+                                    <td>
+                                        <span class="fw-bold ml-1" title="@taskItemEvaluation.TaskItemDescription">@taskItemEvaluation.TaskItemDescription</span>
+                                    </td>
+                                    <td style="min-width:100px">
+                                        <span class="fw-bold text-dark" title="@taskItemEvaluation.CompletionScore.ToString() %">@taskItemEvaluation.CompletionScore.ToString() %</span>
+                                    </td>
+                                    <td>
+                                        @if (taskItemEvaluation.QualityScore == 1)
+                                        {
+                                            <h4><span class="badge rounded-pill text-dark fw-bold" style="background-color:#DFFF00; width:100px" title="Poor">Poor</span></h4>
+                                        }
+                                        else if (taskItemEvaluation.QualityScore == 3)
+                                        {
+                                            <h4><span class="badge rounded-pill text-white fw-bold" title="Good" style="background-color:#7d3c98; width:100px">Good</span></h4>
+                                        }
+                                        else if (taskItemEvaluation.QualityScore == 2)
+                                        {
+                                            <h4><span class="badge bg-info rounded-pill text-white fw-bold" title="Fair" style="width:100px">Fair</span></h4>
+                                        }
+                                    </td>
+                                    <td style="vertical-align:top">
+                                        <!-- Default dropstart button -->
+                                        <div class="btn-group dropstart">
+                                            <button type="button" data-bs-toggle="dropdown" aria-expanded="false" style="border:0px">
+                                                <span class="fw-bold" style="font-size:1.0rem;"><i class="bi bi-three-dots-vertical"></i></span>
+                                            </button>
+                                            <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton2">
+                                                <li>
+                                                    <a class="dropdown-item" asp-area="WSP" asp-controller="Workspace" asp-action="TaskDetails" asp-route-id="@taskItemEvaluation.TaskItemId">
+                                                        <i class="bi bi-info-circle"></i> <span>Details</span>
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <a class="dropdown-item" asp-area="WSP" asp-controller="Workspace" asp-action="Notes" asp-route-td="@taskItemEvaluation.TaskItemId" asp-route-fd="@taskItemEvaluation.TaskFolderId" asp-route-sp="mrd" asp-route-tp="0">
+                                                        <i class="bi bi-stickies"></i> <span>Notes</span>
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <a class="dropdown-item" asp-area="WSP" asp-controller="Workspace" asp-action="Activities" asp-route-td="@taskItemEvaluation.TaskItemId">
+                                                        <i class="bi bi-file-text"></i> <span>History</span>
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <a class="dropdown-item" asp-area="WSP" asp-controller="Workspace" asp-action="ScheduleHistory" asp-route-id="@taskItemEvaluation.TaskItemId" asp-route-fd="@taskItemEvaluation.TaskFolderId">
+                                                        <i class="bi bi-file-text"></i> <span>Schedule History</span>
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        }
+    }
+</div>
+@section Scripts{
+}

@@ -1,0 +1,52 @@
+﻿@{
+    ViewData["Title"] = "OfficeManager | Channels Workspace";
+}
+<link href="~/lib/matrix/dist/css/style.min.css" rel="stylesheet" />
+<div class="my-2">
+    <!-- ============================================================== -->
+    <!-- Sales Cards  -->
+    <!-- ============================================================== -->
+    <h4 class="fw-bold">Channels Workspace | Reports</h4>
+    <hr />
+    <div class="row">
+        <!-- Column -->
+        <div class="col-md-6 col-lg-2 col-xlg-3">
+            <a asp-area="WSP" asp-controller="Workspace" asp-action="Index">
+                <div class="card card-hover">
+                    <div class="box bg-light text-center">
+                        <h1 class="font-light text-dark"><i class="bi bi-arrow-left-square"></i></h1>
+                        <h6 class="text-dark">Go Back</h6>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <!-- Column -->
+        <div class="col-md-6 col-lg-2 col-xlg-3">
+            <a asp-area="WSP" asp-controller="Workspace" asp-action="TaskReviewResults">
+                <div class="card card-hover">
+                    <div class="box bg-light text-center">
+                        <h1 class="font-light text-dark"><i class="bi bi-file-earmark-text"></i></h1>
+                        <h6 class="text-dark">Employee's Productivity</h6>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <!-- Column -->
+        <div class="col-md-6 col-lg-2 col-xlg-3">
+            <a asp-area="WSP" asp-controller="Workspace" asp-action="ProductivityReport">
+                <div class="card card-hover">
+                    <div class="box bg-light text-center">
+                        <h1 class="font-light text-dark"><i class="bi bi-file-earmark-text"></i></h1>
+                        <h6 class="text-dark">Productivity By Unit, Department & Location</h6>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <!-- Column -->
+    </div>
+</div>
+@section Scripts{
+
+}
+
+

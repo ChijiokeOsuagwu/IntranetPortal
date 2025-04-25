@@ -241,7 +241,7 @@ namespace IntranetPortal.Areas.ERM.Controllers
                         model.PlaceOfEngagement = employee.PlaceOfEngagement;
                         model.Religion = employee.Religion;
                         model.Sex = employee.Sex;
-                        model.StartUpDate = employee.StartUpDate;
+                        model.StartUpDate = employee.StartUpDate?? DateTime.Today;
                         model.StartUpDesignation = employee.StartUpDesignation;
                         model.StateOfOrigin = employee.StateOfOrigin;
                         model.Surname = employee.Surname;

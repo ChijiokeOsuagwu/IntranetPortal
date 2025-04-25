@@ -1,0 +1,315 @@
+﻿@model IntranetPortal.Areas.WSP.Models.TaskListViewModel
+<div class="container">
+    <div class="row">
+            <div class="col-md-4 fw-bold"><span style="font-size:1.0rem">Folder: @Model.FolderTitle</span></div>
+            <div class="col-md-4 fw-bold"><span style="font-size:0.9rem">Name: @Model.FolderOwnerName</span></div>
+            <div class="col-md-4 fw-bold"><span style="font-size:0.9rem">Unit: @Model.FolderOwnerUnitName</span></div>
+        </div>
+    <hr />
+    <div class="row">
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <div class="container-fluid">
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNavDropdown">
+                    <ul class="navbar-nav">
+                        <li class="nav-item">
+                            <a asp-area="WSP" asp-controller="Workspace" asp-action="TeamTaskFolders" asp-route-id="@Model.FolderOwnerID" title="Go Back" class="btn btn-sm btn-outline-light text-dark">
+                                <i class="bi bi-backspace fw-bolder" style="font-size: 1.1rem;"></i> <span class="fw-bold ml-1" style="font-size: 1.0rem;">Back</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </div>
+    <div class="row">
+        @if (Model == null || Model.TaskItems == null || Model.TaskItems.Count < 1)
+        {
+            <div class="alert alert-secondary alert-dismissible fade show" role="alert">
+                <i class="bi bi-x-circle"></i>
+                <span class="fw-bold text-dark">No record was found.</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        else
+        {
+            int row_number = 0;
+            <div class="table-responsive">
+                @foreach (var task in Model.TaskItems)
+                {
+                    row_number++;
+                    <div class="card">
+                        @if (task.ApprovalStatus == ApprovalStatus.Declined)
+                        {
+                            <div class="card-header" style="background-color:#D11604">
+                                <div class="row">
+                                    <div class="col-md-10">
+                                        <span class="fw-bold text-white">[#@row_number]</span>
+                                    </div>
+                                    <div class="col-md-2 float-end">
+
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                        else if (task.ApprovalStatus == ApprovalStatus.Approved)
+                        {
+                            <div class="card-header bg-info">
+                                <div class="row">
+                                    <div class="col-md-10">
+                                        <span class="fw-bold text-white">[#@row_number]</span>
+                                    </div>
+                                    <div class="col-md-2 float-end">
+
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="card-header bg-dark">
+                                <div class="row">
+                                    <div class="col-md-10">
+                                        <span class="fw-bold text-white">[#@row_number]</span>
+                                    </div>
+                                    <div class="col-md-2 float-end">
+
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                        <div class="card-body table-secondary">
+                            <div class="row">
+                                <div class="col-md-2 mb-3">
+                                    <label class="form-label text-dark">Task No.</label>
+                                    <input asp-for="@task.Number" class="form-control fw-bold" readonly="readonly">
+                                </div>
+                                <div class="col-md-2 mb-3">
+                                    <label class="form-label text-dark">Expected Start Date</label>
+                                    @if (task.ExpectedStartTime != null)
+                                    {
+                                        <div class="form-control fw-bold">@task.ExpectedStartTime.Value.ToString("dd-MMM-yyyy")</div>
+                                    }
+                                    else
+                                    {
+                                        <div class="form-control fw-bold">[Not Specified]</div>
+                                    }
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <label class="form-label text-dark">Actual Start Date</label>
+                                    @if (task.ActualStartTime != null)
+                                    {
+                                        <div class="form-control fw-bold">@task.ActualStartTime.Value.ToString("dd-MMM-yyyy")</div>
+                                    }
+                                    else
+                                    {
+                                        <div class="form-control fw-bold">[Not Specified]</div>
+                                    }
+                                </div>
+                                <div class="col-md-2 mb-3">
+                                    <label class="form-label text-dark">Expected Due Date</label>
+                                    @if (task.ExpectedDueTime != null)
+                                    {
+                                        <div class="form-control fw-bold">@task.ExpectedDueTime.Value.ToString("dd-MMM-yyyy")</div>
+                                    }
+                                    else
+                                    {
+                                        <div class="form-control fw-bold">[Not Specified]</div>
+                                    }
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <label class="form-label text-dark">Actual Due Date</label>
+                                    @if (task.ActualDueTime != null)
+                                    {
+                                        <div class="form-control fw-bold">@task.ActualDueTime.Value.ToString("dd-MMM-yyyy")</div>
+                                    }
+                                    else
+                                    {
+                                        <div class="form-control fw-bold">[Not Specified]</div>
+                                    }
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12 mb-3">
+                                    <label class="form-label text-dark">Description</label>
+                                    <textarea asp-for="@task.Description" class="form-control fw-bold" readonly="readonly">@task.Description</textarea>
+                                </div>
+                            </div>
+                            @if (!string.IsNullOrWhiteSpace(task.MoreInformation))
+                            {
+                                <div class="row">
+                                    <div class="col-md-12 mb-3">
+                                        <label class="form-label text-dark">Resolution</label>
+                                        <textarea asp-for="@task.MoreInformation" class="form-control fw-bold" readonly="readonly">@task.MoreInformation</textarea>
+                                    </div>
+                                </div>
+                            }
+                            <div class="row">
+                                <div class="col-md-10">
+                                    <div class="row">
+                                        <div class="col-md-4 mt-1">
+                                            @if (task.ApprovalStatus == ApprovalStatus.Approved)
+                                            {
+                                                <div class="fw-bold text-dark">
+                                                    <i class="bi bi-check-circle" style="font-size:1.0rem; font-weight:bold"></i> Approved
+                                                </div>
+                                            }
+                                            else if (task.ApprovalStatus == ApprovalStatus.Declined)
+                                            {
+                                                <div class="fw-bold text-danger">
+                                                    <i class="bi bi-x-circle" style="font-size:1.0rem; font-weight:bold"></i> Approval Declined
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                <div class="fw-bold text-dark">
+                                                    <i class="bi bi-dash-circle" style="font-size:1.0rem; font-weight:bold"></i> Pending Approval
+                                                </div>
+                                            }
+                                        </div>
+                                        <div class="col-md-3 mt-1">
+                                            @if (task.ProgressStatus == WorkItemProgressStatus.Completed)
+                                            {
+                                                <div class="fw-bold" style="color:purple">
+                                                    <i class="bi bi-check-circle" style="color:purple; font-size:1.0rem; font-weight:bold"></i> Completed
+                                                </div>
+                                            }
+                                            else if (task.ProgressStatus == WorkItemProgressStatus.InProgress)
+                                            {
+                                                <div class="fw-bold" style="font-size:1.0rem; color:#087804">
+                                                    <i class="bi bi-clock-history" style="color:#087804; font-size:1.0rem; font-weight:bold"></i>  In Progress
+                                                </div>
+                                            }
+                                            else if (task.ProgressStatus == WorkItemProgressStatus.OnHold)
+                                            {
+                                                <div class="fw-bold" style="color:#dc2910">
+                                                    <i class="bi bi-slash-circle" style="color:#dc2910; font-size:1.0rem; font-weight:bold"></i>  On Hold
+                                                </div>
+                                            }
+                                            else if (task.ProgressStatus == WorkItemProgressStatus.NotStarted)
+                                            {
+                                                <div class="fw-bold" style="color:black">
+                                                    <i class="bi bi-dash-circle" style="color:black; font-size:1.0rem; font-weight:bold"></i> Not Started
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                <div class="fw-bold" style="font-size:1.0rem">
+                                                    <i class="bi bi-circle" style="color:black; font-size:1.0rem; font-weight:bold"></i>  [N/A]
+                                                </div>
+                                            }
+                                        </div>
+                                        <div class="col-md-3">
+        
+                                        </div>
+                                        <div class="col-md-2">
+                          
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-2 mt-1 text-end">
+                                    @if (task.WorkFolderId == null || task.WorkFolderId < 1)
+                                    {
+                                        <!-- Default dropstart button -->
+                                        <div class="btn-group dropstart">
+                                            <button type="button" data-bs-toggle="dropdown" aria-expanded="false" class="table-secondary" style="border:0px">
+                                                <span class="fw-bold" style="font-size:0.8rem;"><i class="bi bi-tools"></i> Options</span>
+                                            </button>
+                                            <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton2">
+                                                <li>
+                                                    <a class="dropdown-item" asp-area="WSP" asp-controller="Workspace" asp-action="TaskDetails" asp-route-id="@task.Id">
+                                                        <i class="bi bi-info-circle"></i>  <span>Detail</span>
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <a class="dropdown-item" asp-area="WSP" asp-controller="Workspace" asp-action="Notes" asp-route-td="@task.Id" asp-route-fd="@task.WorkFolderId" asp-route-sp="mtl" asp-route-tp="0">
+                                                        <i class="bi bi-stickies"></i> <span>Notes</span>
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <a class="dropdown-item" asp-area="WSP" asp-controller="Workspace" asp-action="Activities" asp-route-td="@task.Id">
+                                                        <i class="bi bi-file-text"></i> <span>History</span>
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <!-- Default dropstart button -->
+                                        <div class="btn-group dropstart">
+                                            <button type="button" data-bs-toggle="dropdown" aria-expanded="false" class="table-secondary" style="border:0px">
+                                                <span class="fw-bold" style="font-size:0.8rem;"><i class="bi bi-tools"></i> Options</span>
+                                            </button>
+                                            <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton2">
+                                                <li>
+                                                    <a class="dropdown-item" href="#">
+                                                        <i class="bi bi-link-45deg"></i> <span>Link</span>
+                                                    </a>
+                                                    <ul class="dropdown-menu dropdown-menu-dark dropdown-submenu">
+                                                        <li>
+                                                            <a class="dropdown-item" asp-area="WSP" asp-controller="Workspace" asp-action="LinkProgram" asp-route-id="@task.Id" asp-route-tl="@task.WorkFolderId" asp-route-src="mtl">
+                                                                <i class="bi bi-link-45deg"></i> <span>Link Program</span>
+                                                            </a>
+                                                        </li>
+                                                        <li>
+                                                            <a class="dropdown-item" asp-area="WSP" asp-controller="Workspace" asp-action="LinkProject" asp-route-id="@task.Id" asp-route-tl="@task.WorkFolderId" asp-route-src="mtl">
+                                                                <i class="bi bi-link-45deg"></i> <span>Link Project</span>
+                                                            </a>
+                                                        </li>
+                                                    </ul>
+                                                </li>
+                                                @if (task.IsClosed)
+                                                {
+                                                    <li>
+                                                        <button class="dropdown-item" onclick="ReopenTaskItem('@task.Id')">
+                                                            <i class="bi bi-bootstrap-reboot"></i> <span>Re-Open</span>
+                                                        </button>
+                                                    </li>
+                                                }
+                                                else
+                                                {
+                                                    <li>
+                                                        <button class="dropdown-item" onclick="closeTaskItem('@task.Id')">
+                                                            <i class="bi bi-x-circle"></i> <span>Close</span>
+                                                        </button>
+                                                    </li>
+                                                }
+                                                <li><hr class="dropdown-divider"></li>
+                                                <li>
+                                                    <a class="dropdown-item" asp-area="WSP" asp-controller="Workspace" asp-action="TaskDetails" asp-route-id="@task.Id">
+                                                        <i class="bi bi-info-circle"></i>  <span>Detail</span>
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <a class="dropdown-item" asp-area="WSP" asp-controller="Workspace" asp-action="Notes" asp-route-td="@task.Id" asp-route-fd="@task.WorkFolderId" asp-route-sp="mtl" asp-route-tp="0">
+                                                        <i class="bi bi-stickies"></i> <span>Notes</span>
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <a class="dropdown-item" asp-area="WSP" asp-controller="Workspace" asp-action="Activities" asp-route-td="@task.Id">
+                                                        <i class="bi bi-file-text"></i> <span>History</span>
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <a class="dropdown-item" asp-area="WSP" asp-controller="Workspace" asp-action="ScheduleHistory" asp-route-id="@task.Id" asp-route-fd="@task.WorkFolderId">
+                                                        <i class="bi bi-file-text"></i> <span>Schedule History</span>
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</div>
+@section Scripts{
+    <script src="~/js/wsp.js"></script>
+}

@@ -1,0 +1,210 @@
+﻿@model IntranetPortal.Areas.WSP.Models.SubmittedToMeViewModel
+@{
+    ViewData["Title"] = "OfficeManager | Workspace";
+}
+<div class="container">
+    <h4>Channels Workspace</h4>
+    <hr />
+    <div class="row">
+        <div class="col-md-4">
+            <a asp-area="WSP" asp-controller="Workspace" asp-action="index" class="btn btn-sm btn-info mr-3" style="width:100px" title="Back">
+                <span class="text-white">Back</span>
+            </a>
+            <span class="fw-bold">Folders Submitted to Me</span>
+        </div>
+        <div class="col-md-8">
+            <form asp-area="WKS" asp-controller="Tasks" asp-action="SubmittedToMe" method="get">
+                <input asp-for="FromEmployeeName" class="border-0" style="width:250px" placeholder="Start typing ..." />
+                <select asp-for="SubmittedMonth" class="border-0" style="width:100px">
+                    <option value="">All</option>
+                    <option value="1">Jan</option>
+                    <option value="2">Feb</option>
+                    <option value="3">Mar</option>
+                    <option value="4">Apr</option>
+                    <option value="5">May</option>
+                    <option value="6">Jun</option>
+                    <option value="7">Jul</option>
+                    <option value="8">Aug</option>
+                    <option value="9">Sep</option>
+                    <option value="10">Oct</option>
+                    <option value="11">Nov</option>
+                    <option value="12">Dec</option>
+                </select>
+                <input asp-for="SubmittedYear" class="border-0" style="width:100px" type="number" min="2024" max="2080" />
+                <input type="submit" value="Search" class="btn btn-sm btn-info" style="width:100px" />
+                <input type="hidden" asp-for="EmployeeID" />
+            </form>
+        </div>
+    </div>
+    <hr />
+    <div class="row">
+        @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-x-circle"></i>
+                <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+    </div>
+    @if (Model == null || Model.SubmissionList == null || Model.SubmissionList.Count < 1)
+    {
+        <div class="alert alert-info fade show" role="alert">
+            <i class="bi bi-info-circle"></i>
+            <span class="fw-bold">No record was found.</span>
+        </div>
+    }
+    else
+    {
+        <div class="row mt-2">
+            @foreach (var submission in Model.SubmissionList)
+            {
+                @if (submission.SubmissionType == WorkItemSubmissionType.Approval)
+                {
+                    <div class="col-md-6 col-lg-3 col-xlg-2">
+                        <div class="card card-hover">
+                            <div class="box bg-light text-center">
+                                <div>
+                                    @if (submission.IsActioned)
+                                    {
+                                        <span class="badge badge-success fw-bold" style="width:150px; border-radius:3px">Approved</span> }
+                                    else
+                                    {
+                                        <span class="badge badge-warning fw-bold" style="width:150px; border-radius:3px; color:black">Pending Approval</span>}
+                                </div>
+                                <a asp-area="WSP" asp-controller="Workspace" asp-action="SubmittedTasks" asp-route-id="@submission.FolderId" asp-route-fn="@submission.FolderName" asp-route-sd="@submission.FolderSubmissionId" asp-route-ed="@Model.EmployeeID" asp-route-tp="@submission.SubmissionType" asp-route-od="@submission.FromEmployeeId" asp-route-src="sbt">
+                                    <h1 class="font-light text-dark" title="@submission.FolderName">
+                                        @if (submission.IsActioned)
+                                        {
+                                            <i class="bi bi-folder-check" style="font-size:3.0rem"></i>
+                                        }
+                                        else
+                                        {
+                                            <i class="bi bi-folder" style="font-size:3.0rem"></i>
+                                        }
+                                    </h1>
+                                    <div><span class="text-dark fw-bold">@submission.FolderName</span></div>
+                                </a>
+                                <div class="text-center p-0 m-0">
+                                    <span class="fw-bold" style="font-size:0.6rem; padding:0px; margin:0px"><em><u>Submitted By: </u><br />@submission.FromEmployeeName (@submission.FromEmployeeUnitName) </em></span>
+                                </div>
+                                <div class="text-center p-0 m-0">
+                                    <span class="fw-bold" style="font-size:0.6rem; padding:0px; margin:0px"><em><u>Submitted On: </u><br />@submission.DateSubmitted.Value.ToLongDateString() @submission.DateSubmitted.Value.ToShortTimeString()</em></span>
+                                </div>
+                            </div>
+                            <div class="text-center">
+                                <div class="btn-group dropstart">
+                                    <button type="button" data-bs-toggle="dropdown" aria-expanded="false" style="border:0px">
+                                        <span class="fw-bold" style="font-size:1.0rem;"><i class="bi bi-three-dots"></i></span>
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton2">
+                                        <li>
+                                            <a class="dropdown-item" asp-area="WSP" asp-controller="Workspace" asp-action="SubmittedTasks" asp-route-id="@submission.FolderId" asp-route-fn="@submission.FolderName" asp-route-sd="@submission.FolderSubmissionId" asp-route-ed="@Model.EmployeeID" asp-route-tp="@submission.SubmissionType" asp-route-od="@submission.FromEmployeeId">
+                                                <i class="bi bi-card-checklist"></i> <span>Open Folder</span>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <button class="dropdown-item" onclick="returnTaskFolder('@submission.FolderId', @submission.FolderSubmissionId)">
+                                                <i class="bi bi-check-lg"></i> <span>Mark as Done</span>
+                                            </button>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item" asp-area="WSP" asp-controller="Workspace" asp-action="Notes" asp-route-fd="@submission.FolderId" asp-route-sp="sbf">
+                                                <i class="bi bi-stickies"></i> <span>Notes</span>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <button class="dropdown-item" onclick="deleteFolderSubmission(@submission.FolderSubmissionId)">
+                                                <i class="bi bi-trash"></i> <span>Remove</span>
+                                            </button>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <div class="col-md-6 col-lg-3 col-xlg-2">
+                        <div class="card card-hover">
+                            <div class="box bg-light text-center">
+                                <div>
+                                    @if (submission.IsActioned)
+                                    {
+                                        <span class="badge badge-success fw-bold" style="width:150px; border-radius:3px">Reviewed</span> }
+                                    else
+                                    {
+                                        <span class="badge badge-warning fw-bold" style="width:150px; border-radius:3px; color:black">Pending Review</span>}
+                                </div>
+                                <a asp-area="WSP" asp-controller="Workspace" asp-action="SubmittedEvaluations" asp-route-id="@submission.FolderId" asp-route-fn="@submission.FolderName" asp-route-sd="@submission.FolderSubmissionId" asp-route-ed="@Model.EmployeeID" asp-route-tp="@submission.SubmissionType" asp-route-od="@submission.FromEmployeeId" asp-route-src="sbt">
+                                    <h1 class="font-light text-dark" title="@submission.FolderName">
+                                        @if (submission.IsActioned)
+                                        {
+                                            <i class="bi bi-folder-check" style="font-size:3.0rem"></i>
+                                        }
+                                        else
+                                        {
+                                            <i class="bi bi-folder" style="font-size:3.0rem"></i>
+                                        }
+                                    </h1>
+                                    <div><span class="text-dark fw-bold">@submission.FolderName</span></div>
+                                </a>
+                                <div class="text-center p-0 m-0">
+                                    <span class="fw-bold" style="font-size:0.6rem; padding:0px; margin:0px"><em><u>Submitted By: </u><br />@submission.FromEmployeeName (@submission.FromEmployeeUnitName) </em></span>
+                                </div>
+                                <div class="text-center p-0 m-0">
+                                    <span class="fw-bold" style="font-size:0.6rem; padding:0px; margin:0px"><em><u>Submitted On: </u><br />@submission.DateSubmitted.Value.ToLongDateString() @submission.DateSubmitted.Value.ToShortTimeString()</em></span>
+                                </div>
+                            </div>
+                            <div class="text-center">
+                                <!-- Default dropstart button -->
+                                <div class="btn-group dropstart">
+                                    <button type="button" data-bs-toggle="dropdown" aria-expanded="false" style="border:0px">
+                                        <span class="fw-bold" style="font-size:1.0rem;"><i class="bi bi-three-dots"></i></span>
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton2">
+                                        <li>
+                                            <a class="dropdown-item" asp-area="WSP" asp-controller="Workspace" asp-action="SubmittedEvaluations" asp-route-id="@submission.FolderId" asp-route-sd="@submission.FolderSubmissionId" asp-route-ed="@Model.EmployeeID" asp-route-od="@submission.FromEmployeeId">
+                                                <i class="bi bi-card-checklist"></i> <span>Open Folder</span>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <button class="dropdown-item" onclick="returnTaskFolder('@submission.FolderId', @submission.FolderSubmissionId)">
+                                                <i class="bi bi-check-lg"></i> <span>Mark as Done</span>
+                                            </button>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item" asp-area="WSP" asp-controller="Workspace" asp-action="Notes" asp-route-fd="@submission.FolderId" asp-route-sp="sbf">
+                                                <i class="bi bi-stickies"></i> <span>Notes</span>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <button class="dropdown-item" onclick="deleteFolderSubmission(@submission.FolderSubmissionId)">
+                                                <i class="bi bi-trash"></i> <span>Remove</span>
+                                            </button>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+    }
+</div>
+@section Scripts{
+    <script src="~/js/wsp.js"></script>
+}
+
+
+
+
+
+
+
+
+
+
+

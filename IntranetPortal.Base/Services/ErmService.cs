@@ -73,6 +73,12 @@ namespace IntranetPortal.Base.Services
                         month = employee.StartUpDate.Value.Month;
                         year = employee.StartUpDate.Value.Year;
                     }
+                    else
+                    {
+                        day = DateTime.Now.Day;
+                        month = DateTime.Now.Month;
+                        year = DateTime.Now.Year;
+                    }
 
                     // int recordCount = await _utilityRepository.GetNumberCount(AutoNumberType.EmployeeNumber, day, month, year);
                     long recordCount = await _employeesRepository.GetEmployeesCountByStartUpDateAsync(year, month, day);
@@ -80,9 +86,8 @@ namespace IntranetPortal.Base.Services
                     string mm = month.ToString().PadLeft(2, '0');
                     string dd = day.ToString().PadLeft(2, '0');
                     string nn = (recordCount + 1).ToString().PadLeft(2, '0');
-
                     employee.EmployeeNo1 = $"{employee.CompanyID}{yy}{mm}{dd}{nn}";
-
+                    
                     if (!string.IsNullOrWhiteSpace(employee.StateOfOrigin))
                     {
                         State state = await _locationRepository.GetStateByNameAsync(employee.StateOfOrigin);

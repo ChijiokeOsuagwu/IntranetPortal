@@ -10,6 +10,12 @@
                         <i class="bi bi-backspace text-white" style="margin-right:2px;"></i><span class="text-white">Back</span>
                     </a>
                 }
+                else if (Model.SourcePage == "sbf")
+                {
+                    <a asp-area="WSP" asp-Controller="Workspace" asp-action="SubmittedToMe" title="Go Back" class="btn btn-sm btn-outline-light text-dark">
+                        <i class="bi bi-backspace fw-bolder" style="font-size: 1.0rem;"></i>&nbsp;<span class="fw-bold ml-1" style="font-size: 0.9rem;">Back</span>
+                    </a>
+                }
                 else if (Model.SourcePage == "ttf")
                 {
                     <a asp-area="WSP" asp-Controller="Workspace" asp-action="TeamTaskFolders" title="Go Back" class="btn btn-sm btn-outline-light text-dark">
@@ -18,15 +24,21 @@
                 }
                 else if (Model.SourcePage == "mtl")
                 {
-                <a asp-area="WSP" asp-Controller="Workspace" asp-action="MyTaskList" asp-route-id="@Model.FolderID" title="Go Back" class="btn btn-sm btn-outline-light text-dark">
-                    <i class="bi bi-backspace fw-bolder" style="font-size: 1.0rem;"></i>&nbsp;<span class="fw-bold ml-1" style="font-size: 0.9rem;">Back</span>
-                </a>
+                    <a asp-area="WSP" asp-Controller="Workspace" asp-action="MyTaskList" asp-route-id="@Model.FolderID" title="Go Back" class="btn btn-sm btn-outline-light text-dark">
+                        <i class="bi bi-backspace fw-bolder" style="font-size: 1.0rem;"></i>&nbsp;<span class="fw-bold ml-1" style="font-size: 0.9rem;">Back</span>
+                    </a>
+                }
+                else if (Model.SourcePage == "sbt")
+                {
+                    <a asp-area="WSP" asp-Controller="Workspace" asp-action="SubmittedTasks" asp-route-id="@Model.FolderID" title="Go Back" class="btn btn-sm btn-outline-light text-dark">
+                        <i class="bi bi-backspace fw-bolder" style="font-size: 1.0rem;"></i>&nbsp;<span class="fw-bold ml-1" style="font-size: 0.9rem;">Back</span>
+                    </a>
                 }
                 else
                 {
-                <a asp-area="WSP" asp-Controller="Workspace" asp-action="Index" title="Go Back" class="btn btn-sm btn-outline-light text-dark">
-                    <i class="bi bi-backspace" style="font-size: 1.0rem; margin-right:2px;"></i><span class="text-white">Back</span>
-                </a>
+                    <a asp-area="WSP" asp-Controller="Workspace" asp-action="Index" title="Go Back" class="btn btn-sm btn-outline-light text-dark">
+                        <i class="bi bi-backspace" style="font-size: 1.0rem; margin-right:2px;"></i><span class="text-white">Back</span>
+                    </a>
                 }
             </div>
             <div class="col-md-6">

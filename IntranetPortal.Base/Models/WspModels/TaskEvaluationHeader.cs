@@ -6,9 +6,9 @@ namespace IntranetPortal.Base.Models.WspModels
 {
     public class TaskEvaluationHeader
     {
-        public int Id { get; set; }
-        public int TaskListId { get; set; }
-        public string TaskListName { get; set; }
+        public long Id { get; set; }
+        public long TaskFolderId { get; set; }
+        public string TaskFolderName { get; set; }
         public string EvaluatorId { get; set; }
         public string EvaluatorName { get; set; }
         public string EvaluatorDesignation { get; set; }
@@ -21,13 +21,6 @@ namespace IntranetPortal.Base.Models.WspModels
         public string TaskOwnerDeptName { get; set; }
         public int TaskOwnerLocationId { get; set; }
         public string TaskOwnerLocationName { get; set; }
-        public DateTime? EvaluationDate { get; set; }
         public long TotalNumberOfTasks { get; set; }
-        public long NoOfCompletedTasks { get; set; }
-        public long NoOfUncompletedTasks { get; set; }
-        public long TotalPercentCompletion { get; set; }
-        public decimal AveragePercentCompletion { get; set; }
-        public long TotalQualityRating { get; set; }
-        public decimal AverageQualityRating { get; set; }
     }
 }

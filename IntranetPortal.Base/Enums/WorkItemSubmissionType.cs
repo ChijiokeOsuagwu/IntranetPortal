@@ -7,6 +7,6 @@ namespace IntranetPortal.Base.Enums
     public enum WorkItemSubmissionType
     {
         Approval,
-        Evaluation,
+        Review,
     }
 }

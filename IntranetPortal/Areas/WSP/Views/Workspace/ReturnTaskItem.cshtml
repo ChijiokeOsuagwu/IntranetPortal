@@ -1,0 +1,91 @@
+﻿@model IntranetPortal.Areas.WSP.Models.ReturnTaskItemViewModel
+@{
+    ViewData["Title"] = "OfficeManager | Workspace";
+}
+<div class="container">
+    <h4>Channels Workspace</h4>
+    <hr />
+    <div class="card" style="max-width:600px">
+        <div class="card-header" style="background-color:#5c039a">
+            <h4 class="text-white">Return Task Form</h4>
+        </div>
+        <div class="card-body table-secondary">
+            @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bi bi-x-circle"></i>
+                    <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            @if (!String.IsNullOrEmpty(Model.ViewModelSuccessMessage))
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="bi bi-check-circle"></i>
+                    <span class="fw-bold">@Model.ViewModelSuccessMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            @if (!String.IsNullOrEmpty(Model.ViewModelWarningMessage))
+            {
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                    <i class="bi bi-exclamation-circle"></i>
+                    <span class="fw-bold">@Model.ViewModelWarningMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+        <form asp-area="WSP" asp-controller="Workspace" asp-action="ReturnTaskItem" method="post" autocomplete="off">
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label asp-for="ReasonType" class="form-label"></label>
+                    <select asp-for="ReasonType" class="form-control fw-bold" asp-items="@ViewBag.ReturnReasons" autofocus>
+                        <option value=""> Select </option>
+                    </select>
+                    <div><span asp-validation-for="ReasonDetails" class="text-danger"></span></div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label asp-for="QualityRating" class="form-label"></label>
+                    <select asp-for="QualityRating" class="form-control fw-bold">
+                        <option value=""> Select </option>
+                        <option value="3"> Good </option>
+                        <option value="2"> Fair </option>
+                        <option value="1"> Poor </option>
+                    </select>
+                    <div><span asp-validation-for="QualityRating" class="text-danger"></span></div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12 mb-3">
+                    <label asp-for="ReasonDetails" class="form-label"></label>
+                    <textarea asp-for="ReasonDetails" rows="3" class="form-control fw-bold" autofocus>@Model.ReasonDetails</textarea>
+                    <div><span asp-validation-for="ReasonDetails" class="text-danger"></span></div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <input asp-for="ExemptFromEvaluation" type="checkbox" style="width:16px; height:16px; margin-top:40px; margin-right:5px"> <span class="fw-bold"> Exempt from Review</span>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12 text-end">
+                    <a asp-area="WSP" asp-controller="Workspace" asp-action="SubmittedEvaluations" asp-route-id="@Model.TaskFolderID" asp-route-fn="@Model.TaskFolderName" asp-route-sd="@Model.FolderSubmissionID" asp-route-ed="@Model.FromEmployeeID" asp-route-od="@Model.TaskOwnerID" class="btn btn-dark ml-1" style="width:100px" title="Back">
+                        <span class="text-white">Back</span>
+                    </a>
+                    <button type="submit" class="btn btn-info" title="Return" style="width:200px"><span class="text-white">Proceed</span></button>
+                </div>
+            </div>
+            <input type="hidden" asp-for="TaskFolderID" />
+            <input type="hidden" asp-for="FromEmployeeID" />
+            <input type="hidden" asp-for="FromEmployeeName" />
+            <input type="hidden" asp-for="TaskItemID" />
+            <input type="hidden" asp-for="TaskFolderName" />
+            <input type="hidden" asp-for="FolderSubmissionID" />
+            <input type="hidden" asp-for="TaskOwnerID" />
+            <input type="hidden" asp-for="TaskEvaluationHeaderID" />
+            <input type="hidden" asp-for="TaskEvaluationDetailID" />
+        </form>
+        </div>
+    </div>
+</div>
+
+

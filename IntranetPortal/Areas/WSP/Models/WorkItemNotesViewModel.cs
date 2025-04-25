@@ -18,7 +18,6 @@ namespace IntranetPortal.Areas.WSP.Models
         public string OwnerID { get; set; }
         public string OwnerName { get; set; }
         public string NewLeaveNote { get; set; }
-        public string SourcePage { get; set; }
         public List<WorkItemNote> NoteList { get; set; }
     }
 }

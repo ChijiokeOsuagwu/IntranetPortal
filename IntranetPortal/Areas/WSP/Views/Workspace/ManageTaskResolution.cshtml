@@ -1,0 +1,70 @@
+﻿
+@model IntranetPortal.Areas.WSP.Models.ManageTaskResolutionViewModel
+<h3>Channels Workspace</h3>
+<hr />
+<div class="card mt-1">
+    <div class="card-header bg-info">
+        <div class="row">
+            @if (string.IsNullOrWhiteSpace(Model.TaskResolution))
+            {<div class="col-md-12"><h4 class="text-white">Add Resolution</h4></div> }
+            else
+            { <div class="col-md-12"><h4 class="text-white">Update Resolution</h4></div>}
+        </div>
+    </div>
+    <div class="card-body table-secondary">
+        @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-x-circle"></i>
+                <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (!String.IsNullOrEmpty(Model.ViewModelSuccessMessage))
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="bi bi-check-circle"></i>
+                <span class="fw-bold">@Model.ViewModelSuccessMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (!String.IsNullOrEmpty(Model.ViewModelWarningMessage))
+        {
+            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                <i class="bi bi-exclamation-circle"></i>
+                <span class="fw-bold">@Model.ViewModelWarningMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+    <form asp-area="WSP" asp-controller="Workspace" asp-action="ManageTaskResolution" method="post" autocomplete="off">
+        <div class="row">
+            <div class="col-md-12 mb-2">
+                <label class="form-label text-dark fw-bold">Task Description</label>
+                <textarea asp-for="TaskItemDescription" class="form-control fw-bold" readonly>@Model.TaskItemDescription</textarea>
+                <div><span asp-validation-for="TaskItemDescription" class="text-danger"></span></div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12 mb-2">
+                <label class="form-label text-dark fw-bold">Task Resolution</label>
+                <textarea asp-for="TaskResolution" class="form-control fw-bold" rows="4" placeholder="Enter Task Resolution Here ..." autofocus>@Model.TaskResolution</textarea>
+                <div><span asp-validation-for="TaskResolution" class="text-danger"></span></div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12 text-end">
+                <a asp-area="WSP" asp-controller="Workspace" asp-action="MyTaskList" asp-route-id="@Model.TaskFolderID" asp-route-nm="@Model.TaskFolderName" class="btn btn-dark" style="width:75px; margin-top:30px" title="Back">
+                    <span class="text-white">Back</span>
+                </a>
+                <a asp-area="WSP" asp-controller="Workspace" asp-action="ManageTaskResolution" asp-route-id="@Model.TaskItemID" asp-route-fd="@Model.TaskFolderID" asp-route-od="@Model.TaskOwnerID" class="btn btn-warning" style="width:75px; margin-top:30px" title="Clear">
+                    <span class="text-white">Clear</span>
+                </a>
+                <button type="submit" class="btn btn-info" title="Save" style="width:100px; margin-top:30px"><span class="text-white">Save</span></button>
+            </div>
+        </div>
+        <input type="hidden" asp-for="TaskItemID" />
+        <input type="hidden" asp-for="TaskFolderID" />
+        <input type="hidden" asp-for="TaskOwnerID" />
+    </form>
+    </div>
+</div>

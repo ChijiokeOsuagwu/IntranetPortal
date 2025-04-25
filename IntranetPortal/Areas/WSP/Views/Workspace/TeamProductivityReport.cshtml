@@ -1,0 +1,119 @@
+﻿@model IntranetPortal.Areas.WSP.Models.ProductivityReportViewModel
+<div class="container">
+    <h4>Employee Productivity Report</h4>
+    <hr />
+    <div class="row mb-3">
+        <div class="col-md-12">
+            <form asp-area="WSP" asp-controller="Workspace" asp-action="TeamProductivityReport" method="get">
+                <div class="row">
+                    <div class="col-md-2">
+                        <a asp-area="WSP" asp-controller="Workspace" asp-action="Reports" class="btn btn-sm btn-info" style="width:100px" title="Back">
+                            <span class="text-white">Back</span>
+                        </a>
+                    </div>
+                    <div class="col-md-10 text-end">
+                        <select asp-for="id" asp-items="@ViewBag.ReportsList" style="width:350px; border:none; margin-right:30px;">
+                            <option value="">Select Staff</option>
+                        </select>
+                        <span class="fw-bold">From: </span>
+                        <input asp-for="sd" class="border-0" style="width:100px; margin-right:30px" type="date" />
+                        <span class="fw-bold">To: </span>
+                        <input asp-for="ed" class="border-0" style="width:100px; margin-right:30px" type="date" />
+                        <input type="submit" value="Search" class="btn btn-sm btn-info" style="width:100px" />
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="row">
+        @if (!String.IsNullOrEmpty(ViewBag.ErrorMessage))
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-x-circle"></i>
+                <span class="fw-bold">@ViewBag.ErrorMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+    </div>
+    @if (Model == null || Model.EvaluationScoresList == null || Model.EvaluationScoresList.Count < 1)
+    {
+        <div class="alert alert-info fade show" role="alert">
+            <i class="bi bi-info-circle"></i>
+            <span class="fw-bold">No record was found.</span>
+        </div>
+    }
+    else
+    {
+        @if (Model != null && Model.EvaluationScoresList != null && Model.EvaluationScoresList.Count > 0)
+        {
+            <div class="row">
+                <div class="table-responsive" style="min-height:500px">
+                    @foreach (var result in Model.EvaluationScoresList)
+                    {
+                    <div class="card">
+                        <div class="card-header bg-info">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <span class="fw-bold text-white" style="font-size: 0.9rem;">@result.TaskOwnerName</span>
+                                </div>
+                                <div class="col-md-4 text-end">
+                                    <span class="fw-bold text-white">Completion Rate:  </span>
+                                    <span class="fw-bold text-white">@result.PercentageCompletion %</span>
+                                </div>
+                                <div class="col-md-4 text-end">
+                                    <span class="fw-bold text-white">Quality Rating:  </span>
+                                    @if (result.AverageQualityScore < 1.5M)
+                                    {
+                                        <span class="fw-bold text-white" style="font-size:1.0rem"> Poor </span>
+                                    }
+                                    else if (result.AverageQualityScore >= 2.4M)
+                                    {
+                                        <span class="fw-bold text-white" style="font-size:1.0rem"> Good </span>
+                                    }
+                                    else if (result.AverageQualityScore >= 1.5M && result.AverageQualityScore < 2.4M)
+                                    {
+                                        <span class="fw-bold text-white" style="font-size:1.0rem"> Fair </span>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body table-secondary">
+                            <div class="row">
+                                <div class="col-md-4 mb-2">
+                                    <label class="form-label text-dark fw-bold">No. of Tasks</label>
+                                    <div class="form-control fw-bold">@result.TotalNumberOfTasks</div>
+                                </div>
+                                <div class="col-md-4 mb-2">
+                                    <label class="form-label text-dark fw-bold">Tasks Completed</label>
+                                    <div class="form-control fw-bold">@result.NoOfCompletedTasks</div>
+                                </div>
+                                <div class="col-md-4 mb-2">
+                                    <label class="form-label text-dark fw-bold">Tasks Uncompleted</label>
+                                    <div class="form-control fw-bold">@result.NoOfUncompletedTasks</div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-4 mb-2">
+                                    <label class="form-label text-dark fw-bold">Average Quality Score</label>
+                                    <div class="form-control fw-bold">@result.AverageQualityScore</div>
+                                </div>
+                                <div class="col-md-4 mb-2">
+                                    <label class="form-label text-dark fw-bold">Average Completion Score</label>
+                                    <div class="form-control fw-bold">@result.AverageCompletionScore</div>
+                                </div>
+                                <div class="col-md-4 mb-2">
+                                    <label class="form-label text-dark fw-bold">Percentage Completion</label>
+                                    <div class="form-control fw-bold">@result.PercentageCompletion %</div>
+                                </div>
+                                </div>
+                        </div>
+                    </div>
+                    }
+                </div>
+            </div>
+        }
+    }
+</div>
+@section Scripts{
+}
+

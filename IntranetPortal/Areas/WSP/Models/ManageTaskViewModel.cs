@@ -78,7 +78,7 @@ namespace IntranetPortal.Areas.WSP.Models
         public string CreatedBy { get; set; }
         public DateTime? CreatedTime { get; set; }
         public long? AssignmentId { get; set; }
-
+        public long? FolderSubmissionId { get; set; }
         public TaskItem Convert()
         {
             return new TaskItem

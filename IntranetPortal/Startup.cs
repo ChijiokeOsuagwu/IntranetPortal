@@ -45,7 +45,6 @@ namespace IntranetPortal
 
             services.AddControllersWithViews();
 
-
             services.Configure<KestrelServerOptions>(options =>
             {
                 options.Limits.MaxRequestBodySize = 268435456;

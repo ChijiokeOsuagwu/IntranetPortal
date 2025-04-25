@@ -1,0 +1,163 @@
+﻿@model IntranetPortal.Areas.WSP.Models.ManageTaskViewModel
+<h3>Channels Workspace</h3>
+<hr />
+<div class="card">
+    <div class="card-header bg-info">
+        <div class="row">
+            <span class="fw-bold text-white">Task Details</span>
+        </div>
+    </div>
+    <div class="card-body table-secondary">
+        <div class="row">
+            <div class="col-md-2 mb-3">
+                <label class="form-label text-dark">Task No.:</label>
+                <input asp-for="@Model.Number" class="form-control fw-bold" readonly="readonly">
+            </div>
+            <div class="col-md-10">
+                <div class="row">
+                    <div class="col-md-3 mb-3">
+                        <label class="form-label text-dark">Expected Start Date</label>
+                        @if (Model.ExpectedStartTime != null)
+                        {
+                            <div class="form-control fw-bold">@Model.ExpectedStartTime.Value.ToString("dd-MMM-yyyy")</div>
+                        }
+                        else
+                        {
+                            <div class="form-control fw-bold">[Not Specified]</div>
+                        }
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label class="form-label text-dark">Actual Start Date</label>
+                        @if (Model.ActualStartTime != null)
+                        {
+                            <div class="form-control fw-bold">@Model.ActualStartTime.Value.ToString("dd-MMM-yyyy")</div>
+                        }
+                        else
+                        {
+                            <div class="form-control fw-bold">[Not Specified]</div>
+                        }
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label class="form-label text-dark">Expected Due Date</label>
+                        @if (Model.ExpectedDueTime != null)
+                        {
+                            <div class="form-control fw-bold">@Model.ExpectedDueTime.Value.ToString("dd-MMM-yyyy")</div>
+                        }
+                        else
+                        {
+                            <div class="form-control fw-bold">[Not Specified]</div>
+                        }
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label class="form-label text-dark">Actual Due Date</label>
+                        @if (Model.ActualDueTime != null)
+                        {
+                            <div class="form-control fw-bold">@Model.ActualDueTime.Value.ToString("dd-MMM-yyyy")</div>
+                        }
+                        else
+                        {
+                            <div class="form-control fw-bold">[Not Specified]</div>
+                        }
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <div class="row">
+            <div class="col-md-12 mb-3">
+                <label class="form-label text-dark">Description</label>
+                <textarea asp-for="@Model.Description" class="form-control fw-bold" readonly="readonly">@Model.Description</textarea>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12 mb-3">
+                <label class="form-label text-dark">Task Resolution</label>
+                <textarea asp-for="@Model.MoreInformation" class="form-control fw-bold" readonly="readonly">@Model.MoreInformation</textarea>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-8">
+                <div class="row">
+                    <div class="col-md-3 mb-3">
+                        <label class="form-label text-dark fw-bold">Project #:</label>
+                        <div class="form-control fw-bold" style="font-size:1.0rem">@Model.LinkProjectNumber</div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label class="form-label text-dark fw-bold">Programme Code:</label>
+                        <div class="form-control fw-bold" style="font-size:1.0rem">@Model.LinkProgramCode</div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label text-dark fw-bold">Programme Date:</label>
+                        @if (Model.LinkProgramDate != null)
+                        {
+                            <div class="form-control fw-bold" style="font-size:1.0rem">@Model.LinkProgramDate.Value.ToLongDateString() @Model.LinkProgramDate.Value.ToLongTimeString()</div>
+                        }
+                        else
+                        {
+                            <div class="form-control fw-bold" style="font-size:1.0rem">[Not Specified]</div>
+                        }
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-2 mt-5">
+                @if (Model.ApprovalStatus == ApprovalStatus.Approved)
+                {
+                    <div class="fw-bold text-dark">
+                        <i class="bi bi-check-circle" style="font-size:1.0rem; font-weight:bold"></i> Approved
+                    </div>
+                }
+                else if (Model.ApprovalStatus == ApprovalStatus.Declined)
+                {
+                    <div class="fw-bold text-danger">
+                        <i class="bi bi-x-circle" style="font-size:1.0rem; font-weight:bold"></i> Approval Declined
+                    </div>
+                }
+                else
+                {
+                    <div class="fw-bold text-dark">
+                        <i class="bi bi-dash-circle" style="font-size:1.0rem; font-weight:bold"></i> Pending Approval
+                    </div>
+                }
+            </div>
+            <div class="col-md-2 mt-5">
+                @if (Model.ProgressStatus == WorkItemProgressStatus.Completed)
+                {
+                    <div class="fw-bold" style="color:purple">
+                        <i class="bi bi-check-circle" style="color:purple; font-size:1.0rem; font-weight:bold"></i>  Completed
+                    </div>
+                }
+                else if (Model.ProgressStatus == WorkItemProgressStatus.InProgress)
+                {
+                    <div class="fw-bold" style="font-size:1.0rem; color:#087804">
+                        <i class="bi bi-clock-history" style="color:#087804; font-size:1.0rem; font-weight:bold"></i>  In Progress
+                    </div>
+                }
+                else if (Model.ProgressStatus == WorkItemProgressStatus.OnHold)
+                {
+                    <div class="fw-bold" style="color:#dc2910">
+                        <i class="bi bi-slash-circle" style="color:#dc2910; font-size:1.0rem; font-weight:bold"></i>  On Hold
+                    </div>
+                }
+                else if (Model.ProgressStatus == WorkItemProgressStatus.NotStarted)
+                {
+                    <div class="fw-bold" style="color:black">
+                        <i class="bi bi-dash-circle" style="color:black; font-size:1.0rem; font-weight:bold"></i> Not Yet Started
+                    </div>
+                }
+                else
+                {
+                    <div class="fw-bold" style="font-size:1.0rem">
+                        <i class="bi bi-circle" style="color:black; font-size:1.0rem; font-weight:bold"></i>  Unknown
+                    </div>
+                }
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12 text-end">
+                <button class="btn btn-sm btn-info" style="border-radius:5px; width:100px;" title="Click to Go Back" onclick="history.back()">
+                    <span class="text-white" style="font-size:0.8rem">Back</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

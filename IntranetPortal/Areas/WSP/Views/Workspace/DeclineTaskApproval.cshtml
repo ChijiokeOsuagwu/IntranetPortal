@@ -1,0 +1,66 @@
+﻿@model IntranetPortal.Areas.WSP.Models.DeclineTaskApprovalViewModel
+@{
+    ViewData["Title"] = "OfficeManager | Workspace";
+}
+<div class="container">
+    <h4>Channels Workspace</h4>
+    <hr />
+    <div class="card" style="max-width:800px">
+        <div class="card-header bg-info">
+            <h4 class="text-white">Decline Approval</h4>
+        </div>
+        <div class="card-body table-secondary">
+            @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bi bi-x-circle"></i>
+                    <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            @if (!String.IsNullOrEmpty(Model.ViewModelSuccessMessage))
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="bi bi-check-circle"></i>
+                    <span class="fw-bold">@Model.ViewModelSuccessMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            @if (!String.IsNullOrEmpty(Model.ViewModelWarningMessage))
+            {
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                    <i class="bi bi-exclamation-circle"></i>
+                    <span class="fw-bold">@Model.ViewModelWarningMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            <form asp-area="WSP" asp-controller="Workspace" asp-action="DeclineTaskApproval" method="post" autocomplete="off">
+                <div class="row">
+                    <div class="col-md-12 mb-3">
+                        <label asp-for="NoteContent" class="form-label"></label>
+                        <textarea asp-for="NoteContent" rows="2" class="form-control fw-bold" autofocus>@Model.NoteContent</textarea>
+                        <div><span asp-validation-for="NoteContent" class="text-danger"></span></div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12 text-end">
+                        <a asp-area="WSP" asp-controller="Workspace" asp-action="SubmittedTasks" asp-route-id="@Model.TaskFolderID" asp-route-fn="@Model.TaskFolderName" asp-route-sd="@Model.FolderSubmissionID" asp-route-od="@Model.TaskOwnerID" class="btn btn-dark ml-1" style="width:100px" title="Back">
+                            <span class="text-white">Back</span>
+                        </a>
+                        <button type="submit" class="btn btn-info" title="Decline" style="width:200px"><span class="text-white">Proceed</span></button>
+                    </div>
+                </div>
+                <input type="hidden" asp-for="TaskFolderID" />
+                <input type="hidden" asp-for="FromEmployeeID" />
+                <input type="hidden" asp-for="FromEmployeeName" />
+                <input type="hidden" asp-for="TaskItemID" />
+                <input type="hidden" asp-for="TaskFolderName" />
+                <input type="hidden" asp-for="FolderSubmissionID" />
+                <input type="hidden" asp-for="TaskOwnerID" />
+            </form>
+        </div>
+    </div>
+</div>
+@section Scripts{
+    <script src="~/js/wsp.js"></script>
+}

@@ -1,0 +1,105 @@
+﻿@model IntranetPortal.Areas.WSP.Models.RescheduleTaskViewModel
+@{
+    ViewData["Title"] = "OfficeManager | Workspace";
+}
+<div class="container">
+    <h4>Task Timelines</h4>
+    <hr />
+    <div class="card" style="max-width:800px">
+        <div class="card-header bg-info">
+            <h4 class="text-white">Reschedule Task</h4>
+        </div>
+        <div class="card-body table-secondary">
+            @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bi bi-x-circle"></i>
+                    <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            @if (!String.IsNullOrEmpty(Model.ViewModelSuccessMessage))
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="bi bi-check-circle"></i>
+                    <span class="fw-bold">@Model.ViewModelSuccessMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            @if (!String.IsNullOrEmpty(Model.ViewModelWarningMessage))
+            {
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                    <i class="bi bi-exclamation-circle"></i>
+                    <span class="fw-bold">@Model.ViewModelWarningMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            <form asp-area="WSP" asp-controller="Workspace" asp-action="RescheduleTask" method="post" autocomplete="off">
+                <div class="row">
+                    <div class="col-md-6 mb-2">
+                        <label class="form-label text-dark">Current Start Date</label>
+                        @if (Model.CurrentStartDate != null)
+                        {
+                            <div class="form-control fw-bold">@Model.CurrentStartDate.Value.ToString("yyyy-MMM-dd")</div>
+                        }
+                        else
+                        {
+                            <div class="form-control fw-bold">[N/A]</div>
+                        }
+                    </div>
+                    <div class="col-md-6 mb-2">
+                        <label class="form-label text-dark">Current End Date</label>
+                        @if (Model.CurrentEndDate != null)
+                        {
+                            <div class="form-control fw-bold">@Model.CurrentEndDate.Value.ToString("yyyy-MMM-dd")</div>
+                        }
+                        else
+                        {
+                            <div class="form-control fw-bold">[N/A]</div>
+                        }
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="NewStartDate" class="form-label text-dark"></label>
+                        <input asp-for="NewStartDate" type="date" class="form-control fw-bold" autofocus />
+                        <div><span asp-validation-for="NewStartDate" class="text-danger"></span></div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="NewEndDate" class="form-label text-dark"></label>
+                        <input asp-for="NewEndDate" type="date" class="form-control fw-bold" />
+                        <div><span asp-validation-for="NewEndDate" class="text-danger"></span></div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12 text-end">
+                        @if (Model.Source == "ttl")
+                        {
+                            <a asp-area="WSP" asp-controller="Workspace" asp-action="TeamTaskList" asp-route-id="@Model.TaskFolderID" class="btn btn-dark ml-1" style="width:100px" title="Back">
+                                <span class="text-white">Back</span>
+                            </a>
+                        }
+                        else if (Model.Source == "mtl")
+                        {
+                            <a asp-area="WSP" asp-controller="Workspace" asp-action="MyTaskList" asp-route-id="@Model.TaskFolderID" class="btn btn-dark ml-1" style="width:100px" title="Back">
+                                <span class="text-white">Back</span>
+                            </a>
+                        }
+                        else
+                        {
+                            <a asp-area="WKS" asp-controller="Tasks" asp-action="Taskboard" asp-route-id="@Model.TaskFolderID" class="btn btn-dark ml-1" style="width:100px" title="Back">
+                                <span class="text-white">Back</span>
+                            </a>
+                        }
+                        <button type="submit" class="btn btn-info ml-2" title="Save" style="width:200px" onclick="return confirm('This will automatically reverse and cancel any approval gotten for this task. Do you still want to proceed?');"><span class="text-white">Reschedule</span></button>
+                    </div>
+                </div>
+                <input type="hidden" asp-for="TaskItemID" />
+                <input type="hidden" asp-for="TaskFolderID" />
+                <input type="hidden" asp-for="CurrentStartDate" />
+                <input type="hidden" asp-for="CurrentEndDate" />
+                <input type="hidden" asp-for="Source" />
+            </form>
+        </div>
+    </div>
+</div>
