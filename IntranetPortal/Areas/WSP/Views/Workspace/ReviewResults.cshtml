@@ -54,75 +54,79 @@
                                 <th><span class="text-white fw-bold">Completed</span></th>
                                 <th class="p-2"><span class="text-white fw-bold">Uncompleted</span></th>
                                 <th><span class="text-white fw-bold">% Completion (Ave.)</span></th>
-                                <th><span class="text-white fw-bold">% Rating (Ave.)</span></th>
+                                <th><span class="text-white fw-bold">Quality Score</span></th>
+                                <th><span class="text-white fw-bold">Quality Rating</span></th>
                                 <th></th>
                             </tr>
                         </thead>
                         <tbody class="table-light">
                             @foreach (var summary in Model.EvaluationSummaryList)
                             {
-                                <tr>
-                                    <td>
-                                        <span class="fw-bold ml-1"><i class="bi bi-folder"></i></span>
-                                        <span class="fw-bold ml-1" title="@summary.TaskFolderName">@summary.TaskFolderName</span>
-                                    </td>
-                                    <td>
-                                        @if (summary.EvaluationDate != null)
-                                        {
-                                            <span class="fw-bold">@summary.EvaluationDate.Value.ToString("dd-MMM-yyyy")</span>
-                                        }
-                                        else
-                                        {
-                                            <span class="fw-bold">[Unspecified]</span>
-                                        }
-                                    </td>
-                                    <td>
-                                        <span class="fw-bold" title="Total Number of Tasks">@summary.TotalNoOfTasks</span>
-                                    </td>
-                                    <td>
-                                        <span class="fw-bold" title="Number of Completed Tasks">@summary.TotalNoOfCompletedTasks</span>
-                                    </td>
-                                    <td>
-                                        <span class="fw-bold" title="Number of Uncompleted Tasks">@summary.TotalNoOfUncompletedTasks</span>
-                                    </td>
-                                    <td>
-                                        <span class="fw-bold" title="Average % Completion">@summary.AverageCompletionScore %</span>
-                                    </td>
-                                    <td>
-                                        @if (summary.AverageQualityScore < 1.5M)
-                                        {
-                                            <h4><span class="badge rounded-pill text-dark fw-bold" style="background-color:#DFFF00; width:100px" title="Poor">Poor</span></h4>
-                                        }
-                                        else if (summary.AverageQualityScore >= 2.4M)
-                                        {
-                                            <h4><span class="badge rounded-pill text-white fw-bold" title="Good" style="background-color:#7d3c98; width:100px">Good</span></h4>
-                                        }
-                                        else if (summary.AverageQualityScore >= 1.5M && summary.AverageQualityScore < 2.4M)
-                                        {
-                                            <h4><span class="badge bg-info rounded-pill text-white fw-bold" title="Fair" style="width:100px">Fair</span></h4>
-                                        }
-                                    </td>
-                                    <td style="vertical-align:top">
-                                        <!-- Default dropstart button -->
-                                        <div class="btn-group dropstart">
-                                            <button type="button" data-bs-toggle="dropdown" aria-expanded="false" style="border:0px">
-                                                <span class="fw-bold" style="font-size:1.0rem;"><i class="bi bi-three-dots-vertical"></i></span>
-                                            </button>
-                                            <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton2">
-                                                <li>
-                                                    <a class="dropdown-item" asp-area="WSP" asp-controller="Workspace" asp-action="ReviewResultDetails" asp-route-id="@summary.TaskEvaluationHeaderId">
-                                                        <i class="bi bi-card-checklist"></i> <span>Details</span>
-                                                    </a>
-                                                </li>
-                                                <li>
-                                                    @*<a class="dropdown-item" asp-area="WSP" asp-controller="Workspace" asp-action="TaskListNotes" asp-route-id="@header.TaskListId">
-                                                        <i class="bi bi-stickies"></i> <span>View Notes</span>
-                                                    </a>*@
-                                                </li>
-                                            </ul>
-                                        </div>
-                                    </td>
-                                </tr>
+                            <tr>
+                                <td>
+                                    <span class="fw-bold ml-1"><i class="bi bi-folder"></i></span>
+                                    <span class="fw-bold ml-1" title="@summary.TaskFolderName">@summary.TaskFolderName</span>
+                                </td>
+                                <td>
+                                    @if (summary.EvaluationDate != null)
+                                    {
+                                        <span class="fw-bold">@summary.EvaluationDate.Value.ToString("dd-MMM-yyyy")</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="fw-bold">[Unspecified]</span>
+                                    }
+                                </td>
+                                <td>
+                                    <span class="fw-bold" title="Total Number of Tasks">@summary.TotalNoOfTasks</span>
+                                </td>
+                                <td>
+                                    <span class="fw-bold" title="Number of Completed Tasks">@summary.TotalNoOfCompletedTasks</span>
+                                </td>
+                                <td>
+                                    <span class="fw-bold" title="Number of Uncompleted Tasks">@summary.TotalNoOfUncompletedTasks</span>
+                                </td>
+                                <td>
+                                    <span class="fw-bold" title="Average % Completion">@summary.AverageCompletionScore %</span>
+                                </td>
+                                <td>
+                                    <span class="fw-bold" title="Average % Quality Score">@summary.PercentageAverageQualityScore %</span>
+                                </td>
+                                <td>
+                                    @if (summary.AverageQualityScore < 1.5M)
+                                    {
+                                        <h4><span class="badge rounded-pill text-dark fw-bold" style="background-color:#DFFF00; width:100px" title="Poor">Poor</span></h4>
+                                    }
+                                    else if (summary.AverageQualityScore >= 2.4M)
+                                    {
+                                        <h4><span class="badge rounded-pill text-white fw-bold" title="Good" style="background-color:#7d3c98; width:100px">Good</span></h4>
+                                    }
+                                    else if (summary.AverageQualityScore >= 1.5M && summary.AverageQualityScore < 2.4M)
+                                    {
+                                        <h4><span class="badge bg-info rounded-pill text-white fw-bold" title="Fair" style="width:100px">Fair</span></h4>
+                                    }
+                                </td>
+                                <td style="vertical-align:top">
+                                    <!-- Default dropstart button -->
+                                    <div class="btn-group dropstart">
+                                        <button type="button" data-bs-toggle="dropdown" aria-expanded="false" style="border:0px">
+                                            <span class="fw-bold" style="font-size:1.0rem;"><i class="bi bi-three-dots-vertical"></i></span>
+                                        </button>
+                                        <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton2">
+                                            <li>
+                                                <a class="dropdown-item" asp-area="WSP" asp-controller="Workspace" asp-action="ReviewResultDetails" asp-route-id="@summary.TaskEvaluationHeaderId">
+                                                    <i class="bi bi-card-checklist"></i> <span>Details</span>
+                                                </a>
+                                            </li>
+                                            <li>
+                                                @*<a class="dropdown-item" asp-area="WSP" asp-controller="Workspace" asp-action="TaskListNotes" asp-route-id="@header.TaskListId">
+                            <i class="bi bi-stickies"></i> <span>View Notes</span>
+                        </a>*@
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </td>
+                            </tr>
                             }
                         </tbody>
                     </table>

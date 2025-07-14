@@ -1,4 +1,5 @@
 ﻿using IntranetPortal.Base.Enums;
+using IntranetPortal.Base.Models.BaseModels;
 using IntranetPortal.Base.Models.EmployeeRecordModels;
 using IntranetPortal.Base.Models.GlobalSettingsModels;
 using IntranetPortal.Base.Models.WspModels;
@@ -191,7 +192,6 @@ namespace IntranetPortal.Base.Services
             return folderList;
         }
 
-
         public async Task<List<WorkItemFolder>> SearchWorkItemFoldersAsync(string OwnerId, bool? IsArchived = null, int? createdYear = null, int? createdMonth = null)
         {
             List<WorkItemFolder> folderList = new List<WorkItemFolder>();
@@ -240,6 +240,7 @@ namespace IntranetPortal.Base.Services
             return folderList;
         }
         #endregion
+       
         //============== Work Item Folder Write Service Methods ================================//
         #region Work Item Folders Write Service Methods
         public async Task<long> CreateWorkItemFolderAsync(WorkItemFolder folder)
@@ -381,6 +382,11 @@ namespace IntranetPortal.Base.Services
         public async Task<bool> DeleteFolderSubmissionAsync(long folderSubmissionId)
         {
             return await _deskspaceRepository.DeleteFolderSubmissionAsync(folderSubmissionId);
+        }
+
+        public async Task<bool> DeleteFolderSubmissionsByToEmployeeIdAsync(string toEmployeeId)
+        {
+            return await _deskspaceRepository.DeleteFolderSubmissionsByToEmployeeIdAsync(toEmployeeId);
         }
         public async Task<FolderSubmission> GetFolderSubmissionByIdAsync(long folderSubmissionId)
         {
@@ -635,6 +641,17 @@ namespace IntranetPortal.Base.Services
         {
             if (TaskId < 1) { throw new ArgumentNullException(nameof(TaskId)); }
             return await _deskspaceRepository.GetTaskItemByIdAsync(TaskId);
+        }
+        
+        public async Task<List<TaskItem>> GetTaskItemsWithSameKeyword(string TaskOwnerId, string Keyword, DateTime StartDate, DateTime EndDate)
+        {
+            List<TaskItem> taskItems = new List<TaskItem>();
+            var entities = await _deskspaceRepository.GetTaskItemsByOwnerIdnKeywordAsync(TaskOwnerId, Keyword, StartDate, EndDate);
+            if(entities != null)
+            {
+                taskItems = entities;
+            }
+            return taskItems;
         }
         #endregion
 
@@ -1139,6 +1156,135 @@ namespace IntranetPortal.Base.Services
         }
         #endregion
 
+        #region Delegated Task Items Service Methods
+        public async Task<List<DelegatedTaskItem>> SearchDelegatedTaskItemsAsync(string DelegatedByEmployeeId, string DelegatedToEmployeeId, int? ProgressStatusId = null, DateTime? FromDate = null, DateTime? ToDate = null)
+        {
+            List<DelegatedTaskItem> delegatedTaskItems = new List<DelegatedTaskItem>();
+            
+            if (!string.IsNullOrWhiteSpace(DelegatedByEmployeeId))
+            {
+                if (!string.IsNullOrWhiteSpace(DelegatedToEmployeeId))
+                {
+                    if(ProgressStatusId != null)
+                    {
+                        var entities = await _deskspaceRepository.GetDelegatedTaskItemsByDelegatedByEmployeeIdnDelegatedToEmployeeIdnProgressStatusIdnAssignedDateAsync(DelegatedByEmployeeId, DelegatedToEmployeeId, ProgressStatusId.Value, FromDate.Value, ToDate.Value);
+                        if(entities != null) { delegatedTaskItems = entities; }
+                    }
+                    else
+                    {
+                        var entities = await _deskspaceRepository.GetDelegatedTaskItemsByDelegatedByEmployeeIdnDelegatedToEmployeeIdnAssignedDateAsync(DelegatedByEmployeeId, DelegatedToEmployeeId, FromDate.Value, ToDate.Value);
+                        if (entities != null) { delegatedTaskItems = entities; }
+                    }
+                }
+                else
+                {
+                    if (ProgressStatusId != null)
+                    {
+                        var entities = await _deskspaceRepository.GetDelegatedTaskItemsByDelegatedByEmployeeIdnProgressStatusIdnAssignedDateAsync(DelegatedByEmployeeId, ProgressStatusId.Value, FromDate.Value, ToDate.Value);
+                        if (entities != null) { delegatedTaskItems = entities; }
+                    }
+                    else
+                    {
+                        var entities = await _deskspaceRepository.GetDelegatedTaskItemsByDelegatedByEmployeeIdnAssignedDateAsync(DelegatedByEmployeeId, FromDate.Value, ToDate.Value);
+                        if (entities != null) { delegatedTaskItems = entities; }
+                    }
+                }
+            }
+            return delegatedTaskItems;
+        }
+        public async Task<DelegatedTaskItem> GetDelegatedTaskItemAsync(long taskDelegationId)
+        {
+            DelegatedTaskItem delegatedTaskItem = new DelegatedTaskItem();
+            if(taskDelegationId > 0)
+            {
+                delegatedTaskItem = await _deskspaceRepository.GetDelegatedTaskItemByDelegationIdAsync(taskDelegationId);
+            }
+            return delegatedTaskItem;
+        }
+        public async Task<bool> CreateDelegatedTaskItemAsync(DelegatedTaskItem delegatedTaskItem)
+        {
+            long newDelegationId = 0;
+            long delegatedTaskItemId = 0;
+            if (delegatedTaskItem != null)
+            {
+                delegatedTaskItem.ApprovalStatus = ApprovalStatus.Approved;
+                delegatedTaskItem.ApprovalStatusId = (int)ApprovalStatus.Approved;
+                delegatedTaskItemId = await _deskspaceRepository.AddTaskItemAsync(delegatedTaskItem);
+                if(delegatedTaskItemId > 0)
+                {
+                    delegatedTaskItem.Id = delegatedTaskItemId;
+                    await _utilityRepository.IncrementAutoNumberAsync("taskno");
+                    WorkItemActivityLog activityLog = new WorkItemActivityLog
+                    {
+                        Time = DateTime.Now,
+                        ActivityBy = delegatedTaskItem.CreatedBy,
+                        Description = $"New Task created by {delegatedTaskItem.CreatedBy} on {DateTime.UtcNow.ToLongDateString()} at {DateTime.UtcNow.ToLongTimeString()} WAT.",
+                        WorkItemFolderId = null,
+                        Id = 0,
+                        ProjectId = null,
+                        TaskItemId = delegatedTaskItemId
+                    };
+                    await _deskspaceRepository.AddWorkItemActivityLogAsync(activityLog);
+                    
+                    newDelegationId = await _deskspaceRepository.AddDelegationAsync(delegatedTaskItem);
+                    if(newDelegationId > 0)
+                    {
+                        WorkItemActivityLog delegationActivityLog = new WorkItemActivityLog
+                        {
+                            Time = DateTime.Now,
+                            ActivityBy = delegatedTaskItem.CreatedBy,
+                            Description = $"Task was delegated to {delegatedTaskItem.DelegatedToEmployeeName} by {delegatedTaskItem.CreatedBy} on {DateTime.UtcNow.ToLongDateString()} at {DateTime.UtcNow.ToLongTimeString()}.",
+                            WorkItemFolderId = null,
+                            Id = 0,
+                            ProjectId = null,
+                            TaskItemId = delegatedTaskItemId
+                        };
+                        await _deskspaceRepository.AddWorkItemActivityLogAsync(delegationActivityLog);
+                    }
+                }
+            }
+            return newDelegationId > 0;
+        }
+        public async Task<bool> ReDelegateTaskItemAsync(DelegatedTaskItem delegatedTaskItem, long oldDelegationId)
+        {
+            TaskItem taskItem = new TaskItem();
+
+            if (await _deskspaceRepository.UpdateTaskItemOwnershipAsync(delegatedTaskItem))
+            {
+                WorkItemActivityLog updateTaskItemActivityLog = new WorkItemActivityLog
+                {
+                    Time = DateTime.Now,
+                    ActivityBy = delegatedTaskItem.CreatedBy,
+                    Description = $"Task was updated and ownership changed due to reassignment by {delegatedTaskItem.LastModifiedBy} on {DateTime.UtcNow.ToLongDateString()} at {DateTime.UtcNow.ToLongTimeString()} WAT.",
+                    WorkItemFolderId = null,
+                    Id = 0,
+                    ProjectId = null,
+                    TaskItemId = delegatedTaskItem.Id
+                };
+                await _deskspaceRepository.AddWorkItemActivityLogAsync(updateTaskItemActivityLog);
+                if (await _deskspaceRepository.AddDelegationAsync(delegatedTaskItem) > 0)
+                {
+                    if(await _deskspaceRepository.UpdateDelegationStatusAsync(oldDelegationId))
+                    {
+                        WorkItemActivityLog delegationActivityLog = new WorkItemActivityLog
+                        {
+                            Time = DateTime.Now,
+                            ActivityBy = delegatedTaskItem.CreatedBy,
+                            Description = $"Task was delegated to {delegatedTaskItem.DelegatedToEmployeeName} by {delegatedTaskItem.LastModifiedBy} on {DateTime.UtcNow.ToLongDateString()} at {DateTime.UtcNow.ToLongTimeString()}.",
+                            WorkItemFolderId = null,
+                            Id = 0,
+                            ProjectId = null,
+                            TaskItemId = delegatedTaskItem.Id
+                        };
+                        await _deskspaceRepository.AddWorkItemActivityLogAsync(delegationActivityLog);
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+        #endregion
+
         #endregion
 
         #region Task Evaluation Header Service Action Methods
@@ -1386,20 +1532,42 @@ namespace IntranetPortal.Base.Services
         #endregion
 
         #region Task Evaluation Returns
-        public async Task<bool> ReturnTaskEvaluationAsync(TaskEvaluationReturns evaluationReturn)
+        public async Task<bool> ReturnTaskEvaluationAsync(TaskEvaluationReturns evaluationReturn, bool doNotMoveToPendingTaskFolder = false)
         {
             if (evaluationReturn == null) { throw new ArgumentNullException(nameof(evaluationReturn), "The required parameter [Task Evaluation Return] is missing."); }
             bool IsAdded = await _deskspaceRepository.AddTaskEvaluationReturnAsync(evaluationReturn);
             if (IsAdded)
             {
-                bool FolderIdIsUpdated = await _deskspaceRepository.UpdateTaskItemFolderIdAsync(evaluationReturn.TaskItemId, evaluationReturn.ReturnedBy, null);
-                if (FolderIdIsUpdated)
+                if (!doNotMoveToPendingTaskFolder)
+                {
+                    bool FolderIdIsUpdated = await _deskspaceRepository.UpdateTaskItemFolderIdAsync(evaluationReturn.TaskItemId, evaluationReturn.ReturnedBy, null);
+                    if (FolderIdIsUpdated)
+                    {
+                        WorkItemActivityLog activityLog = new WorkItemActivityLog
+                        {
+                            Time = DateTime.Now,
+                            ActivityBy = evaluationReturn.ReturnedBy,
+                            Description = $"Task failed evaluation and was returned by [{evaluationReturn.ReturnedBy}] on {DateTime.UtcNow.ToLongDateString()} at exactly {DateTime.UtcNow.ToLongTimeString()} WAT.",
+                            WorkItemFolderId = null,
+                            Id = 0,
+                            ProjectId = null,
+                            TaskItemId = evaluationReturn.TaskItemId
+                        };
+                        await _deskspaceRepository.AddWorkItemActivityLogAsync(activityLog);
+                        return true;
+                    }
+                    else
+                    {
+                        await _deskspaceRepository.DeleteTaskEvaluationReturnAsync(evaluationReturn.TaskItemId, evaluationReturn.ReturnedBy);
+                    }
+                }
+                else
                 {
                     WorkItemActivityLog activityLog = new WorkItemActivityLog
                     {
                         Time = DateTime.Now,
                         ActivityBy = evaluationReturn.ReturnedBy,
-                        Description = $"Task failed evaluation and was returned by [{evaluationReturn.ReturnedBy}] on {DateTime.UtcNow.ToLongDateString()} at exactly {DateTime.UtcNow.ToLongTimeString()} WAT.",
+                        Description = $"Task was submitted for close out without approval and was declined by [{evaluationReturn.ReturnedBy}] on {DateTime.UtcNow.ToLongDateString()} at exactly {DateTime.UtcNow.ToLongTimeString()} WAT.",
                         WorkItemFolderId = null,
                         Id = 0,
                         ProjectId = null,
@@ -1407,10 +1575,6 @@ namespace IntranetPortal.Base.Services
                     };
                     await _deskspaceRepository.AddWorkItemActivityLogAsync(activityLog);
                     return true;
-                }
-                else
-                {
-                    await _deskspaceRepository.DeleteTaskEvaluationReturnAsync(evaluationReturn.TaskItemId, evaluationReturn.ReturnedBy);
                 }
             }
             return IsAdded;
@@ -1549,7 +1713,7 @@ namespace IntranetPortal.Base.Services
                 }
                 else if (LocationId != null)
                 {
-                    _scoresList = await _deskspaceRepository.GetTaskEvaluationScoresByLocationIdAsync(UnitId.Value, StartDate, EndDate);
+                    _scoresList = await _deskspaceRepository.GetTaskEvaluationScoresByLocationIdAsync(LocationId.Value, StartDate, EndDate);
                 }
             }
             return _scoresList;

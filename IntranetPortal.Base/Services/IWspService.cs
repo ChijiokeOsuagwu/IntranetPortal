@@ -58,6 +58,7 @@ namespace IntranetPortal.Base.Services
         Task<long> GetTaskItemsCountByFolderIdAsync(long FolderId);
         Task<List<TaskItem>> GetTasksByFolderIdAsync(long FolderId);
         Task<TaskItem> GetTaskItemByIdAsync(long TaskId);
+        Task<List<TaskItem>> GetTaskItemsWithSameKeyword(string TaskOwnerId, string Keyword, DateTime StartDate, DateTime EndDate);
         #endregion
 
         #region Pending Task Items Service Methods
@@ -84,11 +85,19 @@ namespace IntranetPortal.Base.Services
         Task<bool> UpdateTaskTimelineAsync(TaskTimelineChange taskTimelineChange);
         Task<List<TaskTimelineChange>> GetTaskTimelineChangesByTaskItemIdAsync(long taskItemId);
         #endregion
+
+        #region Delegated Task Items Service Methods
+        Task<List<DelegatedTaskItem>> SearchDelegatedTaskItemsAsync(string DelegatedByEmployeeId, string DelegatedToEmployeeId, int? ProgressStatusId = null, DateTime? FromDate = null, DateTime? ToDate = null);
+        Task<DelegatedTaskItem> GetDelegatedTaskItemAsync(long taskDelegationId);
+        Task<bool> CreateDelegatedTaskItemAsync(DelegatedTaskItem delegatedTaskItem);
+        Task<bool> ReDelegateTaskItemAsync(DelegatedTaskItem delegatedTaskItem, long oldDelegationId);
+        #endregion
         #endregion
 
         #region Folder Submission Service Methods
         Task<bool> AddFolderSubmissionAsync(FolderSubmission submission);
         Task<bool> DeleteFolderSubmissionAsync(long folderSubmissionId);
+        Task<bool> DeleteFolderSubmissionsByToEmployeeIdAsync(string toEmployeeId);
         Task<bool> ReturnFolderSubmissionAsync(long folderId, long submissionId);
         Task<FolderSubmission> GetFolderSubmissionByIdAsync(long folderSubmissionId);
         Task<List<FolderSubmission>> GetFolderSubmissionsByFolderIdAsync(long folderId);
@@ -127,7 +136,7 @@ namespace IntranetPortal.Base.Services
         #endregion
 
         #region Evaluation Returns Service Interfaces
-        Task<bool> ReturnTaskEvaluationAsync(TaskEvaluationReturns evaluationReturn);
+        Task<bool> ReturnTaskEvaluationAsync(TaskEvaluationReturns evaluationReturn, bool doNotMoveToPendingTaskFolder = false);
         Task<bool> DeleteTaskEvaluationReturnAsync(long taskItemId, string returnedBy);
         Task<List<TaskEvaluationReturns>> GetTaskEvaluationReturnsAsync(string taskOwnerId, DateTime? fromDate = null, DateTime? toDate = null);
         Task<List<TaskEvaluationReturns>> GetTaskEvaluationReturnsByTaskItemIdAsync(long taskItemId);
@@ -144,8 +153,6 @@ namespace IntranetPortal.Base.Services
         Task<TaskEvaluationScores> GetTaskEvaluationScoresByOwnerId(string TaskOwnerId, DateTime? StartDate = null, DateTime? EndDate = null);
         Task<List<TaskEvaluationScores>> GetTaskEvaluationScoresAsync(string TaskOwnerName = null, int? UnitId = null, int? DepartmentId = null, int? LocationId = null, DateTime? StartDate = null, DateTime? EndDate = null);
         #endregion
-
-
 
         #region Work Item Return Reasons Service Interfaces
         Task<List<WorkItemReturnReason>> GetWorkItemReturnReasonsAsync();

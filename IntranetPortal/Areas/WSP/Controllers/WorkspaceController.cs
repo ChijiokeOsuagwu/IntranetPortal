@@ -8,13 +8,17 @@ using System.Threading.Tasks;
 using ClosedXML.Excel;
 using IntranetPortal.Areas.WSP.Models;
 using IntranetPortal.Base.Enums;
+using IntranetPortal.Base.Models.BaseModels;
 using IntranetPortal.Base.Models.EmployeeRecordModels;
 using IntranetPortal.Base.Models.WspModels;
 using IntranetPortal.Base.Services;
+using IntranetPortal.Helpers;
+using IntranetPortal.Models;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.Extensions.Configuration;
 
 namespace IntranetPortal.Areas.WSP.Controllers
 {
@@ -25,13 +29,15 @@ namespace IntranetPortal.Areas.WSP.Controllers
         private readonly IErmService _ermService;
         private readonly IBaseModelService _baseModelService;
         private readonly IGlobalSettingsService _globalSettingsService;
+        private readonly IConfiguration _configuration;
         public WorkspaceController(IWspService wspService, IErmService ermService, IBaseModelService baseModelService,
-            IGlobalSettingsService globalSettingsService)
+            IGlobalSettingsService globalSettingsService, IConfiguration configuration)
         {
             _wspService = wspService;
             _ermService = ermService;
             _baseModelService = baseModelService;
             _globalSettingsService = globalSettingsService;
+            _configuration = configuration;
         }
         public IActionResult Index()
         {
@@ -609,6 +615,19 @@ namespace IntranetPortal.Areas.WSP.Controllers
                     }
                     else
                     {
+                        switch (task.ProgressStatusId)
+                        {
+                            case 1:
+                            case 3:
+                                task.ActualStartTime = DateTime.Now;
+                                break;
+                            case 2:
+                                task.ActualStartTime = DateTime.Now;
+                                task.ActualDueTime = DateTime.Now;
+                                break;
+                            default:
+                                break;
+                        }
                         task.CreatedBy = HttpContext.User.Identity.Name;
                         task.CreatedTime = DateTime.UtcNow;
                         long newTaskId = await _wspService.CreateTaskItemAsync(task);
@@ -786,7 +805,7 @@ namespace IntranetPortal.Areas.WSP.Controllers
             }
             return View(model);
         }
-        public IActionResult DeclineTaskApproval(long id, long fd, long sd, string od, string fn)
+        public IActionResult DeclineTaskApproval(long id, long fd, long sd, string od, string fn, string st)
         {
             DeclineTaskApprovalViewModel model = new DeclineTaskApprovalViewModel();
             model.TaskItemID = id;
@@ -794,6 +813,7 @@ namespace IntranetPortal.Areas.WSP.Controllers
             model.TaskFolderName = fn;
             model.TaskOwnerID = od;
             model.FolderSubmissionID = sd;
+            model.FolderSubmissionType = st;
             model.FromEmployeeName = HttpContext.User.Identity.Name;
             var claims = HttpContext.User.Claims.ToList();
             model.FromEmployeeID = claims?.Where(x => x.Type == ClaimTypes.NameIdentifier).Select(c => c.Value).SingleOrDefault();
@@ -820,6 +840,7 @@ namespace IntranetPortal.Areas.WSP.Controllers
                         bool TaskIsDeclined = await _wspService.UpdateTaskItemApprovalStatusAsync(model.TaskItemID, ApprovalStatus.Declined, model.FromEmployeeName);
                         if (TaskIsDeclined)
                         {
+
                             return RedirectToAction("SubmittedTasks", new { id = model.TaskFolderID, fn = model.TaskFolderName, sd = model.FolderSubmissionID, od = model.TaskOwnerID });
                         }
                         else { model.ViewModelErrorMessage = "Sorry,an error was encountered. Please try again."; }
@@ -830,6 +851,416 @@ namespace IntranetPortal.Areas.WSP.Controllers
                 {
                     model.ViewModelErrorMessage = ex.Message;
                 }
+            }
+            return View(model);
+        }
+
+        public async Task<IActionResult> DelegatedTaskList(string id = null, string ed = null, int? ps = null, DateTime? fd = null, DateTime? td = null)
+        {
+            DelegatedTaskListViewModel model = new DelegatedTaskListViewModel();
+            model.id = id;
+            model.ed = ed;
+            model.ps = ps;
+            model.fd = fd ?? DateTime.Now.AddMonths(-6);
+            model.td = td ?? DateTime.Now.AddDays(1);
+            try
+            {
+                if (string.IsNullOrWhiteSpace(id))
+                {
+                    var claims = HttpContext.User.Claims.ToList();
+                    model.id = claims?.Where(x => x.Type == ClaimTypes.NameIdentifier).Select(c => c.Value).SingleOrDefault();
+                }
+                model.TaskItems = await _wspService.SearchDelegatedTaskItemsAsync(model.id, model.ed, model.ps, model.fd, model.td);
+
+                var entities = await _ermService.GetEmployeeReportsByReportsToEmployeeIdAsync(model.id);
+                if (entities != null && entities.Count > 0)
+                {
+                    ViewBag.ReportsList = new SelectList(entities, "EmployeeID", "EmployeeName", model.ed);
+                }
+            }
+            catch (Exception ex)
+            {
+                model.ViewModelErrorMessage = ex.Message;
+            }
+            return View(model);
+        }
+
+        public async Task<IActionResult> DelegateTask(string ed = null, long? fd = null, string src = null, long? sd = null)
+        {
+            DelegateTaskViewModel model = new DelegateTaskViewModel();
+            model.WorkFolderId = fd;
+            model.TaskOwnerId = ed;
+            model.SourcePage = src;
+            model.FolderSubmissionId = sd;
+            model.DelegatedByEmployeeName = HttpContext.User.Identity.Name;
+            model.DelegatedTime = DateTime.Now;
+            Employee employee = new Employee();
+            try
+            {
+                string taskNo = await _baseModelService.GenerateAutoNumberAsync("taskno");
+                if (!string.IsNullOrWhiteSpace(taskNo)) { model.Number = $"T{taskNo}"; }
+                if (string.IsNullOrWhiteSpace(model.DelegatedByEmployeeId))
+                {
+                    var claims = HttpContext.User.Claims.ToList();
+                    model.DelegatedByEmployeeId = claims?.Where(x => x.Type == ClaimTypes.NameIdentifier).Select(c => c.Value).SingleOrDefault();
+                    if (string.IsNullOrWhiteSpace(model.DelegatedByEmployeeId))
+                    {
+                        model.ViewModelErrorMessage = "Oops! It appears you session has expired. Please login and try again.";
+                        return View(model);
+                    }
+                }
+                model.ExpectedStartTime = DateTime.Today;
+                model.ExpectedDueTime = DateTime.Today.AddDays(7);
+            }
+            catch (Exception ex)
+            {
+                model.ViewModelErrorMessage = ex.Message;
+            }
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DelegateTask(DelegateTaskViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    model.DelegatedByEmployeeName = HttpContext.User.Identity.Name;
+                    if (string.IsNullOrWhiteSpace(model.DelegatedByEmployeeId))
+                    {
+                        var claims = HttpContext.User.Claims.ToList();
+                        model.DelegatedByEmployeeId = claims?.Where(x => x.Type == ClaimTypes.NameIdentifier).Select(c => c.Value).SingleOrDefault();
+                        if (string.IsNullOrWhiteSpace(model.DelegatedByEmployeeId))
+                        {
+                            model.ViewModelErrorMessage = "Oops! It appears you session has expired. Please login and try again.";
+                            return View(model);
+                        }
+                    }
+
+                    if (!string.IsNullOrWhiteSpace(model.DelegatedToEmployeeName))
+                    {
+                        Employee employee = await _ermService.GetEmployeeByNameAsync(model.DelegatedToEmployeeName);
+                        if (employee != null)
+                        {
+                            model.DelegatedToEmployeeId = employee.PersonID;
+                            model.TaskOwnerId = employee.EmployeeID;
+                            model.TaskOwnerName = employee.FullName;
+                            model.UnitId = employee.UnitID;
+                            model.DepartmentId = employee.DepartmentID;
+                            model.LocationId = employee.LocationID;
+                        }
+                    }
+
+                    DelegatedTaskItem task = model.Convert();
+
+                    switch (task.ProgressStatusId)
+                    {
+                        case 1:
+                        case 3:
+                            task.ActualStartTime = DateTime.Now;
+                            break;
+                        case 2:
+                            task.ActualStartTime = DateTime.Now;
+                            task.ActualDueTime = DateTime.Now;
+                            break;
+                        default:
+                            break;
+                    }
+                    task.CreatedBy = HttpContext.User.Identity.Name;
+                    task.CreatedTime = DateTime.UtcNow;
+                    task.AssignedByEmployeeId = model.DelegatedByEmployeeId;
+                    bool IsCreated = await _wspService.CreateDelegatedTaskItemAsync(task);
+                    if (IsCreated)
+                    {
+                        //============= Notification Code Starts Here =========================//
+
+                        Employee sender = new Employee();
+                        sender = await _ermService.GetEmployeeByIdAsync(model.DelegatedByEmployeeId);
+                        Employee receiver = new Employee();
+                        receiver = await _ermService.GetEmployeeByIdAsync(model.DelegatedToEmployeeId);
+
+                        //===== Send Notificiation Message to Approver ========//
+                        Message message = new Message
+                        {
+                            MessageID = Guid.NewGuid().ToString(),
+                            RecipientID = receiver.EmployeeID,
+                            RecipientName = receiver.FullName,
+                            SentBy = sender.FullName
+                        };
+
+                        //===== Send Email Notifications =========//
+                        bool emailCopySent = false;
+                        UtilityHelper utilityHelper = new UtilityHelper(_configuration);
+                        EmailModel recipientEmailCopy = new EmailModel();
+                        recipientEmailCopy.RecipientName = receiver.FullName;
+                        if (!string.IsNullOrWhiteSpace(receiver.OfficialEmail))
+                        {
+                            recipientEmailCopy.RecipientEmail = receiver.OfficialEmail;
+                        }
+                        else
+                        {
+                            recipientEmailCopy.RecipientEmail = receiver.Email;
+                        }
+
+                        if (!string.IsNullOrWhiteSpace(sender.OfficialEmail))
+                        {
+                            recipientEmailCopy.SenderEmail = sender.OfficialEmail;
+                        }
+                        else
+                        {
+                            recipientEmailCopy.SenderEmail = sender.Email;
+                        }
+
+                        recipientEmailCopy.SenderName = sender.FullName;
+                        recipientEmailCopy.Subject = "A New Task Has Been Delegated To You.";
+                        recipientEmailCopy.HtmlContent = UtilityHelper.GetWorkspaceTaskDelegationNotificationEmailHtmlContent(receiver.FullName, sender.FullName);
+                        recipientEmailCopy.PlainContent = UtilityHelper.GetWorkspaceTaskDelegationNotificationEmailPlainContent(receiver.FullName, sender.FullName);
+
+                        message.Subject = "A New Task Has Been Delegated To You.";
+                        message.MessageBody = UtilityHelper.GetWorkspaceTaskDelegationNotificationMessageContent(receiver.FullName, sender.FullName);
+
+                        bool messageSent = await _baseModelService.SendMessageAsync(message);
+                        if (!string.IsNullOrWhiteSpace(recipientEmailCopy.RecipientEmail))
+                        {
+                            emailCopySent = await utilityHelper.SendEmailWithSendGridAsync(recipientEmailCopy);
+                        }
+
+                        //============= Notification Code Ends Here ===========================//
+
+
+                        if (model.SourcePage == "dlg")
+                        {
+                            return RedirectToAction("DelegatedTaskList", new { id = model.DelegatedByEmployeeId });
+                        }
+                        else if (model.SourcePage == "mtl")
+                        {
+                            return RedirectToAction("MyTaskList", new { id = model.WorkFolderId, nm = model.WorkFolderName });
+                        }
+                        else if (model.SourcePage == "sbt")
+                        {
+                            return RedirectToAction("SubmittedTasks", new { id = model.WorkFolderId, sd = model.FolderSubmissionId, tp = "Approval", od = model.TaskOwnerId });
+                        }
+                    }
+                    else
+                    {
+                        model.ViewModelErrorMessage = "An error was encountered. The attempted update failed.";
+                    }
+                }
+                catch (Exception ex)
+                {
+                    model.ViewModelErrorMessage = ex.Message;
+                }
+            }
+            return View(model);
+        }
+
+        public async Task<IActionResult> ReassignTask(long id, long td, string src = null, long? sd = null)
+        {
+            ReassignTaskViewModel model = new ReassignTaskViewModel();
+            model.OldTaskDelegationId = id;
+            model.TaskItemId = td;
+            model.SourcePage = src;
+            model.DelegatedByEmployeeName = HttpContext.User.Identity.Name;
+            model.DelegatedTime = DateTime.Now;
+            Employee employee = new Employee();
+            try
+            {
+                if (string.IsNullOrWhiteSpace(model.DelegatedByEmployeeId))
+                {
+                    var claims = HttpContext.User.Claims.ToList();
+                    model.DelegatedByEmployeeId = claims?.Where(x => x.Type == ClaimTypes.NameIdentifier).Select(c => c.Value).SingleOrDefault();
+                    if (string.IsNullOrWhiteSpace(model.DelegatedByEmployeeId))
+                    {
+                        model.ViewModelErrorMessage = "Oops! It appears you session has expired. Please login and try again.";
+                        return View(model);
+                    }
+                }
+                model.ExpectedStartTime = DateTime.Today;
+                model.ExpectedDueTime = DateTime.Today.AddDays(7);
+
+                if (model.TaskItemId > 0)
+                {
+                    DelegatedTaskItem d = await _wspService.GetDelegatedTaskItemAsync(model.OldTaskDelegationId);
+                    if (d != null)
+                    {
+                        model.ProgressStatusId = d.ProgressStatusId;
+                        model.TaskItemDescription = d.Description;
+                        model.TaskNumber = d.Number;
+                        model.ExpectedDueTime = d.ExpectedDueTime;
+                        model.ExpectedStartTime = d.ExpectedStartTime;
+                        model.OldTaskDelegationId = d.TaskDelegationId;
+                        model.TaskItemId = d.Id;
+                    }
+                    else
+                    {
+                        TaskItem t = await _wspService.GetTaskItemByIdAsync(model.TaskItemId);
+                        if (t != null)
+                        {
+                            model.TaskItemId = t.Id;
+                            model.TaskNumber = t.Number;
+                            model.TaskItemDescription = t.Description;
+                            model.MoreInformation = t.MoreInformation;
+                            model.ProgressStatusId = t.ProgressStatusId;
+                            model.ExpectedDueTime = t.ExpectedDueTime;
+                            model.ExpectedStartTime = t.ExpectedStartTime;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                model.ViewModelErrorMessage = ex.Message;
+            }
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ReassignTask(ReassignTaskViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                DelegatedTaskItem delegatedTaskItem = await _wspService.GetDelegatedTaskItemAsync(model.OldTaskDelegationId);
+                delegatedTaskItem.DelegatedByEmployeeId = model.DelegatedByEmployeeId;
+                delegatedTaskItem.DelegatedByEmployeeName = model.DelegatedByEmployeeName;
+                delegatedTaskItem.DelegatedTime = model.DelegatedTime;
+                delegatedTaskItem.DelegatedToEmployeeId = model.DelegatedToEmployeeId;
+                delegatedTaskItem.DelegatedToEmployeeName = model.DelegatedToEmployeeName;
+                delegatedTaskItem.IsReAssigned = true;
+                delegatedTaskItem.ReassignedTime = model.DelegatedTime;
+                delegatedTaskItem.AssignedTime = model.DelegatedTime;
+                delegatedTaskItem.TaskOwnerName = model.DelegatedToEmployeeName;
+                delegatedTaskItem.Description = model.TaskItemDescription;
+                delegatedTaskItem.MoreInformation = model.MoreInformation;
+                delegatedTaskItem.ProgressStatusId = model.ProgressStatusId;
+                delegatedTaskItem.ExpectedDueTime = model.ExpectedDueTime;
+                delegatedTaskItem.ExpectedStartTime = model.ExpectedStartTime;
+
+                try
+                {
+                    delegatedTaskItem.AssignedByEmployeeName = delegatedTaskItem.LastModifiedBy = delegatedTaskItem.DelegatedByEmployeeName = HttpContext.User.Identity.Name;
+                    if (string.IsNullOrWhiteSpace(delegatedTaskItem.DelegatedByEmployeeId))
+                    {
+                        var claims = HttpContext.User.Claims.ToList();
+                        delegatedTaskItem.AssignedByEmployeeId = delegatedTaskItem.DelegatedByEmployeeId = claims?.Where(x => x.Type == ClaimTypes.NameIdentifier).Select(c => c.Value).SingleOrDefault();
+                        if (string.IsNullOrWhiteSpace(delegatedTaskItem.DelegatedByEmployeeId))
+                        {
+                            model.ViewModelErrorMessage = "Oops! It appears you session has expired. Please login and try again.";
+                            return View(model);
+                        }
+                    }
+
+                    if (!string.IsNullOrWhiteSpace(model.DelegatedToEmployeeName))
+                    {
+                        Employee employee = await _ermService.GetEmployeeByNameAsync(model.DelegatedToEmployeeName);
+                        if (employee != null)
+                        {
+                            delegatedTaskItem.DelegatedToEmployeeId = employee.PersonID;
+                            delegatedTaskItem.TaskOwnerId = employee.EmployeeID;
+                            delegatedTaskItem.UnitId = employee.UnitID;
+                            delegatedTaskItem.DepartmentId = employee.DepartmentID;
+                            delegatedTaskItem.LocationId = employee.LocationID;
+                        }
+                    }
+
+                    delegatedTaskItem.LastModifiedTime = DateTime.Now;
+                    bool IsReassigned = await _wspService.ReDelegateTaskItemAsync(delegatedTaskItem, model.OldTaskDelegationId);
+                    if (IsReassigned)
+                    {
+                        //============= Notification Code Starts Here =========================//
+
+                        Employee sender = new Employee();
+                        sender = await _ermService.GetEmployeeByIdAsync(model.DelegatedByEmployeeId);
+                        Employee receiver = new Employee();
+                        receiver = await _ermService.GetEmployeeByIdAsync(model.DelegatedToEmployeeId);
+
+                        //===== Send Notificiation Message ========//
+                        Message message = new Message
+                        {
+                            MessageID = Guid.NewGuid().ToString(),
+                            RecipientID = receiver.EmployeeID,
+                            RecipientName = receiver.FullName,
+                            SentBy = sender.FullName
+                        };
+
+                        //===== Send Email Notifications =========//
+                        bool emailCopySent = false;
+                        UtilityHelper utilityHelper = new UtilityHelper(_configuration);
+                        EmailModel recipientEmailCopy = new EmailModel();
+                        recipientEmailCopy.RecipientName = receiver.FullName;
+                        if (!string.IsNullOrWhiteSpace(receiver.OfficialEmail))
+                        {
+                            recipientEmailCopy.RecipientEmail = receiver.OfficialEmail;
+                        }
+                        else
+                        {
+                            recipientEmailCopy.RecipientEmail = receiver.Email;
+                        }
+
+                        if (!string.IsNullOrWhiteSpace(sender.OfficialEmail))
+                        {
+                            recipientEmailCopy.SenderEmail = sender.OfficialEmail;
+                        }
+                        else
+                        {
+                            recipientEmailCopy.SenderEmail = sender.Email;
+                        }
+
+                        recipientEmailCopy.SenderName = sender.FullName;
+                        recipientEmailCopy.Subject = "A New Task Has Been Delegated To You.";
+                        recipientEmailCopy.HtmlContent = UtilityHelper.GetWorkspaceTaskDelegationNotificationEmailHtmlContent(receiver.FullName, sender.FullName);
+                        recipientEmailCopy.PlainContent = UtilityHelper.GetWorkspaceTaskDelegationNotificationEmailPlainContent(receiver.FullName, sender.FullName);
+
+                        message.Subject = "A New Task Has Been Delegated To You.";
+                        message.MessageBody = UtilityHelper.GetWorkspaceTaskDelegationNotificationMessageContent(receiver.FullName, sender.FullName);
+
+                        bool messageSent = await _baseModelService.SendMessageAsync(message);
+                        if (!string.IsNullOrWhiteSpace(recipientEmailCopy.RecipientEmail))
+                        {
+                            emailCopySent = await utilityHelper.SendEmailWithSendGridAsync(recipientEmailCopy);
+                        }
+
+                        //============= Notification Code Ends Here ===========================//
+
+                        if (model.SourcePage == "dlg")
+                        {
+                            return RedirectToAction("DelegatedTaskList", new { id = model.DelegatedByEmployeeId });
+                        }
+                    }
+                    else
+                    {
+                        model.ViewModelErrorMessage = "An error was encountered. The attempted update failed.";
+                    }
+                }
+                catch (Exception ex)
+                {
+                    model.ViewModelErrorMessage = ex.Message;
+                }
+            }
+            return View(model);
+        }
+
+        public async Task<IActionResult> CheckDuplicates(string id, string kw, DateTime? sd = null, DateTime? ed = null)
+        {
+            CheckDuplicatesViewModel model = new CheckDuplicatesViewModel();
+            if (string.IsNullOrWhiteSpace(kw)){model.ViewModelErrorMessage = "Please enter a keyword to search for duplicates.";}
+            model.kw = kw;
+            if (string.IsNullOrWhiteSpace(id)) { model.ViewModelErrorMessage = "Invalid Request. No staff was specified."; }
+            model.id = id;
+            if (sd == null) { model.sd = DateTime.Now.AddMonths(-12); } else { model.sd = sd.Value; }
+            if (ed == null) { model.ed = DateTime.Now.AddDays(1); } else { model.ed = ed.Value; }
+            var taskOwner = await _ermService.GetEmployeeByIdAsync(model.id);
+            if(taskOwner != null)
+            {
+                model.TaskOwnerLocation = taskOwner.LocationName;
+                model.TaskOwnerName = taskOwner.FullName;
+                model.TaskOwnerUnit = taskOwner.UnitName;
+            }
+            if (!string.IsNullOrWhiteSpace(model.kw))
+            {
+                model.TaskItemList = await _wspService.GetTaskItemsWithSameKeyword(model.id, model.kw, model.sd, model.ed);
             }
             return View(model);
         }
@@ -855,6 +1286,7 @@ namespace IntranetPortal.Areas.WSP.Controllers
             {
                 try
                 {
+                    string _submissionPurpose = "your action";
                     var employee = await _ermService.GetEmployeeByNameAsync(model.ToEmployeeName);
                     if (employee != null) { model.ToEmployeeID = employee.EmployeeID; }
                     FolderSubmission submission = new FolderSubmission();
@@ -868,12 +1300,29 @@ namespace IntranetPortal.Areas.WSP.Controllers
                     submission.FolderId = model.TaskFolderID;
                     submission.ToEmployeeId = model.ToEmployeeID;
                     submission.ToEmployeeName = model.ToEmployeeName;
+                    if (submission.SubmissionType == WorkItemSubmissionType.Review)
+                    {
+                        var entities = await _wspService.GetTasksByFolderIdAsync(submission.FolderId);
+                        if (entities != null && entities.Count > 0)
+                        {
+                            foreach (var task in entities)
+                            {
+                                if (string.IsNullOrWhiteSpace(task.MoreInformation))
+                                {
+                                    model.ViewModelErrorMessage = "One or more tasks in this folder have blank Resolution fields. All tasks must have Resolutions before you can submit for Close Out. Please add Resolution to all tasks and try again. ";
+                                    return View(model);
+                                }
+                            }
+                        }
+                    }
+
                     bool IsAdded = await _wspService.AddFolderSubmissionAsync(submission);
                     if (IsAdded)
                     {
                         await _wspService.UpdateWorkItemFolderLockStatusAsync(model.TaskFolderID, true, model.FromEmployeeName);
                         if (submission.SubmissionType == WorkItemSubmissionType.Review)
                         {
+                            _submissionPurpose = "Evaluation and Close Out";
                             TaskEvaluationHeader t = new TaskEvaluationHeader();
                             var entity = await _wspService.GetTaskEvaluationHeaderAsync(model.TaskFolderID, model.ToEmployeeID);
                             if (entity == null || entity.Id < 1)
@@ -890,10 +1339,67 @@ namespace IntranetPortal.Areas.WSP.Controllers
                             }
                             else
                             {
+                                _submissionPurpose = "Approval";
                                 entity.TotalNumberOfTasks = await _wspService.GetTaskItemsCountByFolderIdAsync(model.TaskFolderID);
                                 await _wspService.UpdateTaskEvaluationHeaderAsync(entity);
                             }
                         }
+
+
+                        //============= Notification Code Starts Here =========================//
+
+                        Employee sender = new Employee();
+                        sender = await _ermService.GetEmployeeByIdAsync(model.FromEmployeeID);
+                        Employee receiver = new Employee();
+                        receiver = await _ermService.GetEmployeeByIdAsync(model.ToEmployeeID);
+
+                        //===== Send Notificiation Message  ========//
+                        Message message = new Message
+                        {
+                            MessageID = Guid.NewGuid().ToString(),
+                            RecipientID = receiver.EmployeeID,
+                            RecipientName = receiver.FullName,
+                            SentBy = sender.FullName
+                        };
+
+                        //===== Send Email Notifications =========//
+                        bool emailCopySent = false;
+                        UtilityHelper utilityHelper = new UtilityHelper(_configuration);
+                        EmailModel recipientEmailCopy = new EmailModel();
+                        recipientEmailCopy.RecipientName = receiver.FullName;
+                        if (!string.IsNullOrWhiteSpace(receiver.OfficialEmail))
+                        {
+                            recipientEmailCopy.RecipientEmail = receiver.OfficialEmail;
+                        }
+                        else
+                        {
+                            recipientEmailCopy.RecipientEmail = receiver.Email;
+                        }
+
+                        if (!string.IsNullOrWhiteSpace(sender.OfficialEmail))
+                        {
+                            recipientEmailCopy.SenderEmail = sender.OfficialEmail;
+                        }
+                        else
+                        {
+                            recipientEmailCopy.SenderEmail = sender.Email;
+                        }
+
+                        recipientEmailCopy.SenderName = sender.FullName;
+                        recipientEmailCopy.Subject = "A Task Folder Has Been Submitted To You.";
+                        recipientEmailCopy.HtmlContent = UtilityHelper.GetWorkspaceTaskSubmissionNotificationEmailHtmlContent(receiver.FullName, sender.FullName, _submissionPurpose);
+                        recipientEmailCopy.PlainContent = UtilityHelper.GetWorkspaceTaskSubmissionNotificationEmailPlainContent(receiver.FullName, sender.FullName, _submissionPurpose);
+
+                        message.Subject = "A Task Folder Has Been Submitted To You.";
+                        message.MessageBody = UtilityHelper.GetWorkspaceTaskSubmissionNotificationMessageContent(receiver.FullName, sender.FullName, _submissionPurpose);
+
+                        bool messageSent = await _baseModelService.SendMessageAsync(message);
+                        if (!string.IsNullOrWhiteSpace(recipientEmailCopy.RecipientEmail))
+                        {
+                            emailCopySent = await utilityHelper.SendEmailWithSendGridAsync(recipientEmailCopy);
+                        }
+                        //============= Notification Code Ends Here ===========================//
+
                         return RedirectToAction("MyTaskFolders", new { id = model.FromEmployeeID });
                     }
                 }
@@ -944,6 +1450,12 @@ namespace IntranetPortal.Areas.WSP.Controllers
             model.FolderSubmissionID = sd;
             model.FolderOwnerID = od;
             //model.PurposeOfSubmission = tp;
+
+            FolderSubmission submission = await _wspService.GetFolderSubmissionByIdAsync(sd);
+            if (submission != null)
+            {
+                model.FolderIsReturned = submission.IsActioned;
+            }
 
             if (!string.IsNullOrWhiteSpace(model.FolderOwnerID))
             {
@@ -1021,6 +1533,7 @@ namespace IntranetPortal.Areas.WSP.Controllers
                     }
                 }
             }
+            
             return View(model);
         }
 
@@ -1035,6 +1548,12 @@ namespace IntranetPortal.Areas.WSP.Controllers
             model.FolderName = fn;
             model.SubmittedToEmployeeName = HttpContext.User.Identity.Name;
 
+            FolderSubmission submission = await _wspService.GetFolderSubmissionByIdAsync(sd);
+            if(submission != null)
+            {
+                model.FolderIsReturned = submission.IsActioned;
+            }
+
             if (!string.IsNullOrWhiteSpace(model.FolderOwnerID))
             {
                 var taskOwner = await _ermService.GetEmployeeByIdAsync(model.FolderOwnerID);
@@ -1046,7 +1565,6 @@ namespace IntranetPortal.Areas.WSP.Controllers
                     model.FolderOwnerDesignation = taskOwner.CurrentDesignation;
                 }
             }
-
             if (string.IsNullOrWhiteSpace(model.EvaluatorID) && string.IsNullOrWhiteSpace(model.SubmittedToEmployeeID))
             {
                 var claims = HttpContext.User.Claims.ToList();
@@ -1054,7 +1572,6 @@ namespace IntranetPortal.Areas.WSP.Controllers
                 model.EvaluatorID = current_employeeId;
                 model.SubmittedToEmployeeID = current_employeeId;
             }
-
             model.PurposeOfSubmission = WorkItemSubmissionType.Review;
             TaskEvaluationHeader evaluationHeader = await _wspService.GetTaskEvaluationHeaderAsync(model.FolderID, model.EvaluatorID);
             if (evaluationHeader != null && evaluationHeader.Id > 0)
@@ -1085,6 +1602,7 @@ namespace IntranetPortal.Areas.WSP.Controllers
                     model.TaskItemEvaluations = entities;
                 }
             }
+            
             return View(model);
         }
         #endregion
@@ -1107,16 +1625,16 @@ namespace IntranetPortal.Areas.WSP.Controllers
             model.FromEmployeeID = claims?.Where(x => x.Type == ClaimTypes.NameIdentifier).Select(c => c.Value).SingleOrDefault();
 
             var entity = await _wspService.GetTaskEvaluationHeaderAsync(model.TaskFolderID, model.FromEmployeeID);
-            if(entity != null && entity.Id > 0)
+            if (entity != null && entity.Id > 0)
             {
                 model.TaskEvaluationHeaderID = entity.Id;
                 var evaluationDetail = await _wspService.GetTaskEvaluationDetailAsync(model.TaskEvaluationHeaderID, model.TaskItemID);
-                if(evaluationDetail != null && evaluationDetail.TaskEvaluationDetailId > 0)
+                if (evaluationDetail != null && evaluationDetail.TaskEvaluationDetailId > 0)
                 {
                     model.TaskEvaluationDetailID = evaluationDetail.TaskEvaluationDetailId;
                 }
             }
-            
+
             var entities = await _wspService.GetWorkItemReturnReasonsAsync();
             if (entities != null && entities.Count > 0)
             {
@@ -1182,7 +1700,171 @@ namespace IntranetPortal.Areas.WSP.Controllers
                             detail.TaskOwnerId = task.TaskOwnerId;
 
                             TaskEvaluationHeader evaluationHeader = new TaskEvaluationHeader();
-                            if(model.TaskEvaluationHeaderID < 1)
+                            if (model.TaskEvaluationHeaderID < 1)
+                            {
+                                evaluationHeader = _wspService.GetTaskEvaluationHeaderAsync(detail.TaskFolderId, detail.TaskEvaluatorId).Result;
+                                if (evaluationHeader == null || evaluationHeader.Id < 1)
+                                {
+                                    evaluationHeader = new TaskEvaluationHeader();
+                                    evaluationHeader.EvaluatorId = detail.TaskEvaluatorId;
+                                    evaluationHeader.TaskFolderId = detail.TaskFolderId;
+                                    evaluationHeader.TaskOwnerDeptId = task.DepartmentId ?? 0;
+                                    evaluationHeader.TaskOwnerId = task.TaskOwnerId;
+                                    evaluationHeader.TaskOwnerLocationId = task.LocationId ?? 0;
+                                    evaluationHeader.TaskOwnerUnitId = task.UnitId ?? 0;
+                                    long evaluationHeaderId = await _wspService.CreateTaskEvaluationHeaderAsync(evaluationHeader);
+                                    if (evaluationHeaderId > 0) { detail.TaskEvaluationHeaderId = evaluationHeaderId; }
+                                }
+                                else
+                                {
+                                    detail.TaskEvaluationHeaderId = evaluationHeader.Id;
+                                }
+                            }
+                            _taskEvaluationIsUpdated = await _wspService.AddTaskEvaluationDetailAsync(detail);
+                        }
+                    }
+
+                    TaskEvaluationReturns taskEvaluationReturns = model.Convert();
+                    WorkItemNote note = new WorkItemNote
+                    {
+                        NoteContent = model.ReasonDetails,
+                        NoteWrittenBy = model.FromEmployeeName,
+                        TaskItemId = model.TaskItemID,
+                        NoteTime = DateTime.Now,
+                    };
+                    bool NoteIsAdded = await _wspService.AddWorkItemNoteAsync(note);
+                    if (NoteIsAdded)
+                    {
+                        if (model.CloseTask)
+                        {
+                            return RedirectToAction("SubmittedEvaluations", new { id = model.TaskFolderID, fn = model.TaskFolderName, sd = model.FolderSubmissionID, ed = model.FromEmployeeID, od = model.TaskOwnerID });
+                        }
+                        else
+                        {
+                            Employee taskOwner = await _ermService.GetEmployeeByIdAsync(taskEvaluationReturns.TaskOwnerId);
+                            if (taskOwner != null)
+                            {
+                                taskEvaluationReturns.TaskOwnerUnitId = taskOwner.UnitID;
+                                taskEvaluationReturns.TaskOwnerDepartmentId = taskOwner.DepartmentID;
+                                taskEvaluationReturns.TaskOwnerLocationId = taskOwner.LocationID;
+                                taskEvaluationReturns.ExemptFromEvaluation = model.ExemptFromEvaluation;
+                            }
+
+                            bool _evaluationReturnIsAdded = await _wspService.ReturnTaskEvaluationAsync(taskEvaluationReturns);
+                            if (_evaluationReturnIsAdded)
+                            {
+                                return RedirectToAction("SubmittedEvaluations", new { id = model.TaskFolderID, fn = model.TaskFolderName, sd = model.FolderSubmissionID, ed = model.FromEmployeeID, od = model.TaskOwnerID });
+                            }
+                            else { model.ViewModelErrorMessage = "Sorry,an error was encountered. Please try again."; }
+                        }
+
+                    }
+                    else { model.ViewModelErrorMessage = "Sorry,an error was encountered. Please try again."; }
+                }
+                catch (Exception ex)
+                {
+                    model.ViewModelErrorMessage = ex.Message;
+                }
+            }
+            return View(model);
+        }
+
+        public async Task<IActionResult> ReturnDeclinedTaskItem(long id, long fd, long sd, string od, string fn, long hd, long dd)
+        {
+            ReturnTaskItemViewModel model = new ReturnTaskItemViewModel();
+            model.TaskItemID = id;
+            model.TaskFolderID = fd;
+            model.TaskFolderName = fn;
+            model.TaskOwnerID = od;
+            model.FolderSubmissionID = sd;
+            model.TaskEvaluationHeaderID = hd;
+            model.TaskEvaluationDetailID = dd;
+
+            model.FromEmployeeName = HttpContext.User.Identity.Name;
+            var claims = HttpContext.User.Claims.ToList();
+            model.FromEmployeeID = claims?.Where(x => x.Type == ClaimTypes.NameIdentifier).Select(c => c.Value).SingleOrDefault();
+
+            var entity = await _wspService.GetTaskEvaluationHeaderAsync(model.TaskFolderID, model.FromEmployeeID);
+            if (entity != null && entity.Id > 0)
+            {
+                model.TaskEvaluationHeaderID = entity.Id;
+                var evaluationDetail = await _wspService.GetTaskEvaluationDetailAsync(model.TaskEvaluationHeaderID, model.TaskItemID);
+                if (evaluationDetail != null && evaluationDetail.TaskEvaluationDetailId > 0)
+                {
+                    model.TaskEvaluationDetailID = evaluationDetail.TaskEvaluationDetailId;
+                }
+            }
+            model.ReasonType = "Unapproved Task";
+            model.QualityRating = 1;
+            model.ExemptFromEvaluation = false;
+            //var entities = await _wspService.GetWorkItemReturnReasonsAsync();
+            //if (entities != null && entities.Count > 0)
+            //{
+            //    ViewBag.ReturnReasons = new SelectList(entities, "Description", "Description");
+            //}
+            return View(model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ReturnDeclinedTaskItem(ReturnTaskItemViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                TaskEvaluationDetail detail = new TaskEvaluationDetail();
+                detail.TaskItemId = model.TaskItemID;
+                detail.TaskFolderId = model.TaskFolderID;
+                detail.TaskEvaluatorId = model.FromEmployeeID;
+                detail.TaskEvaluatorName = HttpContext.User.Identity.Name;
+                detail.QualityScore = model.QualityRating ?? 0;
+                detail.TaskEvaluationHeaderId = model.TaskEvaluationHeaderID;
+                detail.TaskEvaluationDetailId = model.TaskEvaluationDetailID;
+
+                bool _taskEvaluationIsUpdated = false;
+
+                try
+                {
+                    if (detail.TaskItemId < 1) { throw new Exception("Required parameter [TaskItemId] is missing."); }
+                    await _wspService.UpdateTaskItemApprovalStatusAsync(model.TaskItemID, ApprovalStatus.Declined, model.FromEmployeeName);
+
+                    if (string.IsNullOrWhiteSpace(detail.TaskEvaluatorId))
+                    {
+                        var claims = HttpContext.User.Claims.ToList();
+                        string current_employeeId = claims?.Where(x => x.Type == ClaimTypes.NameIdentifier).Select(c => c.Value).SingleOrDefault();
+                        if (string.IsNullOrWhiteSpace(current_employeeId)) { throw new Exception("Sorry, it appears your session has expired. Please login again and try again."); }
+                        detail.TaskEvaluatorId = current_employeeId;
+                    }
+
+                    if (model.ExemptFromEvaluation == false)
+                    {
+                        if (detail.TaskEvaluationDetailId > 0)
+                        {
+                            var old_detail = await _wspService.GetTaskEvaluationDetailByIdAsync(detail.TaskEvaluationDetailId);
+                            if (old_detail != null)
+                            {
+                                detail = old_detail;
+                                detail.QualityScore = 0;
+                                detail.CompletionScore = 0;
+                                _taskEvaluationIsUpdated = await _wspService.UpdateTaskEvaluationDetailAsync(detail);
+                            }
+                            else
+                            {
+                                throw new Exception("Sorry no evaluation record was found for this task. Please try again.");
+                            }
+                        }
+                        else
+                        {
+                            TaskItem task = await _wspService.GetTaskItemByIdAsync(detail.TaskItemId);
+                            if (task == null || task.Id < 1) { throw new Exception("Ooops! No record was found for this task item. Please try again."); }
+                            detail.TaskItemId = task.Id;
+                            detail.CompletionScore = 0;
+                            detail.EvaluationDate = DateTime.Now;
+                            detail.TaskOwnerDeptId = task.DepartmentId ?? 0;
+                            detail.TaskOwnerUnitId = task.UnitId ?? 0;
+                            detail.TaskOwnerLocationId = task.LocationId ?? 0;
+                            detail.TaskOwnerId = task.TaskOwnerId;
+
+                            TaskEvaluationHeader evaluationHeader = new TaskEvaluationHeader();
+                            if (model.TaskEvaluationHeaderID < 1)
                             {
                                 evaluationHeader = _wspService.GetTaskEvaluationHeaderAsync(detail.TaskFolderId, detail.TaskEvaluatorId).Result;
                                 if (evaluationHeader == null || evaluationHeader.Id < 1)
@@ -1226,7 +1908,7 @@ namespace IntranetPortal.Areas.WSP.Controllers
                             taskEvaluationReturns.ExemptFromEvaluation = model.ExemptFromEvaluation;
                         }
 
-                        bool _evaluationReturnIsAdded = await _wspService.ReturnTaskEvaluationAsync(taskEvaluationReturns);
+                        bool _evaluationReturnIsAdded = await _wspService.ReturnTaskEvaluationAsync(taskEvaluationReturns, true);
                         if (_evaluationReturnIsAdded)
                         {
                             return RedirectToAction("SubmittedEvaluations", new { id = model.TaskFolderID, fn = model.TaskFolderName, sd = model.FolderSubmissionID, ed = model.FromEmployeeID, od = model.TaskOwnerID });
@@ -1481,7 +2163,7 @@ namespace IntranetPortal.Areas.WSP.Controllers
                 //    model.ViewModelErrorMessage = TempData["ErrorMessage"].ToString();
                 //}
             }
-            catch(Exception)
+            catch (Exception)
             {
                 return null;
             }
@@ -1490,7 +2172,6 @@ namespace IntranetPortal.Areas.WSP.Controllers
         }
 
         #endregion
-
 
         #region Controller Helper Methods
         public string SaveNote(string nm, string msg, long td, long fd, long pd)
@@ -1620,10 +2301,10 @@ namespace IntranetPortal.Areas.WSP.Controllers
                     {
                         throw new Exception("It appears that there are some tasks that have not been attended to. Please action all tasks before attempting to submit.");
                     }
-                    else if (totalNoOfTasks < noOfEvaluatedTasks)
-                    {
-                        throw new Exception("Sorry, it appears that some tasks have wrongly been evaluated more than once. ");
-                    }
+                    //else if (totalNoOfTasks < (noOfEvaluatedTasks + noOfReturnedTasks))
+                    //{
+                    //    throw new Exception("Sorry, it appears that some tasks have wrongly been evaluated more than once. ");
+                    //}
                 }
 
                 if (_wspService.ReturnFolderSubmissionAsync(id, sd).Result)
@@ -1632,7 +2313,7 @@ namespace IntranetPortal.Areas.WSP.Controllers
                 }
                 else
                 {
-                    return "method failure";
+                    return "Sorry, the request failed due to server error.";
                 }
             }
             catch (Exception ex)
@@ -1647,6 +2328,26 @@ namespace IntranetPortal.Areas.WSP.Controllers
             try
             {
                 if (_wspService.DeleteFolderSubmissionAsync(id).Result)
+                {
+                    return "success";
+                }
+                else
+                {
+                    return "method failure";
+                }
+            }
+            catch
+            {
+                return "service error";
+            }
+        }
+        public string DeleteAllActionedFolderSubmissions(string id)
+        {
+            if (string.IsNullOrWhiteSpace(id)) { return "parameter error"; }
+            string actionBy = HttpContext.User.Identity.Name;
+            try
+            {
+                if (_wspService.DeleteFolderSubmissionsByToEmployeeIdAsync(id).Result)
                 {
                     return "success";
                 }

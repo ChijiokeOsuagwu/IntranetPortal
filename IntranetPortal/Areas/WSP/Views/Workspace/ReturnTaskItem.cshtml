@@ -41,7 +41,7 @@
                     <select asp-for="ReasonType" class="form-control fw-bold" asp-items="@ViewBag.ReturnReasons" autofocus>
                         <option value=""> Select </option>
                     </select>
-                    <div><span asp-validation-for="ReasonDetails" class="text-danger"></span></div>
+                    <div><span asp-validation-for="ReasonType" class="text-danger"></span></div>
                 </div>
                 <div class="col-md-6 mb-3">
                     <label asp-for="QualityRating" class="form-label"></label>
@@ -62,8 +62,11 @@
                 </div>
             </div>
             <div class="row">
-                <div class="col-md-12">
+                <div class="col-md-6 mb-3">
                     <input asp-for="ExemptFromEvaluation" type="checkbox" style="width:16px; height:16px; margin-top:40px; margin-right:5px"> <span class="fw-bold"> Exempt from Review</span>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <input asp-for="CloseTask" type="checkbox" style="width:16px; height:16px; margin-top:40px; margin-right:5px"> <span class="fw-bold"> Close this Task  </span>
                 </div>
             </div>
             <div class="row">

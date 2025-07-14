@@ -1511,8 +1511,10 @@ namespace IntranetPortal.Data.Repositories.WspRepositories
                             task.LinkProgramDate = reader["prg_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["prg_dt"];
                             task.TaskOwnerId = reader["tsk_owner_id"] == DBNull.Value ? "" : reader["tsk_owner_id"].ToString();
                             task.TaskOwnerName = reader["owner_nm"] == DBNull.Value ? string.Empty : reader["owner_nm"].ToString();
-                            task.AssignedToId = reader["assgnd_emp_id"] == DBNull.Value ? "" : reader["assgnd_emp_id"].ToString();
-                            task.AssignedToName = reader["assgnd_to_nm"] == DBNull.Value ? string.Empty : reader["assgnd_to_nm"].ToString();
+                            //task.AssignedToId = reader["assgnd_emp_id"] == DBNull.Value ? "" : reader["assgnd_emp_id"].ToString();
+                            //task.AssignedToName = reader["assgnd_to_nm"] == DBNull.Value ? string.Empty : reader["assgnd_to_nm"].ToString();
+                            task.AssignedByEmployeeId = reader["assgnd_emp_id"] == DBNull.Value ? "" : reader["assgnd_emp_id"].ToString();
+                            task.AssignedByEmployeeName = reader["assgnd_to_nm"] == DBNull.Value ? string.Empty : reader["assgnd_to_nm"].ToString();
                             task.AssignedTime = reader["assigned_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["assigned_dt"];
                             task.StageId = reader["tsk_itm_stg"] == DBNull.Value ? 0 : (int)reader["tsk_itm_stg"];
                             task.StageDescription = reader["itm_stg_nm"] == DBNull.Value ? string.Empty : reader["itm_stg_nm"].ToString();
@@ -1630,8 +1632,8 @@ namespace IntranetPortal.Data.Repositories.WspRepositories
                                 LinkProgramDate = reader["prg_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["prg_dt"],
                                 TaskOwnerId = reader["tsk_owner_id"] == DBNull.Value ? "" : reader["tsk_owner_id"].ToString(),
                                 TaskOwnerName = reader["owner_nm"] == DBNull.Value ? string.Empty : reader["owner_nm"].ToString(),
-                                AssignedToId = reader["assgnd_emp_id"] == DBNull.Value ? "" : reader["assgnd_emp_id"].ToString(),
-                                AssignedToName = reader["assgnd_to_nm"] == DBNull.Value ? string.Empty : reader["assgnd_to_nm"].ToString(),
+                                AssignedByEmployeeId = reader["assgnd_emp_id"] == DBNull.Value ? "" : reader["assgnd_emp_id"].ToString(),
+                                AssignedByEmployeeName = reader["assgnd_to_nm"] == DBNull.Value ? string.Empty : reader["assgnd_to_nm"].ToString(),
                                 AssignedTime = reader["assigned_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["assigned_dt"],
                                 StageId = reader["tsk_itm_stg"] == DBNull.Value ? 0 : (int)reader["tsk_itm_stg"],
                                 StageDescription = reader["itm_stg_nm"] == DBNull.Value ? string.Empty : reader["itm_stg_nm"].ToString(),
@@ -1756,8 +1758,8 @@ namespace IntranetPortal.Data.Repositories.WspRepositories
                                 LinkProgramDate = reader["prg_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["prg_dt"],
                                 TaskOwnerId = reader["tsk_owner_id"] == DBNull.Value ? "" : reader["tsk_owner_id"].ToString(),
                                 TaskOwnerName = reader["owner_nm"] == DBNull.Value ? string.Empty : reader["owner_nm"].ToString(),
-                                AssignedToId = reader["assgnd_emp_id"] == DBNull.Value ? "" : reader["assgnd_emp_id"].ToString(),
-                                AssignedToName = reader["assgnd_to_nm"] == DBNull.Value ? string.Empty : reader["assgnd_to_nm"].ToString(),
+                                AssignedByEmployeeId = reader["assgnd_emp_id"] == DBNull.Value ? "" : reader["assgnd_emp_id"].ToString(),
+                                AssignedByEmployeeName = reader["assgnd_to_nm"] == DBNull.Value ? string.Empty : reader["assgnd_to_nm"].ToString(),
                                 AssignedTime = reader["assigned_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["assigned_dt"],
                                 StageId = reader["tsk_itm_stg"] == DBNull.Value ? 0 : (int)reader["tsk_itm_stg"],
                                 StageDescription = reader["itm_stg_nm"] == DBNull.Value ? string.Empty : reader["itm_stg_nm"].ToString(),
@@ -1837,6 +1839,143 @@ namespace IntranetPortal.Data.Repositories.WspRepositories
             return _totalCount;
         }
 
+        public async Task<List<TaskItem>> GetTaskItemsByOwnerIdnKeywordAsync(string ownerId, string keyword, DateTime startDate, DateTime endDate)
+        {
+            List<TaskItem> taskList = new List<TaskItem>();
+            string start_date = startDate.ToString("yyyy-MM-dd");
+            string end_date = endDate.ToString("yyyy-MM-dd");
+
+            StringBuilder sb = new StringBuilder();
+            sb.Append("SELECT t.tsk_itm_id, t.tsk_itm_no, t.tsk_itm_ds, t.tsk_itm_inf, t.wki_fdr_id, ");
+            sb.Append("t.mst_tsk_id, t.prj_no, t.prg_no, t.prg_dt, t.tsk_owner_id, t.assgnd_emp_id, ");
+            sb.Append("t.assigned_dt, t.tsk_itm_stg, t.prgs_stts, t.apprv_stts, t.approved_dt, ");
+            sb.Append("t.approved_by, t.exp_start_dt, t.act_start_dt, t.exp_due_dt, t.act_due_dt, ");
+            sb.Append("t.is_cancelled, t.cancelled_dt, t.cancelled_by, t.is_closed, t.closed_dt, ");
+            sb.Append("t.closed_by, t.unit_id, t.dept_id, t.loc_id, t.completion_is_confirmed, ");
+            sb.Append("t.completion_confirmed_by, t.completion_confirmed_on, t.is_carried_over, ");
+            sb.Append("t.mod_by, t.crt_by, t.assgnmt_id, t.is_lckd, t.crt_dt, t.mod_dt, ");
+            sb.Append("CASE t.tsk_itm_stg WHEN 0 THEN 'Not Yet Approved' ");
+            sb.Append("WHEN 1 THEN 'Submitted for Approval' ");
+            sb.Append("WHEN 2 THEN 'Approved for Execution' ");
+            sb.Append("WHEN 3 THEN 'Submitted For Evaluation' ");
+            sb.Append("WHEN 4 THEN 'Evaluation Completed' ");
+            sb.Append("WHEN 5 THEN 'Cancelled' END AS itm_stg_nm, ");
+
+            sb.Append("CASE t.prgs_stts WHEN 0 THEN 'Not Yet Started' ");
+            sb.Append("WHEN 1 THEN 'In Progress' ");
+            sb.Append("WHEN 2 THEN 'Completed' ");
+            sb.Append("WHEN 3 THEN 'On Hold' END AS prgs_stts_ds, ");
+
+            sb.Append("CASE t.apprv_stts WHEN 0 THEN 'Pending' ");
+            sb.Append("WHEN 1 THEN 'Approved' ");
+            sb.Append("WHEN 2 THEN 'Declined' END AS apprv_stts_ds, ");
+
+            sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = t.tsk_owner_id) as owner_nm, ");
+            sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = t.assgnd_emp_id) as assgnd_to_nm, ");
+            sb.Append("(SELECT unitname FROM public.gst_units WHERE unitqk = t.unit_id) as unit_nm, ");
+            sb.Append("(SELECT deptname FROM public.gst_depts WHERE deptqk = t.dept_id) as dept_nm, ");
+            sb.Append("(SELECT locname FROM public.gst_locs WHERE locqk = t.loc_id) as loc_nm, ");
+            sb.Append("(SELECT wki_fdr_nm FROM public.wsp_wki_fdr WHERE wki_fdr_id = t.wki_fdr_id) as wki_fdr_nm ");
+            sb.Append("FROM public.wsp_tsk_itms t ");
+            sb.Append("WHERE (t.tsk_owner_id = @tsk_owner_id) ");
+            sb.Append("AND (LOWER(t.tsk_itm_ds) LIKE '%'||LOWER(@kw)||'%') ");
+            sb.Append("AND (t.crt_dt >= to_date(@sdt,'YYYY-MM-DD')) ");
+            sb.Append("AND (t.crt_dt <= to_date(@edt,'YYYY-MM-DD')) ");
+            sb.Append("ORDER BY t.tsk_itm_id DESC;");
+
+            string query = sb.ToString();
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
+            {
+                await conn.OpenAsync();
+                // Retrieve all rows
+                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+                {
+                    var tsk_owner_id = cmd.Parameters.Add("@tsk_owner_id", NpgsqlDbType.Text);
+                    var kw = cmd.Parameters.Add("@kw", NpgsqlDbType.Text);
+                    var sdt = cmd.Parameters.Add("@sdt", NpgsqlDbType.Text);
+                    var edt = cmd.Parameters.Add("@edt", NpgsqlDbType.Text);
+                    await cmd.PrepareAsync();
+                    tsk_owner_id.Value = ownerId;
+                    kw.Value = keyword;
+                    sdt.Value = start_date;
+                    edt.Value = end_date;
+                    using (var reader = await cmd.ExecuteReaderAsync())
+                        while (await reader.ReadAsync())
+                        {
+                            taskList.Add(new TaskItem
+                            {
+                                Id = reader["tsk_itm_id"] == DBNull.Value ? 0 : (long)reader["tsk_itm_id"],
+                                Number = reader["tsk_itm_no"] == DBNull.Value ? "" : reader["tsk_itm_no"].ToString(),
+                                Description = reader["tsk_itm_ds"] == DBNull.Value ? "" : reader["tsk_itm_ds"].ToString(),
+                                MoreInformation = reader["tsk_itm_inf"] == DBNull.Value ? "" : reader["tsk_itm_inf"].ToString(),
+                                WorkFolderId = reader["wki_fdr_id"] == DBNull.Value ? 0 : (long)reader["wki_fdr_id"],
+                                WorkFolderName = reader["wki_fdr_nm"] == DBNull.Value ? "" : reader["wki_fdr_nm"].ToString(),
+                                MasterTaskId = reader["mst_tsk_id"] == DBNull.Value ? 0 : (long)reader["mst_tsk_id"],
+                                LinkProjectNumber = reader["prj_no"] == DBNull.Value ? "" : reader["prj_no"].ToString(),
+                                LinkProgramCode = reader["prg_no"] == DBNull.Value ? "" : reader["prg_no"].ToString(),
+                                LinkProgramDate = reader["prg_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["prg_dt"],
+                                TaskOwnerId = reader["tsk_owner_id"] == DBNull.Value ? "" : reader["tsk_owner_id"].ToString(),
+                                TaskOwnerName = reader["owner_nm"] == DBNull.Value ? string.Empty : reader["owner_nm"].ToString(),
+                                AssignedByEmployeeId = reader["assgnd_emp_id"] == DBNull.Value ? "" : reader["assgnd_emp_id"].ToString(),
+                                AssignedByEmployeeName = reader["assgnd_to_nm"] == DBNull.Value ? string.Empty : reader["assgnd_to_nm"].ToString(),
+                                AssignedTime = reader["assigned_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["assigned_dt"],
+                                StageId = reader["tsk_itm_stg"] == DBNull.Value ? 0 : (int)reader["tsk_itm_stg"],
+                                StageDescription = reader["itm_stg_nm"] == DBNull.Value ? string.Empty : reader["itm_stg_nm"].ToString(),
+                                Stage = reader["tsk_itm_stg"] == DBNull.Value ? TaskItemStage.NotYetApproved : (TaskItemStage)reader["tsk_itm_stg"],
+
+                                ProgressStatusId = reader["prgs_stts"] == DBNull.Value ? 0 : (int)reader["prgs_stts"],
+                                ProgressStatus = reader["prgs_stts"] == DBNull.Value ? 0 : (WorkItemProgressStatus)reader["prgs_stts"],
+                                ProgressStatusDescription = reader["prgs_stts_ds"] == DBNull.Value ? string.Empty : reader["prgs_stts_ds"].ToString(),
+
+                                ApprovalStatusId = reader["apprv_stts"] == DBNull.Value ? 0 : (int)reader["apprv_stts"],
+                                ApprovalStatus = reader["apprv_stts"] == DBNull.Value ? ApprovalStatus.Pending : (ApprovalStatus)reader["apprv_stts"],
+                                ApprovalStatusDescription = reader["apprv_stts_ds"] == DBNull.Value ? string.Empty : reader["apprv_stts_ds"].ToString(),
+
+                                ApprovedTime = reader["approved_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["approved_dt"],
+                                ApprovedBy = reader["approved_by"] == DBNull.Value ? string.Empty : reader["approved_by"].ToString(),
+                                ExpectedStartTime = reader["exp_start_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["exp_start_dt"],
+                                ActualStartTime = reader["act_start_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["act_start_dt"],
+                                ExpectedDueTime = reader["exp_due_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["exp_due_dt"],
+                                ActualDueTime = reader["act_due_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["act_due_dt"],
+
+                                IsCancelled = reader["is_cancelled"] == DBNull.Value ? false : (bool)reader["is_cancelled"],
+                                CancelledBy = reader["cancelled_by"] == DBNull.Value ? "" : reader["cancelled_by"].ToString(),
+                                CancelledTime = reader["cancelled_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["cancelled_dt"],
+
+                                IsClosed = reader["is_closed"] == DBNull.Value ? false : (bool)reader["is_closed"],
+                                ClosedBy = reader["closed_by"] == DBNull.Value ? "" : reader["closed_by"].ToString(),
+                                ClosedTime = reader["closed_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["closed_dt"],
+
+                                UnitId = reader["unit_id"] == DBNull.Value ? 0 : (int)reader["unit_id"],
+                                UnitName = reader["unit_nm"] == DBNull.Value ? "" : reader["unit_nm"].ToString(),
+                                DepartmentId = reader["dept_id"] == DBNull.Value ? 0 : (int)reader["dept_id"],
+                                DepartmentName = reader["dept_nm"] == DBNull.Value ? "" : reader["dept_nm"].ToString(),
+                                LocationId = reader["loc_id"] == DBNull.Value ? 0 : (int)reader["loc_id"],
+                                LocationName = reader["loc_nm"] == DBNull.Value ? "" : reader["loc_nm"].ToString(),
+
+                                CompletionConfirmed = reader["completion_is_confirmed"] == DBNull.Value ? false : (bool)reader["completion_is_confirmed"],
+                                CompletionConfirmedBy = reader["completion_confirmed_by"] == DBNull.Value ? "" : reader["completion_confirmed_by"].ToString(),
+                                CompletionConfirmedTime = reader["completion_confirmed_on"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["completion_confirmed_on"],
+                                IsCarriedOver = reader["is_carried_over"] == DBNull.Value ? false : (bool)reader["is_carried_over"],
+
+                                CreatedTime = reader["crt_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["crt_dt"],
+                                CreatedBy = reader["crt_by"] == DBNull.Value ? string.Empty : reader["crt_by"].ToString(),
+                                LastModifiedTime = reader["mod_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["mod_dt"],
+                                LastModifiedBy = reader["mod_by"] == DBNull.Value ? string.Empty : reader["mod_by"].ToString(),
+
+                                IsLocked = reader["is_lckd"] == DBNull.Value ? false : (bool)reader["is_lckd"],
+                                AssignmentId = reader["assgnmt_id"] == DBNull.Value ? 0 : (int)reader["assgnmt_id"],
+                            });
+                        }
+                }
+                await conn.CloseAsync();
+            }
+            return taskList;
+        }
+
+
+
+
         //========= Pending Task Items ==================//
         public async Task<List<TaskItem>> GetTaskItemsPendingByOwnerIdAsync(string ownerId)
         {
@@ -1892,8 +2031,8 @@ namespace IntranetPortal.Data.Repositories.WspRepositories
                                 LinkProgramDate = reader["prg_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["prg_dt"],
                                 TaskOwnerId = reader["tsk_owner_id"] == DBNull.Value ? "" : reader["tsk_owner_id"].ToString(),
                                 TaskOwnerName = reader["owner_nm"] == DBNull.Value ? string.Empty : reader["owner_nm"].ToString(),
-                                AssignedToId = reader["assgnd_emp_id"] == DBNull.Value ? "" : reader["assgnd_emp_id"].ToString(),
-                                AssignedToName = reader["assgnd_to_nm"] == DBNull.Value ? string.Empty : reader["assgnd_to_nm"].ToString(),
+                                AssignedByEmployeeId = reader["assgnd_emp_id"] == DBNull.Value ? "" : reader["assgnd_emp_id"].ToString(),
+                                AssignedByEmployeeName = reader["assgnd_to_nm"] == DBNull.Value ? string.Empty : reader["assgnd_to_nm"].ToString(),
                                 AssignedTime = reader["assigned_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["assigned_dt"],
                                 StageId = reader["tsk_itm_stg"] == DBNull.Value ? 0 : (int)reader["tsk_itm_stg"],
                                 StageDescription = reader["itm_stg_nm"] == DBNull.Value ? string.Empty : reader["itm_stg_nm"].ToString(),
@@ -2034,7 +2173,7 @@ namespace IntranetPortal.Data.Repositories.WspRepositories
                     prg_no.Value = task.LinkProgramCode ?? (object)DBNull.Value;
                     prg_dt.Value = task.LinkProgramDate ?? (object)DBNull.Value;
                     tsk_owner_id.Value = task.TaskOwnerId;
-                    assgnd_emp_id.Value = task.AssignedToId ?? (object)DBNull.Value;
+                    assgnd_emp_id.Value = task.AssignedByEmployeeId ?? (object)DBNull.Value;
                     assigned_dt.Value = task.AssignedTime ?? (object)DBNull.Value;
                     tsk_itm_stg.Value = task.StageId;
                     prgs_stts.Value = task.ProgressStatusId;
@@ -2103,6 +2242,65 @@ namespace IntranetPortal.Data.Repositories.WspRepositories
             }
             return rows > 0;
         }
+        public async Task<bool> UpdateTaskItemOwnershipAsync(TaskItem task)
+        {
+            int rows = 0;
+            StringBuilder sb = new StringBuilder();
+            sb.Append("UPDATE public.wsp_tsk_itms SET tsk_itm_ds=@tsk_itm_ds, ");
+            sb.Append("tsk_itm_inf=@tsk_itm_inf, wki_fdr_id=null, ");
+            sb.Append("tsk_owner_id=@tsk_owner_id, prgs_stts=@prgs_stts, ");
+            sb.Append("exp_start_dt=@exp_start_dt, act_start_dt=@act_start_dt, ");
+            sb.Append("exp_due_dt=@exp_due_dt, act_due_dt=@act_due_dt, ");
+            sb.Append("unit_id=@unit_id, dept_id=@dept_id, loc_id=@loc_id, ");
+            sb.Append("assgnd_emp_id=@assgnd_emp_id, assigned_dt=@assigned_dt, ");
+            sb.Append("mod_by=@mod_by, mod_dt=@mod_dt ");
+            sb.Append("WHERE (tsk_itm_id=@tsk_itm_id);");
+            string query = sb.ToString();
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
+            {
+                await conn.OpenAsync();
+                //Insert data
+                using (var cmd = new NpgsqlCommand(query, conn))
+                {
+                    var tsk_itm_ds = cmd.Parameters.Add("@tsk_itm_ds", NpgsqlDbType.Text);
+                    var tsk_itm_inf = cmd.Parameters.Add("@tsk_itm_inf", NpgsqlDbType.Text);
+                    var tsk_owner_id = cmd.Parameters.Add("@tsk_owner_id", NpgsqlDbType.Text);
+                    var prgs_stts = cmd.Parameters.Add("@prgs_stts", NpgsqlDbType.Integer);
+                    var exp_start_dt = cmd.Parameters.Add("@exp_start_dt", NpgsqlDbType.Timestamp);
+                    var exp_due_dt = cmd.Parameters.Add("@exp_due_dt", NpgsqlDbType.Timestamp);
+                    var act_start_dt = cmd.Parameters.Add("@act_start_dt", NpgsqlDbType.Timestamp);
+                    var act_due_dt = cmd.Parameters.Add("@act_due_dt", NpgsqlDbType.Timestamp);
+                    var unit_id = cmd.Parameters.Add("@unit_id", NpgsqlDbType.Integer);
+                    var dept_id = cmd.Parameters.Add("@dept_id", NpgsqlDbType.Integer);
+                    var loc_id = cmd.Parameters.Add("@loc_id", NpgsqlDbType.Integer);
+                    var assgnd_emp_id = cmd.Parameters.Add("@assgnd_emp_id", NpgsqlDbType.Text);
+                    var assigned_dt = cmd.Parameters.Add("@assigned_dt", NpgsqlDbType.Timestamp);
+                    var mod_dt = cmd.Parameters.Add("@mod_dt", NpgsqlDbType.Timestamp);
+                    var mod_by = cmd.Parameters.Add("@mod_by", NpgsqlDbType.Text);
+                    var tsk_itm_id = cmd.Parameters.Add("@tsk_itm_id", NpgsqlDbType.Bigint);
+                    cmd.Prepare();
+                    tsk_itm_ds.Value = task.Description;
+                    tsk_itm_inf.Value = task.MoreInformation ?? (object)DBNull.Value;
+                    tsk_owner_id.Value = task.TaskOwnerId;
+                    prgs_stts.Value = task.ProgressStatusId;
+                    exp_start_dt.Value = task.ExpectedStartTime ?? (object)DBNull.Value;
+                    exp_due_dt.Value = task.ExpectedDueTime ?? (object)DBNull.Value;
+                    act_start_dt.Value = task.ActualStartTime ?? (object)DBNull.Value;
+                    act_due_dt.Value = task.ActualDueTime ?? (object)DBNull.Value;
+                    unit_id.Value = task.UnitId;
+                    dept_id.Value = task.DepartmentId;
+                    loc_id.Value = task.LocationId;
+                    assgnd_emp_id.Value = task.AssignedByEmployeeId ?? (object)DBNull.Value;
+                    assigned_dt.Value = task.AssignedTime ?? (object)DBNull.Value;
+                    mod_dt.Value = task.LastModifiedTime ?? DateTime.Now;
+                    mod_by.Value = task.LastModifiedBy ?? (object)DBNull.Value;
+                    tsk_itm_id.Value = task.Id;
+                    rows = await cmd.ExecuteNonQueryAsync();
+                }
+                await conn.CloseAsync();
+            }
+            return rows > 0;
+        }
         public async Task<bool> UpdateTaskItemResolutionAsync(long taskId, string taskResolution, string updatedBy)
         {
             int rows = 0;
@@ -2140,6 +2338,8 @@ namespace IntranetPortal.Data.Repositories.WspRepositories
             sb.Append("DELETE FROM public.wsp_wki_nts WHERE tsk_id = @tsk_itm_id; ");
             sb.Append("DELETE FROM public.wsp_eval_rtns WHERE (tsk_itm_id = @tsk_itm_id); ");
             sb.Append("DELETE FROM public.wsp_eval_dtl WHERE (tsk_itm_id = @tsk_itm_id); ");
+            sb.Append("DELETE FROM public.wsp_tsk_tml WHERE (tsk_itm_id = @tsk_itm_id); ");
+            sb.Append("DELETE FROM public.wsp_tsk_delg WHERE (tsk_itm_id = @tsk_itm_id); ");
             sb.Append("DELETE FROM public.wsp_tsk_itms WHERE (tsk_itm_id = @tsk_itm_id); ");
             string query = sb.ToString();
             using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
@@ -2604,6 +2804,1353 @@ namespace IntranetPortal.Data.Repositories.WspRepositories
 
         #endregion
 
+        #region Delegated Items Action Methods
+        public async Task<long> AddDelegationAsync(DelegatedTaskItem task)
+        {
+            long inserted_row_id = 0;
+            StringBuilder sb = new StringBuilder();
+            sb.Append("INSERT INTO public.wsp_tsk_delg(tsk_itm_id, frm_emp_id, ");
+            sb.Append("to_emp_id, tsk_delg_dt) VALUES (@tsk_itm_id, ");
+            sb.Append("@frm_emp_id, @to_emp_id, @tsk_delg_dt) ");
+            sb.Append("RETURNING tsk_delg_id; ");
+            string query = sb.ToString();
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
+            {
+                await conn.OpenAsync();
+                using (var cmd = new NpgsqlCommand(query, conn))
+                {
+                    var tsk_itm_id = cmd.Parameters.Add("@tsk_itm_id", NpgsqlDbType.Bigint);
+                    var frm_emp_id = cmd.Parameters.Add("@frm_emp_id", NpgsqlDbType.Text);
+                    var to_emp_id = cmd.Parameters.Add("@to_emp_id", NpgsqlDbType.Text);
+                    var tsk_delg_dt = cmd.Parameters.Add("@tsk_delg_dt", NpgsqlDbType.Timestamp);
+                    cmd.Prepare();
+                    tsk_itm_id.Value = task.Id;
+                    frm_emp_id.Value = task.DelegatedByEmployeeId;
+                    to_emp_id.Value = task.DelegatedToEmployeeId;
+                    tsk_delg_dt.Value = task.DelegatedTime;
+
+                    var obj = await cmd.ExecuteScalarAsync();
+                    inserted_row_id = (long)obj;
+                }
+                await conn.CloseAsync();
+            }
+            return inserted_row_id;
+        }
+        public async Task<bool> UpdateDelegationStatusAsync(long taskDelegationId )
+        {
+            int rows = 0;
+            StringBuilder sb = new StringBuilder();
+            sb.Append("UPDATE public.wsp_tsk_delg SET is_re_assgn=true,  ");
+            sb.Append("dt_re_assgn=@dt_re_assgn ");
+            sb.Append("WHERE (tsk_delg_id=@tsk_delg_id);");
+            string query = sb.ToString();
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
+            {
+                await conn.OpenAsync();
+                //Insert data
+                using (var cmd = new NpgsqlCommand(query, conn))
+                {
+                    var tsk_delg_id = cmd.Parameters.Add("@tsk_delg_id", NpgsqlDbType.Bigint);
+                    var dt_re_assgn = cmd.Parameters.Add("@dt_re_assgn", NpgsqlDbType.Timestamp);
+                    cmd.Prepare();
+                    tsk_delg_id.Value = taskDelegationId;
+                    dt_re_assgn.Value = DateTime.Now;
+                    rows = await cmd.ExecuteNonQueryAsync();
+                }
+                await conn.CloseAsync();
+            }
+            return rows > 0;
+        }
+        public async Task<DelegatedTaskItem> GetDelegatedTaskItemByDelegationIdAsync(long taskDelegationId)
+        {
+            List<DelegatedTaskItem> delegatedTaskList = new List<DelegatedTaskItem>();
+            StringBuilder sb = new StringBuilder();
+            sb.Append("SELECT t.tsk_itm_id, t.tsk_itm_no, t.tsk_itm_ds, t.tsk_itm_inf, t.wki_fdr_id, ");
+            sb.Append("t.mst_tsk_id, t.prj_no, t.prg_no, t.prg_dt, t.tsk_owner_id, t.assgnd_emp_id, ");
+            sb.Append("t.assigned_dt, t.tsk_itm_stg, t.prgs_stts, t.apprv_stts, t.approved_dt, ");
+            sb.Append("t.approved_by, t.exp_start_dt, t.act_start_dt, t.exp_due_dt, t.act_due_dt, ");
+            sb.Append("t.is_cancelled, t.cancelled_dt, t.cancelled_by, t.is_closed, t.closed_dt, ");
+            sb.Append("t.closed_by, t.unit_id, t.dept_id, t.loc_id, t.completion_is_confirmed, ");
+            sb.Append("t.completion_confirmed_by, t.completion_confirmed_on, t.is_carried_over, ");
+            sb.Append("t.mod_by, t.crt_by, t.assgnmt_id, t.is_lckd, t.crt_dt, t.mod_dt, ");
+            sb.Append("d.tsk_delg_id, d.frm_emp_id, d.to_emp_id, d.tsk_delg_dt, ");
+            sb.Append("d.is_re_assgn, d.dt_re_assgn, ");
+            sb.Append("CASE t.tsk_itm_stg WHEN 0 THEN 'Not Yet Approved' ");
+            sb.Append("WHEN 1 THEN 'Submitted for Approval' ");
+            sb.Append("WHEN 2 THEN 'Approved for Execution' ");
+            sb.Append("WHEN 3 THEN 'Submitted For Evaluation' ");
+            sb.Append("WHEN 4 THEN 'Evaluation Completed' ");
+            sb.Append("WHEN 5 THEN 'Cancelled' END AS itm_stg_nm, ");
+
+            sb.Append("CASE t.prgs_stts WHEN 0 THEN 'Not Yet Started' ");
+            sb.Append("WHEN 1 THEN 'In Progress' ");
+            sb.Append("WHEN 2 THEN 'Completed' ");
+            sb.Append("WHEN 3 THEN 'On Hold' END AS prgs_stts_ds, ");
+
+            sb.Append("CASE t.apprv_stts WHEN 0 THEN 'Pending' ");
+            sb.Append("WHEN 1 THEN 'Approved' ");
+            sb.Append("WHEN 2 THEN 'Declined' END AS apprv_stts_ds, ");
+
+            sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = t.tsk_owner_id) as owner_nm, ");
+            sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = t.assgnd_emp_id) as assgnd_to_nm, ");
+            sb.Append("(SELECT unitname FROM public.gst_units WHERE unitqk = t.unit_id) as unit_nm, ");
+            sb.Append("(SELECT deptname FROM public.gst_depts WHERE deptqk = t.dept_id) as dept_nm, ");
+            sb.Append("(SELECT locname FROM public.gst_locs WHERE locqk = t.loc_id) as loc_nm, ");
+            sb.Append("(SELECT wki_fdr_nm FROM public.wsp_wki_fdr WHERE wki_fdr_id = t.wki_fdr_id) as wki_fdr_nm, ");
+
+            sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = d.frm_emp_id) as frm_emp_nm, ");
+            sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = d.to_emp_id) as to_emp_nm ");
+
+            sb.Append("FROM public.wsp_tsk_itms t ");
+            sb.Append("INNER JOIN public.wsp_tsk_delg d ON t.tsk_itm_id = d.tsk_itm_id ");
+            sb.Append("WHERE (d.tsk_delg_id=@tsk_delg_id); ");
+            string query = sb.ToString();
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
+            {
+                await conn.OpenAsync();
+                // Retrieve all rows
+                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+                {
+                    var tsk_delg_id = cmd.Parameters.Add("@tsk_delg_id", NpgsqlDbType.Bigint);
+                    await cmd.PrepareAsync();
+                    tsk_delg_id.Value = taskDelegationId;
+                    using (var reader = await cmd.ExecuteReaderAsync())
+                        while (await reader.ReadAsync())
+                        {
+                            delegatedTaskList.Add(new DelegatedTaskItem
+                            {
+                                Id = reader["tsk_itm_id"] == DBNull.Value ? 0 : (long)reader["tsk_itm_id"],
+                                Number = reader["tsk_itm_no"] == DBNull.Value ? "" : reader["tsk_itm_no"].ToString(),
+                                Description = reader["tsk_itm_ds"] == DBNull.Value ? "" : reader["tsk_itm_ds"].ToString(),
+                                MoreInformation = reader["tsk_itm_inf"] == DBNull.Value ? "" : reader["tsk_itm_inf"].ToString(),
+                                WorkFolderId = reader["wki_fdr_id"] == DBNull.Value ? 0 : (long)reader["wki_fdr_id"],
+                                WorkFolderName = reader["wki_fdr_nm"] == DBNull.Value ? "" : reader["wki_fdr_nm"].ToString(),
+                                MasterTaskId = reader["mst_tsk_id"] == DBNull.Value ? 0 : (long)reader["mst_tsk_id"],
+                                LinkProjectNumber = reader["prj_no"] == DBNull.Value ? "" : reader["prj_no"].ToString(),
+                                LinkProgramCode = reader["prg_no"] == DBNull.Value ? "" : reader["prg_no"].ToString(),
+                                LinkProgramDate = reader["prg_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["prg_dt"],
+                                TaskOwnerId = reader["tsk_owner_id"] == DBNull.Value ? "" : reader["tsk_owner_id"].ToString(),
+                                TaskOwnerName = reader["owner_nm"] == DBNull.Value ? string.Empty : reader["owner_nm"].ToString(),
+                                AssignedToId = reader["assgnd_emp_id"] == DBNull.Value ? "" : reader["assgnd_emp_id"].ToString(),
+                                AssignedToName = reader["assgnd_to_nm"] == DBNull.Value ? string.Empty : reader["assgnd_to_nm"].ToString(),
+                                AssignedTime = reader["assigned_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["assigned_dt"],
+                                StageId = reader["tsk_itm_stg"] == DBNull.Value ? 0 : (int)reader["tsk_itm_stg"],
+                                StageDescription = reader["itm_stg_nm"] == DBNull.Value ? string.Empty : reader["itm_stg_nm"].ToString(),
+                                Stage = reader["tsk_itm_stg"] == DBNull.Value ? TaskItemStage.NotYetApproved : (TaskItemStage)reader["tsk_itm_stg"],
+
+                                ProgressStatusId = reader["prgs_stts"] == DBNull.Value ? 0 : (int)reader["prgs_stts"],
+                                ProgressStatus = reader["prgs_stts"] == DBNull.Value ? 0 : (WorkItemProgressStatus)reader["prgs_stts"],
+                                ProgressStatusDescription = reader["prgs_stts_ds"] == DBNull.Value ? string.Empty : reader["prgs_stts_ds"].ToString(),
+
+                                ApprovalStatusId = reader["apprv_stts"] == DBNull.Value ? 0 : (int)reader["apprv_stts"],
+                                ApprovalStatus = reader["apprv_stts"] == DBNull.Value ? ApprovalStatus.Pending : (ApprovalStatus)reader["apprv_stts"],
+                                ApprovalStatusDescription = reader["apprv_stts_ds"] == DBNull.Value ? string.Empty : reader["apprv_stts_ds"].ToString(),
+
+                                ApprovedTime = reader["approved_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["approved_dt"],
+                                ApprovedBy = reader["approved_by"] == DBNull.Value ? string.Empty : reader["approved_by"].ToString(),
+                                ExpectedStartTime = reader["exp_start_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["exp_start_dt"],
+                                ActualStartTime = reader["act_start_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["act_start_dt"],
+                                ExpectedDueTime = reader["exp_due_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["exp_due_dt"],
+                                ActualDueTime = reader["act_due_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["act_due_dt"],
+
+                                IsCancelled = reader["is_cancelled"] == DBNull.Value ? false : (bool)reader["is_cancelled"],
+                                CancelledBy = reader["cancelled_by"] == DBNull.Value ? "" : reader["cancelled_by"].ToString(),
+                                CancelledTime = reader["cancelled_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["cancelled_dt"],
+
+                                IsClosed = reader["is_closed"] == DBNull.Value ? false : (bool)reader["is_closed"],
+                                ClosedBy = reader["closed_by"] == DBNull.Value ? "" : reader["closed_by"].ToString(),
+                                ClosedTime = reader["closed_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["closed_dt"],
+
+                                UnitId = reader["unit_id"] == DBNull.Value ? 0 : (int)reader["unit_id"],
+                                UnitName = reader["unit_nm"] == DBNull.Value ? "" : reader["unit_nm"].ToString(),
+                                DepartmentId = reader["dept_id"] == DBNull.Value ? 0 : (int)reader["dept_id"],
+                                DepartmentName = reader["dept_nm"] == DBNull.Value ? "" : reader["dept_nm"].ToString(),
+                                LocationId = reader["loc_id"] == DBNull.Value ? 0 : (int)reader["loc_id"],
+                                LocationName = reader["loc_nm"] == DBNull.Value ? "" : reader["loc_nm"].ToString(),
+
+                                CompletionConfirmed = reader["completion_is_confirmed"] == DBNull.Value ? false : (bool)reader["completion_is_confirmed"],
+                                CompletionConfirmedBy = reader["completion_confirmed_by"] == DBNull.Value ? "" : reader["completion_confirmed_by"].ToString(),
+                                CompletionConfirmedTime = reader["completion_confirmed_on"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["completion_confirmed_on"],
+                                IsCarriedOver = reader["is_carried_over"] == DBNull.Value ? false : (bool)reader["is_carried_over"],
+
+                                CreatedTime = reader["crt_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["crt_dt"],
+                                CreatedBy = reader["crt_by"] == DBNull.Value ? string.Empty : reader["crt_by"].ToString(),
+                                LastModifiedTime = reader["mod_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["mod_dt"],
+                                LastModifiedBy = reader["mod_by"] == DBNull.Value ? string.Empty : reader["mod_by"].ToString(),
+
+                                IsLocked = reader["is_lckd"] == DBNull.Value ? false : (bool)reader["is_lckd"],
+                                AssignmentId = reader["assgnmt_id"] == DBNull.Value ? 0 : (int)reader["assgnmt_id"],
+
+                                TaskDelegationId = reader["tsk_delg_id"] == DBNull.Value ? 0 : (long)reader["tsk_delg_id"],
+                                DelegatedByEmployeeId = reader["frm_emp_id"] == DBNull.Value ? string.Empty : reader["frm_emp_id"].ToString(),
+                                DelegatedByEmployeeName = reader["frm_emp_nm"] == DBNull.Value ? string.Empty : reader["frm_emp_nm"].ToString(),
+                                DelegatedToEmployeeId = reader["to_emp_id"] == DBNull.Value ? string.Empty : reader["to_emp_id"].ToString(),
+                                DelegatedToEmployeeName = reader["to_emp_nm"] == DBNull.Value ? string.Empty : reader["to_emp_nm"].ToString(),
+                                IsReAssigned = reader["is_re_assgn"] == DBNull.Value ? false : (bool)reader["is_re_assgn"],
+                                ReassignedTime = reader["dt_re_assgn"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["dt_re_assgn"],
+                                DelegatedTime = reader["tsk_delg_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["tsk_delg_dt"],
+
+                            });
+                        }
+                }
+                await conn.CloseAsync();
+            }
+            return delegatedTaskList[0];
+        }
+
+        //===================== Get By Delegated By Employee ============================//
+        public async Task<List<DelegatedTaskItem>> GetDelegatedTaskItemsByDelegatedByEmployeeIdAsync(string delegatedByEmployeeId)
+        {
+            List<DelegatedTaskItem> delegatedTaskList = new List<DelegatedTaskItem>();
+            StringBuilder sb = new StringBuilder();
+            sb.Append("SELECT t.tsk_itm_id, t.tsk_itm_no, t.tsk_itm_ds, t.tsk_itm_inf, t.wki_fdr_id, ");
+            sb.Append("t.mst_tsk_id, t.prj_no, t.prg_no, t.prg_dt, t.tsk_owner_id, t.assgnd_emp_id, ");
+            sb.Append("t.assigned_dt, t.tsk_itm_stg, t.prgs_stts, t.apprv_stts, t.approved_dt, ");
+            sb.Append("t.approved_by, t.exp_start_dt, t.act_start_dt, t.exp_due_dt, t.act_due_dt, ");
+            sb.Append("t.is_cancelled, t.cancelled_dt, t.cancelled_by, t.is_closed, t.closed_dt, ");
+            sb.Append("t.closed_by, t.unit_id, t.dept_id, t.loc_id, t.completion_is_confirmed, ");
+            sb.Append("t.completion_confirmed_by, t.completion_confirmed_on, t.is_carried_over, ");
+            sb.Append("t.mod_by, t.crt_by, t.assgnmt_id, t.is_lckd, t.crt_dt, t.mod_dt, ");
+            sb.Append("d.tsk_delg_id, d.frm_emp_id, d.to_emp_id, d.tsk_delg_dt, ");
+            sb.Append("d.is_re_assgn, d.dt_re_assgn, ");
+            sb.Append("CASE t.tsk_itm_stg WHEN 0 THEN 'Not Yet Approved' ");
+            sb.Append("WHEN 1 THEN 'Submitted for Approval' ");
+            sb.Append("WHEN 2 THEN 'Approved for Execution' ");
+            sb.Append("WHEN 3 THEN 'Submitted For Evaluation' ");
+            sb.Append("WHEN 4 THEN 'Evaluation Completed' ");
+            sb.Append("WHEN 5 THEN 'Cancelled' END AS itm_stg_nm, ");
+
+            sb.Append("CASE t.prgs_stts WHEN 0 THEN 'Not Yet Started' ");
+            sb.Append("WHEN 1 THEN 'In Progress' ");
+            sb.Append("WHEN 2 THEN 'Completed' ");
+            sb.Append("WHEN 3 THEN 'On Hold' END AS prgs_stts_ds, ");
+
+            sb.Append("CASE t.apprv_stts WHEN 0 THEN 'Pending' ");
+            sb.Append("WHEN 1 THEN 'Approved' ");
+            sb.Append("WHEN 2 THEN 'Declined' END AS apprv_stts_ds, ");
+
+            sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = t.tsk_owner_id) as owner_nm, ");
+            sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = t.assgnd_emp_id) as assgnd_to_nm, ");
+            sb.Append("(SELECT unitname FROM public.gst_units WHERE unitqk = t.unit_id) as unit_nm, ");
+            sb.Append("(SELECT deptname FROM public.gst_depts WHERE deptqk = t.dept_id) as dept_nm, ");
+            sb.Append("(SELECT locname FROM public.gst_locs WHERE locqk = t.loc_id) as loc_nm, ");
+            sb.Append("(SELECT wki_fdr_nm FROM public.wsp_wki_fdr WHERE wki_fdr_id = t.wki_fdr_id) as wki_fdr_nm, ");
+
+            sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = d.frm_emp_id) as frm_emp_nm, ");
+            sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = d.to_emp_id) as to_emp_nm ");
+
+            sb.Append("FROM public.wsp_tsk_itms t ");
+            sb.Append("INNER JOIN public.wsp_tsk_delg d ON t.tsk_itm_id = d.tsk_itm_id ");
+            sb.Append("WHERE (d.frm_emp_id=@frm_emp_id) AND (d.is_re_assgn = false) ");
+            sb.Append("ORDER BY d.tsk_delg_id DESC;");
+            string query = sb.ToString();
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
+            {
+                await conn.OpenAsync();
+                // Retrieve all rows
+                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+                {
+                    var frm_emp_id = cmd.Parameters.Add("@frm_emp_id", NpgsqlDbType.Text);
+                    await cmd.PrepareAsync();
+                    frm_emp_id.Value = delegatedByEmployeeId;
+                    using (var reader = await cmd.ExecuteReaderAsync())
+                        while (await reader.ReadAsync())
+                        {
+                            delegatedTaskList.Add(new DelegatedTaskItem
+                            {
+                                Id = reader["tsk_itm_id"] == DBNull.Value ? 0 : (long)reader["tsk_itm_id"],
+                                Number = reader["tsk_itm_no"] == DBNull.Value ? "" : reader["tsk_itm_no"].ToString(),
+                                Description = reader["tsk_itm_ds"] == DBNull.Value ? "" : reader["tsk_itm_ds"].ToString(),
+                                MoreInformation = reader["tsk_itm_inf"] == DBNull.Value ? "" : reader["tsk_itm_inf"].ToString(),
+                                WorkFolderId = reader["wki_fdr_id"] == DBNull.Value ? 0 : (long)reader["wki_fdr_id"],
+                                WorkFolderName = reader["wki_fdr_nm"] == DBNull.Value ? "" : reader["wki_fdr_nm"].ToString(),
+                                MasterTaskId = reader["mst_tsk_id"] == DBNull.Value ? 0 : (long)reader["mst_tsk_id"],
+                                LinkProjectNumber = reader["prj_no"] == DBNull.Value ? "" : reader["prj_no"].ToString(),
+                                LinkProgramCode = reader["prg_no"] == DBNull.Value ? "" : reader["prg_no"].ToString(),
+                                LinkProgramDate = reader["prg_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["prg_dt"],
+                                TaskOwnerId = reader["tsk_owner_id"] == DBNull.Value ? "" : reader["tsk_owner_id"].ToString(),
+                                TaskOwnerName = reader["owner_nm"] == DBNull.Value ? string.Empty : reader["owner_nm"].ToString(),
+                                AssignedToId = reader["assgnd_emp_id"] == DBNull.Value ? "" : reader["assgnd_emp_id"].ToString(),
+                                AssignedToName = reader["assgnd_to_nm"] == DBNull.Value ? string.Empty : reader["assgnd_to_nm"].ToString(),
+                                AssignedTime = reader["assigned_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["assigned_dt"],
+                                StageId = reader["tsk_itm_stg"] == DBNull.Value ? 0 : (int)reader["tsk_itm_stg"],
+                                StageDescription = reader["itm_stg_nm"] == DBNull.Value ? string.Empty : reader["itm_stg_nm"].ToString(),
+                                Stage = reader["tsk_itm_stg"] == DBNull.Value ? TaskItemStage.NotYetApproved : (TaskItemStage)reader["tsk_itm_stg"],
+
+                                ProgressStatusId = reader["prgs_stts"] == DBNull.Value ? 0 : (int)reader["prgs_stts"],
+                                ProgressStatus = reader["prgs_stts"] == DBNull.Value ? 0 : (WorkItemProgressStatus)reader["prgs_stts"],
+                                ProgressStatusDescription = reader["prgs_stts_ds"] == DBNull.Value ? string.Empty : reader["prgs_stts_ds"].ToString(),
+
+                                ApprovalStatusId = reader["apprv_stts"] == DBNull.Value ? 0 : (int)reader["apprv_stts"],
+                                ApprovalStatus = reader["apprv_stts"] == DBNull.Value ? ApprovalStatus.Pending : (ApprovalStatus)reader["apprv_stts"],
+                                ApprovalStatusDescription = reader["apprv_stts_ds"] == DBNull.Value ? string.Empty : reader["apprv_stts_ds"].ToString(),
+
+                                ApprovedTime = reader["approved_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["approved_dt"],
+                                ApprovedBy = reader["approved_by"] == DBNull.Value ? string.Empty : reader["approved_by"].ToString(),
+                                ExpectedStartTime = reader["exp_start_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["exp_start_dt"],
+                                ActualStartTime = reader["act_start_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["act_start_dt"],
+                                ExpectedDueTime = reader["exp_due_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["exp_due_dt"],
+                                ActualDueTime = reader["act_due_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["act_due_dt"],
+
+                                IsCancelled = reader["is_cancelled"] == DBNull.Value ? false : (bool)reader["is_cancelled"],
+                                CancelledBy = reader["cancelled_by"] == DBNull.Value ? "" : reader["cancelled_by"].ToString(),
+                                CancelledTime = reader["cancelled_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["cancelled_dt"],
+
+                                IsClosed = reader["is_closed"] == DBNull.Value ? false : (bool)reader["is_closed"],
+                                ClosedBy = reader["closed_by"] == DBNull.Value ? "" : reader["closed_by"].ToString(),
+                                ClosedTime = reader["closed_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["closed_dt"],
+
+                                UnitId = reader["unit_id"] == DBNull.Value ? 0 : (int)reader["unit_id"],
+                                UnitName = reader["unit_nm"] == DBNull.Value ? "" : reader["unit_nm"].ToString(),
+                                DepartmentId = reader["dept_id"] == DBNull.Value ? 0 : (int)reader["dept_id"],
+                                DepartmentName = reader["dept_nm"] == DBNull.Value ? "" : reader["dept_nm"].ToString(),
+                                LocationId = reader["loc_id"] == DBNull.Value ? 0 : (int)reader["loc_id"],
+                                LocationName = reader["loc_nm"] == DBNull.Value ? "" : reader["loc_nm"].ToString(),
+
+                                CompletionConfirmed = reader["completion_is_confirmed"] == DBNull.Value ? false : (bool)reader["completion_is_confirmed"],
+                                CompletionConfirmedBy = reader["completion_confirmed_by"] == DBNull.Value ? "" : reader["completion_confirmed_by"].ToString(),
+                                CompletionConfirmedTime = reader["completion_confirmed_on"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["completion_confirmed_on"],
+                                IsCarriedOver = reader["is_carried_over"] == DBNull.Value ? false : (bool)reader["is_carried_over"],
+
+                                CreatedTime = reader["crt_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["crt_dt"],
+                                CreatedBy = reader["crt_by"] == DBNull.Value ? string.Empty : reader["crt_by"].ToString(),
+                                LastModifiedTime = reader["mod_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["mod_dt"],
+                                LastModifiedBy = reader["mod_by"] == DBNull.Value ? string.Empty : reader["mod_by"].ToString(),
+
+                                IsLocked = reader["is_lckd"] == DBNull.Value ? false : (bool)reader["is_lckd"],
+                                AssignmentId = reader["assgnmt_id"] == DBNull.Value ? 0 : (int)reader["assgnmt_id"],
+
+                                TaskDelegationId = reader["tsk_delg_id"] == DBNull.Value ? 0 : (long)reader["tsk_delg_id"],
+                                DelegatedByEmployeeId = reader["frm_emp_id"] == DBNull.Value ? string.Empty : reader["frm_emp_id"].ToString(),
+                                DelegatedByEmployeeName = reader["frm_emp_nm"] == DBNull.Value ? string.Empty : reader["frm_emp_nm"].ToString(),
+                                DelegatedToEmployeeId = reader["to_emp_id"] == DBNull.Value ? string.Empty : reader["to_emp_id"].ToString(),
+                                DelegatedToEmployeeName = reader["to_emp_nm"] == DBNull.Value ? string.Empty : reader["to_emp_nm"].ToString(),
+                                IsReAssigned = reader["is_re_assgn"] == DBNull.Value ? false : (bool)reader["is_re_assgn"],
+                                ReassignedTime = reader["dt_re_assgn"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["dt_re_assgn"],
+                                DelegatedTime = reader["tsk_delg_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["tsk_delg_dt"],
+
+                            });
+                        }
+                }
+                await conn.CloseAsync();
+            }
+            return delegatedTaskList;
+        }
+        public async Task<List<DelegatedTaskItem>> GetDelegatedTaskItemsByDelegatedByEmployeeIdnProgressStatusIdAsync(string delegatedByEmployeeId, int progressStatusId)
+        {
+            List<DelegatedTaskItem> delegatedTaskList = new List<DelegatedTaskItem>();
+            StringBuilder sb = new StringBuilder();
+            sb.Append("SELECT t.tsk_itm_id, t.tsk_itm_no, t.tsk_itm_ds, t.tsk_itm_inf, t.wki_fdr_id, ");
+            sb.Append("t.mst_tsk_id, t.prj_no, t.prg_no, t.prg_dt, t.tsk_owner_id, t.assgnd_emp_id, ");
+            sb.Append("t.assigned_dt, t.tsk_itm_stg, t.prgs_stts, t.apprv_stts, t.approved_dt, ");
+            sb.Append("t.approved_by, t.exp_start_dt, t.act_start_dt, t.exp_due_dt, t.act_due_dt, ");
+            sb.Append("t.is_cancelled, t.cancelled_dt, t.cancelled_by, t.is_closed, t.closed_dt, ");
+            sb.Append("t.closed_by, t.unit_id, t.dept_id, t.loc_id, t.completion_is_confirmed, ");
+            sb.Append("t.completion_confirmed_by, t.completion_confirmed_on, t.is_carried_over, ");
+            sb.Append("t.mod_by, t.crt_by, t.assgnmt_id, t.is_lckd, t.crt_dt, t.mod_dt, ");
+            sb.Append("d.tsk_delg_id, d.frm_emp_id, d.to_emp_id, d.tsk_delg_dt, ");
+            sb.Append("d.is_re_assgn, d.dt_re_assgn, ");
+            sb.Append("CASE t.tsk_itm_stg WHEN 0 THEN 'Not Yet Approved' ");
+            sb.Append("WHEN 1 THEN 'Submitted for Approval' ");
+            sb.Append("WHEN 2 THEN 'Approved for Execution' ");
+            sb.Append("WHEN 3 THEN 'Submitted For Evaluation' ");
+            sb.Append("WHEN 4 THEN 'Evaluation Completed' ");
+            sb.Append("WHEN 5 THEN 'Cancelled' END AS itm_stg_nm, ");
+
+            sb.Append("CASE t.prgs_stts WHEN 0 THEN 'Not Yet Started' ");
+            sb.Append("WHEN 1 THEN 'In Progress' ");
+            sb.Append("WHEN 2 THEN 'Completed' ");
+            sb.Append("WHEN 3 THEN 'On Hold' END AS prgs_stts_ds, ");
+
+            sb.Append("CASE t.apprv_stts WHEN 0 THEN 'Pending' ");
+            sb.Append("WHEN 1 THEN 'Approved' ");
+            sb.Append("WHEN 2 THEN 'Declined' END AS apprv_stts_ds, ");
+
+            sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = t.tsk_owner_id) as owner_nm, ");
+            sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = t.assgnd_emp_id) as assgnd_to_nm, ");
+            sb.Append("(SELECT unitname FROM public.gst_units WHERE unitqk = t.unit_id) as unit_nm, ");
+            sb.Append("(SELECT deptname FROM public.gst_depts WHERE deptqk = t.dept_id) as dept_nm, ");
+            sb.Append("(SELECT locname FROM public.gst_locs WHERE locqk = t.loc_id) as loc_nm, ");
+            sb.Append("(SELECT wki_fdr_nm FROM public.wsp_wki_fdr WHERE wki_fdr_id = t.wki_fdr_id) as wki_fdr_nm, ");
+
+            sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = d.frm_emp_id) as frm_emp_nm, ");
+            sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = d.to_emp_id) as to_emp_nm ");
+
+            sb.Append("FROM public.wsp_tsk_itms t ");
+            sb.Append("INNER JOIN public.wsp_tsk_delg d ON t.tsk_itm_id = d.tsk_itm_id ");
+            sb.Append("WHERE (d.frm_emp_id=@frm_emp_id) AND (t.prgs_stts=@prgs_stts) ");
+            sb.Append("AND (d.is_re_assgn = false) ");
+            sb.Append("ORDER BY d.tsk_delg_id DESC;");
+            string query = sb.ToString();
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
+            {
+                await conn.OpenAsync();
+                // Retrieve all rows
+                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+                {
+                    var frm_emp_id = cmd.Parameters.Add("@frm_emp_id", NpgsqlDbType.Text);
+                    var prgs_stts = cmd.Parameters.Add("@prgs_stts", NpgsqlDbType.Integer);
+                    await cmd.PrepareAsync();
+                    frm_emp_id.Value = delegatedByEmployeeId;
+                    prgs_stts.Value = progressStatusId;
+                    using (var reader = await cmd.ExecuteReaderAsync())
+                        while (await reader.ReadAsync())
+                        {
+                            delegatedTaskList.Add(new DelegatedTaskItem
+                            {
+                                Id = reader["tsk_itm_id"] == DBNull.Value ? 0 : (long)reader["tsk_itm_id"],
+                                Number = reader["tsk_itm_no"] == DBNull.Value ? "" : reader["tsk_itm_no"].ToString(),
+                                Description = reader["tsk_itm_ds"] == DBNull.Value ? "" : reader["tsk_itm_ds"].ToString(),
+                                MoreInformation = reader["tsk_itm_inf"] == DBNull.Value ? "" : reader["tsk_itm_inf"].ToString(),
+                                WorkFolderId = reader["wki_fdr_id"] == DBNull.Value ? 0 : (long)reader["wki_fdr_id"],
+                                WorkFolderName = reader["wki_fdr_nm"] == DBNull.Value ? "" : reader["wki_fdr_nm"].ToString(),
+                                MasterTaskId = reader["mst_tsk_id"] == DBNull.Value ? 0 : (long)reader["mst_tsk_id"],
+                                LinkProjectNumber = reader["prj_no"] == DBNull.Value ? "" : reader["prj_no"].ToString(),
+                                LinkProgramCode = reader["prg_no"] == DBNull.Value ? "" : reader["prg_no"].ToString(),
+                                LinkProgramDate = reader["prg_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["prg_dt"],
+                                TaskOwnerId = reader["tsk_owner_id"] == DBNull.Value ? "" : reader["tsk_owner_id"].ToString(),
+                                TaskOwnerName = reader["owner_nm"] == DBNull.Value ? string.Empty : reader["owner_nm"].ToString(),
+                                AssignedToId = reader["assgnd_emp_id"] == DBNull.Value ? "" : reader["assgnd_emp_id"].ToString(),
+                                AssignedToName = reader["assgnd_to_nm"] == DBNull.Value ? string.Empty : reader["assgnd_to_nm"].ToString(),
+                                AssignedTime = reader["assigned_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["assigned_dt"],
+                                StageId = reader["tsk_itm_stg"] == DBNull.Value ? 0 : (int)reader["tsk_itm_stg"],
+                                StageDescription = reader["itm_stg_nm"] == DBNull.Value ? string.Empty : reader["itm_stg_nm"].ToString(),
+                                Stage = reader["tsk_itm_stg"] == DBNull.Value ? TaskItemStage.NotYetApproved : (TaskItemStage)reader["tsk_itm_stg"],
+
+                                ProgressStatusId = reader["prgs_stts"] == DBNull.Value ? 0 : (int)reader["prgs_stts"],
+                                ProgressStatus = reader["prgs_stts"] == DBNull.Value ? 0 : (WorkItemProgressStatus)reader["prgs_stts"],
+                                ProgressStatusDescription = reader["prgs_stts_ds"] == DBNull.Value ? string.Empty : reader["prgs_stts_ds"].ToString(),
+
+                                ApprovalStatusId = reader["apprv_stts"] == DBNull.Value ? 0 : (int)reader["apprv_stts"],
+                                ApprovalStatus = reader["apprv_stts"] == DBNull.Value ? ApprovalStatus.Pending : (ApprovalStatus)reader["apprv_stts"],
+                                ApprovalStatusDescription = reader["apprv_stts_ds"] == DBNull.Value ? string.Empty : reader["apprv_stts_ds"].ToString(),
+
+                                ApprovedTime = reader["approved_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["approved_dt"],
+                                ApprovedBy = reader["approved_by"] == DBNull.Value ? string.Empty : reader["approved_by"].ToString(),
+                                ExpectedStartTime = reader["exp_start_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["exp_start_dt"],
+                                ActualStartTime = reader["act_start_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["act_start_dt"],
+                                ExpectedDueTime = reader["exp_due_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["exp_due_dt"],
+                                ActualDueTime = reader["act_due_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["act_due_dt"],
+
+                                IsCancelled = reader["is_cancelled"] == DBNull.Value ? false : (bool)reader["is_cancelled"],
+                                CancelledBy = reader["cancelled_by"] == DBNull.Value ? "" : reader["cancelled_by"].ToString(),
+                                CancelledTime = reader["cancelled_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["cancelled_dt"],
+
+                                IsClosed = reader["is_closed"] == DBNull.Value ? false : (bool)reader["is_closed"],
+                                ClosedBy = reader["closed_by"] == DBNull.Value ? "" : reader["closed_by"].ToString(),
+                                ClosedTime = reader["closed_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["closed_dt"],
+
+                                UnitId = reader["unit_id"] == DBNull.Value ? 0 : (int)reader["unit_id"],
+                                UnitName = reader["unit_nm"] == DBNull.Value ? "" : reader["unit_nm"].ToString(),
+                                DepartmentId = reader["dept_id"] == DBNull.Value ? 0 : (int)reader["dept_id"],
+                                DepartmentName = reader["dept_nm"] == DBNull.Value ? "" : reader["dept_nm"].ToString(),
+                                LocationId = reader["loc_id"] == DBNull.Value ? 0 : (int)reader["loc_id"],
+                                LocationName = reader["loc_nm"] == DBNull.Value ? "" : reader["loc_nm"].ToString(),
+
+                                CompletionConfirmed = reader["completion_is_confirmed"] == DBNull.Value ? false : (bool)reader["completion_is_confirmed"],
+                                CompletionConfirmedBy = reader["completion_confirmed_by"] == DBNull.Value ? "" : reader["completion_confirmed_by"].ToString(),
+                                CompletionConfirmedTime = reader["completion_confirmed_on"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["completion_confirmed_on"],
+                                IsCarriedOver = reader["is_carried_over"] == DBNull.Value ? false : (bool)reader["is_carried_over"],
+
+                                CreatedTime = reader["crt_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["crt_dt"],
+                                CreatedBy = reader["crt_by"] == DBNull.Value ? string.Empty : reader["crt_by"].ToString(),
+                                LastModifiedTime = reader["mod_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["mod_dt"],
+                                LastModifiedBy = reader["mod_by"] == DBNull.Value ? string.Empty : reader["mod_by"].ToString(),
+
+                                IsLocked = reader["is_lckd"] == DBNull.Value ? false : (bool)reader["is_lckd"],
+                                AssignmentId = reader["assgnmt_id"] == DBNull.Value ? 0 : (int)reader["assgnmt_id"],
+
+                                TaskDelegationId = reader["tsk_delg_id"] == DBNull.Value ? 0 : (long)reader["tsk_delg_id"],
+                                DelegatedByEmployeeId = reader["frm_emp_id"] == DBNull.Value ? string.Empty : reader["frm_emp_id"].ToString(),
+                                DelegatedByEmployeeName = reader["frm_emp_nm"] == DBNull.Value ? string.Empty : reader["frm_emp_nm"].ToString(),
+                                DelegatedToEmployeeId = reader["to_emp_id"] == DBNull.Value ? string.Empty : reader["to_emp_id"].ToString(),
+                                DelegatedToEmployeeName = reader["to_emp_nm"] == DBNull.Value ? string.Empty : reader["to_emp_nm"].ToString(),
+                                IsReAssigned = reader["is_re_assgn"] == DBNull.Value ? false : (bool)reader["is_re_assgn"],
+                                ReassignedTime = reader["dt_re_assgn"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["dt_re_assgn"],
+                                DelegatedTime = reader["tsk_delg_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["tsk_delg_dt"],
+
+                            });
+                        }
+                }
+                await conn.CloseAsync();
+            }
+            return delegatedTaskList;
+        }
+        public async Task<List<DelegatedTaskItem>> GetDelegatedTaskItemsByDelegatedByEmployeeIdnProgressStatusIdnAssignedDateAsync(string delegatedByEmployeeId, int progressStatusId, DateTime fromDate, DateTime toDate)
+        {
+            List<DelegatedTaskItem> delegatedTaskList = new List<DelegatedTaskItem>();
+            string from_date = fromDate.ToString("yyyy-MM-dd HH:mm:ss");
+            string to_date = toDate.ToString("yyyy-MM-dd HH:mm:ss");
+            StringBuilder sb = new StringBuilder();
+            sb.Append("SELECT t.tsk_itm_id, t.tsk_itm_no, t.tsk_itm_ds, t.tsk_itm_inf, t.wki_fdr_id, ");
+            sb.Append("t.mst_tsk_id, t.prj_no, t.prg_no, t.prg_dt, t.tsk_owner_id, t.assgnd_emp_id, ");
+            sb.Append("t.assigned_dt, t.tsk_itm_stg, t.prgs_stts, t.apprv_stts, t.approved_dt, ");
+            sb.Append("t.approved_by, t.exp_start_dt, t.act_start_dt, t.exp_due_dt, t.act_due_dt, ");
+            sb.Append("t.is_cancelled, t.cancelled_dt, t.cancelled_by, t.is_closed, t.closed_dt, ");
+            sb.Append("t.closed_by, t.unit_id, t.dept_id, t.loc_id, t.completion_is_confirmed, ");
+            sb.Append("t.completion_confirmed_by, t.completion_confirmed_on, t.is_carried_over, ");
+            sb.Append("t.mod_by, t.crt_by, t.assgnmt_id, t.is_lckd, t.crt_dt, t.mod_dt, ");
+            sb.Append("d.tsk_delg_id, d.frm_emp_id, d.to_emp_id, d.tsk_delg_dt, ");
+            sb.Append("d.is_re_assgn, d.dt_re_assgn, ");
+            sb.Append("CASE t.tsk_itm_stg WHEN 0 THEN 'Not Yet Approved' ");
+            sb.Append("WHEN 1 THEN 'Submitted for Approval' ");
+            sb.Append("WHEN 2 THEN 'Approved for Execution' ");
+            sb.Append("WHEN 3 THEN 'Submitted For Evaluation' ");
+            sb.Append("WHEN 4 THEN 'Evaluation Completed' ");
+            sb.Append("WHEN 5 THEN 'Cancelled' END AS itm_stg_nm, ");
+
+            sb.Append("CASE t.prgs_stts WHEN 0 THEN 'Not Yet Started' ");
+            sb.Append("WHEN 1 THEN 'In Progress' ");
+            sb.Append("WHEN 2 THEN 'Completed' ");
+            sb.Append("WHEN 3 THEN 'On Hold' END AS prgs_stts_ds, ");
+
+            sb.Append("CASE t.apprv_stts WHEN 0 THEN 'Pending' ");
+            sb.Append("WHEN 1 THEN 'Approved' ");
+            sb.Append("WHEN 2 THEN 'Declined' END AS apprv_stts_ds, ");
+
+            sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = t.tsk_owner_id) as owner_nm, ");
+            sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = t.assgnd_emp_id) as assgnd_to_nm, ");
+            sb.Append("(SELECT unitname FROM public.gst_units WHERE unitqk = t.unit_id) as unit_nm, ");
+            sb.Append("(SELECT deptname FROM public.gst_depts WHERE deptqk = t.dept_id) as dept_nm, ");
+            sb.Append("(SELECT locname FROM public.gst_locs WHERE locqk = t.loc_id) as loc_nm, ");
+            sb.Append("(SELECT wki_fdr_nm FROM public.wsp_wki_fdr WHERE wki_fdr_id = t.wki_fdr_id) as wki_fdr_nm, ");
+
+            sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = d.frm_emp_id) as frm_emp_nm, ");
+            sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = d.to_emp_id) as to_emp_nm ");
+
+            sb.Append("FROM public.wsp_tsk_itms t ");
+            sb.Append("INNER JOIN public.wsp_tsk_delg d ON t.tsk_itm_id = d.tsk_itm_id ");
+            sb.Append("WHERE (d.frm_emp_id=@frm_emp_id) AND (t.prgs_stts=@prgs_stts) ");
+            sb.Append("AND (d.tsk_delg_dt >= @dt_frm::timestamp AND d.tsk_delg_dt <= @dt_to::timestamp) ");
+            sb.Append("AND (d.is_re_assgn = false) ");
+            sb.Append("ORDER BY d.tsk_delg_id DESC;");
+            string query = sb.ToString();
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
+            {
+                await conn.OpenAsync();
+                // Retrieve all rows
+                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+                {
+                    var frm_emp_id = cmd.Parameters.Add("@frm_emp_id", NpgsqlDbType.Text);
+                    var prgs_stts = cmd.Parameters.Add("@prgs_stts", NpgsqlDbType.Integer);
+                    var dt_frm = cmd.Parameters.Add("@dt_frm", NpgsqlDbType.Text);
+                    var dt_to = cmd.Parameters.Add("@dt_to", NpgsqlDbType.Text);
+                    await cmd.PrepareAsync();
+                    frm_emp_id.Value = delegatedByEmployeeId;
+                    prgs_stts.Value = progressStatusId;
+                    dt_frm.Value = from_date;
+                    dt_to.Value = to_date;
+                    using (var reader = await cmd.ExecuteReaderAsync())
+                        while (await reader.ReadAsync())
+                        {
+                            delegatedTaskList.Add(new DelegatedTaskItem
+                            {
+                                Id = reader["tsk_itm_id"] == DBNull.Value ? 0 : (long)reader["tsk_itm_id"],
+                                Number = reader["tsk_itm_no"] == DBNull.Value ? "" : reader["tsk_itm_no"].ToString(),
+                                Description = reader["tsk_itm_ds"] == DBNull.Value ? "" : reader["tsk_itm_ds"].ToString(),
+                                MoreInformation = reader["tsk_itm_inf"] == DBNull.Value ? "" : reader["tsk_itm_inf"].ToString(),
+                                WorkFolderId = reader["wki_fdr_id"] == DBNull.Value ? 0 : (long)reader["wki_fdr_id"],
+                                WorkFolderName = reader["wki_fdr_nm"] == DBNull.Value ? "" : reader["wki_fdr_nm"].ToString(),
+                                MasterTaskId = reader["mst_tsk_id"] == DBNull.Value ? 0 : (long)reader["mst_tsk_id"],
+                                LinkProjectNumber = reader["prj_no"] == DBNull.Value ? "" : reader["prj_no"].ToString(),
+                                LinkProgramCode = reader["prg_no"] == DBNull.Value ? "" : reader["prg_no"].ToString(),
+                                LinkProgramDate = reader["prg_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["prg_dt"],
+                                TaskOwnerId = reader["tsk_owner_id"] == DBNull.Value ? "" : reader["tsk_owner_id"].ToString(),
+                                TaskOwnerName = reader["owner_nm"] == DBNull.Value ? string.Empty : reader["owner_nm"].ToString(),
+                                AssignedToId = reader["assgnd_emp_id"] == DBNull.Value ? "" : reader["assgnd_emp_id"].ToString(),
+                                AssignedToName = reader["assgnd_to_nm"] == DBNull.Value ? string.Empty : reader["assgnd_to_nm"].ToString(),
+                                AssignedTime = reader["assigned_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["assigned_dt"],
+                                StageId = reader["tsk_itm_stg"] == DBNull.Value ? 0 : (int)reader["tsk_itm_stg"],
+                                StageDescription = reader["itm_stg_nm"] == DBNull.Value ? string.Empty : reader["itm_stg_nm"].ToString(),
+                                Stage = reader["tsk_itm_stg"] == DBNull.Value ? TaskItemStage.NotYetApproved : (TaskItemStage)reader["tsk_itm_stg"],
+
+                                ProgressStatusId = reader["prgs_stts"] == DBNull.Value ? 0 : (int)reader["prgs_stts"],
+                                ProgressStatus = reader["prgs_stts"] == DBNull.Value ? 0 : (WorkItemProgressStatus)reader["prgs_stts"],
+                                ProgressStatusDescription = reader["prgs_stts_ds"] == DBNull.Value ? string.Empty : reader["prgs_stts_ds"].ToString(),
+
+                                ApprovalStatusId = reader["apprv_stts"] == DBNull.Value ? 0 : (int)reader["apprv_stts"],
+                                ApprovalStatus = reader["apprv_stts"] == DBNull.Value ? ApprovalStatus.Pending : (ApprovalStatus)reader["apprv_stts"],
+                                ApprovalStatusDescription = reader["apprv_stts_ds"] == DBNull.Value ? string.Empty : reader["apprv_stts_ds"].ToString(),
+
+                                ApprovedTime = reader["approved_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["approved_dt"],
+                                ApprovedBy = reader["approved_by"] == DBNull.Value ? string.Empty : reader["approved_by"].ToString(),
+                                ExpectedStartTime = reader["exp_start_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["exp_start_dt"],
+                                ActualStartTime = reader["act_start_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["act_start_dt"],
+                                ExpectedDueTime = reader["exp_due_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["exp_due_dt"],
+                                ActualDueTime = reader["act_due_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["act_due_dt"],
+
+                                IsCancelled = reader["is_cancelled"] == DBNull.Value ? false : (bool)reader["is_cancelled"],
+                                CancelledBy = reader["cancelled_by"] == DBNull.Value ? "" : reader["cancelled_by"].ToString(),
+                                CancelledTime = reader["cancelled_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["cancelled_dt"],
+
+                                IsClosed = reader["is_closed"] == DBNull.Value ? false : (bool)reader["is_closed"],
+                                ClosedBy = reader["closed_by"] == DBNull.Value ? "" : reader["closed_by"].ToString(),
+                                ClosedTime = reader["closed_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["closed_dt"],
+
+                                UnitId = reader["unit_id"] == DBNull.Value ? 0 : (int)reader["unit_id"],
+                                UnitName = reader["unit_nm"] == DBNull.Value ? "" : reader["unit_nm"].ToString(),
+                                DepartmentId = reader["dept_id"] == DBNull.Value ? 0 : (int)reader["dept_id"],
+                                DepartmentName = reader["dept_nm"] == DBNull.Value ? "" : reader["dept_nm"].ToString(),
+                                LocationId = reader["loc_id"] == DBNull.Value ? 0 : (int)reader["loc_id"],
+                                LocationName = reader["loc_nm"] == DBNull.Value ? "" : reader["loc_nm"].ToString(),
+
+                                CompletionConfirmed = reader["completion_is_confirmed"] == DBNull.Value ? false : (bool)reader["completion_is_confirmed"],
+                                CompletionConfirmedBy = reader["completion_confirmed_by"] == DBNull.Value ? "" : reader["completion_confirmed_by"].ToString(),
+                                CompletionConfirmedTime = reader["completion_confirmed_on"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["completion_confirmed_on"],
+                                IsCarriedOver = reader["is_carried_over"] == DBNull.Value ? false : (bool)reader["is_carried_over"],
+
+                                CreatedTime = reader["crt_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["crt_dt"],
+                                CreatedBy = reader["crt_by"] == DBNull.Value ? string.Empty : reader["crt_by"].ToString(),
+                                LastModifiedTime = reader["mod_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["mod_dt"],
+                                LastModifiedBy = reader["mod_by"] == DBNull.Value ? string.Empty : reader["mod_by"].ToString(),
+
+                                IsLocked = reader["is_lckd"] == DBNull.Value ? false : (bool)reader["is_lckd"],
+                                AssignmentId = reader["assgnmt_id"] == DBNull.Value ? 0 : (int)reader["assgnmt_id"],
+
+                                TaskDelegationId = reader["tsk_delg_id"] == DBNull.Value ? 0 : (long)reader["tsk_delg_id"],
+                                DelegatedByEmployeeId = reader["frm_emp_id"] == DBNull.Value ? string.Empty : reader["frm_emp_id"].ToString(),
+                                DelegatedByEmployeeName = reader["frm_emp_nm"] == DBNull.Value ? string.Empty : reader["frm_emp_nm"].ToString(),
+                                DelegatedToEmployeeId = reader["to_emp_id"] == DBNull.Value ? string.Empty : reader["to_emp_id"].ToString(),
+                                DelegatedToEmployeeName = reader["to_emp_nm"] == DBNull.Value ? string.Empty : reader["to_emp_nm"].ToString(),
+                                IsReAssigned = reader["is_re_assgn"] == DBNull.Value ? false : (bool)reader["is_re_assgn"],
+                                ReassignedTime = reader["dt_re_assgn"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["dt_re_assgn"],
+                                DelegatedTime = reader["tsk_delg_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["tsk_delg_dt"],
+
+                            });
+                        }
+                }
+                await conn.CloseAsync();
+            }
+            return delegatedTaskList;
+        }
+        public async Task<List<DelegatedTaskItem>> GetDelegatedTaskItemsByDelegatedByEmployeeIdnAssignedDateAsync(string delegatedByEmployeeId, DateTime fromDate, DateTime toDate)
+        {
+            List<DelegatedTaskItem> delegatedTaskList = new List<DelegatedTaskItem>();
+            string from_date = fromDate.ToString("yyyy-MM-dd HH:mm:ss");
+            string to_date = toDate.ToString("yyyy-MM-dd HH:mm:ss");
+            StringBuilder sb = new StringBuilder();
+            sb.Append("SELECT t.tsk_itm_id, t.tsk_itm_no, t.tsk_itm_ds, t.tsk_itm_inf, t.wki_fdr_id, ");
+            sb.Append("t.mst_tsk_id, t.prj_no, t.prg_no, t.prg_dt, t.tsk_owner_id, t.assgnd_emp_id, ");
+            sb.Append("t.assigned_dt, t.tsk_itm_stg, t.prgs_stts, t.apprv_stts, t.approved_dt, ");
+            sb.Append("t.approved_by, t.exp_start_dt, t.act_start_dt, t.exp_due_dt, t.act_due_dt, ");
+            sb.Append("t.is_cancelled, t.cancelled_dt, t.cancelled_by, t.is_closed, t.closed_dt, ");
+            sb.Append("t.closed_by, t.unit_id, t.dept_id, t.loc_id, t.completion_is_confirmed, ");
+            sb.Append("t.completion_confirmed_by, t.completion_confirmed_on, t.is_carried_over, ");
+            sb.Append("t.mod_by, t.crt_by, t.assgnmt_id, t.is_lckd, t.crt_dt, t.mod_dt, ");
+            sb.Append("d.tsk_delg_id, d.frm_emp_id, d.to_emp_id, d.tsk_delg_dt, ");
+            sb.Append("d.is_re_assgn, d.dt_re_assgn, ");
+            sb.Append("CASE t.tsk_itm_stg WHEN 0 THEN 'Not Yet Approved' ");
+            sb.Append("WHEN 1 THEN 'Submitted for Approval' ");
+            sb.Append("WHEN 2 THEN 'Approved for Execution' ");
+            sb.Append("WHEN 3 THEN 'Submitted For Evaluation' ");
+            sb.Append("WHEN 4 THEN 'Evaluation Completed' ");
+            sb.Append("WHEN 5 THEN 'Cancelled' END AS itm_stg_nm, ");
+
+            sb.Append("CASE t.prgs_stts WHEN 0 THEN 'Not Yet Started' ");
+            sb.Append("WHEN 1 THEN 'In Progress' ");
+            sb.Append("WHEN 2 THEN 'Completed' ");
+            sb.Append("WHEN 3 THEN 'On Hold' END AS prgs_stts_ds, ");
+
+            sb.Append("CASE t.apprv_stts WHEN 0 THEN 'Pending' ");
+            sb.Append("WHEN 1 THEN 'Approved' ");
+            sb.Append("WHEN 2 THEN 'Declined' END AS apprv_stts_ds, ");
+
+            sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = t.tsk_owner_id) as owner_nm, ");
+            sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = t.assgnd_emp_id) as assgnd_to_nm, ");
+            sb.Append("(SELECT unitname FROM public.gst_units WHERE unitqk = t.unit_id) as unit_nm, ");
+            sb.Append("(SELECT deptname FROM public.gst_depts WHERE deptqk = t.dept_id) as dept_nm, ");
+            sb.Append("(SELECT locname FROM public.gst_locs WHERE locqk = t.loc_id) as loc_nm, ");
+            sb.Append("(SELECT wki_fdr_nm FROM public.wsp_wki_fdr WHERE wki_fdr_id = t.wki_fdr_id) as wki_fdr_nm, ");
+
+            sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = d.frm_emp_id) as frm_emp_nm, ");
+            sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = d.to_emp_id) as to_emp_nm ");
+
+            sb.Append("FROM public.wsp_tsk_itms t ");
+            sb.Append("INNER JOIN public.wsp_tsk_delg d ON t.tsk_itm_id = d.tsk_itm_id ");
+            sb.Append("WHERE (d.frm_emp_id=@frm_emp_id) AND (d.is_re_assgn = false) ");
+            sb.Append("AND (d.tsk_delg_dt >= @dt_frm::timestamp AND d.tsk_delg_dt <= @dt_to::timestamp) ");
+            sb.Append("ORDER BY d.tsk_delg_id DESC;");
+            string query = sb.ToString();
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
+            {
+                await conn.OpenAsync();
+                // Retrieve all rows
+                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+                {
+                    var frm_emp_id = cmd.Parameters.Add("@frm_emp_id", NpgsqlDbType.Text);
+                    var dt_frm = cmd.Parameters.Add("@dt_frm", NpgsqlDbType.Text);
+                    var dt_to = cmd.Parameters.Add("@dt_to", NpgsqlDbType.Text);
+                    await cmd.PrepareAsync();
+                    frm_emp_id.Value = delegatedByEmployeeId;
+                    dt_frm.Value = from_date;
+                    dt_to.Value = to_date;
+                    using (var reader = await cmd.ExecuteReaderAsync())
+                        while (await reader.ReadAsync())
+                        {
+                            delegatedTaskList.Add(new DelegatedTaskItem
+                            {
+                                Id = reader["tsk_itm_id"] == DBNull.Value ? 0 : (long)reader["tsk_itm_id"],
+                                Number = reader["tsk_itm_no"] == DBNull.Value ? "" : reader["tsk_itm_no"].ToString(),
+                                Description = reader["tsk_itm_ds"] == DBNull.Value ? "" : reader["tsk_itm_ds"].ToString(),
+                                MoreInformation = reader["tsk_itm_inf"] == DBNull.Value ? "" : reader["tsk_itm_inf"].ToString(),
+                                WorkFolderId = reader["wki_fdr_id"] == DBNull.Value ? 0 : (long)reader["wki_fdr_id"],
+                                WorkFolderName = reader["wki_fdr_nm"] == DBNull.Value ? "" : reader["wki_fdr_nm"].ToString(),
+                                MasterTaskId = reader["mst_tsk_id"] == DBNull.Value ? 0 : (long)reader["mst_tsk_id"],
+                                LinkProjectNumber = reader["prj_no"] == DBNull.Value ? "" : reader["prj_no"].ToString(),
+                                LinkProgramCode = reader["prg_no"] == DBNull.Value ? "" : reader["prg_no"].ToString(),
+                                LinkProgramDate = reader["prg_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["prg_dt"],
+                                TaskOwnerId = reader["tsk_owner_id"] == DBNull.Value ? "" : reader["tsk_owner_id"].ToString(),
+                                TaskOwnerName = reader["owner_nm"] == DBNull.Value ? string.Empty : reader["owner_nm"].ToString(),
+                                AssignedToId = reader["assgnd_emp_id"] == DBNull.Value ? "" : reader["assgnd_emp_id"].ToString(),
+                                AssignedToName = reader["assgnd_to_nm"] == DBNull.Value ? string.Empty : reader["assgnd_to_nm"].ToString(),
+                                AssignedTime = reader["assigned_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["assigned_dt"],
+                                StageId = reader["tsk_itm_stg"] == DBNull.Value ? 0 : (int)reader["tsk_itm_stg"],
+                                StageDescription = reader["itm_stg_nm"] == DBNull.Value ? string.Empty : reader["itm_stg_nm"].ToString(),
+                                Stage = reader["tsk_itm_stg"] == DBNull.Value ? TaskItemStage.NotYetApproved : (TaskItemStage)reader["tsk_itm_stg"],
+
+                                ProgressStatusId = reader["prgs_stts"] == DBNull.Value ? 0 : (int)reader["prgs_stts"],
+                                ProgressStatus = reader["prgs_stts"] == DBNull.Value ? 0 : (WorkItemProgressStatus)reader["prgs_stts"],
+                                ProgressStatusDescription = reader["prgs_stts_ds"] == DBNull.Value ? string.Empty : reader["prgs_stts_ds"].ToString(),
+
+                                ApprovalStatusId = reader["apprv_stts"] == DBNull.Value ? 0 : (int)reader["apprv_stts"],
+                                ApprovalStatus = reader["apprv_stts"] == DBNull.Value ? ApprovalStatus.Pending : (ApprovalStatus)reader["apprv_stts"],
+                                ApprovalStatusDescription = reader["apprv_stts_ds"] == DBNull.Value ? string.Empty : reader["apprv_stts_ds"].ToString(),
+
+                                ApprovedTime = reader["approved_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["approved_dt"],
+                                ApprovedBy = reader["approved_by"] == DBNull.Value ? string.Empty : reader["approved_by"].ToString(),
+                                ExpectedStartTime = reader["exp_start_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["exp_start_dt"],
+                                ActualStartTime = reader["act_start_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["act_start_dt"],
+                                ExpectedDueTime = reader["exp_due_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["exp_due_dt"],
+                                ActualDueTime = reader["act_due_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["act_due_dt"],
+
+                                IsCancelled = reader["is_cancelled"] == DBNull.Value ? false : (bool)reader["is_cancelled"],
+                                CancelledBy = reader["cancelled_by"] == DBNull.Value ? "" : reader["cancelled_by"].ToString(),
+                                CancelledTime = reader["cancelled_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["cancelled_dt"],
+
+                                IsClosed = reader["is_closed"] == DBNull.Value ? false : (bool)reader["is_closed"],
+                                ClosedBy = reader["closed_by"] == DBNull.Value ? "" : reader["closed_by"].ToString(),
+                                ClosedTime = reader["closed_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["closed_dt"],
+
+                                UnitId = reader["unit_id"] == DBNull.Value ? 0 : (int)reader["unit_id"],
+                                UnitName = reader["unit_nm"] == DBNull.Value ? "" : reader["unit_nm"].ToString(),
+                                DepartmentId = reader["dept_id"] == DBNull.Value ? 0 : (int)reader["dept_id"],
+                                DepartmentName = reader["dept_nm"] == DBNull.Value ? "" : reader["dept_nm"].ToString(),
+                                LocationId = reader["loc_id"] == DBNull.Value ? 0 : (int)reader["loc_id"],
+                                LocationName = reader["loc_nm"] == DBNull.Value ? "" : reader["loc_nm"].ToString(),
+
+                                CompletionConfirmed = reader["completion_is_confirmed"] == DBNull.Value ? false : (bool)reader["completion_is_confirmed"],
+                                CompletionConfirmedBy = reader["completion_confirmed_by"] == DBNull.Value ? "" : reader["completion_confirmed_by"].ToString(),
+                                CompletionConfirmedTime = reader["completion_confirmed_on"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["completion_confirmed_on"],
+                                IsCarriedOver = reader["is_carried_over"] == DBNull.Value ? false : (bool)reader["is_carried_over"],
+
+                                CreatedTime = reader["crt_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["crt_dt"],
+                                CreatedBy = reader["crt_by"] == DBNull.Value ? string.Empty : reader["crt_by"].ToString(),
+                                LastModifiedTime = reader["mod_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["mod_dt"],
+                                LastModifiedBy = reader["mod_by"] == DBNull.Value ? string.Empty : reader["mod_by"].ToString(),
+
+                                IsLocked = reader["is_lckd"] == DBNull.Value ? false : (bool)reader["is_lckd"],
+                                AssignmentId = reader["assgnmt_id"] == DBNull.Value ? 0 : (int)reader["assgnmt_id"],
+
+                                TaskDelegationId = reader["tsk_delg_id"] == DBNull.Value ? 0 : (long)reader["tsk_delg_id"],
+                                DelegatedByEmployeeId = reader["frm_emp_id"] == DBNull.Value ? string.Empty : reader["frm_emp_id"].ToString(),
+                                DelegatedByEmployeeName = reader["frm_emp_nm"] == DBNull.Value ? string.Empty : reader["frm_emp_nm"].ToString(),
+                                DelegatedToEmployeeId = reader["to_emp_id"] == DBNull.Value ? string.Empty : reader["to_emp_id"].ToString(),
+                                DelegatedToEmployeeName = reader["to_emp_nm"] == DBNull.Value ? string.Empty : reader["to_emp_nm"].ToString(),
+                                IsReAssigned = reader["is_re_assgn"] == DBNull.Value ? false : (bool)reader["is_re_assgn"],
+                                ReassignedTime = reader["dt_re_assgn"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["dt_re_assgn"],
+                                DelegatedTime = reader["tsk_delg_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["tsk_delg_dt"],
+
+                            });
+                        }
+                }
+                await conn.CloseAsync();
+            }
+            return delegatedTaskList;
+        }
+
+        //===================== Get By Delegated By Employee And Delegated To Employee Id ==========================//
+        public async Task<List<DelegatedTaskItem>> GetDelegatedTaskItemsByDelegatedByEmployeeIdnDelegatedToEmployeeIdAsync(string delegatedByEmployeeId, string delegatedToEmployeeId)
+        {
+            List<DelegatedTaskItem> delegatedTaskList = new List<DelegatedTaskItem>();
+            StringBuilder sb = new StringBuilder();
+            sb.Append("SELECT t.tsk_itm_id, t.tsk_itm_no, t.tsk_itm_ds, t.tsk_itm_inf, t.wki_fdr_id, ");
+            sb.Append("t.mst_tsk_id, t.prj_no, t.prg_no, t.prg_dt, t.tsk_owner_id, t.assgnd_emp_id, ");
+            sb.Append("t.assigned_dt, t.tsk_itm_stg, t.prgs_stts, t.apprv_stts, t.approved_dt, ");
+            sb.Append("t.approved_by, t.exp_start_dt, t.act_start_dt, t.exp_due_dt, t.act_due_dt, ");
+            sb.Append("t.is_cancelled, t.cancelled_dt, t.cancelled_by, t.is_closed, t.closed_dt, ");
+            sb.Append("t.closed_by, t.unit_id, t.dept_id, t.loc_id, t.completion_is_confirmed, ");
+            sb.Append("t.completion_confirmed_by, t.completion_confirmed_on, t.is_carried_over, ");
+            sb.Append("t.mod_by, t.crt_by, t.assgnmt_id, t.is_lckd, t.crt_dt, t.mod_dt, ");
+            sb.Append("d.tsk_delg_id, d.frm_emp_id, d.to_emp_id, d.tsk_delg_dt, ");
+            sb.Append("d.is_re_assgn, d.dt_re_assgn, ");
+            sb.Append("CASE t.tsk_itm_stg WHEN 0 THEN 'Not Yet Approved' ");
+            sb.Append("WHEN 1 THEN 'Submitted for Approval' ");
+            sb.Append("WHEN 2 THEN 'Approved for Execution' ");
+            sb.Append("WHEN 3 THEN 'Submitted For Evaluation' ");
+            sb.Append("WHEN 4 THEN 'Evaluation Completed' ");
+            sb.Append("WHEN 5 THEN 'Cancelled' END AS itm_stg_nm, ");
+
+            sb.Append("CASE t.prgs_stts WHEN 0 THEN 'Not Yet Started' ");
+            sb.Append("WHEN 1 THEN 'In Progress' ");
+            sb.Append("WHEN 2 THEN 'Completed' ");
+            sb.Append("WHEN 3 THEN 'On Hold' END AS prgs_stts_ds, ");
+
+            sb.Append("CASE t.apprv_stts WHEN 0 THEN 'Pending' ");
+            sb.Append("WHEN 1 THEN 'Approved' ");
+            sb.Append("WHEN 2 THEN 'Declined' END AS apprv_stts_ds, ");
+
+            sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = t.tsk_owner_id) as owner_nm, ");
+            sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = t.assgnd_emp_id) as assgnd_to_nm, ");
+            sb.Append("(SELECT unitname FROM public.gst_units WHERE unitqk = t.unit_id) as unit_nm, ");
+            sb.Append("(SELECT deptname FROM public.gst_depts WHERE deptqk = t.dept_id) as dept_nm, ");
+            sb.Append("(SELECT locname FROM public.gst_locs WHERE locqk = t.loc_id) as loc_nm, ");
+            sb.Append("(SELECT wki_fdr_nm FROM public.wsp_wki_fdr WHERE wki_fdr_id = t.wki_fdr_id) as wki_fdr_nm, ");
+
+            sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = d.frm_emp_id) as frm_emp_nm, ");
+            sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = d.to_emp_id) as to_emp_nm ");
+
+            sb.Append("FROM public.wsp_tsk_itms t ");
+            sb.Append("INNER JOIN public.wsp_tsk_delg d ON t.tsk_itm_id = d.tsk_itm_id ");
+            sb.Append("WHERE (d.frm_emp_id=@frm_emp_id) AND (d.to_emp_id=@to_emp_id) ");
+            sb.Append("AND (d.is_re_assgn = false) ");
+            sb.Append("ORDER BY d.tsk_delg_id DESC;");
+            string query = sb.ToString();
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
+            {
+                await conn.OpenAsync();
+                // Retrieve all rows
+                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+                {
+                    var frm_emp_id = cmd.Parameters.Add("@frm_emp_id", NpgsqlDbType.Text);
+                    var to_emp_id = cmd.Parameters.Add("@to_emp_id", NpgsqlDbType.Text);
+                    await cmd.PrepareAsync();
+                    frm_emp_id.Value = delegatedByEmployeeId;
+                    to_emp_id.Value = delegatedToEmployeeId;
+                    using (var reader = await cmd.ExecuteReaderAsync())
+                        while (await reader.ReadAsync())
+                        {
+                            delegatedTaskList.Add(new DelegatedTaskItem
+                            {
+                                Id = reader["tsk_itm_id"] == DBNull.Value ? 0 : (long)reader["tsk_itm_id"],
+                                Number = reader["tsk_itm_no"] == DBNull.Value ? "" : reader["tsk_itm_no"].ToString(),
+                                Description = reader["tsk_itm_ds"] == DBNull.Value ? "" : reader["tsk_itm_ds"].ToString(),
+                                MoreInformation = reader["tsk_itm_inf"] == DBNull.Value ? "" : reader["tsk_itm_inf"].ToString(),
+                                WorkFolderId = reader["wki_fdr_id"] == DBNull.Value ? 0 : (long)reader["wki_fdr_id"],
+                                WorkFolderName = reader["wki_fdr_nm"] == DBNull.Value ? "" : reader["wki_fdr_nm"].ToString(),
+                                MasterTaskId = reader["mst_tsk_id"] == DBNull.Value ? 0 : (long)reader["mst_tsk_id"],
+                                LinkProjectNumber = reader["prj_no"] == DBNull.Value ? "" : reader["prj_no"].ToString(),
+                                LinkProgramCode = reader["prg_no"] == DBNull.Value ? "" : reader["prg_no"].ToString(),
+                                LinkProgramDate = reader["prg_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["prg_dt"],
+                                TaskOwnerId = reader["tsk_owner_id"] == DBNull.Value ? "" : reader["tsk_owner_id"].ToString(),
+                                TaskOwnerName = reader["owner_nm"] == DBNull.Value ? string.Empty : reader["owner_nm"].ToString(),
+                                AssignedToId = reader["assgnd_emp_id"] == DBNull.Value ? "" : reader["assgnd_emp_id"].ToString(),
+                                AssignedToName = reader["assgnd_to_nm"] == DBNull.Value ? string.Empty : reader["assgnd_to_nm"].ToString(),
+                                AssignedTime = reader["assigned_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["assigned_dt"],
+                                StageId = reader["tsk_itm_stg"] == DBNull.Value ? 0 : (int)reader["tsk_itm_stg"],
+                                StageDescription = reader["itm_stg_nm"] == DBNull.Value ? string.Empty : reader["itm_stg_nm"].ToString(),
+                                Stage = reader["tsk_itm_stg"] == DBNull.Value ? TaskItemStage.NotYetApproved : (TaskItemStage)reader["tsk_itm_stg"],
+
+                                ProgressStatusId = reader["prgs_stts"] == DBNull.Value ? 0 : (int)reader["prgs_stts"],
+                                ProgressStatus = reader["prgs_stts"] == DBNull.Value ? 0 : (WorkItemProgressStatus)reader["prgs_stts"],
+                                ProgressStatusDescription = reader["prgs_stts_ds"] == DBNull.Value ? string.Empty : reader["prgs_stts_ds"].ToString(),
+
+                                ApprovalStatusId = reader["apprv_stts"] == DBNull.Value ? 0 : (int)reader["apprv_stts"],
+                                ApprovalStatus = reader["apprv_stts"] == DBNull.Value ? ApprovalStatus.Pending : (ApprovalStatus)reader["apprv_stts"],
+                                ApprovalStatusDescription = reader["apprv_stts_ds"] == DBNull.Value ? string.Empty : reader["apprv_stts_ds"].ToString(),
+
+                                ApprovedTime = reader["approved_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["approved_dt"],
+                                ApprovedBy = reader["approved_by"] == DBNull.Value ? string.Empty : reader["approved_by"].ToString(),
+                                ExpectedStartTime = reader["exp_start_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["exp_start_dt"],
+                                ActualStartTime = reader["act_start_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["act_start_dt"],
+                                ExpectedDueTime = reader["exp_due_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["exp_due_dt"],
+                                ActualDueTime = reader["act_due_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["act_due_dt"],
+
+                                IsCancelled = reader["is_cancelled"] == DBNull.Value ? false : (bool)reader["is_cancelled"],
+                                CancelledBy = reader["cancelled_by"] == DBNull.Value ? "" : reader["cancelled_by"].ToString(),
+                                CancelledTime = reader["cancelled_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["cancelled_dt"],
+
+                                IsClosed = reader["is_closed"] == DBNull.Value ? false : (bool)reader["is_closed"],
+                                ClosedBy = reader["closed_by"] == DBNull.Value ? "" : reader["closed_by"].ToString(),
+                                ClosedTime = reader["closed_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["closed_dt"],
+
+                                UnitId = reader["unit_id"] == DBNull.Value ? 0 : (int)reader["unit_id"],
+                                UnitName = reader["unit_nm"] == DBNull.Value ? "" : reader["unit_nm"].ToString(),
+                                DepartmentId = reader["dept_id"] == DBNull.Value ? 0 : (int)reader["dept_id"],
+                                DepartmentName = reader["dept_nm"] == DBNull.Value ? "" : reader["dept_nm"].ToString(),
+                                LocationId = reader["loc_id"] == DBNull.Value ? 0 : (int)reader["loc_id"],
+                                LocationName = reader["loc_nm"] == DBNull.Value ? "" : reader["loc_nm"].ToString(),
+
+                                CompletionConfirmed = reader["completion_is_confirmed"] == DBNull.Value ? false : (bool)reader["completion_is_confirmed"],
+                                CompletionConfirmedBy = reader["completion_confirmed_by"] == DBNull.Value ? "" : reader["completion_confirmed_by"].ToString(),
+                                CompletionConfirmedTime = reader["completion_confirmed_on"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["completion_confirmed_on"],
+                                IsCarriedOver = reader["is_carried_over"] == DBNull.Value ? false : (bool)reader["is_carried_over"],
+
+                                CreatedTime = reader["crt_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["crt_dt"],
+                                CreatedBy = reader["crt_by"] == DBNull.Value ? string.Empty : reader["crt_by"].ToString(),
+                                LastModifiedTime = reader["mod_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["mod_dt"],
+                                LastModifiedBy = reader["mod_by"] == DBNull.Value ? string.Empty : reader["mod_by"].ToString(),
+
+                                IsLocked = reader["is_lckd"] == DBNull.Value ? false : (bool)reader["is_lckd"],
+                                AssignmentId = reader["assgnmt_id"] == DBNull.Value ? 0 : (int)reader["assgnmt_id"],
+
+                                TaskDelegationId = reader["tsk_delg_id"] == DBNull.Value ? 0 : (long)reader["tsk_delg_id"],
+                                DelegatedByEmployeeId = reader["frm_emp_id"] == DBNull.Value ? string.Empty : reader["frm_emp_id"].ToString(),
+                                DelegatedByEmployeeName = reader["frm_emp_nm"] == DBNull.Value ? string.Empty : reader["frm_emp_nm"].ToString(),
+                                DelegatedToEmployeeId = reader["to_emp_id"] == DBNull.Value ? string.Empty : reader["to_emp_id"].ToString(),
+                                DelegatedToEmployeeName = reader["to_emp_nm"] == DBNull.Value ? string.Empty : reader["to_emp_nm"].ToString(),
+                                IsReAssigned = reader["is_re_assgn"] == DBNull.Value ? false : (bool)reader["is_re_assgn"],
+                                ReassignedTime = reader["dt_re_assgn"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["dt_re_assgn"],
+                                DelegatedTime = reader["tsk_delg_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["tsk_delg_dt"],
+
+                            });
+                        }
+                }
+                await conn.CloseAsync();
+            }
+            return delegatedTaskList;
+        }
+        public async Task<List<DelegatedTaskItem>> GetDelegatedTaskItemsByDelegatedByEmployeeIdnDelegatedToEmployeeIdnProgressStatusIdAsync(string delegatedByEmployeeId, string delegatedToEmployeeId, int progressStatusId)
+        {
+            List<DelegatedTaskItem> delegatedTaskList = new List<DelegatedTaskItem>();
+            StringBuilder sb = new StringBuilder();
+            sb.Append("SELECT t.tsk_itm_id, t.tsk_itm_no, t.tsk_itm_ds, t.tsk_itm_inf, t.wki_fdr_id, ");
+            sb.Append("t.mst_tsk_id, t.prj_no, t.prg_no, t.prg_dt, t.tsk_owner_id, t.assgnd_emp_id, ");
+            sb.Append("t.assigned_dt, t.tsk_itm_stg, t.prgs_stts, t.apprv_stts, t.approved_dt, ");
+            sb.Append("t.approved_by, t.exp_start_dt, t.act_start_dt, t.exp_due_dt, t.act_due_dt, ");
+            sb.Append("t.is_cancelled, t.cancelled_dt, t.cancelled_by, t.is_closed, t.closed_dt, ");
+            sb.Append("t.closed_by, t.unit_id, t.dept_id, t.loc_id, t.completion_is_confirmed, ");
+            sb.Append("t.completion_confirmed_by, t.completion_confirmed_on, t.is_carried_over, ");
+            sb.Append("t.mod_by, t.crt_by, t.assgnmt_id, t.is_lckd, t.crt_dt, t.mod_dt, ");
+            sb.Append("d.tsk_delg_id, d.frm_emp_id, d.to_emp_id, d.tsk_delg_dt, ");
+            sb.Append("d.is_re_assgn, d.dt_re_assgn, ");
+            sb.Append("CASE t.tsk_itm_stg WHEN 0 THEN 'Not Yet Approved' ");
+            sb.Append("WHEN 1 THEN 'Submitted for Approval' ");
+            sb.Append("WHEN 2 THEN 'Approved for Execution' ");
+            sb.Append("WHEN 3 THEN 'Submitted For Evaluation' ");
+            sb.Append("WHEN 4 THEN 'Evaluation Completed' ");
+            sb.Append("WHEN 5 THEN 'Cancelled' END AS itm_stg_nm, ");
+
+            sb.Append("CASE t.prgs_stts WHEN 0 THEN 'Not Yet Started' ");
+            sb.Append("WHEN 1 THEN 'In Progress' ");
+            sb.Append("WHEN 2 THEN 'Completed' ");
+            sb.Append("WHEN 3 THEN 'On Hold' END AS prgs_stts_ds, ");
+
+            sb.Append("CASE t.apprv_stts WHEN 0 THEN 'Pending' ");
+            sb.Append("WHEN 1 THEN 'Approved' ");
+            sb.Append("WHEN 2 THEN 'Declined' END AS apprv_stts_ds, ");
+
+            sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = t.tsk_owner_id) as owner_nm, ");
+            sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = t.assgnd_emp_id) as assgnd_to_nm, ");
+            sb.Append("(SELECT unitname FROM public.gst_units WHERE unitqk = t.unit_id) as unit_nm, ");
+            sb.Append("(SELECT deptname FROM public.gst_depts WHERE deptqk = t.dept_id) as dept_nm, ");
+            sb.Append("(SELECT locname FROM public.gst_locs WHERE locqk = t.loc_id) as loc_nm, ");
+            sb.Append("(SELECT wki_fdr_nm FROM public.wsp_wki_fdr WHERE wki_fdr_id = t.wki_fdr_id) as wki_fdr_nm, ");
+
+            sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = d.frm_emp_id) as frm_emp_nm, ");
+            sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = d.to_emp_id) as to_emp_nm ");
+
+            sb.Append("FROM public.wsp_tsk_itms t ");
+            sb.Append("INNER JOIN public.wsp_tsk_delg d ON t.tsk_itm_id = d.tsk_itm_id ");
+            sb.Append("WHERE (d.frm_emp_id=@frm_emp_id) AND (d.to_emp_id=@to_emp_id) ");
+            sb.Append("AND (t.prgs_stts=@prgs_stts) AND (d.is_re_assgn = false) ");
+            sb.Append("ORDER BY d.tsk_delg_id DESC;");
+            string query = sb.ToString();
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
+            {
+                await conn.OpenAsync();
+                // Retrieve all rows
+                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+                {
+                    var frm_emp_id = cmd.Parameters.Add("@frm_emp_id", NpgsqlDbType.Text);
+                    var to_emp_id = cmd.Parameters.Add("@to_emp_id", NpgsqlDbType.Text);
+                    var prgs_stts = cmd.Parameters.Add("@prgs_stts", NpgsqlDbType.Integer);
+                    await cmd.PrepareAsync();
+                    frm_emp_id.Value = delegatedByEmployeeId;
+                    to_emp_id.Value = delegatedToEmployeeId;
+                    prgs_stts.Value = progressStatusId;
+
+                    using (var reader = await cmd.ExecuteReaderAsync())
+                        while (await reader.ReadAsync())
+                        {
+                            delegatedTaskList.Add(new DelegatedTaskItem
+                            {
+                                Id = reader["tsk_itm_id"] == DBNull.Value ? 0 : (long)reader["tsk_itm_id"],
+                                Number = reader["tsk_itm_no"] == DBNull.Value ? "" : reader["tsk_itm_no"].ToString(),
+                                Description = reader["tsk_itm_ds"] == DBNull.Value ? "" : reader["tsk_itm_ds"].ToString(),
+                                MoreInformation = reader["tsk_itm_inf"] == DBNull.Value ? "" : reader["tsk_itm_inf"].ToString(),
+                                WorkFolderId = reader["wki_fdr_id"] == DBNull.Value ? 0 : (long)reader["wki_fdr_id"],
+                                WorkFolderName = reader["wki_fdr_nm"] == DBNull.Value ? "" : reader["wki_fdr_nm"].ToString(),
+                                MasterTaskId = reader["mst_tsk_id"] == DBNull.Value ? 0 : (long)reader["mst_tsk_id"],
+                                LinkProjectNumber = reader["prj_no"] == DBNull.Value ? "" : reader["prj_no"].ToString(),
+                                LinkProgramCode = reader["prg_no"] == DBNull.Value ? "" : reader["prg_no"].ToString(),
+                                LinkProgramDate = reader["prg_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["prg_dt"],
+                                TaskOwnerId = reader["tsk_owner_id"] == DBNull.Value ? "" : reader["tsk_owner_id"].ToString(),
+                                TaskOwnerName = reader["owner_nm"] == DBNull.Value ? string.Empty : reader["owner_nm"].ToString(),
+                                AssignedToId = reader["assgnd_emp_id"] == DBNull.Value ? "" : reader["assgnd_emp_id"].ToString(),
+                                AssignedToName = reader["assgnd_to_nm"] == DBNull.Value ? string.Empty : reader["assgnd_to_nm"].ToString(),
+                                AssignedTime = reader["assigned_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["assigned_dt"],
+                                StageId = reader["tsk_itm_stg"] == DBNull.Value ? 0 : (int)reader["tsk_itm_stg"],
+                                StageDescription = reader["itm_stg_nm"] == DBNull.Value ? string.Empty : reader["itm_stg_nm"].ToString(),
+                                Stage = reader["tsk_itm_stg"] == DBNull.Value ? TaskItemStage.NotYetApproved : (TaskItemStage)reader["tsk_itm_stg"],
+
+                                ProgressStatusId = reader["prgs_stts"] == DBNull.Value ? 0 : (int)reader["prgs_stts"],
+                                ProgressStatus = reader["prgs_stts"] == DBNull.Value ? 0 : (WorkItemProgressStatus)reader["prgs_stts"],
+                                ProgressStatusDescription = reader["prgs_stts_ds"] == DBNull.Value ? string.Empty : reader["prgs_stts_ds"].ToString(),
+
+                                ApprovalStatusId = reader["apprv_stts"] == DBNull.Value ? 0 : (int)reader["apprv_stts"],
+                                ApprovalStatus = reader["apprv_stts"] == DBNull.Value ? ApprovalStatus.Pending : (ApprovalStatus)reader["apprv_stts"],
+                                ApprovalStatusDescription = reader["apprv_stts_ds"] == DBNull.Value ? string.Empty : reader["apprv_stts_ds"].ToString(),
+
+                                ApprovedTime = reader["approved_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["approved_dt"],
+                                ApprovedBy = reader["approved_by"] == DBNull.Value ? string.Empty : reader["approved_by"].ToString(),
+                                ExpectedStartTime = reader["exp_start_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["exp_start_dt"],
+                                ActualStartTime = reader["act_start_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["act_start_dt"],
+                                ExpectedDueTime = reader["exp_due_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["exp_due_dt"],
+                                ActualDueTime = reader["act_due_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["act_due_dt"],
+
+                                IsCancelled = reader["is_cancelled"] == DBNull.Value ? false : (bool)reader["is_cancelled"],
+                                CancelledBy = reader["cancelled_by"] == DBNull.Value ? "" : reader["cancelled_by"].ToString(),
+                                CancelledTime = reader["cancelled_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["cancelled_dt"],
+
+                                IsClosed = reader["is_closed"] == DBNull.Value ? false : (bool)reader["is_closed"],
+                                ClosedBy = reader["closed_by"] == DBNull.Value ? "" : reader["closed_by"].ToString(),
+                                ClosedTime = reader["closed_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["closed_dt"],
+
+                                UnitId = reader["unit_id"] == DBNull.Value ? 0 : (int)reader["unit_id"],
+                                UnitName = reader["unit_nm"] == DBNull.Value ? "" : reader["unit_nm"].ToString(),
+                                DepartmentId = reader["dept_id"] == DBNull.Value ? 0 : (int)reader["dept_id"],
+                                DepartmentName = reader["dept_nm"] == DBNull.Value ? "" : reader["dept_nm"].ToString(),
+                                LocationId = reader["loc_id"] == DBNull.Value ? 0 : (int)reader["loc_id"],
+                                LocationName = reader["loc_nm"] == DBNull.Value ? "" : reader["loc_nm"].ToString(),
+
+                                CompletionConfirmed = reader["completion_is_confirmed"] == DBNull.Value ? false : (bool)reader["completion_is_confirmed"],
+                                CompletionConfirmedBy = reader["completion_confirmed_by"] == DBNull.Value ? "" : reader["completion_confirmed_by"].ToString(),
+                                CompletionConfirmedTime = reader["completion_confirmed_on"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["completion_confirmed_on"],
+                                IsCarriedOver = reader["is_carried_over"] == DBNull.Value ? false : (bool)reader["is_carried_over"],
+
+                                CreatedTime = reader["crt_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["crt_dt"],
+                                CreatedBy = reader["crt_by"] == DBNull.Value ? string.Empty : reader["crt_by"].ToString(),
+                                LastModifiedTime = reader["mod_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["mod_dt"],
+                                LastModifiedBy = reader["mod_by"] == DBNull.Value ? string.Empty : reader["mod_by"].ToString(),
+
+                                IsLocked = reader["is_lckd"] == DBNull.Value ? false : (bool)reader["is_lckd"],
+                                AssignmentId = reader["assgnmt_id"] == DBNull.Value ? 0 : (int)reader["assgnmt_id"],
+
+                                TaskDelegationId = reader["tsk_delg_id"] == DBNull.Value ? 0 : (long)reader["tsk_delg_id"],
+                                DelegatedByEmployeeId = reader["frm_emp_id"] == DBNull.Value ? string.Empty : reader["frm_emp_id"].ToString(),
+                                DelegatedByEmployeeName = reader["frm_emp_nm"] == DBNull.Value ? string.Empty : reader["frm_emp_nm"].ToString(),
+                                DelegatedToEmployeeId = reader["to_emp_id"] == DBNull.Value ? string.Empty : reader["to_emp_id"].ToString(),
+                                DelegatedToEmployeeName = reader["to_emp_nm"] == DBNull.Value ? string.Empty : reader["to_emp_nm"].ToString(),
+                                IsReAssigned = reader["is_re_assgn"] == DBNull.Value ? false : (bool)reader["is_re_assgn"],
+                                ReassignedTime = reader["dt_re_assgn"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["dt_re_assgn"],
+                                DelegatedTime = reader["tsk_delg_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["tsk_delg_dt"],
+
+                            });
+                        }
+                }
+                await conn.CloseAsync();
+            }
+            return delegatedTaskList;
+        }
+        public async Task<List<DelegatedTaskItem>> GetDelegatedTaskItemsByDelegatedByEmployeeIdnDelegatedToEmployeeIdnProgressStatusIdnAssignedDateAsync(string delegatedByEmployeeId, string delegatedToEmployeeId, int progressStatusId, DateTime fromDate, DateTime toDate)
+        {
+            List<DelegatedTaskItem> delegatedTaskList = new List<DelegatedTaskItem>();
+            string from_date = fromDate.ToString("yyyy-MM-dd HH:mm:ss");
+            string to_date = toDate.ToString("yyyy-MM-dd HH:mm:ss");
+            StringBuilder sb = new StringBuilder();
+            sb.Append("SELECT t.tsk_itm_id, t.tsk_itm_no, t.tsk_itm_ds, t.tsk_itm_inf, t.wki_fdr_id, ");
+            sb.Append("t.mst_tsk_id, t.prj_no, t.prg_no, t.prg_dt, t.tsk_owner_id, t.assgnd_emp_id, ");
+            sb.Append("t.assigned_dt, t.tsk_itm_stg, t.prgs_stts, t.apprv_stts, t.approved_dt, ");
+            sb.Append("t.approved_by, t.exp_start_dt, t.act_start_dt, t.exp_due_dt, t.act_due_dt, ");
+            sb.Append("t.is_cancelled, t.cancelled_dt, t.cancelled_by, t.is_closed, t.closed_dt, ");
+            sb.Append("t.closed_by, t.unit_id, t.dept_id, t.loc_id, t.completion_is_confirmed, ");
+            sb.Append("t.completion_confirmed_by, t.completion_confirmed_on, t.is_carried_over, ");
+            sb.Append("t.mod_by, t.crt_by, t.assgnmt_id, t.is_lckd, t.crt_dt, t.mod_dt, ");
+            sb.Append("d.tsk_delg_id, d.frm_emp_id, d.to_emp_id, d.tsk_delg_dt, ");
+            sb.Append("d.is_re_assgn, d.dt_re_assgn, ");
+            sb.Append("CASE t.tsk_itm_stg WHEN 0 THEN 'Not Yet Approved' ");
+            sb.Append("WHEN 1 THEN 'Submitted for Approval' ");
+            sb.Append("WHEN 2 THEN 'Approved for Execution' ");
+            sb.Append("WHEN 3 THEN 'Submitted For Evaluation' ");
+            sb.Append("WHEN 4 THEN 'Evaluation Completed' ");
+            sb.Append("WHEN 5 THEN 'Cancelled' END AS itm_stg_nm, ");
+
+            sb.Append("CASE t.prgs_stts WHEN 0 THEN 'Not Yet Started' ");
+            sb.Append("WHEN 1 THEN 'In Progress' ");
+            sb.Append("WHEN 2 THEN 'Completed' ");
+            sb.Append("WHEN 3 THEN 'On Hold' END AS prgs_stts_ds, ");
+
+            sb.Append("CASE t.apprv_stts WHEN 0 THEN 'Pending' ");
+            sb.Append("WHEN 1 THEN 'Approved' ");
+            sb.Append("WHEN 2 THEN 'Declined' END AS apprv_stts_ds, ");
+
+            sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = t.tsk_owner_id) as owner_nm, ");
+            sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = t.assgnd_emp_id) as assgnd_to_nm, ");
+            sb.Append("(SELECT unitname FROM public.gst_units WHERE unitqk = t.unit_id) as unit_nm, ");
+            sb.Append("(SELECT deptname FROM public.gst_depts WHERE deptqk = t.dept_id) as dept_nm, ");
+            sb.Append("(SELECT locname FROM public.gst_locs WHERE locqk = t.loc_id) as loc_nm, ");
+            sb.Append("(SELECT wki_fdr_nm FROM public.wsp_wki_fdr WHERE wki_fdr_id = t.wki_fdr_id) as wki_fdr_nm, ");
+
+            sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = d.frm_emp_id) as frm_emp_nm, ");
+            sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = d.to_emp_id) as to_emp_nm ");
+
+            sb.Append("FROM public.wsp_tsk_itms t ");
+            sb.Append("INNER JOIN public.wsp_tsk_delg d ON t.tsk_itm_id = d.tsk_itm_id ");
+            sb.Append("WHERE (d.frm_emp_id=@frm_emp_id)  AND (d.to_emp_id=@to_emp_id) ");
+            sb.Append("AND (d.tsk_delg_dt >= @dt_frm::timestamp AND d.tsk_delg_dt <= @dt_to::timestamp) ");
+            sb.Append("AND (t.prgs_stts=@prgs_stts) AND (d.is_re_assgn = false) ");
+            sb.Append("ORDER BY d.tsk_delg_id DESC;");
+            string query = sb.ToString();
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
+            {
+                await conn.OpenAsync();
+                // Retrieve all rows
+                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+                {
+                    var frm_emp_id = cmd.Parameters.Add("@frm_emp_id", NpgsqlDbType.Text);
+                    var to_emp_id = cmd.Parameters.Add("@to_emp_id", NpgsqlDbType.Text);
+                    var prgs_stts = cmd.Parameters.Add("@prgs_stts", NpgsqlDbType.Integer);
+                    var dt_frm = cmd.Parameters.Add("@dt_frm", NpgsqlDbType.Text);
+                    var dt_to = cmd.Parameters.Add("@dt_to", NpgsqlDbType.Text);
+                    await cmd.PrepareAsync();
+                    frm_emp_id.Value = delegatedByEmployeeId;
+                    to_emp_id.Value = delegatedToEmployeeId;
+                    prgs_stts.Value = progressStatusId;
+                    dt_frm.Value = from_date;
+                    dt_to.Value = to_date;
+                    using (var reader = await cmd.ExecuteReaderAsync())
+                        while (await reader.ReadAsync())
+                        {
+                            delegatedTaskList.Add(new DelegatedTaskItem
+                            {
+                                Id = reader["tsk_itm_id"] == DBNull.Value ? 0 : (long)reader["tsk_itm_id"],
+                                Number = reader["tsk_itm_no"] == DBNull.Value ? "" : reader["tsk_itm_no"].ToString(),
+                                Description = reader["tsk_itm_ds"] == DBNull.Value ? "" : reader["tsk_itm_ds"].ToString(),
+                                MoreInformation = reader["tsk_itm_inf"] == DBNull.Value ? "" : reader["tsk_itm_inf"].ToString(),
+                                WorkFolderId = reader["wki_fdr_id"] == DBNull.Value ? 0 : (long)reader["wki_fdr_id"],
+                                WorkFolderName = reader["wki_fdr_nm"] == DBNull.Value ? "" : reader["wki_fdr_nm"].ToString(),
+                                MasterTaskId = reader["mst_tsk_id"] == DBNull.Value ? 0 : (long)reader["mst_tsk_id"],
+                                LinkProjectNumber = reader["prj_no"] == DBNull.Value ? "" : reader["prj_no"].ToString(),
+                                LinkProgramCode = reader["prg_no"] == DBNull.Value ? "" : reader["prg_no"].ToString(),
+                                LinkProgramDate = reader["prg_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["prg_dt"],
+                                TaskOwnerId = reader["tsk_owner_id"] == DBNull.Value ? "" : reader["tsk_owner_id"].ToString(),
+                                TaskOwnerName = reader["owner_nm"] == DBNull.Value ? string.Empty : reader["owner_nm"].ToString(),
+                                AssignedToId = reader["assgnd_emp_id"] == DBNull.Value ? "" : reader["assgnd_emp_id"].ToString(),
+                                AssignedToName = reader["assgnd_to_nm"] == DBNull.Value ? string.Empty : reader["assgnd_to_nm"].ToString(),
+                                AssignedTime = reader["assigned_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["assigned_dt"],
+                                StageId = reader["tsk_itm_stg"] == DBNull.Value ? 0 : (int)reader["tsk_itm_stg"],
+                                StageDescription = reader["itm_stg_nm"] == DBNull.Value ? string.Empty : reader["itm_stg_nm"].ToString(),
+                                Stage = reader["tsk_itm_stg"] == DBNull.Value ? TaskItemStage.NotYetApproved : (TaskItemStage)reader["tsk_itm_stg"],
+
+                                ProgressStatusId = reader["prgs_stts"] == DBNull.Value ? 0 : (int)reader["prgs_stts"],
+                                ProgressStatus = reader["prgs_stts"] == DBNull.Value ? 0 : (WorkItemProgressStatus)reader["prgs_stts"],
+                                ProgressStatusDescription = reader["prgs_stts_ds"] == DBNull.Value ? string.Empty : reader["prgs_stts_ds"].ToString(),
+
+                                ApprovalStatusId = reader["apprv_stts"] == DBNull.Value ? 0 : (int)reader["apprv_stts"],
+                                ApprovalStatus = reader["apprv_stts"] == DBNull.Value ? ApprovalStatus.Pending : (ApprovalStatus)reader["apprv_stts"],
+                                ApprovalStatusDescription = reader["apprv_stts_ds"] == DBNull.Value ? string.Empty : reader["apprv_stts_ds"].ToString(),
+
+                                ApprovedTime = reader["approved_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["approved_dt"],
+                                ApprovedBy = reader["approved_by"] == DBNull.Value ? string.Empty : reader["approved_by"].ToString(),
+                                ExpectedStartTime = reader["exp_start_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["exp_start_dt"],
+                                ActualStartTime = reader["act_start_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["act_start_dt"],
+                                ExpectedDueTime = reader["exp_due_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["exp_due_dt"],
+                                ActualDueTime = reader["act_due_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["act_due_dt"],
+
+                                IsCancelled = reader["is_cancelled"] == DBNull.Value ? false : (bool)reader["is_cancelled"],
+                                CancelledBy = reader["cancelled_by"] == DBNull.Value ? "" : reader["cancelled_by"].ToString(),
+                                CancelledTime = reader["cancelled_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["cancelled_dt"],
+
+                                IsClosed = reader["is_closed"] == DBNull.Value ? false : (bool)reader["is_closed"],
+                                ClosedBy = reader["closed_by"] == DBNull.Value ? "" : reader["closed_by"].ToString(),
+                                ClosedTime = reader["closed_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["closed_dt"],
+
+                                UnitId = reader["unit_id"] == DBNull.Value ? 0 : (int)reader["unit_id"],
+                                UnitName = reader["unit_nm"] == DBNull.Value ? "" : reader["unit_nm"].ToString(),
+                                DepartmentId = reader["dept_id"] == DBNull.Value ? 0 : (int)reader["dept_id"],
+                                DepartmentName = reader["dept_nm"] == DBNull.Value ? "" : reader["dept_nm"].ToString(),
+                                LocationId = reader["loc_id"] == DBNull.Value ? 0 : (int)reader["loc_id"],
+                                LocationName = reader["loc_nm"] == DBNull.Value ? "" : reader["loc_nm"].ToString(),
+
+                                CompletionConfirmed = reader["completion_is_confirmed"] == DBNull.Value ? false : (bool)reader["completion_is_confirmed"],
+                                CompletionConfirmedBy = reader["completion_confirmed_by"] == DBNull.Value ? "" : reader["completion_confirmed_by"].ToString(),
+                                CompletionConfirmedTime = reader["completion_confirmed_on"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["completion_confirmed_on"],
+                                IsCarriedOver = reader["is_carried_over"] == DBNull.Value ? false : (bool)reader["is_carried_over"],
+
+                                CreatedTime = reader["crt_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["crt_dt"],
+                                CreatedBy = reader["crt_by"] == DBNull.Value ? string.Empty : reader["crt_by"].ToString(),
+                                LastModifiedTime = reader["mod_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["mod_dt"],
+                                LastModifiedBy = reader["mod_by"] == DBNull.Value ? string.Empty : reader["mod_by"].ToString(),
+
+                                IsLocked = reader["is_lckd"] == DBNull.Value ? false : (bool)reader["is_lckd"],
+                                AssignmentId = reader["assgnmt_id"] == DBNull.Value ? 0 : (int)reader["assgnmt_id"],
+
+                                TaskDelegationId = reader["tsk_delg_id"] == DBNull.Value ? 0 : (long)reader["tsk_delg_id"],
+                                DelegatedByEmployeeId = reader["frm_emp_id"] == DBNull.Value ? string.Empty : reader["frm_emp_id"].ToString(),
+                                DelegatedByEmployeeName = reader["frm_emp_nm"] == DBNull.Value ? string.Empty : reader["frm_emp_nm"].ToString(),
+                                DelegatedToEmployeeId = reader["to_emp_id"] == DBNull.Value ? string.Empty : reader["to_emp_id"].ToString(),
+                                DelegatedToEmployeeName = reader["to_emp_nm"] == DBNull.Value ? string.Empty : reader["to_emp_nm"].ToString(),
+                                IsReAssigned = reader["is_re_assgn"] == DBNull.Value ? false : (bool)reader["is_re_assgn"],
+                                ReassignedTime = reader["dt_re_assgn"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["dt_re_assgn"],
+                                DelegatedTime = reader["tsk_delg_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["tsk_delg_dt"],
+
+                            });
+                        }
+                }
+                await conn.CloseAsync();
+            }
+            return delegatedTaskList;
+        }
+        public async Task<List<DelegatedTaskItem>> GetDelegatedTaskItemsByDelegatedByEmployeeIdnDelegatedToEmployeeIdnAssignedDateAsync(string delegatedByEmployeeId, string delegatedToEmployeeId, DateTime fromDate, DateTime toDate)
+        {
+            List<DelegatedTaskItem> delegatedTaskList = new List<DelegatedTaskItem>();
+            string from_date = fromDate.ToString("yyyy-MM-dd HH:mm:ss");
+            string to_date = toDate.ToString("yyyy-MM-dd HH:mm:ss");
+            StringBuilder sb = new StringBuilder();
+            sb.Append("SELECT t.tsk_itm_id, t.tsk_itm_no, t.tsk_itm_ds, t.tsk_itm_inf, t.wki_fdr_id, ");
+            sb.Append("t.mst_tsk_id, t.prj_no, t.prg_no, t.prg_dt, t.tsk_owner_id, t.assgnd_emp_id, ");
+            sb.Append("t.assigned_dt, t.tsk_itm_stg, t.prgs_stts, t.apprv_stts, t.approved_dt, ");
+            sb.Append("t.approved_by, t.exp_start_dt, t.act_start_dt, t.exp_due_dt, t.act_due_dt, ");
+            sb.Append("t.is_cancelled, t.cancelled_dt, t.cancelled_by, t.is_closed, t.closed_dt, ");
+            sb.Append("t.closed_by, t.unit_id, t.dept_id, t.loc_id, t.completion_is_confirmed, ");
+            sb.Append("t.completion_confirmed_by, t.completion_confirmed_on, t.is_carried_over, ");
+            sb.Append("t.mod_by, t.crt_by, t.assgnmt_id, t.is_lckd, t.crt_dt, t.mod_dt, ");
+            sb.Append("d.tsk_delg_id, d.frm_emp_id, d.to_emp_id, d.tsk_delg_dt, ");
+            sb.Append("d.is_re_assgn, d.dt_re_assgn, ");
+            sb.Append("CASE t.tsk_itm_stg WHEN 0 THEN 'Not Yet Approved' ");
+            sb.Append("WHEN 1 THEN 'Submitted for Approval' ");
+            sb.Append("WHEN 2 THEN 'Approved for Execution' ");
+            sb.Append("WHEN 3 THEN 'Submitted For Evaluation' ");
+            sb.Append("WHEN 4 THEN 'Evaluation Completed' ");
+            sb.Append("WHEN 5 THEN 'Cancelled' END AS itm_stg_nm, ");
+
+            sb.Append("CASE t.prgs_stts WHEN 0 THEN 'Not Yet Started' ");
+            sb.Append("WHEN 1 THEN 'In Progress' ");
+            sb.Append("WHEN 2 THEN 'Completed' ");
+            sb.Append("WHEN 3 THEN 'On Hold' END AS prgs_stts_ds, ");
+
+            sb.Append("CASE t.apprv_stts WHEN 0 THEN 'Pending' ");
+            sb.Append("WHEN 1 THEN 'Approved' ");
+            sb.Append("WHEN 2 THEN 'Declined' END AS apprv_stts_ds, ");
+
+            sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = t.tsk_owner_id) as owner_nm, ");
+            sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = t.assgnd_emp_id) as assgnd_to_nm, ");
+            sb.Append("(SELECT unitname FROM public.gst_units WHERE unitqk = t.unit_id) as unit_nm, ");
+            sb.Append("(SELECT deptname FROM public.gst_depts WHERE deptqk = t.dept_id) as dept_nm, ");
+            sb.Append("(SELECT locname FROM public.gst_locs WHERE locqk = t.loc_id) as loc_nm, ");
+            sb.Append("(SELECT wki_fdr_nm FROM public.wsp_wki_fdr WHERE wki_fdr_id = t.wki_fdr_id) as wki_fdr_nm, ");
+
+            sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = d.frm_emp_id) as frm_emp_nm, ");
+            sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = d.to_emp_id) as to_emp_nm ");
+
+            sb.Append("FROM public.wsp_tsk_itms t ");
+            sb.Append("INNER JOIN public.wsp_tsk_delg d ON t.tsk_itm_id = d.tsk_itm_id ");
+            sb.Append("WHERE (d.frm_emp_id=@frm_emp_id)  AND (d.to_emp_id=@to_emp_id) ");
+            sb.Append("AND (d.tsk_delg_dt >= @dt_frm::timestamp AND d.tsk_delg_dt <= @dt_to::timestamp) ");
+            sb.Append("AND (d.is_re_assgn = false) ");
+            sb.Append("ORDER BY d.tsk_delg_id DESC;");
+            string query = sb.ToString();
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
+            {
+                await conn.OpenAsync();
+                // Retrieve all rows
+                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+                {
+                    var frm_emp_id = cmd.Parameters.Add("@frm_emp_id", NpgsqlDbType.Text);
+                    var to_emp_id = cmd.Parameters.Add("@to_emp_id", NpgsqlDbType.Text);
+                    var dt_frm = cmd.Parameters.Add("@dt_frm", NpgsqlDbType.Text);
+                    var dt_to = cmd.Parameters.Add("@dt_to", NpgsqlDbType.Text);
+                    await cmd.PrepareAsync();
+                    frm_emp_id.Value = delegatedByEmployeeId;
+                    to_emp_id.Value = delegatedToEmployeeId;
+                    dt_frm.Value = from_date;
+                    dt_to.Value = to_date;
+                    using (var reader = await cmd.ExecuteReaderAsync())
+                        while (await reader.ReadAsync())
+                        {
+                            delegatedTaskList.Add(new DelegatedTaskItem
+                            {
+                                Id = reader["tsk_itm_id"] == DBNull.Value ? 0 : (long)reader["tsk_itm_id"],
+                                Number = reader["tsk_itm_no"] == DBNull.Value ? "" : reader["tsk_itm_no"].ToString(),
+                                Description = reader["tsk_itm_ds"] == DBNull.Value ? "" : reader["tsk_itm_ds"].ToString(),
+                                MoreInformation = reader["tsk_itm_inf"] == DBNull.Value ? "" : reader["tsk_itm_inf"].ToString(),
+                                WorkFolderId = reader["wki_fdr_id"] == DBNull.Value ? 0 : (long)reader["wki_fdr_id"],
+                                WorkFolderName = reader["wki_fdr_nm"] == DBNull.Value ? "" : reader["wki_fdr_nm"].ToString(),
+                                MasterTaskId = reader["mst_tsk_id"] == DBNull.Value ? 0 : (long)reader["mst_tsk_id"],
+                                LinkProjectNumber = reader["prj_no"] == DBNull.Value ? "" : reader["prj_no"].ToString(),
+                                LinkProgramCode = reader["prg_no"] == DBNull.Value ? "" : reader["prg_no"].ToString(),
+                                LinkProgramDate = reader["prg_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["prg_dt"],
+                                TaskOwnerId = reader["tsk_owner_id"] == DBNull.Value ? "" : reader["tsk_owner_id"].ToString(),
+                                TaskOwnerName = reader["owner_nm"] == DBNull.Value ? string.Empty : reader["owner_nm"].ToString(),
+                                AssignedToId = reader["assgnd_emp_id"] == DBNull.Value ? "" : reader["assgnd_emp_id"].ToString(),
+                                AssignedToName = reader["assgnd_to_nm"] == DBNull.Value ? string.Empty : reader["assgnd_to_nm"].ToString(),
+                                AssignedTime = reader["assigned_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["assigned_dt"],
+                                StageId = reader["tsk_itm_stg"] == DBNull.Value ? 0 : (int)reader["tsk_itm_stg"],
+                                StageDescription = reader["itm_stg_nm"] == DBNull.Value ? string.Empty : reader["itm_stg_nm"].ToString(),
+                                Stage = reader["tsk_itm_stg"] == DBNull.Value ? TaskItemStage.NotYetApproved : (TaskItemStage)reader["tsk_itm_stg"],
+
+                                ProgressStatusId = reader["prgs_stts"] == DBNull.Value ? 0 : (int)reader["prgs_stts"],
+                                ProgressStatus = reader["prgs_stts"] == DBNull.Value ? 0 : (WorkItemProgressStatus)reader["prgs_stts"],
+                                ProgressStatusDescription = reader["prgs_stts_ds"] == DBNull.Value ? string.Empty : reader["prgs_stts_ds"].ToString(),
+
+                                ApprovalStatusId = reader["apprv_stts"] == DBNull.Value ? 0 : (int)reader["apprv_stts"],
+                                ApprovalStatus = reader["apprv_stts"] == DBNull.Value ? ApprovalStatus.Pending : (ApprovalStatus)reader["apprv_stts"],
+                                ApprovalStatusDescription = reader["apprv_stts_ds"] == DBNull.Value ? string.Empty : reader["apprv_stts_ds"].ToString(),
+
+                                ApprovedTime = reader["approved_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["approved_dt"],
+                                ApprovedBy = reader["approved_by"] == DBNull.Value ? string.Empty : reader["approved_by"].ToString(),
+                                ExpectedStartTime = reader["exp_start_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["exp_start_dt"],
+                                ActualStartTime = reader["act_start_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["act_start_dt"],
+                                ExpectedDueTime = reader["exp_due_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["exp_due_dt"],
+                                ActualDueTime = reader["act_due_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["act_due_dt"],
+
+                                IsCancelled = reader["is_cancelled"] == DBNull.Value ? false : (bool)reader["is_cancelled"],
+                                CancelledBy = reader["cancelled_by"] == DBNull.Value ? "" : reader["cancelled_by"].ToString(),
+                                CancelledTime = reader["cancelled_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["cancelled_dt"],
+
+                                IsClosed = reader["is_closed"] == DBNull.Value ? false : (bool)reader["is_closed"],
+                                ClosedBy = reader["closed_by"] == DBNull.Value ? "" : reader["closed_by"].ToString(),
+                                ClosedTime = reader["closed_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["closed_dt"],
+
+                                UnitId = reader["unit_id"] == DBNull.Value ? 0 : (int)reader["unit_id"],
+                                UnitName = reader["unit_nm"] == DBNull.Value ? "" : reader["unit_nm"].ToString(),
+                                DepartmentId = reader["dept_id"] == DBNull.Value ? 0 : (int)reader["dept_id"],
+                                DepartmentName = reader["dept_nm"] == DBNull.Value ? "" : reader["dept_nm"].ToString(),
+                                LocationId = reader["loc_id"] == DBNull.Value ? 0 : (int)reader["loc_id"],
+                                LocationName = reader["loc_nm"] == DBNull.Value ? "" : reader["loc_nm"].ToString(),
+
+                                CompletionConfirmed = reader["completion_is_confirmed"] == DBNull.Value ? false : (bool)reader["completion_is_confirmed"],
+                                CompletionConfirmedBy = reader["completion_confirmed_by"] == DBNull.Value ? "" : reader["completion_confirmed_by"].ToString(),
+                                CompletionConfirmedTime = reader["completion_confirmed_on"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["completion_confirmed_on"],
+                                IsCarriedOver = reader["is_carried_over"] == DBNull.Value ? false : (bool)reader["is_carried_over"],
+
+                                CreatedTime = reader["crt_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["crt_dt"],
+                                CreatedBy = reader["crt_by"] == DBNull.Value ? string.Empty : reader["crt_by"].ToString(),
+                                LastModifiedTime = reader["mod_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["mod_dt"],
+                                LastModifiedBy = reader["mod_by"] == DBNull.Value ? string.Empty : reader["mod_by"].ToString(),
+
+                                IsLocked = reader["is_lckd"] == DBNull.Value ? false : (bool)reader["is_lckd"],
+                                AssignmentId = reader["assgnmt_id"] == DBNull.Value ? 0 : (int)reader["assgnmt_id"],
+
+                                TaskDelegationId = reader["tsk_delg_id"] == DBNull.Value ? 0 : (long)reader["tsk_delg_id"],
+                                DelegatedByEmployeeId = reader["frm_emp_id"] == DBNull.Value ? string.Empty : reader["frm_emp_id"].ToString(),
+                                DelegatedByEmployeeName = reader["frm_emp_nm"] == DBNull.Value ? string.Empty : reader["frm_emp_nm"].ToString(),
+                                DelegatedToEmployeeId = reader["to_emp_id"] == DBNull.Value ? string.Empty : reader["to_emp_id"].ToString(),
+                                DelegatedToEmployeeName = reader["to_emp_nm"] == DBNull.Value ? string.Empty : reader["to_emp_nm"].ToString(),
+                                IsReAssigned = reader["is_re_assgn"] == DBNull.Value ? false : (bool)reader["is_re_assgn"],
+                                ReassignedTime = reader["dt_re_assgn"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["dt_re_assgn"],
+                                DelegatedTime = reader["tsk_delg_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["tsk_delg_dt"],
+                            });
+                        }
+                }
+                await conn.CloseAsync();
+            }
+            return delegatedTaskList;
+        }
+
+
+        #endregion
+
         #endregion
 
         #region Task Timeline Change Repository
@@ -2823,6 +4370,31 @@ namespace IntranetPortal.Data.Repositories.WspRepositories
             }
             return rows > 0;
         }
+        public async Task<bool> DeleteFolderSubmissionsByToEmployeeIdAsync(string toEmployeeId)
+        {
+            int rows = 0;
+            StringBuilder sb = new StringBuilder();
+            sb.Append("DELETE FROM public.wsp_fdr_sbms ");
+            sb.Append("WHERE (to_emp_id = @to_emp_id) ");
+            sb.Append("AND (is_xtn = true);");
+            string query = sb.ToString();
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
+            {
+                await conn.OpenAsync();
+                //Insert data
+                using (var cmd = new NpgsqlCommand(query, conn))
+                {
+                    var to_emp_id = cmd.Parameters.Add("@to_emp_id", NpgsqlDbType.Text);
+                    cmd.Prepare();
+                    to_emp_id.Value = toEmployeeId;
+                    rows = await cmd.ExecuteNonQueryAsync();
+                }
+                await conn.CloseAsync();
+            }
+            return rows > 0;
+        }
+
+
         public async Task<FolderSubmission> GetFolderSubmissionByIdAsync(long submissionId)
         {
             FolderSubmission submission = new FolderSubmission();
@@ -4993,7 +6565,6 @@ namespace IntranetPortal.Data.Repositories.WspRepositories
             return rows > 0;
         }
 
-
         #endregion
 
         #region Task Evaluation Summary By Location, Department and Unit Action Methods
@@ -5010,6 +6581,7 @@ namespace IntranetPortal.Data.Repositories.WspRepositories
             sb.Append("s.no_completed_tasks, s.no_uncompleted_tasks, s.total_completion_score, ");
             sb.Append("ROUND(s.average_completion_score, 2) AS average_completion_score, s.total_quality_score, ");
             sb.Append("ROUND(s.average_quality_score, 2) AS average_quality_score, f.wki_fdr_nm, ");
+            sb.Append("ROUND((s.average_quality_score * 100)/3, 2) AS percentage_quality_score, ");
             sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = s.owner_emp_id) as owner_emp_nm, ");
             sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = s.eval_emp_id) as eval_emp_nm, ");
             sb.Append("(SELECT unitname FROM public.gst_units WHERE unitqk = s.owner_unit_id ) as owner_unit_nm, ");
@@ -5070,6 +6642,7 @@ namespace IntranetPortal.Data.Repositories.WspRepositories
 
                                 AverageCompletionScore = reader["average_completion_score"] == DBNull.Value ? 0.00M : (decimal)reader["average_completion_score"],
                                 AverageQualityScore = reader["average_quality_score"] == DBNull.Value ? 0.00M : (decimal)reader["average_quality_score"],
+                                PercentageAverageQualityScore = reader["percentage_quality_score"] == DBNull.Value ? 0.00M : (decimal)reader["percentage_quality_score"],
                             });
                         }
                 }
@@ -5090,6 +6663,7 @@ namespace IntranetPortal.Data.Repositories.WspRepositories
             sb.Append("s.no_completed_tasks, s.no_uncompleted_tasks, s.total_completion_score, ");
             sb.Append("ROUND(s.average_completion_score, 2) AS average_completion_score, s.total_quality_score, ");
             sb.Append("ROUND(s.average_quality_score, 2) AS average_quality_score, f.wki_fdr_nm, ");
+            sb.Append("ROUND((s.average_quality_score * 100)/3, 2) AS percentage_quality_score, ");
             sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = s.owner_emp_id) as owner_emp_nm, ");
             sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = s.eval_emp_id) as eval_emp_nm, ");
             sb.Append("(SELECT unitname FROM public.gst_units WHERE unitqk = s.owner_unit_id ) as owner_unit_nm, ");
@@ -5151,6 +6725,7 @@ namespace IntranetPortal.Data.Repositories.WspRepositories
 
                                 AverageCompletionScore = reader["average_completion_score"] == DBNull.Value ? 0.00M : (decimal)reader["average_completion_score"],
                                 AverageQualityScore = reader["average_quality_score"] == DBNull.Value ? 0.00M : (decimal)reader["average_quality_score"],
+                                PercentageAverageQualityScore = reader["percentage_quality_score"] == DBNull.Value ? 0.00M : (decimal)reader["percentage_quality_score"],
                             });
                         }
                 }
@@ -5169,6 +6744,7 @@ namespace IntranetPortal.Data.Repositories.WspRepositories
             sb.Append("s.no_completed_tasks, s.no_uncompleted_tasks, s.total_completion_score, ");
             sb.Append("ROUND(s.average_completion_score, 2) AS average_completion_score, s.total_quality_score, ");
             sb.Append("ROUND(s.average_quality_score, 2) AS average_quality_score, f.wki_fdr_nm, ");
+            sb.Append("ROUND((s.average_quality_score * 100)/3, 2) AS percentage_quality_score, ");
             sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = s.owner_emp_id) as owner_emp_nm, ");
             sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = s.eval_emp_id) as eval_emp_nm, ");
             sb.Append("(SELECT unitname FROM public.gst_units WHERE unitqk = s.owner_unit_id ) as owner_unit_nm, ");
@@ -5232,6 +6808,7 @@ namespace IntranetPortal.Data.Repositories.WspRepositories
 
                                 AverageCompletionScore = reader["average_completion_score"] == DBNull.Value ? 0.00M : (decimal)reader["average_completion_score"],
                                 AverageQualityScore = reader["average_quality_score"] == DBNull.Value ? 0.00M : (decimal)reader["average_quality_score"],
+                                PercentageAverageQualityScore = reader["percentage_quality_score"] == DBNull.Value ? 0.00M : (decimal)reader["percentage_quality_score"],
                             });
                         }
                 }
@@ -5253,6 +6830,7 @@ namespace IntranetPortal.Data.Repositories.WspRepositories
             sb.Append("s.no_completed_tasks, s.no_uncompleted_tasks, s.total_completion_score, ");
             sb.Append("ROUND(s.average_completion_score, 2) AS average_completion_score, s.total_quality_score, ");
             sb.Append("ROUND(s.average_quality_score, 2) AS average_quality_score, f.wki_fdr_nm, ");
+            sb.Append("ROUND((s.average_quality_score * 100)/3, 2) AS percentage_quality_score, ");
             sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = s.owner_emp_id) as owner_emp_nm, ");
             sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = s.eval_emp_id) as eval_emp_nm, ");
             sb.Append("(SELECT unitname FROM public.gst_units WHERE unitqk = s.owner_unit_id ) as owner_unit_nm, ");
@@ -5314,6 +6892,7 @@ namespace IntranetPortal.Data.Repositories.WspRepositories
 
                                 AverageCompletionScore = reader["average_completion_score"] == DBNull.Value ? 0.00M : (decimal)reader["average_completion_score"],
                                 AverageQualityScore = reader["average_quality_score"] == DBNull.Value ? 0.00M : (decimal)reader["average_quality_score"],
+                                PercentageAverageQualityScore = reader["percentage_quality_score"] == DBNull.Value ? 0.00M : (decimal)reader["percentage_quality_score"],
                             });
                         }
                 }
@@ -5332,6 +6911,7 @@ namespace IntranetPortal.Data.Repositories.WspRepositories
             sb.Append("s.no_completed_tasks, s.no_uncompleted_tasks, s.total_completion_score, ");
             sb.Append("ROUND(s.average_completion_score, 2) AS average_completion_score, s.total_quality_score, ");
             sb.Append("ROUND(s.average_quality_score, 2) AS average_quality_score, f.wki_fdr_nm, ");
+            sb.Append("ROUND((s.average_quality_score * 100)/3, 2) AS percentage_quality_score, ");
             sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = s.owner_emp_id) as owner_emp_nm, ");
             sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = s.eval_emp_id) as eval_emp_nm, ");
             sb.Append("(SELECT unitname FROM public.gst_units WHERE unitqk = s.owner_unit_id ) as owner_unit_nm, ");
@@ -5395,6 +6975,7 @@ namespace IntranetPortal.Data.Repositories.WspRepositories
 
                                 AverageCompletionScore = reader["average_completion_score"] == DBNull.Value ? 0.00M : (decimal)reader["average_completion_score"],
                                 AverageQualityScore = reader["average_quality_score"] == DBNull.Value ? 0.00M : (decimal)reader["average_quality_score"],
+                                PercentageAverageQualityScore = reader["percentage_quality_score"] == DBNull.Value ? 0.00M : (decimal)reader["percentage_quality_score"],
                             });
                         }
                 }
@@ -5416,6 +6997,7 @@ namespace IntranetPortal.Data.Repositories.WspRepositories
             sb.Append("s.no_completed_tasks, s.no_uncompleted_tasks, s.total_completion_score, ");
             sb.Append("ROUND(s.average_completion_score, 2) AS average_completion_score, s.total_quality_score, ");
             sb.Append("ROUND(s.average_quality_score, 2) AS average_quality_score, f.wki_fdr_nm, ");
+            sb.Append("ROUND((s.average_quality_score * 100)/3, 2) AS percentage_quality_score, ");
             sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = s.owner_emp_id) as owner_emp_nm, ");
             sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = s.eval_emp_id) as eval_emp_nm, ");
             sb.Append("(SELECT unitname FROM public.gst_units WHERE unitqk = s.owner_unit_id ) as owner_unit_nm, ");
@@ -5477,6 +7059,7 @@ namespace IntranetPortal.Data.Repositories.WspRepositories
 
                                 AverageCompletionScore = reader["average_completion_score"] == DBNull.Value ? 0.00M : (decimal)reader["average_completion_score"],
                                 AverageQualityScore = reader["average_quality_score"] == DBNull.Value ? 0.00M : (decimal)reader["average_quality_score"],
+                                PercentageAverageQualityScore = reader["percentage_quality_score"] == DBNull.Value ? 0.00M : (decimal)reader["percentage_quality_score"],
                             });
                         }
                 }
@@ -5495,6 +7078,7 @@ namespace IntranetPortal.Data.Repositories.WspRepositories
             sb.Append("s.no_completed_tasks, s.no_uncompleted_tasks, s.total_completion_score, ");
             sb.Append("ROUND(s.average_completion_score, 2) AS average_completion_score, s.total_quality_score, ");
             sb.Append("ROUND(s.average_quality_score, 2) AS average_quality_score, f.wki_fdr_nm, ");
+            sb.Append("ROUND((s.average_quality_score * 100)/3, 2) AS percentage_quality_score, ");
             sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = s.owner_emp_id) as owner_emp_nm, ");
             sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = s.eval_emp_id) as eval_emp_nm, ");
             sb.Append("(SELECT unitname FROM public.gst_units WHERE unitqk = s.owner_unit_id ) as owner_unit_nm, ");
@@ -5552,6 +7136,7 @@ namespace IntranetPortal.Data.Repositories.WspRepositories
 
                                 AverageCompletionScore = reader["average_completion_score"] == DBNull.Value ? 0.00M : (decimal)reader["average_completion_score"],
                                 AverageQualityScore = reader["average_quality_score"] == DBNull.Value ? 0.00M : (decimal)reader["average_quality_score"],
+                                PercentageAverageQualityScore = reader["percentage_quality_score"] == DBNull.Value ? 0.00M : (decimal)reader["percentage_quality_score"],
                             });
                         }
                 }

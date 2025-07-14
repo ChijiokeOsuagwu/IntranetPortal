@@ -38,7 +38,7 @@
                         }
                     </div>
                     <div class="col-md-3 mb-3">
-                        <label class="form-label text-dark">Expected Due Date</label>
+                        <label class="form-label text-dark">Expected Completion Date</label>
                         @if (Model.ExpectedDueTime != null)
                         {
                             <div class="form-control fw-bold">@Model.ExpectedDueTime.Value.ToString("dd-MMM-yyyy")</div>
@@ -49,7 +49,7 @@
                         }
                     </div>
                     <div class="col-md-3 mb-3">
-                        <label class="form-label text-dark">Actual Due Date</label>
+                        <label class="form-label text-dark">Actual Completion Date</label>
                         @if (Model.ActualDueTime != null)
                         {
                             <div class="form-control fw-bold">@Model.ActualDueTime.Value.ToString("dd-MMM-yyyy")</div>
@@ -69,12 +69,16 @@
                 <textarea asp-for="@Model.Description" class="form-control fw-bold" readonly="readonly">@Model.Description</textarea>
             </div>
         </div>
-        <div class="row">
-            <div class="col-md-12 mb-3">
-                <label class="form-label text-dark">Task Resolution</label>
-                <textarea asp-for="@Model.MoreInformation" class="form-control fw-bold" readonly="readonly">@Model.MoreInformation</textarea>
+        @if (!string.IsNullOrWhiteSpace(Model.MoreInformation))
+        {
+            <div class="row">
+                <div class="col-md-12 mb-3">
+                    <label class="form-label text-dark">Task Resolution</label>
+                    <textarea asp-for="@Model.MoreInformation" class="form-control fw-bold" readonly="readonly">@Model.MoreInformation</textarea>
+                </div>
             </div>
-        </div>
+        }
+
         <div class="row">
             <div class="col-md-8">
                 <div class="row">

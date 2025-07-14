@@ -1,0 +1,69 @@
+﻿@model IntranetPortal.Areas.ATS.Models.ManageAssignmentRoleViewModel
+@{
+    ViewData["Title"] = "OfficeManager | Assignment Tracking System";
+}
+<div class="container">
+    <h4>Assignment Tracking Settings | Manage Assignment Roles</h4>
+    <hr />
+    <div class="card" style="max-width:600px">
+        <div class="card-header bg-info">
+            @if (Model.Id == 0)
+            {
+                <h4 class="text-white">New Assignment Role</h4>
+            }
+            else
+            {
+                <h4 class="text-white">Edit Assignment Role</h4>
+
+            }
+        </div>
+        <div class="card-body table-secondary">
+            @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bi bi-x-circle"></i>
+                    <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            @if (!String.IsNullOrEmpty(Model.ViewModelSuccessMessage))
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="bi bi-check-circle"></i>
+                    <span class="fw-bold">@Model.ViewModelSuccessMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            @if (!String.IsNullOrEmpty(Model.ViewModelWarningMessage))
+            {
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                    <i class="bi bi-exclamation-circle"></i>
+                    <span class="fw-bold">@Model.ViewModelWarningMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            <form asp-area="ATS" asp-controller="Home" asp-action="ManageAssignmentRole" method="post" autocomplete="off">
+                <div class="row">
+                    <div class="col-md-12 mb-3">
+                        <label asp-for="Description" class="form-label text-dark fw-bold"></label>
+                        <input asp-for="Description" class="form-control fw-bold" autofocus>
+                        <div><span asp-validation-for="Description" class="text-danger"></span></div>
+                    </div>
+                </div>
+                <div class="col-md-12 text-end">
+                    <a asp-area="ATS" asp-controller="Home" asp-action="AssignmentRoles" class="btn btn-sm btn-dark ml-1" style="width:100px">
+                        <span class="text-white">Back</span>
+                    </a>
+                    <a asp-area="ATS" asp-controller="Home" asp-action="ManageAssignmentRole" asp-route-id="@Model.Id" class="btn btn-sm btn-warning" style="width:100px" title="Clear">
+                        <span class="text-white">Clear</span>
+                    </a>
+                    <button type="submit" class="btn btn-sm btn-info" title="Save" style="width:150px"><span class="text-white">Save</span></button>
+                </div>
+                <input type="hidden" asp-for="Id" />
+            </form>
+        </div>
+    </div>
+</div>
+@section Scripts{
+
+}

@@ -28,6 +28,7 @@ namespace IntranetPortal.Base.Models.WspModels
         public long TotalQualityScore { get; set; }
         public decimal AverageCompletionScore { get; set; }
         public decimal AverageQualityScore { get; set; }
+        public decimal PercentageAverageQualityScore { get; set; }
         public DateTime? EvaluationDate { get; set; }
     }
 }

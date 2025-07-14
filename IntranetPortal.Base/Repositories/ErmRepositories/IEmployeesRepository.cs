@@ -55,7 +55,9 @@ namespace IntranetPortal.Base.Repositories.ErmRepositories
         Task<IList<Employee>> GetEmployeesWithoutUserAccountsByNameAsync(string employeeName, DateTime? TerminalDate = null);
 
         Task<long> GetEmployeesCountByStartUpDateAsync(int startUpYear, int startUpMonth, int startUpDay);
+        Task<long> GetEmployeesCountByEmployeeNumberAsync(string employeeNumber);
 
+        Task<List<string>> GetEmployeeNumbersByStartUpDateAsync(int startUpYear, int startUpMonth, int startUpDay);
         Task<IList<Employee>> GetAllEmployeesWithoutUserAccountsAsync(DateTime? TerminalDate = null);
 
         Task<IList<Employee>> GetEmployeesByLeaveProfileIdAsync(int leaveProfileId);

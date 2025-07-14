@@ -162,6 +162,7 @@ function reactivateTaskFolder(folder_id) {
 
 //======= Script to Return Approved Task List =========//
 function returnTaskFolder(folder_id, submission_id, submission_type) {
+    const error_div = document.getElementById("error_div");
     $.ajax({
         type: 'POST',
         url: '/WSP/Workspace/ReturnTaskFolder',
@@ -173,10 +174,13 @@ function returnTaskFolder(folder_id, submission_id, submission_type) {
             }
             else {
                 console.log(result);
+                error_div.innerText = result;
+                alert(result);
             }
         },
         error: function (err) {
             console.log(err);
+            error_div.innerText = err;
             alert(err);
         }
     })
@@ -339,6 +343,30 @@ function deleteFolderSubmission(submission_id) {
         })
     }
 }
+
+//======= Script to Delete All Task List Submissions =========//
+function deleteActionedFolderSubmission(to_employee_id) {
+    if (confirm('Are you sure you want to remove all actioned record?')) {
+        $.ajax({
+            type: 'POST',
+            url: '/WSP/Workspace/DeleteAllActionedFolderSubmissions',
+            dataType: "text",
+            data: { id: to_employee_id },
+            success: function (result) {
+                if (result == "success") {
+                    location.reload();
+                }
+                else {
+                    console.log(result);
+                }
+            },
+            error: function (err) {
+                console.log(err);
+            }
+        })
+    }
+}
+
 
 //======= Script to Approve a Task Item =========//
 function evaluateTaskItem(task_item_id, task_folder_id, task_evaluator_id, quality_score, evaluation_header_id, evaluation_detail_id) {

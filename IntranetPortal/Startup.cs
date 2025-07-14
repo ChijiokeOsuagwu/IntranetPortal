@@ -92,9 +92,9 @@ namespace IntranetPortal
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapAreaControllerRoute(
-                    name: "WKS",
-                areaName: "WKS",
-                 pattern: "WKS/{controller=Home}/{action=Index}/{id?}");
+                    name: "ATS",
+                areaName: "ATS",
+                 pattern: "ATS/{controller=Home}/{action=Index}/{id?}");
 
                 endpoints.MapAreaControllerRoute(
                     name: "WSP",

@@ -23,11 +23,13 @@ using IntranetPortal.Data.Repositories.LmsRepositories;
 using IntranetPortal.Data.Repositories.PmsRepositories;
 using IntranetPortal.Data.Repositories.SecurityRepositories;
 using IntranetPortal.Data.Repositories.WspRepositories;
+using IntranetPortal.Data.Repositories.AtsRepositories;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using IntranetPortal.Base.Repositories.AtsRepositories;
 
 namespace IntranetPortal.Configurations
 {
@@ -126,6 +128,8 @@ namespace IntranetPortal.Configurations
             services.AddScoped<ILeaveProfileRepository, LeaveProfileRepository>();
             services.AddScoped<ILeaveProfileDetailRepository, LeaveProfileDetailRepository>();
             services.AddScoped<IEmployeeLeaveRepository, EmployeeLeaveRepository>();
+
+            services.AddScoped<IAssignmentRepository, AssignmentRepository>();
         }
 
         public static void ConfigureServiceManagers(this IServiceCollection services)
@@ -142,6 +146,7 @@ namespace IntranetPortal.Configurations
             services.AddScoped<IClmService, ClmService>();
             services.AddScoped<ILmsService, LmsService>();
             services.AddScoped<IWspService, WspService>();
+            services.AddScoped<IAssignmentService, AssignmentService>();
         }
 
     }

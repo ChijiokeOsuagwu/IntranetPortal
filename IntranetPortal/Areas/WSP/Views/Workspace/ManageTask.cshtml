@@ -2,7 +2,7 @@
 @model IntranetPortal.Areas.WSP.Models.ManageTaskViewModel
 <h3>Channels Workspace</h3>
 <hr />
-<div class="card mt-1">
+<div class="card mt-1" style="width:80pc">
     <div class="card-header bg-info">
         <div class="row">
             @if(Model.Id > 0) {<div class="col-md-12"><h4 class="text-white">Edit Task</h4></div> }
@@ -57,7 +57,7 @@
                 <div><span asp-validation-for="ExpectedStartTime" class="text-danger"></span></div>
             </div>
             <div class="col-md-3 mb-2">
-                <label class="form-label text-dark fw-bold">Due Date</label>
+                <label class="form-label text-dark fw-bold">Completion Date</label>
                 <input asp-for="ExpectedDueTime" class="form-control fw-bold" type="date">
                 <div><span asp-validation-for="ExpectedDueTime" class="text-danger"></span></div>
             </div>
@@ -65,7 +65,7 @@
         <div class="row">
             <div class="col-md-12 mb-2">
                 <label class="form-label text-dark fw-bold">Description</label>
-                <textarea asp-for="Description" class="form-control fw-bold" autofocus>@Model.Description</textarea>
+                <textarea asp-for="Description" class="form-control fw-bold" placeholder="Please describe the task clearly, including what needs to be done and any relevant context or dependencies." autofocus>@Model.Description</textarea>
                 <div><span asp-validation-for="Description" class="text-danger"></span></div>
             </div>
         </div>

@@ -32,6 +32,7 @@ namespace IntranetPortal.Areas.WSP.Models
         [Display(Name = "Quality Rating")]
         public int? QualityRating { get; set; }
         public bool ExemptFromEvaluation { get; set; }
+        public bool CloseTask { get; set; }
 
         public TaskEvaluationReturns Convert()
         {
@@ -47,6 +48,7 @@ namespace IntranetPortal.Areas.WSP.Models
             e.TaskFolderName = TaskFolderName;
             e.TaskItemId = TaskItemID;
             e.TaskOwnerId = TaskOwnerID;
+            e.CloseTask = CloseTask;
             return e;
         }
         public ReturnTaskItemViewModel Convert(TaskEvaluationReturns e)
@@ -62,6 +64,7 @@ namespace IntranetPortal.Areas.WSP.Models
             model.TaskFolderName = e.TaskFolderName;
             model.TaskItemID = e.TaskItemId;
             model.TaskOwnerID = e.TaskOwnerId;
+            model.CloseTask = e.CloseTask;
             return model;
         }
     }

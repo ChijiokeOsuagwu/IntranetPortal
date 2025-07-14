@@ -5,7 +5,7 @@
 <div class="container">
     <h4>Channels Workspace</h4>
     <hr />
-    <div class="card" style="max-width:600px">
+    <div class="card" style="max-width:800px">
         <div class="card-header bg-info">
             <h4 class="text-white">Submit Task Folder</h4>
         </div>
@@ -48,7 +48,7 @@
                     <select asp-for="SubmissionTypeID" class="form-control fw-bold">
                         <option value="">Select</option>
                         <option value="0">Approval</option>
-                        <option value="1">Review</option>
+                        <option value="1">Close Out</option>
                     </select>
                     <div><span asp-validation-for="SubmissionTypeID" class="text-danger"></span></div>
                 </div>
@@ -72,7 +72,10 @@
                     <a asp-area="WSP" asp-controller="Workspace" asp-action="MyTaskFolders" asp-route-id="@Model.FromEmployeeID" class="btn btn-dark ml-1" style="width:100px" title="Back">
                         <span class="text-white">Back</span>
                     </a>
-                    <button type="submit" class="btn btn-info ml-2" title="Submit" style="width:200px"><span class="text-white">Submit</span></button>
+                    @if(string.IsNullOrWhiteSpace(Model.ViewModelErrorMessage))
+                    {
+                        <button type="submit" class="btn btn-info ml-2" title="Submit" style="width:200px"><span class="text-white">Submit</span></button>
+                    }
                 </div>
             </div>
             <input type="hidden" asp-for="TaskFolderID" />

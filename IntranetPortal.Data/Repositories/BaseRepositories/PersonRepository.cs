@@ -18,7 +18,7 @@ namespace IntranetPortal.Data.Repositories.BaseRepositories
             _config = configuration;
         }
 
-        //============= Persons Action Methods =====================================//
+        //============= Persons Action Methods ===============//
         #region Persons Write Action Methods
 
         public async Task<bool> AddPersonAsync(Person person)
@@ -89,7 +89,6 @@ namespace IntranetPortal.Data.Repositories.BaseRepositories
             }
             return rows > 0;
         }
-
         public async Task<bool> DeletePersonAsync(string Id, string deletedBy, string deletedTime)
         {
             int rows = 0;
@@ -116,19 +115,8 @@ namespace IntranetPortal.Data.Repositories.BaseRepositories
                     await conn.CloseAsync();
                 }
             }
-            catch (Exception ex)
-            {
-                //ErrorRepository errorRepository = new ErrorRepository(_config);
-                //ErrorEntity errorEntity = new ErrorEntity();
-                //errorEntity.ErrorMessage = ex.Message;
-                //errorEntity.ErrorDetail = ex.ToString();
-                //errorEntity.ErrorTime = $"{DateTime.UtcNow.ToLongDateString()} {DateTime.UtcNow.ToLongTimeString()} (UTC)";
-                //errorEntity.ErrorInnerSource = ex.Source;
-                //errorEntity.ErrorSource = "ApplicationUserRepository_AddApplicationUserAsync";
-                //errorRepository.AddError(errorEntity);
-                await conn.CloseAsync();
-                rows = -1;
-            }
+            catch (Exception ex){throw new Exception(ex.Message);}
+            finally { await conn.CloseAsync(); }
             return rows > 0;
         }
 

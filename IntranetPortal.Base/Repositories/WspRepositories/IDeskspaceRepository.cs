@@ -57,6 +57,7 @@ namespace IntranetPortal.Base.Repositories.WspRepositories
         Task<bool> AddFolderSubmissionAsync(FolderSubmission submission);
         Task<bool> UpdateFolderSubmissionAsync(long folderSubmissionId);
         Task<bool> DeleteFolderSubmissionAsync(long submissionId);
+        Task<bool> DeleteFolderSubmissionsByToEmployeeIdAsync(string toEmployeeId);
         Task<FolderSubmission> GetFolderSubmissionByIdAsync(long submissionId);
         Task<List<FolderSubmission>> GetFolderSubmissionsByFolderIdAsync(long folderId);
 
@@ -96,6 +97,8 @@ namespace IntranetPortal.Base.Repositories.WspRepositories
         Task<TaskItem> GetTaskItemByIdAsync(long taskItemId);
         Task<List<TaskItem>> GetTaskItemsByFolderIdAsync(long folderId);
         Task<List<TaskItem>> GetTaskItemsByOwnerIdnDescriptionnFolderIdAsync(string ownerId, string taskDescription, long? folderId);
+        Task<List<TaskItem>> GetTaskItemsByOwnerIdnKeywordAsync(string ownerId, string keyword, DateTime startDate, DateTime endDate);
+
 
         //========== Pending Task Items ================//
         Task<List<TaskItem>> GetTaskItemsPendingByOwnerIdAsync(string ownerId);
@@ -106,6 +109,7 @@ namespace IntranetPortal.Base.Repositories.WspRepositories
         Task<long> AddTaskItemAsync(TaskItem task);
         Task<bool> UpdateTaskItemAsync(TaskItem task);
         Task<bool> DeleteTaskItemAsync(long taskItemId);
+        Task<bool> UpdateTaskItemOwnershipAsync(TaskItem task);
         Task<bool> UpdateTaskItemResolutionAsync(long taskId, string taskResolution, string updatedBy);
         Task<bool> UpdateTaskItemFolderIdAsync(long taskItemId, string modifiedBy, long? taskFolderId = null);
         Task<bool> UpdateTaskItemFolderIdForPendingTaskItemsAsync(string taskOwnerId, long taskFolderId);
@@ -218,6 +222,27 @@ namespace IntranetPortal.Base.Repositories.WspRepositories
         Task<List<TaskEvaluationScores>> GetTaskEvaluationScoresByDepartmentIdAsync(int deptId, DateTime? fromDate = null, DateTime? toDate = null);
         Task<List<TaskEvaluationScores>> GetTaskEvaluationScoresByLocationIdAsync(int locationId, DateTime? fromDate = null, DateTime? toDate = null);
         #endregion
+
+        #endregion
+
+
+        #region Delegated Task Items Repository
+        Task<long> AddDelegationAsync(DelegatedTaskItem task);
+        Task<bool> UpdateDelegationStatusAsync(long taskDelegationId);
+
+
+        Task<DelegatedTaskItem> GetDelegatedTaskItemByDelegationIdAsync(long taskDelegationId);
+        Task<List<DelegatedTaskItem>> GetDelegatedTaskItemsByDelegatedByEmployeeIdAsync(string delegatedByEmployeeId);
+        Task<List<DelegatedTaskItem>> GetDelegatedTaskItemsByDelegatedByEmployeeIdnProgressStatusIdAsync(string delegatedByEmployeeId, int progressStatusId);
+        Task<List<DelegatedTaskItem>> GetDelegatedTaskItemsByDelegatedByEmployeeIdnProgressStatusIdnAssignedDateAsync(string delegatedByEmployeeId, int progressStatusId, DateTime fromDate, DateTime toDate);
+        Task<List<DelegatedTaskItem>> GetDelegatedTaskItemsByDelegatedByEmployeeIdnAssignedDateAsync(string delegatedByEmployeeId, DateTime fromDate, DateTime toDate);
+
+        //================ Get Delegated-To-Employee Id ========================//
+        Task<List<DelegatedTaskItem>> GetDelegatedTaskItemsByDelegatedByEmployeeIdnDelegatedToEmployeeIdAsync(string delegatedByEmployeeId, string delegatedToEmployeeId);
+        Task<List<DelegatedTaskItem>> GetDelegatedTaskItemsByDelegatedByEmployeeIdnDelegatedToEmployeeIdnProgressStatusIdAsync(string delegatedByEmployeeId, string delegatedToEmployeeId, int progressStatusId);
+        Task<List<DelegatedTaskItem>> GetDelegatedTaskItemsByDelegatedByEmployeeIdnDelegatedToEmployeeIdnAssignedDateAsync(string delegatedByEmployeeId, string delegatedToEmployeeId, DateTime fromDate, DateTime toDate);
+        Task<List<DelegatedTaskItem>> GetDelegatedTaskItemsByDelegatedByEmployeeIdnDelegatedToEmployeeIdnProgressStatusIdnAssignedDateAsync(string delegatedByEmployeeId, string delegatedToEmployeeId, int progressStatusId, DateTime fromDate, DateTime toDate);
+
 
         #endregion
 

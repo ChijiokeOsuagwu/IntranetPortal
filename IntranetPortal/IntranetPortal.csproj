@@ -20,6 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Areas\AssetManager\Data\" />
+    <Folder Include="Areas\ATS\Data\" />
     <Folder Include="Areas\BAMS\Data\" />
     <Folder Include="Areas\CLM\Data\" />
     <Folder Include="Areas\ContentManager\Data\" />

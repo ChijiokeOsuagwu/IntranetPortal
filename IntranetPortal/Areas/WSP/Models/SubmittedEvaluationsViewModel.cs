@@ -18,7 +18,7 @@ namespace IntranetPortal.Areas.WSP.Models
         public string FolderOwnerDesignation { get; set; }
         public string FolderOwnerUnitName { get; set; }
         public string FolderOwnerLocationName { get; set; }
-
+        public bool FolderIsReturned { get; set; }
         public string SubmittedToEmployeeID { get; set; }
         public string SubmittedToEmployeeName { get; set; }
         public long TaskEvaluationHeaderID { get; set; }

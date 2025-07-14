@@ -81,19 +81,25 @@ namespace IntranetPortal.Helpers
 
         public bool SendEmailWithSendGrid(EmailModel model)
         {
+            /*
             if (string.IsNullOrWhiteSpace(model.RecipientEmail))
             {
                 throw new Exception("Operation completed successfully. But email could not be sent because no email address was found for the recipient.");
             }
+            List<EmailAddress> emailList = new List<EmailAddress>();
             var apiKey = _config.GetSection("EmailSettings:SendGrid_API_KEY").Value;
             var client = new SendGridClient(apiKey);
             var from = new EmailAddress("officemanager@channelstv.com", "Channels OfficeManager");
             var subject = model.Subject;
             var to = new EmailAddress(model.RecipientEmail, model.RecipientName);
+            emailList.Add(to);
             var bcc = new EmailAddress(model.SenderEmail, model.SenderName);
+            emailList.Add(bcc);
             var plainContent = model.PlainContent;
             var htmlContent = model.HtmlContent;
-            var mailMessage = MailHelper.CreateSingleEmail(from, to, subject, plainContent, htmlContent);
+            var mailMessage = MailHelper.CreateSingleEmailToMultipleRecipients(from, emailList, subject, plainContent, htmlContent);
+            
+            //var mailMessage = MailHelper.CreateSingleEmail(from, to, subject, plainContent, htmlContent);
             // await sendGridClient.SendEmailAsync(mailMessage);
             //var msg = MailHelper.CreateSingleTemplateEmail(from, new EmailAddress(to), templateId, dynamicTemplateData);
             try
@@ -113,8 +119,48 @@ namespace IntranetPortal.Helpers
                 throw new WebException(new StreamReader(exc.Response.GetResponseStream()).ReadToEnd(), exc);
                 //return false;
             }
+            */
             return true;
         }
+
+        public async Task<bool> SendEmailWithSendGridAsync(EmailModel model)
+        {
+            /*if (string.IsNullOrWhiteSpace(model.RecipientEmail))
+            {
+                throw new Exception("Operation completed successfully. But email could not be sent because no email address was found for the recipient.");
+            }
+            List<EmailAddress> emailList = new List<EmailAddress>();
+            var apiKey = _config.GetSection("EmailSettings:SendGrid_API_KEY").Value;
+            var client = new SendGridClient(apiKey);
+            var from = new EmailAddress("officemanager@channelstv.com", "Channels OfficeManager");
+            var subject = model.Subject;
+            var to = new EmailAddress(model.RecipientEmail, model.RecipientName);
+            emailList.Add(to);
+            var bcc = new EmailAddress(model.SenderEmail, model.SenderName);
+            emailList.Add(bcc);
+            var plainContent = model.PlainContent;
+            var htmlContent = model.HtmlContent;
+            //var mailMessage = MailHelper.CreateSingleEmailToMultipleRecipients(from, emailList, subject, plainContent, htmlContent);
+            var mailMessage = MailHelper.CreateSingleEmail(from, to, subject, plainContent, htmlContent);
+            try
+            {
+                var response = await client.SendEmailAsync(mailMessage);
+                if (response.StatusCode != HttpStatusCode.OK
+                    && response.StatusCode != HttpStatusCode.Accepted)
+                {
+                    var errorMessage = response.Body.ReadAsStringAsync().Result;
+                    throw new Exception($"Failed to send mail to {to}, status code {response.StatusCode}, {errorMessage}");
+                }
+            }
+            catch (WebException exc)
+            {
+                var errorMessage = new StreamReader(exc.Response.GetResponseStream()).ReadToEnd();
+                throw new WebException(new StreamReader(exc.Response.GetResponseStream()).ReadToEnd(), exc);
+            }*/
+            return true;
+        }
+
+
 
         public static string RenderRazorViewToString(Controller controller, string viewName, object model = null)
         {
@@ -439,6 +485,113 @@ namespace IntranetPortal.Helpers
             sb.Append($"{DateTime.Now.ToLongDateString()} at ");
             sb.Append($"{DateTime.Now.ToLongTimeString()} WAT, for your information. ");
             sb.Append("This is purely for information purposes. No action is required of you.");
+            return sb.ToString();
+        }
+
+
+        #endregion
+
+        #region Workspace Management System Email Alerts
+        //================ Task Delegated Notification Contents ======================//
+        public static string GetWorkspaceTaskDelegationNotificationEmailHtmlContent(string RecipientName, string SenderName)
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append("<html><head></head>");
+            sb.Append("<body style='font-family:sans-serif; font-size:1.2rem;'>");
+            sb.Append($"<div>Dear {RecipientName},</div>");
+            sb.Append("<p>I trust this email finds you well.</p>");
+            sb.Append("<p>A Task has just been delegated to you. ");
+            sb.Append($"It was delegated by <strong>{SenderName}</strong>, on ");
+            sb.Append($"{DateTime.Now.ToLongDateString()} at exactly ");
+            sb.Append($"{DateTime.Now.ToLongTimeString()} WAT, for your kind and timely action.");
+            sb.Append("Kindly log in to Channels OfficeManager to action this task. </p>");
+            sb.Append("<p>Thank you.</p><div>Regards</div>");
+            sb.AppendLine("<div><strong>Channels OfficeManager</strong></div><br/>");
+            sb.Append("<div><em>[This is an auto-generated email. <strong>Please do not reply.</strong>]</em></div>");
+            sb.Append("</body></html>");
+
+            return sb.ToString();
+        }
+
+        public static string GetWorkspaceTaskDelegationNotificationEmailPlainContent(string RecipientName, string SenderName)
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine($"Dear {RecipientName},");
+            sb.AppendLine("I trust this email meets you well.");
+            sb.Append("A task has just been delegated to you. ");
+            sb.Append($"It was delegated by {SenderName}, on ");
+            sb.Append($"{DateTime.Now.ToLongDateString()} at exactly ");
+            sb.Append($"{DateTime.Now.ToLongTimeString()} WAT, for your kind and timely action. ");
+            sb.AppendLine("Kindly log in to Channels OfficeManager to action this task. ");
+            sb.AppendLine("Thank you.");
+            sb.AppendLine("Regards");
+            sb.AppendLine("OfficeManager");
+            sb.AppendLine(" ");
+            sb.Append("[This is an auto-generated email. Please do not reply.]");
+
+            return sb.ToString();
+        }
+
+        public static string GetWorkspaceTaskDelegationNotificationMessageContent(string RecipientName, string SenderName)
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append("A task has just been delegated to you. ");
+            sb.Append($"It was delegated by {SenderName}, on ");
+            sb.Append($"{DateTime.Now.ToLongDateString()} at exactly ");
+            sb.Append($"{DateTime.Now.ToLongTimeString()} WAT, for your kind and timely action. ");
+            sb.Append("Thank you.");
+            return sb.ToString();
+        }
+
+
+        //================ Task Delegated Notification Contents ======================//
+        public static string GetWorkspaceTaskSubmissionNotificationEmailHtmlContent(string RecipientName, string SenderName, string SubmissionPurpose)
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append("<html><head></head>");
+            sb.Append("<body style='font-family:sans-serif; font-size:1.2rem;'>");
+            sb.Append($"<div>Dear {RecipientName},</div>");
+            sb.Append("<p>I trust this email finds you well.</p>");
+            sb.Append($"<p>A Task Folder has just been submitted to you for {SubmissionPurpose}. ");
+            sb.Append($"It was submitted by <strong>{SenderName}</strong>, on ");
+            sb.Append($"{DateTime.Now.ToLongDateString()} at exactly ");
+            sb.Append($"{DateTime.Now.ToLongTimeString()} WAT, for your kind action.");
+            sb.Append("Kindly log in to Channels OfficeManager to action this task. </p>");
+            sb.Append("<p>Thank you.</p><div>Regards</div>");
+            sb.AppendLine("<div><strong>Channels OfficeManager</strong></div><br/>");
+            sb.Append("<div><em>[This is an auto-generated email. <strong>Please do not reply.</strong>]</em></div>");
+            sb.Append("</body></html>");
+
+            return sb.ToString();
+        }
+
+        public static string GetWorkspaceTaskSubmissionNotificationEmailPlainContent(string RecipientName, string SenderName, string SubmissionPurpose)
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine($"Dear {RecipientName},");
+            sb.AppendLine("I trust this email meets you well.");
+            sb.Append($"A task folder has just been submitted to you for {SubmissionPurpose}. ");
+            sb.Append($"It was submitted by {SenderName}, on ");
+            sb.Append($"{DateTime.Now.ToLongDateString()} at exactly ");
+            sb.Append($"{DateTime.Now.ToLongTimeString()} WAT, for your kind action. ");
+            sb.AppendLine("Kindly log in to Channels OfficeManager to action this task. ");
+            sb.AppendLine("Thank you.");
+            sb.AppendLine("Regards");
+            sb.AppendLine("OfficeManager");
+            sb.AppendLine(" ");
+            sb.Append("[This is an auto-generated email. Please do not reply.]");
+
+            return sb.ToString();
+        }
+
+        public static string GetWorkspaceTaskSubmissionNotificationMessageContent(string RecipientName, string SenderName, string SubmissionPurpose)
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append($"A task folder has just been delegated to you for {SubmissionPurpose}. ");
+            sb.Append($"It was submitted by {SenderName}, on ");
+            sb.Append($"{DateTime.Now.ToLongDateString()} at exactly ");
+            sb.Append($"{DateTime.Now.ToLongTimeString()} WAT, for your kind action. ");
+            sb.Append("Thank you.");
             return sb.ToString();
         }
 

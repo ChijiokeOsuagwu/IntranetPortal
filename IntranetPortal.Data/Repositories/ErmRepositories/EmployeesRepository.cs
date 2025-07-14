@@ -2597,6 +2597,69 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
             return totalCount;
         }
 
+        public async Task<long> GetEmployeesCountByStartUpDateAsync(int startUpYear, int startUpMonth, int startUpDay)
+        {
+            long employeeCount = 0;
+            if (startUpYear < 1) { startUpYear = DateTime.Today.Year; }
+            if (startUpMonth < 1) { startUpMonth = DateTime.Today.Month; }
+            if (startUpDay < 1) { startUpDay = DateTime.Today.Day; }
+
+            StringBuilder sb = new StringBuilder();
+            sb.Append("SELECT COALESCE(COUNT(emp_id),0) as no_count ");
+            sb.Append("FROM erm_emp_inf ");
+            sb.Append("WHERE (date_part('year', start_up_date) = @start_up_year) ");
+            sb.Append("AND (date_part('month', start_up_date) = @start_up_month) ");
+            sb.Append("AND (date_part('day', start_up_date) = @start_up_day); ");
+            string query = sb.ToString();
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
+            {
+                await conn.OpenAsync();
+                // Retrieve all rows
+                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+                {
+                    var start_up_year = cmd.Parameters.Add("@start_up_year", NpgsqlDbType.Integer);
+                    var start_up_month = cmd.Parameters.Add("@start_up_month", NpgsqlDbType.Integer);
+                    var start_up_day = cmd.Parameters.Add("@start_up_day", NpgsqlDbType.Integer);
+                    await cmd.PrepareAsync();
+                    start_up_year.Value = startUpYear;
+                    start_up_month.Value = startUpMonth;
+                    start_up_day.Value = startUpDay;
+                    var no_count = await cmd.ExecuteScalarAsync();
+                    employeeCount = Convert.ToInt64(no_count);
+                }
+                await conn.CloseAsync();
+            }
+            return employeeCount;
+        }
+        public async Task<long> GetEmployeesCountByEmployeeNumberAsync(string employeeNumber)
+        {
+            long employeeCount = 0;
+
+            StringBuilder sb = new StringBuilder();
+            sb.Append("SELECT COALESCE(COUNT(emp_id),0) as no_count ");
+            sb.Append("FROM erm_emp_inf ");
+            sb.Append("WHERE (emp_no_1 = @emp_no); ");
+
+            string query = sb.ToString();
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
+            {
+                await conn.OpenAsync();
+                // Retrieve all rows
+                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+                {
+                    var emp_no = cmd.Parameters.Add("@emp_no", NpgsqlDbType.Text);
+                    await cmd.PrepareAsync();
+                    emp_no.Value = employeeNumber;
+                    var no_count = await cmd.ExecuteScalarAsync();
+                    employeeCount = Convert.ToInt64(no_count);
+                }
+                await conn.CloseAsync();
+            }
+            return employeeCount;
+        }
+
+
+
         #endregion
 
         #region Employee BirthDays Read Action Methods
@@ -2866,40 +2929,6 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
         #endregion
 
         #region Employee Other Read Action Methods
-        public async Task<long> GetEmployeesCountByStartUpDateAsync(int startUpYear, int startUpMonth, int startUpDay)
-        {
-            long employeeCount = 0;
-            if (startUpYear < 1) { startUpYear = DateTime.Today.Year; }
-            if (startUpMonth < 1) { startUpMonth = DateTime.Today.Month; }
-            if (startUpDay < 1) {startUpDay = DateTime.Today.Day; }
-
-            StringBuilder sb = new StringBuilder();
-            sb.Append("SELECT COALESCE(COUNT(emp_id),0) as no_count ");
-            sb.Append("FROM erm_emp_inf ");
-            sb.Append("WHERE (date_part('year', start_up_date) = @start_up_year) ");
-            sb.Append("AND (date_part('month', start_up_date) = @start_up_month) ");
-            sb.Append("AND (date_part('day', start_up_date) = @start_up_day); ");
-            string query = sb.ToString();
-            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
-            {
-                await conn.OpenAsync();
-                // Retrieve all rows
-                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
-                {
-                    var start_up_year = cmd.Parameters.Add("@start_up_year", NpgsqlDbType.Integer);
-                    var start_up_month = cmd.Parameters.Add("@start_up_month", NpgsqlDbType.Integer);
-                    var start_up_day = cmd.Parameters.Add("@start_up_day", NpgsqlDbType.Integer);
-                    await cmd.PrepareAsync();
-                    start_up_year.Value = startUpYear;
-                    start_up_month.Value = startUpMonth;
-                    start_up_day.Value = startUpDay;
-                    var no_count = await cmd.ExecuteScalarAsync();
-                    employeeCount = Convert.ToInt64(no_count);
-                }
-                await conn.CloseAsync();
-            }
-            return employeeCount;
-        }
         public async Task<IList<Employee>> GetAllEmployeesWithoutUserAccountsAsync(DateTime? terminalDate = null)
         {
             List<Employee> employeeList = new List<Employee>();
@@ -3041,6 +3070,51 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
             }
             return employeeList;
         }
+
+        public async Task<List<string>> GetEmployeeNumbersByStartUpDateAsync(int startUpYear, int startUpMonth, int startUpDay)
+        {
+            List<string> _employeeNos = new List<string>();
+            string _newNo = string.Empty;
+
+            if (startUpYear < 1) { startUpYear = DateTime.Today.Year; }
+            if (startUpMonth < 1) { startUpMonth = DateTime.Today.Month; }
+            if (startUpDay < 1) { startUpDay = DateTime.Today.Day; }
+
+            StringBuilder sb = new StringBuilder();
+            sb.Append("SELECT emp_no_1 ");
+            sb.Append("FROM erm_emp_inf ");
+            sb.Append("WHERE (date_part('year', start_up_date) = @start_up_year) ");
+            sb.Append("AND (date_part('month', start_up_date) = @start_up_month) ");
+            sb.Append("AND (date_part('day', start_up_date) = @start_up_day) ");
+            sb.Append("ORDER BY emp_no_1;");
+
+            string query = sb.ToString();
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
+            {
+                await conn.OpenAsync();
+                // Retrieve all rows
+                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+                {
+                    var start_up_year = cmd.Parameters.Add("@start_up_year", NpgsqlDbType.Integer);
+                    var start_up_month = cmd.Parameters.Add("@start_up_month", NpgsqlDbType.Integer);
+                    var start_up_day = cmd.Parameters.Add("@start_up_day", NpgsqlDbType.Integer);
+                    await cmd.PrepareAsync();
+                    start_up_year.Value = startUpYear;
+                    start_up_month.Value = startUpMonth;
+                    start_up_day.Value = startUpDay;
+
+                    var reader = await cmd.ExecuteReaderAsync();
+                    while (await reader.ReadAsync())
+                    {
+                        _newNo = reader["emp_no_1"] == DBNull.Value ? string.Empty : (reader["emp_no_1"]).ToString();
+                        _employeeNos.Add(_newNo);
+                    }
+                }
+                await conn.CloseAsync();
+            }
+            return _employeeNos;
+        }
+
 
         #endregion
 
@@ -3558,7 +3632,6 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
             }
             return rows > 0;
         }
-
         public async Task<bool> DeleteEmployeeReportLineAsync(int employeeReportId)
         {
             if (employeeReportId < 1) { throw new ArgumentNullException("Required parameter [EmployeeReportId] has an invalid value."); }
@@ -3585,7 +3658,6 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
             }
             return rows > 0;
         }
-
         public async Task<bool> EditEmployeeReportLineAsync(EmployeeReportLine employeeReportLine)
         {
             if (employeeReportLine == null) { throw new ArgumentNullException(nameof(employeeReportLine), "The required parameter [EmployeeReportLine] is missing or has an invalid value."); }
@@ -3641,7 +3713,6 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
             }
             return rows > 0;
         }
-
         public async Task<EmployeeReportLine> GetEmployeeReportLineByIdAsync(int employeeReportLineId)
         {
             if (employeeReportLineId < 1) { throw new ArgumentNullException(nameof(employeeReportLineId), "The required parameter [EmployeeReportLineId] is missing or has in invalid value."); }
@@ -3650,16 +3721,16 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
             string query = String.Empty;
             StringBuilder sb = new StringBuilder();
 
-            sb.Append($"SELECT r.rpt_id, r.emp_id, r.rpt_emp_id, r.rpt_emp_rl, r.rpt_sts, r.rpt_typ, ");
-            sb.Append($"r.rpt_nds, r.team_id, r.unit_id, r.dept_id, r.mdb, r.mdt, r.ctb, r.ctt, ");
-            sb.Append($"p1.fullname AS emp_name, p2.fullname AS rpt_emp_name, t.tm_nm, u.unitname, ");
-            sb.Append($"d.deptname FROM public.erm_emp_rpts r ");
-            sb.Append($"INNER JOIN public.gst_prsns p1 ON r.emp_id = p1.id ");
-            sb.Append($"INNER JOIN public.gst_prsns p2 ON r.rpt_emp_id = p2.id ");
-            sb.Append($"LEFT OUTER JOIN public.gst_tms t ON r.team_id = t.tm_id ");
-            sb.Append($"LEFT OUTER JOIN public.gst_units u ON r.unit_id = u.unitqk ");
-            sb.Append($"LEFT OUTER JOIN public.gst_depts d ON r.dept_id = d.deptqk ");
-            sb.Append($"WHERE (r.rpt_id = @rpt_id);");
+            sb.Append("SELECT r.rpt_id, r.emp_id, r.rpt_emp_id, r.rpt_emp_rl, r.rpt_sts, r.rpt_typ, ");
+            sb.Append("r.rpt_nds, r.team_id, r.unit_id, r.dept_id, r.mdb, r.mdt, r.ctb, r.ctt, ");
+            sb.Append("p1.fullname AS emp_name, p2.fullname AS rpt_emp_name, t.tm_nm, u.unitname, ");
+            sb.Append("d.deptname FROM public.erm_emp_rpts r ");
+            sb.Append("INNER JOIN public.gst_prsns p1 ON r.emp_id = p1.id ");
+            sb.Append("INNER JOIN public.gst_prsns p2 ON r.rpt_emp_id = p2.id ");
+            sb.Append("LEFT OUTER JOIN public.gst_tms t ON r.team_id = t.tm_id ");
+            sb.Append("LEFT OUTER JOIN public.gst_units u ON r.unit_id = u.unitqk ");
+            sb.Append("LEFT OUTER JOIN public.gst_depts d ON r.dept_id = d.deptqk ");
+            sb.Append("WHERE (r.rpt_id = @rpt_id);");
             query = sb.ToString();
             try
             {
@@ -3703,23 +3774,23 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
             }
             return employeeReportLine;
         }
-
         public async Task<IList<EmployeeReportLine>> GetEmployeeReportLinesByEmployeeIdAsync(string employeeId)
         {
-            if (String.IsNullOrEmpty(employeeId)) { throw new ArgumentNullException("The required parameter [EmployeeID] has an invalid value."); }
+            if (string.IsNullOrEmpty(employeeId)) { throw new ArgumentNullException("The required parameter [EmployeeID] has an invalid value."); }
             List<EmployeeReportLine> employeeReportLineList = new List<EmployeeReportLine>();
             var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
             StringBuilder sb = new StringBuilder();
-            sb.Append($"SELECT r.rpt_id, r.emp_id, r.rpt_emp_id, r.rpt_emp_rl, r.rpt_sts, r.rpt_typ, ");
-            sb.Append($"r.rpt_nds, r.team_id, r.unit_id, r.dept_id, r.mdb, r.mdt, r.ctb, r.ctt, ");
-            sb.Append($"p1.fullname AS emp_name, p2.fullname AS rpt_emp_name, t.tm_nm, u.unitname, ");
-            sb.Append($"d.deptname FROM public.erm_emp_rpts r ");
-            sb.Append($"INNER JOIN public.gst_prsns p1 ON r.emp_id = p1.id ");
-            sb.Append($"INNER JOIN public.gst_prsns p2 ON r.rpt_emp_id = p2.id ");
-            sb.Append($"LEFT OUTER JOIN public.gst_tms t ON r.team_id = t.tm_id ");
-            sb.Append($"LEFT OUTER JOIN public.gst_units u ON r.unit_id = u.unitqk ");
-            sb.Append($"LEFT OUTER JOIN public.gst_depts d ON r.dept_id = d.deptqk ");
-            sb.Append($"WHERE LOWER(r.emp_id) = LOWER(@emp_id);");
+            sb.Append("SELECT r.rpt_id, r.emp_id, r.rpt_emp_id, r.rpt_emp_rl, r.rpt_sts, r.rpt_typ, ");
+            sb.Append("r.rpt_nds, r.team_id, r.unit_id, r.dept_id, r.mdb, r.mdt, r.ctb, r.ctt, ");
+            sb.Append("p1.fullname AS emp_name, p2.fullname AS rpt_emp_name, t.tm_nm, u.unitname, ");
+            sb.Append("d.deptname FROM public.erm_emp_rpts r ");
+            sb.Append("INNER JOIN public.gst_prsns p1 ON r.emp_id = p1.id ");
+            sb.Append("INNER JOIN public.gst_prsns p2 ON r.rpt_emp_id = p2.id ");
+            sb.Append("LEFT OUTER JOIN public.gst_tms t ON r.team_id = t.tm_id ");
+            sb.Append("LEFT OUTER JOIN public.gst_units u ON r.unit_id = u.unitqk ");
+            sb.Append("LEFT OUTER JOIN public.gst_depts d ON r.dept_id = d.deptqk ");
+            sb.Append("WHERE LOWER(r.emp_id) = LOWER(@emp_id) ");
+            sb.Append("ORDER BY p1.fullname; ");
             string query = sb.ToString();
             try
             {
@@ -3766,7 +3837,6 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
             }
             return employeeReportLineList;
         }
-
         public async Task<IList<EmployeeReportLine>> GetActiveEmployeeReportLinesByEmployeeIdAsync(string employeeId)
         {
             if (String.IsNullOrEmpty(employeeId)) { throw new ArgumentNullException("The required parameter [EmployeeID] has an invalid value."); }
@@ -3784,7 +3854,8 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
             sb.Append("LEFT OUTER JOIN public.gst_units u ON r.unit_id = u.unitqk ");
             sb.Append("LEFT OUTER JOIN public.gst_depts d ON r.dept_id = d.deptqk ");
             sb.Append("WHERE LOWER(r.emp_id) = LOWER(@emp_id) ");
-            sb.Append("AND (r.rpt_nds >= CURRENT_DATE); ");
+            sb.Append("AND (r.rpt_nds >= CURRENT_DATE) ");
+            sb.Append("ORDER BY p1.fullname; ");
             string query = sb.ToString();
             try
             {
@@ -3838,16 +3909,17 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
             List<EmployeeReportLine> employeeReportLineList = new List<EmployeeReportLine>();
             var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
             StringBuilder sb = new StringBuilder();
-            sb.Append($"SELECT r.rpt_id, r.emp_id, r.rpt_emp_id, r.rpt_emp_rl, r.rpt_sts, r.rpt_typ, ");
-            sb.Append($"r.rpt_nds, r.team_id, r.unit_id, r.dept_id, r.mdb, r.mdt, r.ctb, r.ctt, ");
-            sb.Append($"p1.fullname AS emp_name, p2.fullname AS rpt_emp_name, t.tm_nm, u.unitname, ");
-            sb.Append($"d.deptname FROM public.erm_emp_rpts r ");
-            sb.Append($"INNER JOIN public.gst_prsns p1 ON r.emp_id = p1.id ");
-            sb.Append($"INNER JOIN public.gst_prsns p2 ON r.rpt_emp_id = p2.id ");
-            sb.Append($"LEFT OUTER JOIN public.gst_tms t ON r.team_id = t.tm_id ");
-            sb.Append($"LEFT OUTER JOIN public.gst_units u ON r.unit_id = u.unitqk ");
-            sb.Append($"LEFT OUTER JOIN public.gst_depts d ON r.dept_id = d.deptqk ");
-            sb.Append($"WHERE LOWER(r.rpt_emp_id) = LOWER(@rpt_emp_id);");
+            sb.Append("SELECT r.rpt_id, r.emp_id, r.rpt_emp_id, r.rpt_emp_rl, r.rpt_sts, r.rpt_typ, ");
+            sb.Append("r.rpt_nds, r.team_id, r.unit_id, r.dept_id, r.mdb, r.mdt, r.ctb, r.ctt, ");
+            sb.Append("p1.fullname AS emp_name, p2.fullname AS rpt_emp_name, t.tm_nm, u.unitname, ");
+            sb.Append("d.deptname FROM public.erm_emp_rpts r ");
+            sb.Append("INNER JOIN public.gst_prsns p1 ON r.emp_id = p1.id ");
+            sb.Append("INNER JOIN public.gst_prsns p2 ON r.rpt_emp_id = p2.id ");
+            sb.Append("LEFT OUTER JOIN public.gst_tms t ON r.team_id = t.tm_id ");
+            sb.Append("LEFT OUTER JOIN public.gst_units u ON r.unit_id = u.unitqk ");
+            sb.Append("LEFT OUTER JOIN public.gst_depts d ON r.dept_id = d.deptqk ");
+            sb.Append("WHERE LOWER(r.rpt_emp_id) = LOWER(@rpt_emp_id) ");
+            sb.Append("ORDER BY p1.fullname; ");
             string query = sb.ToString();
             try
             {
@@ -3901,16 +3973,17 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
             List<EmployeeReportLine> employeeReportLineList = new List<EmployeeReportLine>();
             var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
             StringBuilder sb = new StringBuilder();
-            sb.Append($"SELECT r.rpt_id, r.emp_id, r.rpt_emp_id, r.rpt_emp_rl, r.rpt_sts, r.rpt_typ, ");
-            sb.Append($"r.rpt_nds, r.team_id, r.unit_id, r.dept_id, r.mdb, r.mdt, r.ctb, r.ctt, ");
-            sb.Append($"p1.fullname AS emp_name, p2.fullname AS rpt_emp_name, t.tm_nm, u.unitname, ");
-            sb.Append($"d.deptname FROM public.erm_emp_rpts r ");
-            sb.Append($"INNER JOIN public.gst_prsns p1 ON r.emp_id = p1.id ");
-            sb.Append($"INNER JOIN public.gst_prsns p2 ON r.rpt_emp_id = p2.id ");
-            sb.Append($"LEFT OUTER JOIN public.gst_tms t ON r.team_id = t.tm_id ");
-            sb.Append($"LEFT OUTER JOIN public.gst_units u ON r.unit_id = u.unitqk ");
-            sb.Append($"LEFT OUTER JOIN public.gst_depts d ON r.dept_id = d.deptqk ");
-            sb.Append($"WHERE LOWER(r.rpt_emp_id) = LOWER(@rpt_emp_id) AND (r.rpt_nds IS NULL);");
+            sb.Append("SELECT r.rpt_id, r.emp_id, r.rpt_emp_id, r.rpt_emp_rl, r.rpt_sts, r.rpt_typ, ");
+            sb.Append("r.rpt_nds, r.team_id, r.unit_id, r.dept_id, r.mdb, r.mdt, r.ctb, r.ctt, ");
+            sb.Append("p1.fullname AS emp_name, p2.fullname AS rpt_emp_name, t.tm_nm, u.unitname, ");
+            sb.Append("d.deptname FROM public.erm_emp_rpts r ");
+            sb.Append("INNER JOIN public.gst_prsns p1 ON r.emp_id = p1.id ");
+            sb.Append("INNER JOIN public.gst_prsns p2 ON r.rpt_emp_id = p2.id ");
+            sb.Append("LEFT OUTER JOIN public.gst_tms t ON r.team_id = t.tm_id ");
+            sb.Append("LEFT OUTER JOIN public.gst_units u ON r.unit_id = u.unitqk ");
+            sb.Append("LEFT OUTER JOIN public.gst_depts d ON r.dept_id = d.deptqk ");
+            sb.Append("WHERE LOWER(r.rpt_emp_id) = LOWER(@rpt_emp_id) AND (r.rpt_nds IS NULL) ");
+            sb.Append("ORDER BY p1.fullname; ");
             string query = sb.ToString();
             try
             {

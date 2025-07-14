@@ -10,41 +10,42 @@
     </div>
     <hr />
     <div class="row">
-        <nav class="navbar navbar-expand-lg navbar-light bg-light">
-            <div class="container-fluid">
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="collapse navbar-collapse" id="navbarNavDropdown">
-                    <ul class="navbar-nav">
-                        <li class="nav-item">
-                            <a asp-area="WSP" asp-controller="Workspace" asp-action="SubmittedToMe" title="Go Back" class="btn btn-sm btn-outline-light text-dark">
-                                <i class="bi bi-backspace" style="font-size: 1.0rem;"></i> <span class="fw-bold ml-1" style="font-size: 0.9rem;">Back</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a asp-area="WSP" asp-controller="Workspace" asp-action="SubmitTaskFolder" asp-route-id="@Model.FolderID" class="btn btn-sm btn-outline-light text-dark">
-                                <i class="bi bi-mailbox" style="font-size: 1.0rem;"></i> <span class="fw-bold ml-1" style="font-size: 0.9rem;">Submit</span>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a asp-area="WSP" asp-controller="Workspace" asp-action="ManageTask" asp-route-id="0" asp-route-fd="@Model.FolderID" asp-route-od="@Model.FolderOwnerID" asp-route-src="sbt" title="Add New Task" class="btn btn-sm btn-light text-dark">
-                                <i class="bi bi-plus-lg" style="font-size: 1.0rem;"></i><span class="fw-bold ml-1" style="font-size: 0.9rem;">Create New Task</span>
-                            </a>
-                        </li>
-                        @*<li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-expanded="false">
-                                    <i class="bi bi-sliders fw-bolder" style="font-size: 1.1rem; font-weight:900"></i><span class="fw-bold ml-1" style="font-size: 1.0rem;">Copy Options</span>
+        <div class="col-md-8">
+            <nav class="navbar navbar-expand-lg navbar-light bg-light">
+                <div class="container-fluid">
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <div class="collapse navbar-collapse" id="navbarNavDropdown">
+                        <ul class="navbar-nav">
+                            <li class="nav-item">
+                                <a asp-area="WSP" asp-controller="Workspace" asp-action="SubmittedToMe" title="Go Back" class="btn btn-sm btn-outline-light text-dark">
+                                    <i class="bi bi-backspace" style="font-size: 1.0rem;"></i> <span class="fw-bold ml-1" style="font-size: 0.9rem;">Back</span>
                                 </a>
-                                <ul class="dropdown-menu">
-                                    <li><a class="dropdown-item" asp-area="PMS" asp-controller="Process" asp-action="CopyKpaFromPastContract" asp-route-id="0" asp-route-rd="@Model.ReviewSessionID"><span class="fw-bold">Copy from Contract</span></a></li>
-                                    <li><a class="dropdown-item" asp-area="PMS" asp-controller="Process" asp-action="CopyKpaFromProfile" asp-route-id="0" asp-route-rd="@Model.ReviewSessionID"><span class="fw-bold">Copy from Profile</span></a></li>
-                                </ul>
-                            </li>*@
-                    </ul>
+                            </li>
+                            <li class="nav-item">
+                                <a asp-area="WSP" asp-controller="Workspace" asp-action="SubmitTaskFolder" asp-route-id="@Model.FolderID" class="btn btn-sm btn-outline-light text-dark">
+                                    <i class="bi bi-mailbox" style="font-size: 1.0rem;"></i> <span class="fw-bold ml-1" style="font-size: 0.9rem;">Submit</span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a asp-area="WSP" asp-controller="Workspace" asp-action="CheckDuplicates" asp-route-id="@Model.FolderOwnerID" title="Check for Duplicates in Previous Tasks" class="btn btn-sm btn-light text-dark" target="_blank">
+                                    <i class="bi bi-card-checklist" style="font-size: 1.0rem;"></i><span class="fw-bold ml-1" style="font-size: 0.9rem;">Check For Duplicates</span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a asp-area="WSP" asp-controller="Workspace" asp-action="ManageTask" asp-route-id="0" asp-route-fd="@Model.FolderID" asp-route-od="@Model.FolderOwnerID" asp-route-src="sbt" title="Add New Task" class="btn btn-sm btn-light text-dark">
+                                    <i class="bi bi-plus-lg" style="font-size: 1.0rem;"></i><span class="fw-bold ml-1" style="font-size: 0.9rem;">Create New Task</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
-            </div>
-        </nav>
+            </nav>
+        </div>
+        <div class="col-md-4" style="padding-top:15px;">
+            <span class="fw-bold" style="font-size:1.0rem">|    Tasks Submitted for Approval</span>
+        </div>
     </div>
     <div class="row">
         @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
@@ -70,27 +71,27 @@
             @foreach (var task in Model.TaskItems)
             {
                 row_number++;
-                    <div class="card">
-                        @if (task.ApprovalStatus == ApprovalStatus.Declined)
-                        {
-                            <div class="card-header" style="background-color:#D11604">
-                                <div class="row">
-                                    <div class="col-md-12">
-                                        <span class="fw-bold text-white">[#@row_number]</span>
-                                    </div>
+                <div class="card">
+                    @if (task.ApprovalStatus == ApprovalStatus.Declined)
+                    {
+                        <div class="card-header" style="background-color:#D11604">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <span class="fw-bold text-white">[#@row_number]</span>
                                 </div>
                             </div>
-                        }
-                        else
-                        {
-                            <div class="card-header" style="background-color:#5c039a">
-                                <div class="row">
-                                    <div class="col-md-12">
-                                        <span class="fw-bold text-white">[#@row_number]</span>
-                                    </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="card-header" style="background-color:#5c039a">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <span class="fw-bold text-white">[#@row_number]</span>
                                 </div>
                             </div>
-                        }
+                        </div>
+                    }
                     <div class="card-body table-secondary">
                         <div class="row">
                             <div class="col-md-2 mb-3">
@@ -122,7 +123,7 @@
                                         }
                                     </div>
                                     <div class="col-md-3 mb-3">
-                                        <label class="form-label text-dark">Expected Due Date</label>
+                                        <label class="form-label text-dark">Expected Completion Date</label>
                                         @if (task.ExpectedDueTime != null)
                                         {
                                             <div class="form-control fw-bold">@task.ExpectedDueTime.Value.ToString("dd-MMM-yyyy")</div>
@@ -133,7 +134,7 @@
                                         }
                                     </div>
                                     <div class="col-md-3 mb-3">
-                                        <label class="form-label text-dark">Actual Due Date</label>
+                                        <label class="form-label text-dark">Actual Completion Date</label>
                                         @if (task.ActualDueTime != null)
                                         {
                                             <div class="form-control fw-bold">@task.ActualDueTime.Value.ToString("dd-MMM-yyyy")</div>
@@ -153,12 +154,15 @@
                                 <textarea asp-for="@task.Description" class="form-control fw-bold" readonly="readonly">@task.Description</textarea>
                             </div>
                         </div>
-                        @*<div class="row">
-                            <div class="col-md-12 mb-3">
-                                <label class="form-label text-dark">Task Resolution</label>
-                                <textarea asp-for="@task.MoreInformation" class="form-control fw-bold" readonly="readonly">@task.MoreInformation</textarea>
+                        @if (!string.IsNullOrWhiteSpace(task.MoreInformation))
+                        {
+                            <div class="row">
+                                <div class="col-md-12 mb-3">
+                                    <label class="form-label text-dark">Task Resolution</label>
+                                    <textarea asp-for="@task.MoreInformation" class="form-control fw-bold" readonly="readonly">@task.MoreInformation</textarea>
+                                </div>
                             </div>
-                        </div>*@
+                        }
                         <div class="row">
                             <div class="col-md-10">
                                 <div class="row">
@@ -215,12 +219,15 @@
                                         }
                                     </div>
                                     <div class="col-md-6 text-end">
-                                        <a asp-area="WSP" asp-controller="Workspace" asp-action="DeclineTaskApproval" asp-route-id="@task.Id" asp-route-fd="@task.WorkFolderId" asp-route-sd="@Model.FolderSubmissionID" asp-route-od="@task.TaskOwnerId" asp-route-fn="@task.WorkFolderName" class="btn btn-sm" style="border-radius:5px; margin-right:2px; width:100px; background-color:#D11604" title="Decline">
-                                            <i class="bi bi-x-lg" style="font-size:0.8rem; margin-right:2px; color:white"></i> <span class="text-white" style="font-size:0.8rem">Decline</span>
-                                        </a>
-                                        <button class="btn btn-sm" style="border-radius:5px; width:100px; background-color:#5C039A" title="Click to Approve Task" onclick="approveTaskItem('@task.Id')">
-                                            <i class="bi bi-check-lg" style="font-size:0.8rem; margin-right:2px; color:white"></i> <span class="text-white" style="font-size:0.8rem">Approve</span>
-                                        </button>
+                                        @if (!Model.FolderIsReturned)
+                                        {
+                                            <a asp-area="WSP" asp-controller="Workspace" asp-action="DeclineTaskApproval" asp-route-id="@task.Id" asp-route-fd="@task.WorkFolderId" asp-route-sd="@Model.FolderSubmissionID" asp-route-od="@task.TaskOwnerId" asp-route-fn="@task.WorkFolderName" class="btn btn-sm" style="border-radius:5px; margin-right:2px; width:100px; background-color:#D11604" title="Decline">
+                                                <i class="bi bi-x-lg" style="font-size:0.8rem; margin-right:2px; color:white"></i> <span class="text-white" style="font-size:0.8rem">Decline</span>
+                                            </a>
+                                            <button class="btn btn-sm" style="border-radius:5px; width:100px; background-color:#5C039A" title="Click to Approve Task" onclick="approveTaskItem('@task.Id')">
+                                                <i class="bi bi-check-lg" style="font-size:0.8rem; margin-right:2px; color:white"></i> <span class="text-white" style="font-size:0.8rem">Approve</span>
+                                            </button>
+                                        }
                                     </div>
                                 </div>
                             </div>
@@ -237,7 +244,7 @@
                                             </a>
                                         </li>
                                         <li>
-                                            <a class="dropdown-item" asp-area="WSP" asp-controller="Workspace" asp-action="Notes" asp-route-td="@task.Id" asp-route-fd="@task.WorkFolderId" asp-route-sp="sbt" asp-route-tp="0">
+                                            <a class="dropdown-item" asp-area="WSP" asp-controller="Workspace" asp-action="Notes" asp-route-td="@task.Id" asp-route-fd="@task.WorkFolderId" asp-route-sp="sbt">
                                                 <i class="bi bi-stickies"></i> <span>Notes</span>
                                             </a>
                                         </li>
@@ -300,27 +307,19 @@
                             </div>
                         </div>
                     </div>
-                    </div>
+                </div>
             }
-            <div class="text-end">
-                <button class="btn btn-sm" style="width:100px; border-radius:5px; background-color:#5C039A" title="Submit Folder" onclick="returnTaskFolder(@Model.FolderID, @Model.FolderSubmissionID)">
-                    <i class="bi bi-folder-symlink" style="font-size:0.8rem; margin-right:2px"></i> <span class="text-white" style="font-size:0.8rem">Submit</span>
-                </button>
-            </div>
+            @if (!Model.FolderIsReturned)
+            {
+                <div class="text-end">
+                    <button class="btn btn-sm" style="width:100px; border-radius:5px; background-color:#5C039A" title="Submit Folder" onclick="returnTaskFolder(@Model.FolderID, @Model.FolderSubmissionID)">
+                        <i class="bi bi-folder-symlink" style="font-size:0.8rem; margin-right:2px"></i> <span class="text-white" style="font-size:0.8rem">Submit</span>
+                    </button>
+                </div>
+            }
         </div>
     }
 </div>
 @section Scripts{
     <script src="~/js/wsp.js"></script>
 }
-
-
-
-
-
-
-
-
-
-
-

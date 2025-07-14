@@ -66,7 +66,8 @@ namespace IntranetPortal.Data.Repositories.SecurityRepositories
             sb.Append("(SELECT locname FROM public.gst_locs ");
             sb.Append("WHERE locqk = loc_id) as loc_nm ");
             sb.Append("FROM public.sct_loc_pms ");
-            sb.Append("WHERE LOWER(usr_acct_id) = LOWER(@usr_acct_id); ");
+            sb.Append("WHERE LOWER(usr_acct_id) = LOWER(@usr_acct_id) ");
+            sb.Append("ORDER BY loc_nm;");
 
             string query = sb.ToString();
 
@@ -105,7 +106,8 @@ namespace IntranetPortal.Data.Repositories.SecurityRepositories
             sb.Append("locmd, loccb, loccd, locctr, locst, locqk ");
             sb.Append("FROM public.gst_locs WHERE locqk NOT IN ");
             sb.Append("(SELECT loc_id FROM public.sct_loc_pms ");
-            sb.Append("WHERE LOWER(usr_acct_id) = LOWER(@usr_acct_id)); ");
+            sb.Append("WHERE LOWER(usr_acct_id) = LOWER(@usr_acct_id)) ");
+            sb.Append("ORDER BY locname;");
 
             string query = sb.ToString();
 

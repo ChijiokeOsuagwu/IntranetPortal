@@ -27,5 +27,6 @@ namespace IntranetPortal.Base.Models.WspModels
         public string TaskOwnerDepartmentName { get; set; }
         public int? TaskOwnerLocationId { get; set; }
         public string TaskOwnerLocationName { get; set; }
+        public bool CloseTask { get; set; }
     }
 }

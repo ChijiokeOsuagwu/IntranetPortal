@@ -43,10 +43,11 @@ namespace IntranetPortal.Base.Services
         }
 
         #region Employee Service Methods
+
+         #region Employee Write Service Methods
         public async Task<bool> CreateEmployeeAsync(Employee employee, bool personExists = false)
         {
             if (employee == null) { throw new ArgumentNullException(nameof(employee), "The required parameter [employee] is missing."); }
-
             try
             {
                 bool PersonIsAdded = false;
@@ -80,13 +81,7 @@ namespace IntranetPortal.Base.Services
                         year = DateTime.Now.Year;
                     }
 
-                    // int recordCount = await _utilityRepository.GetNumberCount(AutoNumberType.EmployeeNumber, day, month, year);
-                    long recordCount = await _employeesRepository.GetEmployeesCountByStartUpDateAsync(year, month, day);
-                    string yy = year.ToString().Substring(2, 2);
-                    string mm = month.ToString().PadLeft(2, '0');
-                    string dd = day.ToString().PadLeft(2, '0');
-                    string nn = (recordCount + 1).ToString().PadLeft(2, '0');
-                    employee.EmployeeNo1 = $"{employee.CompanyID}{yy}{mm}{dd}{nn}";
+                    employee.EmployeeNo1 = await _getNewEmployeeNumber(employee.CompanyID, year, month, day);
                     
                     if (!string.IsNullOrWhiteSpace(employee.StateOfOrigin))
                     {
@@ -186,6 +181,10 @@ namespace IntranetPortal.Base.Services
                 throw new Exception(ex.Message);
             }
         }
+
+        #endregion
+
+         #region Employee Read Service Methods
 
         public async Task<bool> EmployeeExistsAsync(string EmployeeName)
         {
@@ -408,6 +407,7 @@ namespace IntranetPortal.Base.Services
             if (entities != null) { employees = entities.ToList(); }
             return employees;
         }
+#endregion
 
         #endregion
 
@@ -568,8 +568,6 @@ namespace IntranetPortal.Base.Services
             }
             return employeeReportLine;
         }
-
-
         public async Task<List<EmployeeReportLine>> GetActiveEmployeeReportsByEmployeeIdAsync(string reportsToEmployeeId)
         {
             List<EmployeeReportLine> employeeReportLines = new List<EmployeeReportLine>();
@@ -1207,6 +1205,41 @@ namespace IntranetPortal.Base.Services
         {
             if (o == null) { throw new ArgumentNullException(nameof(o), "Required parameter [Employee Options] is missing."); }
             return await _employeeOptionsRepository.EditAsync(o);
+        }
+
+        #endregion
+
+        
+        
+        
+        
+        #region EmployeeService Helper Methods
+        private async Task<string> _getNewEmployeeNumber(string companyCode, int year, int month, int day)
+        {
+            List<string> _existingNumbers = new List<string>();
+            string yy = year.ToString().Substring(2, 2);
+            string mm = month.ToString().PadLeft(2, '0');
+            string dd = day.ToString().PadLeft(2, '0');
+
+            _existingNumbers = await _employeesRepository.GetEmployeeNumbersByStartUpDateAsync(year, month, day);
+
+            if ( _existingNumbers == null || _existingNumbers.Count < 1)
+            {
+                return $"{companyCode}{yy}{mm}{dd}01";
+            }
+
+             string _newEmployeeNumber = string.Empty;
+            int _nextCount = 1;
+            bool _isExisting = true;
+            do
+            {
+                string _nextDigitString = _nextCount.ToString().PadLeft(2, '0');
+                 _newEmployeeNumber = $"{companyCode}{yy}{mm}{dd}{_nextDigitString}";
+                _isExisting = _existingNumbers.Contains(_newEmployeeNumber);
+                _nextCount++;
+            }
+            while (_isExisting);
+            return _newEmployeeNumber;
         }
 
         #endregion

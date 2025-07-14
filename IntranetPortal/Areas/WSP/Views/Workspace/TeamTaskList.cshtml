@@ -109,7 +109,7 @@
                                     }
                                 </div>
                                 <div class="col-md-2 mb-3">
-                                    <label class="form-label text-dark">Expected Due Date</label>
+                                    <label class="form-label text-dark">Expected Completion Date</label>
                                     @if (task.ExpectedDueTime != null)
                                     {
                                         <div class="form-control fw-bold">@task.ExpectedDueTime.Value.ToString("dd-MMM-yyyy")</div>
@@ -120,7 +120,7 @@
                                     }
                                 </div>
                                 <div class="col-md-3 mb-3">
-                                    <label class="form-label text-dark">Actual Due Date</label>
+                                    <label class="form-label text-dark">Actual Completion Date</label>
                                     @if (task.ActualDueTime != null)
                                     {
                                         <div class="form-control fw-bold">@task.ActualDueTime.Value.ToString("dd-MMM-yyyy")</div>

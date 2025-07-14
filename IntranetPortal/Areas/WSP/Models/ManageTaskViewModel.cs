@@ -40,6 +40,8 @@ namespace IntranetPortal.Areas.WSP.Models
         public string TaskOwnerName { get; set; }
         public string AssignedToId { get; set; }
         public string AssignedToName { get; set; }
+        public string AssignedByEmployeeId { get; set; }
+        public string AssignedByEmployeeName { get; set; }
         public DateTime? AssignedTime { get; set; }
         public TaskItemStage Stage { get; set; }
         public int StageId { get; set; }
@@ -93,6 +95,8 @@ namespace IntranetPortal.Areas.WSP.Models
                 AssignedTime = AssignedTime,
                 AssignedToId = AssignedToId,
                 AssignedToName = AssignedToName,
+                AssignedByEmployeeId = AssignedByEmployeeId,
+                AssignedByEmployeeName = AssignedByEmployeeName,
                 AssignmentId = AssignmentId,
                 CancelledBy = CancelledBy,
                 CancelledTime = CancelledTime,
@@ -137,10 +141,8 @@ namespace IntranetPortal.Areas.WSP.Models
                 UnitName = UnitName,
                 WorkFolderId = WorkFolderId,
                 WorkFolderName = WorkFolderName,
-                
             };
         }
-    
         public ManageTaskViewModel Convert(TaskItem task)
         {
             return new ManageTaskViewModel
@@ -155,6 +157,8 @@ namespace IntranetPortal.Areas.WSP.Models
                 AssignedTime = task.AssignedTime,
                 AssignedToId = task.AssignedToId,
                 AssignedToName = task.AssignedToName,
+                AssignedByEmployeeId = task.AssignedByEmployeeId,
+                AssignedByEmployeeName = task.AssignedByEmployeeName,
                 AssignmentId = task.AssignmentId,
                 CancelledBy = task.CancelledBy,
                 CancelledTime = task.CancelledTime,

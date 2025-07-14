@@ -47,7 +47,7 @@
         <div class="row">
             <div class="col-md-12 mb-2">
                 <label class="form-label text-dark fw-bold">Task Resolution</label>
-                <textarea asp-for="TaskResolution" class="form-control fw-bold" rows="4" placeholder="Enter Task Resolution Here ..." autofocus>@Model.TaskResolution</textarea>
+                <textarea asp-for="TaskResolution" class="form-control fw-bold" rows="4" placeholder="Describe how the task or issue was resolved. Include the steps taken, final outcome, and any follow up needed." autofocus required>@Model.TaskResolution</textarea>
                 <div><span asp-validation-for="TaskResolution" class="text-danger"></span></div>
             </div>
         </div>

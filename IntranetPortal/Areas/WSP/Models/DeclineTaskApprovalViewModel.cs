@@ -22,5 +22,6 @@ namespace IntranetPortal.Areas.WSP.Models
         [Required]
         public string FromEmployeeName { get; set; }
         public string FromEmployeeID { get; set; }
+        public string FolderSubmissionType { get; set; }
     }
 }

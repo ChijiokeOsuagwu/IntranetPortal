@@ -22,6 +22,8 @@ namespace IntranetPortal.Base.Models.WspModels
         public string TaskOwnerName { get; set; }
         public string AssignedToId { get; set; }
         public string AssignedToName { get; set; }
+        public string AssignedByEmployeeId { get; set; }
+        public string AssignedByEmployeeName { get; set; }
         public DateTime? AssignedTime { get; set; }
         public TaskItemStage Stage { get; set; }
         public int StageId { get; set; }

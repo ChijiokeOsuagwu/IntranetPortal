@@ -21,6 +21,7 @@ namespace IntranetPortal.Areas.WSP.Models
         public string SubmittedToEmployeeID { get; set; }
         public string SubmittedToEmployeeName { get; set; }
         public long TaskEvaluationHeaderID { get; set; }
+        public bool FolderIsReturned { get; set; }
         public WorkItemSubmissionType PurposeOfSubmission { get; set; }
         public List<TaskItem> TaskItems { get; set; }
     }

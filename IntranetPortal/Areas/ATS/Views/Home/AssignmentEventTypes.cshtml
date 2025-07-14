@@ -1,0 +1,91 @@
+﻿@model IntranetPortal.Areas.ATS.Models.AssignmentEventTypesListViewModel
+<div class="container">
+    <h3 class="mb-1">Assignment Tracking System | Event Types</h3>
+    <hr />
+    <div class="row">
+        <div class="col-md-3 mb-2">
+            <a asp-area="ATS" asp-controller="Home" asp-action="Settings" class="btn btn-dark" style="width:100px" title="Back">
+                <span class="text-white">Back</span>
+            </a>
+        </div>
+        <div class="col-md-9 mb-2">
+            <a asp-area="ATS" asp-controller="Home" asp-action="ManageEventType" asp-route-id="0" class="btn btn-dark" style="width:200px" title="Add New Event Type">
+                <span class="text-white">New Event Type</span>
+            </a>
+        </div>
+    </div>
+    <div class="mb-1">
+        @if (!String.IsNullOrEmpty(Model.ViewModelSuccessMessage))
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="bi bi-x-circle"></i>
+                <span class="fw-bold">@Model.ViewModelSuccessMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-x-circle"></i>
+                <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+    </div>
+    <div class="row">
+        @if (Model == null || Model.AssignmentEventTypeList == null || Model.AssignmentEventTypeList.Count < 1)
+        {
+            <div class="alert alert-info fade show" role="alert">
+                <i class="bi bi-info-circle"></i>
+                <span class="fw-bold">No record was found.</span>
+            </div>
+        }
+        else
+        {
+            int row_no = 0;
+            <div class="table-responsive">
+                <table class="table table-sm table-hover" style="max-width:600px">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>
+                                <span class="text-white fw-bolder">#</span>
+                            </th>
+                            <th>
+                                <span class="text-white fw-bolder">Description</span>
+                            </th>
+                            <th>
+
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="table-light">
+                        @foreach (var item in Model.AssignmentEventTypeList)
+                        {
+                            row_no++;
+                            <tr>
+                                <td>
+                                    <span class="fw-bolder">@row_no.ToString()</span>
+                                </td>
+                                <td>
+                                    <span class="fw-bolder">@item.Description</span>
+                                </td>
+                                <td class="text-end">
+                                    <form asp-area="ATS" asp-controller="Home" asp-action="DeleteEventType" method="post">
+                                        <a asp-area="ATS" asp-controller="Home" asp-action="ManageEventType" asp-route-id="@item.Id" title="Select" class="btn btn-sm btn-dark">
+                                            <span class="text-white"> Edit</span>
+                                        </a>
+                                        <input type="hidden" id="id" name="id" value="@item.Id" />
+                                        <input type="submit" value="Delete" class="btn btn-sm btn-danger pl-3 text-white" onclick="return confirm('Delete permanently?');" />
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>
+@section Scripts{
+    <script src="~/js/ats.js"></script>
+}
