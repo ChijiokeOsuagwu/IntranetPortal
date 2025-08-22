@@ -4,9 +4,9 @@ using System.Text;
 
 namespace IntranetPortal.Base.Models.BaseModels
 {
-    public class IndustryType
+    public class BusinessType
     {
-        public int IndustryTypeID { get; set; }
-        public string IndustryTypeName { get; set; }
+        public int BusinessTypeId { get; set; }
+        public string BusinessTypeName { get; set; }
     }
 }

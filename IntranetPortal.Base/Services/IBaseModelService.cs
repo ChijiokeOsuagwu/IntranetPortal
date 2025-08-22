@@ -1,6 +1,6 @@
 ﻿using IntranetPortal.Base.Enums;
 using IntranetPortal.Base.Models.BaseModels;
-using IntranetPortal.Base.Models.WksModels;
+using IntranetPortal.Base.Models.WspModels;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -10,11 +10,12 @@ namespace IntranetPortal.Base.Services
 {
     public interface IBaseModelService
     {
-        //========================================= Utility Service Methods ============================================//
+        //===== Utility Service Methods =====//
         #region Utility Service Methods
         Task<bool> DbConnectionIsOpenAsync();
         #endregion
-        //========================================= Person Action Methods ===========================================//
+
+        //===== Person Action Methods =======//
         #region Person Action Methods
         Task<bool> CreatePersonAsync(Person person);
 
@@ -34,7 +35,7 @@ namespace IntranetPortal.Base.Services
 
         #endregion
 
-        //========================================= AutoNumber Action Methods ===========================================//
+        //===== AutoNumber Action Methods ====//
         #region AutoNumber Action Methods 
         Task<string> GenerateAutoNumberAsync(string NumberType);
 
@@ -45,7 +46,7 @@ namespace IntranetPortal.Base.Services
         Task<bool> RegisterCodeNumberAsync(AutoNumberType type);
         #endregion
 
-        //========================================= Message Service Methods ==============================================// 
+        //===== Message Service Methods ======// 
         #region Message Service Methods
         Task<bool> SendMessageAsync(Message message, List<string> receipientIds);
         Task<bool> SendMessageAsync(Message message);
@@ -68,16 +69,24 @@ namespace IntranetPortal.Base.Services
 
         #endregion
 
-        //========================================== System Application Action Methods ===================================//
+        //===== System Application Action Methods ===//
         #region System Applications Action Methods 
         Task<List<SystemApplication>> GetSystemApplicationsAsync();
         #endregion
 
-        //================================== Industry Type Service Methods ===============================================//
-        #region Industry Types Service Methods
-        Task<List<IndustryType>> GetIndustryTypesAsync();
+        //==== Industry Type Service Methods ======//
+        #region Industry Sectors Service Methods
+        Task<List<IndustrySector>> GetIndustrySectorsAsync();
+        Task<IndustrySector> GetIndustrySectorAsync(int Id);
+        Task<bool> CreateIndustrySectorAsync(IndustrySector industrySector);
+        Task<bool> EditIndustrySectorAsync(IndustrySector industrySector);
+        Task<bool> DeleteIndustrySectorAsync(int IndustrySectorId);
         #endregion
 
+        #region Business Types Service Methods
+        Task<List<BusinessType>> GetBusinessTypesAsync();
+
+        #endregion
         //================================= Entity Activity History Service Methods =======================================//
         #region Entity Activity History Service Methods
         Task<bool> AddEntityActivityHistoryAsync(EntityActivityHistory entityActivityHistory, EntityType entityType);

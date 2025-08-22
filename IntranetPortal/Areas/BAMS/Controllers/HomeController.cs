@@ -325,7 +325,7 @@ namespace IntranetPortal.Areas.BAMS.Controllers
         {
             BusinessPartnerViewModel model = new BusinessPartnerViewModel();
             model.IsCustomer = true;
-            var industryTypes = await _baseModelService.GetIndustryTypesAsync();
+            var industryTypes = await _baseModelService.GetIndustrySectorsAsync();
             ViewBag.IndustryTypesList = new SelectList(industryTypes, "IndustryTypeName", "IndustryTypeName");
             var locations = await _globalSettingsService.GetStationsAsync();
             ViewBag.LocationsList = new SelectList(locations, "LocationID", "LocationName");
@@ -339,32 +339,25 @@ namespace IntranetPortal.Areas.BAMS.Controllers
             if (ModelState.IsValid)
             {
                 Business business = new Business();
-                Person person = new Person();
                 BusinessContact contact = new BusinessContact();
                 model.BusinessID = Guid.NewGuid().ToString();
-                model.ContactID = Guid.NewGuid().ToString();
                 try
                 {
                     business = model.ConvertToBusiness();
                     business.IsCustomer = true;
-                    business.CreatedTime = $"{DateTime.UtcNow.ToLongDateString()} {DateTime.UtcNow.ToLongTimeString()} + UTC";
+                    business.CreatedTime = DateTime.Now;
                     business.CreatedBy = HttpContext.User.Identity.Name;
                     business.ModifiedBy = HttpContext.User.Identity.Name;
-                    business.ModifiedTime = $"{DateTime.UtcNow.ToLongDateString()} {DateTime.UtcNow.ToLongTimeString()} + UTC";
+                    business.ModifiedTime = DateTime.Now;
 
-                    person = model.FromModel_RetrieveContactInfo();
                     contact = model.FromModel_RetrieveBusinessContact();
-
                     if (await _businessManagerService.CreateBusinessAsync(business))
                     {
-                        if (!string.IsNullOrWhiteSpace(person.FullName))
+                        if (!string.IsNullOrWhiteSpace(contact.ContactName))
                         {
-                            bool PersonCreated = await _baseModelService.CreatePersonAsync(person);
-                            if (PersonCreated)
-                            {
-                                contact.PersonID = person.PersonID;
+                                //contact.PersonID = person.PersonID;
                                 contact.BusinessID = business.BusinessID;
-                                contact.PersonRole = model.Designation;
+                                contact.Designation = model.ContactDesignation;
                                 if (await _businessManagerService.CreateBusinessContactAsync(contact))
                                 {
                                     model.OperationIsCompleted = true;
@@ -373,16 +366,10 @@ namespace IntranetPortal.Areas.BAMS.Controllers
                                 }
                                 else
                                 {
-                                    await _baseModelService.DeletePersonAsync(person.PersonID, person.CreatedBy, person.CreatedTime);
                                     await _businessManagerService.DeleteBusinessAsync(business.BusinessID);
                                     model.ViewModelErrorMessage = $"Error! Sorry, an error was encountered. Creating New Customer failed.";
                                 }
-                            }
-                            else
-                            {
-                                await _businessManagerService.DeleteBusinessAsync(business.BusinessID);
-                                model.ViewModelErrorMessage = $"Error! Sorry, an error was encountered. Creating New Customer failed.";
-                            }
+
                         }
                         else
                         {
@@ -398,15 +385,10 @@ namespace IntranetPortal.Areas.BAMS.Controllers
                 }
                 catch (Exception ex)
                 {
-                    if (!string.IsNullOrEmpty(person.PersonID))
-                    {
-                        await _baseModelService.DeletePersonAsync(person.PersonID, person.CreatedBy, person.CreatedTime);
-                    }
                     if (!string.IsNullOrEmpty(business.BusinessID))
                     {
                         await _businessManagerService.DeleteBusinessAsync(business.BusinessID);
                     }
-
                     model.ViewModelErrorMessage = ex.Message;
                 }
             }
@@ -414,7 +396,7 @@ namespace IntranetPortal.Areas.BAMS.Controllers
             {
                 model.ViewModelErrorMessage = $"Ooops! It appears some fields have missing or invalid values. Please correct this and try again.";
             }
-            var industryTypes = await _baseModelService.GetIndustryTypesAsync();
+            var industryTypes = await _baseModelService.GetIndustrySectorsAsync();
             ViewBag.IndustryTypesList = new SelectList(industryTypes, "IndustryTypeName", "IndustryTypeName");
             var locations = await _globalSettingsService.GetStationsAsync();
             ViewBag.LocationsList = new SelectList(locations, "LocationID", "LocationName");

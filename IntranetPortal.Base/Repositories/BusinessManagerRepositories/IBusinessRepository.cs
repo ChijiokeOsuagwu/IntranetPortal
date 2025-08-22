@@ -9,16 +9,19 @@ namespace IntranetPortal.Base.Repositories.BusinessManagerRepositories
 {
     public interface IBusinessRepository
     {
-        Task<Business> GetByIdAsync(string businessId);
         Task<Business> GetCustomerByNameAsync(string businessName);
-        Task<IList<Business>> SearchCustomersByNameAsync(string businessName);
-        Task<IList<Business>> GetAllCustomersAsync();
+        Task<List<Business>> SearchCustomersByNameAsync(string businessName);
+        Task<List<Business>> GetAllCustomersAsync();
         Task<Business> GetSupplierByNameAsync(string businessName);
-        Task<IList<Business>> SearchSuppliersByNameAsync(string businessName);
-        Task<IList<Business>> GetAllSuppliersAsync();
+        Task<List<Business>> SearchSuppliersByNameAsync(string businessName);
+        Task<List<Business>> GetAllSuppliersAsync();
         Task<bool> AddAsync(Business business);
         Task<bool> EditAsync(Business business);
         Task<bool> DeleteAsync(string businessId);
+
+        //===== General Action Interfaces =======//
+        Task<List<string>> GetCodeNumbersByCreatedDateAsync(DateTime createdDate);
+        Task<Business> GetByIdAsync(string businessId);
 
     }
 }

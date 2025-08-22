@@ -26,6 +26,7 @@ namespace IntranetPortal.Base.Models.WspModels
         public DateTime? ArchivedTime { get; set; }
         public bool IsReuseable { get; set; }
         public bool IsLocked { get; set; }
+        public long NoOfEvaluations { get; set; }
         public Workspace FolderWorkSpace { get; set; }
     }
 }

@@ -1,0 +1,231 @@
+﻿
+@model IntranetPortal.Areas.ATS.Models.CreateAssignmentViewModel
+<h4>Assignment Tracking System | Assignment Details</h4>
+<hr />
+<div class="row">
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container-fluid">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNavDropdown">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a asp-area="ATS" asp-controller="Assignments" asp-action="Active" title="Go Back" class="btn btn-sm btn-outline-light text-dark">
+                            <i class="bi bi-backspace fw-bolder" style="font-size: 1.0rem;"></i>&nbsp;<span class="fw-bold ml-1" style="font-size: 0.9rem;">Back</span>
+                        </a>
+                    </li>
+                    @*<li class="nav-item">
+                            <a asp-area="PMS" asp-controller="Settings" asp-action="ReviewSessionInfo" asp-route-id="@Model.ReviewSessionId" title="Show Information" class="btn btn-sm btn-light text-dark">
+                                <i class="bi bi-info-lg fw-bolder" style="font-size: 1.0rem;"></i><span class="fw-bold ml-1" style="font-size: 0.9rem;">Details</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a asp-area="PMS" asp-Controller="Settings" asp-action="AppraisalGradesInfo" asp-route-id="@Model.ReviewSessionId" title="Appraisal Grade Settings" class="btn btn-sm btn-light text-dark">
+                                <i class="bi bi-percent fw-bolder" style="font-size: 1.0rem;"></i><span class="fw-bold ml-1" style="font-size: 0.9rem;">Appraisal Grades</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a asp-area="PMS" asp-controller="Settings" asp-action="AppraisalSessionSchedules" asp-route-id="@Model.ReviewSessionId" title="Appraisal Schedules" class="btn btn-sm btn-light text-dark">
+                                <i class="bi bi-calendar4-week fw-bolder" style="font-size: 1.0rem"></i><span class="fw-bold ml-1" style="font-size: 0.9rem;">Appraisal Schedules</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a asp-area="PMS" asp-controller="Process" asp-action="AppraisalNotes" asp-route-id="@Model.ReviewHeaderId" asp-route-sp="stp" title="Appraisal Notes" class="btn btn-sm btn-light text-dark">
+                                <i class="bi bi-journals fw-bolder" style="font-size: 1.0rem"></i><span class="fw-bold ml-1" style="font-size: 0.9rem;">Notes</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a asp-area="PMS" asp-controller="Process" asp-action="AppraisalActivities" asp-route-id="@Model.ReviewHeaderId" asp-route-sp="stp" title="Appraisal Activity History" class="btn btn-sm btn-light text-dark">
+                                <i class="bi bi-journals fw-bolder" style="font-size: 1.0rem"></i><span class="fw-bold ml-1" style="font-size: 0.9rem;">History</span>
+                            </a>
+                        </li>*@
+                </ul>
+            </div>
+        </div>
+    </nav>
+</div>
+<div class="card" style="width:80pc">
+    <div class="card-header bg-dark">
+        <div class="row">
+            <div class="col-md-3" title="Assigned To">
+                @if (string.IsNullOrWhiteSpace(Model.AssignedToName))
+                {
+                    <span class="fw-bold text-white" title="Assigned To"><i class="bi bi-person" style="font-size:1.2rem; font-weight:bold"></i> [Not Yet Assigned] </span>
+                }
+                else
+                {
+                    <span class="fw-bold text-white" title="Assigned To"><i class="bi bi-person" style="font-size:1.2rem; font-weight:bold"></i> @Model.AssignedToName</span>
+                }
+            </div>
+            <div class="col-md-2" title="Location">
+                <span class="fw-bold text-white" title="Location"><i class="bi bi-geo-alt" style="font-size:1.2rem; font-weight:bold"></i> @Model.EventState</span>
+            </div>
+            <div class="col-md-4" title="Event Time">
+                @if (Model.EventStartDate == null)
+                {
+                    <span class="fw-bold text-white" title="Event Time"><i class="bi bi-clock" style="font-size:1.0rem; font-weight:bold"></i> [Unspecified]</span>
+                }
+                else
+                {
+                    <span class="fw-bold text-white" title="Event Time"><i class="bi bi-clock" style="font-size:1.0rem; font-weight:bold"></i> @Model.EventStartDate.Value.ToString("f")</span>
+                }
+            </div>
+            <div class="col-md-3 text-end">
+                <span class="fw-bold" style="color:white"><i class="bi bi-speedometer2" style="font-size:1.0rem; font-weight:bold"></i> @Model.ProgressStatus</span>
+            </div>
+        </div>
+    </div>
+    <div class="card-body table-secondary">
+        <div class="row">
+            <div class="col-md-2" title="Assignment Number">
+                <label class="form-label text-dark">#</label>
+                <div class="form-control fw-bold">@Model.No</div>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label class="form-label text-dark">Client/Organisation</label>
+                <div class="form-control fw-bold">@Model.ClientName</div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <label class="form-label text-dark">Assigned To</label>
+                <div class="form-control fw-bold">@Model.AssignedToName</div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-9 mb-3">
+                <label class="form-label text-dark">Event Title</label>
+                <div class="form-control fw-bold">@Model.Title</div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <label class="form-label text-dark">Approval Status</label>
+                <div class="form-control fw-bold">@Model.EventTypeTitle</div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label class="form-label text-dark">Event Venue</label>
+                <textarea class="form-control fw-bold" readonly>@Model.EventVenue</textarea>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label class="form-label text-dark">Event Details</label>
+                <textarea class="form-control fw-bold" readonly>@Model.Description</textarea>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-4 mb-3">
+                <label class="form-label text-dark">Event Start Date</label>
+                @if (Model.EventEndDate != null)
+                {
+                    <div class="form-control fw-bold">@Model.EventStartDate.Value.ToString("f") </div>
+                }
+                else
+                {
+                    <div class="form-control fw-bold">[Unspecified]</div>
+                }
+            </div>
+            <div class="col-md-4 mb-3">
+                <label class="form-label text-dark">Event End Date</label>
+                @if (Model.EventEndDate != null)
+                {
+                    <div class="form-control fw-bold">@Model.EventEndDate.Value.ToString("f") </div>
+                }
+                else
+                {
+                    <div class="form-control fw-bold">[Unspecified]</div>
+                }
+            </div>
+            <div class="col-md-4 mb-3">
+                <label class="form-label text-dark">Report Due</label>
+                @if (Model.ReportDueDate != null)
+                {
+                    <div class="form-control fw-bold">@Model.ReportDueDate.Value.ToString("f") </div>
+                }
+                else
+                {
+                    <div class="form-control fw-bold">[Unspecified]</div>
+                }
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-2 mb-3">
+                <label class="form-label text-dark">Event State</label>
+                <div class="form-control fw-bold">@Model.EventState </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <label class="form-label text-dark">Coordinating Station</label>
+                <div class="form-control fw-bold">@Model.StationName </div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <label class="form-label text-dark">Contact Name</label>
+                <div class="form-control fw-bold">@Model.ContactPerson </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <label class="form-label text-dark">Contact Phone</label>
+                <div class="form-control fw-bold">@Model.ContactPhone </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-2 mb-3">
+                <label class="form-label text-dark">Approval Status</label>
+                <div class="form-control fw-bold">@Model.ApprovalStatus</div>
+            </div>
+            <div class="col-md-2 mb-3">
+                <label class="form-label text-dark">Progress Status</label>
+                <div class="form-control fw-bold">@Model.ProgressStatus</div>
+            </div>
+            <div class="col-md-2 text-center" style="margin-top:30px">
+                @if (Model.IsPaid)
+                {<i class="bi bi-check-square" style="font-size:1.0rem;"></i><span>  Is Paid</span>}
+                else
+                { <i class="bi bi-square" style="font-size:1.0rem;"></i><span>Is Paid</span>}
+            </div>
+            <div class="col-md-2 text-center" style="margin-top:30px">
+                @if (Model.IsConfirmed)
+                {<i class="bi bi-check-square" style="font-size:1.0rem"></i><span>  Is Confirmed</span>}
+                else
+                { <i class="bi bi-square" style="font-size:1.0rem"></i><span>  Is Confirmed</span>}
+
+            </div>
+            <div class="col-md-2 text-center" style="margin-top:30px">
+                @if (Model.IsLive)
+                {<i class="bi bi-check-square" style="font-size:1.0rem"></i><span style="font-size:0.8rem">  Is Live</span>}
+                else
+                { <i class="bi bi-square" style="font-size:1.0rem"></i><span style="font-size:0.8rem">  Is Live</span>}
+            </div>
+            <div class="col-md-2 text-center" style="margin-top:30px">
+                @if (Model.IsPriority)
+                {<span style="font-size:0.8rem"><i class="bi bi-check-square fw-bold" style="font-size:1.0rem"></i>  Is Priority</span>}
+                else
+                { <i class="bi bi-square" style="font-size:1.0rem"></i><span style="font-size:0.8rem"> Is Priority</span>}
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12 text-end">
+                <a asp-area="ATS" asp-controller="Assignments" asp-action="CrewList" asp-route-id="@Model.Id" style="border-radius:5px; border:0px; margin-right:3px" class="btn btn-sm btn-outline-dark" title="List of Crew Members">
+                    <i class="bi bi-people" style="font-size:1.0rem"></i> <span class="fw-bold"> Manage Crew List</span>
+                </a>
+                <!-- Default dropstart button -->
+                <div class="btn-group dropstart">
+                    <button type="button" data-bs-toggle="dropdown" aria-expanded="false" style="border-radius:5px; border:0px" class="btn btn-sm btn-outline-dark">
+                        <i class="bi bi-tools" style="font-size:1.0rem; font-weight:900"></i><span class="fw-bold"> Options</span>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton2">
+                        <li>
+                            <a class="dropdown-item" asp-area="ATS" asp-controller="Assignments" asp-action="History" asp-route-id="@Model.Id">
+                                <i class="bi bi-file-text"></i> <span>History</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" asp-area="ATS" asp-controller="Assignments" asp-action="Notes" asp-route-id="@Model.Id" asp-route-sp="ctv">
+                                <i class="bi bi-stickies"></i> <span>Notes</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@section Scripts{
+    <script src="~/js/ats.js"></script>
+}

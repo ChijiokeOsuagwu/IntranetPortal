@@ -3,7 +3,7 @@
     ViewData["Title"] = "OfficeManager | Workspace";
 }
 <div class="container">
-    <h4>Channels Workspace</h4>
+    <h4>Channels Workspace | My Archived Folders</h4>
     <hr />
     <div class="row">
         <div class="col-md-4">
@@ -46,46 +46,59 @@
         <div class="row mt-2">
             @foreach (var folder in Model.ArchivedFolders)
             {
-               <div class="col-md-6 col-lg-3 col-xlg-2">
-                        <div class="card card-hover">
-                            <div class="box bg-light text-center">
-                                <div>
-                                    @*@if (submission.IsActioned)
-                                    {
-                                        <span class="badge badge-success fw-bold" style="width:150px; border-radius:3px">Approved</span> }
-                                    else
-                                    {
-                                        <span class="badge badge-warning fw-bold" style="width:150px; border-radius:3px; color:black">Pending Approval</span>}*@
-                                </div>
-                                <a asp-area="WSP" asp-controller="Workspace" asp-action="MyArchivedEvaluations" asp-route-id="@folder.Id" asp-route-fn="@folder.Title" asp-route-od="@folder.OwnerId" >
-                                    <h1 class="font-light text-dark" title="@folder.Title">
-                                            <i class="bi bi-archive" style="font-size:3.0rem"></i>
-                                    </h1>
-                                    <div><span class="text-dark fw-bold">@folder.Title</span></div>
+            <div class="col-md-6 col-lg-3 col-xlg-2">
+                <div class="text-center">
+                    <div class="btn-group dropstart">
+                        <button type="button" data-bs-toggle="dropdown" aria-expanded="false" style="border:0px">
+                            <span class="fw-bold" style="font-size:1.0rem;"><i class="bi bi-three-dots"></i></span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton2">
+                            <li>
+                                <a class="dropdown-item" asp-area="WSP" asp-controller="Workspace" asp-action="MyArchivedEvaluations" asp-route-id="@folder.Id" asp-route-fn="@folder.Title" asp-route-od="@folder.OwnerId">
+                                    <i class="bi bi-folder"></i> <span>Open</span>
                                 </a>
-                                @*<div class="text-center p-0 m-0">
-                                    <span class="fw-bold" style="font-size:0.6rem; padding:0px; margin:0px"><em><u>Submitted By: </u><br />@folder..FromEmployeeName (@submission.FromEmployeeUnitName) </em></span>
-                                </div>
-                                <div class="text-center p-0 m-0">
-                                    <span class="fw-bold" style="font-size:0.6rem; padding:0px; margin:0px"><em><u>Submitted On: </u><br />@submission.DateSubmitted.Value.ToLongDateString() @submission.DateSubmitted.Value.ToShortTimeString()</em></span>
-                                </div>*@
-                            </div>
-                            <div class="text-center">
-                                <div class="btn-group dropstart">
-                                    <button type="button" data-bs-toggle="dropdown" aria-expanded="false" style="border:0px">
-                                        <span class="fw-bold" style="font-size:1.0rem;"><i class="bi bi-three-dots"></i></span>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" asp-area="WSP" asp-controller="Workspace" asp-action="Notes" asp-route-fd="@folder.Id" asp-route-sp="sbf">
+                                    <i class="bi bi-stickies"></i> <span>Notes</span>
+                                </a>
+                            </li>
+                            @if (folder.NoOfEvaluations < 1)
+                            {
+                                <li>
+                                    <button class="dropdown-item" asp-route-fd="@folder.Id" onclick="reactivateTaskFolder(@folder.Id)">
+                                        <i class="bi bi-bootstrap-reboot"></i> <span>Re-Activate</span>
                                     </button>
-                                    <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton2">
-                                        <li>
-                                            <a class="dropdown-item" asp-area="WSP" asp-controller="Workspace" asp-action="Notes" asp-route-fd="@folder.Id" asp-route-sp="sbf">
-                                                <i class="bi bi-stickies"></i> <span>Notes</span>
-                                            </a>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
+                                </li>
+                            }
+                        </ul>
                     </div>
+                </div>
+                <div class="card card-hover">
+                    <div class="box bg-light text-center">
+                        <div>
+                            @*@if (submission.IsActioned)
+                    {
+                        <span class="badge badge-success fw-bold" style="width:150px; border-radius:3px">Approved</span> }
+                    else
+                    {
+                        <span class="badge badge-warning fw-bold" style="width:150px; border-radius:3px; color:black">Pending Approval</span>}*@
+                        </div>
+                        <a asp-area="WSP" asp-controller="Workspace" asp-action="MyArchivedEvaluations" asp-route-id="@folder.Id" asp-route-fn="@folder.Title" asp-route-od="@folder.OwnerId">
+                            <h1 class="font-light text-dark" title="@folder.Title">
+                                <i class="bi bi-archive" style="font-size:3.0rem"></i>
+                            </h1>
+                            <div><span class="text-dark fw-bold">@folder.Title</span></div>
+                        </a>
+                        @*<div class="text-center p-0 m-0">
+                    <span class="fw-bold" style="font-size:0.6rem; padding:0px; margin:0px"><em><u>Submitted By: </u><br />@folder..FromEmployeeName (@submission.FromEmployeeUnitName) </em></span>
+                </div>
+                <div class="text-center p-0 m-0">
+                    <span class="fw-bold" style="font-size:0.6rem; padding:0px; margin:0px"><em><u>Submitted On: </u><br />@submission.DateSubmitted.Value.ToLongDateString() @submission.DateSubmitted.Value.ToShortTimeString()</em></span>
+                </div>*@
+                    </div>
+                </div>
+            </div>
             }
         </div>
     }

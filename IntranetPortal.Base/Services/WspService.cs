@@ -239,6 +239,109 @@ namespace IntranetPortal.Base.Services
             }
             return folderList;
         }
+       
+        public async Task<List<WorkItemFolder>> GetWorkItemFoldersAsync(DateTime StartDate, DateTime EndDate, int ArchiveStatus, int? LocationId = null, int? DepartmentId = null, int? UnitId = null, string OwnerId = null)
+        {
+            List<WorkItemFolder> folderList = new List<WorkItemFolder>();
+            if (!string.IsNullOrWhiteSpace(OwnerId))
+            {
+                switch (ArchiveStatus)
+                {
+                    case 0:
+                    case 1:
+                        bool IsArchived = Convert.ToBoolean(ArchiveStatus);
+                        var firstEntities = await _deskspaceRepository.GetWorkItemFoldersByOwnerIdnArchivednDatesAsync(OwnerId, IsArchived, StartDate, EndDate);
+                        if(firstEntities != null)
+                        {
+                            folderList = firstEntities;
+                        }
+                        break;
+                    case 2:
+                        var secondEntities = await _deskspaceRepository.GetWorkItemFoldersByOwnerIdnDatesAsync(OwnerId, StartDate, EndDate);
+                        if (secondEntities != null)
+                        {
+                            folderList = secondEntities;
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            }
+            else if(UnitId > 0)
+            {
+                switch (ArchiveStatus)
+                {
+                    case 0:
+                    case 1:
+                        bool IsArchived = Convert.ToBoolean(ArchiveStatus);
+                        var firstEntities = await _deskspaceRepository.GetWorkItemFoldersByUnitIdnArchivednDatesAsync(UnitId.Value, IsArchived, StartDate, EndDate);
+                        if (firstEntities != null)
+                        {
+                            folderList = firstEntities;
+                        }
+                        break;
+                    case 2:
+                        var secondEntities = await _deskspaceRepository.GetWorkItemFoldersByUnitIdnDatesAsync(UnitId.Value, StartDate, EndDate);
+                        if (secondEntities != null)
+                        {
+                            folderList = secondEntities;
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            }
+            else if(DepartmentId > 0)
+            {
+                switch (ArchiveStatus)
+                {
+                    case 0:
+                    case 1:
+                        bool IsArchived = Convert.ToBoolean(ArchiveStatus);
+                        var firstEntities = await _deskspaceRepository.GetWorkItemFoldersByDepartmentIdnArchivednDatesAsync(DepartmentId.Value, IsArchived, StartDate, EndDate);
+                        if (firstEntities != null)
+                        {
+                            folderList = firstEntities;
+                        }
+                        break;
+                    case 2:
+                        var secondEntities = await _deskspaceRepository.GetWorkItemFoldersByDepartmentIdnDatesAsync(DepartmentId.Value, StartDate, EndDate);
+                        if (secondEntities != null)
+                        {
+                            folderList = secondEntities;
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            }
+            else if(LocationId > 0)
+            {
+                switch (ArchiveStatus)
+                {
+                    case 0:
+                    case 1:
+                        bool IsArchived = Convert.ToBoolean(ArchiveStatus);
+                        var firstEntities = await _deskspaceRepository.GetWorkItemFoldersByLocationIdnArchivednDatesAsync(LocationId.Value, IsArchived, StartDate, EndDate);
+                        if (firstEntities != null)
+                        {
+                            folderList = firstEntities;
+                        }
+                        break;
+                    case 2:
+                        var secondEntities = await _deskspaceRepository.GetWorkItemFoldersByLocationIdnDatesAsync(LocationId.Value, StartDate, EndDate);
+                        if (secondEntities != null)
+                        {
+                            folderList = secondEntities;
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            }
+            return folderList;
+        }
+        
         #endregion
        
         //============== Work Item Folder Write Service Methods ================================//

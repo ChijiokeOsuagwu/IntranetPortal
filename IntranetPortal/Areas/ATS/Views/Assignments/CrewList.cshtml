@@ -1,0 +1,155 @@
+﻿@model IntranetPortal.Areas.ATS.Models.AssignmentCrewListViewModel
+<div class="container">
+    <h4 class="mb-1">Assignment Tracking System | Manage Assignment Crew </h4>
+    <hr />
+    <div class="row">
+        <div class="col-md-9 fw-bold"><span style="font-size:1.0rem">Event: @Model.AssignmentTitle</span></div>
+        <div class="col-md-3 fw-bold"><span style="font-size:1.0rem">Location: @Model.AssignmentState</span></div>
+    </div>
+    <hr />
+    <div class="row">
+        <div class="col-md-2 mb-3">
+            @if (Model.SourcePage == "ctv")
+            {
+                <a asp-area="ATS" asp-Controller="Assignments" asp-action="Active" title="Go Back" class="btn btn-sm btn-dark text-white" style="width:75px; border-radius:5px">
+                    Back
+                </a>
+            }
+            else
+            {
+                <a asp-area="ATS" asp-Controller="Assignments" asp-action="Active" title="Go Back" class="btn btn-sm btn-dark text-white" style="width:75px; border-radius:5px">
+                    Back
+                </a>
+            }
+        </div>
+        <div class="col-md-8 mb-3">
+            <div id="div-error" class="text-danger"></div>
+            <div class="input-group">
+                <input type="hidden" id="crew_member_id" value=""/>
+                <input id="sn" asp-for="NewMemberName" class="form-control form-control-sm" placeholder="Enter name" aria-label="Enter Name" style="font-size:14px; font-weight:bold" required>
+                <select asp-for="NewMemberRole1" id="role1" class="form-select form-select-sm" asp-items="@ViewBag.AssignmentRoles" style="font-size:14px; font-weight:bold; max-width:170px; border-radius:5px" required>
+                    <option value="">Role 1</option>
+                </select>
+                <select asp-for="NewMemberRole2" id="role2" class="form-select form-select-sm" asp-items="@ViewBag.AssignmentRoles" style="font-size:14px; font-weight:bold; max-width:170px; border-radius:5px">
+                    <option value="">Role 2</option>
+                </select>
+                <select asp-for="NewMemberRole3" id="role3" class="form-select form-select-sm" asp-items="@ViewBag.AssignmentRoles" style="font-size:14px; font-weight:bold; max-width:170px; border-radius:5px">
+                    <option value="">Role 3</option>
+                </select>
+            </div>
+        </div>
+        <div class="col-md-2 mb-3">
+            <button class="btn btn-sm btn-dark" type="button" id="add" style="width:100px; border-radius:5px" onclick="addCrewMember()">Save</button>
+        </div>
+    </div>
+    <div class="row">
+        <div>
+            @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bi bi-x-circle"></i>
+                    <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+        </div>
+        <div class="row">
+            @if (Model == null || Model.CrewMemberList == null || Model.CrewMemberList.Count < 1)
+            {
+                <div class="alert alert-info fade show" role="alert">
+                    <i class="bi bi-info-circle"></i>
+                    <span class="fw-bold">No record was found.</span>
+                </div>
+            }
+            else
+            {
+                int row_no = 0;
+                <div class="row">
+                    <div class="table-responsive" style="min-height:400px">
+                        <table class="table table-sm table-secondary">
+                            <thead>
+                                <tr>
+                                    <th class="bg-info text-white fw-bold">#</th>
+                                    <th class="bg-info text-white fw-bold">Name</th>
+                                    <th class="bg-info text-white fw-bold">Role</th>
+                                    <th class="bg-info text-white fw-bold">Unit</th>
+                                    <th class="bg-info text-white fw-bold">Location</th>
+                                    <th class="bg-info text-white fw-bold"></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var member in Model.CrewMemberList)
+                                {
+                                    row_no++;
+                                    <tr>
+                                        <td>@row_no.ToString()</td>
+                                        <td>
+                                            <span class="fw-bold">@member.CrewMemberName</span> @if (member.IsTeamLead)
+                                            {<span title="Team Lead" class="badge bg-info rounded-pill"><i class="bi bi-person-fill"></i></span>}
+                                        </td>
+                                        <td>
+                                            <span>@member.CrewMemberRole1</span>
+                                            @if (!string.IsNullOrWhiteSpace(member.CrewMemberRole2))
+                                            {<span> | @member.CrewMemberRole2</span>;
+                                        }
+                                            @if (!string.IsNullOrWhiteSpace(member.CrewMemberRole3))
+                                            {<span> | @member.CrewMemberRole3</span>;
+                                        }
+
+                                        </td>
+                                        <td>@member.UnitName</td>
+                                        <td>@member.LocationName</td>
+                                        <td>
+                                           <div>
+                                                <div class="btn-group dropend">
+                                                    <button type="button" data-bs-toggle="dropdown" aria-expanded="false" class="table-secondary" style="border:0px;">
+                                                        <i class="bi bi-three-dots" style="font-size:1.0rem; font-weight:900"></i>
+                                                    </button>
+                                                    <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton2">
+                                                        <li>
+                                                            <button class="dropdown-item" onclick="populateEditForm(@member.Id, '@member.CrewMemberName', '@member.CrewMemberRole1', '@member.CrewMemberRole2', '@member.CrewMemberRole3')">
+                                                                <i class="bi bi-pencil-square"></i> <span> Edit</span>
+                                                            </button>
+                                                        </li>
+                                                        <li>
+                                                            <button class="dropdown-item" onclick="removeCrewMember(@member.Id)">
+                                                                <i class="bi bi-dash-square"></i> <span> Drop from Crew</span>
+                                                            </button>
+                                                        </li>
+                                                        @if (member.IsTeamLead)
+                                                        {
+                                                            <li>
+                                                                <button class="dropdown-item" onclick="updateCrewLead(@member.Id, 'false')">
+                                                                    <i class="bi bi-arrow-up-square"></i> <span> Remove As Lead</span>
+                                                                </button>
+                                                            </li>
+                                                        }
+                                                        else
+                                                        {
+                                                            <li>
+                                                                <button class="dropdown-item" onclick="updateCrewLead(@member.Id, 'true')">
+                                                                    <i class="bi bi-arrow-up-square"></i> <span> Appoint As Lead</span>
+                                                                </button>
+                                                            </li>
+                                                        }
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+    <input type="hidden" id="assignment_id" asp-for="AssignmentID" />
+    <input type="hidden" id="source_page" asp-for="SourcePage" />
+</div>
+
+@section Scripts{
+    <script src="~/js/ats.js"></script>
+}
+

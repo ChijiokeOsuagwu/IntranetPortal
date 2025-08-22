@@ -9,8 +9,11 @@ namespace IntranetPortal.Base.Models.PartnerServicesModels
         public string BusinessID { get; set; }
         public string BusinessNumber { get; set; }
         public string BusinessName { get; set; }
+        public int? BusinessTypeId { get; set; }
         public string BusinessType { get; set; }
-        public int? BusinessStationID { get; set; }
+        public int? IndustrySectorId { get; set; }
+        public string IndustrySector { get; set; }
+        public int? BusinessStationId { get; set; }
         public string BusinessStationName { get; set; }
         public string BusinessAddress { get; set; }
         public string State { get; set; }
@@ -24,9 +27,9 @@ namespace IntranetPortal.Base.Models.PartnerServicesModels
         public string Email2 { get; set; }
         public string WebLink1 { get; set; }
         public string WebLink2 { get; set; }
-        public string ModifiedTime { get; set; }
+        public DateTime? ModifiedTime { get; set; }
         public string ModifiedBy { get; set; }
-        public string CreatedTime { get; set; }
+        public DateTime? CreatedTime { get; set; }
         public string CreatedBy { get; set; }
         public string ImagePath { get; set; }
     }

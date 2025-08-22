@@ -1,0 +1,382 @@
+﻿@model IntranetPortal.Areas.WSP.Models.TaskListViewModel
+<div class="container">
+    <div class="row">
+        <div class="col-md-1">
+            <button title="Go Back" class="btn btn-sm btn-info text-white" onclick="history.back()" style="border-radius:5px;">
+                <span style="font-size: 0.9rem;"><i class="bi bi-backspace"></i>  Back</span>
+            </button>
+        </div>
+        <div class="col-md-5 fw-bold"><span style="font-size:0.9rem">Folder Owner: @Model.FolderOwnerName</span></div>
+        @if (Model.FolderID < 1)
+        {
+            <div class="col-md-6 fw-bold"><span style="font-size:1.0rem">Folder Title: Pending Tasks</span></div>
+
+        }
+        else
+        {
+            <div class="col-md-6 fw-bold"><span style="font-size:1.0rem">Folder Title: @Model.FolderTitle</span></div>
+        }
+    </div>
+    <hr />
+    <div class="row">
+        @if (Model == null || Model.TaskItems == null || Model.TaskItems.Count < 1)
+        {
+            <div class="alert alert-secondary alert-dismissible fade show" role="alert">
+                <i class="bi bi-x-circle"></i>
+                <span class="fw-bold text-dark">No record was found.</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        else
+        {
+            int row_number = 0;
+            <div class="table-responsive">
+                @foreach (var task in Model.TaskItems)
+                {
+                    row_number++;
+                    <div class="card">
+                        @if (task.ApprovalStatus == ApprovalStatus.Declined)
+                        {
+                            <div class="card-header" style="background-color:#D11604">
+                                <div class="row">
+                                    <div class="col-md-5" title="Assigned By">
+                                        @if (string.IsNullOrWhiteSpace(task.AssignedByEmployeeName))
+                                        {
+                                            <span class="fw-bold text-white" title="Assigned By"><i class="bi bi-person" style="font-size:1.2rem; font-weight:bold"></i> @task.CreatedBy </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="fw-bold text-white" title="Assigned By"><i class="bi bi-person" style="font-size:1.2rem; font-weight:bold"></i> @task.AssignedByEmployeeName</span>
+                                        }
+                                    </div>
+                                    <div class="col-md-4" title="Time Assigned">
+                                        @if (task.AssignedTime == null)
+                                        {
+                                            <span class="fw-bold text-white" title="Time Assigned"><i class="bi bi-clock" style="font-size:1.0rem; font-weight:bold"></i> @task.CreatedTime.Value.ToString("dd-MMM-yyyy ")   @task.CreatedTime.Value.ToShortTimeString()</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="fw-bold text-white" title="Time Assigned"><i class="bi bi-clock" style="font-size:1.0rem; font-weight:bold"></i> @task.AssignedTime.Value.ToString("dd-MMM-yyyy ")   @task.AssignedTime.Value.ToShortTimeString()</span>
+                                        }
+                                    </div>
+                                    <div class="col-md-3">
+                                        @if (task.ProgressStatus == WorkItemProgressStatus.Completed)
+                                        {
+                                            <div class="fw-bold" style="color:white">
+                                                <i class="bi bi-check-circle" style="color:white; font-size:1.0rem; font-weight:bold"></i> Completed
+                                            </div>
+                                        }
+                                        else if (task.ProgressStatus == WorkItemProgressStatus.InProgress)
+                                        {
+                                            <div class="fw-bold" style="font-size:1.0rem; color:white">
+                                                <i class="bi bi-clock-history" style="color:white; font-size:1.0rem; font-weight:bold"></i>  In Progress
+                                            </div>
+                                        }
+                                        else if (task.ProgressStatus == WorkItemProgressStatus.OnHold)
+                                        {
+                                            <div class="fw-bold" style="color:white">
+                                                <i class="bi bi-slash-circle" style="color:white; font-size:1.0rem; font-weight:bold"></i>  On Hold
+                                            </div>
+                                        }
+                                        else if (task.ProgressStatus == WorkItemProgressStatus.NotStarted)
+                                        {
+                                            <div class="fw-bold" style="color:white">
+                                                <i class="bi bi-dash-circle" style="color:white; font-size:1.0rem; font-weight:bold"></i> Not Started
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <div class="fw-bold" style="font-size:1.0rem">
+                                                <i class="bi bi-circle" style="color:white; font-size:1.0rem; font-weight:bold"></i>  [N/A]
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                        else if (task.ApprovalStatus == ApprovalStatus.Approved)
+                        {
+                            <div class="card-header bg-info">
+                                <div class="row">
+                                    <div class="col-md-5" title="Assigned By">
+                                        @if (string.IsNullOrWhiteSpace(task.AssignedByEmployeeName))
+                                        {
+                                            <span class="fw-bold text-white" title="Assigned By"><i class="bi bi-person" style="font-size:1.2rem; font-weight:bold"></i> Self </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="fw-bold text-white" title="Assigned By"><i class="bi bi-person" style="font-size:1.2rem; font-weight:bold"></i> @task.AssignedByEmployeeName</span>
+                                        }
+                                    </div>
+                                    <div class="col-md-4" title="Time Assigned">
+                                        @if (task.AssignedTime == null)
+                                        {
+                                            <span class="fw-bold text-white" title="Time Assigned"><i class="bi bi-clock" style="font-size:1.0rem; font-weight:bold"></i> @task.CreatedTime.Value.ToString("dd-MMM-yyyy ")   @task.CreatedTime.Value.ToShortTimeString()</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="fw-bold text-white" title="Time Assigned"><i class="bi bi-clock" style="font-size:1.0rem; font-weight:bold"></i> @task.AssignedTime.Value.ToString("dd-MMM-yyyy ")   @task.AssignedTime.Value.ToShortTimeString()</span>
+                                        }
+                                    </div>
+                                    <div class="col-md-3">
+                                        @if (task.ProgressStatus == WorkItemProgressStatus.Completed)
+                                        {
+                                            <div class="fw-bold" style="color:white">
+                                                <i class="bi bi-check-circle" style="color:white; font-size:1.0rem; font-weight:bold"></i> Completed
+                                            </div>
+                                        }
+                                        else if (task.ProgressStatus == WorkItemProgressStatus.InProgress)
+                                        {
+                                            <div class="fw-bold" style="font-size:1.0rem; color:white">
+                                                <i class="bi bi-clock-history" style="color:white; font-size:1.0rem; font-weight:bold"></i>  In Progress
+                                            </div>
+                                        }
+                                        else if (task.ProgressStatus == WorkItemProgressStatus.OnHold)
+                                        {
+                                            <div class="fw-bold" style="color:white">
+                                                <i class="bi bi-slash-circle" style="color:white; font-size:1.0rem; font-weight:bold"></i>  On Hold
+                                            </div>
+                                        }
+                                        else if (task.ProgressStatus == WorkItemProgressStatus.NotStarted)
+                                        {
+                                            <div class="fw-bold" style="color:white">
+                                                <i class="bi bi-dash-circle" style="color:white; font-size:1.0rem; font-weight:bold"></i> Not Started
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <div class="fw-bold" style="font-size:1.0rem">
+                                                <i class="bi bi-circle" style="color:white; font-size:1.0rem; font-weight:bold"></i>  [N/A]
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="card-header bg-dark">
+                                <div class="row">
+                                    <div class="col-md-5" title="Assigned By">
+                                        @if (string.IsNullOrWhiteSpace(task.AssignedByEmployeeName) || task.AssignedByEmployeeName == task.TaskOwnerName)
+                                        {
+                                            <span class="fw-bold text-white" title="Assigned By"><i class="bi bi-person" style="font-size:1.2rem; font-weight:bold"></i> Self </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="fw-bold text-white" title="Assigned By"><i class="bi bi-person" style="font-size:1.2rem; font-weight:bold"></i> @task.AssignedByEmployeeName</span>
+                                        }
+                                    </div>
+                                    <div class="col-md-4" title="Time Assigned">
+                                        @if (task.AssignedTime == null)
+                                        {
+                                            <span class="fw-bold text-white" title="Time Assigned"><i class="bi bi-clock" style="font-size:1.0rem; font-weight:bold"></i> @task.CreatedTime.Value.ToString("dd-MMM-yyyy ")   @task.CreatedTime.Value.ToShortTimeString()</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="fw-bold text-white" title="Time Assigned"><i class="bi bi-clock" style="font-size:1.0rem; font-weight:bold"></i> @task.AssignedTime.Value.ToString("dd-MMM-yyyy ")   @task.AssignedTime.Value.ToShortTimeString()</span>
+                                        }
+                                    </div>
+                                    <div class="col-md-3">
+                                        @if (task.ProgressStatus == WorkItemProgressStatus.Completed)
+                                        {
+                                            <div class="fw-bold" style="color:white">
+                                                <i class="bi bi-check-circle" style="color:white; font-size:1.0rem; font-weight:bold"></i> Completed
+                                            </div>
+                                        }
+                                        else if (task.ProgressStatus == WorkItemProgressStatus.InProgress)
+                                        {
+                                            <div class="fw-bold" style="font-size:1.0rem; color:white">
+                                                <i class="bi bi-clock-history" style="color:white; font-size:1.0rem; font-weight:bold"></i>  In Progress
+                                            </div>
+                                        }
+                                        else if (task.ProgressStatus == WorkItemProgressStatus.OnHold)
+                                        {
+                                            <div class="fw-bold" style="color:white">
+                                                <i class="bi bi-slash-circle" style="color:white; font-size:1.0rem; font-weight:bold"></i>  On Hold
+                                            </div>
+                                        }
+                                        else if (task.ProgressStatus == WorkItemProgressStatus.NotStarted)
+                                        {
+                                            <div class="fw-bold" style="color:white">
+                                                <i class="bi bi-dash-circle" style="color:white; font-size:1.0rem; font-weight:bold"></i> Not Started
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <div class="fw-bold" style="font-size:1.0rem">
+                                                <i class="bi bi-circle" style="color:white; font-size:1.0rem; font-weight:bold"></i>  [N/A]
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                        <div class="card-body table-secondary">
+                            <div class="row">
+                                <div class="col-md-2 mb-3">
+                                    <label class="form-label text-dark">Task No.</label>
+                                    <input asp-for="@task.Number" class="form-control fw-bold" readonly="readonly">
+                                </div>
+                                <div class="col-md-2 mb-3">
+                                    <label class="form-label text-dark">Expected Start Date</label>
+                                    @if (task.ExpectedStartTime != null)
+                                    {
+                                        <div class="form-control fw-bold">@task.ExpectedStartTime.Value.ToString("dd-MMM-yyyy")</div>
+                                    }
+                                    else
+                                    {
+                                        <div class="form-control fw-bold">[Not Specified]</div>
+                                    }
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <label class="form-label text-dark">Actual Start Date</label>
+                                    @if (task.ActualStartTime != null)
+                                    {
+                                        <div class="form-control fw-bold">@task.ActualStartTime.Value.ToString("dd-MMM-yyyy")</div>
+                                    }
+                                    else
+                                    {
+                                        <div class="form-control fw-bold">[Not Specified]</div>
+                                    }
+                                </div>
+                                <div class="col-md-2 mb-3">
+                                    <label class="form-label text-dark">Expected Completion Date</label>
+                                    @if (task.ExpectedDueTime != null)
+                                    {
+                                        <div class="form-control fw-bold">@task.ExpectedDueTime.Value.ToString("dd-MMM-yyyy")</div>
+                                    }
+                                    else
+                                    {
+                                        <div class="form-control fw-bold">[Not Specified]</div>
+                                    }
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <label class="form-label text-dark">Actual Completion Date</label>
+                                    @if (task.ActualDueTime != null)
+                                    {
+                                        <div class="form-control fw-bold">@task.ActualDueTime.Value.ToString("dd-MMM-yyyy")</div>
+                                    }
+                                    else
+                                    {
+                                        <div class="form-control fw-bold">[Not Specified]</div>
+                                    }
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12 mb-3">
+                                    <label class="form-label text-dark">Description</label>
+                                    <textarea asp-for="@task.Description" class="form-control fw-bold" readonly="readonly">@task.Description</textarea>
+                                </div>
+                            </div>
+                            @if (!string.IsNullOrWhiteSpace(task.MoreInformation))
+                            {
+                                <div class="row">
+                                    <div class="col-md-12 mb-3">
+                                        <label class="form-label text-dark">Resolution</label>
+                                        <textarea asp-for="@task.MoreInformation" class="form-control fw-bold" readonly="readonly">@task.MoreInformation</textarea>
+                                    </div>
+                                </div>
+                            }
+                            <div class="row">
+                                <div class="col-md-3 mt-1 text-center">
+                                    @if (task.ApprovalStatus == ApprovalStatus.Approved)
+                                    {
+                                        <div class="fw-bold text-dark">
+                                            <i class="bi bi-check-circle" style="font-size:1.0rem; font-weight:bold"></i> Approved
+                                        </div>
+                                    }
+                                    else if (task.ApprovalStatus == ApprovalStatus.Declined)
+                                    {
+                                        <div class="fw-bold text-dark">
+                                            <i class="bi bi-x-circle" style="font-size:1.0rem; font-weight:bold"></i> Approval Declined
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="fw-bold text-dark">
+                                            <i class="bi bi-dash-circle" style="font-size:1.0rem; font-weight:bold"></i> Pending Approval
+                                        </div>
+                                    }
+                                </div>
+                                <div class="col-md-3 mt-1 text-end">
+                                    @*<a asp-area="WSP" asp-controller="Workspace" asp-action="ManageTaskResolution" asp-route-id="@task.Id" asp-route-fd="@task.WorkFolderId" asp-route-od="@task.TaskOwnerId" class="btn btn-sm btn-dark" style="border-radius:5px; width:200px;" title="Update Task Resolution">
+                                        <span class="bi bi-list-check fw-bold" style="font-size:0.8rem; margin-right:2px; color:white"></span>
+                                        @if (string.IsNullOrWhiteSpace(task.MoreInformation))
+                                        {
+                                            <span class="text-white" style="font-size:0.8rem">Add Resolution</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-white" style="font-size:0.8rem">Update Resolution</span>
+                                        }
+                                    </a>*@
+                                </div>
+                                <div class="col-md-3 mt-1 text-end">
+                                    <!-- Default dropstart button -->
+                                    @*<div class="btn-group dropend">
+                                        <button type="button" data-bs-toggle="dropdown" aria-expanded="false" class="btn btn-sm btn-dark" style="border-radius:5px; width:200px" title="Update Task Progress">
+                                            <span style="font-size:0.8rem; color:white" class="mdi mdi-chart-line"></span>  <span class="text-white" style="font-size:0.8rem;"> Update Progress</span>
+                                        </button>
+                                        <ul class="dropdown-menu dropdown-menu-dark">
+                                            <li>
+                                                <button class="dropdown-item" onclick="updateTaskProgress('@task.Id', 0, '@task.ProgressStatusDescription')">
+                                                    <i class="bi bi-dash-circle"></i> <span>Not Started</span>
+                                                </button>
+                                            </li>
+                                            <li>
+                                                <button class="dropdown-item" onclick="updateTaskProgress('@task.Id', 1,'@task.ProgressStatusDescription')">
+                                                    <i class="bi bi-clock-history"></i> <span>In Progress</span>
+                                                </button>
+                                            </li>
+                                            <li>
+                                                <button class="dropdown-item" onclick="updateTaskProgress('@task.Id', 2,'@task.ProgressStatusDescription')">
+                                                    <i class="bi bi-check-circle"></i> <span>Completed</span>
+                                                </button>
+                                            </li>
+                                            <li>
+                                                <button class="dropdown-item" onclick="updateTaskProgress('@task.Id', 3,'@task.ProgressStatusDescription')">
+                                                    <i class="bi bi-slash-circle"></i> <span>On Hold</span>
+                                                </button>
+                                            </li>
+                                        </ul>
+                                    </div>*@
+                                </div>
+                                <div class="col-md-3 mt-1 text-end">
+                                        <!-- Default dropstart button -->
+                                        <div class="btn-group dropstart">
+                                            <button type="button" data-bs-toggle="dropdown" aria-expanded="false" class="table-secondary" style="border:0px">
+                                                <span class="fw-bold" style="font-size:0.8rem;"><i class="bi bi-tools"></i> Options</span>
+                                            </button>
+                                            <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton2">
+                                                <li>
+                                                    <a class="dropdown-item" asp-area="WSP" asp-controller="Workspace" asp-action="TaskDetails" asp-route-id="@task.Id">
+                                                        <i class="bi bi-info-circle"></i>  <span>Detail</span>
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <a class="dropdown-item" asp-area="WSP" asp-controller="Workspace" asp-action="Notes" asp-route-td="@task.Id" asp-route-fd="@task.WorkFolderId" asp-route-sp="ftl" asp-route-tp="0">
+                                                        <i class="bi bi-stickies"></i> <span>Notes</span>
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <a class="dropdown-item" asp-area="WSP" asp-controller="Workspace" asp-action="Activities" asp-route-td="@task.Id">
+                                                        <i class="bi bi-file-text"></i> <span>History</span>
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</div>
+@section Scripts{
+    <script src="~/js/wsp.js"></script>
+}
+

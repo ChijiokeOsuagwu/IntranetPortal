@@ -1,0 +1,90 @@
+﻿@model IntranetPortal.Areas.PartnerServices.Models.BusinessSectorsListViewModel
+<div class="container">
+    <h4>Suppliers & Customers Management | Industry Sectors</h4>
+    <hr />
+    <div class="row">
+        <div class="col-md-3 mb-2">
+            <a asp-area="PartnerServices" asp-controller="Home" asp-action="Index" class="btn btn-sm btn-dark" style="width:100px" title="Back">
+                <span class="text-white">Back</span>
+            </a>
+        </div>
+        <div class="col-md-9 mb-2">
+            <a asp-area="PartnerServices" asp-controller="Home" asp-action="ManageSector" asp-route-id="0" class="btn btn-sm btn-dark" style="width:200px" title="Add New Event Type">
+                <span class="text-white">New Industry Sector</span>
+            </a>
+        </div>
+    </div>
+    <div class="mb-1">
+        @if (!String.IsNullOrEmpty(Model.ViewModelSuccessMessage))
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="bi bi-x-circle"></i>
+                <span class="fw-bold">@Model.ViewModelSuccessMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-x-circle"></i>
+                <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+    </div>
+    <div class="row">
+        @if (Model == null || Model.IndustrySectorsList == null || Model.IndustrySectorsList.Count < 1)
+        {
+            <div class="alert alert-info fade show" role="alert">
+                <i class="bi bi-info-circle"></i>
+                <span class="fw-bold">No record was found.</span>
+            </div>
+        }
+        else
+        {
+            int row_no = 0;
+            <div class="table-responsive">
+                <table class="table table-sm table-hover" style="max-width:800px">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>
+                                <span class="text-white fw-bold">#</span>
+                            </th>
+                            <th>
+                                <span class="text-white fw-bold">Description</span>
+                            </th>
+                            <th>
+
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="table-light">
+                        @foreach (var item in Model.IndustrySectorsList)
+                        {
+                            row_no++;
+                            <tr>
+                                <td>
+                                    <span>@row_no.ToString()</span>
+                                </td>
+                                <td>
+                                    <span>@item.IndustrySectorName</span>
+                                </td>
+                                <td class="text-end">
+                                    <form asp-area="PartnerServices" asp-controller="Home" asp-action="DeleteSector" method="post">
+                                        <a asp-area="PartnerServices" asp-controller="Home" asp-action="ManageSector" asp-route-id="@item.IndustrySectorId" title="Edit" class="btn btn-sm btn-dark">
+                                            <span class="text-white"> Edit</span>
+                                        </a>
+                                        <input type="hidden" id="id" name="id" value="@item.IndustrySectorId" />
+                                        <input type="submit" value="Delete" class="btn btn-sm btn-danger pl-3 text-white" onclick="return confirm('Delete permanently?');" />
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>
+@section Scripts{
+}

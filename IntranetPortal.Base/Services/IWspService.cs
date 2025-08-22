@@ -36,9 +36,9 @@ namespace IntranetPortal.Base.Services
         Task<List<WorkItemFolder>> GetWorkItemFoldersArchivedAsync(string OwnerId, DateTime? fromDate = null, DateTime? toDate = null);
         Task<List<WorkItemFolder>> GetWorkItemFoldersByOwnerIdAsync(string OwnerId, bool IsArchived, DateTime? fromDate = null, DateTime? toDate = null);
 
-
-
         Task<List<WorkItemFolder>> SearchWorkItemFoldersAsync(string OwnerId, bool? IsArchived = null, int? createdYear = null, int? createdMonth = null);
+
+        Task<List<WorkItemFolder>> GetWorkItemFoldersAsync(DateTime StartDate, DateTime EndDate, int ArchiveStatus, int? LocationId = null, int? DepartmentId = null, int? UnitId = null, string OwnerId = null);
         #endregion
         #endregion
 

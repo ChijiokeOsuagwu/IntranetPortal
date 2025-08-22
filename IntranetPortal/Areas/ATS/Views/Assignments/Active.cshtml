@@ -1,19 +1,14 @@
 ﻿@model IntranetPortal.Areas.ATS.Models.ActiveAssignmentsListViewModel
 <div class="container">
-    <h5 class="mb-1">Assignment Tracking System | Active Assignments </h5>
-    @*<div class="row">
-            <div class="col-md-4 fw-bold"><span style="font-size:1.0rem">Folder: @Model.FolderTitle</span></div>
-            <div class="col-md-4 fw-bold"><span style="font-size:0.9rem">Name: @Model.FolderOwnerName</span></div>
-            <div class="col-md-4 fw-bold"><span style="font-size:0.9rem">Unit: @Model.FolderOwnerUnitName</span></div>
-        </div>*@
+    <h4 class="mb-1">Assignment Tracking System | Active Assignments </h4>
     <hr />
     <div class="row">
-        <div class="col-md-2 mb-2">
-            <a asp-area="ATS" asp-controller="Home" asp-action="Index" title="Go Back" class="btn btn-sm btn-outline-light text-dark">
-                <i class="bi bi-backspace fw-bolder" style="font-size: 1.0rem;"></i> <span class="fw-bold ml-1" style="font-size: 0.9rem;">Back</span>
+        <div class="col-md-2">
+            <a asp-area="ATS" asp-controller="Home" asp-action="Index" title="Go Back" class="btn btn-sm btn-info text-white" style="width:75px">
+                Back
             </a>
         </div>
-        <div class="col-md-8 mb-2">
+        <div class="col-md-8">
             <span class="fw-bold">From: </span>
             <input asp-for="sd" class="border-0" style="width:100px; margin-right:30px" type="date" />
             <span class="fw-bold">To: </span>
@@ -32,13 +27,21 @@
             <input type="submit" value="Search" class="btn btn-sm btn-info" style="width:100px; margin-right:20px" />
         </div>
         <div class="col-md-2">
-            <a asp-area="ATS" asp-controller="Assignments" asp-action="CreateNew" asp-route-id="0" title="Add New Assignment" class="btn btn-sm btn-info text-white">
+            <a asp-area="ATS" asp-controller="Assignments" asp-action="CreateNew" title="Create New Assignment" class="btn btn-sm btn-info text-white">
                 <i class="bi bi-plus-lg fw-bolder" style="font-size: 0.8rem; font-weight:900; margin-right:5px"></i><span style="font-size: 0.8rem;">New Assignment</span>
             </a>
         </div>
     </div>
     <hr />
-    <div class="row">
+    @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert" style="margin-top:3px">
+            <i class="bi bi-x-circle"></i>
+            <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    <div class="row mt-2">
         @if (Model == null || Model.AssignmentList == null || Model.AssignmentList.Count < 1)
         {
             <div class="alert alert-secondary alert-dismissible fade show" role="alert">
@@ -54,190 +57,247 @@
                 @foreach (var assignment in Model.AssignmentList)
                 {
                     row_number++;
-                    <div class="card">
-                        @if (assignment.ProgressStatus == "Cancelled")
-                        {
-                            <div class="card-header bg-danger">
-                                <div class="row">
-                                    <div class="col-md-4" title="Assigned To">
-                                        @if (string.IsNullOrWhiteSpace(assignment.AssignedToName))
-                                        {
-                                            <span class="fw-bold text-white" title="Assigned By"><i class="bi bi-person" style="font-size:1.2rem; font-weight:bold"></i> [Not Yet Assigned] </span>
-                                        }
-                                        else
-                                        {
-                                            <span class="fw-bold text-white" title="Assigned By"><i class="bi bi-person" style="font-size:1.2rem; font-weight:bold"></i> @assignment.AssignedToName</span>
-                                        }
-                                    </div>
-                                    <div class="col-md-2" title="Location">
-                                        <span class="fw-bold text-white" title="Location">@assignment.EventState</span>
-                                    </div>
-                                    <div class="col-md-3" title="Event Time">
-                                        @if (assignment.EventStartTime == null)
-                                        {
-                                            <span class="fw-bold text-white" title="Event Time"><i class="bi bi-clock" style="font-size:1.0rem; font-weight:bold"></i> [Not Yet Specified]</span>
-                                        }
-                                        else
-                                        {
-                                            <span class="fw-bold text-white" title="Event Time"><i class="bi bi-clock" style="font-size:1.0rem; font-weight:bold"></i> @assignment.EventStartTime.Value.ToString("dd-MMM-yyyy ")   @assignment.EventStartTime.Value.ToShortTimeString()</span>
-                                        }
-                                    </div>
-                                    <div class="col-md-3">
-
-                                        <div class="fw-bold" style="color:white">
-                                            <i class="bi bi-speedometer2" style="color:white; font-size:1.0rem; font-weight:bold"></i> @assignment.ProgressStatus
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        }
-                        else
-                        {
-                            <div class="card-header bg-info">
-                                <div class="row">
-                                    <div class="col-md-4" title="Assigned To">
-                                        @if (string.IsNullOrWhiteSpace(assignment.AssignedToName))
-                                        {
-                                            <span class="fw-bold text-white" title="Assigned By"><i class="bi bi-person" style="font-size:1.2rem; font-weight:bold"></i> [Not Yet Assigned] </span>
-                                        }
-                                        else
-                                        {
-                                            <span class="fw-bold text-white" title="Assigned By"><i class="bi bi-person" style="font-size:1.2rem; font-weight:bold"></i> @assignment.AssignedToName</span>
-                                        }
-                                    </div>
-                                    <div class="col-md-2" title="Location">
-                                        <span class="fw-bold text-white" title="Location">@assignment.EventState</span>
-                                    </div>
-                                    <div class="col-md-3" title="Event Time">
-                                        @if (assignment.EventStartTime == null)
-                                        {
-                                            <span class="fw-bold text-white" title="Event Time"><i class="bi bi-clock" style="font-size:1.0rem; font-weight:bold"></i> [Not Available]</span>
-                                        }
-                                        else
-                                        {
-                                            <span class="fw-bold text-white" title="Event Time"><i class="bi bi-clock" style="font-size:1.0rem; font-weight:bold"></i> @assignment.EventStartTime.Value.ToString("dd-MMM-yyyy ")   @assignment.EventStartTime.Value.ToShortTimeString()</span>
-                                        }
-                                    </div>
-                                    <div class="col-md-3">
-
-                                        <div class="fw-bold" style="color:white">
-                                            <i class="bi bi-speedometer2" style="color:white; font-size:1.0rem; font-weight:bold"></i> @assignment.ProgressStatus
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        }
-                        <div class="card-body table-secondary">
+                    //===== Beginning of New Card ===//
+                    <div class="card" style="width:80pc">
+                    @if (assignment.ProgressStatus == "Cancelled")
+                    {
+                        <div class="card-header bg-danger">
                             <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label text-dark">Event Title</label>
-                                    <input asp-for="@assignment.Title" class="form-control fw-bold" readonly="readonly" />
-                                </div>
-                                <div class="col-md-4 mb-3">
-                                    <label class="form-label text-dark">Client/Organisation</label>
-                                    <input asp-for="@assignment.ClientName" class="form-control fw-bold" readonly="readonly" />
-                                </div>
-                                <div class="col-md-2 mb-3">
-                                    <label class="form-label text-dark">Approval Status</label>
-                                    <input asp-for="@assignment.ApprovalStatus" class="form-control fw-bold" readonly="readonly" />
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-8 mb-3">
-                                    <label class="form-label text-dark">Event Description</label>
-                                    <textarea asp-for="@assignment.Description" class="form-control fw-bold" readonly="readonly">@assignment.Description</textarea>
-
-                                </div>
-                                <div class="col-md-4 mb-3">
-                                    <label class="form-label text-dark">Event Venue</label>
-                                    <textarea asp-for="@assignment.EventVenue" class="form-control fw-bold" readonly="readonly">@assignment.EventVenue</textarea>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-4 mb-3">
-                                    <label class="form-label text-dark">Event State</label>
-                                    <div class="form-control fw-bold">@assignment.EventState</div>
-                                </div>
-                                <div class="col-md-4 mb-3">
-                                    <label class="form-label text-dark">Event Station</label>
-                                    <div class="form-control fw-bold">@assignment.StationName</div>
-                                </div>
-                                <div class="col-md-4 mb-3">
-                                    <label class="form-label text-dark">Confirmation Status</label>
-                                    <div class="form-control fw-bold">@assignment.ConfirmationStatus</div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-2 mb-3">
-                                    <label class="form-label text-dark">Event Type</label>
-                                    <textarea asp-for="@assignment.EventTypeTitle" class="form-control fw-bold" readonly="readonly">@assignment.EventTypeTitle</textarea>
-                                </div>
-                                <div class="col-md-5 mb-3">
-                                    <label class="form-label text-dark">Event Start Date</label>
-                                    @if (assignment.EventStartTime != null)
+                                <div class="col-md-3" title="Assigned To">
+                                    @if (string.IsNullOrWhiteSpace(assignment.AssignedToName))
                                     {
-                                        <div class="form-control fw-bold">@assignment.EventStartTime.Value.ToLongDateString() @assignment.EventStartTime.Value.ToLongTimeString()</div>
+                                        <span class="fw-bold text-white" title="Assigned To"><i class="bi bi-person" style="font-size:1.2rem; font-weight:bold"></i> [Not Yet Assigned] </span>
                                     }
                                     else
                                     {
-                                        <div class="form-control fw-bold">[Not Specified]</div>
+                                        <span class="fw-bold text-white" title="Assigned To"><i class="bi bi-person" style="font-size:1.2rem; font-weight:bold"></i> @assignment.AssignedToName</span>
                                     }
                                 </div>
-                                <div class="col-md-5 mb-3">
-                                    <label class="form-label text-dark">Actual Start Date</label>
-                                    @if (assignment.EventEndTime != null)
+                                <div class="col-md-2" title="Location">
+                                    <span class="fw-bold text-white" title="Location"><i class="bi bi-geo-alt" style="font-size:1.2rem; font-weight:bold"></i> @assignment.EventState</span>
+                                </div>
+                                <div class="col-md-4" title="Event Time">
+                                    @if (assignment.EventStartTime == null)
                                     {
-                                        <div class="form-control fw-bold">@assignment.EventEndTime.Value.ToLongDateString() @assignment.EventEndTime.Value.ToLongTimeString()</div>
+                                        <span class="fw-bold text-white" title="Event Time"><i class="bi bi-clock" style="font-size:1.0rem; font-weight:bold"></i> [Unspecified]</span>
                                     }
                                     else
                                     {
-                                        <div class="form-control fw-bold">[Not Specified]</div>
+                                        <span class="fw-bold text-white" title="Event Time"><i class="bi bi-clock" style="font-size:1.0rem; font-weight:bold"></i> @assignment.EventStartTime.Value.ToString("f")</span>
                                     }
                                 </div>
+                                <div class="col-md-3 text-end">
+                                    <span class="fw-bold" style="color:white"><i class="bi bi-speedometer2" style="font-size:1.0rem; font-weight:bold"></i> @assignment.ProgressStatus</span>
+                                </div>
                             </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="card-header bg-info">
                             <div class="row">
-                                <div class="col-md-3 mb-3">
-                                    <label class="form-label text-dark">Contact Person</label>
-                                    <input asp-for="@assignment.ContactPerson" class="form-control fw-bold" readonly="readonly" />
+                                <div class="col-md-3" title="Assigned To">
+                                    @if (string.IsNullOrWhiteSpace(assignment.AssignedToName))
+                                    {
+                                        <span class="fw-bold text-white" title="Assigned To"><i class="bi bi-person" style="font-size:1.2rem; font-weight:bold"></i> [Not Yet Assigned] </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="fw-bold text-white" title="Assigned To"><i class="bi bi-person" style="font-size:1.2rem; font-weight:bold"></i> @assignment.AssignedToName</span>
+                                    }
                                 </div>
-                                <div class="col-md-3 mb-3">
-                                    <label class="form-label text-dark">Contact Phone</label>
-                                    <input asp-for="@assignment.ContactPhone" class="form-control fw-bold" readonly="readonly" />
+                                <div class="col-md-2" title="Location">
+                                    <span class="fw-bold text-white" title="Location"><i class="bi bi-geo-alt" style="font-size:1.2rem; font-weight:bold"></i> @assignment.EventState</span>
                                 </div>
-                                <div class="col-md-6 mb-3 text-end">
-                                    <!-- Default dropstart button -->
-                                    <div class="btn-group dropstart">
-                                        <button type="button" data-bs-toggle="dropdown" aria-expanded="false" class="table-secondary" style="border:0px">
-                                            <span class="fw-bold" style="font-size:0.8rem;"><i class="bi bi-tools"></i> Options</span>
-                                        </button>
-                                        <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton2">
-                                            <li>
-                                                <a class="dropdown-item" asp-area="ATS" asp-controller="Assignments" asp-action="Details" asp-route-id="@assignment.Id">
-                                                    <i class="bi bi-info-circle"></i>  <span>Detail</span>
-                                                </a>
-                                            </li>
-                                            <li>
-                                                <a class="dropdown-item" asp-area="ATS" asp-controller="Assignments" asp-action="Notes" asp-route-id="@assignment.Id" asp-route-sp="actv" asp-route-tp="0">
-                                                    <i class="bi bi-stickies"></i> <span>Notes</span>
-                                                </a>
-                                            </li>
-                                            <li>
-                                                <a class="dropdown-item" asp-area="WSP" asp-controller="Workspace" asp-action="Activities" asp-route-td="@assignment.Id">
-                                                    <i class="bi bi-file-text"></i> <span>History</span>
-                                                </a>
-                                            </li>
-                                            <li><hr class="dropdown-divider"></li>
-                                            <li>
-                                                <button class="dropdown-item" id="btn_delete_@assignment.Id" onclick="deleteTaskItem('@assignment.Id')">
-                                                    <i class="bi bi-trash"></i> <span> Delete</span>
-                                                </button>
-                                            </li>
-                                        </ul>
-                                    </div>
+                                <div class="col-md-4" title="Event Time">
+                                    @if (assignment.EventStartTime == null)
+                                    {
+                                        <span class="fw-bold text-white" title="Event Time"><i class="bi bi-clock" style="font-size:1.0rem; font-weight:bold"></i> [Unspecified]</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="fw-bold text-white" title="Event Time"><i class="bi bi-clock" style="font-size:1.0rem; font-weight:bold"></i> @assignment.EventStartTime.Value.ToString("f")</span>
+                                    }
+                                </div>
+                                <div class="col-md-3 text-end">
+                                    <span class="fw-bold" style="color:white"><i class="bi bi-speedometer2" style="font-size:1.0rem; font-weight:bold"></i> @assignment.ProgressStatus</span>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                    <div class="card-body table-secondary">
+                        <div class="row">
+                            <div class="col-md-2" title="Assignment Number">
+                                <label class="form-label text-dark">#</label>
+                                <div class="form-control fw-bold">@assignment.No</div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label text-dark">Client/Organisation</label>
+                                <div class="form-control fw-bold">@assignment.ClientName</div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label text-dark">Assigned To</label>
+                                <div class="form-control fw-bold">@assignment.AssignedToName</div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-9 mb-3">
+                                <label class="form-label text-dark">Event Title</label>
+                                <div class="form-control fw-bold">@assignment.Title</div>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label class="form-label text-dark">Approval Status</label>
+                                <div class="form-control fw-bold">@assignment.ApprovalStatus</div>
+                            </div>
+                        </div>
+                        @*<div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label text-dark">Event Venue</label>
+                                <textarea class="form-control fw-bold" readonly>@assignment.EventVenue</textarea>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label text-dark">Event Details</label>
+                                <textarea class="form-control fw-bold" readonly>@assignment.Description</textarea>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label text-dark">Event Start Date</label>
+                                @if (assignment.EventEndTime != null)
+                                {
+                                    <div class="form-control fw-bold">@assignment.EventStartTime.Value.ToString("f") </div>
+                                }
+                                else
+                                {
+                                    <div class="form-control fw-bold">[Unspecified]</div>
+                                }
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label text-dark">Event End Date</label>
+                                @if (assignment.EventEndTime != null)
+                                {
+                                    <div class="form-control fw-bold">@assignment.EventEndTime.Value.ToString("f") </div>
+                                }
+                                else
+                                {
+                                    <div class="form-control fw-bold">[Unspecified]</div>
+                                }
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label text-dark">Report Due</label>
+                                @if (assignment.ReportDueDate != null)
+                                {
+                                    <div class="form-control fw-bold">@assignment.ReportDueDate.Value.ToString("f") </div>
+                                }
+                                else
+                                {
+                                    <div class="form-control fw-bold">[Unspecified]</div>
+                                }
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-2 mb-3">
+                                <label class="form-label text-dark">Event State</label>
+                                <div class="form-control fw-bold">@assignment.EventState </div>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label class="form-label text-dark">Coordinating Station</label>
+                                <div class="form-control fw-bold">@assignment.StationName </div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label text-dark">Contact Name</label>
+                                <div class="form-control fw-bold">@assignment.ContactPerson </div>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label class="form-label text-dark">Contact Phone</label>
+                                <div class="form-control fw-bold">@assignment.ContactPhone </div>
+                            </div>
+                        </div>*@
+                        <div class="row">
+                            <div class="col-md-2 text-center" style="margin-top:10px">
+                                @if (@assignment.IsPaid)
+                                {<i class="bi bi-check-square" style="font-size:1.0rem;"></i><span>  Is Paid</span>}
+                                else
+                                { <i class="bi bi-square" style="font-size:1.0rem;"></i><span>Is Paid</span>}
+                            </div>
+                            <div class="col-md-2 text-center" style="margin-top:10px">
+                                @if (@assignment.IsConfirmed)
+                                {<i class="bi bi-check-square" style="font-size:1.0rem"></i><span>  Is Confirmed</span>}
+                                else
+                                { <i class="bi bi-square" style="font-size:1.0rem"></i><span>  Is Confirmed</span>}
+
+                            </div>
+                            <div class="col-md-2 text-center" style="margin-top:10px">
+                                @if (@assignment.IsLive)
+                                {<i class="bi bi-check-square" style="font-size:1.0rem"></i><span style="font-size:0.8rem">  Is Live</span>}
+                                else
+                                { <i class="bi bi-square" style="font-size:1.0rem"></i><span style="font-size:0.8rem">  Is Live</span>}
+                            </div>
+                            <div class="col-md-2 text-center" style="margin-top:10px">
+                                @if (@assignment.IsPriority)
+                                {<span style="font-size:0.8rem"><i class="bi bi-check-square fw-bold" style="font-size:1.0rem"></i>  Is Priority</span>}
+                                else
+                                { <i class="bi bi-square" style="font-size:1.0rem"></i><span style="font-size:0.8rem"> Is Priority</span>}
+                            </div>
+                            <div class="col-md-4 text-end">
+                                <a asp-area="ATS" asp-controller="Assignments" asp-action="CrewList" asp-route-id="@assignment.Id" asp-route-tl="@assignment.Title" asp-route-lc="@assignment.EventState" style="border-radius:5px; border:0px; margin-right:3px" class="btn btn-sm btn-outline-info" title="Manage Crew Members">
+                                    <i class="bi bi-people" style="font-size:1.0rem"></i> <span class="fw-bold"> Manage Crew</span>
+                                </a>
+                                <!-- Default dropstart button -->
+                                <div class="btn-group dropstart">
+                                    <button type="button" data-bs-toggle="dropdown" aria-expanded="false" style="border-radius:5px; border:0px" class="btn btn-sm btn-outline-info">
+                                        <i class="bi bi-tools" style="font-size:1.0rem; font-weight:900"></i><span class="fw-bold"> Options</span>
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton2">
+                                        <li>
+                                            <a class="dropdown-item" asp-area="ATS" asp-controller="Assignments" asp-action="Details" asp-route-id="@assignment.Id">
+                                                <i class="bi bi-info-square"></i>  <span>Details</span>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item" asp-area="ATS" asp-controller="Assignments" asp-action="EditAssignment" asp-route-id="@assignment.Id">
+                                                <i class="bi bi-pencil-fill"></i>  <span>Edit</span>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item" asp-area="ATS" asp-controller="Assignments" asp-action="History" asp-route-id="@assignment.Id">
+                                                <i class="bi bi-file-text"></i> <span>History</span>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item" asp-area="ATS" asp-controller="Assignments" asp-action="Notes" asp-route-id="@assignment.Id" asp-route-sp="ctv">
+                                                <i class="bi bi-stickies"></i> <span>Notes</span>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item" href="#">
+                                                <i class="bi bi-box-arrow-in-left"></i> <span>Reports</span>
+                                            </a>
+                                            <ul class="dropdown-menu dropdown-menu-dark dropdown-submenu">
+                                                <li>
+                                                    <a class="dropdown-item" asp-area="ATS" asp-controller="Assignments" asp-action="Notes" asp-route-id="@assignment.Id" asp-route-sp="ctv">
+                                                        <i class="bi bi-file-earmark-post"></i> <span>Notes</span>
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <a class="dropdown-item" asp-area="ATS" asp-controller="Assignments" asp-action="Notes" asp-route-id="@assignment.Id" asp-route-sp="ctv">
+                                                        <i class="bi bi-file-earmark-post"></i> <span>Notes</span>
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </li>
+                                        <li>
+                                            <button class="dropdown-item" id="btn_delete_@assignment.Id" onclick="deleteAssignment(@assignment.Id)">
+                                                <i class="bi bi-trash-fill"></i> <span>Delete</span>
+                                            </button>
+                                        </li>
+                                    </ul>
                                 </div>
                             </div>
                         </div>
                     </div>
+                </div>
+                    //====== End of New Card =====//
                 }
             </div>
         }

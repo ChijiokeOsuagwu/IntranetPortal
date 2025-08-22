@@ -9,12 +9,14 @@ namespace IntranetPortal.Areas.WSP.Models
 {
     public class SubmitTaskFolderViewModel:BaseViewModel
     {
+        [Required]
         public long TaskFolderID { get; set; }
         [Display(Name = "From:")]
         public string FromEmployeeID { get; set; }
         [Display(Name = "From:")]
         public string FromEmployeeName { get; set; }
         [Display(Name = "Submit To:")]
+
         public string ToEmployeeID { get; set; }
 
         [Display(Name = "Submit to:")]
@@ -23,7 +25,7 @@ namespace IntranetPortal.Areas.WSP.Models
 
         [Display(Name = "Submit for:")]
         [Required]
-        public int? SubmissionTypeID { get; set; }
+        public int SubmissionTypeID { get; set; }
 
         [Display(Name = "Comment:")]
         public string Comment { get; set; }

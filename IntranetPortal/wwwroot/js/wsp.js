@@ -120,23 +120,26 @@ function addNote() {
 
 //======= Script to Archive  a Task Folder =========//
 function updateTaskFolderArchive(folder_id, archive_folder) {
-    $.ajax({
-        type: 'POST',
-        url: '/WSP/Workspace/UpdateTaskFolderArchive',
-        dataType: "text",
-        data: { id: folder_id, st: archive_folder },
-        success: function (result) {
-            if (result == "success") {
-                location.reload();
+    const confirm_message = "You may not be able to work on the tasks in this folder once it is archived.  Do you still want to proceed? "
+    if (confirm(confirm_message)) {
+        $.ajax({
+            type: 'POST',
+            url: '/WSP/Workspace/UpdateTaskFolderArchive',
+            dataType: "text",
+            data: { id: folder_id, st: archive_folder },
+            success: function (result) {
+                if (result == "success") {
+                    location.reload();
+                }
+                else {
+                    console.log(result);
+                }
+            },
+            error: function () {
+                console.log('Error Code: 500. Failure due to server error.');
             }
-            else {
-                console.log(result);
-            }
-        },
-        error: function () {
-            console.log('Error Code: 500. Failure due to server error.');
-        }
-    })
+        })
+    }
 }
 
 //======= Script to reactivate a TaskList =======//
@@ -161,8 +164,23 @@ function reactivateTaskFolder(folder_id) {
 }
 
 //======= Script to Return Approved Task List =========//
-function returnTaskFolder(folder_id, submission_id, submission_type) {
+function returnTaskFolder(task_folder_id, folder_submission_id, submission_purpose) {
     const error_div = document.getElementById("error_div");
+    let folder_id = document.getElementById("folder_id").value;
+    if (folder_id === undefined || folder_id < 1) {
+        folder_id = task_folder_id;
+    }
+
+    let submission_id = document.getElementById("submission_id").value;
+    if (submission_id === undefined || submission_id < 1) {
+        submission_id = folder_submission_id;
+    }
+
+    let submission_type = document.getElementById("submission_type").value;
+    if (submission_type === undefined || submission_type.length < 1) {
+        submission_type = submission_purpose;
+    }
+
     $.ajax({
         type: 'POST',
         url: '/WSP/Workspace/ReturnTaskFolder',
@@ -173,9 +191,8 @@ function returnTaskFolder(folder_id, submission_id, submission_type) {
                 window.location.replace("/WSP/Workspace/SubmittedToMe")
             }
             else {
+                window.location.replace("/WSP/Workspace/SubmittedToMe")
                 console.log(result);
-                error_div.innerText = result;
-                alert(result);
             }
         },
         error: function (err) {
@@ -274,7 +291,6 @@ function updateTaskProgress(task_item_id, new_status, old_status) {
 
 
 
-
 //======= Script to Approve a Task Item =========//
 function approveTaskItem(task_item_id) {
     $.ajax({
@@ -310,8 +326,8 @@ function declineTaskItem(task_item_id) {
                 location.reload();
             }
             else {
-                alert(result);
                 console.log(result);
+                location.reload();
             }
         },
         error: function (error_message) {
@@ -357,6 +373,7 @@ function deleteActionedFolderSubmission(to_employee_id) {
                     location.reload();
                 }
                 else {
+                    location.reload();
                     console.log(result);
                 }
             },
@@ -382,6 +399,7 @@ function evaluateTaskItem(task_item_id, task_folder_id, task_evaluator_id, quali
                 location.reload();
             }
             else {
+                location.reload();
                 alert(result);
                 console.log(result);
             }

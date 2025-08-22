@@ -1,4 +1,5 @@
 ﻿using IntranetPortal.Base.Models.BaseModels;
+using IntranetPortal.Base.Models.PartnerServicesModels;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -10,10 +11,10 @@ namespace IntranetPortal.Base.Repositories.BusinessManagerRepositories
     {
         Task<bool> AddAsync(BusinessContact businessContact);
         Task<bool> EditAsync(BusinessContact businessContact);
-        Task<bool> DeleteAsync(int businessContactId);
+        Task<bool> DeleteAsync(long businessContactId);
         Task<bool> DeleteByBusinessIdAsync(string businessId);
-        Task<BusinessContact> GetByIdAsync(int businessContactId);
-        Task<IList<BusinessContact>> GetAllAsync();
-        Task<IList<BusinessContact>> GetByBusinessIdAsync(string businessId);
+        Task<BusinessContact> GetByIdAsync(long businessContactId);
+        Task<List<BusinessContact>> GetAllAsync();
+        Task<List<BusinessContact>> GetByBusinessIdAsync(string businessId);
     }
 }

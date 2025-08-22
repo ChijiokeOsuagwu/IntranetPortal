@@ -23,11 +23,14 @@
                                     <i class="bi bi-backspace" style="font-size: 1.0rem;"></i> <span class="fw-bold ml-1" style="font-size: 0.9rem;">Back</span>
                                 </a>
                             </li>
-                            <li class="nav-item">
-                                <a asp-area="WSP" asp-controller="Workspace" asp-action="SubmitTaskFolder" asp-route-id="@Model.FolderID" class="btn btn-sm btn-outline-light text-dark">
-                                    <i class="bi bi-mailbox" style="font-size: 1.0rem;"></i> <span class="fw-bold ml-1" style="font-size: 0.9rem;">Submit</span>
-                                </a>
-                            </li>
+                            @if (!Model.FolderIsReturned)
+                            {
+                                <li class="nav-item">
+                                    <button class="btn btn-sm btn-outline-light text-dark" onclick="returnTaskFolder(@Model.FolderID, @Model.FolderSubmissionID)">
+                                        <i class="bi bi-mailbox" style="font-size: 1.0rem;"></i> <span class="fw-bold ml-1" style="font-size: 0.9rem;">Return Folder</span>
+                                    </button>
+                                </li>
+                            }
                             <li class="nav-item">
                                 <a asp-area="WSP" asp-controller="Workspace" asp-action="CheckDuplicates" asp-route-id="@Model.FolderOwnerID" title="Check for Duplicates in Previous Tasks" class="btn btn-sm btn-light text-dark" target="_blank">
                                     <i class="bi bi-card-checklist" style="font-size: 1.0rem;"></i><span class="fw-bold ml-1" style="font-size: 0.9rem;">Check For Duplicates</span>
@@ -311,11 +314,14 @@
             }
             @if (!Model.FolderIsReturned)
             {
-                <div class="text-end">
-                    <button class="btn btn-sm" style="width:100px; border-radius:5px; background-color:#5C039A" title="Submit Folder" onclick="returnTaskFolder(@Model.FolderID, @Model.FolderSubmissionID)">
-                        <i class="bi bi-folder-symlink" style="font-size:0.8rem; margin-right:2px"></i> <span class="text-white" style="font-size:0.8rem">Submit</span>
-                    </button>
-                </div>
+        <div class="text-end">
+            <button class="btn btn-sm" style="width:150px; border-radius:5px; background-color:#5C039A" title="Return Folder" onclick="returnTaskFolder()">
+                <span class="text-white" style="font-size:0.8rem"> <i class="bi bi-folder-symlink" style="margin-right:2px"></i> Return Folder</span>
+            </button>
+            <input type="hidden" id="folder_id" value="@Model.FolderID" />
+            <input type="hidden" id="submission_id" value="@Model.FolderSubmissionID" />
+            <input type="hidden" id="submission_type" value="Approval" />
+        </div>
             }
         </div>
     }

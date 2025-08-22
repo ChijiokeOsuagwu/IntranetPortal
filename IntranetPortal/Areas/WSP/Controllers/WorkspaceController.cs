@@ -1286,9 +1286,14 @@ namespace IntranetPortal.Areas.WSP.Controllers
             {
                 try
                 {
-                    string _submissionPurpose = "your action";
+                    string _submissionPurpose = string.Empty;
                     var employee = await _ermService.GetEmployeeByNameAsync(model.ToEmployeeName);
-                    if (employee != null) { model.ToEmployeeID = employee.EmployeeID; }
+                    if (employee == null || string.IsNullOrWhiteSpace(employee.EmployeeID)) 
+                    {
+                        model.ViewModelErrorMessage = "No record was found for the selected employee. Please select an employee from the dropdown. Do not type in the name.";
+                        return View(model);
+                    } else { model.ToEmployeeID = employee.EmployeeID; }
+
                     FolderSubmission submission = new FolderSubmission();
                     submission.IsActioned = false;
                     submission.Comment = model.Comment;
@@ -1310,6 +1315,12 @@ namespace IntranetPortal.Areas.WSP.Controllers
                                 if (string.IsNullOrWhiteSpace(task.MoreInformation))
                                 {
                                     model.ViewModelErrorMessage = "One or more tasks in this folder have blank Resolution fields. All tasks must have Resolutions before you can submit for Close Out. Please add Resolution to all tasks and try again. ";
+                                    return View(model);
+                                }
+
+                                if (task.ProgressStatus == WorkItemProgressStatus.NotStarted)
+                                {
+                                    model.ViewModelErrorMessage = "One or more tasks in this folder still have Progress Status of [Not Yet Started]. Kindly update the Progress Status and try again. ";
                                     return View(model);
                                 }
                             }
@@ -1426,7 +1437,6 @@ namespace IntranetPortal.Areas.WSP.Controllers
             }
             return View(model);
         }
-
         public async Task<IActionResult> SubmittedToMe(SubmittedToMeViewModel model)
         {
             if (model == null) { model = new SubmittedToMeViewModel(); }
@@ -1441,7 +1451,6 @@ namespace IntranetPortal.Areas.WSP.Controllers
             else { model.ViewModelErrorMessage = "Sorry, it appears your session expired. Please login again to continue."; }
             return View(model);
         }
-
         public async Task<IActionResult> SubmittedTasks(long id, string fn, long sd, string ed, string tp, string od)
         {
             SubmittedTasksViewModel model = new SubmittedTasksViewModel();
@@ -1536,7 +1545,6 @@ namespace IntranetPortal.Areas.WSP.Controllers
             
             return View(model);
         }
-
         public async Task<IActionResult> SubmittedEvaluations(long id, string fn, long sd, string ed, string od)
         {
             SubmittedEvaluationsViewModel model = new SubmittedEvaluationsViewModel();
@@ -1546,6 +1554,7 @@ namespace IntranetPortal.Areas.WSP.Controllers
             model.EvaluatorID = ed;
             model.FolderOwnerID = od;
             model.FolderName = fn;
+            model.PurposeOfSubmission = WorkItemSubmissionType.Review;
             model.SubmittedToEmployeeName = HttpContext.User.Identity.Name;
 
             FolderSubmission submission = await _wspService.GetFolderSubmissionByIdAsync(sd);
@@ -2115,6 +2124,110 @@ namespace IntranetPortal.Areas.WSP.Controllers
             return View(model);
         }
 
+        [Authorize(Roles = "WSPVWAEER, WSPVWAETK, XYALLACCZ")]
+        public async Task<IActionResult> FoldersReport(string id = null, int? ud = null, int? dd = null, int? ld = null, DateTime? sd = null, DateTime? ed = null, int vs = 2)
+        {
+            EmployeesFoldersReportViewModel model = new EmployeesFoldersReportViewModel();
+            model.FoldersList = new List<WorkItemFolder>();
+            model.EmployeesList = new List<EmployeeRoll>();
+            model.id = id;
+            model.ud = ud;
+            model.dd = dd;
+            model.ld = ld;
+            model.vs = vs;
+            model.sd = sd ?? DateTime.Now.AddMonths(-1);
+            model.ed = ed ?? DateTime.Now.AddMonths(1);
+
+            var _folderEntities = await _wspService.GetWorkItemFoldersAsync(model.sd.Value, model.ed.Value, model.vs, model.ld, model.dd, model.ud, model.id);
+            if(_folderEntities != null) { model.FoldersList = _folderEntities; }
+
+
+            var loc_entities = await _globalSettingsService.GetAllLocationsAsync();
+            if (loc_entities != null && loc_entities.Count > 0)
+            {
+                ViewBag.LocationList = new SelectList(loc_entities, "LocationID", "LocationName", ld);
+            }
+
+            var dept_entities = await _globalSettingsService.GetDepartmentsAsync();
+            if (dept_entities != null && dept_entities.Count > 0)
+            {
+                ViewBag.DepartmentList = new SelectList(dept_entities, "DepartmentID", "DepartmentName", dd);
+            }
+
+            var unit_entities = await _globalSettingsService.GetUnitsAsync();
+            if (unit_entities != null && unit_entities.Count > 0)
+            {
+                ViewBag.UnitList = new SelectList(unit_entities, "UnitID", "UnitName", ud);
+            }
+
+            var emp_entities = await _ermService.GetEmployeeRollsAsync(null, model.ld, model.dd, model.ud, model.id);
+            if (emp_entities != null && emp_entities.Count > 0)
+            {
+                model.EmployeesList = emp_entities;
+                ViewBag.EmployeesList = new SelectList(emp_entities, "EmployeeID", "FullName", id);
+            }
+
+            if (TempData["ErrorMessage"] != null)
+            {
+                model.ViewModelErrorMessage = TempData["ErrorMessage"].ToString();
+            }
+            return View(model);
+        }
+
+        public async Task<IActionResult> FolderTaskList(long id, string fn)
+        {
+            TaskListViewModel model = new TaskListViewModel();
+            model.FolderID = id;
+            model.FolderTitle = fn;
+            if(model.FolderID > 0)
+            {
+                WorkItemFolder folder = await _wspService.GetWorkItemFolderAsync(model.FolderID);
+                if (folder != null)
+                {
+                    model.FolderIsArchived = folder.IsArchived;
+                    model.FolderIsLocked = folder.IsLocked;
+                    model.FolderTitle = folder.Title;
+                    model.FolderOwnerID = folder.OwnerId;
+                    model.FolderOwnerName = folder.OwnerName;
+                }
+                var entities = await _wspService.GetTasksByFolderIdAsync(model.FolderID);
+                if (entities != null) { model.TaskItems = entities; }
+            }
+            return View(model);
+        }
+
+        public async Task<IActionResult> FolderEvaluations(long id, string fn, string od)
+        {
+            SubmittedEvaluationsViewModel model = new SubmittedEvaluationsViewModel();
+            model.FolderID = id;
+            model.FolderOwnerID = od;
+            model.FolderName = fn;
+
+            if (!string.IsNullOrWhiteSpace(model.FolderOwnerID))
+            {
+                var taskOwner = await _ermService.GetEmployeeByIdAsync(model.FolderOwnerID);
+                if (taskOwner != null)
+                {
+                    model.FolderOwnerName = taskOwner.FullName;
+                    model.FolderOwnerUnitName = taskOwner.UnitName;
+                    model.FolderOwnerLocationName = taskOwner.LocationName;
+                    model.FolderOwnerDesignation = taskOwner.CurrentDesignation;
+                }
+            }
+
+            if (model.FolderID > 0)
+            {
+                var entities = await _wspService.GetTaskItemEvaluationsAsync(model.FolderID);
+                if (entities != null && entities.Count > 0)
+                {
+                    model.TaskItemEvaluations = entities;
+                    model.SubmittedToEmployeeName = entities[0].EvaluatorName;
+
+                }
+            }
+            return View(model);
+        }
+
         #endregion
 
         #region Download Report Action Methods
@@ -2301,10 +2414,6 @@ namespace IntranetPortal.Areas.WSP.Controllers
                     {
                         throw new Exception("It appears that there are some tasks that have not been attended to. Please action all tasks before attempting to submit.");
                     }
-                    //else if (totalNoOfTasks < (noOfEvaluatedTasks + noOfReturnedTasks))
-                    //{
-                    //    throw new Exception("Sorry, it appears that some tasks have wrongly been evaluated more than once. ");
-                    //}
                 }
 
                 if (_wspService.ReturnFolderSubmissionAsync(id, sd).Result)
@@ -2610,6 +2719,7 @@ namespace IntranetPortal.Areas.WSP.Controllers
         }
 
         #endregion
+        
         #endregion
     }
 }

@@ -24,15 +24,8 @@ namespace IntranetPortal.Base.Services
         public async Task<bool> CreateBusinessAsync(Business business)
         {
             if (business == null) { throw new ArgumentNullException(nameof(business), "Required parameter [Business] is missing. The request cannot be processed."); }
-            bool IsSuccessful = false;
-            try
-            {
-                IsSuccessful = await _businessRepository.AddAsync(business);
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
+            bool IsSuccessful = await _businessRepository.AddAsync(business);
+
             return IsSuccessful;
         }
 
@@ -69,20 +62,13 @@ namespace IntranetPortal.Base.Services
 
         #endregion
 
-        //============================ Business Contacts Action Methods =========================// 
+        //======= Business Contacts Action Methods =====// 
         #region Business Contacts Action Methods
         public async Task<bool> CreateBusinessContactAsync(BusinessContact businessContact)
         {
             if (businessContact == null) { throw new ArgumentNullException(nameof(businessContact), "Required parameter [Business Contact] is missing. The request cannot be processed."); }
             bool IsSuccessful = false;
-            try
-            {
                 IsSuccessful = await _businessContactRepository.AddAsync(businessContact);
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
             return IsSuccessful;
         }
 
@@ -90,216 +76,147 @@ namespace IntranetPortal.Base.Services
         {
             if (businessContact == null) { throw new ArgumentNullException(nameof(businessContact), "Required parameter [Business Contact] is missing. The request cannot be processed."); }
             bool IsSuccessful = false;
-            try
-            {
                 IsSuccessful = await _businessContactRepository.EditAsync(businessContact);
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
             return IsSuccessful;
         }
-        public async Task<bool> DeleteBusinessContactAsync(int businessContactId)
+        public async Task<bool> DeleteBusinessContactAsync(long businessContactId)
         {
             if (businessContactId < 1) { throw new ArgumentNullException(nameof(businessContactId), "Required parameter [BusinessContactID] cannot be null."); }
             bool IsSuccessful = false;
-            try
-            {
                 IsSuccessful = await _businessContactRepository.DeleteAsync(businessContactId);
-            }
-            catch (Exception ex)
-            {
-
-                throw new Exception(ex.Message);
-            }
             return IsSuccessful;
         }
         public async Task<bool> DeleteBusinessContactsAsync(string businessId)
         {
             if (string.IsNullOrWhiteSpace(businessId)) { throw new ArgumentNullException(nameof(businessId), "Required parameter [BusinessID] cannot be null."); }
             bool IsSuccessful = false;
-            try
-            {
                 IsSuccessful = await _businessContactRepository.DeleteByBusinessIdAsync(businessId);
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
             return IsSuccessful;
         }
-        public async Task<IList<BusinessContact>> GetBusinessContactsAsync()
+        public async Task<List<BusinessContact>> GetBusinessContactsAsync()
         {
-            IList<BusinessContact> contacts = new List<BusinessContact>();
-            try
-            {
+            List<BusinessContact> contacts = new List<BusinessContact>();
                 var entities = await _businessContactRepository.GetAllAsync();
                 if (entities != null && entities.Count > 0) { contacts = entities; }
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
             return contacts;
         }
-        public async Task<IList<BusinessContact>> GetBusinessContactsByBusinessIdAsync(string businessId)
+        public async Task<List<BusinessContact>> GetBusinessContactsByBusinessIdAsync(string businessId)
         {
-            IList<BusinessContact> contacts = new List<BusinessContact>();
-            try
-            {
+            List<BusinessContact> contacts = new List<BusinessContact>();
                 var entities = await _businessContactRepository.GetByBusinessIdAsync(businessId);
                 if (entities != null && entities.Count > 0) { contacts = entities; }
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
             return contacts;
         }
-        public async Task<BusinessContact> GetBusinessContactByIdAsync(int businessContactId)
+        public async Task<BusinessContact> GetBusinessContactByIdAsync(long businessContactId)
         {
             BusinessContact contact = new BusinessContact();
-            try
-            {
-                var entity = await _businessContactRepository.GetByIdAsync(businessContactId);
+                 var entity = await _businessContactRepository.GetByIdAsync(businessContactId);
                 if (entity != null) { contact = entity; }
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
-            return contact;
+             return contact;
         }
         #endregion
 
-        //============================ Customers Action Methods =============================//
+        //======= Customers Action Methods ========//
         #region Customers Action Methods
-        public async Task<IList<Business>> GetCustomersAsync()
+        public async Task<List<Business>> GetCustomersAsync()
         {
-            IList<Business> customers = new List<Business>();
-            try
-            {
+            List<Business> customers = new List<Business>();
                 var entities = await _businessRepository.GetAllCustomersAsync();
                 if (entities != null && entities.Count > 0) { customers = entities; }
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
             return customers;
         }
 
         public async Task<Business> GetCustomerByIdAsync(string customerId)
         {
             Business customer = new Business();
-            try
-            {
                 var entity = await _businessRepository.GetByIdAsync(customerId);
                 if (entity != null && !string.IsNullOrWhiteSpace(entity.BusinessName)) { customer = entity; }
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
-            return customer;
+             return customer;
         }
 
         public async Task<Business> GetCustomerByNameAsync(string customerName)
         {
             Business customer = new Business();
-            try
-            {
-                var entity = await _businessRepository.GetCustomerByNameAsync(customerName);
-                if (entity != null && !string.IsNullOrWhiteSpace(entity.BusinessName)) { customer = entity; }
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
+               var entity = await _businessRepository.GetCustomerByNameAsync(customerName);
+              if (entity != null && !string.IsNullOrWhiteSpace(entity.BusinessName)) { customer = entity; }
             return customer;
         }
 
-        public async Task<IList<Business>> SearchCustomersByNameAsync(string customerName)
+        public async Task<List<Business>> SearchCustomersByNameAsync(string customerName)
         {
-            IList<Business> customers = new List<Business>();
-            try
+            List<Business> customers = new List<Business>();
+            if (!string.IsNullOrWhiteSpace(customerName))
             {
                 var entities = await _businessRepository.SearchCustomersByNameAsync(customerName);
                 if (entities != null && entities.Count > 0) { customers = entities; }
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
             }
             return customers;
         }
 
         #endregion
 
-        //============================ Suppliers Action Methods =============================//
+        //======= Suppliers Action Methods =======//
         #region Suppliers Action Methods
-        public async Task<IList<Business>> GetSuppliersAsync()
+        public async Task<List<Business>> GetSuppliersAsync()
         {
-            IList<Business> suppliers = new List<Business>();
-            try
-            {
+            List<Business> suppliers = new List<Business>();
                 var entities = await _businessRepository.GetAllSuppliersAsync();
                 if (entities != null && entities.Count > 0) { suppliers = entities; }
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
             return suppliers;
         }
 
         public async Task<Business> GetSupplierByIdAsync(string supplierId)
         {
             Business supplier = new Business();
-            try
-            {
                 var entity = await _businessRepository.GetByIdAsync(supplierId);
                 if (entity != null && !string.IsNullOrWhiteSpace(entity.BusinessName)) { supplier = entity; }
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
             return supplier;
         }
 
         public async Task<Business> GetSupplierByNameAsync(string supplierName)
         {
             Business supplier = new Business();
-            try
-            {
                 var entity = await _businessRepository.GetSupplierByNameAsync(supplierName);
                 if (entity != null && !string.IsNullOrWhiteSpace(entity.BusinessName)) { supplier = entity; }
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
             return supplier;
         }
 
-        public async Task<IList<Business>> SearchSuppliersByNameAsync(string supplierName)
+        public async Task<List<Business>> SearchSuppliersByNameAsync(string supplierName)
         {
-            IList<Business> suppliers = new List<Business>();
-            try
-            {
+            List<Business> suppliers = new List<Business>();
                 var entities = await _businessRepository.SearchSuppliersByNameAsync(supplierName);
                 if (entities != null && entities.Count > 0) { suppliers = entities; }
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
             return suppliers;
         }
 
         #endregion
 
+        public async Task<string> GetNewCodeNumber()
+        {
+            char FirstCharacter = 'B';
+            List<string> _existingNumbers = new List<string>();
+            string yy = DateTime.Now.Year.ToString().Substring(2, 2);
+            //string mm = createdDate.Month.ToString().PadLeft(2, '0');
+            //string dd = day.ToString().PadLeft(2, '0');
+
+            _existingNumbers = await _businessRepository.GetCodeNumbersByCreatedDateAsync(DateTime.Now);
+            if (_existingNumbers == null || _existingNumbers.Count < 1)
+            {
+                return $"{FirstCharacter}{yy}0001";
+            }
+
+            string _newAssignmentNumber = string.Empty;
+            int _nextCount = 1;
+            bool _isExisting = true;
+            do
+            {
+                string _nextDigitString = _nextCount.ToString().PadLeft(4, '0');
+                _newAssignmentNumber = $"{FirstCharacter}{yy}{_nextDigitString}";
+                _isExisting = _existingNumbers.Contains(_newAssignmentNumber);
+                _nextCount++;
+            }
+            while (_isExisting);
+            return _newAssignmentNumber;
+        }
     }
 }

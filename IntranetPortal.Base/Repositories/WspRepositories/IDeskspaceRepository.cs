@@ -37,7 +37,7 @@ namespace IntranetPortal.Base.Repositories.WspRepositories
         #endregion
 
         #region Work Item Folder Read Action Methods
-        //===== Work Item Folder Write Action Methods =====//
+        //===== Work Item Folder Read Action Methods =====//
         Task<List<WorkItemFolder>> GetWorkItemFoldersByOwnerIdAndFolderTitleAsync(string ownerId, string folderTitle);
         Task<List<WorkItemFolder>> GetWorkItemFoldersByOwnerIdnArchivedStatusnCreaatedYearnCreatedMonthAsync(string ownerId, bool isArchived, int createdYear, int createdMonth);
         Task<List<WorkItemFolder>> GetWorkItemFoldersByOwnerIdnArchiveStatusAsync(string ownerId, bool isArchived);
@@ -45,10 +45,25 @@ namespace IntranetPortal.Base.Repositories.WspRepositories
         Task<List<WorkItemFolder>> GetWorkItemFoldersByOwnerIdnCreatedYearAsync(string ownerId, int createdYear);
         Task<List<WorkItemFolder>> GetWorkItemFoldersByOwnerIdnCreatedYearnCreatedMonthAsync(string ownerId, int createdYear, int createdMonth);
         Task<List<WorkItemFolder>> GetWorkItemFoldersByOwnerIdnArchiveStatusnArchivedDateAsync(string ownerId, bool isArchived, DateTime? fromDate = null, DateTime? toDate = null);
-
         Task<WorkItemFolder> GetWorkItemFolderByIdAsync(long workItemFolderId);
         Task<List<WorkItemFolder>> GetWorkItemFoldersByOwnerIdAsync(string ownerId);
+
+        //====== Get By OwnerId and Start and End Dates =======//
         Task<List<WorkItemFolder>> GetWorkItemFoldersByOwnerIdnArchivednDatesAsync(string ownerId, bool IsArchived, DateTime? startDate = null, DateTime? endDate = null);
+        Task<List<WorkItemFolder>> GetWorkItemFoldersByOwnerIdnDatesAsync(string ownerId, DateTime? startDate = null, DateTime? endDate = null);
+
+        //====== Get By UnitId and Start and End Dates =======//
+        Task<List<WorkItemFolder>> GetWorkItemFoldersByUnitIdnArchivednDatesAsync(int unitId, bool IsArchived, DateTime? startDate = null, DateTime? endDate = null);
+        Task<List<WorkItemFolder>> GetWorkItemFoldersByUnitIdnDatesAsync(int unitId, DateTime? startDate = null, DateTime? endDate = null);
+
+        //====== Get By DepartmentId and Start and End Dates =======//
+        Task<List<WorkItemFolder>> GetWorkItemFoldersByDepartmentIdnArchivednDatesAsync(int deptId, bool IsArchived, DateTime? startDate = null, DateTime? endDate = null);
+        Task<List<WorkItemFolder>> GetWorkItemFoldersByDepartmentIdnDatesAsync(int deptId, DateTime? startDate = null, DateTime? endDate = null);
+
+        //====== Get By LocationId and Start and End Dates =======//
+        Task<List<WorkItemFolder>> GetWorkItemFoldersByLocationIdnArchivednDatesAsync(int locationId, bool IsArchived, DateTime? startDate = null, DateTime? endDate = null);
+        Task<List<WorkItemFolder>> GetWorkItemFoldersByLocationIdnDatesAsync(int locationId, DateTime? startDate = null, DateTime? endDate = null);
+
         #endregion
 
         #endregion

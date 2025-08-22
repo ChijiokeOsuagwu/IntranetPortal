@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Text;
 
 namespace IntranetPortal.Base.Models.AtsModels
@@ -7,9 +8,10 @@ namespace IntranetPortal.Base.Models.AtsModels
     public class Assignment
     {
         public long? Id { get; set; }
+        public string No { get; set; }
         public string Title { get; set; }
         public string Description { get; set; }
-        public int EventTypeId { get; set; }
+        public int? EventTypeId { get; set; }
         public string EventTypeTitle { get; set; }
         public DateTime? EventStartTime { get; set; }
         public DateTime? EventEndTime { get; set; }
@@ -18,6 +20,7 @@ namespace IntranetPortal.Base.Models.AtsModels
         public string StationName { get; set; }
         public string AssignedToId { get; set; }
         public string AssignedToName { get; set; }
+        public string AssignedToRole { get; set; }
         public string AssignedById { get; set; }
         public string AssignedByName { get; set; }
         public string EventVenue { get; set; }
@@ -33,7 +36,7 @@ namespace IntranetPortal.Base.Models.AtsModels
         public bool IsLive { get; set; }
         public bool IsUsed { get; set; }
         public bool IsPriority { get; set; }
-        public string ConfirmationStatus { get; set; }
+        public bool IsConfirmed { get; set; }
         public string CreatedBy { get; set; }
         public DateTime? CreatedTime { get; set; }
     }

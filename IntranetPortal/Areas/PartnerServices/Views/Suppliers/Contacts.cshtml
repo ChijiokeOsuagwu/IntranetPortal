@@ -55,35 +55,54 @@
                     <tbody class="table-light">
                         @foreach (var contact in Model.ContactsList)
                         {
-                        <tr class="p-0">
-                            <td>
-                                <span class="fw-bold">@contact.FullName</span>
-                            </td>
-                            <td>
-                                <span class="fw-bold">@contact.PersonRole</span>
-                            </td>
-                            <td>
-                                <span class="fw-bold">@contact.PhoneNo1</span>
-                                @if (!string.IsNullOrWhiteSpace(contact.PhoneNo2))
-                                {<span class="fw-bold">, @contact.PhoneNo2</span>}
-                            </td>
-                            <td>
-                                <span class="fw-bold">@contact.Email</span>
-                             </td>
-                            <td>
-                                <div class="text-center">
-                                    <a asp-area="PartnerServices" asp-controller="Suppliers" asp-action="ContactDetails" asp-route-id="@contact.BusinessContactID" title="Details" class="btn btn-xs btn-dark text-white" style="width:50px">
-                                        <i class="bi bi-card-text fw-bolder" style="font-size: 0.7rem;"></i>
+                            <tr class="p-0">
+                                <td>
+                                    <span class="fw-bold">@contact.ContactName</span>
+                                </td>
+                                <td>
+                                    <span class="fw-bold">@contact.Designation</span>
+                                </td>
+                                <td>
+                                    <span class="fw-bold">@contact.ContactPhone1</span>
+                                    @if (!string.IsNullOrWhiteSpace(contact.ContactPhone2))
+                                    {<span class="fw-bold">, @contact.ContactPhone2</span>}
+                                </td>
+                                <td>
+                                    <span class="fw-bold">@contact.ContactEmail1</span>
+                                </td>
+                                <td>
+                                    <div class="text-center">
+                                        <!-- Default dropstart button -->
+                                        <div class="btn-group dropstart">
+                                            <button type="button" data-bs-toggle="dropdown" aria-expanded="false" class="table-secondary" style="border:0px">
+                                                <span class="fw-bold" style="font-size:0.8rem;"><i class="bi bi-tools"></i> Options</span>
+                                            </button>
+                                            <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton2">
+                                                <li>
+                                                    <a class="dropdown-item" asp-area="PartnerServices" asp-controller="Suppliers" asp-action="ContactDetails" asp-route-id="@contact.ContactID" title="Details">
+                                                        <i class="bi bi-info-square"></i><span>Detail</span>
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <a class="dropdown-item" asp-area="PartnerServices" asp-controller="Suppliers" asp-action="EditContact" asp-route-id="@contact.ContactID" title="Edit">
+                                                        <i class="bi bi-pencil-square"></i><span>Edit</span>
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <a class="dropdown-item" asp-area="PartnerServices" asp-controller="Suppliers" asp-action="DeleteContact" asp-route-id="@contact.ContactID" title="Edit">
+                                                        <i class="bi bi-trash"></i><span>Delete</span>
+                                                    </a>
+                                                </li>
+                                                @*<li>
+                                    <a class="dropdown-item" asp-area="PartnerServices" asp-controller="Customers" asp-action="Contacts" asp-route-td="@contact.BusinessID">
+                                        <i class="bi bi-people"></i> <span>Contacts</span>
                                     </a>
-                                    <a asp-area="PartnerServices" asp-controller="Suppliers" asp-action="EditContact" asp-route-id="@contact.BusinessContactID" title="Edit" class="btn btn-xs btn-info text-white" style="width:50px">
-                                        <i class="bi bi-pencil-square fw-bolder" style="font-size: 0.7rem;"></i>
-                                    </a>
-                                    <a asp-area="PartnerServices" asp-controller="Suppliers" asp-action="DeleteContact" asp-route-id="@contact.BusinessContactID" title="Delete" class="btn btn-xs btn-danger text-white" style="width:50px">
-                                        <i class="bi bi-trash fw-bolder" style="font-size: 0.7rem;"></i>
-                                    </a>
-                                </div>
-                            </td>
-                        </tr>
+                                </li>*@
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
                         }
                     </tbody>
                 </table>

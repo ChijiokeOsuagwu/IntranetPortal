@@ -65,6 +65,16 @@ namespace IntranetPortal.Base.Repositories.ErmRepositories
 
         #endregion
 
+
+        #region Employee Roll Read Action Methods
+        Task<IList<EmployeeRoll>> GetEmployeeRollsByLocationIdAsync(int locationId, DateTime? terminalDate = null);
+        Task<IList<EmployeeRoll>> GetEmployeeRollsByDepartmentIdAsync(int departmentId, DateTime? terminalDate = null);
+        Task<IList<EmployeeRoll>> GetEmployeeRollsByUnitIdAsync(int unitId, DateTime? terminalDate = null);
+        Task<IList<EmployeeRoll>> GetEmployeeRollsByEmployeeIdAsync(string employeeId, DateTime? terminalDate = null);
+        Task<IList<EmployeeRoll>> GetEmployeeRollsByAllAsync(DateTime? terminalDate = null);
+
+        #endregion
+
         #region Employee Count Action Methods
         Task<long> GetEmployeesCountAsync(DateTime? terminalDate = null);
         Task<long> GetEmployeesCountByLocationIdAsync(int locationId, DateTime? terminalDate = null);

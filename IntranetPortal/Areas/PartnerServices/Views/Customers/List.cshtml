@@ -1,111 +1,131 @@
-﻿@model IntranetPortal.Models.PaginatedList<Business>
+﻿@model IntranetPortal.Areas.PartnerServices.Models.BusinessesListViewModel
 @{
     ViewData["Title"] = "OfficeManager | Customers List";
 }
-<div class="container">
-    <h4>Customers List</h4>
-    <hr />
-    <div class="mb-1">
-        <form asp-area="PartnerServices" asp-controller="Customers" asp-action="List" method="get">
-            <a asp-area="" asp-controller="Home" asp-action="Apps" class="btn btn-dark pr-2" style="width:100px" title="Click to Add New Asset Type">
-                <span class="text-white">Exit</span>
-            </a>
-            <a asp-area="PartnerServices" asp-controller="Home" asp-action="Index" class="btn btn-dark" style="width:100px" title="Click to Go Back">
-                <span class="text-white">Back</span>
-            </a>
-            <a asp-area="PartnerServices" asp-controller="Customers" asp-action="AddCustomer" class="btn btn-success" style="width:200px" title="Click to Add New Customer">
-                <span class="text-white">New Customer</span>
-            </a>
-            <input id="sp" name="sp" class="border-0" style="width:300px" placeholder="Enter Text Here">
-            <input type="submit" value="Search" class="btn btn-dark" style="width:100px" />
-        </form>
+    <div class="container">
+        <h4>Customers Management | Customers List</h4>
+        <hr />
+        <div class="row">
+            <nav class="navbar navbar-expand-lg navbar-light bg-light">
+                <div class="container-fluid">
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <div class="collapse navbar-collapse" id="navbarNavDropdown">
+                        <ul class="navbar-nav">
+                            <li class="nav-item">
+                                <a asp-area="PartnerServices" asp-controller="Home" asp-action="Index" class="btn btn-sm btn-outline-light text-dark" style="width:100px" title="Go Back">
+                                    <i class="bi bi-backspace" style="font-size: 1.0rem;"></i> <span class="fw-bold ml-1" style="font-size: 0.9rem;">Back</span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <form asp-area="PartnerServices" asp-controller="Customers" asp-action="List" method="get">
+                                    <input id="cn" asp-for="cn" class="border-0" style="width:300px" placeholder="Enter Customer Name ">
+                                    <input type="submit" value="Search" class="btn btn-sm btn-dark text-white" style="width:100px; border-radius:3px" />
+                                </form>
+                            </li>
+                            <li class="nav-item">
+                                <a asp-area="PartnerServices" asp-controller="Customers" asp-action="AddCustomer" title="Add New Customer" class="btn btn-sm btn-light text-dark">
+                                    <i class="bi bi-plus-lg" style="font-size: 1.0rem; font-weight:900"></i><span class="fw-bold ml-1" style="font-size: 0.9rem;">New Customer</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+        </div>
 
-        @if (!String.IsNullOrEmpty(ViewBag.ErrorMessage))
+        <div class="mb-1">
+            @if (!String.IsNullOrEmpty(ViewBag.ErrorMessage))
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bi bi-x-circle"></i>
+                    <span class="fw-bold">@ViewBag.ErrorMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+        </div>
+        @if (Model == null || Model.BusinessList == null || Model.BusinessList.Count < 1)
         {
-            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                <i class="bi bi-x-circle"></i>
-                <span class="fw-bold">@ViewBag.ErrorMessage</span>
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            <div class="alert alert-info fade show" role="alert">
+                <i class="bi bi-info-circle"></i>
+                <span class="fw-bold">No record was found.</span>
+            </div>
+        }
+        else
+        {
+            <div class="row">
+                <div class="table-responsive" style="min-height:400px">
+                    <table class="table table-hover table-sm ">
+                        <thead class="table-dark">
+                            <tr>
+                                <th><span class="text-white fw-bold">#</span></th>
+                                <th><span class="text-white fw-bold">Name</span></th>
+                                <th><span class="text-white fw-bold">State</span></th>
+                                <th><span class="text-white fw-bold">Phone</span></th>
+                                <th><span class="text-white fw-bold">Station</span></th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody class="table-light">
+                            @foreach (var business in Model.BusinessList)
+                            {
+                                <tr class="p-0">
+                                    <td>
+                                        <span>@business.BusinessNumber</span>
+                                    </td>
+                                    <td>
+                                        <span>@business.BusinessName</span>
+                                    </td>
+                                    <td>
+                                        <span>@business.State</span>
+                                    </td>
+                                    <td>
+                                        <span>@business.PhoneNo1</span>
+                                        @if (!string.IsNullOrWhiteSpace(business.PhoneNo2))
+                                        {<span>, @business.PhoneNo2</span>}
+                                    </td>
+                                    <td>
+                                        <span>@business.BusinessStationName</span>
+                                    </td>
+                                    <td>
+                                        <!-- Default dropstart button -->
+                                        <div class="btn-group dropstart">
+                                            <button type="button" data-bs-toggle="dropdown" aria-expanded="false" style="border:0px">
+                                                <span class="fw-bold" style="font-size:1.0rem;"><i class="bi bi-three-dots"></i></span>
+                                            </button>
+                                            <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton2">
+                                                <li>
+                                                    <a class="dropdown-item" asp-area="PartnerServices" asp-controller="Customers" asp-action="Details" asp-route-id="@business.BusinessID" title="Details">
+                                                        <i class="bi bi-info-square"></i>  <span>Detail</span>
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <a class="dropdown-item" asp-area="PartnerServices" asp-controller="Customers" asp-action="Contacts" asp-route-sp="@business.BusinessID">
+                                                        <i class="bi bi-people"></i> <span>Contacts</span>
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <a class="dropdown-item" asp-area="PartnerServices" asp-controller="Customers" asp-action="Edit" asp-route-id="@business.BusinessID" title="Edit">
+                                                        <i class="bi bi-pencil-square"></i>  <span>Edit</span>
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <a class="dropdown-item" asp-area="PartnerServices" asp-controller="Customers" asp-action="Delete" asp-route-id="@business.BusinessID" title="Edit">
+                                                        <i class="bi bi-trash"></i>  <span>Delete</span>
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
             </div>
         }
     </div>
-    @if (Model == null || Model.Count < 1)
-    {
-        <div class="alert alert-info fade show" role="alert">
-            <i class="bi bi-info-circle"></i>
-            <span class="fw-bold">No record was found.</span>
-        </div>
-    }
-    else
-    {
-        <div class="row">
-            <div class="table-responsive">
-                <table class="table table-hover table-sm ">
-                    <thead class="table-dark">
-                        <tr>
-                            <th><span class="text-white fw-bold">No.</span></th>
-                            <th><span class="text-white fw-bold">Name</span></th>
-                            <th><span class="text-white fw-bold">Phone</span></th>
-                            <th><span class="text-white fw-bold">Station</span></th>
-                            <th></th>
-                        </tr>
-                    </thead>
-                    <tbody class="table-light">
-                        @foreach (var business in Model)
-                        {
-                            <tr class="p-0">
-                                <td>
-                                    <span class="fw-bold">@business.BusinessNumber</span>
-                                </td>
-                                <td>
-                                    <span class="fw-bold">@business.BusinessName</span>
-                                </td>
-                                <td>
-                                    <span class="fw-bold">@business.PhoneNo1</span>
-                                    @if (!string.IsNullOrWhiteSpace(business.PhoneNo2))
-                                    {<span class="fw-bold">, @business.PhoneNo2</span>}
-                                </td>
-                                <td>
-                                    <span class="fw-bold">@business.BusinessStationName</span>
-                                </td>
-                                <td>
-                                    <div class="text-center">
-                                        <a asp-area="PartnerServices" asp-controller="Customers" asp-action="Details" asp-route-id="@business.BusinessID" title="Details" class="btn btn-xs btn-dark text-white" style="width:50px">
-                                            <i class="bi bi-card-text fw-bolder" style="font-size: 0.7rem;"></i>
-                                        </a>
-                                        <a asp-area="PartnerServices" asp-controller="Customers" asp-action="Edit" asp-route-id="@business.BusinessID" title="Edit" class="btn btn-xs btn-info text-white" style="width:50px">
-                                            <i class="bi bi-pencil-square fw-bolder" style="font-size: 0.7rem;"></i>
-                                        </a>
-                                        <a asp-area="PartnerServices" asp-controller="Customers" asp-action="Contacts" asp-route-sp="@business.BusinessID" title="Contacts" class="btn btn-xs btn-success text-white" style="width:50px">
-                                            <i class="bi bi-people fw-bolder" style="font-size: 0.7rem;"></i>
-                                        </a>
-                                        <a asp-area="PartnerServices" asp-controller="Customers" asp-action="Delete" asp-route-id="@business.BusinessID" title="Delete" class="btn btn-xs btn-danger text-white" style="width:50px">
-                                            <i class="bi bi-trash fw-bolder" style="font-size: 0.7rem;"></i>
-                                        </a>
-                                    </div>
-                                </td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
-            </div>
-            @{
-                var prevDisabled = !Model.HasPreviousPage ? "disabled" : "";
-                var nextDisabled = !Model.HasNextPage ? "disabled" : "";
-            }
-
-            <a asp-action="List"
-               asp-route-pg="@(Model.PageIndex - 1)"
-               asp-route-sp="@ViewData["CurrentFilter"]"
-               class="btn btn-dark @prevDisabled" style="width:100px">
-                Previous
-            </a>
-            <a asp-action="List"
-               asp-route-pg="@(Model.PageIndex + 1)"
-               asp-route-sp="@ViewData["CurrentFilter"]"
-               class="btn btn-dark ml-1 @nextDisabled" style="width:100px">
-                Next
-            </a>
-        </div>
-    }
-</div>
+@section Scripts{
+    <script src="~/js/ats.js"></script>
+}

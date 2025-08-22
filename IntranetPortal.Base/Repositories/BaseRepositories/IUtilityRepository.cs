@@ -1,5 +1,5 @@
 ﻿using IntranetPortal.Base.Models.BaseModels;
-using IntranetPortal.Base.Models.WksModels;
+using IntranetPortal.Base.Models.WspModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -61,9 +61,17 @@ namespace IntranetPortal.Base.Repositories.BaseRepositories
 
         #endregion
 
-        //============================= Industry Types Action Methods =======================//
-        #region Industry Types Action Methods
-        Task<List<IndustryType>> GetIndustryTypesAsync();
+        //======== Industry Sectors Action Interfaces ======//
+        #region Industry Sectors Action Methods
+        Task<List<IndustrySector>> GetIndustrySectorsAsync();
+        Task<IndustrySector> GetIndustrySectorByIdAsync(int industrySectorId);
+        Task<bool> AddIndustrySectorAsync(IndustrySector industrySector);
+        Task<bool> EditIndustrySectorAsync(IndustrySector industrySector);
+        Task<bool> DeleteIndustrySectorAsync(int industrySectorId);
+        #endregion
+
+        #region Business Types Action Interfaces
+        Task<List<BusinessType>> GetBusinessTypesAsync();
         #endregion
     }
 }

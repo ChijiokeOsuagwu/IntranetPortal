@@ -1,4 +1,4 @@
-﻿using IntranetPortal.Base.Models.WksModels;
+﻿using IntranetPortal.Base.Models.WspModels;
 using System;
 using System.Collections.Generic;
 using System.Text;

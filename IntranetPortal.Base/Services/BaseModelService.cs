@@ -1,6 +1,6 @@
 ﻿using IntranetPortal.Base.Enums;
 using IntranetPortal.Base.Models.BaseModels;
-using IntranetPortal.Base.Models.WksModels;
+using IntranetPortal.Base.Models.WspModels;
 using IntranetPortal.Base.Repositories.BaseRepositories;
 using System;
 using System.Collections.Generic;
@@ -439,21 +439,67 @@ namespace IntranetPortal.Base.Services
         }
         #endregion
 
-        //================================== Industry Type Service Methods ======================================================//
-        #region Industry Types Service Methods
-        public async Task<List<IndustryType>> GetIndustryTypesAsync()
+        //================================== Industry Sectors Service Methods ======================================================//
+        #region Industry Sectors Service Methods
+        public async Task<List<IndustrySector>> GetIndustrySectorsAsync()
         {
-            List<IndustryType> industryTypes = new List<IndustryType>();
+            List<IndustrySector> industrySectors = new List<IndustrySector>();
             try
             {
-                industryTypes = await _utilityRepository.GetIndustryTypesAsync();
+                industrySectors = await _utilityRepository.GetIndustrySectorsAsync();
             }
             catch (Exception ex)
             {
                 throw new Exception(ex.Message);
             }
-            return industryTypes;
+            return industrySectors;
         }
+
+        public async Task<IndustrySector> GetIndustrySectorAsync(int Id)
+        {
+            IndustrySector industrySector = new IndustrySector();
+            if(Id > 0)
+            {
+                industrySector = await _utilityRepository.GetIndustrySectorByIdAsync(Id);
+            }
+            return industrySector;
+        }
+
+
+        public async Task<bool> CreateIndustrySectorAsync(IndustrySector industrySector)
+        {
+            if (industrySector == null) { throw new ArgumentNullException(nameof(industrySector), "Required parameter [Industry Sector] is missing."); }
+            return await _utilityRepository.AddIndustrySectorAsync(industrySector);
+        }
+
+        public async Task<bool> EditIndustrySectorAsync(IndustrySector industrySector)
+        {
+            if (industrySector == null) { throw new ArgumentNullException(nameof(industrySector), "Required parameter [Industry Sector] is missing."); }
+            return await _utilityRepository.EditIndustrySectorAsync(industrySector);
+        }
+
+        public async Task<bool> DeleteIndustrySectorAsync(int IndustrySectorId)
+        {
+            if (IndustrySectorId < 1) { throw new ArgumentNullException(nameof(IndustrySectorId), "Required parameter [Industry Sector ID] is missing."); }
+            return await _utilityRepository.DeleteIndustrySectorAsync(IndustrySectorId);
+        }
+        #endregion
+
+        #region Business Types Service Methods
+        public async Task<List<BusinessType>> GetBusinessTypesAsync()
+        {
+            List<BusinessType> businessTypes = new List<BusinessType>();
+            try
+            {
+                businessTypes = await _utilityRepository.GetBusinessTypesAsync();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return businessTypes;
+        }
+
         #endregion
 
         //================================= Entity Activity History Service Methods =============================================//

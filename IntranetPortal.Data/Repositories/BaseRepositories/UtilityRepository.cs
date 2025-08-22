@@ -1,5 +1,5 @@
 ﻿using IntranetPortal.Base.Models.BaseModels;
-using IntranetPortal.Base.Models.WksModels;
+using IntranetPortal.Base.Models.WspModels;
 using IntranetPortal.Base.Repositories.BaseRepositories;
 using Microsoft.Extensions.Configuration;
 using Npgsql;
@@ -13,7 +13,7 @@ namespace IntranetPortal.Data.Repositories.BaseRepositories
 {
     public class UtilityRepository : IUtilityRepository
     {
-        public IConfiguration _config { get; }
+        private IConfiguration _config { get; }
         public UtilityRepository(IConfiguration configuration)
         {
             _config = configuration;
@@ -714,17 +714,44 @@ namespace IntranetPortal.Data.Repositories.BaseRepositories
         }
         #endregion
 
-        //======= Industry Types Action Methods ===============//
-        #region Industry Types Action Methods
-        public async Task<List<IndustryType>> GetIndustryTypesAsync()
+        //======= IndustrySectors Action Methods ===============//
+        #region Industry Sector Action Methods
+
+        public async Task<IndustrySector> GetIndustrySectorByIdAsync(int industrySectorId)
         {
-            List<IndustryType> industryTypes = new List<IndustryType>();
-            var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
-            string query = String.Empty;
+            IndustrySector industrySector = new IndustrySector();
             StringBuilder sb = new StringBuilder();
-            sb.Append($"SELECT id, name FROM public.gst_lst_inds ORDER BY name;");
-            query = sb.ToString();
-            try
+            sb.Append("SELECT bzn_ind_id, bzn_ind_nm FROM public.bpm_bzn_inds ");
+            sb.Append("WHERE bzn_ind_id = @bzn_ind_id ");
+            sb.Append("ORDER BY bzn_ind_nm; ");
+            string query = sb.ToString();
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
+            {
+                await conn.OpenAsync();
+                // Retrieve all rows
+                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+                {
+                    var bzn_ind_id = cmd.Parameters.Add("@bzn_ind_id", NpgsqlDbType.Integer);
+                    await cmd.PrepareAsync();
+                    bzn_ind_id.Value = industrySectorId;
+
+                    var reader = await cmd.ExecuteReaderAsync();
+                    while (await reader.ReadAsync())
+                    {
+                        industrySector.IndustrySectorId = reader["bzn_ind_id"] == DBNull.Value ? 0 : (int)reader["bzn_ind_id"];
+                        industrySector.IndustrySectorName = reader["bzn_ind_nm"] == DBNull.Value ? string.Empty : (reader["bzn_ind_nm"]).ToString();
+                    }
+                }
+                await conn.CloseAsync();
+            }
+            return industrySector;
+        }
+
+        public async Task<List<IndustrySector>> GetIndustrySectorsAsync()
+        {
+            List<IndustrySector> industrySectors = new List<IndustrySector>();
+            string query = "SELECT bzn_ind_id, bzn_ind_nm FROM public.bpm_bzn_inds ORDER BY bzn_ind_nm; ";
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
             {
                 await conn.OpenAsync();
                 // Retrieve all rows
@@ -734,22 +761,114 @@ namespace IntranetPortal.Data.Repositories.BaseRepositories
                     var reader = await cmd.ExecuteReaderAsync();
                     while (await reader.ReadAsync())
                     {
-                        industryTypes.Add(new IndustryType()
+                        industrySectors.Add(new IndustrySector()
                         {
-                            IndustryTypeID = reader["id"] == DBNull.Value ? 0 : (int)reader["id"],
-                            IndustryTypeName = reader["name"] == DBNull.Value ? string.Empty : (reader["name"]).ToString(),
+                            IndustrySectorId = reader["bzn_ind_id"] == DBNull.Value ? 0 : (int)reader["bzn_ind_id"],
+                            IndustrySectorName = reader["bzn_ind_nm"] == DBNull.Value ? string.Empty : (reader["bzn_ind_nm"]).ToString(),
                         });
                     }
                 }
                 await conn.CloseAsync();
             }
-            catch (Exception ex)
-            {
-                await conn.CloseAsync();
-                throw new Exception(ex.Message);
-            }
-            return industryTypes;
+ 
+            return industrySectors;
         }
+
+        public async Task<bool> AddIndustrySectorAsync(IndustrySector industrySector)
+        {
+            int rows = 0;
+            string query = "INSERT INTO public.bpm_bzn_inds(bzn_ind_nm) VALUES (@bzn_ind_nm);";
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
+            {
+                await conn.OpenAsync();
+                //Insert data
+                using (var cmd = new NpgsqlCommand(query, conn))
+                {
+                    var bzn_ind_nm = cmd.Parameters.Add("@bzn_ind_nm", NpgsqlDbType.Text);
+                    cmd.Prepare();
+                    bzn_ind_nm.Value = industrySector.IndustrySectorName;
+
+                    rows = await cmd.ExecuteNonQueryAsync();
+                }
+                await conn.CloseAsync();
+            }
+            return rows > 0;
+        }
+        public async Task<bool> EditIndustrySectorAsync(IndustrySector industrySector)
+        {
+            int rows = 0;
+            StringBuilder sb = new StringBuilder();
+            sb.Append("UPDATE public.bpm_bzn_inds SET bzn_ind_nm=@bzn_ind_nm ");
+            sb.Append("WHERE(bzn_ind_id= @bzn_ind_id);");
+            string query = sb.ToString();
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
+            {
+                await conn.OpenAsync();
+                //Insert data
+                using (var cmd = new NpgsqlCommand(query, conn))
+                {
+                    var bzn_ind_id = cmd.Parameters.Add("@bzn_ind_id", NpgsqlDbType.Integer);
+                    var bzn_ind_nm = cmd.Parameters.Add("@bzn_ind_nm", NpgsqlDbType.Text);
+                    cmd.Prepare();
+                    bzn_ind_id.Value = industrySector.IndustrySectorId;
+                    bzn_ind_nm.Value = industrySector.IndustrySectorName;
+
+                    rows = await cmd.ExecuteNonQueryAsync();
+                }
+                await conn.CloseAsync();
+            }
+            return rows > 0;
+        }
+        public async Task<bool> DeleteIndustrySectorAsync(int industrySectorId)
+        {
+            int rows = 0;
+            string query = "DELETE FROM public.bpm_bzn_inds WHERE (bzn_ind_id = @bzn_ind_id);";
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
+            {
+                await conn.OpenAsync();
+                //Delete data
+                using (var cmd = new NpgsqlCommand(query, conn))
+                {
+                    var bzn_ind_id = cmd.Parameters.Add("@bzn_ind_id", NpgsqlDbType.Integer);
+                    cmd.Prepare();
+                    bzn_ind_id.Value = industrySectorId;
+                    rows = await cmd.ExecuteNonQueryAsync();
+                }
+                await conn.CloseAsync();
+            }
+            return rows > 0;
+        }
+        #endregion
+
+        //======= Business Types Action Methods ===============//
+        #region Business Types Action Methods
+
+        public async Task<List<BusinessType>> GetBusinessTypesAsync()
+        {
+            List<BusinessType> businessTypes = new List<BusinessType>();
+            string query = "SELECT bzn_typ_id, bzn_typ_nm FROM public.bpm_bzn_typs ORDER BY bzn_typ_nm; ";
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
+            {
+                await conn.OpenAsync();
+                // Retrieve all rows
+                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+                {
+                    await cmd.PrepareAsync();
+                    var reader = await cmd.ExecuteReaderAsync();
+                    while (await reader.ReadAsync())
+                    {
+                        businessTypes.Add(new BusinessType()
+                        {
+                            BusinessTypeId = reader["bzn_typ_id"] == DBNull.Value ? 0 : (int)reader["bzn_typ_id"],
+                            BusinessTypeName = reader["bzn_typ_nm"] == DBNull.Value ? string.Empty : (reader["bzn_typ_nm"]).ToString(),
+                        });
+                    }
+                }
+                await conn.CloseAsync();
+            }
+            return businessTypes;
+        }
+
         #endregion
     }
 }

@@ -78,11 +78,14 @@
                                             <i class="bi bi-card-checklist"></i> <span>Open Folder</span>
                                         </a>
                                     </li>
+                                    @if (!submission.IsActioned) 
+                                    { 
                                     <li>
                                         <button class="dropdown-item" onclick="returnTaskFolder('@submission.FolderId', @submission.FolderSubmissionId)">
-                                            <i class="bi bi-check-lg"></i> <span>Mark as Done</span>
+                                            <i class="bi bi-check-lg"></i> <span>Return Folder</span>
                                         </button>
                                     </li>
+                                    }
                                     <li>
                                         <a class="dropdown-item" asp-area="WSP" asp-controller="Workspace" asp-action="Notes" asp-route-fd="@submission.FolderId" asp-route-sp="sbf">
                                             <i class="bi bi-stickies"></i> <span>Notes</span>
@@ -172,22 +175,25 @@
                                             <i class="bi bi-card-checklist"></i> <span>Open Folder</span>
                                         </a>
                                     </li>
-                                    <li>
-                                        <button class="dropdown-item" onclick="returnTaskFolder('@submission.FolderId', @submission.FolderSubmissionId)">
-                                            <i class="bi bi-check-lg"></i> <span>Mark as Done</span>
-                                        </button>
-                                    </li>
-                                    <li>
-                                        <a class="dropdown-item" asp-area="WSP" asp-controller="Workspace" asp-action="Notes" asp-route-fd="@submission.FolderId" asp-route-sp="sbf">
-                                            <i class="bi bi-stickies"></i> <span>Notes</span>
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <button class="dropdown-item" onclick="deleteFolderSubmission(@submission.FolderSubmissionId)">
-                                            <i class="bi bi-trash"></i> <span>Remove</span>
-                                        </button>
-                                    </li>
-                                </ul>
+                                    @if (!submission.IsActioned)
+                                    {
+                                        <li>
+                                            <button class="dropdown-item" onclick="returnTaskFolder(@submission.FolderId, @submission.FolderSubmissionId, 'Review')">
+                                                <i class="bi bi-check-lg"></i> <span>Close Out</span>
+                                            </button>
+                                        </li>
+                                    }
+                                        <li>
+                                            <a class="dropdown-item" asp-area="WSP" asp-controller="Workspace" asp-action="Notes" asp-route-fd="@submission.FolderId" asp-route-sp="sbf">
+                                                <i class="bi bi-stickies"></i> <span>Notes</span>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <button class="dropdown-item" onclick="deleteFolderSubmission(@submission.FolderSubmissionId)">
+                                                <i class="bi bi-trash"></i> <span>Remove</span>
+                                            </button>
+                                        </li>
+                                    </ul>
                             </div>
                         </div>
                         <div class="card card-hover">
@@ -220,36 +226,6 @@
                                     <span class="fw-bold" style="font-size:0.6rem; padding:0px; margin:0px"><em><u>Submitted On: </u><br />@submission.DateSubmitted.Value.ToLongDateString() @submission.DateSubmitted.Value.ToShortTimeString()</em></span>
                                 </div>
                             </div>
-                            <div class="text-center">
-                                <!-- Default dropstart button -->
-                                @*<div class="btn-group dropstart">
-                                        <button type="button" data-bs-toggle="dropdown" aria-expanded="false" style="border:0px">
-                                            <span class="fw-bold" style="font-size:1.0rem;"><i class="bi bi-three-dots"></i></span>
-                                        </button>
-                                        <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton2">
-                                            <li>
-                                                <a class="dropdown-item" asp-area="WSP" asp-controller="Workspace" asp-action="SubmittedEvaluations" asp-route-id="@submission.FolderId" asp-route-sd="@submission.FolderSubmissionId" asp-route-ed="@Model.EmployeeID" asp-route-od="@submission.FromEmployeeId">
-                                                    <i class="bi bi-card-checklist"></i> <span>Open Folder</span>
-                                                </a>
-                                            </li>
-                                            <li>
-                                                <button class="dropdown-item" onclick="returnTaskFolder('@submission.FolderId', @submission.FolderSubmissionId)">
-                                                    <i class="bi bi-check-lg"></i> <span>Mark as Done</span>
-                                                </button>
-                                            </li>
-                                            <li>
-                                                <a class="dropdown-item" asp-area="WSP" asp-controller="Workspace" asp-action="Notes" asp-route-fd="@submission.FolderId" asp-route-sp="sbf">
-                                                    <i class="bi bi-stickies"></i> <span>Notes</span>
-                                                </a>
-                                            </li>
-                                            <li>
-                                                <button class="dropdown-item" onclick="deleteFolderSubmission(@submission.FolderSubmissionId)">
-                                                    <i class="bi bi-trash"></i> <span>Remove</span>
-                                                </button>
-                                            </li>
-                                        </ul>
-                                    </div>*@
-                            </div>-->
                         </div>
                     </div>
                 }
@@ -260,14 +236,3 @@
 @section Scripts{
     <script src="~/js/wsp.js"></script>
 }
-
-
-
-
-
-
-
-
-
-
-

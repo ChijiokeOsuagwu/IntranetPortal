@@ -13,30 +13,31 @@ namespace IntranetPortal.Base.Services
         Task<bool> CreateBusinessAsync(Business business);
         Task<bool> DeleteBusinessAsync(string businessId);
         Task<bool> UpdateBusinessAsync(Business business);
+        Task<string> GetNewCodeNumber();
         #endregion
 
         #region Business Contacts Action Methods
         Task<bool> CreateBusinessContactAsync(BusinessContact businessContact);
         Task<bool> UpdateBusinessContactAsync(BusinessContact businessContact);
-        Task<bool> DeleteBusinessContactAsync(int businessContactId);
+        Task<bool> DeleteBusinessContactAsync(long businessContactId);
         Task<bool> DeleteBusinessContactsAsync(string businessId);
-        Task<IList<BusinessContact>> GetBusinessContactsAsync();
-        Task<IList<BusinessContact>> GetBusinessContactsByBusinessIdAsync(string businessId);
-        Task<BusinessContact> GetBusinessContactByIdAsync(int businessContactId);
+        Task<List<BusinessContact>> GetBusinessContactsAsync();
+        Task<List<BusinessContact>> GetBusinessContactsByBusinessIdAsync(string businessId);
+        Task<BusinessContact> GetBusinessContactByIdAsync(long businessContactId);
         #endregion
 
         #region Customers Action Methods
-        Task<IList<Business>> GetCustomersAsync();
+        Task<List<Business>> GetCustomersAsync();
         Task<Business> GetCustomerByIdAsync(string customerId);
         Task<Business> GetCustomerByNameAsync(string customerName);
-        Task<IList<Business>> SearchCustomersByNameAsync(string customerName);
+        Task<List<Business>> SearchCustomersByNameAsync(string customerName);
         #endregion
 
         #region Suppliers Action Methods
-        Task<IList<Business>> GetSuppliersAsync();
+        Task<List<Business>> GetSuppliersAsync();
         Task<Business> GetSupplierByIdAsync(string supplierId);
         Task<Business> GetSupplierByNameAsync(string supplierName);
-        Task<IList<Business>> SearchSuppliersByNameAsync(string supplierName);
+        Task<List<Business>> SearchSuppliersByNameAsync(string supplierName);
         #endregion
     }
 }

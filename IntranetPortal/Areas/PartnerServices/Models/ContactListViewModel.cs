@@ -1,4 +1,5 @@
 ﻿using IntranetPortal.Base.Models.BaseModels;
+using IntranetPortal.Base.Models.PartnerServicesModels;
 using IntranetPortal.Models;
 using System;
 using System.Collections.Generic;

@@ -33,6 +33,7 @@ namespace IntranetPortal.Areas.WSP.Models
         public int? QualityRating { get; set; }
         public bool ExemptFromEvaluation { get; set; }
         public bool CloseTask { get; set; }
+        public string PurposeOfSubmission { get; set; }
 
         public TaskEvaluationReturns Convert()
         {

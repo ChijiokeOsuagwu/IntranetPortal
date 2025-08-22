@@ -471,6 +471,39 @@ namespace IntranetPortal.Base.Services
             #endregion
 
         #region Employee Rolls Service Methods
+
+
+        public async Task<List<EmployeeRoll>> GetEmployeeRollsAsync(DateTime? TerminalDate = null, int? LocationId = null, int? DepartmentId = null, int? UnitId = null, string EmployeeId = null)
+        {
+            List<EmployeeRoll> employeeRolls = new List<EmployeeRoll>();
+            if (!string.IsNullOrWhiteSpace(EmployeeId))
+            {
+                var firstEmployeeRolls = await _employeesRepository.GetEmployeeRollsByEmployeeIdAsync(EmployeeId, TerminalDate);
+                if(firstEmployeeRolls != null) { employeeRolls = firstEmployeeRolls.ToList(); }
+            }
+            else if(UnitId > 0)
+            {
+                var secondEmployeeRolls = await _employeesRepository.GetEmployeeRollsByUnitIdAsync(UnitId.Value, TerminalDate);
+                if (secondEmployeeRolls != null) { employeeRolls = secondEmployeeRolls.ToList(); }
+            }
+            else if (DepartmentId > 0)
+            {
+                var thirdEmployeeRolls = await _employeesRepository.GetEmployeeRollsByDepartmentIdAsync(DepartmentId.Value, TerminalDate);
+                if (thirdEmployeeRolls != null) { employeeRolls = thirdEmployeeRolls.ToList(); }
+            }
+            else if (LocationId > 0)
+            {
+                var thirdEmployeeRolls = await _employeesRepository.GetEmployeeRollsByLocationIdAsync(LocationId.Value, TerminalDate);
+                if (thirdEmployeeRolls != null) { employeeRolls = thirdEmployeeRolls.ToList(); }
+            }
+            else
+            {
+                //var fourthEmployeeRolls = await _employeesRepository.GetEmployeeRollsByAllAsync(TerminalDate);
+                //if (fourthEmployeeRolls != null) { employeeRolls = fourthEmployeeRolls.ToList(); }
+            }
+            return employeeRolls;
+        }
+
         public async Task<List<EmployeeRoll>> GetEmployeeRollsByLeaveProfileIdAsync(int LeaveProfileId)
         {
             List<EmployeeRoll> employees = new List<EmployeeRoll>();

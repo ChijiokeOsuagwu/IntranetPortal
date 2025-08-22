@@ -27,8 +27,30 @@ namespace IntranetPortal.Base.Repositories.AtsRepositories
         Task<List<AssignmentRole>> GetAssignmentRolesAsync();
         #endregion
 
-        #region Assignment Action Interfaces
+        #region Assignment Read Action Interfaces
+        Task<List<string>> GetAssignmentNumbersByCreatedDateAsync(DateTime createdDate);
+        Task<Assignment> GetAssignmentByIdAsync(long assignmentId);
+        Task<List<Assignment>> GetAssignmentsByDateRangeAsync(DateTime? fromDate = null, DateTime? toDate = null);
         Task<List<Assignment>> GetAssignmentsByClientIdAsync(string clientId, DateTime? fromDate = null, DateTime? toDate = null);
+        Task<List<Assignment>> GetAssignmentsByClientNameAsync(string clientName, DateTime? fromDate = null, DateTime? toDate = null);
+        #endregion
+
+        #region Assignment Write Action Interfaces
+        Task<long> AddAssignmentAsync(Assignment assignment);
+        Task<bool> UpdateAssignmentAsync(Assignment assignment);
+        Task<bool> DeleteAssignmentAsync(long assignmentId);
+        #endregion
+
+        #region Assignment Crew Members Action Interfaces
+        Task<AssignmentCrewMember> GetAssignmentCrewMemberbyIdAsync(long assignmentCrewId);
+        Task<List<AssignmentCrewMember>> GetAssignmentCrewMembersbyAssignmentIdAsync(long assignmentId);
+        Task<List<AssignmentCrewMember>> GetAssignmentCrewMembersbyCrewMemberIdAsync(string employeeId);
+
+        Task<long> AddAssignmentCrewMemberAsync(AssignmentCrewMember assignmentCrewMember);
+        Task<bool> UpdateAssignmentCrewMemberAsync(AssignmentCrewMember assignmentCrewMember);
+        Task<bool> UpdateAssignmentCrewLeadAsync(long assignmentCrewId, bool isLead, string updatedBy);
+        Task<bool> UpdateAssignmentCrewParticipationAsync(long assignmentCrewId, string serviceRating, string attendanceStatus, string remarks, string updatedBy);
+        Task<bool> DeleteAssignmentCrewMemberAsync(long assignmentCrewId);
         #endregion
 
         #region Assignment Note Action Interfaces
@@ -37,7 +59,6 @@ namespace IntranetPortal.Base.Repositories.AtsRepositories
         Task<bool> CancelAssignmentNoteAsync(long assignmentNoteId, string cancelledBy);
         Task<bool> DeleteAssignmentNoteAsync(long assignmentNoteId);
         #endregion
-
 
         #region Assignment History Action Interfaces
         Task<List<AssignmentHistory>> GetAssignmentHistoryByAssignmentIdAsync(long assignmentId);

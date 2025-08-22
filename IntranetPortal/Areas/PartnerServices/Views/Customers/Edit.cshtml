@@ -2,131 +2,177 @@
 @{
     ViewData["Title"] = "OfficeManager | Edit Customer";
 }
-<div>
-    <div class="card" style="min-width:600px">
-        <div class="card-header bg-info">
-            <h4 class="text-white">Edit Customer</h4>
+    <div class="container">
+        <h4>Customers Management | Edit Customer</h4>
+        <hr />
+        <div class="row">
+            <nav class="navbar navbar-expand-lg navbar-light bg-light">
+                <div class="container-fluid">
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <div class="collapse navbar-collapse" id="navbarNavDropdown">
+                        <ul class="navbar-nav">
+                            <li class="nav-item">
+                                <a asp-area="PartnerServices" asp-controller="Customers" asp-action="List" class="btn btn-sm btn-outline-light text-dark" style="width:100px" title="Go Back">
+                                    <i class="bi bi-backspace fw-bolder" style="font-size: 1.0rem;"></i> <span class="fw-bold ml-1" style="font-size: 0.9rem;">Back</span>
+                                </a>
+                            </li>
+                            @*<li class="nav-item">
+                                <form asp-area="PartnerServices" asp-controller="Customers" asp-action="List" method="get">
+                                    <input id="cn" asp-for="cn" class="border-0" style="width:300px" placeholder="Enter Customer Name ">
+                                    <input type="submit" value="Search" class="btn btn-sm btn-outline-light text-dark" style="width:100px" />
+                                </form>
+                            </li>
+                            <li class="nav-item">
+                                <a asp-area="PartnerServices" asp-controller="Customers" asp-action="AddCustomer" title="Add New Customer" class="btn btn-sm btn-light text-dark">
+                                    <i class="bi bi-plus-lg fw-bolder" style="font-size: 1.0rem; font-weight:900"></i><span class="fw-bold ml-1" style="font-size: 0.9rem;">New Customer</span>
+                                </a>
+                            </li>*@
+                        </ul>
+                    </div>
+                </div>
+            </nav>
         </div>
-        <div class="card-body bg-secondary">
-            @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
-            {
-                <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                    <i class="bi bi-x-circle"></i>
-                    <span class="fw-bold">@Model.ViewModelErrorMessage</span>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+
+        <div>
+            <form asp-area="PartnerServices" asp-controller="Customers" asp-action="Edit" method="post" autocomplete="off">
+                <div class="card" style="max-width:80pc">
+                    <div class="card-header bg-info">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <span class="text-white" style="font-size:1.2rem; font-weight:bold">Edit Customer</span>
+                            </div>
+                            <div class="col-md-6 text-end">
+                                <span class="text-white" style="font-size:1.2rem; font-weight:bold">#</span>
+                                <input asp-for="BusinessNumber" class="fw-bold text-white bg-info" style="border:none;" readonly>
+                                <div><span asp-validation-for="BusinessNumber" class="text-danger"></span></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body bg-secondary">
+                        @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+                        {
+                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                <i class="bi bi-x-circle"></i>
+                                <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        }
+                        @if (!String.IsNullOrEmpty(Model.ViewModelSuccessMessage))
+                        {
+                            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                <i class="bi bi-check-circle"></i>
+                                <span class="fw-bold">@Model.ViewModelSuccessMessage</span>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        }
+                        @if (!String.IsNullOrEmpty(Model.ViewModelWarningMessage))
+                        {
+                            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                                <i class="bi bi-exclamation-circle"></i>
+                                <span class="fw-bold">@Model.ViewModelWarningMessage</span>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        }
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="BusinessName" class="form-label text-white fw-bold">Name</label>
+                                <input asp-for="BusinessName" class="form-control fw-bold">
+                                <div><span asp-validation-for="BusinessName" class="text-danger"></span></div>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label asp-for="BusinessTypeID" class="form-label text-white fw-bold">Type</label>
+                                <select asp-for="BusinessTypeID" asp-items="@ViewBag.BusinessTypesList" class="form-control fw-bold">
+                                    <option value=""> - Select - </option>
+                                </select>
+                                <div><span asp-validation-for="BusinessTypeID" class="text-danger"></span></div>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label asp-for="BusinessStationID" class="form-label text-white fw-bold">Station</label>
+                                <select asp-for="BusinessStationID" asp-items="@ViewBag.LocationsList" class="form-control fw-bold">
+                                    <option value=""> - Select - </option>
+                                </select>
+                                <div><span asp-validation-for="BusinessStationID" class="text-danger"></span></div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <textarea asp-for="BusinessAddress" class="form-control fw-bold" placeholder="Enter Address">@Model.BusinessAddress</textarea>
+                                <div><span asp-validation-for="BusinessAddress" class="text-danger"></span></div>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label asp-for="State" class="form-label text-white fw-bold"></label>
+                                <select asp-for="State" asp-items="@ViewBag.StatesList" class="form-control fw-bold">
+                                    <option value=""> - Select - </option>
+                                </select>
+                                <div><span asp-validation-for="State" class="text-danger"></span></div>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label asp-for="IndustrySectorID" class="form-label text-white fw-bold">Sector</label>
+                                <select asp-for="IndustrySectorID" asp-items="@ViewBag.IndustrySectorsList" class="form-control fw-bold">
+                                    <option value=""> - Select - </option>
+                                </select>
+                                <div><span asp-validation-for="IndustrySectorID" class="text-danger"></span></div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-2 mb-3">
+                                <label asp-for="PhoneNo1" class="form-label text-white fw-bold"></label>
+                                <input asp-for="PhoneNo1" class="form-control fw-bold">
+                                <div><span asp-validation-for="PhoneNo1" class="text-danger"></span></div>
+                            </div>
+                            <div class="col-md-2 mb-3">
+                                <label asp-for="PhoneNo2" class="form-label text-white fw-bold"></label>
+                                <input asp-for="PhoneNo2" class="form-control fw-bold">
+                                <div><span asp-validation-for="PhoneNo2" class="text-danger"></span></div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label asp-for="Email1" class="form-label text-white fw-bold"></label>
+                                <input asp-for="Email1" class="form-control fw-bold">
+                                <div><span asp-validation-for="Email1" class="text-danger"></span></div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label asp-for="Email2" class="form-label text-white fw-bold"></label>
+                                <input asp-for="Email2" class="form-control fw-bold">
+                                <div><span asp-validation-for="Email2" class="text-danger"></span></div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-3">
+                                <label asp-for="WebLink1" class="form-label text-white fw-bold"></label>
+                                <input asp-for="WebLink1" class="form-control fw-bold">
+                                <div><span asp-validation-for="WebLink1" class="text-danger"></span></div>
+                            </div>
+                            <div class="col-md-3">
+                                <label asp-for="WebLink2" class="form-label text-white fw-bold"></label>
+                                <input asp-for="WebLink2" class="form-control fw-bold">
+                                <div><span asp-validation-for="WebLink2" class="text-danger"></span></div>
+                            </div>
+                            <div class="col-md-6 text-end">
+                                <a asp-area="PartnerServices" asp-controller="Customers" asp-action="List" class="btn btn-dark ml-1" style="width:75px; margin-top:25px" title="Go Back">
+                                    <span class="text-white">Back</span>
+                                </a>
+                                <a asp-area="PartnerServices" asp-controller="Customers" asp-action="Edit" asp-route-id="@Model.BusinessID" class="btn btn-warning ml-1" title="Refresh" style="margin-top:25px">
+                                    <span class="text-white">Refresh</span>
+                                </a>
+                                @if (!Model.OperationIsCompleted)
+                                {
+                                    <button type="submit" class="btn btn-info ml-2" title="Save Changes" style="width:200px; margin-top:25px"><span class="text-white">Save Changes</span></button>
+                                }
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            }
-            @if (!String.IsNullOrEmpty(Model.ViewModelSuccessMessage))
-            {
-                <div class="alert alert-success alert-dismissible fade show" role="alert">
-                    <i class="bi bi-check-circle"></i>
-                    <span class="fw-bold">@Model.ViewModelSuccessMessage</span>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-            }
-            @if (!String.IsNullOrEmpty(Model.ViewModelWarningMessage))
-            {
-                <div class="alert alert-warning alert-dismissible fade show" role="alert">
-                    <i class="bi bi-exclamation-circle"></i>
-                    <span class="fw-bold">@Model.ViewModelWarningMessage</span>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-            }
-        <form asp-area="PartnerServices" asp-controller="Customers" asp-action="Edit" method="post" autocomplete="off">
-            <div class="row">
-                <div class="col-md-2 mb-1">
-                    <label asp-for="BusinessNumber" class="form-label text-white fw-bold"></label>
-                    <input asp-for="BusinessNumber" class="form-control fw-bold">
-                    <div><span asp-validation-for="BusinessNumber" class="text-danger"></span></div>
-                </div>
-                <div class="col-md-4 mb-1">
-                    <input type="hidden" asp-for="BusinessID" />
-                    <label asp-for="BusinessName" class="form-label text-white fw-bold"></label>
-                    <input asp-for="BusinessName" class="form-control fw-bold">
-                    <div><span asp-validation-for="BusinessName" class="text-danger"></span></div>
-                </div>
-                <div class="col-md-6 mb-1">
-                    <label asp-for="BusinessType" class="form-label text-white fw-bold"></label>
-                    <select asp-for="BusinessType" asp-items="@ViewBag.IndustryTypesList" class="form-control fw-bold">
-                        <option value=""> - Select - </option>
-                    </select>
-                    <div><span asp-validation-for="BusinessType" class="text-danger"></span></div>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-md-4 mb-1">
-                    <label asp-for="BusinessStationID" class="form-label text-white fw-bold"></label>
-                    <select asp-for="BusinessStationID" asp-items="@ViewBag.LocationsList" class="form-control fw-bold">
-                        <option value=""> - Select - </option>
-                    </select>
-                    <div><span asp-validation-for="BusinessStationID" class="text-danger"></span></div>
-                </div>
-                <div class="col-md-6 mb-1">
-                    <label asp-for="BusinessAddress" class="form-label text-white fw-bold"></label>
-                    <input asp-for="BusinessAddress" class="form-control fw-bold">
-                    <div><span asp-validation-for="BusinessAddress" class="text-danger"></span></div>
-                </div>
-                <div class="col-md-2 mb-1">
-                    <label asp-for="State" class="form-label text-white fw-bold"></label>
-                    <input asp-for="State" class="form-control fw-bold">
-                    <div><span asp-validation-for="State" class="text-danger"></span></div>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-md-3 mb-1">
-                    <label asp-for="PhoneNo1" class="form-label text-white fw-bold"></label>
-                    <input asp-for="PhoneNo1" class="form-control fw-bold">
-                    <div><span asp-validation-for="PhoneNo1" class="text-danger"></span></div>
-                </div>
-                <div class="col-md-3 mb-1">
-                    <label asp-for="PhoneNo2" class="form-label text-white fw-bold"></label>
-                    <input asp-for="PhoneNo2" class="form-control fw-bold">
-                    <div><span asp-validation-for="PhoneNo2" class="text-danger"></span></div>
-                </div>
-                <div class="col-md-6 mb-1">
-                    <label asp-for="Email1" class="form-label text-white fw-bold"></label>
-                    <input asp-for="Email1" class="form-control fw-bold">
-                    <div><span asp-validation-for="Email1" class="text-danger"></span></div>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-md-6 mb-3">
-                    <label asp-for="Email2" class="form-label text-white fw-bold"></label>
-                    <input asp-for="Email2" class="form-control fw-bold">
-                    <div><span asp-validation-for="Email2" class="text-danger"></span></div>
-                </div>
-                <div class="col-md-3 mb-3">
-                    <label asp-for="WebLink1" class="form-label text-white fw-bold"></label>
-                    <input asp-for="WebLink1" class="form-control fw-bold">
-                    <div><span asp-validation-for="WebLink1" class="text-danger"></span></div>
-                </div>
-                <div class="col-md-3 mb-3">
-                    <label asp-for="WebLink2" class="form-label text-white fw-bold"></label>
-                    <input asp-for="WebLink2" class="form-control fw-bold">
-                    <div><span asp-validation-for="WebLink2" class="text-danger"></span></div>
-                </div>
-            </div>
-            <div class="row">
-                <a asp-area="PartnerServices" asp-controller="Home" asp-action="Index" class="btn btn-dark ml-2" style="width:100px" title="Return Home">
-                    <span class="text-white">Exit</span>
-                </a>
-                <a asp-area="PartnerServices" asp-controller="Customers" asp-action="List" class="btn btn-dark ml-1" style="width:100px" title="Return to Assets">
-                    <span class="text-white">Go Back</span>
-                </a>
-                @if (!Model.OperationIsCompleted)
-                {
-                    <a asp-area="PartnerServices" asp-controller="Customers" asp-action="Edit" asp-route-id="@Model.BusinessID" class="btn btn-warning ml-1" style="width:100px" title="Refresh">
-                        <span class="text-white">Refresh</span>
-                    </a>
-                    <button type="submit" class="btn btn-info ml-2" title="Save Changes" style="width:200px"><span class="text-white">Save Changes</span></button>
-                }
-            </div>
-        </form>
+                <input type="hidden" asp-for="BusinessID" />
+                <input type="hidden" asp-for="IsCustomer" />
+                <input type="hidden" asp-for="IsAgent" />
+                <input type="hidden" asp-for="IsSupplier" />
+            </form>
         </div>
     </div>
-</div>
 @section Scripts{
-    <script src="~/js/js_ptns/ptns_customers_add.js"></script>
+    @*<script src="~/js/js_ptns/ptns_customers_add.js"></script>*@
 }
 
 
