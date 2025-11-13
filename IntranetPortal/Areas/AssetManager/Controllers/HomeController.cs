@@ -22,7 +22,6 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
     [Authorize]
     public class HomeController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
         private readonly ISecurityService _securityService;
         private readonly IConfiguration _configuration;
         private readonly IAssetManagerService _assetManagerService;

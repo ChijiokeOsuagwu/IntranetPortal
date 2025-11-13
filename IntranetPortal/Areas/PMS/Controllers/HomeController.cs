@@ -495,11 +495,9 @@ namespace IntranetPortal.Areas.PMS.Controllers
                     }
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return null;
-                //TempData["ErrorMessage"] = ex.Message;
-                //return RedirectToAction("ResultReport", new { id, lc, dc, uc });
             }
             return GenerateResultReportExcel(fileName, ResultDetailList);
         }
@@ -524,7 +522,7 @@ namespace IntranetPortal.Areas.PMS.Controllers
                     }
                 }
             }
-            catch (Exception ex)
+            catch (Exception )
             {
                 return null;
             }

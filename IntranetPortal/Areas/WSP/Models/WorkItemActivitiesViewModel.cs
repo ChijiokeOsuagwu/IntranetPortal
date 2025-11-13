@@ -12,7 +12,6 @@ namespace IntranetPortal.Areas.WSP.Models
         public long? FolderID { get; set; }
         public long? TaskID { get; set; }
         public long? ProjectID { get; set; }
-        public string SourcePage { get; set; }
         public List<WorkItemActivityLog> ActivityList { get; set; }
     }
 }

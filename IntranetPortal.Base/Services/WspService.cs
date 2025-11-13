@@ -191,7 +191,6 @@ namespace IntranetPortal.Base.Services
             folderList = entities.ToList();
             return folderList;
         }
-
         public async Task<List<WorkItemFolder>> SearchWorkItemFoldersAsync(string OwnerId, bool? IsArchived = null, int? createdYear = null, int? createdMonth = null)
         {
             List<WorkItemFolder> folderList = new List<WorkItemFolder>();
@@ -239,8 +238,7 @@ namespace IntranetPortal.Base.Services
             }
             return folderList;
         }
-       
-        public async Task<List<WorkItemFolder>> GetWorkItemFoldersAsync(DateTime StartDate, DateTime EndDate, int ArchiveStatus, int? LocationId = null, int? DepartmentId = null, int? UnitId = null, string OwnerId = null)
+        public async Task<List<WorkItemFolder>> GetWorkItemFoldersAsync(DateTime StartDate, DateTime EndDate, int ArchiveStatus, int? LocationId = null, int? DepartmentId = null, int? UnitId = null, string OwnerId = null, string OwnerName = null)
         {
             List<WorkItemFolder> folderList = new List<WorkItemFolder>();
             if (!string.IsNullOrWhiteSpace(OwnerId))
@@ -258,6 +256,30 @@ namespace IntranetPortal.Base.Services
                         break;
                     case 2:
                         var secondEntities = await _deskspaceRepository.GetWorkItemFoldersByOwnerIdnDatesAsync(OwnerId, StartDate, EndDate);
+                        if (secondEntities != null)
+                        {
+                            folderList = secondEntities;
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            }
+            else if (!string.IsNullOrWhiteSpace(OwnerName))
+            {
+                switch (ArchiveStatus)
+                {
+                    case 0:
+                    case 1:
+                        bool IsArchived = Convert.ToBoolean(ArchiveStatus);
+                        var firstEntities = await _deskspaceRepository.GetWorkItemFoldersByOwnerNamenArchivednDatesAsync(OwnerName, IsArchived, StartDate, EndDate);
+                        if (firstEntities != null)
+                        {
+                            folderList = firstEntities;
+                        }
+                        break;
+                    case 2:
+                        var secondEntities = await _deskspaceRepository.GetWorkItemFoldersByOwnerNamenDatesAsync(OwnerName, StartDate, EndDate);
                         if (secondEntities != null)
                         {
                             folderList = secondEntities;
@@ -1524,6 +1546,19 @@ namespace IntranetPortal.Base.Services
             }
             return details;
         }
+        public async Task<List<TaskEvaluationDetail>> GetTaskEvaluationDetailsbyFolderIdAsync(long taskFolderId)
+        {
+            List<TaskEvaluationDetail> details = new List<TaskEvaluationDetail>();
+            var entities = await _deskspaceRepository.GetTaskEvaluationDetailsByTaskFolderIdAsync(taskFolderId);
+            if (entities != null && entities.Count > 0)
+            {
+                details = entities;
+            }
+            return details;
+        }
+
+
+
         public async Task<bool> AddTaskEvaluationDetailAsync(TaskEvaluationDetail detail)
         {
             if (detail == null) { throw new ArgumentNullException(nameof(detail), "The required parameter [Task Evaluation Detail] is missing."); }

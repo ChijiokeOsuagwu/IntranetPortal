@@ -131,10 +131,9 @@ namespace IntranetPortal.Data.Repositories.SecurityRepositories
 
         public async Task<IList<ApplicationUser>> GetUsersByUserIdAsync(string userId)
         {
-            if (String.IsNullOrEmpty(userId)) { throw new ArgumentNullException("The required parameter [UserID] is null or has an invalid value."); }
+            if (string.IsNullOrEmpty(userId)) { throw new ArgumentNullException("The required parameter [UserID] is null or has an invalid value."); }
 
             List<ApplicationUser> applicationUserList = new List<ApplicationUser>();
-            var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
             string query = String.Empty;
             StringBuilder sb = new StringBuilder();
             sb.Append("SELECT u.usr_id, u.usr_nm, u.usr_typ, u.usr_afc, u.usr_ccs, ");
@@ -145,7 +144,7 @@ namespace IntranetPortal.Data.Repositories.SecurityRepositories
             sb.Append("ON u.usr_id = p.id WHERE LOWER(u.usr_id)=LOWER(@userId)  ");
             sb.Append("AND (u.is_dx = false);");
             query = sb.ToString();
-            try
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
             {
                 await conn.OpenAsync();
                 // Retrieve all rows
@@ -185,11 +184,6 @@ namespace IntranetPortal.Data.Repositories.SecurityRepositories
                     }
                 }
                 await conn.CloseAsync();
-            }
-            catch (Exception ex)
-            {
-                await conn.CloseAsync();
-                applicationUserList = null;
             }
             return applicationUserList;
         }

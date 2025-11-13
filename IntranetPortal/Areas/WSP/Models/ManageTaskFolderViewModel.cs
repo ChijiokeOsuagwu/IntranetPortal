@@ -42,7 +42,6 @@ namespace IntranetPortal.Areas.WSP.Models
         public string WorkspaceTitle { get; set; }
         public bool IsLocked { get; set; }
         public bool IsReuseable { get; set; }
-        public string SourcePage { get; set; }
         public WorkItemFolder Convert()
         {
             return new WorkItemFolder

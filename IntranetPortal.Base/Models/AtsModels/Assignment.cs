@@ -37,6 +37,8 @@ namespace IntranetPortal.Base.Models.AtsModels
         public bool IsUsed { get; set; }
         public bool IsPriority { get; set; }
         public bool IsConfirmed { get; set; }
+        public string ModifiedBy { get; set; }
+        public DateTime? ModifiedTime { get; set; }
         public string CreatedBy { get; set; }
         public DateTime? CreatedTime { get; set; }
     }

@@ -19,7 +19,6 @@ namespace IntranetPortal.Areas.BAMS.Controllers
     [Area("Bams")]
     public class NotificationsController : Controller
     {
-        private readonly ILogger<NotificationsController> _logger;
         private readonly IConfiguration _configuration;
         private readonly IBamsManagerService _bamsManagerService;
         private readonly IBaseModelService _baseModelService;

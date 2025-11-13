@@ -10,6 +10,7 @@ namespace IntranetPortal.Areas.WSP.Models
     public class ReviewResultDetailsViewModel:BaseViewModel
     {
         public long TaskEvaluationHeaderID { get; set; }
+        public long TaskFolderID { get; set; }
         public string md { get; set; }
         public List<TaskEvaluationDetail> EvaluationDetailList { get; set; }
     }

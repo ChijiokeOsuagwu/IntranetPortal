@@ -1,4 +1,5 @@
 ﻿using IntranetPortal.Base.Models.AtsModels;
+using IntranetPortal.Base.Models.EmployeeRecordModels;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -39,18 +40,51 @@ namespace IntranetPortal.Base.Repositories.AtsRepositories
         Task<long> AddAssignmentAsync(Assignment assignment);
         Task<bool> UpdateAssignmentAsync(Assignment assignment);
         Task<bool> DeleteAssignmentAsync(long assignmentId);
+        Task<bool> UpdateAssignmentProgressStatusAsync(long assignmentId, string progressStatus);
         #endregion
 
         #region Assignment Crew Members Action Interfaces
         Task<AssignmentCrewMember> GetAssignmentCrewMemberbyIdAsync(long assignmentCrewId);
+        Task<AssignmentCrewMember> GetAssignmentCrewMemberbyAssignmentIdnEmployeeIdAsync(long assignmentId, string employeeId);
         Task<List<AssignmentCrewMember>> GetAssignmentCrewMembersbyAssignmentIdAsync(long assignmentId);
         Task<List<AssignmentCrewMember>> GetAssignmentCrewMembersbyCrewMemberIdAsync(string employeeId);
+        Task<List<Employee>> GetAssignmentEmployeesByAssignmentIdAsync(long assignmentId);
 
         Task<long> AddAssignmentCrewMemberAsync(AssignmentCrewMember assignmentCrewMember);
         Task<bool> UpdateAssignmentCrewMemberAsync(AssignmentCrewMember assignmentCrewMember);
         Task<bool> UpdateAssignmentCrewLeadAsync(long assignmentCrewId, bool isLead, string updatedBy);
-        Task<bool> UpdateAssignmentCrewParticipationAsync(long assignmentCrewId, string serviceRating, string attendanceStatus, string remarks, string updatedBy);
         Task<bool> DeleteAssignmentCrewMemberAsync(long assignmentCrewId);
+        #endregion
+
+        #region Assignment Crew Report Action Interfaces
+        Task<AssignmentCrewReport> GetAssignmentCrewReportByIdAsync(long assignmentCrewReportId);
+        Task<List<AssignmentCrewReport>> GetAssignmentCrewReportsByAssignmentIdAsync(long assignmentId);
+        Task<List<AssignmentCrewReport>> GetAssignmentCrewReportsByAssignmentIdnEmployeeIdAsync(long assignmentId, string employeeId);
+        Task<long> AddAssignmentCrewReportAsync(AssignmentCrewReport assignmentCrewReport);
+        Task<bool> UpdateAssignmentCrewReportAsync(AssignmentCrewReport assignmentCrewReport);
+        Task<bool> DeleteAssignmentCrewReportAsync(long assignmentCrewReportId);
+        #endregion
+
+        #region Assignment Equipment Action Interfaces
+        Task<AssignmentEquipment> GetAssignmentEquipmentByIdAsync(long assignmentEquipmentId);
+        Task<List<AssignmentEquipment>> GetAssignmentEquipmentByAssignmentIdnAssetTypeNameAsync(long assignmentId, string assetTypeName);
+        Task<List<AssignmentEquipment>> GetAssignmentEquipmentByAssignmentIdnAssetClassIdAsync(long assignmentId, int assetClassId);
+        Task<List<AssignmentEquipment>> GetAssignmentEquipmentByAssignmentIdAsync(long assignmentId);
+        Task<List<AssignmentEquipment>> GetAssignmentEquipmentByAssetIdAsync(string assetId);
+
+        Task<long> AddAssignmentEquipmentAsync(AssignmentEquipment assignmentEquipment);
+        Task<bool> UpdateAssignmentEquipmentAsync(AssignmentEquipment assignmentEquipment);
+        Task<bool> DeleteAssignmentEquipmentAsync(long assignmentEquipmentId);
+
+        #endregion
+
+        #region Assignment Editing Report Action Interfaces
+        Task<AssignmentEngReport> GetAssignmentEngReportByIdAsync(long assignmentEngReportId);
+        Task<List<AssignmentEngReport>> GetAssignmentEngReportsByAssignmentIdAsync(long assignmentId);
+        Task<List<AssignmentEngReport>> GetAssignmentEngReportsByAssignmentIdnEmployeeIdAsync(long assignmentId, string employeeId);
+        Task<long> AddAssignmentEngReportAsync(AssignmentEngReport assignmentEngReport);
+        Task<bool> UpdateAssignmentEngReportAsync(AssignmentEngReport assignmentEngReport);
+        Task<bool> DeleteAssignmentEngReportAsync(long assignmentEngReportId);
         #endregion
 
         #region Assignment Note Action Interfaces

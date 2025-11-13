@@ -1,0 +1,143 @@
+﻿@model IntranetPortal.Areas.ATS.Models.CrewReportsListViewModel
+<div class="container">
+    <h4 class="mb-1">Assignment Tracking System | Assignment Crew Reports </h4>
+    <hr />
+    <div class="row">
+        <div class="col-md-2">
+            <a asp-area="ATS" asp-controller="Assignments" asp-action="Active" title="Go Back" class="btn btn-sm btn-success text-white" style="width:75px; border-radius:5px">
+                Back
+            </a>
+        </div>
+        <div class="col-md-10">
+            <span class="fw-bold" style="font-size:1.1rem">  Event: @Model.AssignmentTitle</span>
+        </div>
+    </div>
+    <hr />
+    @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert" style="margin-top:3px">
+            <i class="bi bi-x-circle"></i>
+            <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    <div class="row mt-2">
+        @if (Model == null || Model.CrewReportList == null || Model.CrewReportList.Count < 1)
+        {
+            <div class="alert alert-secondary alert-dismissible fade show" role="alert">
+                <i class="bi bi-x-circle"></i>
+                <span class="fw-bold text-dark">No record was found.</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                @foreach (var report in Model.CrewReportList)
+                {
+                    <div class="card" style="width:80pc">
+                        <div class="card-header bg-success">
+                            <div class="row">
+                                @if (report.IsTeamLead)
+                                {
+                                    <div class="col-md-4" title="Submitted By Team Lead">
+                                        <span class="fw-bold text-white"><i class="bi bi-person-circle" style="font-size:1.2rem; font-weight:bold"></i> <u>@report.EmployeeName</u></span>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="col-md-4" title="Submitted By Crew Member">
+                                        <span class="fw-bold text-white"><i class="bi bi-person" style="font-size:1.2rem; font-weight:bold"></i> @report.EmployeeName</span>
+                                    </div>
+                                }
+                                <div class="col-md-2" title="Attendance Status">
+                                    @if (!string.IsNullOrWhiteSpace(report.AttendanceStatus))
+                                    {
+                                        <span class="fw-bold text-white" title="Attendance Status" ><i class="fa fa-street-view" style="font-size:1.2rem;"></i> @report.AttendanceStatus</span>
+                                    }
+                                </div>
+                                <div class="col-md-3" title="Arrival Type">
+                                    @if (!string.IsNullOrWhiteSpace(report.ArrivalType))
+                                    {
+                                        <span class="fw-bold text-white" title="Arrival Type"><i class="fa fa-car" style="font-size:1.2rem;" aria-hidden="true"></i> @report.ArrivalType</span>
+                                    }
+                                </div>
+                                <div class="col-md-3" title="Arrival Time">
+                                    @if (report.ArrivalTime == null)
+                                    {
+                                        <span class="fw-bold text-white" title="Arrival Time"><i class="bi bi-clock" style="font-size:1.2rem; font-weight:bold"></i> [Unspecified]</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="fw-bold text-white" title="Arrival Time"><i class="bi bi-clock" style="font-size:1.2rem; font-weight:bold"></i> @report.ArrivalTime.Value.ToString("f")</span>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body table-secondary">
+                            <div class="row">
+                                <div class="col-md-3 mb-3">
+                                    <label class="form-label text-dark">Arrival Type</label>
+                                    @if (string.IsNullOrWhiteSpace(report.ArrivalType))
+                                    {
+                                        <div title="Arrival Type" class="form-control fw-bold">[Not Specified]</div>
+                                    }
+                                    else
+                                    {
+                                        <div title="Arrival Type" class="form-control fw-bold">@report.ArrivalType</div>
+                                    }
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <label class="form-label text-dark">Departure Type</label>
+                                    @if (string.IsNullOrWhiteSpace(report.DepartureType))
+                                    {
+                                        <div title="Departure Type" class="form-control fw-bold">[Not Specified]</div>
+                                    }
+                                    else
+                                    {
+                                        <div title="Departure Type" class="form-control fw-bold">@report.DepartureType</div>
+                                    }
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label text-dark">Departure Time </label>
+                                    @if (report.DepartureTime != null)
+                                    {
+                                        <div title="Departure Time" class="form-control fw-bold">@report.DepartureTime.Value.ToString("f")</div>
+                                    }
+                                    else
+                                    {
+                                        <div title="Departure Time" class="form-control fw-bold">[Not Specified]</div>
+                                    }
+                                </div>
+                                <div class="col-md-2 mb-3">
+
+                                </div>
+                            </div>
+                            @if (!string.IsNullOrWhiteSpace(report.IncidenceDetails))
+                            {
+                                <div class="row">
+                                    <div class="col-md-12 mb-3">
+                                        <label class="form-label text-dark">Incident Details</label>
+                                        <textarea class="form-control fw-bold" readonly>@report.IncidenceDetails</textarea>
+                                    </div>
+                                </div>
+                            }
+                            @if (!string.IsNullOrWhiteSpace(report.FeedbackDetails))
+                            {
+                                <div class="row">
+                                    <div class="col-md-12 mb-3">
+                                        <label class="form-label text-dark">Feedback/Recommendation</label>
+                                        <textarea class="form-control fw-bold" readonly>@report.FeedbackDetails</textarea>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</div>
+@section Scripts{
+    <script src="~/js/ats.js"></script>
+}

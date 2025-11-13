@@ -1887,18 +1887,17 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
                 asst_md.Value = asset.ModifiedDate ?? (object)DBNull.Value;
                 asst_cb.Value = asset.CreatedBy ?? (object)DBNull.Value;
                 asst_cd.Value = asset.CreatedDate ?? (object)DBNull.Value;
-                bloc_id.Value = asset.BaseLocationID;
+                bloc_id.Value = asset.BaseLocationID ?? (object)DBNull.Value;
                 cnd_sts.Value = (int)asset.ConditionStatus;
-                bnloc_id.Value = asset.BinLocationID;
-                clss_id.Value = asset.AssetClassID;
-                grp_id.Value = asset.AssetGroupID;
+                bnloc_id.Value = asset.BinLocationID ?? (object)DBNull.Value;
+                clss_id.Value = asset.AssetClassID ?? (object)DBNull.Value;
+                grp_id.Value = asset.AssetGroupID ?? (object)DBNull.Value;
 
                 rows = await cmd.ExecuteNonQueryAsync();
             }
             await conn.CloseAsync();
             return rows > 0;
         }
-
         public async Task<bool> EditAsync(Asset asset)
         {
             int rows = 0;
@@ -1957,7 +1956,6 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
             await conn.CloseAsync();
             return rows > 0;
         }
-
         public async Task<bool> UpdateUsageStatusAsync(string assetId, string newStatus, string modifiedBy)
         {
             int rows = 0;
@@ -1993,7 +1991,6 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
             }
             return rows > 0;
         }
-
         public async Task<bool> UpdateAssetConditionAsync(string assetId, string assetCondition, string modifiedBy)
         {
             int rows = 0;
@@ -2028,7 +2025,6 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
             }
             return rows > 0;
         }
-
         public async Task<bool> UpdateCurrentLocationAsync(string assetId, string currentLocation, string modifiedBy)
         {
             int rows = 0;
@@ -2064,7 +2060,6 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
             }
             return rows > 0;
         }
-
         public async Task<bool> UpdateBaseLocationAsync(string assetId, int baseLocationId, string currentLocation, int? binLocationId, string modifiedBy)
         {
             int rows = 0;
@@ -2104,7 +2099,6 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
             }
             return rows > 0;
         }
-
         public async Task<bool> DeleteAsync(string assetId, string deletedBy)
         {
             int rows = 0;
@@ -2139,7 +2133,6 @@ namespace IntranetPortal.Data.Repositories.AssetManagerRepositories
             }
             return rows > 0;
         }
-
         public async Task<bool> DeletePermanentlyAsync(string assetId)
         {
             int rows = 0;

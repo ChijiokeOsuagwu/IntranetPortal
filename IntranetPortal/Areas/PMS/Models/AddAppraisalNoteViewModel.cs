@@ -26,7 +26,6 @@ namespace IntranetPortal.Areas.PMS.Models
         public DateTime? MessageTime { get; set; }
         public bool MessageIsCancelled { get; set; }
         public DateTime? TimeCancelled { get; set; }
-        public string SourcePage { get; set; }
         public string LoggedInEmployeeID { get; set; }
         public int ReviewSubmissionID { get; set; }
 

@@ -567,10 +567,13 @@ namespace IntranetPortal.Data.Repositories.BaseRepositories
                     await conn.CloseAsync();
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
+            {
+                return false; ;
+            }
+            finally
             {
                 await conn.CloseAsync();
-                return false; ;
             }
             return rows > 0;
         }

@@ -1,0 +1,135 @@
+﻿@model IntranetPortal.Areas.ATS.Models.AssignmentEquipmentListViewModel
+<div class="container">
+    <h4 class="mb-1">Assignment Tracking System | Manage Assignment Equipment </h4>
+    <hr />
+    <div class="row">
+        <div class="col-md-9 fw-bold"><span style="font-size:1.0rem">Event: @Model.AssignmentTitle</span></div>
+        <div class="col-md-3 fw-bold"><span style="font-size:1.0rem">Location: @Model.AssignmentState</span></div>
+    </div>
+    <hr />
+    <div class="row">
+        <div class="col-md-2 mb-1">
+            @if (Model.SourcePage == "ctv")
+            {
+                <a asp-area="ATS" asp-Controller="Assignments" asp-action="Active" title="Go Back" class="btn btn-sm btn-info text-white" style="width:75px; border-radius:5px">
+                    Back
+                </a>
+            }
+            else
+            {
+                <a asp-area="ATS" asp-Controller="Assignments" asp-action="Active" title="Go Back" class="btn btn-sm btn-info text-white" style="width:75px; border-radius:5px">
+                    Back
+                </a>
+            }
+        </div>
+        <div class="col-md-10 mb-1">
+            <div class="row">
+                <div class="col-md-5">
+                    <div id="div-error" class="text-danger"></div>
+                    <input type="hidden" id="assignment_equipment_id" value="" />
+                    <input id="qn" asp-for="NewAssetName" class="form-control form-control-sm" placeholder="Enter Equipment Name" style="font-size:14px; font-weight:bold">
+                </div>
+                <div class="col-md-5">
+                    <select id="sd" asp-for="NewAssignedToEmployeeId" class="form-select form-select-sm" asp-items="@ViewBag.AssignedEmployees" style="font-size:14px; font-weight:bold; max-width:300px; border-radius:5px">
+                        <option value=""> Select Staff to Assign </option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button class="btn btn-sm btn-info" type="button" id="add" style="width:100px; border-radius:5px" onclick="addEquipmentAssignment()">Save</button>
+                </div>
+            </div>
+        </div>
+
+        @*<div class="col-md-9 mb-1 text-end">
+            <a asp-area="ATS" asp-Controller="Assignments" asp-action="ManageAssignmentEquipment" title="Go Back" class="btn btn-sm btn-info text-white" style="width:150px; border-radius:5px">
+                <span><i class="bi bi-plus" style="font-size:1.0rem; font-weight:900"></i>  Add Equipment</span>
+            </a>
+        </div>*@
+    </div>
+    <div class="row">
+        <div>
+            @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bi bi-x-circle"></i>
+                    <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+        </div>
+        <div class="row">
+            @if (Model == null || Model.EquipmentList == null || Model.EquipmentList.Count < 1)
+            {
+                <div class="alert alert-info fade show" role="alert">
+                    <i class="bi bi-info-circle"></i>
+                    <span class="fw-bold">No record was found.</span>
+                </div>
+            }
+            else
+            {
+                int row_no = 0;
+                <div class="row">
+                    <div class="table-responsive" style="min-height:400px">
+                        <table class="table table-sm table-secondary">
+                            <thead>
+                                <tr>
+                                    <th class="bg-info text-white fw-bold">#</th>
+                                    <th class="bg-info text-white fw-bold">Equipment</th>
+                                    <th class="bg-info text-white fw-bold">Type</th>
+                                    <th class="bg-info text-white fw-bold">Assigned To</th>
+                                    <th class="bg-info text-white fw-bold"></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var equipment in Model.EquipmentList)
+                                {
+                                    row_no++;
+                                    <tr>
+                                        <td>@row_no.ToString()</td>
+                                        <td>
+                                            <span class="fw-bold">@equipment.AssetName</span>
+                                        </td>
+                                        <td>
+                                            <span class="fw-bold">@equipment.AssetTypeName</span>
+                                        </td>
+                                        <td>
+                                            <span class="fw-bold"> @equipment.AssignedToEmployeeName</span>
+                                        </td>
+                                        <td>
+                                            <div>
+                                                <div class="btn-group dropend">
+                                                    <button type="button" data-bs-toggle="dropdown" aria-expanded="false" class="table-secondary" style="border:0px;">
+                                                        <i class="bi bi-three-dots" style="font-size:1.0rem; font-weight:900"></i>
+                                                    </button>
+                                                    <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton2">
+                                                        <li>
+                                                            <button class="dropdown-item" onclick="populateAssignmentEquipmentEditForm(@equipment.AssignmentEquipmentId, '@equipment.AssetName', '@equipment.AssignedToEmployeeId')">
+                                                                <i class="bi bi-pencil-square"></i> <span> Edit</span>
+                                                            </button>
+                                                        </li>
+                                                        <li>
+                                                            <button class="dropdown-item" onclick="removeEquipment(@equipment.AssignmentEquipmentId)">
+                                                                <i class="bi bi-dash-square"></i> <span> Remove </span>
+                                                            </button>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+    <input type="hidden" id="assignment_id" asp-for="AssignmentID" />
+    <input type="hidden" id="source_page" asp-for="SourcePage" />
+</div>
+
+@section Scripts{
+    <script src="~/js/ats.js"></script>
+}
+

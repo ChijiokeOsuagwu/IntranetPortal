@@ -408,12 +408,6 @@ namespace IntranetPortal.Areas.WSP.Controllers
 
                 var entities = await _wspService.GetTasksPendingAsync(model.FolderOwnerID);
                 if (entities != null) { model.TaskItems = entities; }
-
-                var folder_entities = await _wspService.GetActiveWorkItemFoldersAsync(model.FolderOwnerID);
-                if (folder_entities != null && folder_entities.Count > 0)
-                {
-                    model.TaskFolderList = folder_entities;
-                }
             }
             else
             {
@@ -428,6 +422,11 @@ namespace IntranetPortal.Areas.WSP.Controllers
                 }
                 var entities = await _wspService.GetTasksByFolderIdAsync(model.FolderID);
                 if (entities != null) { model.TaskItems = entities; }
+            }
+            var folder_entities = await _wspService.GetActiveWorkItemFoldersAsync(model.FolderOwnerID);
+            if (folder_entities != null && folder_entities.Count > 0)
+            {
+                model.TaskFolderList = folder_entities;
             }
             return View(model);
         }
@@ -1968,6 +1967,7 @@ namespace IntranetPortal.Areas.WSP.Controllers
                 if (entities != null && entities.Count > 0)
                 {
                     model.EvaluationDetailList = entities;
+                    model.TaskFolderID = entities[0].TaskFolderId;
                 }
             }
             return View(model);
@@ -2089,12 +2089,18 @@ namespace IntranetPortal.Areas.WSP.Controllers
             model.sd = sd ?? DateTime.Now.AddMonths(-3);
             model.ed = ed ?? DateTime.Now.AddMonths(1);
 
-            var entities = await _wspService.GetTaskEvaluationScoresAsync(model.sn, model.ud, model.dd, model.ld, model.sd, model.ed);
-            if (entities != null && entities.Count > 0)
+            try
             {
-                model.EvaluationScoresList = entities;
+                var entities = await _wspService.GetTaskEvaluationScoresAsync(model.sn, model.ud, model.dd, model.ld, model.sd, model.ed);
+                if (entities != null && entities.Count > 0)
+                {
+                    model.EvaluationScoresList = entities;
+                }
             }
-
+            catch(Exception ex)
+            {
+                model.ViewModelErrorMessage = ex.Message;
+            }
 
             var loc_entities = await _globalSettingsService.GetAllLocationsAsync();
             if (loc_entities != null && loc_entities.Count > 0)
@@ -2117,20 +2123,20 @@ namespace IntranetPortal.Areas.WSP.Controllers
 
             if (TempData["ErrorMessage"] != null)
             {
-                model.ViewModelErrorMessage = TempData["ErrorMessage"].ToString();
+                model.ViewModelErrorMessage = model.ViewModelErrorMessage + ' ' + TempData["ErrorMessage"].ToString();
             }
-
 
             return View(model);
         }
 
         [Authorize(Roles = "WSPVWAEER, WSPVWAETK, XYALLACCZ")]
-        public async Task<IActionResult> FoldersReport(string id = null, int? ud = null, int? dd = null, int? ld = null, DateTime? sd = null, DateTime? ed = null, int vs = 2)
+        public async Task<IActionResult> FoldersReport(string id = null, int? ud = null, int? dd = null, int? ld = null, DateTime? sd = null, DateTime? ed = null, int vs = 2, string sn = null)
         {
             EmployeesFoldersReportViewModel model = new EmployeesFoldersReportViewModel();
             model.FoldersList = new List<WorkItemFolder>();
             model.EmployeesList = new List<EmployeeRoll>();
             model.id = id;
+            model.sn = sn;
             model.ud = ud;
             model.dd = dd;
             model.ld = ld;
@@ -2282,6 +2288,28 @@ namespace IntranetPortal.Areas.WSP.Controllers
             }
 
             return GenerateCumulativeProductivityReport(fileName, model.EvaluationScoresList);
+        }
+        public async Task<IActionResult> DownloadTaskEvaluationReport(long id)
+        {
+            TaskEvaluationReportViewModel model = new TaskEvaluationReportViewModel();
+            model.EvaluationDetailsList = new List<TaskEvaluationDetail>();
+            model.id = id;
+            try
+            {
+                var entities = await _wspService.GetTaskEvaluationDetailsbyFolderIdAsync(model.id);
+                if (entities != null && entities.Count > 0)
+                {
+                    model.EvaluationDetailsList = entities;
+                    model.EmployeeName = entities[0].TaskOwnerName;
+                    model.TaskFolderTitle = entities[0].TaskFolderName;
+                }
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+            string fileName = $"Task Evaluation Report for {model.EmployeeName}_{DateTime.Now.ToString("yyyyMMddHHmmssfff")}.xlsx";
+            return GenerateTaskEvaluationReport(fileName, model.EvaluationDetailsList);
         }
 
         #endregion
@@ -2717,9 +2745,45 @@ namespace IntranetPortal.Areas.WSP.Controllers
                 }
             }
         }
+        private FileResult GenerateTaskEvaluationReport(string fileName, IEnumerable<TaskEvaluationDetail> results)
+        {
+            DataTable dataTable = new DataTable("results");
+            dataTable.Columns.AddRange(new DataColumn[]
+            {
+                new DataColumn("#"),
+                new DataColumn("No"),
+                new DataColumn("Description"),
+                new DataColumn("Resolution"),
+                new DataColumn("Status"),
+                new DataColumn("Quality Rating"),
+            });
+            int rowNumber = 0;
+            foreach (var result in results)
+            {
+                rowNumber++;
+                dataTable.Rows.Add(
+                    rowNumber.ToString(),
+                    result.TaskItemNo,
+                    result.TaskItemDescription,
+                    result.TaskItemMoreInfo,
+                    result.CompletionScore == 100 ? "Completed" : "Uncompleted",
+                    result.QualityScore
+                    );
+            }
+
+            using (XLWorkbook workbook = new XLWorkbook())
+            {
+                workbook.Worksheets.Add(dataTable);
+                using (MemoryStream stream = new MemoryStream())
+                {
+                    workbook.SaveAs(stream);
+                    return File(stream.ToArray(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
+                }
+            }
+        }
 
         #endregion
-        
+
         #endregion
     }
 }

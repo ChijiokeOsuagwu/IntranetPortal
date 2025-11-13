@@ -11,7 +11,6 @@ namespace IntranetPortal.Areas.LMS.Models
     {
         public long LeaveID { get; set; }
         public int LeaveYear { get; set; }
-        public string SourcePage { get; set; }
         public List<LeaveApproval> LeaveApprovalList { get; set; }
     }
 }

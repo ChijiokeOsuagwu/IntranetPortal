@@ -52,6 +52,12 @@ namespace IntranetPortal.Base.Repositories.WspRepositories
         Task<List<WorkItemFolder>> GetWorkItemFoldersByOwnerIdnArchivednDatesAsync(string ownerId, bool IsArchived, DateTime? startDate = null, DateTime? endDate = null);
         Task<List<WorkItemFolder>> GetWorkItemFoldersByOwnerIdnDatesAsync(string ownerId, DateTime? startDate = null, DateTime? endDate = null);
 
+
+        //====== Get By OwnerName and Start and End Dates =======//
+        Task<List<WorkItemFolder>> GetWorkItemFoldersByOwnerNamenArchivednDatesAsync(string ownerName, bool IsArchived, DateTime? startDate = null, DateTime? endDate = null);
+        Task<List<WorkItemFolder>> GetWorkItemFoldersByOwnerNamenDatesAsync(string ownerName, DateTime? startDate = null, DateTime? endDate = null);
+
+
         //====== Get By UnitId and Start and End Dates =======//
         Task<List<WorkItemFolder>> GetWorkItemFoldersByUnitIdnArchivednDatesAsync(int unitId, bool IsArchived, DateTime? startDate = null, DateTime? endDate = null);
         Task<List<WorkItemFolder>> GetWorkItemFoldersByUnitIdnDatesAsync(int unitId, DateTime? startDate = null, DateTime? endDate = null);
@@ -110,6 +116,7 @@ namespace IntranetPortal.Base.Repositories.WspRepositories
         #region Task Items Read Action Methods
         Task<long> GetTaskItemsCountByFolderIdAsync(long folderId);
         Task<TaskItem> GetTaskItemByIdAsync(long taskItemId);
+        Task<TaskItem> GetTaskItemByOwnerIdnAssignmentIdAsync(string taskOwnerId, long assignmentId);
         Task<List<TaskItem>> GetTaskItemsByFolderIdAsync(long folderId);
         Task<List<TaskItem>> GetTaskItemsByOwnerIdnDescriptionnFolderIdAsync(string ownerId, string taskDescription, long? folderId);
         Task<List<TaskItem>> GetTaskItemsByOwnerIdnKeywordAsync(string ownerId, string keyword, DateTime startDate, DateTime endDate);
@@ -190,6 +197,9 @@ namespace IntranetPortal.Base.Repositories.WspRepositories
         Task<TaskEvaluationDetail> GetTaskEvaluationDetailByTaskEvaluationDetailIdAsync(long taskEvaluationDetailId);
         Task<List<TaskEvaluationDetail>> GetTaskEvaluationDetailsByTaskEvaluationHeaderIdAndTaskItemIdAsync(long taskEvaluationHeaderId, long taskItemId);
         Task<List<TaskEvaluationDetail>> GetTaskEvaluationDetailsByTaskEvaluationHeaderIdAsync(long taskEvaluationHeaderId);
+        Task<List<TaskEvaluationDetail>> GetTaskEvaluationDetailsByTaskFolderIdAsync(long taskFolderId);
+
+
         Task<long> GetTaskEvaluationItemsCountByFolderIdnEvaluatorIdAsync(long taskFolderId, string evaluatorId);
 
         Task<bool> AddTaskEvaluationDetailsAsync(TaskEvaluationDetail taskEvaluationDetail);

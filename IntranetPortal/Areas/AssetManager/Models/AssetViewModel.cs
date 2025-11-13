@@ -118,6 +118,7 @@ namespace IntranetPortal.Areas.AssetManager.Models
         public string ModifiedDate { get; set; }
         public string CreatedBy { get; set; }
         public string CreatedDate { get; set; }
+        public string CurrentUserID { get; set; }
 
         public Asset ConvertToAsset()
         {

@@ -16,7 +16,6 @@ namespace IntranetPortal.Areas.LMS.Models
         public string ApplicantID { get; set; }
         public string ApplicantName { get; set; }
         public string NewLeaveNote { get; set; }
-        public string SourcePage { get; set; }
         public List<LeaveNote> LeaveNoteList { get; set; }
     }
 }

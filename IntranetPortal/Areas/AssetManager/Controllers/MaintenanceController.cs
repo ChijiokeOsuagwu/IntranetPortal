@@ -18,7 +18,6 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
     [Authorize]
     public class MaintenanceController : Controller
     {
-        private readonly ILogger<MaintenanceController> _logger;
         private readonly ISecurityService _securityService;
         private readonly IConfiguration _configuration;
         private readonly IAssetManagerService _assetManagerService;

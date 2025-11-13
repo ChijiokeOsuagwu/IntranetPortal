@@ -1,0 +1,411 @@
+﻿@model IntranetPortal.Areas.ATS.Models.AddEngReportViewModel
+<div class="container">
+    <h4>Assignment Tracking System | Post Editing Report </h4>
+    <hr />
+    <div class="row">
+        <div class="col-md-6">
+            <a asp-area="ATS" asp-controller="Assignments" asp-action="Active" title="Go Back" class="btn btn-sm btn-success text-white" style="width:75px; border-radius:5px">
+                Back
+            </a>
+        </div>
+        <div class="col-md-6 text-end">
+        </div>
+    </div>
+    <hr />
+    @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert" style="margin-top:3px">
+            <i class="bi bi-x-circle"></i>
+            <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    <div class="row">
+        <div class="card" style="width:80pc">
+            <form asp-area="ATS" asp-controller="Assignments" asp-action="AddEngReport" method="post" autocomplete="off">
+                <div class="card-header bg-success">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <span class="fw-bold text-white" style="font-size:1.1rem">Post Editing Report </span>
+                        </div>
+                        <div class="col-md-6">
+                            <span class="fw-bold text-white bg-success" style="font-size:1.0rem; border:none">Submitted By: @Model.EmployeeName</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body table-secondary">
+                    <div class="row">
+                        <div class="col-md-10 mb-3" title="Assignment Title">
+                            <label class="form-label text-dark">Assignment Title</label>
+                            <input class="form-control fw-bold" asp-for="AssignmentTitle" readonly />
+                        </div>
+                        <div class="col-md-2 mb-3">
+                            <label class="form-label text-dark">Status</label>
+                            <select asp-for="EditingStatus" class="form-select fw-bold">
+                                <option value=""> Select </option>
+                                <option value="Pending Editing"> Pending Editing</option>
+                                <option value="Editing Completed"> Editing Completed</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4 mb-4">
+                            <div class="form-check">
+                                <input asp-for="MaterialsAreAvailable" class="form-check-input" type="checkbox" style="width:17px; height:17px; margin-top:15px;">
+                                <label class="form-check-label fw-bold text-secondary" for="MaterialsAreAvailable" style="margin-top:15px;">
+                                    All materials were made available in time for editing.
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-4">
+                            <div class="form-check">
+                                <input asp-for="ScriptIsAvailable" class="form-check-input" type="checkbox" style="width:17px; height:17px; margin-top:15px;">
+                                <label class="form-check-label fw-bold text-secondary" for="ScriptIsAvailable" style="margin-top:15px;">
+                                    Script was completed and ready prior to editing.
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-4">
+                            <div class="form-check">
+                                <input asp-for="ReporterIsAvailable" class="form-check-input" type="checkbox" style="width:17px; height:17px; margin-top:15px;">
+                                <label class="form-check-label fw-bold text-secondary" for="ReporterIsAvailable" style="margin-top:15px;">
+                                    Reporter/Producer was present during editing.
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label text-dark">Reporter/Producer Arrival Date/Time</label>
+                            <div class="input-group">
+                                <input asp-for="ReporterArrivalDate" class="form-control fw-bold" type="date">
+                                <select asp-for="ReporterArrivalHour" class="form-select fw-bold" style="max-width:75px">
+                                    <option value="">HH</option>
+                                    <option value="0">00</option>
+                                    <option value="1">1</option>
+                                    <option value="2">2</option>
+                                    <option value="3">3</option>
+                                    <option value="4">4</option>
+                                    <option value="5">5</option>
+                                    <option value="6">6</option>
+                                    <option value="7">7</option>
+                                    <option value="8">8</option>
+                                    <option value="9">9</option>
+                                    <option value="10">10</option>
+                                    <option value="11">11</option>
+                                    <option value="12">12</option>
+                                </select>
+                                <select asp-for="ReporterArrivalMinute" class="form-select fw-bold" style="max-width:75px">
+                                    <option value="">MM</option>
+                                    <option value="0">00</option>
+                                    <option value="1">01</option>
+                                    <option value="2">02</option>
+                                    <option value="3">03</option>
+                                    <option value="4">04</option>
+                                    <option value="5">05</option>
+                                    <option value="6">06</option>
+                                    <option value="7">07</option>
+                                    <option value="8">08</option>
+                                    <option value="9">09</option>
+                                    <option value="10">10</option>
+                                    <option value="11">11</option>
+                                    <option value="12">12</option>
+                                    <option value="13">13</option>
+                                    <option value="14">14</option>
+                                    <option value="15">15</option>
+                                    <option value="16">16</option>
+                                    <option value="17">17</option>
+                                    <option value="18">18</option>
+                                    <option value="19">19</option>
+                                    <option value="20">20</option>
+                                    <option value="21">21</option>
+                                    <option value="22">22</option>
+                                    <option value="23">23</option>
+                                    <option value="24">24</option>
+                                    <option value="25">25</option>
+                                    <option value="26">26</option>
+                                    <option value="27">27</option>
+                                    <option value="28">28</option>
+                                    <option value="29">29</option>
+                                    <option value="30">30</option>
+                                    <option value="31">31</option>
+                                    <option value="32">32</option>
+                                    <option value="33">33</option>
+                                    <option value="34">34</option>
+                                    <option value="35">35</option>
+                                    <option value="36">36</option>
+                                    <option value="37">37</option>
+                                    <option value="38">38</option>
+                                    <option value="39">39</option>
+                                    <option value="40">40</option>
+                                    <option value="41">41</option>
+                                    <option value="42">42</option>
+                                    <option value="43">43</option>
+                                    <option value="44">44</option>
+                                    <option value="45">45</option>
+                                    <option value="46">46</option>
+                                    <option value="47">47</option>
+                                    <option value="48">48</option>
+                                    <option value="49">49</option>
+                                    <option value="50">50</option>
+                                    <option value="51">51</option>
+                                    <option value="52">52</option>
+                                    <option value="53">53</option>
+                                    <option value="54">54</option>
+                                    <option value="55">55</option>
+                                    <option value="56">56</option>
+                                    <option value="57">57</option>
+                                    <option value="58">58</option>
+                                    <option value="59">59</option>
+                                </select>
+                                <select asp-for="ReporterArrivalAmPm" class="form-select fw-bold" style="max-width:75px">
+                                    <option value="AM">AM</option>
+                                    <option value="PM">PM</option>
+                                    <option value=""></option>
+                                </select>
+                            </div>
+                            <div><span asp-validation-for="ReporterArrivalDate" class="text-danger"></span></div>
+                            <div><span asp-validation-for="ReporterArrivalHour" class="text-danger"></span></div>
+                            <div><span asp-validation-for="ReporterArrivalMinute" class="text-danger"></span></div>
+                            <div><span asp-validation-for="ReporterArrivalAmPm" class="text-danger"></span></div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label text-dark">Editing Started</label>
+                            <div class="input-group">
+                                <input asp-for="EditingStartDate" class="form-control fw-bold" type="date">
+                                <select asp-for="EditingStartHour" class="form-select fw-bold" style="max-width:75px">
+                                    <option value="">HH</option>
+                                    <option value="0">00</option>
+                                    <option value="1">1</option>
+                                    <option value="2">2</option>
+                                    <option value="3">3</option>
+                                    <option value="4">4</option>
+                                    <option value="5">5</option>
+                                    <option value="6">6</option>
+                                    <option value="7">7</option>
+                                    <option value="8">8</option>
+                                    <option value="9">9</option>
+                                    <option value="10">10</option>
+                                    <option value="11">11</option>
+                                    <option value="12">12</option>
+                                </select>
+                                <select asp-for="EditingStartMinute" class="form-select fw-bold" style="max-width:75px">
+                                    <option value="">MM</option>
+                                    <option value="0">00</option>
+                                    <option value="1">01</option>
+                                    <option value="2">02</option>
+                                    <option value="3">03</option>
+                                    <option value="4">04</option>
+                                    <option value="5">05</option>
+                                    <option value="6">06</option>
+                                    <option value="7">07</option>
+                                    <option value="8">08</option>
+                                    <option value="9">09</option>
+                                    <option value="10">10</option>
+                                    <option value="11">11</option>
+                                    <option value="12">12</option>
+                                    <option value="13">13</option>
+                                    <option value="14">14</option>
+                                    <option value="15">15</option>
+                                    <option value="16">16</option>
+                                    <option value="17">17</option>
+                                    <option value="18">18</option>
+                                    <option value="19">19</option>
+                                    <option value="20">20</option>
+                                    <option value="21">21</option>
+                                    <option value="22">22</option>
+                                    <option value="23">23</option>
+                                    <option value="24">24</option>
+                                    <option value="25">25</option>
+                                    <option value="26">26</option>
+                                    <option value="27">27</option>
+                                    <option value="28">28</option>
+                                    <option value="29">29</option>
+                                    <option value="30">30</option>
+                                    <option value="31">31</option>
+                                    <option value="32">32</option>
+                                    <option value="33">33</option>
+                                    <option value="34">34</option>
+                                    <option value="35">35</option>
+                                    <option value="36">36</option>
+                                    <option value="37">37</option>
+                                    <option value="38">38</option>
+                                    <option value="39">39</option>
+                                    <option value="40">40</option>
+                                    <option value="41">41</option>
+                                    <option value="42">42</option>
+                                    <option value="43">43</option>
+                                    <option value="44">44</option>
+                                    <option value="45">45</option>
+                                    <option value="46">46</option>
+                                    <option value="47">47</option>
+                                    <option value="48">48</option>
+                                    <option value="49">49</option>
+                                    <option value="50">50</option>
+                                    <option value="51">51</option>
+                                    <option value="52">52</option>
+                                    <option value="53">53</option>
+                                    <option value="54">54</option>
+                                    <option value="55">55</option>
+                                    <option value="56">56</option>
+                                    <option value="57">57</option>
+                                    <option value="58">58</option>
+                                    <option value="59">59</option>
+                                </select>
+                                <select asp-for="EditingStartAmPm" class="form-select fw-bold" style="max-width:75px">
+                                    <option value="AM">AM</option>
+                                    <option value="PM">PM</option>
+                                    <option value=""></option>
+                                </select>
+                            </div>
+                            <div><span asp-validation-for="EditingStartDate" class="text-danger"></span></div>
+                            <div><span asp-validation-for="EditingStartHour" class="text-danger"></span></div>
+                            <div><span asp-validation-for="EditingStartMinute" class="text-danger"></span></div>
+                            <div><span asp-validation-for="EditingStartAmPm" class="text-danger"></span></div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label text-dark">Editing Ended </label>
+                            <div class="input-group">
+                                <input asp-for="EditingEndDate" class="form-control fw-bold" type="date">
+                                <select asp-for="EditingEndHour" class="form-select fw-bold" style="max-width:75px">
+                                    <option value="">HH</option>
+                                    <option value="0">00</option>
+                                    <option value="1">1</option>
+                                    <option value="2">2</option>
+                                    <option value="3">3</option>
+                                    <option value="4">4</option>
+                                    <option value="5">5</option>
+                                    <option value="6">6</option>
+                                    <option value="7">7</option>
+                                    <option value="8">8</option>
+                                    <option value="9">9</option>
+                                    <option value="10">10</option>
+                                    <option value="11">11</option>
+                                    <option value="12">12</option>
+                                </select>
+                                <select asp-for="EditingEndMinute" class="form-select fw-bold" style="max-width:75px">
+                                    <option value="">MM</option>
+                                    <option value="0">00</option>
+                                    <option value="1">01</option>
+                                    <option value="2">02</option>
+                                    <option value="3">03</option>
+                                    <option value="4">04</option>
+                                    <option value="5">05</option>
+                                    <option value="6">06</option>
+                                    <option value="7">07</option>
+                                    <option value="8">08</option>
+                                    <option value="9">09</option>
+                                    <option value="10">10</option>
+                                    <option value="11">11</option>
+                                    <option value="12">12</option>
+                                    <option value="13">13</option>
+                                    <option value="14">14</option>
+                                    <option value="15">15</option>
+                                    <option value="16">16</option>
+                                    <option value="17">17</option>
+                                    <option value="18">18</option>
+                                    <option value="19">19</option>
+                                    <option value="20">20</option>
+                                    <option value="21">21</option>
+                                    <option value="22">22</option>
+                                    <option value="23">23</option>
+                                    <option value="24">24</option>
+                                    <option value="25">25</option>
+                                    <option value="26">26</option>
+                                    <option value="27">27</option>
+                                    <option value="28">28</option>
+                                    <option value="29">29</option>
+                                    <option value="30">30</option>
+                                    <option value="31">31</option>
+                                    <option value="32">32</option>
+                                    <option value="33">33</option>
+                                    <option value="34">34</option>
+                                    <option value="35">35</option>
+                                    <option value="36">36</option>
+                                    <option value="37">37</option>
+                                    <option value="38">38</option>
+                                    <option value="39">39</option>
+                                    <option value="40">40</option>
+                                    <option value="41">41</option>
+                                    <option value="42">42</option>
+                                    <option value="43">43</option>
+                                    <option value="44">44</option>
+                                    <option value="45">45</option>
+                                    <option value="46">46</option>
+                                    <option value="47">47</option>
+                                    <option value="48">48</option>
+                                    <option value="49">49</option>
+                                    <option value="50">50</option>
+                                    <option value="51">51</option>
+                                    <option value="52">52</option>
+                                    <option value="53">53</option>
+                                    <option value="54">54</option>
+                                    <option value="55">55</option>
+                                    <option value="56">56</option>
+                                    <option value="57">57</option>
+                                    <option value="58">58</option>
+                                    <option value="59">59</option>
+                                </select>
+                                <select asp-for="EditingEndAmPm" class="form-select fw-bold" style="max-width:75px">
+                                    <option value="AM">AM</option>
+                                    <option value="PM">PM</option>
+                                    <option value=""></option>
+                                </select>
+                            </div>
+                            <div><span asp-validation-for="EditingEndDate" class="text-danger"></span></div>
+                            <div><span asp-validation-for="EditingEndHour" class="text-danger"></span></div>
+                            <div><span asp-validation-for="EditingEndMinute" class="text-danger"></span></div>
+                            <div><span asp-validation-for="EditingEndAmPm" class="text-danger"></span></div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-2 mb-3">
+                            <label class="form-label text-dark">Audio Quality</label>
+                            <select asp-for="AudioQuality" class="form-select fw-bold">
+                                <option value=""> Select </option>
+                                <option value="3">Good</option>
+                                <option value="2">Fair</option>
+                                <option value="1">Poor</option>
+                            </select>
+                            <div><span asp-validation-for="AudioQuality" class="text-danger"></span></div>
+                        </div>
+                        <div class="col-md-2 mb-3">
+                            <label class="form-label text-dark">Video Quality</label>
+                            <select asp-for="VideoQuality" class="form-select fw-bold">
+                                <option value=""> Select </option>
+                                <option value="3">Good</option>
+                                <option value="2">Fair</option>
+                                <option value="1">Poor</option>
+                            </select>
+                            <div><span asp-validation-for="VideoQuality" class="text-danger"></span></div>
+                        </div>
+                        <div class="col-md-8 mb-3"></div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12 mb-3">
+                            <textarea class="form-control fw-bold" id="txtfeedback" asp-for="Feedback" placeholder="Enter Feedback or Recommendation Here ..." rows="3">@Model.Feedback</textarea>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12 text-end">
+                            <a asp-area="ATS" asp-controller="Assignments" asp-action="Active" title="Go Back" class="btn btn-sm btn-dark text-white" style="width:75px; border-radius:5px; margin-right:5px">
+                                Back
+                            </a>
+                            <a asp-area="ATS" asp-controller="Assignments" asp-action="AddEngReport" asp-route-id="@Model.AssignmentId" style="width:75px; border-radius:5px; margin-right:5px" class="btn btn-sm btn-warning" title="Clear">
+                                <span class="text-dark"> Clear</span>
+                            </a>
+                            <button type="submit" class="btn btn-sm btn-success" title="Save" style="width:100px; border-radius:5px"><span class="text-white">Save</span></button>
+                        </div>
+                    </div>
+                    <input type="hidden" asp-for="EmployeeName" />
+                    <input type="hidden" asp-for="EmployeeId" />
+                    <input type="hidden" asp-for="AssignmentId" />
+                    <input type="hidden" asp-for="EngReportId" />
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+@section Scripts{
+    <script src="~/js/ats.js"></script>
+}

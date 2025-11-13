@@ -88,7 +88,7 @@ namespace IntranetPortal.Areas.ATS.Models
             if(EventStartAmPm == "PM" && EventStartHour < 12) { EventStartHour = EventStartHour + 12; }
             if(EventEndAmPm == "PM" && EventEndHour < 12) { EventEndHour = EventEndHour + 12; }
             if(EventStartAmPm == "AM" && EventStartHour == 12) { EventStartHour = 00; }
-            if(EventStartAmPm == "AM" && EventEndHour == 12) { EventEndHour = 00; }
+            if(EventEndAmPm == "AM" && EventEndHour == 12) { EventEndHour = 00; }
 
             return new Assignment
             {

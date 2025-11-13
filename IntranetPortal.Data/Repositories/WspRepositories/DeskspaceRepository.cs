@@ -1143,6 +1143,140 @@ namespace IntranetPortal.Data.Repositories.WspRepositories
             return folderList;
         }
 
+        //========= Get By OwnerName and Dates =================//
+        public async Task<List<WorkItemFolder>> GetWorkItemFoldersByOwnerNamenArchivednDatesAsync(string ownerName, bool IsArchived, DateTime? startDate = null, DateTime? endDate = null)
+        {
+            List<WorkItemFolder> folderList = new List<WorkItemFolder>();
+            DateTime start_date = startDate ?? DateTime.Now.AddMonths(-3);
+            DateTime end_date = endDate ?? DateTime.Now.AddMonths(+3);
+
+            StringBuilder sb = new StringBuilder();
+            sb.Append("SELECT f.wki_fdr_id, f.wki_fdr_nm, f.wki_fdr_typ, f.is_reusable, ");
+            sb.Append("f.is_archived, f.archived_on, f.ctd, f.ctb, f.emp_id, f.is_lckd, ");
+            sb.Append("f.drw_id, f.dt_frm, f.dt_to, f.mdd, f.mdb, ");
+            sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = f.emp_id) as emp_nm, ");
+            sb.Append("(SELECT drw_nm FROM public.wsp_wki_drw WHERE drw_id = f.drw_id) as drw_nm, ");
+            sb.Append("CASE WHEN f.wki_fdr_typ = 0 THEN 'Task Folder' ");
+            sb.Append("WHEN f.wki_fdr_typ = 1 THEN 'Project Folder' ");
+            sb.Append("ELSE 'Unknown Folder' END as wki_fdr_typ_ds, ");
+            sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = f.emp_id) as emp_nm, ");
+            sb.Append("(SELECT COUNT(eval_hdr_id) FROM public.wsp_eval_hdr WHERE wki_fdr_id = f.wki_fdr_id) as no_of_eval ");
+            sb.Append("FROM public.wsp_wki_fdr f ");
+            sb.Append("WHERE (emp_nm = @emp_name) AND (f.is_archived = @is_archived) ");
+            sb.Append("AND (f.dt_frm >= @dt_frm) AND (f.dt_to <= @dt_to) ");
+            sb.Append("ORDER BY f.wki_fdr_id DESC;");
+            string query = sb.ToString();
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
+            {
+                await conn.OpenAsync();
+                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+                {
+                    var emp_name = cmd.Parameters.Add("@emp_name", NpgsqlDbType.Text);
+                    var is_archived = cmd.Parameters.Add("@is_archived", NpgsqlDbType.Boolean);
+                    var dt_frm = cmd.Parameters.Add("@dt_frm", NpgsqlDbType.Timestamp);
+                    var dt_to = cmd.Parameters.Add("@dt_to", NpgsqlDbType.Timestamp);
+                    await cmd.PrepareAsync();
+                    emp_name.Value = ownerName;
+                    is_archived.Value = IsArchived;
+                    dt_frm.Value = start_date;
+                    dt_to.Value = end_date;
+
+                    using (var reader = await cmd.ExecuteReaderAsync())
+                        while (await reader.ReadAsync())
+                        {
+                            folderList.Add(new WorkItemFolder
+                            {
+                                Id = reader["wki_fdr_id"] == DBNull.Value ? 0 : (long)reader["wki_fdr_id"],
+                                Title = reader["wki_fdr_nm"] == DBNull.Value ? "" : reader["wki_fdr_nm"].ToString(),
+                                FolderTypeId = reader["wki_fdr_typ"] == DBNull.Value ? 0 : (int)reader["wki_fdr_typ"],
+                                FolderType = reader["wki_fdr_typ"] == DBNull.Value ? WorkItemFolderType.TaskFolder : (WorkItemFolderType)reader["wki_fdr_typ"],
+                                FolderTypeDescription = reader["wki_fdr_typ_ds"] == DBNull.Value ? "" : reader["wki_fdr_typ_ds"].ToString(),
+                                IsReuseable = reader["is_reusable"] == DBNull.Value ? false : (bool)reader["is_reusable"],
+                                IsArchived = reader["is_archived"] == DBNull.Value ? false : (bool)reader["is_archived"],
+                                ArchivedTime = reader["archived_on"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["archived_on"],
+                                IsLocked = reader["is_lckd"] == DBNull.Value ? false : (bool)reader["is_lckd"],
+                                OwnerId = reader["emp_id"] == DBNull.Value ? string.Empty : reader["emp_id"].ToString(),
+                                OwnerName = reader["emp_nm"] == DBNull.Value ? string.Empty : reader["emp_nm"].ToString(),
+                                WorkspaceId = reader["drw_id"] == DBNull.Value ? 0 : (long)reader["drw_id"],
+                                PeriodStartDate = reader["dt_frm"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["dt_frm"],
+                                PeriodEndDate = reader["dt_to"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["dt_to"],
+                                CreatedTime = reader["ctd"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["ctd"],
+                                CreatedBy = reader["ctb"] == DBNull.Value ? string.Empty : reader["ctb"].ToString(),
+                                UpdatedTime = reader["mdd"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["mdd"],
+                                UpdatedBy = reader["mdb"] == DBNull.Value ? string.Empty : reader["mdb"].ToString(),
+                                NoOfEvaluations = reader["no_of_eval"] == DBNull.Value ? 0L : (long)reader["no_of_eval"],
+                            });
+                        }
+                }
+            }
+            return folderList;
+        }
+        public async Task<List<WorkItemFolder>> GetWorkItemFoldersByOwnerNamenDatesAsync(string ownerName, DateTime? startDate = null, DateTime? endDate = null)
+        {
+            List<WorkItemFolder> folderList = new List<WorkItemFolder>();
+            DateTime start_date = startDate ?? DateTime.Now.AddMonths(-3);
+            DateTime end_date = endDate ?? DateTime.Now.AddMonths(+3);
+
+            StringBuilder sb = new StringBuilder();
+            sb.Append("SELECT f.wki_fdr_id, f.wki_fdr_nm, f.wki_fdr_typ, f.is_reusable, ");
+            sb.Append("f.is_archived, f.archived_on, f.ctd, f.ctb, f.emp_id, f.is_lckd, ");
+            sb.Append("f.drw_id, f.dt_frm, f.dt_to, f.mdd, f.mdb, ");
+            sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = f.emp_id) as emp_nm, ");
+            sb.Append("(SELECT drw_nm FROM public.wsp_wki_drw WHERE drw_id = f.drw_id) as drw_nm, ");
+            sb.Append("CASE WHEN f.wki_fdr_typ = 0 THEN 'Task Folder' ");
+            sb.Append("WHEN f.wki_fdr_typ = 1 THEN 'Project Folder' ");
+            sb.Append("ELSE 'Unknown Folder' END as wki_fdr_typ_ds, ");
+            sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = f.emp_id) as emp_nm, ");
+            sb.Append("(SELECT COUNT(eval_hdr_id) FROM public.wsp_eval_hdr WHERE wki_fdr_id = f.wki_fdr_id) as no_of_eval ");
+            sb.Append("FROM public.wsp_wki_fdr f ");
+            sb.Append("WHERE (emp_nm = @emp_name) AND (f.dt_frm >= @dt_frm) AND (f.dt_to <= @dt_to) ");
+            sb.Append("ORDER BY f.wki_fdr_id DESC;");
+            string query = sb.ToString();
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
+            {
+                await conn.OpenAsync();
+                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+                {
+                    var emp_name = cmd.Parameters.Add("@emp_name", NpgsqlDbType.Text);
+                    var dt_frm = cmd.Parameters.Add("@dt_frm", NpgsqlDbType.Timestamp);
+                    var dt_to = cmd.Parameters.Add("@dt_to", NpgsqlDbType.Timestamp);
+                    await cmd.PrepareAsync();
+                    emp_name.Value = ownerName;
+                    dt_frm.Value = start_date;
+                    dt_to.Value = end_date;
+
+                    using (var reader = await cmd.ExecuteReaderAsync())
+                        while (await reader.ReadAsync())
+                        {
+                            folderList.Add(new WorkItemFolder
+                            {
+                                Id = reader["wki_fdr_id"] == DBNull.Value ? 0 : (long)reader["wki_fdr_id"],
+                                Title = reader["wki_fdr_nm"] == DBNull.Value ? "" : reader["wki_fdr_nm"].ToString(),
+                                FolderTypeId = reader["wki_fdr_typ"] == DBNull.Value ? 0 : (int)reader["wki_fdr_typ"],
+                                FolderType = reader["wki_fdr_typ"] == DBNull.Value ? WorkItemFolderType.TaskFolder : (WorkItemFolderType)reader["wki_fdr_typ"],
+                                FolderTypeDescription = reader["wki_fdr_typ_ds"] == DBNull.Value ? "" : reader["wki_fdr_typ_ds"].ToString(),
+                                IsReuseable = reader["is_reusable"] == DBNull.Value ? false : (bool)reader["is_reusable"],
+                                IsArchived = reader["is_archived"] == DBNull.Value ? false : (bool)reader["is_archived"],
+                                ArchivedTime = reader["archived_on"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["archived_on"],
+                                IsLocked = reader["is_lckd"] == DBNull.Value ? false : (bool)reader["is_lckd"],
+                                OwnerId = reader["emp_id"] == DBNull.Value ? string.Empty : reader["emp_id"].ToString(),
+                                OwnerName = reader["emp_nm"] == DBNull.Value ? string.Empty : reader["emp_nm"].ToString(),
+                                WorkspaceId = reader["drw_id"] == DBNull.Value ? 0 : (long)reader["drw_id"],
+                                PeriodStartDate = reader["dt_frm"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["dt_frm"],
+                                PeriodEndDate = reader["dt_to"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["dt_to"],
+                                CreatedTime = reader["ctd"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["ctd"],
+                                CreatedBy = reader["ctb"] == DBNull.Value ? string.Empty : reader["ctb"].ToString(),
+                                UpdatedTime = reader["mdd"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["mdd"],
+                                UpdatedBy = reader["mdb"] == DBNull.Value ? string.Empty : reader["mdb"].ToString(),
+                                NoOfEvaluations = reader["no_of_eval"] == DBNull.Value ? 0L : (long)reader["no_of_eval"],
+                            });
+                        }
+                }
+            }
+            return folderList;
+        }
+
+
         //========= Get By UnitId and Dates =================//
         public async Task<List<WorkItemFolder>> GetWorkItemFoldersByUnitIdnArchivednDatesAsync(int unitId, bool IsArchived, DateTime? startDate = null, DateTime? endDate = null)
         {
@@ -2059,6 +2193,130 @@ namespace IntranetPortal.Data.Repositories.WspRepositories
             }
             return task;
         }
+        public async Task<TaskItem> GetTaskItemByOwnerIdnAssignmentIdAsync(string taskOwnerId, long assignmentId)
+        {
+            TaskItem task = new TaskItem();
+            StringBuilder sb = new StringBuilder();
+            sb.Append("SELECT t.tsk_itm_id, t.tsk_itm_no, t.tsk_itm_ds, t.tsk_itm_inf, t.wki_fdr_id, ");
+            sb.Append("t.mst_tsk_id, t.prj_no, t.prg_no, t.prg_dt, t.tsk_owner_id, t.assgnd_emp_id, ");
+            sb.Append("t.assigned_dt, t.tsk_itm_stg, t.prgs_stts, t.apprv_stts, t.approved_dt, ");
+            sb.Append("t.approved_by, t.exp_start_dt, t.act_start_dt, t.exp_due_dt, t.act_due_dt, ");
+            sb.Append("t.is_cancelled, t.cancelled_dt, t.cancelled_by, t.is_closed, t.closed_dt, ");
+            sb.Append("t.closed_by, t.unit_id, t.dept_id, t.loc_id, t.completion_is_confirmed, ");
+            sb.Append("t.completion_confirmed_by, t.completion_confirmed_on, t.is_carried_over, ");
+            sb.Append("t.mod_by, t.crt_by, t.assgnmt_id, t.is_lckd, t.crt_dt, t.mod_dt, ");
+            sb.Append("CASE t.tsk_itm_stg WHEN 0 THEN 'Not Yet Approved' ");
+            sb.Append("WHEN 1 THEN 'Submitted for Approval' ");
+            sb.Append("WHEN 2 THEN 'Approved for Execution' ");
+            sb.Append("WHEN 3 THEN 'Submitted For Evaluation' ");
+            sb.Append("WHEN 4 THEN 'Evaluation Completed' ");
+            sb.Append("WHEN 5 THEN 'Cancelled' END AS itm_stg_nm, ");
+
+            sb.Append("CASE t.prgs_stts WHEN 0 THEN 'Not Yet Started' ");
+            sb.Append("WHEN 1 THEN 'In Progress' ");
+            sb.Append("WHEN 2 THEN 'Completed' ");
+            sb.Append("WHEN 3 THEN 'On Hold' END AS prgs_stts_ds, ");
+
+            sb.Append("CASE t.apprv_stts WHEN 0 THEN 'Pending' ");
+            sb.Append("WHEN 1 THEN 'Approved' ");
+            sb.Append("WHEN 2 THEN 'Declined' END AS apprv_stts_ds, ");
+
+            sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = t.tsk_owner_id) as owner_nm, ");
+            sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = t.assgnd_emp_id) as assgnd_to_nm, ");
+            sb.Append("(SELECT unitname FROM public.gst_units WHERE unitqk = t.unit_id) as unit_nm, ");
+            sb.Append("(SELECT deptname FROM public.gst_depts WHERE deptqk = t.dept_id) as dept_nm, ");
+            sb.Append("(SELECT locname FROM public.gst_locs WHERE locqk = t.loc_id) as loc_nm, ");
+            sb.Append("(SELECT wki_fdr_nm FROM public.wsp_wki_fdr WHERE wki_fdr_id = t.wki_fdr_id) as wki_fdr_nm ");
+            sb.Append("FROM public.wsp_tsk_itms t ");
+            sb.Append("WHERE (t.tsk_owner_id=@tsk_owner_id) AND (t.assgnmt_id=@assgnmt_id); ");
+
+            string query = sb.ToString();
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
+            {
+                await conn.OpenAsync();
+                // Retrieve all rows
+                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+                {
+                    var tsk_owner_id = cmd.Parameters.Add("@tsk_owner_id", NpgsqlDbType.Text);
+                    var assgnmt_id = cmd.Parameters.Add("@assgnmt_id", NpgsqlDbType.Bigint);
+                    await cmd.PrepareAsync();
+                    assgnmt_id.Value = assignmentId;
+                    tsk_owner_id.Value = taskOwnerId;
+
+                    using (var reader = await cmd.ExecuteReaderAsync())
+                        while (await reader.ReadAsync())
+                        {
+                            task.Id = reader["tsk_itm_id"] == DBNull.Value ? 0 : (long)reader["tsk_itm_id"];
+                            task.Number = reader["tsk_itm_no"] == DBNull.Value ? "" : reader["tsk_itm_no"].ToString();
+                            task.Description = reader["tsk_itm_ds"] == DBNull.Value ? "" : reader["tsk_itm_ds"].ToString();
+                            task.MoreInformation = reader["tsk_itm_inf"] == DBNull.Value ? "" : reader["tsk_itm_inf"].ToString();
+                            task.WorkFolderId = reader["wki_fdr_id"] == DBNull.Value ? 0 : (long)reader["wki_fdr_id"];
+                            task.WorkFolderName = reader["wki_fdr_nm"] == DBNull.Value ? "" : reader["wki_fdr_nm"].ToString();
+                            task.MasterTaskId = reader["mst_tsk_id"] == DBNull.Value ? 0 : (long)reader["mst_tsk_id"];
+                            task.LinkProjectNumber = reader["prj_no"] == DBNull.Value ? "" : reader["prj_no"].ToString();
+                            task.LinkProgramCode = reader["prg_no"] == DBNull.Value ? "" : reader["prg_no"].ToString();
+                            task.LinkProgramDate = reader["prg_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["prg_dt"];
+                            task.TaskOwnerId = reader["tsk_owner_id"] == DBNull.Value ? "" : reader["tsk_owner_id"].ToString();
+                            task.TaskOwnerName = reader["owner_nm"] == DBNull.Value ? string.Empty : reader["owner_nm"].ToString();
+                            //task.AssignedToId = reader["assgnd_emp_id"] == DBNull.Value ? "" : reader["assgnd_emp_id"].ToString();
+                            //task.AssignedToName = reader["assgnd_to_nm"] == DBNull.Value ? string.Empty : reader["assgnd_to_nm"].ToString();
+                            task.AssignedByEmployeeId = reader["assgnd_emp_id"] == DBNull.Value ? "" : reader["assgnd_emp_id"].ToString();
+                            task.AssignedByEmployeeName = reader["assgnd_to_nm"] == DBNull.Value ? string.Empty : reader["assgnd_to_nm"].ToString();
+                            task.AssignedTime = reader["assigned_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["assigned_dt"];
+                            task.StageId = reader["tsk_itm_stg"] == DBNull.Value ? 0 : (int)reader["tsk_itm_stg"];
+                            task.StageDescription = reader["itm_stg_nm"] == DBNull.Value ? string.Empty : reader["itm_stg_nm"].ToString();
+                            task.Stage = reader["tsk_itm_stg"] == DBNull.Value ? TaskItemStage.NotYetApproved : (TaskItemStage)reader["tsk_itm_stg"];
+
+                            task.ProgressStatusId = reader["prgs_stts"] == DBNull.Value ? 0 : (int)reader["prgs_stts"];
+                            task.ProgressStatus = reader["prgs_stts"] == DBNull.Value ? 0 : (WorkItemProgressStatus)reader["prgs_stts"];
+                            task.ProgressStatusDescription = reader["prgs_stts_ds"] == DBNull.Value ? string.Empty : reader["prgs_stts_ds"].ToString();
+
+                            task.ApprovalStatusId = reader["apprv_stts"] == DBNull.Value ? 0 : (int)reader["apprv_stts"];
+                            task.ApprovalStatus = reader["apprv_stts"] == DBNull.Value ? ApprovalStatus.Pending : (ApprovalStatus)reader["apprv_stts"];
+                            task.ApprovalStatusDescription = reader["apprv_stts_ds"] == DBNull.Value ? string.Empty : reader["apprv_stts_ds"].ToString();
+
+                            task.ApprovedTime = reader["approved_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["approved_dt"];
+                            task.ApprovedBy = reader["approved_by"] == DBNull.Value ? string.Empty : reader["approved_by"].ToString();
+                            task.ExpectedStartTime = reader["exp_start_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["exp_start_dt"];
+                            task.ActualStartTime = reader["act_start_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["act_start_dt"];
+                            task.ExpectedDueTime = reader["exp_due_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["exp_due_dt"];
+                            task.ActualDueTime = reader["act_due_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["act_due_dt"];
+
+                            task.IsCancelled = reader["is_cancelled"] == DBNull.Value ? false : (bool)reader["is_cancelled"];
+                            task.CancelledBy = reader["cancelled_by"] == DBNull.Value ? "" : reader["cancelled_by"].ToString();
+                            task.CancelledTime = reader["cancelled_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["cancelled_dt"];
+
+                            task.IsClosed = reader["is_closed"] == DBNull.Value ? false : (bool)reader["is_closed"];
+                            task.ClosedBy = reader["closed_by"] == DBNull.Value ? "" : reader["closed_by"].ToString();
+                            task.ClosedTime = reader["closed_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["closed_dt"];
+
+                            task.UnitId = reader["unit_id"] == DBNull.Value ? 0 : (int)reader["unit_id"];
+                            task.UnitName = reader["unit_nm"] == DBNull.Value ? "" : reader["unit_nm"].ToString();
+                            task.DepartmentId = reader["dept_id"] == DBNull.Value ? 0 : (int)reader["dept_id"];
+                            task.DepartmentName = reader["dept_nm"] == DBNull.Value ? "" : reader["dept_nm"].ToString();
+                            task.LocationId = reader["loc_id"] == DBNull.Value ? 0 : (int)reader["loc_id"];
+                            task.LocationName = reader["loc_nm"] == DBNull.Value ? "" : reader["loc_nm"].ToString();
+
+                            task.CompletionConfirmed = reader["completion_is_confirmed"] == DBNull.Value ? false : (bool)reader["completion_is_confirmed"];
+                            task.CompletionConfirmedBy = reader["completion_confirmed_by"] == DBNull.Value ? "" : reader["completion_confirmed_by"].ToString();
+                            task.CompletionConfirmedTime = reader["completion_confirmed_on"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["completion_confirmed_on"];
+                            task.IsCarriedOver = reader["is_carried_over"] == DBNull.Value ? false : (bool)reader["is_carried_over"];
+
+                            task.CreatedTime = reader["crt_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["crt_dt"];
+                            task.CreatedBy = reader["crt_by"] == DBNull.Value ? string.Empty : reader["crt_by"].ToString();
+                            task.LastModifiedTime = reader["mod_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["mod_dt"];
+                            task.LastModifiedBy = reader["mod_by"] == DBNull.Value ? string.Empty : reader["mod_by"].ToString();
+
+                            task.IsLocked = reader["is_lckd"] == DBNull.Value ? false : (bool)reader["is_lckd"];
+                            task.AssignmentId = reader["assgnmt_id"] == DBNull.Value ? 0L : (long)reader["assgnmt_id"];
+                        }
+                }
+                await conn.CloseAsync();
+            }
+            return task;
+        }
+
+
         public async Task<List<TaskItem>> GetTaskItemsByFolderIdAsync(long folderId)
         {
             List<TaskItem> taskList = new List<TaskItem>();
@@ -2843,6 +3101,7 @@ namespace IntranetPortal.Data.Repositories.WspRepositories
             }
             return rows > 0;
         }
+
         public async Task<bool> UpdateTaskItemFolderIdAsync(long taskItemId, string modifiedBy, long? taskFolderId = null)
         {
             int rows = 0;
@@ -6351,6 +6610,73 @@ namespace IntranetPortal.Data.Repositories.WspRepositories
             }
             return taskEvaluationDetails;
         }
+        public async Task<List<TaskEvaluationDetail>> GetTaskEvaluationDetailsByTaskFolderIdAsync(long taskFolderId)
+        {
+            List<TaskEvaluationDetail> taskEvaluationDetails = new List<TaskEvaluationDetail>();
+            StringBuilder sb = new StringBuilder();
+
+            sb.Append("SELECT d.eval_dtl_id, d.eval_hdr_id, d.wki_fdr_id, d.tsk_itm_id, d.eval_dt, ");
+            sb.Append("d.completion_score, d.quality_score, d.eval_comments, d.unit_id, d.dept_id, ");
+            sb.Append("d.loc_id, d.tsk_owner_id, d.eval_emp_id, i.tsk_itm_ds, i.tsk_itm_no, i.tsk_itm_inf, ");
+            sb.Append("(SELECT wki_fdr_nm FROM public.wsp_wki_fdr WHERE wki_fdr_id= d.wki_fdr_id) as wki_fdr_nm, ");
+            sb.Append("(SELECT unitname FROM public.gst_units WHERE unitqk = d.unit_id ) as owner_unit_nm, ");
+            sb.Append("(SELECT deptname FROM public.gst_depts WHERE deptqk = d.dept_id ) as owner_dept_nm, ");
+            sb.Append("(SELECT locname FROM public.gst_locs WHERE locqk = d.loc_id ) as owner_loc_nm, ");
+            sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = d.tsk_owner_id) as tsk_owner_nm, ");
+            sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = d.eval_emp_id) as eval_emp_nm ");
+            sb.Append("FROM public.wsp_eval_dtl d ");
+            sb.Append("INNER JOIN public.wsp_tsk_itms i ON i.tsk_itm_id = d.tsk_itm_id ");
+            sb.Append("WHERE (d.wki_fdr_id = @wki_fdr_id) ");
+            sb.Append("ORDER BY d.tsk_itm_id; ");
+
+            string query = sb.ToString();
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
+            {
+                await conn.OpenAsync();
+                // Retrieve all rows
+                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+                {
+                    var wki_fdr_id = cmd.Parameters.Add("@wki_fdr_id", NpgsqlDbType.Bigint);
+                    await cmd.PrepareAsync();
+                    wki_fdr_id.Value = taskFolderId;
+
+                    using (var reader = await cmd.ExecuteReaderAsync())
+                        while (await reader.ReadAsync())
+                        {
+                            taskEvaluationDetails.Add(new TaskEvaluationDetail
+                            {
+                                TaskEvaluationDetailId = reader["eval_dtl_id"] == DBNull.Value ? 0 : (long)reader["eval_dtl_id"],
+                                TaskEvaluationHeaderId = reader["eval_hdr_id"] == DBNull.Value ? 0 : (long)reader["eval_hdr_id"],
+                                TaskFolderId = reader["wki_fdr_id"] == DBNull.Value ? 0 : (long)reader["wki_fdr_id"],
+                                TaskFolderName = reader["wki_fdr_nm"] == DBNull.Value ? string.Empty : reader["wki_fdr_nm"].ToString(),
+                                TaskItemId = reader["tsk_itm_id"] == DBNull.Value ? 0 : (long)reader["tsk_itm_id"],
+                                TaskItemNo = reader["tsk_itm_no"] == DBNull.Value ? string.Empty : reader["tsk_itm_no"].ToString(),
+                                TaskItemDescription = reader["tsk_itm_ds"] == DBNull.Value ? string.Empty : reader["tsk_itm_ds"].ToString(),
+                                TaskItemMoreInfo = reader["tsk_itm_inf"] == DBNull.Value ? string.Empty : reader["tsk_itm_inf"].ToString(),
+                                EvaluationDate = reader["eval_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["eval_dt"],
+                                CompletionScore = reader["completion_score"] == DBNull.Value ? 0 : (long)reader["completion_score"],
+                                QualityScore = reader["quality_score"] == DBNull.Value ? 0 : (long)reader["quality_score"],
+                                EvaluatorsComment = reader["eval_comments"] == DBNull.Value ? string.Empty : reader["eval_comments"].ToString(),
+
+                                TaskOwnerId = reader["tsk_owner_id"] == DBNull.Value ? string.Empty : reader["tsk_owner_id"].ToString(),
+                                TaskOwnerName = reader["tsk_owner_nm"] == DBNull.Value ? string.Empty : reader["tsk_owner_nm"].ToString(),
+                                TaskOwnerUnitId = reader["unit_id"] == DBNull.Value ? 0 : (int)reader["unit_id"],
+                                TaskOwnerUnitName = reader["owner_unit_nm"] == DBNull.Value ? string.Empty : reader["owner_unit_nm"].ToString(),
+                                TaskOwnerDeptId = reader["dept_id"] == DBNull.Value ? 0 : (int)reader["dept_id"],
+                                TaskOwnerDeptName = reader["owner_dept_nm"] == DBNull.Value ? string.Empty : reader["owner_dept_nm"].ToString(),
+                                TaskOwnerLocationId = reader["loc_id"] == DBNull.Value ? 0 : (int)reader["loc_id"],
+                                TaskOwnerLocationName = reader["owner_loc_nm"] == DBNull.Value ? string.Empty : reader["owner_loc_nm"].ToString(),
+
+                                TaskEvaluatorId = reader["eval_emp_id"] == DBNull.Value ? string.Empty : reader["eval_emp_id"].ToString(),
+                                TaskEvaluatorName = reader["eval_emp_nm"] == DBNull.Value ? string.Empty : reader["eval_emp_nm"].ToString(),
+                            });
+                        }
+                }
+                await conn.CloseAsync();
+            }
+            return taskEvaluationDetails;
+        }
+
         public async Task<long> GetTaskEvaluationItemsCountByFolderIdnEvaluatorIdAsync(long taskFolderId, string evaluatorId)
         {
             long _totalCount = 0;
@@ -6379,8 +6705,6 @@ namespace IntranetPortal.Data.Repositories.WspRepositories
             }
             return _totalCount;
         }
-
-
         #endregion
 
         #region Task Evaluation Detail Write Action Methods

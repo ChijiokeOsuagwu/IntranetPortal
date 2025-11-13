@@ -64,6 +64,10 @@ namespace IntranetPortal.Controllers
 
         public async Task<IActionResult> Apps()
         {
+            if (!User.Identity.IsAuthenticated)
+            {
+                return LocalRedirect("/Home/Index");
+            }
             var claims = HttpContext.User.Claims.ToList();
             string recipientId = claims?.Where(x => x.Type == ClaimTypes.NameIdentifier).Select(c => c.Value).SingleOrDefault();
             if (!string.IsNullOrWhiteSpace(recipientId))

@@ -15,9 +15,6 @@ namespace IntranetPortal.Base.Models.AtsModels
         public string CrewMemberRole2 { get; set; }
         public string CrewMemberRole3 { get; set; }
         public bool IsTeamLead { get; set; }
-        public string AttendanceStatus { get; set; }
-        public string ServiceRating { get; set; }
-        public string Remarks { get; set; }
         public int? UnitId { get; set; }
         public string UnitName { get; set; }
         public int? DepartmentId { get; set; }
@@ -28,5 +25,8 @@ namespace IntranetPortal.Base.Models.AtsModels
         public DateTime? CreatedTime { get; set; }
         public string ModifiedBy { get; set; }
         public DateTime? ModifiedTime { get; set; }
+
+        public string AssignedByEmployeeId { get; set; }
+        public string AssignedByEmployeeName { get; set; }
     }
 }

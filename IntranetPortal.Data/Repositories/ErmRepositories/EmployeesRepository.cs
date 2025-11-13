@@ -258,10 +258,13 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
                 }
                 await conn.CloseAsync();
             }
-            catch (Exception ex)
+            catch (Exception)
+            {
+                return null;
+            }
+            finally
             {
                 await conn.CloseAsync();
-                return null;
             }
             return employee;
         }

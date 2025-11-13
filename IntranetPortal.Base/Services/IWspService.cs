@@ -38,7 +38,7 @@ namespace IntranetPortal.Base.Services
 
         Task<List<WorkItemFolder>> SearchWorkItemFoldersAsync(string OwnerId, bool? IsArchived = null, int? createdYear = null, int? createdMonth = null);
 
-        Task<List<WorkItemFolder>> GetWorkItemFoldersAsync(DateTime StartDate, DateTime EndDate, int ArchiveStatus, int? LocationId = null, int? DepartmentId = null, int? UnitId = null, string OwnerId = null);
+        Task<List<WorkItemFolder>> GetWorkItemFoldersAsync(DateTime StartDate, DateTime EndDate, int ArchiveStatus, int? LocationId = null, int? DepartmentId = null, int? UnitId = null, string OwnerId = null, string OwnerName = null);
         #endregion
         #endregion
 
@@ -129,6 +129,7 @@ namespace IntranetPortal.Base.Services
         Task<TaskEvaluationDetail> GetTaskEvaluationDetailByIdAsync(long taskEvaluationDetailId);
         Task<TaskEvaluationDetail> GetTaskEvaluationDetailAsync(long taskEvaluationHeaderId, long taskItemId);
         Task<List<TaskEvaluationDetail>> GetTaskEvaluationDetailsAsync(long taskEvaluationHeaderId);
+        Task<List<TaskEvaluationDetail>> GetTaskEvaluationDetailsbyFolderIdAsync(long taskFolderId);
         Task<long> GetEvaluatedTaskItemsCountAsync(long taskFolderId, string evaluatorId);
 
         Task<bool> AddTaskEvaluationDetailAsync(TaskEvaluationDetail detail);

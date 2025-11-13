@@ -437,7 +437,7 @@ namespace IntranetPortal.Areas.BAMS.Controllers
             }
             catch (Exception ex)
             {
-                return "error";
+                return ex.Message;
             }
         }
 

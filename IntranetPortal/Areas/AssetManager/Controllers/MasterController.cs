@@ -165,7 +165,7 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
             model.ConditionStatus = AssetCondition.InGoodCondition;
 
             var claims = HttpContext.User.Claims.ToList();
-            string userId = claims?.Where(x => x.Type == ClaimTypes.NameIdentifier).Select(c => c.Value).SingleOrDefault();
+            string userId = model.CurrentUserID = claims?.Where(x => x.Type == ClaimTypes.NameIdentifier).Select(c => c.Value).SingleOrDefault();
             if (string.IsNullOrWhiteSpace(userId))
             {
                 await HttpContext.SignOutAsync(SecurityConstants.ChxCookieAuthentication);
@@ -268,9 +268,11 @@ namespace IntranetPortal.Areas.AssetManager.Controllers
 
             var types = await _assetManagerService.GetAssetTypesAsync();
             var locations = await _globalSettingsService.GetAllLocationsAsync();
+            var divisions = await _assetManagerService.GetAssetDivisionsAsync(model.CurrentUserID);
 
             ViewBag.TypesList = new SelectList(types, "ID", "Name");
             ViewBag.LocationsList = new SelectList(locations, "LocationID", "LocationName");
+            ViewBag.DivisionsList = new SelectList(divisions, "ID", "Name");
 
             return View(model);
         }

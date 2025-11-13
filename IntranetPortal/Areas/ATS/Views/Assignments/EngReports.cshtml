@@ -1,0 +1,153 @@
+﻿@model IntranetPortal.Areas.ATS.Models.EngReportListViewModel
+<div class="container">
+    <h4 class="mb-1">Assignment Tracking System | Post Editing Report </h4>
+    <hr />
+    <div class="row">
+        <div class="col-md-2">
+            <a asp-area="ATS" asp-controller="Assignments" asp-action="Active" title="Go Back" class="btn btn-sm btn-success text-white" style="width:75px; border-radius:5px">
+                Back
+            </a>
+        </div>
+        <div class="col-md-10">
+            <span class="fw-bold" style="font-size:1.1rem">  Event: @Model.AssignmentTitle</span>
+        </div>
+    </div>
+    <hr />
+    @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert" style="margin-top:3px">
+            <i class="bi bi-x-circle"></i>
+            <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    <div class="row mt-2">
+        @if (Model == null || Model.EngReportList == null || Model.EngReportList.Count < 1)
+        {
+            <div class="alert alert-secondary alert-dismissible fade show" role="alert">
+                <i class="bi bi-x-circle"></i>
+                <span class="fw-bold text-dark">No record was found.</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                @foreach (var report in Model.EngReportList)
+                {
+                    <div class="card" style="width:80pc">
+                        <div class="card-header bg-success">
+                            <div class="row">
+                                <div class="col-md-8" title="Submitted By">
+                                    <span class="fw-bold text-white"><i class="bi bi-person" style="font-size:1.2rem; font-weight:bold"></i> @report.EmployeeName</span>
+                                </div>
+                                <div class="col-md-4 text-end" title="Editing Status">
+                                    @if (!string.IsNullOrWhiteSpace(report.EditingStatus))
+                                    {
+                                        <span class="fw-bold text-white" title="Editing Status"><i class="fa fa-street-view" style="font-size:1.2rem;"></i> @report.EditingStatus</span>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body table-secondary">
+                            <div class="row">
+                                <div class="col-md-4 mb-4" style="margin-top:10px">
+                                    @if (report.MaterialsAreAvailable)
+                                    {<i class="bi bi-check-square" style="font-size:1.0rem;"></i><span>  All materials were made available on time for editing.</span>}
+                                    else
+                                    { <i class="bi bi-square" style="font-size:1.0rem;"></i><span>  All materials were made available on time for editing.</span>}
+                                </div>
+                                <div class="col-md-4 mb-4" style="margin-top:10px">
+                                    @if (report.ScriptIsAvailable)
+                                    {<i class="bi bi-check-square" style="font-size:1.0rem"></i><span>  Script was completed and ready prior to editing.</span>}
+                                    else
+                                    { <i class="bi bi-square" style="font-size:1.0rem"></i><span>  Script was completed and ready prior to editing.</span>}
+                                </div>
+                                <div class="col-md-4 mb-4" style="margin-top:10px">
+                                    @if (report.ReporterIsAvailable)
+                                    {<i class="bi bi-check-square" style="font-size:1.0rem"></i><span style="font-size:0.8rem">  Reporter or Producer was present during editing.</span>}
+                                    else
+                                    { <i class="bi bi-square" style="font-size:1.0rem"></i><span style="font-size:0.8rem">  Reporter or Producer was present during editing.</span>}
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label text-dark">Reporter Arrived Time </label>
+                                    @if (report.ReporterArrivalTime != null)
+                                    {
+                                        <div class="form-control fw-bold">@report.ReporterArrivalTime.Value.ToString("f")</div>
+                                    }
+                                    else
+                                    {
+                                        <div class="form-control fw-bold">[Unavailable]</div>
+                                    }
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label text-dark">Editing Start Time </label>
+                                    @if (report.EditingStartTime != null)
+                                    {
+                                        <div class="form-control fw-bold">@report.EditingStartTime.Value.ToString("f")</div>
+                                    }
+                                    else
+                                    {
+                                        <div class="form-control fw-bold">[Unavailable]</div>
+                                    }
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label text-dark">Editing Completion Time </label>
+                                    @if (report.EditingEndTime != null)
+                                    {
+                                        <div class="form-control fw-bold">@report.EditingEndTime.Value.ToString("f")</div>
+                                    }
+                                    else
+                                    {
+                                        <div class="form-control fw-bold">[Unavailable]</div>
+                                    }
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-3 mb-3">
+                                    <label class="form-label text-dark">Audio Quality Rating</label>
+                                    @if (string.IsNullOrWhiteSpace(report.AudioQualityDescription))
+                                    {
+                                        <div title="Audio Quality Rating" class="form-control fw-bold">[Not Specified]</div>
+                                    }
+                                    else
+                                    {
+                                        <div title="Audio Quality Rating" class="form-control fw-bold">@report.AudioQualityDescription</div>
+                                    }
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <label class="form-label text-dark">Video Quality Rating</label>
+                                    @if (string.IsNullOrWhiteSpace(report.VideoQualityDescription))
+                                    {
+                                        <div title="Video Quality Rating" class="form-control fw-bold">[Not Specified]</div>
+                                    }
+                                    else
+                                    {
+                                        <div title="Video Quality Rating" class="form-control fw-bold">@report.VideoQualityDescription</div>
+                                    }
+                                </div>
+                                <div class="col-md-6 mb-3">
+
+                                </div>
+                            </div>
+                            @if (!string.IsNullOrWhiteSpace(report.Feedback))
+                            {
+                                <div class="row">
+                                    <div class="col-md-12 mb-3">
+                                        <label class="form-label text-dark">Comments</label>
+                                        <textarea class="form-control fw-bold" readonly>@report.Feedback</textarea>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</div>
+@section Scripts{
+    <script src="~/js/ats.js"></script>
+}
