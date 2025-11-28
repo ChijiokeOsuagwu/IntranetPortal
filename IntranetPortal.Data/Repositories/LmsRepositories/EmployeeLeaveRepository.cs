@@ -18,19 +18,19 @@ namespace IntranetPortal.Data.Repositories.LmsRepositories
             _config = configuration;
         }
 
-        #region Employee Leave Action Methods
 
+        #region Employee Leave Write Action Methods
         //===  Leave Write Action Methods =======//
         public async Task<long> AddAsync(EmployeeLeave e)
         {
-            long rows = 0;
+            long newLeaveId = 0;
             StringBuilder sb = new StringBuilder();
-            sb.Append("INSERT INTO public.lms_lvs_infs(emp_id, lvs_yr, ");
-            sb.Append("lvs_typ_cd, lvs_rsn, lvs_sts, lvs_sdt, lvs_edt, ");
-            sb.Append("lvs_dur, unit_id, dept_id, loc_id, is_pln, dur_typ) ");
-            sb.Append("VALUES (@emp_id, @lvs_yr, @lvs_typ_cd, @lvs_rsn, ");
-            sb.Append("@lvs_sts, @lvs_sdt, @lvs_edt, @lvs_dur, @unit_id, ");
-            sb.Append("@dept_id, @loc_id, @is_pln, @dur_typ) ");
+            sb.Append("INSERT INTO public.lms_lvs_infs(emp_id, unit_id, dept_id, loc_id, ");
+            sb.Append("lvs_yr, lvs_typ_cd, lvs_rsn, lvs_sts, is_pln, prp_lvs_sdt, ");
+            sb.Append("prp_lvs_edt, prp_lvs_dur, prp_lvs_dur_typ, prp_dur_ds) ");
+            sb.Append("VALUES(@emp_id, @unit_id, @dept_id, @loc_id, @lvs_yr, ");
+            sb.Append("@lvs_typ_cd, @lvs_rsn, @lvs_sts, @is_pln, @prp_lvs_sdt, ");
+            sb.Append("@prp_lvs_edt, @prp_lvs_dur, @prp_lvs_dur_typ, @prp_dur_ds) ");
             sb.Append("RETURNING lvs_inf_id;");
             string query = sb.ToString();
 
@@ -41,39 +41,48 @@ namespace IntranetPortal.Data.Repositories.LmsRepositories
                 using (var cmd = new NpgsqlCommand(query, conn))
                 {
                     var emp_id = cmd.Parameters.Add("emp_id", NpgsqlDbType.Text);
+                    var unit_id = cmd.Parameters.Add("@unit_id", NpgsqlDbType.Integer);
+                    var dept_id = cmd.Parameters.Add("@dept_id", NpgsqlDbType.Integer);
+                    var loc_id = cmd.Parameters.Add("@loc_id", NpgsqlDbType.Integer);
+
                     var lvs_yr = cmd.Parameters.Add("@lvs_yr", NpgsqlDbType.Integer);
                     var lvs_typ_cd = cmd.Parameters.Add("@lvs_typ_cd", NpgsqlDbType.Text);
                     var lvs_rsn = cmd.Parameters.Add("@lvs_rsn", NpgsqlDbType.Text);
                     var lvs_sts = cmd.Parameters.Add("@lvs_sts", NpgsqlDbType.Text);
-                    var lvs_sdt = cmd.Parameters.Add("@lvs_sdt", NpgsqlDbType.TimestampTz);
-                    var lvs_edt = cmd.Parameters.Add("@lvs_edt", NpgsqlDbType.TimestampTz);
-                    var lvs_dur = cmd.Parameters.Add("@lvs_dur", NpgsqlDbType.Integer);
-                    var dur_typ = cmd.Parameters.Add("@dur_typ", NpgsqlDbType.Integer);
-                    var unit_id = cmd.Parameters.Add("@unit_id", NpgsqlDbType.Integer);
-                    var dept_id = cmd.Parameters.Add("@dept_id", NpgsqlDbType.Integer);
-                    var loc_id = cmd.Parameters.Add("@loc_id", NpgsqlDbType.Integer);
                     var is_pln = cmd.Parameters.Add("@is_pln", NpgsqlDbType.Boolean);
+
+                    var prp_lvs_sdt = cmd.Parameters.Add("@prp_lvs_sdt", NpgsqlDbType.TimestampTz);
+                    var prp_lvs_edt = cmd.Parameters.Add("@prp_lvs_edt", NpgsqlDbType.TimestampTz);
+                    var prp_lvs_dur = cmd.Parameters.Add("@prp_lvs_dur", NpgsqlDbType.Integer);
+                    var prp_lvs_dur_typ = cmd.Parameters.Add("@prp_lvs_dur_typ", NpgsqlDbType.Integer);
+                    var prp_dur_ds = cmd.Parameters.Add("@prp_dur_ds", NpgsqlDbType.Integer);
+
                     cmd.Prepare();
+
                     emp_id.Value = e.EmployeeId;
+                    unit_id.Value = e.UnitId;
+                    dept_id.Value = e.DepartmentId;
+                    loc_id.Value = e.LocationId;
+
                     lvs_yr.Value = e.LeaveYear;
                     lvs_typ_cd.Value = e.LeaveTypeCode;
                     lvs_rsn.Value = e.LeaveReason ?? (object)DBNull.Value;
                     lvs_sts.Value = e.LeaveStatus;
-                    lvs_sdt.Value = e.LeaveStartDate;
-                    lvs_edt.Value = e.LeaveEndDate;
-                    lvs_dur.Value = e.Duration;
-                    dur_typ.Value = e.DurationTypeId;
-                    unit_id.Value = e.UnitId;
-                    dept_id.Value = e.DepartmentId;
-                    loc_id.Value = e.LocationId;
                     is_pln.Value = e.IsPlan;
 
+                    prp_lvs_sdt.Value = e.ProposedLeaveStartDate;
+                    prp_lvs_edt.Value = e.ProposedLeaveEndDate;
+                    prp_lvs_dur.Value = e.ProposedLeaveDuration;
+                    prp_lvs_dur_typ.Value = e.ProposedDurationTypeId;
+                    prp_dur_ds.Value = e.ProposedDurationDescription;
+
+
                     var obj = await cmd.ExecuteScalarAsync();
-                    rows = (long)obj;
+                    newLeaveId = (long)obj;
                     await conn.CloseAsync();
                 }
             }
-            return rows;
+            return newLeaveId;
         }
         public async Task<bool> DeleteAsync(long id)
         {
@@ -225,7 +234,9 @@ namespace IntranetPortal.Data.Repositories.LmsRepositories
             }
             return rows > 0;
         }
+        #endregion
 
+        #region Employee Leave Read Action Methods
         //=== Employee Leaves By Employee ID Read Action Methods ========//
         public async Task<List<EmployeeLeave>> GetByEmployeeIdAsync(string employeeId, bool isPlan)
         {
@@ -2460,8 +2471,9 @@ namespace IntranetPortal.Data.Repositories.LmsRepositories
             }
             return leaveList;
         }
-
         #endregion
+
+
 
         #region Leave Submission Action Methods
         //==== Leave Submission Read Action Methods
@@ -2963,7 +2975,7 @@ namespace IntranetPortal.Data.Repositories.LmsRepositories
                     cmd.Prepare();
                     lvs_inf_id.Value = e.LeaveId;
                     frm_emp_nm.Value = e.FromEmployeeName;
-                    msg_ds.Value = e.NoteContent;
+                    msg_ds.Value = e.NoteContent ?? (object)DBNull.Value; 
                     msg_dt.Value = DateTime.Now;
                     rows = await cmd.ExecuteNonQueryAsync();
                     await conn.CloseAsync();
@@ -3028,8 +3040,8 @@ namespace IntranetPortal.Data.Repositories.LmsRepositories
                     var act_dt = cmd.Parameters.Add("@act_dt", NpgsqlDbType.TimestampTz);
                     cmd.Prepare();
                     lvs_inf_id.Value = e.LeaveId;
-                    act_ds.Value = e.ActivityDescription;
-                    act_dt.Value = e.ActivityTime;
+                    act_ds.Value = e.ActivityDescription ?? (object)DBNull.Value;
+                    act_dt.Value = e.ActivityTime ?? DateTime.Now;
                     rows = await cmd.ExecuteNonQueryAsync();
                     await conn.CloseAsync();
                 }

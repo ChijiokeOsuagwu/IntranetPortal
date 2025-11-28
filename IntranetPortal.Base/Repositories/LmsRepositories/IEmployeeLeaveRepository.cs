@@ -8,13 +8,15 @@ namespace IntranetPortal.Base.Repositories.LmsRepositories
 {
     public interface IEmployeeLeaveRepository
     {
-        #region Employee Leave Action Methods
+        #region Employee Leave Write Action Methods
         Task<long> AddAsync(EmployeeLeave e);
         Task<bool> DeleteAsync(long id);
         Task<bool> EditAsync(EmployeeLeave e);
         Task<bool> UpdateStatusAsync(long leaveId, string newStatus);
         Task<bool> UpdateApprovalStatusAsync(long leaveId, string newStatus, string approvalType);
+        #endregion
 
+        #region Employee Leave Read Action Methods
         // Employee Leave By Employee ID
         Task<EmployeeLeave> GetByIdAsync(long id);
         Task<List<EmployeeLeave>> GetByEmployeeIdAsync(string employeeId, bool isPlan);
@@ -72,6 +74,7 @@ namespace IntranetPortal.Base.Repositories.LmsRepositories
         Task<List<LeaveApproval>> GetApprovalsByLeaveIdAsync(long leaveId);
 
         #endregion
+
         #region Leave Notes Action Interfaces
         Task<bool> AddNoteAsync(LeaveNote e);
         Task<List<LeaveNote>> GetNotesByLeaveIdAsync(long leaveId);

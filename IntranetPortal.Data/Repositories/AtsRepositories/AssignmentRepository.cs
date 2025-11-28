@@ -1651,7 +1651,6 @@ namespace IntranetPortal.Data.Repositories.AtsRepositories
         #endregion
 
 
-
         #region Assignment Equipment Action Methods
         public async Task<AssignmentEquipment> GetAssignmentEquipmentByIdAsync(long assignmentEquipmentId)
         {

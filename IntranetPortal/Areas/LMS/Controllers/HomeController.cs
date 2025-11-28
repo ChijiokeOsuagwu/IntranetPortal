@@ -43,69 +43,6 @@ namespace IntranetPortal.Areas.LMS.Controllers
             return View();
         }
 
-        public async Task<IActionResult> LeaveNotes(long id, string sp, int yr)
-        {
-            LeaveNoteListViewModel model = new LeaveNoteListViewModel();
-            model.LeaveID = id;
-            model.LeaveYear = yr;
-            model.SourcePage = sp;
-            if (id > 0)
-            {
-                EmployeeLeave e = await _lmsService.GetEmployeeLeaveAsync(id);
-                if (e != null)
-                {
-                    model.ApplicantID = e.EmployeeId;
-                    model.ApplicantName = e.EmployeeFullName;
-                    model.LoggedInEmployeeName = HttpContext.User.Identity.Name;
-                    model.LoggedInEmployeeID = HttpContext.User.Claims.FirstOrDefault(c => c.Type.Contains("nameidentifier")).Value;
-
-                    if (string.IsNullOrWhiteSpace(model.LoggedInEmployeeID))
-                    {
-                        await HttpContext.SignOutAsync(SecurityConstants.ChxCookieAuthentication);
-                        return LocalRedirect("/Home/Login");
-                    }
-                }
-                var entities = await _lmsService.GetLeaveNotesAsync(id);
-                if (entities != null && entities.Count > 0)
-                {
-                    model.LeaveNoteList = entities.ToList();
-                }
-            }
-            return View(model);
-        }
-
-        public async Task<IActionResult> LeaveActivities(long id)
-        {
-            LeaveActivitiesViewModel model = new LeaveActivitiesViewModel();
-            model.LeaveId = id;
-            if (id > 0)
-            {
-                var entities = await _lmsService.GetLeaveActivitiesAsync(id);
-                if (entities != null && entities.Count > 0)
-                {
-                    model.LeaveActivityList = entities.ToList();
-                }
-            }
-            return View(model);
-        }
-
-        public async Task<IActionResult> LeaveApprovals(long id, string sp, int yr)
-        {
-            LeaveApprovalListViewModel model = new LeaveApprovalListViewModel();
-            model.LeaveID = id;
-            model.LeaveYear = yr;
-            model.SourcePage = sp;
-            if (id > 0)
-            {
-                var entities = await _lmsService.GetLeaveApprovalsAsync(id);
-                if (entities != null && entities.Count > 0)
-                {
-                    model.LeaveApprovalList = entities.ToList();
-                }
-            }
-            return View(model);
-        }
-
 
         #region Leave Plan Controller Action Methods
         public async Task<IActionResult> MyLeavePlans(int yr)
@@ -811,6 +748,71 @@ namespace IntranetPortal.Areas.LMS.Controllers
             return RedirectToAction("LeaveAttachments", new { id = ld });
         }
 
+        #endregion
+
+        #region Leave Utilities Action Methods
+        public async Task<IActionResult> LeaveNotes(long id, string sp, int yr)
+        {
+            LeaveNoteListViewModel model = new LeaveNoteListViewModel();
+            model.LeaveID = id;
+            model.LeaveYear = yr;
+            model.SourcePage = sp;
+            if (id > 0)
+            {
+                EmployeeLeave e = await _lmsService.GetEmployeeLeaveAsync(id);
+                if (e != null)
+                {
+                    model.ApplicantID = e.EmployeeId;
+                    model.ApplicantName = e.EmployeeFullName;
+                    model.LoggedInEmployeeName = HttpContext.User.Identity.Name;
+                    model.LoggedInEmployeeID = HttpContext.User.Claims.FirstOrDefault(c => c.Type.Contains("nameidentifier")).Value;
+
+                    if (string.IsNullOrWhiteSpace(model.LoggedInEmployeeID))
+                    {
+                        await HttpContext.SignOutAsync(SecurityConstants.ChxCookieAuthentication);
+                        return LocalRedirect("/Home/Login");
+                    }
+                }
+                var entities = await _lmsService.GetLeaveNotesAsync(id);
+                if (entities != null && entities.Count > 0)
+                {
+                    model.LeaveNoteList = entities.ToList();
+                }
+            }
+            return View(model);
+        }
+
+        public async Task<IActionResult> LeaveActivities(long id)
+        {
+            LeaveActivitiesViewModel model = new LeaveActivitiesViewModel();
+            model.LeaveId = id;
+            if (id > 0)
+            {
+                var entities = await _lmsService.GetLeaveActivitiesAsync(id);
+                if (entities != null && entities.Count > 0)
+                {
+                    model.LeaveActivityList = entities.ToList();
+                }
+            }
+            return View(model);
+        }
+
+        public async Task<IActionResult> LeaveApprovals(long id, string sp, int yr)
+        {
+            LeaveApprovalListViewModel model = new LeaveApprovalListViewModel();
+            model.LeaveID = id;
+            model.LeaveYear = yr;
+            model.SourcePage = sp;
+            if (id > 0)
+            {
+                var entities = await _lmsService.GetLeaveApprovalsAsync(id);
+                if (entities != null && entities.Count > 0)
+                {
+                    model.LeaveApprovalList = entities.ToList();
+                }
+            }
+            return View(model);
+        }
         #endregion
 
 

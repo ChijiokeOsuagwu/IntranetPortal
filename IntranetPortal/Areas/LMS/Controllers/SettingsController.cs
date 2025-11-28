@@ -168,7 +168,7 @@ namespace IntranetPortal.Areas.LMS.Controllers
         {
             HolidayViewModel model = new HolidayViewModel();
             model.StartDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 0, 0, 0);
-            model.EndDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 24, 59, 59);
+            model.EndDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 23, 59, 59);
             model.HolidayYear = DateTime.Now.Year;
             return View(model);
         }

@@ -906,48 +906,56 @@ namespace IntranetPortal.Base.Services
                     break;
                 case 0:
                     if (Duration == 0) { endDate = StartDate.AddDays(-1); }
+                    else if(Duration == 1) { endDate = StartDate; }
                     else
                     {
                         DateTime newEndDate = StartDate;
-                        for (int i = 0; i <= Duration; i++)
+                        int counter = 1;
+                        do
                         {
+                            counter++;
+                            newEndDate = newEndDate.AddDays(1);
                             if (newEndDate.DayOfWeek == DayOfWeek.Saturday)
                             {
                                 newEndDate = newEndDate.AddDays(2);
                             }
-                            else if (newEndDate.DayOfWeek == DayOfWeek.Sunday)
-                            {
-                                newEndDate = newEndDate.AddDays(1);
-                            }
-                            else
-                            {
-                                newEndDate = newEndDate.AddDays(1);
-                            }
-                        }
+                        } while (counter < Duration);
+
+
+                        //for (int i = 1; i <= Duration; i++)
+                        //{
+                        //    if (newEndDate.DayOfWeek == DayOfWeek.Saturday)
+                        //    {
+                        //        newEndDate = newEndDate.AddDays(2);
+                        //        //i++;
+                        //    }
+                        //    else
+                        //    {
+                        //        newEndDate = newEndDate.AddDays(1);
+                        //    }
+                        //}
 
                         if (newEndDate.DayOfWeek == DayOfWeek.Saturday)
                         {
-                            newEndDate = newEndDate.AddDays(2);
+                            endDate = newEndDate.AddDays(2);
                         }
                         else if (newEndDate.DayOfWeek == DayOfWeek.Sunday)
                         {
-                            newEndDate = newEndDate.AddDays(1);
+                            endDate = newEndDate.AddDays(1);
                         }
-                        endDate = newEndDate;
-
+                        else
+                        {
+                            endDate = newEndDate;
+                        }
                         int noOfPublicHolidays = _publicHolidayRepository.GetByDateRangeAsync(StartDate, endDate).Result.Count;
                         if (noOfPublicHolidays > 0)
                         {
                             DateTime finalEndDate = endDate;
-                            for (int i = 0; i < noOfPublicHolidays; i++)
+                            for (int i = 1; i <= noOfPublicHolidays; i++)
                             {
                                 if (finalEndDate.DayOfWeek == DayOfWeek.Saturday)
                                 {
                                     finalEndDate = finalEndDate.AddDays(2);
-                                }
-                                else if (finalEndDate.DayOfWeek == DayOfWeek.Sunday)
-                                {
-                                    finalEndDate = finalEndDate.AddDays(1);
                                 }
                                 else
                                 {
@@ -963,6 +971,29 @@ namespace IntranetPortal.Base.Services
                     break;
             }
             return endDate;
+        }
+        
+        public async int GetLeaveBalance(string EmployeeId, string LeaveTypeCode, int LeaveYear)
+        {
+            //1.Get Leave Profile Details for the selected Leave Type
+            LeaveProfileDetail leaveProfileDetail = new LeaveProfileDetail();
+            var profileDetailEntity = _leaveProfileDetailRepository.GetByEmployeeIdnLeaveTypeAsync(EmployeeId, LeaveTypeCode).Result;
+            if(profileDetailEntity != null) { leaveProfileDetail = profileDetailEntity; }
+
+            //2.Get Total Leave Days from Profile Details (P)
+            int LeaveProfileDuration = leaveProfileDetail.Duration;
+            int LeaveProfileDurationType = leaveProfileDetail.DurationTypeId;
+
+            //3.If Leave Type is CarryOver Enabled : Get LeaveCarryOver Days(V)
+            if (leaveProfileDetail.CanBeCarriedOver)
+            {
+                //Get Total Number of Days of Leave Type used up the previous year.
+                
+            }
+
+            //4.Get Total Leave Days Used already(U)
+            //5.Calculate D = ((P + V) - U)
+            //6.Return D
         }
         #endregion
     }
