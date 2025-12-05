@@ -508,7 +508,6 @@ namespace IntranetPortal.Base.Services
         {
             return await _deskspaceRepository.DeleteFolderSubmissionAsync(folderSubmissionId);
         }
-
         public async Task<bool> DeleteFolderSubmissionsByToEmployeeIdAsync(string toEmployeeId)
         {
             return await _deskspaceRepository.DeleteFolderSubmissionsByToEmployeeIdAsync(toEmployeeId);

@@ -80,13 +80,13 @@
                                     <span class="fw-bolder">@item.LeaveTypeName</span>
                                 </td>
                                 <td>
-                                    <span class="fw-bolder">@item.LeaveStartDate.ToLongDateString()</span>
+                                    <span class="fw-bolder">@item.ApprovedLeaveStartDate?.ToLongDateString()</span>
                                 </td>
                                 <td>
-                                    <span class="fw-bolder">@item.LeaveEndDate.ToLongDateString()</span>
+                                    <span class="fw-bolder">@item.ApprovedLeaveEndDate?.ToLongDateString()</span>
                                 </td>
                                 <td>
-                                    <span class="fw-bolder">@item.Duration @item.DurationTypeDescription</span>
+                                    <span class="fw-bolder"> @item.ApprovedDurationDescription</span>
                                 </td>
                                 <td>
                                     <span class="fw-bolder">@item.LeaveStatus</span>

@@ -430,7 +430,6 @@ namespace IntranetPortal.Areas.WSP.Controllers
             }
             return View(model);
         }
-
         public async Task<IActionResult> TeamTaskList(long id, string od, string nm, int? ps = null, int? dm = null, string src = null)
         {
             TaskListViewModel model = new TaskListViewModel();
@@ -484,7 +483,6 @@ namespace IntranetPortal.Areas.WSP.Controllers
             }
             return View(model);
         }
-
         public async Task<IActionResult> MyArchivedEvaluations(long id, string fn, string od)
         {
             SubmittedEvaluationsViewModel model = new SubmittedEvaluationsViewModel();
@@ -725,7 +723,6 @@ namespace IntranetPortal.Areas.WSP.Controllers
             }
             return View(model);
         }
-
         public async Task<IActionResult> RescheduleTask(long id, long fd, string src = null)
         {
             RescheduleTaskViewModel model = new RescheduleTaskViewModel();
@@ -853,7 +850,6 @@ namespace IntranetPortal.Areas.WSP.Controllers
             }
             return View(model);
         }
-
         public async Task<IActionResult> DelegatedTaskList(string id = null, string ed = null, int? ps = null, DateTime? fd = null, DateTime? td = null)
         {
             DelegatedTaskListViewModel model = new DelegatedTaskListViewModel();
@@ -883,7 +879,6 @@ namespace IntranetPortal.Areas.WSP.Controllers
             }
             return View(model);
         }
-
         public async Task<IActionResult> DelegateTask(string ed = null, long? fd = null, string src = null, long? sd = null)
         {
             DelegateTaskViewModel model = new DelegateTaskViewModel();
@@ -917,7 +912,6 @@ namespace IntranetPortal.Areas.WSP.Controllers
             }
             return View(model);
         }
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DelegateTask(DelegateTaskViewModel model)
@@ -1054,7 +1048,6 @@ namespace IntranetPortal.Areas.WSP.Controllers
             }
             return View(model);
         }
-
         public async Task<IActionResult> ReassignTask(long id, long td, string src = null, long? sd = null)
         {
             ReassignTaskViewModel model = new ReassignTaskViewModel();
@@ -1114,7 +1107,6 @@ namespace IntranetPortal.Areas.WSP.Controllers
             }
             return View(model);
         }
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ReassignTask(ReassignTaskViewModel model)
@@ -1240,7 +1232,6 @@ namespace IntranetPortal.Areas.WSP.Controllers
             }
             return View(model);
         }
-
         public async Task<IActionResult> CheckDuplicates(string id, string kw, DateTime? sd = null, DateTime? ed = null)
         {
             CheckDuplicatesViewModel model = new CheckDuplicatesViewModel();
@@ -1277,7 +1268,6 @@ namespace IntranetPortal.Areas.WSP.Controllers
             model.FromEmployeeID = claims?.Where(x => x.Type == ClaimTypes.NameIdentifier).Select(c => c.Value).SingleOrDefault();
             return View(model);
         }
-
         [HttpPost]
         public async Task<IActionResult> SubmitTaskFolder(SubmitTaskFolderViewModel model)
         {
@@ -1420,7 +1410,6 @@ namespace IntranetPortal.Areas.WSP.Controllers
             }
             return View(model);
         }
-
         public async Task<IActionResult> SubmitHistory(long fd, string fn)
         {
             SubmitHistoryViewModel model = new SubmitHistoryViewModel();

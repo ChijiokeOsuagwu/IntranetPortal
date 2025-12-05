@@ -973,8 +973,9 @@ namespace IntranetPortal.Base.Services
             return endDate;
         }
         
-        public async int GetLeaveBalance(string EmployeeId, string LeaveTypeCode, int LeaveYear)
+        public int GetLeaveBalance(string EmployeeId, string LeaveTypeCode, int LeaveYear)
         {
+            int leaveBalance = 0;
             //1.Get Leave Profile Details for the selected Leave Type
             LeaveProfileDetail leaveProfileDetail = new LeaveProfileDetail();
             var profileDetailEntity = _leaveProfileDetailRepository.GetByEmployeeIdnLeaveTypeAsync(EmployeeId, LeaveTypeCode).Result;
@@ -994,6 +995,7 @@ namespace IntranetPortal.Base.Services
             //4.Get Total Leave Days Used already(U)
             //5.Calculate D = ((P + V) - U)
             //6.Return D
+            return leaveBalance;
         }
         #endregion
     }

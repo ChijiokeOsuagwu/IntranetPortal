@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace IntranetPortal.Areas.LMS.Models
 {
-    public class LeavePlanViewModel:BaseViewModel
+    public class LeavePlanViewModel : BaseViewModel
     {
         [Required]
         public long Id { get; set; }
@@ -16,14 +16,14 @@ namespace IntranetPortal.Areas.LMS.Models
         [Required]
         public string EmployeeId { get; set; }
 
-        [Display(Name ="Full Name")]
+        [Display(Name = "Full Name")]
         public string EmployeeFullName { get; set; }
 
-        [Display(Name ="Year")]
+        [Display(Name = "Year")]
         public int LeaveYear { get; set; }
 
         [Required]
-        [Display(Name ="Type")]
+        [Display(Name = "Type")]
         public string LeaveTypeCode { get; set; }
 
         [Display(Name = "Type")]
@@ -80,16 +80,16 @@ namespace IntranetPortal.Areas.LMS.Models
             {
                 DepartmentId = leave.DepartmentId,
                 DepartmentName = leave.DepartmentName,
-                Duration = leave.Duration,
-                DurationTypeDescription = leave.DurationTypeDescription,
-                DurationTypeId = leave.DurationTypeId,
+                Duration = leave.ProposedLeaveDuration,
+                DurationTypeDescription = leave.ProposedDurationDescription,
+                DurationTypeId = leave.ProposedDurationTypeId,
                 EmployeeFullName = leave.EmployeeFullName,
                 EmployeeId = leave.EmployeeId,
                 Id = leave.Id,
                 IsPlan = leave.IsPlan,
-                LeaveEndDate = leave.LeaveEndDate,
+                LeaveEndDate = leave.ProposedLeaveEndDate,
                 LeaveReason = leave.LeaveReason,
-                LeaveStartDate = leave.LeaveStartDate,
+                LeaveStartDate = leave.ProposedLeaveStartDate,
                 LeaveStatus = leave.LeaveStatus,
                 LeaveTypeCode = leave.LeaveTypeCode,
                 LeaveTypeName = leave.LeaveTypeName,
@@ -105,8 +105,8 @@ namespace IntranetPortal.Areas.LMS.Models
                 ApprovedByLineManager = leave.ApprovedByLineManager,
                 ApprovedByStationManager = leave.ApprovedByStationManager,
 
-                ResumptionDate = leave.ResumptionDate,
-                CloseRequestDate = leave.CloseRequestDate,
+                //ResumptionDate = leave.ResumptionDate,
+                CloseRequestDate = leave.RequestCloseDate,
 
                 LineManagersResumptionDate = leave.LineManagerConfirmResumptionDate,
                 LineManagerConfirmResumptionBy = leave.LineManagerConfirmResumptionBy,
@@ -116,47 +116,48 @@ namespace IntranetPortal.Areas.LMS.Models
                 HrConfirmResumptionBy = leave.HrConfirmResumptionBy,
             };
         }
+        //public EmployeeLeave Convert()
         public EmployeeLeave Convert()
         {
-            return new EmployeeLeave
-            {
-                DepartmentId = DepartmentId,
-                DepartmentName = DepartmentName,
-                Duration = Duration,
-                DurationTypeDescription = DurationTypeDescription,
-                DurationTypeId = DurationTypeId,
-                EmployeeFullName = EmployeeFullName,
-                EmployeeId = EmployeeId,
-                Id = Id,
-                IsPlan = IsPlan,
-                LeaveEndDate = LeaveEndDate ?? DateTime.Today,
-                LeaveReason = LeaveReason,
-                LeaveStartDate = LeaveStartDate,
-                LeaveStatus = LeaveStatus,
-                LeaveTypeCode = LeaveTypeCode,
-                LeaveTypeName = LeaveTypeName,
-                LeaveYear = LeaveYear,
-                LocationId = LocationId,
-                LocationName = LocationName,
-                UnitId = UnitId,
-                UnitName = UnitName,
+            EmployeeLeave e = new EmployeeLeave();
 
-                ApprovedByExecutiveManagement = ApprovedByExecutiveManagement,
-                ApprovedByHeadOfDepartment = ApprovedByHeadOfDepartment,
-                ApprovedByHR = ApprovedByHR,
-                ApprovedByLineManager = ApprovedByLineManager,
-                ApprovedByStationManager = ApprovedByStationManager,
+            e.DepartmentId = DepartmentId;
+            e.DepartmentName = DepartmentName;
+            e.ProposedLeaveDuration = Duration;
+            e.ProposedDurationDescription = DurationTypeDescription;
+            e.ProposedDurationTypeId = DurationTypeId;
+            e.EmployeeFullName = EmployeeFullName;
+            e.EmployeeId = EmployeeId;
+            e.Id = Id;
+            e.IsPlan = IsPlan;
+            e.ProposedLeaveEndDate = LeaveEndDate ?? DateTime.Today;
+            e.LeaveReason = LeaveReason;
+            e.ProposedLeaveStartDate = LeaveStartDate;
+            e.LeaveStatus = LeaveStatus;
+            e.LeaveTypeCode = LeaveTypeCode;
+            e.LeaveTypeName = LeaveTypeName;
+            e.LeaveYear = LeaveYear;
+            e.LocationId = LocationId;
+            e.LocationName = LocationName;
+            e.UnitId = UnitId;
+            e.UnitName = UnitName;
 
-                ResumptionDate = ResumptionDate,
-                CloseRequestDate = CloseRequestDate,
+            e.ApprovedByExecutiveManagement = ApprovedByExecutiveManagement;
+            e.ApprovedByHeadOfDepartment = ApprovedByHeadOfDepartment;
+            e.ApprovedByHR = ApprovedByHR;
+            e.ApprovedByLineManager = ApprovedByLineManager;
+            e.ApprovedByStationManager = ApprovedByStationManager;
 
-                LineManagersResumptionDate = LineManagerConfirmResumptionDate,
-                LineManagerConfirmResumptionBy = LineManagerConfirmResumptionBy,
-                LineManagerConfirmResumptionDate = LineManagerConfirmResumptionDate,
+            //ResumptionDate = ResumptionDate,
+            e.RequestCloseDate = CloseRequestDate;
 
-                HrConfirmResumptionDate = HrConfirmResumptionDate,
-                HrConfirmResumptionBy = HrConfirmResumptionBy,
-            };
-        }
+            e.LineManagersResumptionDate = LineManagerConfirmResumptionDate;
+            e.LineManagerConfirmResumptionBy = LineManagerConfirmResumptionBy;
+            e.LineManagerConfirmResumptionDate = LineManagerConfirmResumptionDate;
+
+            e.HrConfirmResumptionDate = HrConfirmResumptionDate;
+            e.HrConfirmResumptionBy = HrConfirmResumptionBy;
+            return e;
+    }
     }
 }

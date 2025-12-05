@@ -32,7 +32,6 @@ namespace IntranetPortal.Areas.GlobalSettings.Controllers
             _dataProtector = dataProtectionProvider.CreateProtector(dataProtectionEncryptionStrings.RouteValuesEncryptionCode);
         }
 
-        //================================= Station Action Methods =====================================================================//
         #region Station Action Methods
 
         [Authorize(Roles = "GBSVWASTT, GBSMGASTT, XYALLACCZ")]
@@ -204,7 +203,6 @@ namespace IntranetPortal.Areas.GlobalSettings.Controllers
         }
         #endregion
 
-        //==================================== Bureau Action Methods =================================================//
         #region Bureaus Action Methods
 
         [Authorize(Roles = "GBSVWASTT, GBSMGASTT, XYALLACCZ")]
@@ -382,7 +380,259 @@ namespace IntranetPortal.Areas.GlobalSettings.Controllers
 
         #endregion
 
-        //======================================= Locations Helper Methods ===========================================//
+        #region Location Groups Actions
+
+        [Authorize(Roles = "GBSVWASTT, GBSMGASTT, XYALLACCZ")]
+        public async Task<IActionResult> LocationGroups()
+        {
+            LocationGroupListViewModel model = new LocationGroupListViewModel();
+            try
+            {
+                model.LocationGroupList = await _globalSettingsService.GetAllLocationGroupsAsync();
+            }
+            catch (Exception ex)
+            {
+                model.ViewModelErrorMessage = ex.Message;
+            }
+            return View(model);
+        }
+
+        [Authorize(Roles = "GBSMGASTT, XYALLACCZ")]
+        [HttpGet]
+        public async Task<IActionResult> ManageLocationGroup(int id)
+        {
+            LocationGroupViewModel model = new LocationGroupViewModel();
+            if (id > 0)
+            {
+                var entity = await _globalSettingsService.GetLocationGroupByIdAsync(id);
+                if (entity != null)
+                {
+                    model.LocationGroupId = entity.LocationGroupId;
+                    model.LocationGroupName = entity.LocationGroupName;
+                }
+            }
+            return View(model);
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "GBSMGASTT, XYALLACCZ")]
+        public async Task<IActionResult> ManageLocationGroup(LocationGroupViewModel model)
+        {
+            try
+            {
+                LocationGroup locationGroup = new LocationGroup();
+                locationGroup.LocationGroupName = model.LocationGroupName.ToUpper();
+                locationGroup.LocationGroupId = model.LocationGroupId;
+                if (ModelState.IsValid)
+                {
+                    if (model.LocationGroupId < 1)
+                    {
+                        if (await _globalSettingsService.CreateLocationGroupAsync(locationGroup))
+                        {
+                            return RedirectToAction("LocationGroups");
+                        }
+                    }
+                    else
+                    {
+                        if (await _globalSettingsService.UpdateLocationGroupAsync(locationGroup))
+                        {
+                            return RedirectToAction("LocationGroups");
+                        }
+                    }
+                }
+                else
+                {
+                    model.ViewModelErrorMessage = $"Ooops! It appears some fields have missing or invalid values. Please correct this and try again.";
+                    model.OperationIsCompleted = true;
+                }
+            }
+            catch (Exception ex)
+            {
+                model.ViewModelErrorMessage = ex.Message;
+            }
+            return View(model);
+        }
+
+
+        #endregion
+
+        //==== Team Members Controller Actions ===//
+        #region Team Members Actions
+
+        [Authorize(Roles = "GBSVWASTT, GBSMGASTT, XYALLACCZ")]
+        public async Task<IActionResult> Members(string id, string searchString = null)
+        {
+            TeamMembersListViewModel model = new TeamMembersListViewModel();
+            List<TeamMember> teamMembersList = new List<TeamMember>();
+            if (!string.IsNullOrEmpty(id))
+            {
+                model.TeamID = id;
+                if (string.IsNullOrWhiteSpace(searchString))
+                {
+                    var entities = await _globalSettingsService.GetTeamMembersByTeamIdAsync(id);
+                    teamMembersList = entities.ToList();
+                }
+                else
+                {
+                    var entities = await _globalSettingsService.GetTeamMembersByMemberNameAsync(id, searchString);
+                    teamMembersList = entities.ToList();
+                }
+            }
+
+            model.TeamMembersList = teamMembersList;
+            return View(model);
+        }
+
+        [HttpGet]
+        [Authorize(Roles = "GBSMGASTT, XYALLACCZ")]
+        public async Task<IActionResult> AddMember(string id)
+        {
+            TeamMemberViewModel model = new TeamMemberViewModel();
+            if (!string.IsNullOrWhiteSpace(id))
+            {
+                model.TeamID = id;
+                var employees = await _globalSettingsService.GetNonTeamMembersByTeamIdAsync(id);
+                ViewBag.StaffList = new SelectList(employees, "EmployeeID", "FullName");
+            }
+
+            return View(model);
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "GBSMGASTT, XYALLACCZ")]
+        public async Task<IActionResult> AddMember(TeamMemberViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    TeamMember teamMember = model.ConvertToTeamMember();
+                    teamMember.ModifiedBy = HttpContext.User.Identity.Name;
+                    bool succeeded = await _globalSettingsService.CreateTeamMemberAsync(teamMember);
+                    if (succeeded)
+                    {
+                        model.OperationIsCompleted = true;
+                        model.OperationIsSuccessful = true;
+                        model.ViewModelSuccessMessage = $"New Team Member was added successfully!";
+                    }
+                }
+                catch (Exception ex)
+                {
+                    model.ViewModelErrorMessage = ex.Message;
+                    model.OperationIsCompleted = true;
+                }
+            }
+            else
+            {
+                model.ViewModelErrorMessage = $"Ooops! It appears some fields have missing or invalid values. Please correct this and try again.";
+                model.OperationIsCompleted = true;
+            }
+            var employees = await _globalSettingsService.GetNonTeamMembersByTeamIdAsync(model.TeamID);
+            ViewBag.StaffList = new SelectList(employees, "EmployeeID", "FullName");
+            return View(model);
+        }
+
+        [HttpGet]
+        [Authorize(Roles = "GBSMGASTT, XYALLACCZ")]
+        public async Task<IActionResult> EditMember(int id)
+        {
+            TeamMemberViewModel model = new TeamMemberViewModel();
+            if (id >= 1)
+            {
+                var member = await _globalSettingsService.GetTeamMemberByIdAsync(id);
+                model.TeamMemberID = member.TeamMemberID;
+                model.TeamID = member.TeamID;
+                model.MemberID = member.MemberID;
+                model.MemberName = member.FullName;
+                model.MemberRole = member.MemberRole;
+            }
+            return View(model);
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "GBSMGASTT, XYALLACCZ")]
+        public async Task<IActionResult> EditMember(TeamMemberViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    TeamMember teamMember = model.ConvertToTeamMember();
+                    teamMember.ModifiedBy = HttpContext.User.Identity.Name;
+                    bool succeeded = await _globalSettingsService.UpdateTeamMemberAsync(teamMember);
+                    if (succeeded)
+                    {
+                        model.OperationIsCompleted = true;
+                        model.OperationIsSuccessful = true;
+                        model.ViewModelSuccessMessage = $"New Team Member was updated successfully!";
+                    }
+                }
+                catch (Exception ex)
+                {
+                    model.ViewModelErrorMessage = ex.Message;
+                    model.OperationIsCompleted = true;
+                }
+            }
+            else
+            {
+                model.ViewModelErrorMessage = $"Ooops! Some fields have invalid values. Please correct this and try again.";
+                model.OperationIsCompleted = true;
+            }
+            return View(model);
+        }
+
+        [HttpGet]
+        [Authorize(Roles = "GBSMGASTT, XYALLACCZ")]
+        public async Task<IActionResult> RemoveMember(int id)
+        {
+            TeamMemberViewModel model = new TeamMemberViewModel();
+            if (id >= 1)
+            {
+                var member = await _globalSettingsService.GetTeamMemberByIdAsync(id);
+                model.TeamMemberID = member.TeamMemberID;
+                model.TeamID = member.TeamID;
+                model.MemberID = member.MemberID;
+                model.MemberName = member.FullName;
+                model.MemberRole = member.MemberRole;
+            }
+            return View(model);
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "GBSMGASTT, XYALLACCZ")]
+        public async Task<IActionResult> RemoveMember(TeamMemberViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    bool succeeded = await _globalSettingsService.DeleteTeamMemberAsync(model.TeamMemberID.Value);
+                    if (succeeded)
+                    {
+                        model.OperationIsCompleted = true;
+                        model.OperationIsSuccessful = true;
+                        model.ViewModelSuccessMessage = $"Team Member was removed successfully!";
+                        return RedirectToAction("Members", new { id = model.TeamID });
+                    }
+                }
+                catch (Exception ex)
+                {
+                    model.ViewModelErrorMessage = ex.Message;
+                    model.OperationIsCompleted = true;
+                }
+            }
+            else
+            {
+                model.ViewModelErrorMessage = $"Ooops! Some fields have invalid values. Please correct this and try again.";
+                model.OperationIsCompleted = true;
+            }
+            return View(model);
+        }
+
+        #endregion
+
+
+        //========= Locations Helper Methods =========//
         #region Locations Helper Methods
         [HttpGet]
         public JsonResult GetStateNames(string stateName)

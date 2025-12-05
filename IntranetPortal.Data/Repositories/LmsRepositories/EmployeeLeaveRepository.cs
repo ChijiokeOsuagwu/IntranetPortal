@@ -18,7 +18,6 @@ namespace IntranetPortal.Data.Repositories.LmsRepositories
             _config = configuration;
         }
 
-
         #region Employee Leave Write Action Methods
         //===  Leave Write Action Methods =======//
         public async Task<long> AddAsync(EmployeeLeave e)
@@ -115,12 +114,12 @@ namespace IntranetPortal.Data.Repositories.LmsRepositories
         {
             int rows = 0;
             StringBuilder sb = new StringBuilder();
-            sb.Append("UPDATE public.lms_lvs_infs SET emp_id=@emp_id, ");
-            sb.Append("lvs_yr=@lvs_yr, lvs_typ_cd=@lvs_typ_cd, lvs_rsn=@lvs_rsn, ");
-            sb.Append("lvs_sts=@lvs_sts, lvs_sdt=@lvs_sdt, lvs_edt=@lvs_edt, ");
-            sb.Append("lvs_dur=@lvs_dur, unit_id=@unit_id, dept_id=@dept_id, ");
-            sb.Append("loc_id=@loc_id, is_pln=@is_pln, dur_typ=@dur_typ ");
+            sb.Append("UPDATE public.lms_lvs_infs SET emp_id=@emp_id, unit_id=@unit_id, ");
+            sb.Append("dept_id=@dept_id, loc_id=loc_id, lvs_yr=@lvs_yr, lvs_typ_cd=@lvs_typ_cd, ");
+            sb.Append("lvs_rsn=@lvs_rsn, lvs_sts=@lvs_sts, is_pln=@is_pln, prp_lvs_sdt=@prp_lvs_sdt, ");
+            sb.Append("prp_lvs_edt=@prp_lvs_edt, prp_lvs_dur=@prp_lvs_dur, prp_dur_ds=@prp_dur_ds ");
             sb.Append("WHERE (lvs_inf_id=@lvs_inf_id); ");
+
             string query = sb.ToString();
 
             using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
@@ -130,34 +129,43 @@ namespace IntranetPortal.Data.Repositories.LmsRepositories
                 using (var cmd = new NpgsqlCommand(query, conn))
                 {
                     var lvs_inf_id = cmd.Parameters.Add("@lvs_inf_id", NpgsqlDbType.Bigint);
-                    var emp_id = cmd.Parameters.Add("@emp_id", NpgsqlDbType.Text);
+                    var emp_id = cmd.Parameters.Add("emp_id", NpgsqlDbType.Text);
+                    var unit_id = cmd.Parameters.Add("@unit_id", NpgsqlDbType.Integer);
+                    var dept_id = cmd.Parameters.Add("@dept_id", NpgsqlDbType.Integer);
+                    var loc_id = cmd.Parameters.Add("@loc_id", NpgsqlDbType.Integer);
+
                     var lvs_yr = cmd.Parameters.Add("@lvs_yr", NpgsqlDbType.Integer);
                     var lvs_typ_cd = cmd.Parameters.Add("@lvs_typ_cd", NpgsqlDbType.Text);
                     var lvs_rsn = cmd.Parameters.Add("@lvs_rsn", NpgsqlDbType.Text);
                     var lvs_sts = cmd.Parameters.Add("@lvs_sts", NpgsqlDbType.Text);
-                    var lvs_sdt = cmd.Parameters.Add("@lvs_sdt", NpgsqlDbType.TimestampTz);
-                    var lvs_edt = cmd.Parameters.Add("@lvs_edt", NpgsqlDbType.TimestampTz);
-                    var lvs_dur = cmd.Parameters.Add("@lvs_dur", NpgsqlDbType.Integer);
-                    var dur_typ = cmd.Parameters.Add("@dur_typ", NpgsqlDbType.Integer);
-                    var unit_id = cmd.Parameters.Add("@unit_id", NpgsqlDbType.Integer);
-                    var dept_id = cmd.Parameters.Add("@dept_id", NpgsqlDbType.Integer);
-                    var loc_id = cmd.Parameters.Add("@loc_id", NpgsqlDbType.Integer);
                     var is_pln = cmd.Parameters.Add("@is_pln", NpgsqlDbType.Boolean);
+
+                    var prp_lvs_sdt = cmd.Parameters.Add("@prp_lvs_sdt", NpgsqlDbType.TimestampTz);
+                    var prp_lvs_edt = cmd.Parameters.Add("@prp_lvs_edt", NpgsqlDbType.TimestampTz);
+                    var prp_lvs_dur = cmd.Parameters.Add("@prp_lvs_dur", NpgsqlDbType.Integer);
+                    var prp_lvs_dur_typ = cmd.Parameters.Add("@prp_lvs_dur_typ", NpgsqlDbType.Integer);
+                    var prp_dur_ds = cmd.Parameters.Add("@prp_dur_ds", NpgsqlDbType.Integer);
+
                     cmd.Prepare();
+
                     lvs_inf_id.Value = e.Id;
                     emp_id.Value = e.EmployeeId;
-                    lvs_yr.Value = e.LeaveYear;
-                    lvs_typ_cd.Value = e.LeaveTypeCode;
-                    lvs_rsn.Value = e.LeaveReason;
-                    lvs_sts.Value = e.LeaveStatus;
-                    lvs_sdt.Value = e.LeaveStartDate;
-                    lvs_edt.Value = e.LeaveEndDate;
-                    lvs_dur.Value = e.Duration;
-                    dur_typ.Value = e.DurationTypeId;
                     unit_id.Value = e.UnitId;
                     dept_id.Value = e.DepartmentId;
                     loc_id.Value = e.LocationId;
+
+                    lvs_yr.Value = e.LeaveYear;
+                    lvs_typ_cd.Value = e.LeaveTypeCode;
+                    lvs_rsn.Value = e.LeaveReason ?? (object)DBNull.Value;
+                    lvs_sts.Value = e.LeaveStatus;
                     is_pln.Value = e.IsPlan;
+
+                    prp_lvs_sdt.Value = e.ProposedLeaveStartDate;
+                    prp_lvs_edt.Value = e.ProposedLeaveEndDate;
+                    prp_lvs_dur.Value = e.ProposedLeaveDuration;
+                    prp_lvs_dur_typ.Value = e.ProposedDurationTypeId;
+                    prp_dur_ds.Value = e.ProposedDurationDescription;
+
                     rows = await cmd.ExecuteNonQueryAsync();
                     await conn.CloseAsync();
                 }
@@ -237,6 +245,8 @@ namespace IntranetPortal.Data.Repositories.LmsRepositories
         #endregion
 
         #region Employee Leave Read Action Methods
+
+        #region Employee Leaves By Employee ID
         //=== Employee Leaves By Employee ID Read Action Methods ========//
         public async Task<List<EmployeeLeave>> GetByEmployeeIdAsync(string employeeId, bool isPlan)
         {
@@ -244,28 +254,26 @@ namespace IntranetPortal.Data.Repositories.LmsRepositories
             string query = string.Empty;
             StringBuilder sb = new StringBuilder();
 
-            sb.Append("SELECT v.lvs_inf_id, v.emp_id, v.lvs_yr, v.lvs_typ_cd, ");
-            sb.Append("v.lvs_rsn, v.lvs_sts, v.lvs_sdt, v.lvs_edt, v.lvs_dur, ");
-            sb.Append("v.unit_id, v.dept_id, v.loc_id, v.is_pln, v.dur_typ, ");
-            sb.Append("CASE WHEN v.dur_typ = 0 THEN 'Working Day(s)' ");
-            sb.Append("WHEN v.dur_typ = 1 THEN 'Day(s)' ");
-            sb.Append("WHEN v.dur_typ = 2 THEN 'Week(s)' ");
-            sb.Append("WHEN v.dur_typ = 3 THEN 'Month(s)' ");
-            sb.Append("WHEN v.dur_typ = 4 THEN 'Year(s)' END as dur_typ_ds, ");
+            sb.Append("SELECT v.lvs_inf_id, v.emp_id, v.unit_id, v.dept_id, ");
+            sb.Append("v.loc_id, v.lvs_yr, v.lvs_typ_cd, v.lvs_rsn, v.lvs_sts, ");
+            sb.Append("v.is_pln, v.prp_lvs_sdt, v.prp_lvs_edt, v.prp_lvs_dur, ");
+            sb.Append("v.act_lvs_dur, v.prp_dur_ds, v.apv_lvs_sdt, v.apv_lvs_edt,  ");
+            sb.Append("v.apv_lvs_dur, v.apv_dur_ds, v.act_lvs_sdt, v.act_lvs_edt, "); 
+            sb.Append("v.act_dur_ds, v.lm_rsmptn_dt, v.lm_confm_dt, v.lm_confm_by, ");
+            sb.Append("v.hr_rsmptn_dt, v.hr_confm_dt, v.hr_confm_by, v.rqs_cls_dt, ");
+            sb.Append("v.is_lm_aprv, v.is_hd_aprv, v.is_hr_aprv, v.is_xm_aprv, ");
+            sb.Append("v.is_sm_aprv, v.prp_lvs_dur_typ, v.apv_lvs_dur_typ, v.act_lvs_dur_typ,  ");
             sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = v.emp_id) ");
             sb.Append("as emp_nm, (SELECT lvs_typ_nm FROM public.lms_lvs_typs ");
             sb.Append("WHERE lvs_typ_cd = v.lvs_typ_cd) as lvs_typ_nm, ");
             sb.Append("(SELECT unitname FROM public.gst_units WHERE unitqk = v.unit_id) ");
             sb.Append("as unit_nm, (SELECT deptname FROM public.gst_depts WHERE deptqk ");
             sb.Append("= v.dept_id) as dept_nm, (SELECT locname FROM public.gst_locs ");
-            sb.Append("WHERE locqk = v.loc_id) as loc_nm, v.rsmptn_dt, ");
-            sb.Append("v.cls_rqs_dt, v.lm_rsmptn_dt, v.lm_confm_dt, ");
-            sb.Append("v.lm_confm_by, v.hr_confm_dt, v.hr_confm_by, ");
-            sb.Append("v.is_lm_aprv, v.is_hd_aprv, v.is_hr_aprv,  ");
-            sb.Append("v.is_xm_aprv, v.is_sm_aprv ");
+            sb.Append("WHERE locqk = v.loc_id) as loc_nm ");
             sb.Append("FROM public.lms_lvs_infs v ");
-            sb.Append("WHERE (v.emp_id = @emp_id ");
-            sb.Append("AND v.is_pln = @is_pln) ORDER BY v.lvs_sdt; ");
+            sb.Append("WHERE (v.emp_id=@emp_id) AND v.is_pln = @is_pln) ");
+            sb.Append("ORDER BY v.prp_lvs_sdt; ");
+
             query = sb.ToString();
             using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
             {
@@ -286,29 +294,46 @@ namespace IntranetPortal.Data.Repositories.LmsRepositories
                             Id = reader["lvs_inf_id"] == DBNull.Value ? 0L : (long)reader["lvs_inf_id"],
                             EmployeeId = reader["emp_id"] == DBNull.Value ? string.Empty : reader["emp_id"].ToString(),
                             EmployeeFullName = reader["emp_nm"] == DBNull.Value ? string.Empty : reader["emp_nm"].ToString(),
-                            LeaveYear = reader["lvs_yr"] == DBNull.Value ? 1900 : (int)reader["lvs_yr"],
-                            LeaveTypeCode = reader["lvs_typ_cd"] == DBNull.Value ? string.Empty : reader["lvs_typ_cd"].ToString(),
-                            LeaveTypeName = reader["lvs_typ_nm"] == DBNull.Value ? string.Empty : reader["lvs_typ_nm"].ToString(),
-                            LeaveReason = reader["lvs_rsn"] == DBNull.Value ? string.Empty : reader["lvs_rsn"].ToString(),
-                            LeaveStatus = reader["lvs_sts"] == DBNull.Value ? string.Empty : reader["lvs_sts"].ToString(),
-                            LeaveStartDate = reader["lvs_sdt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["lvs_sdt"],
-                            LeaveEndDate = reader["lvs_edt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["lvs_edt"],
-                            Duration = reader["lvs_dur"] == DBNull.Value ? 0 : (int)reader["lvs_dur"],
-                            DurationTypeId = reader["dur_typ"] == DBNull.Value ? 0 : (int)reader["dur_typ"],
-                            DurationTypeDescription = reader["dur_typ_ds"] == DBNull.Value ? string.Empty : reader["dur_typ_ds"].ToString(),
+
                             UnitId = reader["unit_id"] == DBNull.Value ? 0 : (int)reader["unit_id"],
                             UnitName = reader["unit_nm"] == DBNull.Value ? string.Empty : reader["unit_nm"].ToString(),
                             DepartmentId = reader["dept_id"] == DBNull.Value ? 0 : (int)reader["dept_id"],
                             DepartmentName = reader["dept_nm"] == DBNull.Value ? string.Empty : reader["dept_nm"].ToString(),
                             LocationId = reader["loc_id"] == DBNull.Value ? 0 : (int)reader["loc_id"],
                             LocationName = reader["loc_nm"] == DBNull.Value ? string.Empty : reader["loc_nm"].ToString(),
+
+                            LeaveYear = reader["lvs_yr"] == DBNull.Value ? 1900 : (int)reader["lvs_yr"],
+                            LeaveTypeCode = reader["lvs_typ_cd"] == DBNull.Value ? string.Empty : reader["lvs_typ_cd"].ToString(),
+                            LeaveTypeName = reader["lvs_typ_nm"] == DBNull.Value ? string.Empty : reader["lvs_typ_nm"].ToString(),
+                            LeaveReason = reader["lvs_rsn"] == DBNull.Value ? string.Empty : reader["lvs_rsn"].ToString(),
+                            LeaveStatus = reader["lvs_sts"] == DBNull.Value ? string.Empty : reader["lvs_sts"].ToString(),
                             IsPlan = reader["is_pln"] == DBNull.Value ? true : (bool)reader["is_pln"],
 
-                            ResumptionDate = reader["rsmptn_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["rsmptn_dt"],
-                            CloseRequestDate = reader["cls_rqs_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["cls_rqs_dt"],
+                            ProposedLeaveStartDate = reader["prp_lvs_sdt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["prp_lvs_sdt"],
+                            ProposedLeaveEndDate = reader["prp_lvs_edt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["prp_lvs_edt"],
+                            ProposedLeaveDuration = reader["prp_lvs_dur"] == DBNull.Value ? 0 : (int)reader["prp_lvs_dur"],
+                            ProposedDurationTypeId = reader["prp_lvs_dur_typ"] == DBNull.Value ? 0 : (int)reader["prp_lvs_dur_typ"],
+                            ProposedDurationDescription = reader["prp_dur_ds"] == DBNull.Value ? string.Empty : reader["prp_dur_ds"].ToString(),
+
+                            ApprovedLeaveStartDate = reader["apv_lvs_sdt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["apv_lvs_sdt"],
+                            ApprovedLeaveEndDate = reader["apv_lvs_edt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["apv_lvs_edt"],
+                            ApprovedLeaveDuration = reader["apv_lvs_dur"] == DBNull.Value ? 0 : (int)reader["apv_lvs_dur"],
+                            ApprovedDurationTypeId = reader["apv_lvs_dur_typ"] == DBNull.Value ? 0 : (int)reader["apv_lvs_dur_typ"],
+                            ApprovedDurationDescription = reader["apv_dur_ds"] == DBNull.Value ? string.Empty : reader["apv_dur_ds"].ToString(),
+
+                            ActualLeaveStartDate = reader["act_lvs_sdt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["act_lvs_sdt"],
+                            ActualLeaveEndDate = reader["act_lvs_edt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["act_lvs_edt"],
+                            ActualLeaveDuration = reader["act_lvs_dur"] == DBNull.Value ? 0 : (int)reader["act_lvs_dur"],
+                            ActualDurationTypeId = reader["act_lvs_dur_typ"] == DBNull.Value ? 0 : (int)reader["act_lvs_dur_typ"],
+                            ActualDurationDescription = reader["act_dur_ds"] == DBNull.Value ? string.Empty : reader["act_dur_ds"].ToString(),
+
+                            RequestCloseDate = reader["rqs_cls_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["rqs_cls_dt"],
+                           
                             LineManagersResumptionDate = reader["lm_rsmptn_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["lm_rsmptn_dt"],
                             LineManagerConfirmResumptionDate = reader["lm_confm_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["lm_confm_dt"],
                             LineManagerConfirmResumptionBy = reader["lm_confm_by"] == DBNull.Value ? string.Empty : reader["lm_confm_by"].ToString(),
+                            
+                            HrResumptionDate = reader["hr_rsmptn_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["hr_rsmptn_dt"],
                             HrConfirmResumptionDate = reader["hr_confm_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["hr_confm_dt"],
                             HrConfirmResumptionBy = reader["hr_confm_by"] == DBNull.Value ? string.Empty : reader["hr_confm_by"].ToString(),
 
@@ -329,29 +354,26 @@ namespace IntranetPortal.Data.Repositories.LmsRepositories
             List<EmployeeLeave> leaveList = new List<EmployeeLeave>();
             string query = string.Empty;
             StringBuilder sb = new StringBuilder();
-
-            sb.Append("SELECT v.lvs_inf_id, v.emp_id, v.lvs_yr, v.lvs_typ_cd, ");
-            sb.Append("v.lvs_rsn, v.lvs_sts, v.lvs_sdt, v.lvs_edt, v.lvs_dur, ");
-            sb.Append("v.unit_id, v.dept_id, v.loc_id, v.is_pln, v.dur_typ, ");
-            sb.Append("CASE WHEN v.dur_typ = 0 THEN 'Working Day(s)' ");
-            sb.Append("WHEN v.dur_typ = 1 THEN 'Day(s)' ");
-            sb.Append("WHEN v.dur_typ = 2 THEN 'Week(s)' ");
-            sb.Append("WHEN v.dur_typ = 3 THEN 'Month(s)' ");
-            sb.Append("WHEN v.dur_typ = 4 THEN 'Year(s)' END as dur_typ_ds, ");
+            sb.Append("SELECT v.lvs_inf_id, v.emp_id, v.unit_id, v.dept_id, ");
+            sb.Append("v.loc_id, v.lvs_yr, v.lvs_typ_cd, v.lvs_rsn, v.lvs_sts, ");
+            sb.Append("v.is_pln, v.prp_lvs_sdt, v.prp_lvs_edt, v.prp_lvs_dur, ");
+            sb.Append("v.act_lvs_dur, v.prp_dur_ds, v.apv_lvs_sdt, v.apv_lvs_edt,  ");
+            sb.Append("v.apv_lvs_dur, v.apv_dur_ds, v.act_lvs_sdt, v.act_lvs_edt, ");
+            sb.Append("v.act_dur_ds, v.lm_rsmptn_dt, v.lm_confm_dt, v.lm_confm_by, ");
+            sb.Append("v.hr_rsmptn_dt, v.hr_confm_dt, v.hr_confm_by, v.rqs_cls_dt, ");
+            sb.Append("v.is_lm_aprv, v.is_hd_aprv, v.is_hr_aprv, v.is_xm_aprv, ");
+            sb.Append("v.is_sm_aprv, v.prp_lvs_dur_typ, v.apv_lvs_dur_typ, v.act_lvs_dur_typ,  ");
             sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = v.emp_id) ");
             sb.Append("as emp_nm, (SELECT lvs_typ_nm FROM public.lms_lvs_typs ");
             sb.Append("WHERE lvs_typ_cd = v.lvs_typ_cd) as lvs_typ_nm, ");
             sb.Append("(SELECT unitname FROM public.gst_units WHERE unitqk = v.unit_id) ");
             sb.Append("as unit_nm, (SELECT deptname FROM public.gst_depts WHERE deptqk ");
             sb.Append("= v.dept_id) as dept_nm, (SELECT locname FROM public.gst_locs ");
-            sb.Append("WHERE locqk = v.loc_id) as loc_nm, v.rsmptn_dt, ");
-            sb.Append("v.cls_rqs_dt, v.lm_rsmptn_dt, v.lm_confm_dt, ");
-            sb.Append("v.lm_confm_by, v.hr_confm_dt, v.hr_confm_by, ");
-            sb.Append("v.is_lm_aprv, v.is_hd_aprv, v.is_hr_aprv,  ");
-            sb.Append("v.is_xm_aprv, v.is_sm_aprv ");
+            sb.Append("WHERE locqk = v.loc_id) as loc_nm ");
             sb.Append("FROM public.lms_lvs_infs v ");
-            sb.Append("WHERE (v.emp_id = @emp_id AND v.lvs_yr = @lvs_yr ");
-            sb.Append("AND v.is_pln = @is_pln) ORDER BY v.lvs_sdt; ");
+            sb.Append("WHERE (v.emp_id = @emp_id) AND (v.is_pln = @is_pln) ");
+            sb.Append("AND (v.lvs_yr = @lvs_yr) ORDER BY v.prp_lvs_sdt; ");
+
             query = sb.ToString();
             using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
             {
@@ -374,29 +396,46 @@ namespace IntranetPortal.Data.Repositories.LmsRepositories
                             Id = reader["lvs_inf_id"] == DBNull.Value ? 0L : (long)reader["lvs_inf_id"],
                             EmployeeId = reader["emp_id"] == DBNull.Value ? string.Empty : reader["emp_id"].ToString(),
                             EmployeeFullName = reader["emp_nm"] == DBNull.Value ? string.Empty : reader["emp_nm"].ToString(),
-                            LeaveYear = reader["lvs_yr"] == DBNull.Value ? 1900 : (int)reader["lvs_yr"],
-                            LeaveTypeCode = reader["lvs_typ_cd"] == DBNull.Value ? string.Empty : reader["lvs_typ_cd"].ToString(),
-                            LeaveTypeName = reader["lvs_typ_nm"] == DBNull.Value ? string.Empty : reader["lvs_typ_nm"].ToString(),
-                            LeaveReason = reader["lvs_rsn"] == DBNull.Value ? string.Empty : reader["lvs_rsn"].ToString(),
-                            LeaveStatus = reader["lvs_sts"] == DBNull.Value ? string.Empty : reader["lvs_sts"].ToString(),
-                            LeaveStartDate = reader["lvs_sdt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["lvs_sdt"],
-                            LeaveEndDate = reader["lvs_edt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["lvs_edt"],
-                            Duration = reader["lvs_dur"] == DBNull.Value ? 0 : (int)reader["lvs_dur"],
-                            DurationTypeId = reader["dur_typ"] == DBNull.Value ? 0 : (int)reader["dur_typ"],
-                            DurationTypeDescription = reader["dur_typ_ds"] == DBNull.Value ? string.Empty : reader["dur_typ_ds"].ToString(),
+
                             UnitId = reader["unit_id"] == DBNull.Value ? 0 : (int)reader["unit_id"],
                             UnitName = reader["unit_nm"] == DBNull.Value ? string.Empty : reader["unit_nm"].ToString(),
                             DepartmentId = reader["dept_id"] == DBNull.Value ? 0 : (int)reader["dept_id"],
                             DepartmentName = reader["dept_nm"] == DBNull.Value ? string.Empty : reader["dept_nm"].ToString(),
                             LocationId = reader["loc_id"] == DBNull.Value ? 0 : (int)reader["loc_id"],
                             LocationName = reader["loc_nm"] == DBNull.Value ? string.Empty : reader["loc_nm"].ToString(),
+
+                            LeaveYear = reader["lvs_yr"] == DBNull.Value ? 1900 : (int)reader["lvs_yr"],
+                            LeaveTypeCode = reader["lvs_typ_cd"] == DBNull.Value ? string.Empty : reader["lvs_typ_cd"].ToString(),
+                            LeaveTypeName = reader["lvs_typ_nm"] == DBNull.Value ? string.Empty : reader["lvs_typ_nm"].ToString(),
+                            LeaveReason = reader["lvs_rsn"] == DBNull.Value ? string.Empty : reader["lvs_rsn"].ToString(),
+                            LeaveStatus = reader["lvs_sts"] == DBNull.Value ? string.Empty : reader["lvs_sts"].ToString(),
                             IsPlan = reader["is_pln"] == DBNull.Value ? true : (bool)reader["is_pln"],
 
-                            ResumptionDate = reader["rsmptn_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["rsmptn_dt"],
-                            CloseRequestDate = reader["cls_rqs_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["cls_rqs_dt"],
+                            ProposedLeaveStartDate = reader["prp_lvs_sdt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["prp_lvs_sdt"],
+                            ProposedLeaveEndDate = reader["prp_lvs_edt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["prp_lvs_edt"],
+                            ProposedLeaveDuration = reader["prp_lvs_dur"] == DBNull.Value ? 0 : (int)reader["prp_lvs_dur"],
+                            ProposedDurationTypeId = reader["prp_lvs_dur_typ"] == DBNull.Value ? 0 : (int)reader["prp_lvs_dur_typ"],
+                            ProposedDurationDescription = reader["prp_dur_ds"] == DBNull.Value ? string.Empty : reader["prp_dur_ds"].ToString(),
+
+                            ApprovedLeaveStartDate = reader["apv_lvs_sdt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["apv_lvs_sdt"],
+                            ApprovedLeaveEndDate = reader["apv_lvs_edt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["apv_lvs_edt"],
+                            ApprovedLeaveDuration = reader["apv_lvs_dur"] == DBNull.Value ? 0 : (int)reader["apv_lvs_dur"],
+                            ApprovedDurationTypeId = reader["apv_lvs_dur_typ"] == DBNull.Value ? 0 : (int)reader["apv_lvs_dur_typ"],
+                            ApprovedDurationDescription = reader["apv_dur_ds"] == DBNull.Value ? string.Empty : reader["apv_dur_ds"].ToString(),
+
+                            ActualLeaveStartDate = reader["act_lvs_sdt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["act_lvs_sdt"],
+                            ActualLeaveEndDate = reader["act_lvs_edt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["act_lvs_edt"],
+                            ActualLeaveDuration = reader["act_lvs_dur"] == DBNull.Value ? 0 : (int)reader["act_lvs_dur"],
+                            ActualDurationTypeId = reader["act_lvs_dur_typ"] == DBNull.Value ? 0 : (int)reader["act_lvs_dur_typ"],
+                            ActualDurationDescription = reader["act_dur_ds"] == DBNull.Value ? string.Empty : reader["act_dur_ds"].ToString(),
+
+                            RequestCloseDate = reader["rqs_cls_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["rqs_cls_dt"],
+
                             LineManagersResumptionDate = reader["lm_rsmptn_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["lm_rsmptn_dt"],
                             LineManagerConfirmResumptionDate = reader["lm_confm_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["lm_confm_dt"],
                             LineManagerConfirmResumptionBy = reader["lm_confm_by"] == DBNull.Value ? string.Empty : reader["lm_confm_by"].ToString(),
+
+                            HrResumptionDate = reader["hr_rsmptn_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["hr_rsmptn_dt"],
                             HrConfirmResumptionDate = reader["hr_confm_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["hr_confm_dt"],
                             HrConfirmResumptionBy = reader["hr_confm_by"] == DBNull.Value ? string.Empty : reader["hr_confm_by"].ToString(),
 
@@ -418,29 +457,27 @@ namespace IntranetPortal.Data.Repositories.LmsRepositories
             string query = string.Empty;
             StringBuilder sb = new StringBuilder();
 
-            sb.Append("SELECT v.lvs_inf_id, v.emp_id, v.lvs_yr, v.lvs_typ_cd, ");
-            sb.Append("v.lvs_rsn, v.lvs_sts, v.lvs_sdt, v.lvs_edt, v.lvs_dur, ");
-            sb.Append("v.unit_id, v.dept_id, v.loc_id, v.is_pln, v.dur_typ, ");
-            sb.Append("CASE WHEN v.dur_typ = 0 THEN 'Working Day(s)' ");
-            sb.Append("WHEN v.dur_typ = 1 THEN 'Day(s)' ");
-            sb.Append("WHEN v.dur_typ = 2 THEN 'Week(s)' ");
-            sb.Append("WHEN v.dur_typ = 3 THEN 'Month(s)' ");
-            sb.Append("WHEN v.dur_typ = 4 THEN 'Year(s)' END as dur_typ_ds, ");
+            sb.Append("SELECT v.lvs_inf_id, v.emp_id, v.unit_id, v.dept_id, ");
+            sb.Append("v.loc_id, v.lvs_yr, v.lvs_typ_cd, v.lvs_rsn, v.lvs_sts, ");
+            sb.Append("v.is_pln, v.prp_lvs_sdt, v.prp_lvs_edt, v.prp_lvs_dur, ");
+            sb.Append("v.act_lvs_dur, v.prp_dur_ds, v.apv_lvs_sdt, v.apv_lvs_edt,  ");
+            sb.Append("v.apv_lvs_dur, v.apv_dur_ds, v.act_lvs_sdt, v.act_lvs_edt, ");
+            sb.Append("v.act_dur_ds, v.lm_rsmptn_dt, v.lm_confm_dt, v.lm_confm_by, ");
+            sb.Append("v.hr_rsmptn_dt, v.hr_confm_dt, v.hr_confm_by, v.rqs_cls_dt, ");
+            sb.Append("v.is_lm_aprv, v.is_hd_aprv, v.is_hr_aprv, v.is_xm_aprv, ");
+            sb.Append("v.is_sm_aprv, v.prp_lvs_dur_typ, v.apv_lvs_dur_typ, v.act_lvs_dur_typ,  ");
             sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = v.emp_id) ");
             sb.Append("as emp_nm, (SELECT lvs_typ_nm FROM public.lms_lvs_typs ");
             sb.Append("WHERE lvs_typ_cd = v.lvs_typ_cd) as lvs_typ_nm, ");
             sb.Append("(SELECT unitname FROM public.gst_units WHERE unitqk = v.unit_id) ");
             sb.Append("as unit_nm, (SELECT deptname FROM public.gst_depts WHERE deptqk ");
             sb.Append("= v.dept_id) as dept_nm, (SELECT locname FROM public.gst_locs ");
-            sb.Append("WHERE locqk = v.loc_id) as loc_nm, v.rsmptn_dt, ");
-            sb.Append("v.cls_rqs_dt, v.lm_rsmptn_dt, v.lm_confm_dt, ");
-            sb.Append("v.lm_confm_by, v.hr_confm_dt, v.hr_confm_by, ");
-            sb.Append("v.is_lm_aprv, v.is_hd_aprv, v.is_hr_aprv,  ");
-            sb.Append("v.is_xm_aprv, v.is_sm_aprv ");
+            sb.Append("WHERE locqk = v.loc_id) as loc_nm ");
             sb.Append("FROM public.lms_lvs_infs v ");
-            sb.Append("WHERE (v.emp_id = @emp_id AND v.lvs_yr = @lvs_yr ");
-            sb.Append("AND DATE_PART('Month', v.lvs_sdt) = @lvs_month ");
-            sb.Append("AND v.is_pln = @is_pln) ORDER BY v.lvs_sdt; ");
+            sb.Append("WHERE (v.emp_id = @emp_id) ");
+            sb.Append("AND (DATE_PART('Year', v.prp_lvs_sdt) = @lvs_yr) ");
+            sb.Append("AND (DATE_PART('Month', v.prp_lvs_sdt) = @lvs_month) ");
+            sb.Append("AND (v.is_pln = @is_pln) ORDER BY v.prp_lvs_sdt; ");
             query = sb.ToString();
             using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
             {
@@ -465,29 +502,46 @@ namespace IntranetPortal.Data.Repositories.LmsRepositories
                             Id = reader["lvs_inf_id"] == DBNull.Value ? 0L : (long)reader["lvs_inf_id"],
                             EmployeeId = reader["emp_id"] == DBNull.Value ? string.Empty : reader["emp_id"].ToString(),
                             EmployeeFullName = reader["emp_nm"] == DBNull.Value ? string.Empty : reader["emp_nm"].ToString(),
-                            LeaveYear = reader["lvs_yr"] == DBNull.Value ? 1900 : (int)reader["lvs_yr"],
-                            LeaveTypeCode = reader["lvs_typ_cd"] == DBNull.Value ? string.Empty : reader["lvs_typ_cd"].ToString(),
-                            LeaveTypeName = reader["lvs_typ_nm"] == DBNull.Value ? string.Empty : reader["lvs_typ_nm"].ToString(),
-                            LeaveReason = reader["lvs_rsn"] == DBNull.Value ? string.Empty : reader["lvs_rsn"].ToString(),
-                            LeaveStatus = reader["lvs_sts"] == DBNull.Value ? string.Empty : reader["lvs_sts"].ToString(),
-                            LeaveStartDate = reader["lvs_sdt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["lvs_sdt"],
-                            LeaveEndDate = reader["lvs_edt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["lvs_edt"],
-                            Duration = reader["lvs_dur"] == DBNull.Value ? 0 : (int)reader["lvs_dur"],
-                            DurationTypeId = reader["dur_typ"] == DBNull.Value ? 0 : (int)reader["dur_typ"],
-                            DurationTypeDescription = reader["dur_typ_ds"] == DBNull.Value ? string.Empty : reader["dur_typ_ds"].ToString(),
+
                             UnitId = reader["unit_id"] == DBNull.Value ? 0 : (int)reader["unit_id"],
                             UnitName = reader["unit_nm"] == DBNull.Value ? string.Empty : reader["unit_nm"].ToString(),
                             DepartmentId = reader["dept_id"] == DBNull.Value ? 0 : (int)reader["dept_id"],
                             DepartmentName = reader["dept_nm"] == DBNull.Value ? string.Empty : reader["dept_nm"].ToString(),
                             LocationId = reader["loc_id"] == DBNull.Value ? 0 : (int)reader["loc_id"],
                             LocationName = reader["loc_nm"] == DBNull.Value ? string.Empty : reader["loc_nm"].ToString(),
+
+                            LeaveYear = reader["lvs_yr"] == DBNull.Value ? 1900 : (int)reader["lvs_yr"],
+                            LeaveTypeCode = reader["lvs_typ_cd"] == DBNull.Value ? string.Empty : reader["lvs_typ_cd"].ToString(),
+                            LeaveTypeName = reader["lvs_typ_nm"] == DBNull.Value ? string.Empty : reader["lvs_typ_nm"].ToString(),
+                            LeaveReason = reader["lvs_rsn"] == DBNull.Value ? string.Empty : reader["lvs_rsn"].ToString(),
+                            LeaveStatus = reader["lvs_sts"] == DBNull.Value ? string.Empty : reader["lvs_sts"].ToString(),
                             IsPlan = reader["is_pln"] == DBNull.Value ? true : (bool)reader["is_pln"],
 
-                            ResumptionDate = reader["rsmptn_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["rsmptn_dt"],
-                            CloseRequestDate = reader["cls_rqs_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["cls_rqs_dt"],
+                            ProposedLeaveStartDate = reader["prp_lvs_sdt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["prp_lvs_sdt"],
+                            ProposedLeaveEndDate = reader["prp_lvs_edt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["prp_lvs_edt"],
+                            ProposedLeaveDuration = reader["prp_lvs_dur"] == DBNull.Value ? 0 : (int)reader["prp_lvs_dur"],
+                            ProposedDurationTypeId = reader["prp_lvs_dur_typ"] == DBNull.Value ? 0 : (int)reader["prp_lvs_dur_typ"],
+                            ProposedDurationDescription = reader["prp_dur_ds"] == DBNull.Value ? string.Empty : reader["prp_dur_ds"].ToString(),
+
+                            ApprovedLeaveStartDate = reader["apv_lvs_sdt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["apv_lvs_sdt"],
+                            ApprovedLeaveEndDate = reader["apv_lvs_edt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["apv_lvs_edt"],
+                            ApprovedLeaveDuration = reader["apv_lvs_dur"] == DBNull.Value ? 0 : (int)reader["apv_lvs_dur"],
+                            ApprovedDurationTypeId = reader["apv_lvs_dur_typ"] == DBNull.Value ? 0 : (int)reader["apv_lvs_dur_typ"],
+                            ApprovedDurationDescription = reader["apv_dur_ds"] == DBNull.Value ? string.Empty : reader["apv_dur_ds"].ToString(),
+
+                            ActualLeaveStartDate = reader["act_lvs_sdt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["act_lvs_sdt"],
+                            ActualLeaveEndDate = reader["act_lvs_edt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["act_lvs_edt"],
+                            ActualLeaveDuration = reader["act_lvs_dur"] == DBNull.Value ? 0 : (int)reader["act_lvs_dur"],
+                            ActualDurationTypeId = reader["act_lvs_dur_typ"] == DBNull.Value ? 0 : (int)reader["act_lvs_dur_typ"],
+                            ActualDurationDescription = reader["act_dur_ds"] == DBNull.Value ? string.Empty : reader["act_dur_ds"].ToString(),
+
+                            RequestCloseDate = reader["rqs_cls_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["rqs_cls_dt"],
+
                             LineManagersResumptionDate = reader["lm_rsmptn_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["lm_rsmptn_dt"],
                             LineManagerConfirmResumptionDate = reader["lm_confm_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["lm_confm_dt"],
                             LineManagerConfirmResumptionBy = reader["lm_confm_by"] == DBNull.Value ? string.Empty : reader["lm_confm_by"].ToString(),
+
+                            HrResumptionDate = reader["hr_rsmptn_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["hr_rsmptn_dt"],
                             HrConfirmResumptionDate = reader["hr_confm_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["hr_confm_dt"],
                             HrConfirmResumptionBy = reader["hr_confm_by"] == DBNull.Value ? string.Empty : reader["hr_confm_by"].ToString(),
 
@@ -506,34 +560,31 @@ namespace IntranetPortal.Data.Repositories.LmsRepositories
         public async Task<List<EmployeeLeave>> GetByEmployeeIdnYearnMonthnStatusAsync(string employeeId, int year, int month, string leaveStatus, bool isPlan)
         {
             List<EmployeeLeave> leaveList = new List<EmployeeLeave>();
-            string query = string.Empty;
             StringBuilder sb = new StringBuilder();
-
-            sb.Append("SELECT v.lvs_inf_id, v.emp_id, v.lvs_yr, v.lvs_typ_cd, ");
-            sb.Append("v.lvs_rsn, v.lvs_sts, v.lvs_sdt, v.lvs_edt, v.lvs_dur, ");
-            sb.Append("v.unit_id, v.dept_id, v.loc_id, v.is_pln, v.dur_typ, ");
-            sb.Append("CASE WHEN v.dur_typ = 0 THEN 'Working Day(s)' ");
-            sb.Append("WHEN v.dur_typ = 1 THEN 'Day(s)' ");
-            sb.Append("WHEN v.dur_typ = 2 THEN 'Week(s)' ");
-            sb.Append("WHEN v.dur_typ = 3 THEN 'Month(s)' ");
-            sb.Append("WHEN v.dur_typ = 4 THEN 'Year(s)' END as dur_typ_ds, ");
+            sb.Append("SELECT v.lvs_inf_id, v.emp_id, v.unit_id, v.dept_id, ");
+            sb.Append("v.loc_id, v.lvs_yr, v.lvs_typ_cd, v.lvs_rsn, v.lvs_sts, ");
+            sb.Append("v.is_pln, v.prp_lvs_sdt, v.prp_lvs_edt, v.prp_lvs_dur, ");
+            sb.Append("v.act_lvs_dur, v.prp_dur_ds, v.apv_lvs_sdt, v.apv_lvs_edt,  ");
+            sb.Append("v.apv_lvs_dur, v.apv_dur_ds, v.act_lvs_sdt, v.act_lvs_edt, ");
+            sb.Append("v.act_dur_ds, v.lm_rsmptn_dt, v.lm_confm_dt, v.lm_confm_by, ");
+            sb.Append("v.hr_rsmptn_dt, v.hr_confm_dt, v.hr_confm_by, v.rqs_cls_dt, ");
+            sb.Append("v.is_lm_aprv, v.is_hd_aprv, v.is_hr_aprv, v.is_xm_aprv, ");
+            sb.Append("v.is_sm_aprv, v.prp_lvs_dur_typ, v.apv_lvs_dur_typ, v.act_lvs_dur_typ,  ");
             sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = v.emp_id) ");
             sb.Append("as emp_nm, (SELECT lvs_typ_nm FROM public.lms_lvs_typs ");
             sb.Append("WHERE lvs_typ_cd = v.lvs_typ_cd) as lvs_typ_nm, ");
             sb.Append("(SELECT unitname FROM public.gst_units WHERE unitqk = v.unit_id) ");
             sb.Append("as unit_nm, (SELECT deptname FROM public.gst_depts WHERE deptqk ");
             sb.Append("= v.dept_id) as dept_nm, (SELECT locname FROM public.gst_locs ");
-            sb.Append("WHERE locqk = v.loc_id) as loc_nm, v.rsmptn_dt, ");
-            sb.Append("v.cls_rqs_dt, v.lm_rsmptn_dt, v.lm_confm_dt, ");
-            sb.Append("v.lm_confm_by, v.hr_confm_dt, v.hr_confm_by, ");
-            sb.Append("v.is_lm_aprv, v.is_hd_aprv, v.is_hr_aprv,  ");
-            sb.Append("v.is_xm_aprv, v.is_sm_aprv ");
+            sb.Append("WHERE locqk = v.loc_id) as loc_nm ");
             sb.Append("FROM public.lms_lvs_infs v ");
-            sb.Append("WHERE (v.emp_id = @emp_id AND v.lvs_yr = @lvs_yr ");
-            sb.Append("AND DATE_PART('Month', v.lvs_sdt) = @lvs_month ");
-            sb.Append("AND v.lvs_sts = @lvs_sts ");
-            sb.Append("AND v.is_pln = @is_pln) ORDER BY v.lvs_sdt; ");
-            query = sb.ToString();
+            sb.Append("WHERE (v.emp_id = @emp_id) ");
+            sb.Append("AND (DATE_PART('Year', v.prp_lvs_sdt) = @lvs_yr) ");
+            sb.Append("AND (DATE_PART('Month', v.prp_lvs_sdt) = @lvs_month) ");
+            sb.Append("AND (v.lvs_sts = @lvs_sts) ");
+            sb.Append("AND (v.is_pln = @is_pln) ORDER BY v.prp_lvs_sdt; ");
+
+            string query = sb.ToString();
             using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
             {
                 await conn.OpenAsync();
@@ -559,29 +610,46 @@ namespace IntranetPortal.Data.Repositories.LmsRepositories
                             Id = reader["lvs_inf_id"] == DBNull.Value ? 0L : (long)reader["lvs_inf_id"],
                             EmployeeId = reader["emp_id"] == DBNull.Value ? string.Empty : reader["emp_id"].ToString(),
                             EmployeeFullName = reader["emp_nm"] == DBNull.Value ? string.Empty : reader["emp_nm"].ToString(),
-                            LeaveYear = reader["lvs_yr"] == DBNull.Value ? 1900 : (int)reader["lvs_yr"],
-                            LeaveTypeCode = reader["lvs_typ_cd"] == DBNull.Value ? string.Empty : reader["lvs_typ_cd"].ToString(),
-                            LeaveTypeName = reader["lvs_typ_nm"] == DBNull.Value ? string.Empty : reader["lvs_typ_nm"].ToString(),
-                            LeaveReason = reader["lvs_rsn"] == DBNull.Value ? string.Empty : reader["lvs_rsn"].ToString(),
-                            LeaveStatus = reader["lvs_sts"] == DBNull.Value ? string.Empty : reader["lvs_sts"].ToString(),
-                            LeaveStartDate = reader["lvs_sdt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["lvs_sdt"],
-                            LeaveEndDate = reader["lvs_edt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["lvs_edt"],
-                            Duration = reader["lvs_dur"] == DBNull.Value ? 0 : (int)reader["lvs_dur"],
-                            DurationTypeId = reader["dur_typ"] == DBNull.Value ? 0 : (int)reader["dur_typ"],
-                            DurationTypeDescription = reader["dur_typ_ds"] == DBNull.Value ? string.Empty : reader["dur_typ_ds"].ToString(),
+
                             UnitId = reader["unit_id"] == DBNull.Value ? 0 : (int)reader["unit_id"],
                             UnitName = reader["unit_nm"] == DBNull.Value ? string.Empty : reader["unit_nm"].ToString(),
                             DepartmentId = reader["dept_id"] == DBNull.Value ? 0 : (int)reader["dept_id"],
                             DepartmentName = reader["dept_nm"] == DBNull.Value ? string.Empty : reader["dept_nm"].ToString(),
                             LocationId = reader["loc_id"] == DBNull.Value ? 0 : (int)reader["loc_id"],
                             LocationName = reader["loc_nm"] == DBNull.Value ? string.Empty : reader["loc_nm"].ToString(),
+
+                            LeaveYear = reader["lvs_yr"] == DBNull.Value ? 1900 : (int)reader["lvs_yr"],
+                            LeaveTypeCode = reader["lvs_typ_cd"] == DBNull.Value ? string.Empty : reader["lvs_typ_cd"].ToString(),
+                            LeaveTypeName = reader["lvs_typ_nm"] == DBNull.Value ? string.Empty : reader["lvs_typ_nm"].ToString(),
+                            LeaveReason = reader["lvs_rsn"] == DBNull.Value ? string.Empty : reader["lvs_rsn"].ToString(),
+                            LeaveStatus = reader["lvs_sts"] == DBNull.Value ? string.Empty : reader["lvs_sts"].ToString(),
                             IsPlan = reader["is_pln"] == DBNull.Value ? true : (bool)reader["is_pln"],
 
-                            ResumptionDate = reader["rsmptn_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["rsmptn_dt"],
-                            CloseRequestDate = reader["cls_rqs_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["cls_rqs_dt"],
+                            ProposedLeaveStartDate = reader["prp_lvs_sdt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["prp_lvs_sdt"],
+                            ProposedLeaveEndDate = reader["prp_lvs_edt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["prp_lvs_edt"],
+                            ProposedLeaveDuration = reader["prp_lvs_dur"] == DBNull.Value ? 0 : (int)reader["prp_lvs_dur"],
+                            ProposedDurationTypeId = reader["prp_lvs_dur_typ"] == DBNull.Value ? 0 : (int)reader["prp_lvs_dur_typ"],
+                            ProposedDurationDescription = reader["prp_dur_ds"] == DBNull.Value ? string.Empty : reader["prp_dur_ds"].ToString(),
+
+                            ApprovedLeaveStartDate = reader["apv_lvs_sdt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["apv_lvs_sdt"],
+                            ApprovedLeaveEndDate = reader["apv_lvs_edt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["apv_lvs_edt"],
+                            ApprovedLeaveDuration = reader["apv_lvs_dur"] == DBNull.Value ? 0 : (int)reader["apv_lvs_dur"],
+                            ApprovedDurationTypeId = reader["apv_lvs_dur_typ"] == DBNull.Value ? 0 : (int)reader["apv_lvs_dur_typ"],
+                            ApprovedDurationDescription = reader["apv_dur_ds"] == DBNull.Value ? string.Empty : reader["apv_dur_ds"].ToString(),
+
+                            ActualLeaveStartDate = reader["act_lvs_sdt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["act_lvs_sdt"],
+                            ActualLeaveEndDate = reader["act_lvs_edt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["act_lvs_edt"],
+                            ActualLeaveDuration = reader["act_lvs_dur"] == DBNull.Value ? 0 : (int)reader["act_lvs_dur"],
+                            ActualDurationTypeId = reader["act_lvs_dur_typ"] == DBNull.Value ? 0 : (int)reader["act_lvs_dur_typ"],
+                            ActualDurationDescription = reader["act_dur_ds"] == DBNull.Value ? string.Empty : reader["act_dur_ds"].ToString(),
+
+                            RequestCloseDate = reader["rqs_cls_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["rqs_cls_dt"],
+
                             LineManagersResumptionDate = reader["lm_rsmptn_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["lm_rsmptn_dt"],
                             LineManagerConfirmResumptionDate = reader["lm_confm_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["lm_confm_dt"],
                             LineManagerConfirmResumptionBy = reader["lm_confm_by"] == DBNull.Value ? string.Empty : reader["lm_confm_by"].ToString(),
+
+                            HrResumptionDate = reader["hr_rsmptn_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["hr_rsmptn_dt"],
                             HrConfirmResumptionDate = reader["hr_confm_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["hr_confm_dt"],
                             HrConfirmResumptionBy = reader["hr_confm_by"] == DBNull.Value ? string.Empty : reader["hr_confm_by"].ToString(),
 
@@ -602,30 +670,26 @@ namespace IntranetPortal.Data.Repositories.LmsRepositories
             List<EmployeeLeave> leaveList = new List<EmployeeLeave>();
             string query = string.Empty;
             StringBuilder sb = new StringBuilder();
-
-            sb.Append("SELECT v.lvs_inf_id, v.emp_id, v.lvs_yr, v.lvs_typ_cd, ");
-            sb.Append("v.lvs_rsn, v.lvs_sts, v.lvs_sdt, v.lvs_edt, v.lvs_dur, ");
-            sb.Append("v.unit_id, v.dept_id, v.loc_id, v.is_pln, v.dur_typ, ");
-            sb.Append("CASE WHEN v.dur_typ = 0 THEN 'Working Day(s)' ");
-            sb.Append("WHEN v.dur_typ = 1 THEN 'Day(s)' ");
-            sb.Append("WHEN v.dur_typ = 2 THEN 'Week(s)' ");
-            sb.Append("WHEN v.dur_typ = 3 THEN 'Month(s)' ");
-            sb.Append("WHEN v.dur_typ = 4 THEN 'Year(s)' END as dur_typ_ds, ");
+            sb.Append("SELECT v.lvs_inf_id, v.emp_id, v.unit_id, v.dept_id, ");
+            sb.Append("v.loc_id, v.lvs_yr, v.lvs_typ_cd, v.lvs_rsn, v.lvs_sts, ");
+            sb.Append("v.is_pln, v.prp_lvs_sdt, v.prp_lvs_edt, v.prp_lvs_dur, ");
+            sb.Append("v.act_lvs_dur, v.prp_dur_ds, v.apv_lvs_sdt, v.apv_lvs_edt,  ");
+            sb.Append("v.apv_lvs_dur, v.apv_dur_ds, v.act_lvs_sdt, v.act_lvs_edt, ");
+            sb.Append("v.act_dur_ds, v.lm_rsmptn_dt, v.lm_confm_dt, v.lm_confm_by, ");
+            sb.Append("v.hr_rsmptn_dt, v.hr_confm_dt, v.hr_confm_by, v.rqs_cls_dt, ");
+            sb.Append("v.is_lm_aprv, v.is_hd_aprv, v.is_hr_aprv, v.is_xm_aprv, ");
+            sb.Append("v.is_sm_aprv, v.prp_lvs_dur_typ, v.apv_lvs_dur_typ, v.act_lvs_dur_typ,  ");
             sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = v.emp_id) ");
             sb.Append("as emp_nm, (SELECT lvs_typ_nm FROM public.lms_lvs_typs ");
             sb.Append("WHERE lvs_typ_cd = v.lvs_typ_cd) as lvs_typ_nm, ");
             sb.Append("(SELECT unitname FROM public.gst_units WHERE unitqk = v.unit_id) ");
             sb.Append("as unit_nm, (SELECT deptname FROM public.gst_depts WHERE deptqk ");
             sb.Append("= v.dept_id) as dept_nm, (SELECT locname FROM public.gst_locs ");
-            sb.Append("WHERE locqk = v.loc_id) as loc_nm, v.rsmptn_dt, ");
-            sb.Append("v.cls_rqs_dt, v.lm_rsmptn_dt, v.lm_confm_dt, ");
-            sb.Append("v.lm_confm_by, v.hr_confm_dt, v.hr_confm_by, ");
-            sb.Append("v.is_lm_aprv, v.is_hd_aprv, v.is_hr_aprv,  ");
-            sb.Append("v.is_xm_aprv, v.is_sm_aprv ");
+            sb.Append("WHERE locqk = v.loc_id) as loc_nm ");
             sb.Append("FROM public.lms_lvs_infs v ");
-            sb.Append("WHERE (v.emp_id = @emp_id ");
-            sb.Append("AND v.lvs_sts = @lvs_sts ");
-            sb.Append("AND v.is_pln = @is_pln) ORDER BY v.lvs_sdt; ");
+            sb.Append("WHERE (v.emp_id = @emp_id) ");
+            sb.Append("AND (v.lvs_sts = @lvs_sts) ");
+            sb.Append("AND (v.is_pln = @is_pln) ORDER BY v.prp_lvs_sdt; ");
             query = sb.ToString();
             using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
             {
@@ -646,29 +710,46 @@ namespace IntranetPortal.Data.Repositories.LmsRepositories
                             Id = reader["lvs_inf_id"] == DBNull.Value ? 0L : (long)reader["lvs_inf_id"],
                             EmployeeId = reader["emp_id"] == DBNull.Value ? string.Empty : reader["emp_id"].ToString(),
                             EmployeeFullName = reader["emp_nm"] == DBNull.Value ? string.Empty : reader["emp_nm"].ToString(),
-                            LeaveYear = reader["lvs_yr"] == DBNull.Value ? 1900 : (int)reader["lvs_yr"],
-                            LeaveTypeCode = reader["lvs_typ_cd"] == DBNull.Value ? string.Empty : reader["lvs_typ_cd"].ToString(),
-                            LeaveTypeName = reader["lvs_typ_nm"] == DBNull.Value ? string.Empty : reader["lvs_typ_nm"].ToString(),
-                            LeaveReason = reader["lvs_rsn"] == DBNull.Value ? string.Empty : reader["lvs_rsn"].ToString(),
-                            LeaveStatus = reader["lvs_sts"] == DBNull.Value ? string.Empty : reader["lvs_sts"].ToString(),
-                            LeaveStartDate = reader["lvs_sdt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["lvs_sdt"],
-                            LeaveEndDate = reader["lvs_edt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["lvs_edt"],
-                            Duration = reader["lvs_dur"] == DBNull.Value ? 0 : (int)reader["lvs_dur"],
-                            DurationTypeId = reader["dur_typ"] == DBNull.Value ? 0 : (int)reader["dur_typ"],
-                            DurationTypeDescription = reader["dur_typ_ds"] == DBNull.Value ? string.Empty : reader["dur_typ_ds"].ToString(),
+
                             UnitId = reader["unit_id"] == DBNull.Value ? 0 : (int)reader["unit_id"],
                             UnitName = reader["unit_nm"] == DBNull.Value ? string.Empty : reader["unit_nm"].ToString(),
                             DepartmentId = reader["dept_id"] == DBNull.Value ? 0 : (int)reader["dept_id"],
                             DepartmentName = reader["dept_nm"] == DBNull.Value ? string.Empty : reader["dept_nm"].ToString(),
                             LocationId = reader["loc_id"] == DBNull.Value ? 0 : (int)reader["loc_id"],
                             LocationName = reader["loc_nm"] == DBNull.Value ? string.Empty : reader["loc_nm"].ToString(),
+
+                            LeaveYear = reader["lvs_yr"] == DBNull.Value ? 1900 : (int)reader["lvs_yr"],
+                            LeaveTypeCode = reader["lvs_typ_cd"] == DBNull.Value ? string.Empty : reader["lvs_typ_cd"].ToString(),
+                            LeaveTypeName = reader["lvs_typ_nm"] == DBNull.Value ? string.Empty : reader["lvs_typ_nm"].ToString(),
+                            LeaveReason = reader["lvs_rsn"] == DBNull.Value ? string.Empty : reader["lvs_rsn"].ToString(),
+                            LeaveStatus = reader["lvs_sts"] == DBNull.Value ? string.Empty : reader["lvs_sts"].ToString(),
                             IsPlan = reader["is_pln"] == DBNull.Value ? true : (bool)reader["is_pln"],
 
-                            ResumptionDate = reader["rsmptn_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["rsmptn_dt"],
-                            CloseRequestDate = reader["cls_rqs_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["cls_rqs_dt"],
+                            ProposedLeaveStartDate = reader["prp_lvs_sdt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["prp_lvs_sdt"],
+                            ProposedLeaveEndDate = reader["prp_lvs_edt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["prp_lvs_edt"],
+                            ProposedLeaveDuration = reader["prp_lvs_dur"] == DBNull.Value ? 0 : (int)reader["prp_lvs_dur"],
+                            ProposedDurationTypeId = reader["prp_lvs_dur_typ"] == DBNull.Value ? 0 : (int)reader["prp_lvs_dur_typ"],
+                            ProposedDurationDescription = reader["prp_dur_ds"] == DBNull.Value ? string.Empty : reader["prp_dur_ds"].ToString(),
+
+                            ApprovedLeaveStartDate = reader["apv_lvs_sdt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["apv_lvs_sdt"],
+                            ApprovedLeaveEndDate = reader["apv_lvs_edt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["apv_lvs_edt"],
+                            ApprovedLeaveDuration = reader["apv_lvs_dur"] == DBNull.Value ? 0 : (int)reader["apv_lvs_dur"],
+                            ApprovedDurationTypeId = reader["apv_lvs_dur_typ"] == DBNull.Value ? 0 : (int)reader["apv_lvs_dur_typ"],
+                            ApprovedDurationDescription = reader["apv_dur_ds"] == DBNull.Value ? string.Empty : reader["apv_dur_ds"].ToString(),
+
+                            ActualLeaveStartDate = reader["act_lvs_sdt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["act_lvs_sdt"],
+                            ActualLeaveEndDate = reader["act_lvs_edt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["act_lvs_edt"],
+                            ActualLeaveDuration = reader["act_lvs_dur"] == DBNull.Value ? 0 : (int)reader["act_lvs_dur"],
+                            ActualDurationTypeId = reader["act_lvs_dur_typ"] == DBNull.Value ? 0 : (int)reader["act_lvs_dur_typ"],
+                            ActualDurationDescription = reader["act_dur_ds"] == DBNull.Value ? string.Empty : reader["act_dur_ds"].ToString(),
+
+                            RequestCloseDate = reader["rqs_cls_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["rqs_cls_dt"],
+
                             LineManagersResumptionDate = reader["lm_rsmptn_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["lm_rsmptn_dt"],
                             LineManagerConfirmResumptionDate = reader["lm_confm_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["lm_confm_dt"],
                             LineManagerConfirmResumptionBy = reader["lm_confm_by"] == DBNull.Value ? string.Empty : reader["lm_confm_by"].ToString(),
+
+                            HrResumptionDate = reader["hr_rsmptn_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["hr_rsmptn_dt"],
                             HrConfirmResumptionDate = reader["hr_confm_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["hr_confm_dt"],
                             HrConfirmResumptionBy = reader["hr_confm_by"] == DBNull.Value ? string.Empty : reader["hr_confm_by"].ToString(),
 
@@ -687,33 +768,29 @@ namespace IntranetPortal.Data.Repositories.LmsRepositories
         public async Task<List<EmployeeLeave>> GetByEmployeeIdnYearnStatusAsync(string employeeId, int year, string leaveStatus, bool isPlan)
         {
             List<EmployeeLeave> leaveList = new List<EmployeeLeave>();
-            string query = string.Empty;
             StringBuilder sb = new StringBuilder();
-
-            sb.Append("SELECT v.lvs_inf_id, v.emp_id, v.lvs_yr, v.lvs_typ_cd, ");
-            sb.Append("v.lvs_rsn, v.lvs_sts, v.lvs_sdt, v.lvs_edt, v.lvs_dur, ");
-            sb.Append("v.unit_id, v.dept_id, v.loc_id, v.is_pln, v.dur_typ, ");
-            sb.Append("CASE WHEN v.dur_typ = 0 THEN 'Working Day(s)' ");
-            sb.Append("WHEN v.dur_typ = 1 THEN 'Day(s)' ");
-            sb.Append("WHEN v.dur_typ = 2 THEN 'Week(s)' ");
-            sb.Append("WHEN v.dur_typ = 3 THEN 'Month(s)' ");
-            sb.Append("WHEN v.dur_typ = 4 THEN 'Year(s)' END as dur_typ_ds, ");
+            sb.Append("SELECT v.lvs_inf_id, v.emp_id, v.unit_id, v.dept_id, ");
+            sb.Append("v.loc_id, v.lvs_yr, v.lvs_typ_cd, v.lvs_rsn, v.lvs_sts, ");
+            sb.Append("v.is_pln, v.prp_lvs_sdt, v.prp_lvs_edt, v.prp_lvs_dur, ");
+            sb.Append("v.act_lvs_dur, v.prp_dur_ds, v.apv_lvs_sdt, v.apv_lvs_edt,  ");
+            sb.Append("v.apv_lvs_dur, v.apv_dur_ds, v.act_lvs_sdt, v.act_lvs_edt, ");
+            sb.Append("v.act_dur_ds, v.lm_rsmptn_dt, v.lm_confm_dt, v.lm_confm_by, ");
+            sb.Append("v.hr_rsmptn_dt, v.hr_confm_dt, v.hr_confm_by, v.rqs_cls_dt, ");
+            sb.Append("v.is_lm_aprv, v.is_hd_aprv, v.is_hr_aprv, v.is_xm_aprv, ");
+            sb.Append("v.is_sm_aprv, v.prp_lvs_dur_typ, v.apv_lvs_dur_typ, v.act_lvs_dur_typ,  ");
             sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = v.emp_id) ");
             sb.Append("as emp_nm, (SELECT lvs_typ_nm FROM public.lms_lvs_typs ");
             sb.Append("WHERE lvs_typ_cd = v.lvs_typ_cd) as lvs_typ_nm, ");
             sb.Append("(SELECT unitname FROM public.gst_units WHERE unitqk = v.unit_id) ");
             sb.Append("as unit_nm, (SELECT deptname FROM public.gst_depts WHERE deptqk ");
             sb.Append("= v.dept_id) as dept_nm, (SELECT locname FROM public.gst_locs ");
-            sb.Append("WHERE locqk = v.loc_id) as loc_nm, v.rsmptn_dt, ");
-            sb.Append("v.cls_rqs_dt, v.lm_rsmptn_dt, v.lm_confm_dt, ");
-            sb.Append("v.lm_confm_by, v.hr_confm_dt, v.hr_confm_by, ");
-            sb.Append("v.is_lm_aprv, v.is_hd_aprv, v.is_hr_aprv,  ");
-            sb.Append("v.is_xm_aprv, v.is_sm_aprv ");
+            sb.Append("WHERE locqk = v.loc_id) as loc_nm ");
             sb.Append("FROM public.lms_lvs_infs v ");
-            sb.Append("WHERE (v.emp_id = @emp_id AND v.lvs_yr = @lvs_yr ");
-            sb.Append("AND v.lvs_sts = @lvs_sts ");
-            sb.Append("AND v.is_pln = @is_pln) ORDER BY v.lvs_sdt; ");
-            query = sb.ToString();
+            sb.Append("WHERE (v.emp_id = @emp_id) AND (v.lvs_yr = @lvs_yr) ");
+            sb.Append("AND (v.lvs_sts = @lvs_sts) AND (v.is_pln = @is_pln) ");
+            sb.Append("ORDER BY v.prp_lvs_sdt; ");
+
+            string query = sb.ToString();
             using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
             {
                 await conn.OpenAsync();
@@ -735,29 +812,46 @@ namespace IntranetPortal.Data.Repositories.LmsRepositories
                             Id = reader["lvs_inf_id"] == DBNull.Value ? 0L : (long)reader["lvs_inf_id"],
                             EmployeeId = reader["emp_id"] == DBNull.Value ? string.Empty : reader["emp_id"].ToString(),
                             EmployeeFullName = reader["emp_nm"] == DBNull.Value ? string.Empty : reader["emp_nm"].ToString(),
-                            LeaveYear = reader["lvs_yr"] == DBNull.Value ? 1900 : (int)reader["lvs_yr"],
-                            LeaveTypeCode = reader["lvs_typ_cd"] == DBNull.Value ? string.Empty : reader["lvs_typ_cd"].ToString(),
-                            LeaveTypeName = reader["lvs_typ_nm"] == DBNull.Value ? string.Empty : reader["lvs_typ_nm"].ToString(),
-                            LeaveReason = reader["lvs_rsn"] == DBNull.Value ? string.Empty : reader["lvs_rsn"].ToString(),
-                            LeaveStatus = reader["lvs_sts"] == DBNull.Value ? string.Empty : reader["lvs_sts"].ToString(),
-                            LeaveStartDate = reader["lvs_sdt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["lvs_sdt"],
-                            LeaveEndDate = reader["lvs_edt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["lvs_edt"],
-                            Duration = reader["lvs_dur"] == DBNull.Value ? 0 : (int)reader["lvs_dur"],
-                            DurationTypeId = reader["dur_typ"] == DBNull.Value ? 0 : (int)reader["dur_typ"],
-                            DurationTypeDescription = reader["dur_typ_ds"] == DBNull.Value ? string.Empty : reader["dur_typ_ds"].ToString(),
+
                             UnitId = reader["unit_id"] == DBNull.Value ? 0 : (int)reader["unit_id"],
                             UnitName = reader["unit_nm"] == DBNull.Value ? string.Empty : reader["unit_nm"].ToString(),
                             DepartmentId = reader["dept_id"] == DBNull.Value ? 0 : (int)reader["dept_id"],
                             DepartmentName = reader["dept_nm"] == DBNull.Value ? string.Empty : reader["dept_nm"].ToString(),
                             LocationId = reader["loc_id"] == DBNull.Value ? 0 : (int)reader["loc_id"],
                             LocationName = reader["loc_nm"] == DBNull.Value ? string.Empty : reader["loc_nm"].ToString(),
+
+                            LeaveYear = reader["lvs_yr"] == DBNull.Value ? 1900 : (int)reader["lvs_yr"],
+                            LeaveTypeCode = reader["lvs_typ_cd"] == DBNull.Value ? string.Empty : reader["lvs_typ_cd"].ToString(),
+                            LeaveTypeName = reader["lvs_typ_nm"] == DBNull.Value ? string.Empty : reader["lvs_typ_nm"].ToString(),
+                            LeaveReason = reader["lvs_rsn"] == DBNull.Value ? string.Empty : reader["lvs_rsn"].ToString(),
+                            LeaveStatus = reader["lvs_sts"] == DBNull.Value ? string.Empty : reader["lvs_sts"].ToString(),
                             IsPlan = reader["is_pln"] == DBNull.Value ? true : (bool)reader["is_pln"],
 
-                            ResumptionDate = reader["rsmptn_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["rsmptn_dt"],
-                            CloseRequestDate = reader["cls_rqs_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["cls_rqs_dt"],
+                            ProposedLeaveStartDate = reader["prp_lvs_sdt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["prp_lvs_sdt"],
+                            ProposedLeaveEndDate = reader["prp_lvs_edt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["prp_lvs_edt"],
+                            ProposedLeaveDuration = reader["prp_lvs_dur"] == DBNull.Value ? 0 : (int)reader["prp_lvs_dur"],
+                            ProposedDurationTypeId = reader["prp_lvs_dur_typ"] == DBNull.Value ? 0 : (int)reader["prp_lvs_dur_typ"],
+                            ProposedDurationDescription = reader["prp_dur_ds"] == DBNull.Value ? string.Empty : reader["prp_dur_ds"].ToString(),
+
+                            ApprovedLeaveStartDate = reader["apv_lvs_sdt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["apv_lvs_sdt"],
+                            ApprovedLeaveEndDate = reader["apv_lvs_edt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["apv_lvs_edt"],
+                            ApprovedLeaveDuration = reader["apv_lvs_dur"] == DBNull.Value ? 0 : (int)reader["apv_lvs_dur"],
+                            ApprovedDurationTypeId = reader["apv_lvs_dur_typ"] == DBNull.Value ? 0 : (int)reader["apv_lvs_dur_typ"],
+                            ApprovedDurationDescription = reader["apv_dur_ds"] == DBNull.Value ? string.Empty : reader["apv_dur_ds"].ToString(),
+
+                            ActualLeaveStartDate = reader["act_lvs_sdt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["act_lvs_sdt"],
+                            ActualLeaveEndDate = reader["act_lvs_edt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["act_lvs_edt"],
+                            ActualLeaveDuration = reader["act_lvs_dur"] == DBNull.Value ? 0 : (int)reader["act_lvs_dur"],
+                            ActualDurationTypeId = reader["act_lvs_dur_typ"] == DBNull.Value ? 0 : (int)reader["act_lvs_dur_typ"],
+                            ActualDurationDescription = reader["act_dur_ds"] == DBNull.Value ? string.Empty : reader["act_dur_ds"].ToString(),
+
+                            RequestCloseDate = reader["rqs_cls_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["rqs_cls_dt"],
+
                             LineManagersResumptionDate = reader["lm_rsmptn_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["lm_rsmptn_dt"],
                             LineManagerConfirmResumptionDate = reader["lm_confm_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["lm_confm_dt"],
                             LineManagerConfirmResumptionBy = reader["lm_confm_by"] == DBNull.Value ? string.Empty : reader["lm_confm_by"].ToString(),
+
+                            HrResumptionDate = reader["hr_rsmptn_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["hr_rsmptn_dt"],
                             HrConfirmResumptionDate = reader["hr_confm_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["hr_confm_dt"],
                             HrConfirmResumptionBy = reader["hr_confm_by"] == DBNull.Value ? string.Empty : reader["hr_confm_by"].ToString(),
 
@@ -773,37 +867,35 @@ namespace IntranetPortal.Data.Repositories.LmsRepositories
             }
             return leaveList;
         }
+        #endregion
 
-
+        #region Employee Leaves By Employee Name
         //=== Employee Leaves By Employee Name Read Action Methods ========//
         public async Task<List<EmployeeLeave>> GetByEmployeeNamenYearAsync(string employeeName, int year, bool isPlan)
         {
             List<EmployeeLeave> leaveList = new List<EmployeeLeave>();
             StringBuilder sb = new StringBuilder();
-            sb.Append("SELECT v.lvs_inf_id, v.emp_id, v.lvs_yr, v.lvs_typ_cd, ");
-            sb.Append("v.lvs_rsn, v.lvs_sts, v.lvs_sdt, v.lvs_edt, v.lvs_dur, ");
-            sb.Append("v.unit_id, v.dept_id, v.loc_id, v.is_pln, v.dur_typ, ");
-            sb.Append("CASE WHEN v.dur_typ = 0 THEN 'Working Day(s)' ");
-            sb.Append("WHEN v.dur_typ = 1 THEN 'Day(s)' ");
-            sb.Append("WHEN v.dur_typ = 2 THEN 'Week(s)' ");
-            sb.Append("WHEN v.dur_typ = 3 THEN 'Month(s)' ");
-            sb.Append("WHEN v.dur_typ = 4 THEN 'Year(s)' END as dur_typ_ds, ");
+            sb.Append("SELECT v.lvs_inf_id, v.emp_id, v.unit_id, v.dept_id, ");
+            sb.Append("v.loc_id, v.lvs_yr, v.lvs_typ_cd, v.lvs_rsn, v.lvs_sts, ");
+            sb.Append("v.is_pln, v.prp_lvs_sdt, v.prp_lvs_edt, v.prp_lvs_dur, ");
+            sb.Append("v.act_lvs_dur, v.prp_dur_ds, v.apv_lvs_sdt, v.apv_lvs_edt,  ");
+            sb.Append("v.apv_lvs_dur, v.apv_dur_ds, v.act_lvs_sdt, v.act_lvs_edt, ");
+            sb.Append("v.act_dur_ds, v.lm_rsmptn_dt, v.lm_confm_dt, v.lm_confm_by, ");
+            sb.Append("v.hr_rsmptn_dt, v.hr_confm_dt, v.hr_confm_by, v.rqs_cls_dt, ");
+            sb.Append("v.is_lm_aprv, v.is_hd_aprv, v.is_hr_aprv, v.is_xm_aprv, ");
+            sb.Append("v.is_sm_aprv, v.prp_lvs_dur_typ, v.apv_lvs_dur_typ, v.act_lvs_dur_typ,  ");
             sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = v.emp_id) ");
             sb.Append("as emp_nm, (SELECT lvs_typ_nm FROM public.lms_lvs_typs ");
             sb.Append("WHERE lvs_typ_cd = v.lvs_typ_cd) as lvs_typ_nm, ");
             sb.Append("(SELECT unitname FROM public.gst_units WHERE unitqk = v.unit_id) ");
             sb.Append("as unit_nm, (SELECT deptname FROM public.gst_depts WHERE deptqk ");
             sb.Append("= v.dept_id) as dept_nm, (SELECT locname FROM public.gst_locs ");
-            sb.Append("WHERE locqk = v.loc_id) as loc_nm, v.rsmptn_dt, ");
-            sb.Append("v.cls_rqs_dt, v.lm_rsmptn_dt, v.lm_confm_dt, ");
-            sb.Append("v.lm_confm_by, v.hr_confm_dt, v.hr_confm_by, ");
-            sb.Append("v.is_lm_aprv, v.is_hd_aprv, v.is_hr_aprv, ");
-            sb.Append("v.is_xm_aprv, v.is_sm_aprv ");
+            sb.Append("WHERE locqk = v.loc_id) as loc_nm ");
             sb.Append("FROM public.lms_lvs_infs v ");
-            sb.Append("WHERE (v.is_pln = @is_pln AND v.lvs_yr = @lvs_yr ");
+            sb.Append("WHERE (v.is_pln = @is_pln) AND (v.lvs_yr = @lvs_yr) ");
             sb.Append("AND v.emp_id IN (SELECT p.id FROM public.gst_prsns p ");
             sb.Append("WHERE p.fullname = @emp_nm)) ");
-            sb.Append("ORDER BY v.lvs_sdt; ");
+            sb.Append("ORDER BY v.prp_lvs_sdt; ");
             string query = sb.ToString();
             using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
             {
@@ -826,29 +918,46 @@ namespace IntranetPortal.Data.Repositories.LmsRepositories
                             Id = reader["lvs_inf_id"] == DBNull.Value ? 0L : (long)reader["lvs_inf_id"],
                             EmployeeId = reader["emp_id"] == DBNull.Value ? string.Empty : reader["emp_id"].ToString(),
                             EmployeeFullName = reader["emp_nm"] == DBNull.Value ? string.Empty : reader["emp_nm"].ToString(),
-                            LeaveYear = reader["lvs_yr"] == DBNull.Value ? 1900 : (int)reader["lvs_yr"],
-                            LeaveTypeCode = reader["lvs_typ_cd"] == DBNull.Value ? string.Empty : reader["lvs_typ_cd"].ToString(),
-                            LeaveTypeName = reader["lvs_typ_nm"] == DBNull.Value ? string.Empty : reader["lvs_typ_nm"].ToString(),
-                            LeaveReason = reader["lvs_rsn"] == DBNull.Value ? string.Empty : reader["lvs_rsn"].ToString(),
-                            LeaveStatus = reader["lvs_sts"] == DBNull.Value ? string.Empty : reader["lvs_sts"].ToString(),
-                            LeaveStartDate = reader["lvs_sdt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["lvs_sdt"],
-                            LeaveEndDate = reader["lvs_edt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["lvs_edt"],
-                            Duration = reader["lvs_dur"] == DBNull.Value ? 0 : (int)reader["lvs_dur"],
-                            DurationTypeId = reader["dur_typ"] == DBNull.Value ? 0 : (int)reader["dur_typ"],
-                            DurationTypeDescription = reader["dur_typ_ds"] == DBNull.Value ? string.Empty : reader["dur_typ_ds"].ToString(),
+
                             UnitId = reader["unit_id"] == DBNull.Value ? 0 : (int)reader["unit_id"],
                             UnitName = reader["unit_nm"] == DBNull.Value ? string.Empty : reader["unit_nm"].ToString(),
                             DepartmentId = reader["dept_id"] == DBNull.Value ? 0 : (int)reader["dept_id"],
                             DepartmentName = reader["dept_nm"] == DBNull.Value ? string.Empty : reader["dept_nm"].ToString(),
                             LocationId = reader["loc_id"] == DBNull.Value ? 0 : (int)reader["loc_id"],
                             LocationName = reader["loc_nm"] == DBNull.Value ? string.Empty : reader["loc_nm"].ToString(),
+
+                            LeaveYear = reader["lvs_yr"] == DBNull.Value ? 1900 : (int)reader["lvs_yr"],
+                            LeaveTypeCode = reader["lvs_typ_cd"] == DBNull.Value ? string.Empty : reader["lvs_typ_cd"].ToString(),
+                            LeaveTypeName = reader["lvs_typ_nm"] == DBNull.Value ? string.Empty : reader["lvs_typ_nm"].ToString(),
+                            LeaveReason = reader["lvs_rsn"] == DBNull.Value ? string.Empty : reader["lvs_rsn"].ToString(),
+                            LeaveStatus = reader["lvs_sts"] == DBNull.Value ? string.Empty : reader["lvs_sts"].ToString(),
                             IsPlan = reader["is_pln"] == DBNull.Value ? true : (bool)reader["is_pln"],
 
-                            ResumptionDate = reader["rsmptn_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["rsmptn_dt"],
-                            CloseRequestDate = reader["cls_rqs_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["cls_rqs_dt"],
+                            ProposedLeaveStartDate = reader["prp_lvs_sdt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["prp_lvs_sdt"],
+                            ProposedLeaveEndDate = reader["prp_lvs_edt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["prp_lvs_edt"],
+                            ProposedLeaveDuration = reader["prp_lvs_dur"] == DBNull.Value ? 0 : (int)reader["prp_lvs_dur"],
+                            ProposedDurationTypeId = reader["prp_lvs_dur_typ"] == DBNull.Value ? 0 : (int)reader["prp_lvs_dur_typ"],
+                            ProposedDurationDescription = reader["prp_dur_ds"] == DBNull.Value ? string.Empty : reader["prp_dur_ds"].ToString(),
+
+                            ApprovedLeaveStartDate = reader["apv_lvs_sdt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["apv_lvs_sdt"],
+                            ApprovedLeaveEndDate = reader["apv_lvs_edt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["apv_lvs_edt"],
+                            ApprovedLeaveDuration = reader["apv_lvs_dur"] == DBNull.Value ? 0 : (int)reader["apv_lvs_dur"],
+                            ApprovedDurationTypeId = reader["apv_lvs_dur_typ"] == DBNull.Value ? 0 : (int)reader["apv_lvs_dur_typ"],
+                            ApprovedDurationDescription = reader["apv_dur_ds"] == DBNull.Value ? string.Empty : reader["apv_dur_ds"].ToString(),
+
+                            ActualLeaveStartDate = reader["act_lvs_sdt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["act_lvs_sdt"],
+                            ActualLeaveEndDate = reader["act_lvs_edt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["act_lvs_edt"],
+                            ActualLeaveDuration = reader["act_lvs_dur"] == DBNull.Value ? 0 : (int)reader["act_lvs_dur"],
+                            ActualDurationTypeId = reader["act_lvs_dur_typ"] == DBNull.Value ? 0 : (int)reader["act_lvs_dur_typ"],
+                            ActualDurationDescription = reader["act_dur_ds"] == DBNull.Value ? string.Empty : reader["act_dur_ds"].ToString(),
+
+                            RequestCloseDate = reader["rqs_cls_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["rqs_cls_dt"],
+
                             LineManagersResumptionDate = reader["lm_rsmptn_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["lm_rsmptn_dt"],
                             LineManagerConfirmResumptionDate = reader["lm_confm_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["lm_confm_dt"],
                             LineManagerConfirmResumptionBy = reader["lm_confm_by"] == DBNull.Value ? string.Empty : reader["lm_confm_by"].ToString(),
+
+                            HrResumptionDate = reader["hr_rsmptn_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["hr_rsmptn_dt"],
                             HrConfirmResumptionDate = reader["hr_confm_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["hr_confm_dt"],
                             HrConfirmResumptionBy = reader["hr_confm_by"] == DBNull.Value ? string.Empty : reader["hr_confm_by"].ToString(),
 
@@ -868,31 +977,29 @@ namespace IntranetPortal.Data.Repositories.LmsRepositories
         {
             List<EmployeeLeave> leaveList = new List<EmployeeLeave>();
             StringBuilder sb = new StringBuilder();
-
-            sb.Append("SELECT v.lvs_inf_id, v.emp_id, v.lvs_yr, v.lvs_typ_cd, ");
-            sb.Append("v.lvs_rsn, v.lvs_sts, v.lvs_sdt, v.lvs_edt, v.lvs_dur, ");
-            sb.Append("v.unit_id, v.dept_id, v.loc_id, v.is_pln, v.dur_typ, ");
-            sb.Append("CASE WHEN v.dur_typ = 0 THEN 'Working Day(s)' ");
-            sb.Append("WHEN v.dur_typ = 1 THEN 'Day(s)' ");
-            sb.Append("WHEN v.dur_typ = 2 THEN 'Week(s)' ");
-            sb.Append("WHEN v.dur_typ = 3 THEN 'Month(s)' ");
-            sb.Append("WHEN v.dur_typ = 4 THEN 'Year(s)' END as dur_typ_ds, ");
+            sb.Append("SELECT v.lvs_inf_id, v.emp_id, v.unit_id, v.dept_id, ");
+            sb.Append("v.loc_id, v.lvs_yr, v.lvs_typ_cd, v.lvs_rsn, v.lvs_sts, ");
+            sb.Append("v.is_pln, v.prp_lvs_sdt, v.prp_lvs_edt, v.prp_lvs_dur, ");
+            sb.Append("v.act_lvs_dur, v.prp_dur_ds, v.apv_lvs_sdt, v.apv_lvs_edt,  ");
+            sb.Append("v.apv_lvs_dur, v.apv_dur_ds, v.act_lvs_sdt, v.act_lvs_edt, ");
+            sb.Append("v.act_dur_ds, v.lm_rsmptn_dt, v.lm_confm_dt, v.lm_confm_by, ");
+            sb.Append("v.hr_rsmptn_dt, v.hr_confm_dt, v.hr_confm_by, v.rqs_cls_dt, ");
+            sb.Append("v.is_lm_aprv, v.is_hd_aprv, v.is_hr_aprv, v.is_xm_aprv, ");
+            sb.Append("v.is_sm_aprv, v.prp_lvs_dur_typ, v.apv_lvs_dur_typ, v.act_lvs_dur_typ,  ");
             sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = v.emp_id) ");
             sb.Append("as emp_nm, (SELECT lvs_typ_nm FROM public.lms_lvs_typs ");
             sb.Append("WHERE lvs_typ_cd = v.lvs_typ_cd) as lvs_typ_nm, ");
             sb.Append("(SELECT unitname FROM public.gst_units WHERE unitqk = v.unit_id) ");
             sb.Append("as unit_nm, (SELECT deptname FROM public.gst_depts WHERE deptqk ");
             sb.Append("= v.dept_id) as dept_nm, (SELECT locname FROM public.gst_locs ");
-            sb.Append("WHERE locqk = v.loc_id) as loc_nm, v.rsmptn_dt, ");
-            sb.Append("v.cls_rqs_dt, v.lm_rsmptn_dt, v.lm_confm_dt, ");
-            sb.Append("v.lm_confm_by, v.hr_confm_dt, v.hr_confm_by, ");
-            sb.Append("v.is_lm_aprv, v.is_hd_aprv, v.is_hr_aprv,  ");
-            sb.Append("v.is_xm_aprv, v.is_sm_aprv ");
+            sb.Append("WHERE locqk = v.loc_id) as loc_nm ");
             sb.Append("FROM public.lms_lvs_infs v ");
-            sb.Append("WHERE (v.lvs_yr = @lvs_yr AND v.lvs_sts = @lvs_sts ");
+            sb.Append("WHERE (v.is_pln = @is_pln) AND (v.lvs_yr = @lvs_yr) ");
+            sb.Append("AND (v.lvs_sts = @lvs_sts) ");
             sb.Append("AND v.emp_id IN (SELECT p.id FROM public.gst_prsns p ");
-            sb.Append("WHERE p.fullname = @emp_nm) ");
-            sb.Append("AND v.is_pln = @is_pln) ORDER BY v.lvs_sdt; ");
+            sb.Append("WHERE p.fullname = @emp_nm)) ");
+            sb.Append("ORDER BY v.prp_lvs_sdt; ");
+
             string query = sb.ToString();
             using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
             {
@@ -915,29 +1022,46 @@ namespace IntranetPortal.Data.Repositories.LmsRepositories
                             Id = reader["lvs_inf_id"] == DBNull.Value ? 0L : (long)reader["lvs_inf_id"],
                             EmployeeId = reader["emp_id"] == DBNull.Value ? string.Empty : reader["emp_id"].ToString(),
                             EmployeeFullName = reader["emp_nm"] == DBNull.Value ? string.Empty : reader["emp_nm"].ToString(),
-                            LeaveYear = reader["lvs_yr"] == DBNull.Value ? 1900 : (int)reader["lvs_yr"],
-                            LeaveTypeCode = reader["lvs_typ_cd"] == DBNull.Value ? string.Empty : reader["lvs_typ_cd"].ToString(),
-                            LeaveTypeName = reader["lvs_typ_nm"] == DBNull.Value ? string.Empty : reader["lvs_typ_nm"].ToString(),
-                            LeaveReason = reader["lvs_rsn"] == DBNull.Value ? string.Empty : reader["lvs_rsn"].ToString(),
-                            LeaveStatus = reader["lvs_sts"] == DBNull.Value ? string.Empty : reader["lvs_sts"].ToString(),
-                            LeaveStartDate = reader["lvs_sdt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["lvs_sdt"],
-                            LeaveEndDate = reader["lvs_edt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["lvs_edt"],
-                            Duration = reader["lvs_dur"] == DBNull.Value ? 0 : (int)reader["lvs_dur"],
-                            DurationTypeId = reader["dur_typ"] == DBNull.Value ? 0 : (int)reader["dur_typ"],
-                            DurationTypeDescription = reader["dur_typ_ds"] == DBNull.Value ? string.Empty : reader["dur_typ_ds"].ToString(),
+
                             UnitId = reader["unit_id"] == DBNull.Value ? 0 : (int)reader["unit_id"],
                             UnitName = reader["unit_nm"] == DBNull.Value ? string.Empty : reader["unit_nm"].ToString(),
                             DepartmentId = reader["dept_id"] == DBNull.Value ? 0 : (int)reader["dept_id"],
                             DepartmentName = reader["dept_nm"] == DBNull.Value ? string.Empty : reader["dept_nm"].ToString(),
                             LocationId = reader["loc_id"] == DBNull.Value ? 0 : (int)reader["loc_id"],
                             LocationName = reader["loc_nm"] == DBNull.Value ? string.Empty : reader["loc_nm"].ToString(),
+
+                            LeaveYear = reader["lvs_yr"] == DBNull.Value ? 1900 : (int)reader["lvs_yr"],
+                            LeaveTypeCode = reader["lvs_typ_cd"] == DBNull.Value ? string.Empty : reader["lvs_typ_cd"].ToString(),
+                            LeaveTypeName = reader["lvs_typ_nm"] == DBNull.Value ? string.Empty : reader["lvs_typ_nm"].ToString(),
+                            LeaveReason = reader["lvs_rsn"] == DBNull.Value ? string.Empty : reader["lvs_rsn"].ToString(),
+                            LeaveStatus = reader["lvs_sts"] == DBNull.Value ? string.Empty : reader["lvs_sts"].ToString(),
                             IsPlan = reader["is_pln"] == DBNull.Value ? true : (bool)reader["is_pln"],
 
-                            ResumptionDate = reader["rsmptn_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["rsmptn_dt"],
-                            CloseRequestDate = reader["cls_rqs_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["cls_rqs_dt"],
+                            ProposedLeaveStartDate = reader["prp_lvs_sdt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["prp_lvs_sdt"],
+                            ProposedLeaveEndDate = reader["prp_lvs_edt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["prp_lvs_edt"],
+                            ProposedLeaveDuration = reader["prp_lvs_dur"] == DBNull.Value ? 0 : (int)reader["prp_lvs_dur"],
+                            ProposedDurationTypeId = reader["prp_lvs_dur_typ"] == DBNull.Value ? 0 : (int)reader["prp_lvs_dur_typ"],
+                            ProposedDurationDescription = reader["prp_dur_ds"] == DBNull.Value ? string.Empty : reader["prp_dur_ds"].ToString(),
+
+                            ApprovedLeaveStartDate = reader["apv_lvs_sdt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["apv_lvs_sdt"],
+                            ApprovedLeaveEndDate = reader["apv_lvs_edt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["apv_lvs_edt"],
+                            ApprovedLeaveDuration = reader["apv_lvs_dur"] == DBNull.Value ? 0 : (int)reader["apv_lvs_dur"],
+                            ApprovedDurationTypeId = reader["apv_lvs_dur_typ"] == DBNull.Value ? 0 : (int)reader["apv_lvs_dur_typ"],
+                            ApprovedDurationDescription = reader["apv_dur_ds"] == DBNull.Value ? string.Empty : reader["apv_dur_ds"].ToString(),
+
+                            ActualLeaveStartDate = reader["act_lvs_sdt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["act_lvs_sdt"],
+                            ActualLeaveEndDate = reader["act_lvs_edt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["act_lvs_edt"],
+                            ActualLeaveDuration = reader["act_lvs_dur"] == DBNull.Value ? 0 : (int)reader["act_lvs_dur"],
+                            ActualDurationTypeId = reader["act_lvs_dur_typ"] == DBNull.Value ? 0 : (int)reader["act_lvs_dur_typ"],
+                            ActualDurationDescription = reader["act_dur_ds"] == DBNull.Value ? string.Empty : reader["act_dur_ds"].ToString(),
+
+                            RequestCloseDate = reader["rqs_cls_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["rqs_cls_dt"],
+
                             LineManagersResumptionDate = reader["lm_rsmptn_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["lm_rsmptn_dt"],
                             LineManagerConfirmResumptionDate = reader["lm_confm_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["lm_confm_dt"],
                             LineManagerConfirmResumptionBy = reader["lm_confm_by"] == DBNull.Value ? string.Empty : reader["lm_confm_by"].ToString(),
+
+                            HrResumptionDate = reader["hr_rsmptn_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["hr_rsmptn_dt"],
                             HrConfirmResumptionDate = reader["hr_confm_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["hr_confm_dt"],
                             HrConfirmResumptionBy = reader["hr_confm_by"] == DBNull.Value ? string.Empty : reader["hr_confm_by"].ToString(),
 
@@ -956,36 +1080,33 @@ namespace IntranetPortal.Data.Repositories.LmsRepositories
         public async Task<List<EmployeeLeave>> GetByEmployeeNamenYearnMonthnStatusAsync(string employeeName, int year, int month, string leaveStatus, bool isPlan)
         {
             List<EmployeeLeave> leaveList = new List<EmployeeLeave>();
-            string query = string.Empty;
             StringBuilder sb = new StringBuilder();
 
-            sb.Append("SELECT v.lvs_inf_id, v.emp_id, v.lvs_yr, v.lvs_typ_cd, ");
-            sb.Append("v.lvs_rsn, v.lvs_sts, v.lvs_sdt, v.lvs_edt, v.lvs_dur, ");
-            sb.Append("v.unit_id, v.dept_id, v.loc_id, v.is_pln, v.dur_typ, ");
-            sb.Append("CASE WHEN v.dur_typ = 0 THEN 'Working Day(s)' ");
-            sb.Append("WHEN v.dur_typ = 1 THEN 'Day(s)' ");
-            sb.Append("WHEN v.dur_typ = 2 THEN 'Week(s)' ");
-            sb.Append("WHEN v.dur_typ = 3 THEN 'Month(s)' ");
-            sb.Append("WHEN v.dur_typ = 4 THEN 'Year(s)' END as dur_typ_ds, ");
+            sb.Append("SELECT v.lvs_inf_id, v.emp_id, v.unit_id, v.dept_id, ");
+            sb.Append("v.loc_id, v.lvs_yr, v.lvs_typ_cd, v.lvs_rsn, v.lvs_sts, ");
+            sb.Append("v.is_pln, v.prp_lvs_sdt, v.prp_lvs_edt, v.prp_lvs_dur, ");
+            sb.Append("v.act_lvs_dur, v.prp_dur_ds, v.apv_lvs_sdt, v.apv_lvs_edt,  ");
+            sb.Append("v.apv_lvs_dur, v.apv_dur_ds, v.act_lvs_sdt, v.act_lvs_edt, ");
+            sb.Append("v.act_dur_ds, v.lm_rsmptn_dt, v.lm_confm_dt, v.lm_confm_by, ");
+            sb.Append("v.hr_rsmptn_dt, v.hr_confm_dt, v.hr_confm_by, v.rqs_cls_dt, ");
+            sb.Append("v.is_lm_aprv, v.is_hd_aprv, v.is_hr_aprv, v.is_xm_aprv, ");
+            sb.Append("v.is_sm_aprv, v.prp_lvs_dur_typ, v.apv_lvs_dur_typ, v.act_lvs_dur_typ,  ");
             sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = v.emp_id) ");
             sb.Append("as emp_nm, (SELECT lvs_typ_nm FROM public.lms_lvs_typs ");
             sb.Append("WHERE lvs_typ_cd = v.lvs_typ_cd) as lvs_typ_nm, ");
             sb.Append("(SELECT unitname FROM public.gst_units WHERE unitqk = v.unit_id) ");
             sb.Append("as unit_nm, (SELECT deptname FROM public.gst_depts WHERE deptqk ");
             sb.Append("= v.dept_id) as dept_nm, (SELECT locname FROM public.gst_locs ");
-            sb.Append("WHERE locqk = v.loc_id) as loc_nm, v.rsmptn_dt, ");
-            sb.Append("v.cls_rqs_dt, v.lm_rsmptn_dt, v.lm_confm_dt, ");
-            sb.Append("v.lm_confm_by, v.hr_confm_dt, v.hr_confm_by, ");
-            sb.Append("v.is_lm_aprv, v.is_hd_aprv, v.is_hr_aprv, ");
-            sb.Append("v.is_xm_aprv, v.is_sm_aprv ");
+            sb.Append("WHERE locqk = v.loc_id) as loc_nm ");
             sb.Append("FROM public.lms_lvs_infs v ");
-            sb.Append("WHERE (v.lvs_yr = @lvs_yr ");
-            sb.Append("AND DATE_PART('Month', v.lvs_sdt) = @lvs_month ");
-            sb.Append("AND v.lvs_sts = @lvs_sts ");
+            sb.Append("WHERE (v.is_pln = @is_pln) AND (v.lvs_sts = @lvs_sts) ");
+            sb.Append("AND DATE_PART('Year', v.prp_lvs_sdt) = @lvs_year ");
+            sb.Append("AND DATE_PART('Month', v.prp_lvs_sdt) = @lvs_month ");
             sb.Append("AND v.emp_id IN (SELECT p.id FROM public.gst_prsns p ");
-            sb.Append("WHERE p.fullname = @emp_nm) ");
-            sb.Append("AND v.is_pln = @is_pln) ORDER BY v.lvs_sdt; ");
-            query = sb.ToString();
+            sb.Append("WHERE p.fullname = @emp_nm)) ");
+            sb.Append("ORDER BY v.prp_lvs_sdt; ");
+
+            string query = sb.ToString();
             using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
             {
                 await conn.OpenAsync();
@@ -993,13 +1114,13 @@ namespace IntranetPortal.Data.Repositories.LmsRepositories
                 using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
                 {
                     var emp_nm = cmd.Parameters.Add("@emp_nm", NpgsqlDbType.Text);
-                    var lvs_yr = cmd.Parameters.Add("@lvs_yr", NpgsqlDbType.Integer);
+                    var lvs_year = cmd.Parameters.Add("@lvs_year", NpgsqlDbType.Integer);
                     var lvs_month = cmd.Parameters.Add("@lvs_month", NpgsqlDbType.Integer);
                     var lvs_sts = cmd.Parameters.Add("@lvs_sts", NpgsqlDbType.Text);
                     var is_pln = cmd.Parameters.Add("@is_pln", NpgsqlDbType.Boolean);
                     await cmd.PrepareAsync();
                     emp_nm.Value = employeeName;
-                    lvs_yr.Value = year;
+                    lvs_year.Value = year;
                     lvs_month.Value = month;
                     lvs_sts.Value = leaveStatus;
                     is_pln.Value = isPlan;
@@ -1011,29 +1132,46 @@ namespace IntranetPortal.Data.Repositories.LmsRepositories
                             Id = reader["lvs_inf_id"] == DBNull.Value ? 0L : (long)reader["lvs_inf_id"],
                             EmployeeId = reader["emp_id"] == DBNull.Value ? string.Empty : reader["emp_id"].ToString(),
                             EmployeeFullName = reader["emp_nm"] == DBNull.Value ? string.Empty : reader["emp_nm"].ToString(),
-                            LeaveYear = reader["lvs_yr"] == DBNull.Value ? 1900 : (int)reader["lvs_yr"],
-                            LeaveTypeCode = reader["lvs_typ_cd"] == DBNull.Value ? string.Empty : reader["lvs_typ_cd"].ToString(),
-                            LeaveTypeName = reader["lvs_typ_nm"] == DBNull.Value ? string.Empty : reader["lvs_typ_nm"].ToString(),
-                            LeaveReason = reader["lvs_rsn"] == DBNull.Value ? string.Empty : reader["lvs_rsn"].ToString(),
-                            LeaveStatus = reader["lvs_sts"] == DBNull.Value ? string.Empty : reader["lvs_sts"].ToString(),
-                            LeaveStartDate = reader["lvs_sdt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["lvs_sdt"],
-                            LeaveEndDate = reader["lvs_edt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["lvs_edt"],
-                            Duration = reader["lvs_dur"] == DBNull.Value ? 0 : (int)reader["lvs_dur"],
-                            DurationTypeId = reader["dur_typ"] == DBNull.Value ? 0 : (int)reader["dur_typ"],
-                            DurationTypeDescription = reader["dur_typ_ds"] == DBNull.Value ? string.Empty : reader["dur_typ_ds"].ToString(),
+
                             UnitId = reader["unit_id"] == DBNull.Value ? 0 : (int)reader["unit_id"],
                             UnitName = reader["unit_nm"] == DBNull.Value ? string.Empty : reader["unit_nm"].ToString(),
                             DepartmentId = reader["dept_id"] == DBNull.Value ? 0 : (int)reader["dept_id"],
                             DepartmentName = reader["dept_nm"] == DBNull.Value ? string.Empty : reader["dept_nm"].ToString(),
                             LocationId = reader["loc_id"] == DBNull.Value ? 0 : (int)reader["loc_id"],
                             LocationName = reader["loc_nm"] == DBNull.Value ? string.Empty : reader["loc_nm"].ToString(),
+
+                            LeaveYear = reader["lvs_yr"] == DBNull.Value ? 1900 : (int)reader["lvs_yr"],
+                            LeaveTypeCode = reader["lvs_typ_cd"] == DBNull.Value ? string.Empty : reader["lvs_typ_cd"].ToString(),
+                            LeaveTypeName = reader["lvs_typ_nm"] == DBNull.Value ? string.Empty : reader["lvs_typ_nm"].ToString(),
+                            LeaveReason = reader["lvs_rsn"] == DBNull.Value ? string.Empty : reader["lvs_rsn"].ToString(),
+                            LeaveStatus = reader["lvs_sts"] == DBNull.Value ? string.Empty : reader["lvs_sts"].ToString(),
                             IsPlan = reader["is_pln"] == DBNull.Value ? true : (bool)reader["is_pln"],
 
-                            ResumptionDate = reader["rsmptn_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["rsmptn_dt"],
-                            CloseRequestDate = reader["cls_rqs_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["cls_rqs_dt"],
+                            ProposedLeaveStartDate = reader["prp_lvs_sdt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["prp_lvs_sdt"],
+                            ProposedLeaveEndDate = reader["prp_lvs_edt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["prp_lvs_edt"],
+                            ProposedLeaveDuration = reader["prp_lvs_dur"] == DBNull.Value ? 0 : (int)reader["prp_lvs_dur"],
+                            ProposedDurationTypeId = reader["prp_lvs_dur_typ"] == DBNull.Value ? 0 : (int)reader["prp_lvs_dur_typ"],
+                            ProposedDurationDescription = reader["prp_dur_ds"] == DBNull.Value ? string.Empty : reader["prp_dur_ds"].ToString(),
+
+                            ApprovedLeaveStartDate = reader["apv_lvs_sdt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["apv_lvs_sdt"],
+                            ApprovedLeaveEndDate = reader["apv_lvs_edt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["apv_lvs_edt"],
+                            ApprovedLeaveDuration = reader["apv_lvs_dur"] == DBNull.Value ? 0 : (int)reader["apv_lvs_dur"],
+                            ApprovedDurationTypeId = reader["apv_lvs_dur_typ"] == DBNull.Value ? 0 : (int)reader["apv_lvs_dur_typ"],
+                            ApprovedDurationDescription = reader["apv_dur_ds"] == DBNull.Value ? string.Empty : reader["apv_dur_ds"].ToString(),
+
+                            ActualLeaveStartDate = reader["act_lvs_sdt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["act_lvs_sdt"],
+                            ActualLeaveEndDate = reader["act_lvs_edt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["act_lvs_edt"],
+                            ActualLeaveDuration = reader["act_lvs_dur"] == DBNull.Value ? 0 : (int)reader["act_lvs_dur"],
+                            ActualDurationTypeId = reader["act_lvs_dur_typ"] == DBNull.Value ? 0 : (int)reader["act_lvs_dur_typ"],
+                            ActualDurationDescription = reader["act_dur_ds"] == DBNull.Value ? string.Empty : reader["act_dur_ds"].ToString(),
+
+                            RequestCloseDate = reader["rqs_cls_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["rqs_cls_dt"],
+
                             LineManagersResumptionDate = reader["lm_rsmptn_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["lm_rsmptn_dt"],
                             LineManagerConfirmResumptionDate = reader["lm_confm_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["lm_confm_dt"],
                             LineManagerConfirmResumptionBy = reader["lm_confm_by"] == DBNull.Value ? string.Empty : reader["lm_confm_by"].ToString(),
+
+                            HrResumptionDate = reader["hr_rsmptn_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["hr_rsmptn_dt"],
                             HrConfirmResumptionDate = reader["hr_confm_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["hr_confm_dt"],
                             HrConfirmResumptionBy = reader["hr_confm_by"] == DBNull.Value ? string.Empty : reader["hr_confm_by"].ToString(),
 
@@ -1052,35 +1190,33 @@ namespace IntranetPortal.Data.Repositories.LmsRepositories
         public async Task<List<EmployeeLeave>> GetByEmployeeNamenYearnMonthAsync(string employeeName, int year, int month, bool isPlan)
         {
             List<EmployeeLeave> leaveList = new List<EmployeeLeave>();
-            string query = string.Empty;
             StringBuilder sb = new StringBuilder();
 
-            sb.Append("SELECT v.lvs_inf_id, v.emp_id, v.lvs_yr, v.lvs_typ_cd, ");
-            sb.Append("v.lvs_rsn, v.lvs_sts, v.lvs_sdt, v.lvs_edt, v.lvs_dur, ");
-            sb.Append("v.unit_id, v.dept_id, v.loc_id, v.is_pln, v.dur_typ, ");
-            sb.Append("CASE WHEN v.dur_typ = 0 THEN 'Working Day(s)' ");
-            sb.Append("WHEN v.dur_typ = 1 THEN 'Day(s)' ");
-            sb.Append("WHEN v.dur_typ = 2 THEN 'Week(s)' ");
-            sb.Append("WHEN v.dur_typ = 3 THEN 'Month(s)' ");
-            sb.Append("WHEN v.dur_typ = 4 THEN 'Year(s)' END as dur_typ_ds, ");
+            sb.Append("SELECT v.lvs_inf_id, v.emp_id, v.unit_id, v.dept_id, ");
+            sb.Append("v.loc_id, v.lvs_yr, v.lvs_typ_cd, v.lvs_rsn, v.lvs_sts, ");
+            sb.Append("v.is_pln, v.prp_lvs_sdt, v.prp_lvs_edt, v.prp_lvs_dur, ");
+            sb.Append("v.act_lvs_dur, v.prp_dur_ds, v.apv_lvs_sdt, v.apv_lvs_edt,  ");
+            sb.Append("v.apv_lvs_dur, v.apv_dur_ds, v.act_lvs_sdt, v.act_lvs_edt, ");
+            sb.Append("v.act_dur_ds, v.lm_rsmptn_dt, v.lm_confm_dt, v.lm_confm_by, ");
+            sb.Append("v.hr_rsmptn_dt, v.hr_confm_dt, v.hr_confm_by, v.rqs_cls_dt, ");
+            sb.Append("v.is_lm_aprv, v.is_hd_aprv, v.is_hr_aprv, v.is_xm_aprv, ");
+            sb.Append("v.is_sm_aprv, v.prp_lvs_dur_typ, v.apv_lvs_dur_typ, v.act_lvs_dur_typ,  ");
             sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = v.emp_id) ");
             sb.Append("as emp_nm, (SELECT lvs_typ_nm FROM public.lms_lvs_typs ");
             sb.Append("WHERE lvs_typ_cd = v.lvs_typ_cd) as lvs_typ_nm, ");
             sb.Append("(SELECT unitname FROM public.gst_units WHERE unitqk = v.unit_id) ");
             sb.Append("as unit_nm, (SELECT deptname FROM public.gst_depts WHERE deptqk ");
             sb.Append("= v.dept_id) as dept_nm, (SELECT locname FROM public.gst_locs ");
-            sb.Append("WHERE locqk = v.loc_id) as loc_nm, v.rsmptn_dt, ");
-            sb.Append("v.cls_rqs_dt, v.lm_rsmptn_dt, v.lm_confm_dt, ");
-            sb.Append("v.lm_confm_by, v.hr_confm_dt, v.hr_confm_by, ");
-            sb.Append("v.is_lm_aprv, v.is_hd_aprv, v.is_hr_aprv, ");
-            sb.Append("v.is_xm_aprv, v.is_sm_aprv ");
+            sb.Append("WHERE locqk = v.loc_id) as loc_nm ");
             sb.Append("FROM public.lms_lvs_infs v ");
-            sb.Append("WHERE (v.lvs_yr = @lvs_yr ");
-            sb.Append("AND DATE_PART('Month', v.lvs_sdt) = @lvs_month ");
+            sb.Append("WHERE (v.is_pln = @is_pln) ");
+            sb.Append("AND DATE_PART('Year', v.prp_lvs_sdt) = @lvs_year ");
+            sb.Append("AND DATE_PART('Month', v.prp_lvs_sdt) = @lvs_month ");
             sb.Append("AND v.emp_id IN (SELECT p.id FROM public.gst_prsns p ");
-            sb.Append("WHERE p.fullname = @emp_nm) ");
-            sb.Append("AND v.is_pln = @is_pln) ORDER BY v.lvs_sdt; ");
-            query = sb.ToString();
+            sb.Append("WHERE p.fullname = @emp_nm)) ");
+            sb.Append("ORDER BY v.prp_lvs_sdt; ");
+
+            string query = sb.ToString();
             using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
             {
                 await conn.OpenAsync();
@@ -1088,12 +1224,12 @@ namespace IntranetPortal.Data.Repositories.LmsRepositories
                 using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
                 {
                     var emp_nm = cmd.Parameters.Add("@emp_nm", NpgsqlDbType.Text);
-                    var lvs_yr = cmd.Parameters.Add("@lvs_yr", NpgsqlDbType.Integer);
+                    var lvs_year = cmd.Parameters.Add("@lvs_year", NpgsqlDbType.Integer);
                     var lvs_month = cmd.Parameters.Add("@lvs_month", NpgsqlDbType.Integer);
                     var is_pln = cmd.Parameters.Add("@is_pln", NpgsqlDbType.Boolean);
                     await cmd.PrepareAsync();
                     emp_nm.Value = employeeName;
-                    lvs_yr.Value = year;
+                    lvs_year.Value = year;
                     lvs_month.Value = month;
                     is_pln.Value = isPlan;
                     var reader = await cmd.ExecuteReaderAsync();
@@ -1104,29 +1240,46 @@ namespace IntranetPortal.Data.Repositories.LmsRepositories
                             Id = reader["lvs_inf_id"] == DBNull.Value ? 0L : (long)reader["lvs_inf_id"],
                             EmployeeId = reader["emp_id"] == DBNull.Value ? string.Empty : reader["emp_id"].ToString(),
                             EmployeeFullName = reader["emp_nm"] == DBNull.Value ? string.Empty : reader["emp_nm"].ToString(),
-                            LeaveYear = reader["lvs_yr"] == DBNull.Value ? 1900 : (int)reader["lvs_yr"],
-                            LeaveTypeCode = reader["lvs_typ_cd"] == DBNull.Value ? string.Empty : reader["lvs_typ_cd"].ToString(),
-                            LeaveTypeName = reader["lvs_typ_nm"] == DBNull.Value ? string.Empty : reader["lvs_typ_nm"].ToString(),
-                            LeaveReason = reader["lvs_rsn"] == DBNull.Value ? string.Empty : reader["lvs_rsn"].ToString(),
-                            LeaveStatus = reader["lvs_sts"] == DBNull.Value ? string.Empty : reader["lvs_sts"].ToString(),
-                            LeaveStartDate = reader["lvs_sdt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["lvs_sdt"],
-                            LeaveEndDate = reader["lvs_edt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["lvs_edt"],
-                            Duration = reader["lvs_dur"] == DBNull.Value ? 0 : (int)reader["lvs_dur"],
-                            DurationTypeId = reader["dur_typ"] == DBNull.Value ? 0 : (int)reader["dur_typ"],
-                            DurationTypeDescription = reader["dur_typ_ds"] == DBNull.Value ? string.Empty : reader["dur_typ_ds"].ToString(),
+
                             UnitId = reader["unit_id"] == DBNull.Value ? 0 : (int)reader["unit_id"],
                             UnitName = reader["unit_nm"] == DBNull.Value ? string.Empty : reader["unit_nm"].ToString(),
                             DepartmentId = reader["dept_id"] == DBNull.Value ? 0 : (int)reader["dept_id"],
                             DepartmentName = reader["dept_nm"] == DBNull.Value ? string.Empty : reader["dept_nm"].ToString(),
                             LocationId = reader["loc_id"] == DBNull.Value ? 0 : (int)reader["loc_id"],
                             LocationName = reader["loc_nm"] == DBNull.Value ? string.Empty : reader["loc_nm"].ToString(),
+
+                            LeaveYear = reader["lvs_yr"] == DBNull.Value ? 1900 : (int)reader["lvs_yr"],
+                            LeaveTypeCode = reader["lvs_typ_cd"] == DBNull.Value ? string.Empty : reader["lvs_typ_cd"].ToString(),
+                            LeaveTypeName = reader["lvs_typ_nm"] == DBNull.Value ? string.Empty : reader["lvs_typ_nm"].ToString(),
+                            LeaveReason = reader["lvs_rsn"] == DBNull.Value ? string.Empty : reader["lvs_rsn"].ToString(),
+                            LeaveStatus = reader["lvs_sts"] == DBNull.Value ? string.Empty : reader["lvs_sts"].ToString(),
                             IsPlan = reader["is_pln"] == DBNull.Value ? true : (bool)reader["is_pln"],
 
-                            ResumptionDate = reader["rsmptn_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["rsmptn_dt"],
-                            CloseRequestDate = reader["cls_rqs_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["cls_rqs_dt"],
+                            ProposedLeaveStartDate = reader["prp_lvs_sdt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["prp_lvs_sdt"],
+                            ProposedLeaveEndDate = reader["prp_lvs_edt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["prp_lvs_edt"],
+                            ProposedLeaveDuration = reader["prp_lvs_dur"] == DBNull.Value ? 0 : (int)reader["prp_lvs_dur"],
+                            ProposedDurationTypeId = reader["prp_lvs_dur_typ"] == DBNull.Value ? 0 : (int)reader["prp_lvs_dur_typ"],
+                            ProposedDurationDescription = reader["prp_dur_ds"] == DBNull.Value ? string.Empty : reader["prp_dur_ds"].ToString(),
+
+                            ApprovedLeaveStartDate = reader["apv_lvs_sdt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["apv_lvs_sdt"],
+                            ApprovedLeaveEndDate = reader["apv_lvs_edt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["apv_lvs_edt"],
+                            ApprovedLeaveDuration = reader["apv_lvs_dur"] == DBNull.Value ? 0 : (int)reader["apv_lvs_dur"],
+                            ApprovedDurationTypeId = reader["apv_lvs_dur_typ"] == DBNull.Value ? 0 : (int)reader["apv_lvs_dur_typ"],
+                            ApprovedDurationDescription = reader["apv_dur_ds"] == DBNull.Value ? string.Empty : reader["apv_dur_ds"].ToString(),
+
+                            ActualLeaveStartDate = reader["act_lvs_sdt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["act_lvs_sdt"],
+                            ActualLeaveEndDate = reader["act_lvs_edt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["act_lvs_edt"],
+                            ActualLeaveDuration = reader["act_lvs_dur"] == DBNull.Value ? 0 : (int)reader["act_lvs_dur"],
+                            ActualDurationTypeId = reader["act_lvs_dur_typ"] == DBNull.Value ? 0 : (int)reader["act_lvs_dur_typ"],
+                            ActualDurationDescription = reader["act_dur_ds"] == DBNull.Value ? string.Empty : reader["act_dur_ds"].ToString(),
+
+                            RequestCloseDate = reader["rqs_cls_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["rqs_cls_dt"],
+
                             LineManagersResumptionDate = reader["lm_rsmptn_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["lm_rsmptn_dt"],
                             LineManagerConfirmResumptionDate = reader["lm_confm_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["lm_confm_dt"],
                             LineManagerConfirmResumptionBy = reader["lm_confm_by"] == DBNull.Value ? string.Empty : reader["lm_confm_by"].ToString(),
+
+                            HrResumptionDate = reader["hr_rsmptn_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["hr_rsmptn_dt"],
                             HrConfirmResumptionDate = reader["hr_confm_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["hr_confm_dt"],
                             HrConfirmResumptionBy = reader["hr_confm_by"] == DBNull.Value ? string.Empty : reader["hr_confm_by"].ToString(),
 
@@ -1145,34 +1298,30 @@ namespace IntranetPortal.Data.Repositories.LmsRepositories
         public async Task<List<EmployeeLeave>> GetByEmployeeNamenStatusAsync(string employeeName, string leaveStatus, bool isPlan)
         {
             List<EmployeeLeave> leaveList = new List<EmployeeLeave>();
-            string query = string.Empty;
             StringBuilder sb = new StringBuilder();
-
-            sb.Append("SELECT v.lvs_inf_id, v.emp_id, v.lvs_yr, v.lvs_typ_cd, ");
-            sb.Append("v.lvs_rsn, v.lvs_sts, v.lvs_sdt, v.lvs_edt, v.lvs_dur, ");
-            sb.Append("v.unit_id, v.dept_id, v.loc_id, v.is_pln, v.dur_typ, ");
-            sb.Append("CASE WHEN v.dur_typ = 0 THEN 'Working Day(s)' ");
-            sb.Append("WHEN v.dur_typ = 1 THEN 'Day(s)' ");
-            sb.Append("WHEN v.dur_typ = 2 THEN 'Week(s)' ");
-            sb.Append("WHEN v.dur_typ = 3 THEN 'Month(s)' ");
-            sb.Append("WHEN v.dur_typ = 4 THEN 'Year(s)' END as dur_typ_ds, ");
+            sb.Append("SELECT v.lvs_inf_id, v.emp_id, v.unit_id, v.dept_id, ");
+            sb.Append("v.loc_id, v.lvs_yr, v.lvs_typ_cd, v.lvs_rsn, v.lvs_sts, ");
+            sb.Append("v.is_pln, v.prp_lvs_sdt, v.prp_lvs_edt, v.prp_lvs_dur, ");
+            sb.Append("v.act_lvs_dur, v.prp_dur_ds, v.apv_lvs_sdt, v.apv_lvs_edt,  ");
+            sb.Append("v.apv_lvs_dur, v.apv_dur_ds, v.act_lvs_sdt, v.act_lvs_edt, ");
+            sb.Append("v.act_dur_ds, v.lm_rsmptn_dt, v.lm_confm_dt, v.lm_confm_by, ");
+            sb.Append("v.hr_rsmptn_dt, v.hr_confm_dt, v.hr_confm_by, v.rqs_cls_dt, ");
+            sb.Append("v.is_lm_aprv, v.is_hd_aprv, v.is_hr_aprv, v.is_xm_aprv, ");
+            sb.Append("v.is_sm_aprv, v.prp_lvs_dur_typ, v.apv_lvs_dur_typ, v.act_lvs_dur_typ,  ");
             sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = v.emp_id) ");
             sb.Append("as emp_nm, (SELECT lvs_typ_nm FROM public.lms_lvs_typs ");
             sb.Append("WHERE lvs_typ_cd = v.lvs_typ_cd) as lvs_typ_nm, ");
             sb.Append("(SELECT unitname FROM public.gst_units WHERE unitqk = v.unit_id) ");
             sb.Append("as unit_nm, (SELECT deptname FROM public.gst_depts WHERE deptqk ");
             sb.Append("= v.dept_id) as dept_nm, (SELECT locname FROM public.gst_locs ");
-            sb.Append("WHERE locqk = v.loc_id) as loc_nm, v.rsmptn_dt, ");
-            sb.Append("v.cls_rqs_dt, v.lm_rsmptn_dt, v.lm_confm_dt, ");
-            sb.Append("v.lm_confm_by, v.hr_confm_dt, v.hr_confm_by, ");
-            sb.Append("v.is_lm_aprv, v.is_hd_aprv, v.is_hr_aprv, ");
-            sb.Append("v.is_xm_aprv, v.is_sm_aprv ");
+            sb.Append("WHERE locqk = v.loc_id) as loc_nm ");
             sb.Append("FROM public.lms_lvs_infs v ");
-            sb.Append("WHERE (v.lvs_sts = @lvs_sts ");
+            sb.Append("WHERE (v.is_pln = @is_pln) AND (v.lvs_sts = @lvs_sts) ");
             sb.Append("AND v.emp_id IN (SELECT p.id FROM public.gst_prsns p ");
             sb.Append("WHERE p.fullname = @emp_nm) ");
-            sb.Append("AND v.is_pln = @is_pln) ORDER BY v.lvs_sdt; ");
-            query = sb.ToString();
+            sb.Append("ORDER BY v.prp_lvs_sdt; ");
+
+            string query = sb.ToString();
             using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
             {
                 await conn.OpenAsync();
@@ -1194,29 +1343,46 @@ namespace IntranetPortal.Data.Repositories.LmsRepositories
                             Id = reader["lvs_inf_id"] == DBNull.Value ? 0L : (long)reader["lvs_inf_id"],
                             EmployeeId = reader["emp_id"] == DBNull.Value ? string.Empty : reader["emp_id"].ToString(),
                             EmployeeFullName = reader["emp_nm"] == DBNull.Value ? string.Empty : reader["emp_nm"].ToString(),
-                            LeaveYear = reader["lvs_yr"] == DBNull.Value ? 1900 : (int)reader["lvs_yr"],
-                            LeaveTypeCode = reader["lvs_typ_cd"] == DBNull.Value ? string.Empty : reader["lvs_typ_cd"].ToString(),
-                            LeaveTypeName = reader["lvs_typ_nm"] == DBNull.Value ? string.Empty : reader["lvs_typ_nm"].ToString(),
-                            LeaveReason = reader["lvs_rsn"] == DBNull.Value ? string.Empty : reader["lvs_rsn"].ToString(),
-                            LeaveStatus = reader["lvs_sts"] == DBNull.Value ? string.Empty : reader["lvs_sts"].ToString(),
-                            LeaveStartDate = reader["lvs_sdt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["lvs_sdt"],
-                            LeaveEndDate = reader["lvs_edt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["lvs_edt"],
-                            Duration = reader["lvs_dur"] == DBNull.Value ? 0 : (int)reader["lvs_dur"],
-                            DurationTypeId = reader["dur_typ"] == DBNull.Value ? 0 : (int)reader["dur_typ"],
-                            DurationTypeDescription = reader["dur_typ_ds"] == DBNull.Value ? string.Empty : reader["dur_typ_ds"].ToString(),
+
                             UnitId = reader["unit_id"] == DBNull.Value ? 0 : (int)reader["unit_id"],
                             UnitName = reader["unit_nm"] == DBNull.Value ? string.Empty : reader["unit_nm"].ToString(),
                             DepartmentId = reader["dept_id"] == DBNull.Value ? 0 : (int)reader["dept_id"],
                             DepartmentName = reader["dept_nm"] == DBNull.Value ? string.Empty : reader["dept_nm"].ToString(),
                             LocationId = reader["loc_id"] == DBNull.Value ? 0 : (int)reader["loc_id"],
                             LocationName = reader["loc_nm"] == DBNull.Value ? string.Empty : reader["loc_nm"].ToString(),
+
+                            LeaveYear = reader["lvs_yr"] == DBNull.Value ? 1900 : (int)reader["lvs_yr"],
+                            LeaveTypeCode = reader["lvs_typ_cd"] == DBNull.Value ? string.Empty : reader["lvs_typ_cd"].ToString(),
+                            LeaveTypeName = reader["lvs_typ_nm"] == DBNull.Value ? string.Empty : reader["lvs_typ_nm"].ToString(),
+                            LeaveReason = reader["lvs_rsn"] == DBNull.Value ? string.Empty : reader["lvs_rsn"].ToString(),
+                            LeaveStatus = reader["lvs_sts"] == DBNull.Value ? string.Empty : reader["lvs_sts"].ToString(),
                             IsPlan = reader["is_pln"] == DBNull.Value ? true : (bool)reader["is_pln"],
 
-                            ResumptionDate = reader["rsmptn_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["rsmptn_dt"],
-                            CloseRequestDate = reader["cls_rqs_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["cls_rqs_dt"],
+                            ProposedLeaveStartDate = reader["prp_lvs_sdt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["prp_lvs_sdt"],
+                            ProposedLeaveEndDate = reader["prp_lvs_edt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["prp_lvs_edt"],
+                            ProposedLeaveDuration = reader["prp_lvs_dur"] == DBNull.Value ? 0 : (int)reader["prp_lvs_dur"],
+                            ProposedDurationTypeId = reader["prp_lvs_dur_typ"] == DBNull.Value ? 0 : (int)reader["prp_lvs_dur_typ"],
+                            ProposedDurationDescription = reader["prp_dur_ds"] == DBNull.Value ? string.Empty : reader["prp_dur_ds"].ToString(),
+
+                            ApprovedLeaveStartDate = reader["apv_lvs_sdt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["apv_lvs_sdt"],
+                            ApprovedLeaveEndDate = reader["apv_lvs_edt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["apv_lvs_edt"],
+                            ApprovedLeaveDuration = reader["apv_lvs_dur"] == DBNull.Value ? 0 : (int)reader["apv_lvs_dur"],
+                            ApprovedDurationTypeId = reader["apv_lvs_dur_typ"] == DBNull.Value ? 0 : (int)reader["apv_lvs_dur_typ"],
+                            ApprovedDurationDescription = reader["apv_dur_ds"] == DBNull.Value ? string.Empty : reader["apv_dur_ds"].ToString(),
+
+                            ActualLeaveStartDate = reader["act_lvs_sdt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["act_lvs_sdt"],
+                            ActualLeaveEndDate = reader["act_lvs_edt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["act_lvs_edt"],
+                            ActualLeaveDuration = reader["act_lvs_dur"] == DBNull.Value ? 0 : (int)reader["act_lvs_dur"],
+                            ActualDurationTypeId = reader["act_lvs_dur_typ"] == DBNull.Value ? 0 : (int)reader["act_lvs_dur_typ"],
+                            ActualDurationDescription = reader["act_dur_ds"] == DBNull.Value ? string.Empty : reader["act_dur_ds"].ToString(),
+
+                            RequestCloseDate = reader["rqs_cls_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["rqs_cls_dt"],
+
                             LineManagersResumptionDate = reader["lm_rsmptn_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["lm_rsmptn_dt"],
                             LineManagerConfirmResumptionDate = reader["lm_confm_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["lm_confm_dt"],
                             LineManagerConfirmResumptionBy = reader["lm_confm_by"] == DBNull.Value ? string.Empty : reader["lm_confm_by"].ToString(),
+
+                            HrResumptionDate = reader["hr_rsmptn_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["hr_rsmptn_dt"],
                             HrConfirmResumptionDate = reader["hr_confm_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["hr_confm_dt"],
                             HrConfirmResumptionBy = reader["hr_confm_by"] == DBNull.Value ? string.Empty : reader["hr_confm_by"].ToString(),
 
@@ -1235,33 +1401,29 @@ namespace IntranetPortal.Data.Repositories.LmsRepositories
         public async Task<List<EmployeeLeave>> GetByEmployeeNameAsync(string employeeName, bool isPlan)
         {
             List<EmployeeLeave> leaveList = new List<EmployeeLeave>();
-            string query = string.Empty;
             StringBuilder sb = new StringBuilder();
-
-            sb.Append("SELECT v.lvs_inf_id, v.emp_id, v.lvs_yr, v.lvs_typ_cd, ");
-            sb.Append("v.lvs_rsn, v.lvs_sts, v.lvs_sdt, v.lvs_edt, v.lvs_dur, ");
-            sb.Append("v.unit_id, v.dept_id, v.loc_id, v.is_pln, v.dur_typ, ");
-            sb.Append("CASE WHEN v.dur_typ = 0 THEN 'Working Day(s)' ");
-            sb.Append("WHEN v.dur_typ = 1 THEN 'Day(s)' ");
-            sb.Append("WHEN v.dur_typ = 2 THEN 'Week(s)' ");
-            sb.Append("WHEN v.dur_typ = 3 THEN 'Month(s)' ");
-            sb.Append("WHEN v.dur_typ = 4 THEN 'Year(s)' END as dur_typ_ds, ");
+            sb.Append("SELECT v.lvs_inf_id, v.emp_id, v.unit_id, v.dept_id, ");
+            sb.Append("v.loc_id, v.lvs_yr, v.lvs_typ_cd, v.lvs_rsn, v.lvs_sts, ");
+            sb.Append("v.is_pln, v.prp_lvs_sdt, v.prp_lvs_edt, v.prp_lvs_dur, ");
+            sb.Append("v.act_lvs_dur, v.prp_dur_ds, v.apv_lvs_sdt, v.apv_lvs_edt,  ");
+            sb.Append("v.apv_lvs_dur, v.apv_dur_ds, v.act_lvs_sdt, v.act_lvs_edt, ");
+            sb.Append("v.act_dur_ds, v.lm_rsmptn_dt, v.lm_confm_dt, v.lm_confm_by, ");
+            sb.Append("v.hr_rsmptn_dt, v.hr_confm_dt, v.hr_confm_by, v.rqs_cls_dt, ");
+            sb.Append("v.is_lm_aprv, v.is_hd_aprv, v.is_hr_aprv, v.is_xm_aprv, ");
+            sb.Append("v.is_sm_aprv, v.prp_lvs_dur_typ, v.apv_lvs_dur_typ, v.act_lvs_dur_typ,  ");
             sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = v.emp_id) ");
             sb.Append("as emp_nm, (SELECT lvs_typ_nm FROM public.lms_lvs_typs ");
             sb.Append("WHERE lvs_typ_cd = v.lvs_typ_cd) as lvs_typ_nm, ");
             sb.Append("(SELECT unitname FROM public.gst_units WHERE unitqk = v.unit_id) ");
             sb.Append("as unit_nm, (SELECT deptname FROM public.gst_depts WHERE deptqk ");
             sb.Append("= v.dept_id) as dept_nm, (SELECT locname FROM public.gst_locs ");
-            sb.Append("WHERE locqk = v.loc_id) as loc_nm, v.rsmptn_dt, ");
-            sb.Append("v.cls_rqs_dt, v.lm_rsmptn_dt, v.lm_confm_dt, ");
-            sb.Append("v.lm_confm_by, v.hr_confm_dt, v.hr_confm_by, ");
-            sb.Append("v.is_lm_aprv, v.is_hd_aprv, v.is_hr_aprv, ");
-            sb.Append("v.is_xm_aprv, v.is_sm_aprv ");
+            sb.Append("WHERE locqk = v.loc_id) as loc_nm ");
             sb.Append("FROM public.lms_lvs_infs v ");
-            sb.Append("WHERE v.emp_id IN (SELECT p.id FROM public.gst_prsns p ");
+            sb.Append("WHERE (v.is_pln = @is_pln) ");
+            sb.Append("AND v.emp_id IN (SELECT p.id FROM public.gst_prsns p ");
             sb.Append("WHERE p.fullname = @emp_nm) ");
-            sb.Append("AND v.is_pln = @is_pln) ORDER BY v.lvs_sdt; ");
-            query = sb.ToString();
+            sb.Append("ORDER BY v.prp_lvs_sdt; ");
+            string query = sb.ToString();
             using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
             {
                 await conn.OpenAsync();
@@ -1281,29 +1443,46 @@ namespace IntranetPortal.Data.Repositories.LmsRepositories
                             Id = reader["lvs_inf_id"] == DBNull.Value ? 0L : (long)reader["lvs_inf_id"],
                             EmployeeId = reader["emp_id"] == DBNull.Value ? string.Empty : reader["emp_id"].ToString(),
                             EmployeeFullName = reader["emp_nm"] == DBNull.Value ? string.Empty : reader["emp_nm"].ToString(),
-                            LeaveYear = reader["lvs_yr"] == DBNull.Value ? 1900 : (int)reader["lvs_yr"],
-                            LeaveTypeCode = reader["lvs_typ_cd"] == DBNull.Value ? string.Empty : reader["lvs_typ_cd"].ToString(),
-                            LeaveTypeName = reader["lvs_typ_nm"] == DBNull.Value ? string.Empty : reader["lvs_typ_nm"].ToString(),
-                            LeaveReason = reader["lvs_rsn"] == DBNull.Value ? string.Empty : reader["lvs_rsn"].ToString(),
-                            LeaveStatus = reader["lvs_sts"] == DBNull.Value ? string.Empty : reader["lvs_sts"].ToString(),
-                            LeaveStartDate = reader["lvs_sdt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["lvs_sdt"],
-                            LeaveEndDate = reader["lvs_edt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["lvs_edt"],
-                            Duration = reader["lvs_dur"] == DBNull.Value ? 0 : (int)reader["lvs_dur"],
-                            DurationTypeId = reader["dur_typ"] == DBNull.Value ? 0 : (int)reader["dur_typ"],
-                            DurationTypeDescription = reader["dur_typ_ds"] == DBNull.Value ? string.Empty : reader["dur_typ_ds"].ToString(),
+
                             UnitId = reader["unit_id"] == DBNull.Value ? 0 : (int)reader["unit_id"],
                             UnitName = reader["unit_nm"] == DBNull.Value ? string.Empty : reader["unit_nm"].ToString(),
                             DepartmentId = reader["dept_id"] == DBNull.Value ? 0 : (int)reader["dept_id"],
                             DepartmentName = reader["dept_nm"] == DBNull.Value ? string.Empty : reader["dept_nm"].ToString(),
                             LocationId = reader["loc_id"] == DBNull.Value ? 0 : (int)reader["loc_id"],
                             LocationName = reader["loc_nm"] == DBNull.Value ? string.Empty : reader["loc_nm"].ToString(),
+
+                            LeaveYear = reader["lvs_yr"] == DBNull.Value ? 1900 : (int)reader["lvs_yr"],
+                            LeaveTypeCode = reader["lvs_typ_cd"] == DBNull.Value ? string.Empty : reader["lvs_typ_cd"].ToString(),
+                            LeaveTypeName = reader["lvs_typ_nm"] == DBNull.Value ? string.Empty : reader["lvs_typ_nm"].ToString(),
+                            LeaveReason = reader["lvs_rsn"] == DBNull.Value ? string.Empty : reader["lvs_rsn"].ToString(),
+                            LeaveStatus = reader["lvs_sts"] == DBNull.Value ? string.Empty : reader["lvs_sts"].ToString(),
                             IsPlan = reader["is_pln"] == DBNull.Value ? true : (bool)reader["is_pln"],
 
-                            ResumptionDate = reader["rsmptn_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["rsmptn_dt"],
-                            CloseRequestDate = reader["cls_rqs_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["cls_rqs_dt"],
+                            ProposedLeaveStartDate = reader["prp_lvs_sdt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["prp_lvs_sdt"],
+                            ProposedLeaveEndDate = reader["prp_lvs_edt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["prp_lvs_edt"],
+                            ProposedLeaveDuration = reader["prp_lvs_dur"] == DBNull.Value ? 0 : (int)reader["prp_lvs_dur"],
+                            ProposedDurationTypeId = reader["prp_lvs_dur_typ"] == DBNull.Value ? 0 : (int)reader["prp_lvs_dur_typ"],
+                            ProposedDurationDescription = reader["prp_dur_ds"] == DBNull.Value ? string.Empty : reader["prp_dur_ds"].ToString(),
+
+                            ApprovedLeaveStartDate = reader["apv_lvs_sdt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["apv_lvs_sdt"],
+                            ApprovedLeaveEndDate = reader["apv_lvs_edt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["apv_lvs_edt"],
+                            ApprovedLeaveDuration = reader["apv_lvs_dur"] == DBNull.Value ? 0 : (int)reader["apv_lvs_dur"],
+                            ApprovedDurationTypeId = reader["apv_lvs_dur_typ"] == DBNull.Value ? 0 : (int)reader["apv_lvs_dur_typ"],
+                            ApprovedDurationDescription = reader["apv_dur_ds"] == DBNull.Value ? string.Empty : reader["apv_dur_ds"].ToString(),
+
+                            ActualLeaveStartDate = reader["act_lvs_sdt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["act_lvs_sdt"],
+                            ActualLeaveEndDate = reader["act_lvs_edt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["act_lvs_edt"],
+                            ActualLeaveDuration = reader["act_lvs_dur"] == DBNull.Value ? 0 : (int)reader["act_lvs_dur"],
+                            ActualDurationTypeId = reader["act_lvs_dur_typ"] == DBNull.Value ? 0 : (int)reader["act_lvs_dur_typ"],
+                            ActualDurationDescription = reader["act_dur_ds"] == DBNull.Value ? string.Empty : reader["act_dur_ds"].ToString(),
+
+                            RequestCloseDate = reader["rqs_cls_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["rqs_cls_dt"],
+
                             LineManagersResumptionDate = reader["lm_rsmptn_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["lm_rsmptn_dt"],
                             LineManagerConfirmResumptionDate = reader["lm_confm_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["lm_confm_dt"],
                             LineManagerConfirmResumptionBy = reader["lm_confm_by"] == DBNull.Value ? string.Empty : reader["lm_confm_by"].ToString(),
+
+                            HrResumptionDate = reader["hr_rsmptn_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["hr_rsmptn_dt"],
                             HrConfirmResumptionDate = reader["hr_confm_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["hr_confm_dt"],
                             HrConfirmResumptionBy = reader["hr_confm_by"] == DBNull.Value ? string.Empty : reader["hr_confm_by"].ToString(),
 
@@ -1319,38 +1498,35 @@ namespace IntranetPortal.Data.Repositories.LmsRepositories
             }
             return leaveList;
         }
+        #endregion
 
-
+        #region Employee Leaves for Reports & Team Members
         //===== Employee Leaves for Reports & Team Members =========//
         public async Task<List<EmployeeLeave>> GetByReportingLineIdAsync(string teamLeadId, bool isPlan)
         {
             List<EmployeeLeave> leaveList = new List<EmployeeLeave>();
             StringBuilder sb = new StringBuilder();
-
-            sb.Append("SELECT v.lvs_inf_id, v.emp_id, v.lvs_yr, v.lvs_typ_cd, ");
-            sb.Append("v.lvs_rsn, v.lvs_sts, v.lvs_sdt, v.lvs_edt, v.lvs_dur, ");
-            sb.Append("v.unit_id, v.dept_id, v.loc_id, v.is_pln, v.dur_typ, ");
-            sb.Append("CASE WHEN v.dur_typ = 0 THEN 'Working Day(s)' ");
-            sb.Append("WHEN v.dur_typ = 1 THEN 'Day(s)' ");
-            sb.Append("WHEN v.dur_typ = 2 THEN 'Week(s)' ");
-            sb.Append("WHEN v.dur_typ = 3 THEN 'Month(s)' ");
-            sb.Append("WHEN v.dur_typ = 4 THEN 'Year(s)' END as dur_typ_ds, ");
+            sb.Append("SELECT v.lvs_inf_id, v.emp_id, v.unit_id, v.dept_id, ");
+            sb.Append("v.loc_id, v.lvs_yr, v.lvs_typ_cd, v.lvs_rsn, v.lvs_sts, ");
+            sb.Append("v.is_pln, v.prp_lvs_sdt, v.prp_lvs_edt, v.prp_lvs_dur, ");
+            sb.Append("v.act_lvs_dur, v.prp_dur_ds, v.apv_lvs_sdt, v.apv_lvs_edt,  ");
+            sb.Append("v.apv_lvs_dur, v.apv_dur_ds, v.act_lvs_sdt, v.act_lvs_edt, ");
+            sb.Append("v.act_dur_ds, v.lm_rsmptn_dt, v.lm_confm_dt, v.lm_confm_by, ");
+            sb.Append("v.hr_rsmptn_dt, v.hr_confm_dt, v.hr_confm_by, v.rqs_cls_dt, ");
+            sb.Append("v.is_lm_aprv, v.is_hd_aprv, v.is_hr_aprv, v.is_xm_aprv, ");
+            sb.Append("v.is_sm_aprv, v.prp_lvs_dur_typ, v.apv_lvs_dur_typ, v.act_lvs_dur_typ,  ");
             sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = v.emp_id) ");
             sb.Append("as emp_nm, (SELECT lvs_typ_nm FROM public.lms_lvs_typs ");
             sb.Append("WHERE lvs_typ_cd = v.lvs_typ_cd) as lvs_typ_nm, ");
             sb.Append("(SELECT unitname FROM public.gst_units WHERE unitqk = v.unit_id) ");
             sb.Append("as unit_nm, (SELECT deptname FROM public.gst_depts WHERE deptqk ");
             sb.Append("= v.dept_id) as dept_nm, (SELECT locname FROM public.gst_locs ");
-            sb.Append("WHERE locqk = v.loc_id) as loc_nm, v.rsmptn_dt, ");
-            sb.Append("v.cls_rqs_dt, v.lm_rsmptn_dt, v.lm_confm_dt, ");
-            sb.Append("v.lm_confm_by, v.hr_confm_dt, v.hr_confm_by, ");
-            sb.Append("v.is_lm_aprv, v.is_hd_aprv, v.is_hr_aprv, ");
-            sb.Append("v.is_xm_aprv, v.is_sm_aprv ");
+            sb.Append("WHERE locqk = v.loc_id) as loc_nm ");
             sb.Append("FROM public.lms_lvs_infs v ");
-            sb.Append("WHERE v.is_pln = @is_pln ");
+            sb.Append("WHERE (v.is_pln = @is_pln) ");
             sb.Append("AND v.emp_id IN (SELECT r.emp_id FROM public.erm_emp_rpts r  ");
             sb.Append("WHERE r.rpt_emp_id = @rpt_emp_id) ");
-            sb.Append("ORDER BY v.lvs_sdt; ");
+            sb.Append("ORDER BY v.prp_lvs_sdt; ");
             string query = sb.ToString();
             using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
             {
@@ -1371,29 +1547,46 @@ namespace IntranetPortal.Data.Repositories.LmsRepositories
                             Id = reader["lvs_inf_id"] == DBNull.Value ? 0L : (long)reader["lvs_inf_id"],
                             EmployeeId = reader["emp_id"] == DBNull.Value ? string.Empty : reader["emp_id"].ToString(),
                             EmployeeFullName = reader["emp_nm"] == DBNull.Value ? string.Empty : reader["emp_nm"].ToString(),
-                            LeaveYear = reader["lvs_yr"] == DBNull.Value ? 1900 : (int)reader["lvs_yr"],
-                            LeaveTypeCode = reader["lvs_typ_cd"] == DBNull.Value ? string.Empty : reader["lvs_typ_cd"].ToString(),
-                            LeaveTypeName = reader["lvs_typ_nm"] == DBNull.Value ? string.Empty : reader["lvs_typ_nm"].ToString(),
-                            LeaveReason = reader["lvs_rsn"] == DBNull.Value ? string.Empty : reader["lvs_rsn"].ToString(),
-                            LeaveStatus = reader["lvs_sts"] == DBNull.Value ? string.Empty : reader["lvs_sts"].ToString(),
-                            LeaveStartDate = reader["lvs_sdt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["lvs_sdt"],
-                            LeaveEndDate = reader["lvs_edt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["lvs_edt"],
-                            Duration = reader["lvs_dur"] == DBNull.Value ? 0 : (int)reader["lvs_dur"],
-                            DurationTypeId = reader["dur_typ"] == DBNull.Value ? 0 : (int)reader["dur_typ"],
-                            DurationTypeDescription = reader["dur_typ_ds"] == DBNull.Value ? string.Empty : reader["dur_typ_ds"].ToString(),
+
                             UnitId = reader["unit_id"] == DBNull.Value ? 0 : (int)reader["unit_id"],
                             UnitName = reader["unit_nm"] == DBNull.Value ? string.Empty : reader["unit_nm"].ToString(),
                             DepartmentId = reader["dept_id"] == DBNull.Value ? 0 : (int)reader["dept_id"],
                             DepartmentName = reader["dept_nm"] == DBNull.Value ? string.Empty : reader["dept_nm"].ToString(),
                             LocationId = reader["loc_id"] == DBNull.Value ? 0 : (int)reader["loc_id"],
                             LocationName = reader["loc_nm"] == DBNull.Value ? string.Empty : reader["loc_nm"].ToString(),
+
+                            LeaveYear = reader["lvs_yr"] == DBNull.Value ? 1900 : (int)reader["lvs_yr"],
+                            LeaveTypeCode = reader["lvs_typ_cd"] == DBNull.Value ? string.Empty : reader["lvs_typ_cd"].ToString(),
+                            LeaveTypeName = reader["lvs_typ_nm"] == DBNull.Value ? string.Empty : reader["lvs_typ_nm"].ToString(),
+                            LeaveReason = reader["lvs_rsn"] == DBNull.Value ? string.Empty : reader["lvs_rsn"].ToString(),
+                            LeaveStatus = reader["lvs_sts"] == DBNull.Value ? string.Empty : reader["lvs_sts"].ToString(),
                             IsPlan = reader["is_pln"] == DBNull.Value ? true : (bool)reader["is_pln"],
 
-                            ResumptionDate = reader["rsmptn_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["rsmptn_dt"],
-                            CloseRequestDate = reader["cls_rqs_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["cls_rqs_dt"],
+                            ProposedLeaveStartDate = reader["prp_lvs_sdt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["prp_lvs_sdt"],
+                            ProposedLeaveEndDate = reader["prp_lvs_edt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["prp_lvs_edt"],
+                            ProposedLeaveDuration = reader["prp_lvs_dur"] == DBNull.Value ? 0 : (int)reader["prp_lvs_dur"],
+                            ProposedDurationTypeId = reader["prp_lvs_dur_typ"] == DBNull.Value ? 0 : (int)reader["prp_lvs_dur_typ"],
+                            ProposedDurationDescription = reader["prp_dur_ds"] == DBNull.Value ? string.Empty : reader["prp_dur_ds"].ToString(),
+
+                            ApprovedLeaveStartDate = reader["apv_lvs_sdt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["apv_lvs_sdt"],
+                            ApprovedLeaveEndDate = reader["apv_lvs_edt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["apv_lvs_edt"],
+                            ApprovedLeaveDuration = reader["apv_lvs_dur"] == DBNull.Value ? 0 : (int)reader["apv_lvs_dur"],
+                            ApprovedDurationTypeId = reader["apv_lvs_dur_typ"] == DBNull.Value ? 0 : (int)reader["apv_lvs_dur_typ"],
+                            ApprovedDurationDescription = reader["apv_dur_ds"] == DBNull.Value ? string.Empty : reader["apv_dur_ds"].ToString(),
+
+                            ActualLeaveStartDate = reader["act_lvs_sdt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["act_lvs_sdt"],
+                            ActualLeaveEndDate = reader["act_lvs_edt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["act_lvs_edt"],
+                            ActualLeaveDuration = reader["act_lvs_dur"] == DBNull.Value ? 0 : (int)reader["act_lvs_dur"],
+                            ActualDurationTypeId = reader["act_lvs_dur_typ"] == DBNull.Value ? 0 : (int)reader["act_lvs_dur_typ"],
+                            ActualDurationDescription = reader["act_dur_ds"] == DBNull.Value ? string.Empty : reader["act_dur_ds"].ToString(),
+
+                            RequestCloseDate = reader["rqs_cls_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["rqs_cls_dt"],
+
                             LineManagersResumptionDate = reader["lm_rsmptn_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["lm_rsmptn_dt"],
                             LineManagerConfirmResumptionDate = reader["lm_confm_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["lm_confm_dt"],
                             LineManagerConfirmResumptionBy = reader["lm_confm_by"] == DBNull.Value ? string.Empty : reader["lm_confm_by"].ToString(),
+
+                            HrResumptionDate = reader["hr_rsmptn_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["hr_rsmptn_dt"],
                             HrConfirmResumptionDate = reader["hr_confm_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["hr_confm_dt"],
                             HrConfirmResumptionBy = reader["hr_confm_by"] == DBNull.Value ? string.Empty : reader["hr_confm_by"].ToString(),
 
@@ -1413,31 +1606,28 @@ namespace IntranetPortal.Data.Repositories.LmsRepositories
         {
             List<EmployeeLeave> leaveList = new List<EmployeeLeave>();
             StringBuilder sb = new StringBuilder();
-
-            sb.Append("SELECT v.lvs_inf_id, v.emp_id, v.lvs_yr, v.lvs_typ_cd, ");
-            sb.Append("v.lvs_rsn, v.lvs_sts, v.lvs_sdt, v.lvs_edt, v.lvs_dur, ");
-            sb.Append("v.unit_id, v.dept_id, v.loc_id, v.is_pln, v.dur_typ, ");
-            sb.Append("CASE WHEN v.dur_typ = 0 THEN 'Working Day(s)' ");
-            sb.Append("WHEN v.dur_typ = 1 THEN 'Day(s)' ");
-            sb.Append("WHEN v.dur_typ = 2 THEN 'Week(s)' ");
-            sb.Append("WHEN v.dur_typ = 3 THEN 'Month(s)' ");
-            sb.Append("WHEN v.dur_typ = 4 THEN 'Year(s)' END as dur_typ_ds, ");
+            sb.Append("SELECT v.lvs_inf_id, v.emp_id, v.unit_id, v.dept_id, ");
+            sb.Append("v.loc_id, v.lvs_yr, v.lvs_typ_cd, v.lvs_rsn, v.lvs_sts, ");
+            sb.Append("v.is_pln, v.prp_lvs_sdt, v.prp_lvs_edt, v.prp_lvs_dur, ");
+            sb.Append("v.act_lvs_dur, v.prp_dur_ds, v.apv_lvs_sdt, v.apv_lvs_edt,  ");
+            sb.Append("v.apv_lvs_dur, v.apv_dur_ds, v.act_lvs_sdt, v.act_lvs_edt, ");
+            sb.Append("v.act_dur_ds, v.lm_rsmptn_dt, v.lm_confm_dt, v.lm_confm_by, ");
+            sb.Append("v.hr_rsmptn_dt, v.hr_confm_dt, v.hr_confm_by, v.rqs_cls_dt, ");
+            sb.Append("v.is_lm_aprv, v.is_hd_aprv, v.is_hr_aprv, v.is_xm_aprv, ");
+            sb.Append("v.is_sm_aprv, v.prp_lvs_dur_typ, v.apv_lvs_dur_typ, v.act_lvs_dur_typ,  ");
             sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = v.emp_id) ");
             sb.Append("as emp_nm, (SELECT lvs_typ_nm FROM public.lms_lvs_typs ");
             sb.Append("WHERE lvs_typ_cd = v.lvs_typ_cd) as lvs_typ_nm, ");
             sb.Append("(SELECT unitname FROM public.gst_units WHERE unitqk = v.unit_id) ");
             sb.Append("as unit_nm, (SELECT deptname FROM public.gst_depts WHERE deptqk ");
             sb.Append("= v.dept_id) as dept_nm, (SELECT locname FROM public.gst_locs ");
-            sb.Append("WHERE locqk = v.loc_id) as loc_nm, v.rsmptn_dt, ");
-            sb.Append("v.cls_rqs_dt, v.lm_rsmptn_dt, v.lm_confm_dt, ");
-            sb.Append("v.lm_confm_by, v.hr_confm_dt, v.hr_confm_by, ");
-            sb.Append("v.is_lm_aprv, v.is_hd_aprv, v.is_hr_aprv, ");
-            sb.Append("v.is_xm_aprv, v.is_sm_aprv ");
+            sb.Append("WHERE locqk = v.loc_id) as loc_nm ");
             sb.Append("FROM public.lms_lvs_infs v ");
             sb.Append("WHERE v.lvs_yr = @lvs_yr AND v.is_pln = @is_pln ");
             sb.Append("AND v.emp_id IN (SELECT r.emp_id FROM public.erm_emp_rpts r  ");
             sb.Append("WHERE r.rpt_emp_id = @rpt_emp_id) ");
-            sb.Append("ORDER BY v.lvs_sdt; ");
+            sb.Append("ORDER BY v.prp_lvs_sdt; ");
+
             string query = sb.ToString();
             using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
             {
@@ -1460,29 +1650,46 @@ namespace IntranetPortal.Data.Repositories.LmsRepositories
                             Id = reader["lvs_inf_id"] == DBNull.Value ? 0L : (long)reader["lvs_inf_id"],
                             EmployeeId = reader["emp_id"] == DBNull.Value ? string.Empty : reader["emp_id"].ToString(),
                             EmployeeFullName = reader["emp_nm"] == DBNull.Value ? string.Empty : reader["emp_nm"].ToString(),
-                            LeaveYear = reader["lvs_yr"] == DBNull.Value ? 1900 : (int)reader["lvs_yr"],
-                            LeaveTypeCode = reader["lvs_typ_cd"] == DBNull.Value ? string.Empty : reader["lvs_typ_cd"].ToString(),
-                            LeaveTypeName = reader["lvs_typ_nm"] == DBNull.Value ? string.Empty : reader["lvs_typ_nm"].ToString(),
-                            LeaveReason = reader["lvs_rsn"] == DBNull.Value ? string.Empty : reader["lvs_rsn"].ToString(),
-                            LeaveStatus = reader["lvs_sts"] == DBNull.Value ? string.Empty : reader["lvs_sts"].ToString(),
-                            LeaveStartDate = reader["lvs_sdt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["lvs_sdt"],
-                            LeaveEndDate = reader["lvs_edt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["lvs_edt"],
-                            Duration = reader["lvs_dur"] == DBNull.Value ? 0 : (int)reader["lvs_dur"],
-                            DurationTypeId = reader["dur_typ"] == DBNull.Value ? 0 : (int)reader["dur_typ"],
-                            DurationTypeDescription = reader["dur_typ_ds"] == DBNull.Value ? string.Empty : reader["dur_typ_ds"].ToString(),
+
                             UnitId = reader["unit_id"] == DBNull.Value ? 0 : (int)reader["unit_id"],
                             UnitName = reader["unit_nm"] == DBNull.Value ? string.Empty : reader["unit_nm"].ToString(),
                             DepartmentId = reader["dept_id"] == DBNull.Value ? 0 : (int)reader["dept_id"],
                             DepartmentName = reader["dept_nm"] == DBNull.Value ? string.Empty : reader["dept_nm"].ToString(),
                             LocationId = reader["loc_id"] == DBNull.Value ? 0 : (int)reader["loc_id"],
                             LocationName = reader["loc_nm"] == DBNull.Value ? string.Empty : reader["loc_nm"].ToString(),
+
+                            LeaveYear = reader["lvs_yr"] == DBNull.Value ? 1900 : (int)reader["lvs_yr"],
+                            LeaveTypeCode = reader["lvs_typ_cd"] == DBNull.Value ? string.Empty : reader["lvs_typ_cd"].ToString(),
+                            LeaveTypeName = reader["lvs_typ_nm"] == DBNull.Value ? string.Empty : reader["lvs_typ_nm"].ToString(),
+                            LeaveReason = reader["lvs_rsn"] == DBNull.Value ? string.Empty : reader["lvs_rsn"].ToString(),
+                            LeaveStatus = reader["lvs_sts"] == DBNull.Value ? string.Empty : reader["lvs_sts"].ToString(),
                             IsPlan = reader["is_pln"] == DBNull.Value ? true : (bool)reader["is_pln"],
 
-                            ResumptionDate = reader["rsmptn_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["rsmptn_dt"],
-                            CloseRequestDate = reader["cls_rqs_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["cls_rqs_dt"],
+                            ProposedLeaveStartDate = reader["prp_lvs_sdt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["prp_lvs_sdt"],
+                            ProposedLeaveEndDate = reader["prp_lvs_edt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["prp_lvs_edt"],
+                            ProposedLeaveDuration = reader["prp_lvs_dur"] == DBNull.Value ? 0 : (int)reader["prp_lvs_dur"],
+                            ProposedDurationTypeId = reader["prp_lvs_dur_typ"] == DBNull.Value ? 0 : (int)reader["prp_lvs_dur_typ"],
+                            ProposedDurationDescription = reader["prp_dur_ds"] == DBNull.Value ? string.Empty : reader["prp_dur_ds"].ToString(),
+
+                            ApprovedLeaveStartDate = reader["apv_lvs_sdt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["apv_lvs_sdt"],
+                            ApprovedLeaveEndDate = reader["apv_lvs_edt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["apv_lvs_edt"],
+                            ApprovedLeaveDuration = reader["apv_lvs_dur"] == DBNull.Value ? 0 : (int)reader["apv_lvs_dur"],
+                            ApprovedDurationTypeId = reader["apv_lvs_dur_typ"] == DBNull.Value ? 0 : (int)reader["apv_lvs_dur_typ"],
+                            ApprovedDurationDescription = reader["apv_dur_ds"] == DBNull.Value ? string.Empty : reader["apv_dur_ds"].ToString(),
+
+                            ActualLeaveStartDate = reader["act_lvs_sdt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["act_lvs_sdt"],
+                            ActualLeaveEndDate = reader["act_lvs_edt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["act_lvs_edt"],
+                            ActualLeaveDuration = reader["act_lvs_dur"] == DBNull.Value ? 0 : (int)reader["act_lvs_dur"],
+                            ActualDurationTypeId = reader["act_lvs_dur_typ"] == DBNull.Value ? 0 : (int)reader["act_lvs_dur_typ"],
+                            ActualDurationDescription = reader["act_dur_ds"] == DBNull.Value ? string.Empty : reader["act_dur_ds"].ToString(),
+
+                            RequestCloseDate = reader["rqs_cls_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["rqs_cls_dt"],
+
                             LineManagersResumptionDate = reader["lm_rsmptn_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["lm_rsmptn_dt"],
                             LineManagerConfirmResumptionDate = reader["lm_confm_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["lm_confm_dt"],
                             LineManagerConfirmResumptionBy = reader["lm_confm_by"] == DBNull.Value ? string.Empty : reader["lm_confm_by"].ToString(),
+
+                            HrResumptionDate = reader["hr_rsmptn_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["hr_rsmptn_dt"],
                             HrConfirmResumptionDate = reader["hr_confm_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["hr_confm_dt"],
                             HrConfirmResumptionBy = reader["hr_confm_by"] == DBNull.Value ? string.Empty : reader["hr_confm_by"].ToString(),
 
@@ -1502,32 +1709,29 @@ namespace IntranetPortal.Data.Repositories.LmsRepositories
         {
             List<EmployeeLeave> leaveList = new List<EmployeeLeave>();
             StringBuilder sb = new StringBuilder();
-
-            sb.Append("SELECT v.lvs_inf_id, v.emp_id, v.lvs_yr, v.lvs_typ_cd, ");
-            sb.Append("v.lvs_rsn, v.lvs_sts, v.lvs_sdt, v.lvs_edt, v.lvs_dur, ");
-            sb.Append("v.unit_id, v.dept_id, v.loc_id, v.is_pln, v.dur_typ, ");
-            sb.Append("CASE WHEN v.dur_typ = 0 THEN 'Working Day(s)' ");
-            sb.Append("WHEN v.dur_typ = 1 THEN 'Day(s)' ");
-            sb.Append("WHEN v.dur_typ = 2 THEN 'Week(s)' ");
-            sb.Append("WHEN v.dur_typ = 3 THEN 'Month(s)' ");
-            sb.Append("WHEN v.dur_typ = 4 THEN 'Year(s)' END as dur_typ_ds, ");
+            sb.Append("SELECT v.lvs_inf_id, v.emp_id, v.unit_id, v.dept_id, ");
+            sb.Append("v.loc_id, v.lvs_yr, v.lvs_typ_cd, v.lvs_rsn, v.lvs_sts, ");
+            sb.Append("v.is_pln, v.prp_lvs_sdt, v.prp_lvs_edt, v.prp_lvs_dur, ");
+            sb.Append("v.act_lvs_dur, v.prp_dur_ds, v.apv_lvs_sdt, v.apv_lvs_edt,  ");
+            sb.Append("v.apv_lvs_dur, v.apv_dur_ds, v.act_lvs_sdt, v.act_lvs_edt, ");
+            sb.Append("v.act_dur_ds, v.lm_rsmptn_dt, v.lm_confm_dt, v.lm_confm_by, ");
+            sb.Append("v.hr_rsmptn_dt, v.hr_confm_dt, v.hr_confm_by, v.rqs_cls_dt, ");
+            sb.Append("v.is_lm_aprv, v.is_hd_aprv, v.is_hr_aprv, v.is_xm_aprv, ");
+            sb.Append("v.is_sm_aprv, v.prp_lvs_dur_typ, v.apv_lvs_dur_typ, v.act_lvs_dur_typ,  ");
             sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = v.emp_id) ");
             sb.Append("as emp_nm, (SELECT lvs_typ_nm FROM public.lms_lvs_typs ");
             sb.Append("WHERE lvs_typ_cd = v.lvs_typ_cd) as lvs_typ_nm, ");
             sb.Append("(SELECT unitname FROM public.gst_units WHERE unitqk = v.unit_id) ");
             sb.Append("as unit_nm, (SELECT deptname FROM public.gst_depts WHERE deptqk ");
             sb.Append("= v.dept_id) as dept_nm, (SELECT locname FROM public.gst_locs ");
-            sb.Append("WHERE locqk = v.loc_id) as loc_nm, v.rsmptn_dt, ");
-            sb.Append("v.cls_rqs_dt, v.lm_rsmptn_dt, v.lm_confm_dt, ");
-            sb.Append("v.lm_confm_by, v.hr_confm_dt, v.hr_confm_by, ");
-            sb.Append("v.is_lm_aprv, v.is_hd_aprv, v.is_hr_aprv, ");
-            sb.Append("v.is_xm_aprv, v.is_sm_aprv ");
+            sb.Append("WHERE locqk = v.loc_id) as loc_nm ");
             sb.Append("FROM public.lms_lvs_infs v ");
             sb.Append("WHERE v.lvs_yr = @lvs_yr AND v.is_pln = @is_pln ");
             sb.Append("AND v.lvs_sts = @lvs_sts ");
             sb.Append("AND v.emp_id IN (SELECT r.emp_id FROM public.erm_emp_rpts r  ");
             sb.Append("WHERE r.rpt_emp_id = @rpt_emp_id) ");
-            sb.Append("ORDER BY v.lvs_sdt; ");
+            sb.Append("ORDER BY v.prp_lvs_sdt; ");
+
             string query = sb.ToString();
             using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
             {
@@ -1552,29 +1756,46 @@ namespace IntranetPortal.Data.Repositories.LmsRepositories
                             Id = reader["lvs_inf_id"] == DBNull.Value ? 0L : (long)reader["lvs_inf_id"],
                             EmployeeId = reader["emp_id"] == DBNull.Value ? string.Empty : reader["emp_id"].ToString(),
                             EmployeeFullName = reader["emp_nm"] == DBNull.Value ? string.Empty : reader["emp_nm"].ToString(),
-                            LeaveYear = reader["lvs_yr"] == DBNull.Value ? 1900 : (int)reader["lvs_yr"],
-                            LeaveTypeCode = reader["lvs_typ_cd"] == DBNull.Value ? string.Empty : reader["lvs_typ_cd"].ToString(),
-                            LeaveTypeName = reader["lvs_typ_nm"] == DBNull.Value ? string.Empty : reader["lvs_typ_nm"].ToString(),
-                            LeaveReason = reader["lvs_rsn"] == DBNull.Value ? string.Empty : reader["lvs_rsn"].ToString(),
-                            LeaveStatus = reader["lvs_sts"] == DBNull.Value ? string.Empty : reader["lvs_sts"].ToString(),
-                            LeaveStartDate = reader["lvs_sdt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["lvs_sdt"],
-                            LeaveEndDate = reader["lvs_edt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["lvs_edt"],
-                            Duration = reader["lvs_dur"] == DBNull.Value ? 0 : (int)reader["lvs_dur"],
-                            DurationTypeId = reader["dur_typ"] == DBNull.Value ? 0 : (int)reader["dur_typ"],
-                            DurationTypeDescription = reader["dur_typ_ds"] == DBNull.Value ? string.Empty : reader["dur_typ_ds"].ToString(),
+
                             UnitId = reader["unit_id"] == DBNull.Value ? 0 : (int)reader["unit_id"],
                             UnitName = reader["unit_nm"] == DBNull.Value ? string.Empty : reader["unit_nm"].ToString(),
                             DepartmentId = reader["dept_id"] == DBNull.Value ? 0 : (int)reader["dept_id"],
                             DepartmentName = reader["dept_nm"] == DBNull.Value ? string.Empty : reader["dept_nm"].ToString(),
                             LocationId = reader["loc_id"] == DBNull.Value ? 0 : (int)reader["loc_id"],
                             LocationName = reader["loc_nm"] == DBNull.Value ? string.Empty : reader["loc_nm"].ToString(),
+
+                            LeaveYear = reader["lvs_yr"] == DBNull.Value ? 1900 : (int)reader["lvs_yr"],
+                            LeaveTypeCode = reader["lvs_typ_cd"] == DBNull.Value ? string.Empty : reader["lvs_typ_cd"].ToString(),
+                            LeaveTypeName = reader["lvs_typ_nm"] == DBNull.Value ? string.Empty : reader["lvs_typ_nm"].ToString(),
+                            LeaveReason = reader["lvs_rsn"] == DBNull.Value ? string.Empty : reader["lvs_rsn"].ToString(),
+                            LeaveStatus = reader["lvs_sts"] == DBNull.Value ? string.Empty : reader["lvs_sts"].ToString(),
                             IsPlan = reader["is_pln"] == DBNull.Value ? true : (bool)reader["is_pln"],
 
-                            ResumptionDate = reader["rsmptn_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["rsmptn_dt"],
-                            CloseRequestDate = reader["cls_rqs_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["cls_rqs_dt"],
+                            ProposedLeaveStartDate = reader["prp_lvs_sdt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["prp_lvs_sdt"],
+                            ProposedLeaveEndDate = reader["prp_lvs_edt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["prp_lvs_edt"],
+                            ProposedLeaveDuration = reader["prp_lvs_dur"] == DBNull.Value ? 0 : (int)reader["prp_lvs_dur"],
+                            ProposedDurationTypeId = reader["prp_lvs_dur_typ"] == DBNull.Value ? 0 : (int)reader["prp_lvs_dur_typ"],
+                            ProposedDurationDescription = reader["prp_dur_ds"] == DBNull.Value ? string.Empty : reader["prp_dur_ds"].ToString(),
+
+                            ApprovedLeaveStartDate = reader["apv_lvs_sdt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["apv_lvs_sdt"],
+                            ApprovedLeaveEndDate = reader["apv_lvs_edt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["apv_lvs_edt"],
+                            ApprovedLeaveDuration = reader["apv_lvs_dur"] == DBNull.Value ? 0 : (int)reader["apv_lvs_dur"],
+                            ApprovedDurationTypeId = reader["apv_lvs_dur_typ"] == DBNull.Value ? 0 : (int)reader["apv_lvs_dur_typ"],
+                            ApprovedDurationDescription = reader["apv_dur_ds"] == DBNull.Value ? string.Empty : reader["apv_dur_ds"].ToString(),
+
+                            ActualLeaveStartDate = reader["act_lvs_sdt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["act_lvs_sdt"],
+                            ActualLeaveEndDate = reader["act_lvs_edt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["act_lvs_edt"],
+                            ActualLeaveDuration = reader["act_lvs_dur"] == DBNull.Value ? 0 : (int)reader["act_lvs_dur"],
+                            ActualDurationTypeId = reader["act_lvs_dur_typ"] == DBNull.Value ? 0 : (int)reader["act_lvs_dur_typ"],
+                            ActualDurationDescription = reader["act_dur_ds"] == DBNull.Value ? string.Empty : reader["act_dur_ds"].ToString(),
+
+                            RequestCloseDate = reader["rqs_cls_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["rqs_cls_dt"],
+
                             LineManagersResumptionDate = reader["lm_rsmptn_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["lm_rsmptn_dt"],
                             LineManagerConfirmResumptionDate = reader["lm_confm_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["lm_confm_dt"],
                             LineManagerConfirmResumptionBy = reader["lm_confm_by"] == DBNull.Value ? string.Empty : reader["lm_confm_by"].ToString(),
+
+                            HrResumptionDate = reader["hr_rsmptn_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["hr_rsmptn_dt"],
                             HrConfirmResumptionDate = reader["hr_confm_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["hr_confm_dt"],
                             HrConfirmResumptionBy = reader["hr_confm_by"] == DBNull.Value ? string.Empty : reader["hr_confm_by"].ToString(),
 
@@ -1595,31 +1816,30 @@ namespace IntranetPortal.Data.Repositories.LmsRepositories
             List<EmployeeLeave> leaveList = new List<EmployeeLeave>();
             StringBuilder sb = new StringBuilder();
 
-            sb.Append("SELECT v.lvs_inf_id, v.emp_id, v.lvs_yr, v.lvs_typ_cd, ");
-            sb.Append("v.lvs_rsn, v.lvs_sts, v.lvs_sdt, v.lvs_edt, v.lvs_dur, ");
-            sb.Append("v.unit_id, v.dept_id, v.loc_id, v.is_pln, v.dur_typ, ");
-            sb.Append("CASE WHEN v.dur_typ = 0 THEN 'Working Day(s)' ");
-            sb.Append("WHEN v.dur_typ = 1 THEN 'Day(s)' ");
-            sb.Append("WHEN v.dur_typ = 2 THEN 'Week(s)' ");
-            sb.Append("WHEN v.dur_typ = 3 THEN 'Month(s)' ");
-            sb.Append("WHEN v.dur_typ = 4 THEN 'Year(s)' END as dur_typ_ds, ");
+            sb.Append("SELECT v.lvs_inf_id, v.emp_id, v.unit_id, v.dept_id, ");
+            sb.Append("v.loc_id, v.lvs_yr, v.lvs_typ_cd, v.lvs_rsn, v.lvs_sts, ");
+            sb.Append("v.is_pln, v.prp_lvs_sdt, v.prp_lvs_edt, v.prp_lvs_dur, ");
+            sb.Append("v.act_lvs_dur, v.prp_dur_ds, v.apv_lvs_sdt, v.apv_lvs_edt,  ");
+            sb.Append("v.apv_lvs_dur, v.apv_dur_ds, v.act_lvs_sdt, v.act_lvs_edt, ");
+            sb.Append("v.act_dur_ds, v.lm_rsmptn_dt, v.lm_confm_dt, v.lm_confm_by, ");
+            sb.Append("v.hr_rsmptn_dt, v.hr_confm_dt, v.hr_confm_by, v.rqs_cls_dt, ");
+            sb.Append("v.is_lm_aprv, v.is_hd_aprv, v.is_hr_aprv, v.is_xm_aprv, ");
+            sb.Append("v.is_sm_aprv, v.prp_lvs_dur_typ, v.apv_lvs_dur_typ, v.act_lvs_dur_typ,  ");
             sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = v.emp_id) ");
             sb.Append("as emp_nm, (SELECT lvs_typ_nm FROM public.lms_lvs_typs ");
             sb.Append("WHERE lvs_typ_cd = v.lvs_typ_cd) as lvs_typ_nm, ");
             sb.Append("(SELECT unitname FROM public.gst_units WHERE unitqk = v.unit_id) ");
             sb.Append("as unit_nm, (SELECT deptname FROM public.gst_depts WHERE deptqk ");
             sb.Append("= v.dept_id) as dept_nm, (SELECT locname FROM public.gst_locs ");
-            sb.Append("WHERE locqk = v.loc_id) as loc_nm, v.rsmptn_dt, ");
-            sb.Append("v.cls_rqs_dt, v.lm_rsmptn_dt, v.lm_confm_dt, ");
-            sb.Append("v.lm_confm_by, v.hr_confm_dt, v.hr_confm_by, ");
-            sb.Append("v.is_lm_aprv, v.is_hd_aprv, v.is_hr_aprv, ");
-            sb.Append("v.is_xm_aprv, v.is_sm_aprv ");
+            sb.Append("WHERE locqk = v.loc_id) as loc_nm ");
             sb.Append("FROM public.lms_lvs_infs v ");
-            sb.Append("WHERE v.lvs_yr = @lvs_yr AND v.is_pln = @is_pln ");
-            sb.Append("AND DATE_PART('Month', v.lvs_sdt) = @lvs_month ");
+            sb.Append("WHERE v.is_pln = @is_pln ");
+            sb.Append("AND DATE_PART('Year', v.prp_lvs_sdt) = @lvs_yr ");
+            sb.Append("AND DATE_PART('Month', v.prp_lvs_sdt) = @lvs_month ");
             sb.Append("AND v.emp_id IN (SELECT r.emp_id FROM public.erm_emp_rpts r  ");
             sb.Append("WHERE r.rpt_emp_id = @rpt_emp_id) ");
-            sb.Append("ORDER BY v.lvs_sdt; ");
+            sb.Append("ORDER BY v.prp_lvs_sdt; ");
+
             string query = sb.ToString();
             using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
             {
@@ -1644,29 +1864,46 @@ namespace IntranetPortal.Data.Repositories.LmsRepositories
                             Id = reader["lvs_inf_id"] == DBNull.Value ? 0L : (long)reader["lvs_inf_id"],
                             EmployeeId = reader["emp_id"] == DBNull.Value ? string.Empty : reader["emp_id"].ToString(),
                             EmployeeFullName = reader["emp_nm"] == DBNull.Value ? string.Empty : reader["emp_nm"].ToString(),
-                            LeaveYear = reader["lvs_yr"] == DBNull.Value ? 1900 : (int)reader["lvs_yr"],
-                            LeaveTypeCode = reader["lvs_typ_cd"] == DBNull.Value ? string.Empty : reader["lvs_typ_cd"].ToString(),
-                            LeaveTypeName = reader["lvs_typ_nm"] == DBNull.Value ? string.Empty : reader["lvs_typ_nm"].ToString(),
-                            LeaveReason = reader["lvs_rsn"] == DBNull.Value ? string.Empty : reader["lvs_rsn"].ToString(),
-                            LeaveStatus = reader["lvs_sts"] == DBNull.Value ? string.Empty : reader["lvs_sts"].ToString(),
-                            LeaveStartDate = reader["lvs_sdt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["lvs_sdt"],
-                            LeaveEndDate = reader["lvs_edt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["lvs_edt"],
-                            Duration = reader["lvs_dur"] == DBNull.Value ? 0 : (int)reader["lvs_dur"],
-                            DurationTypeId = reader["dur_typ"] == DBNull.Value ? 0 : (int)reader["dur_typ"],
-                            DurationTypeDescription = reader["dur_typ_ds"] == DBNull.Value ? string.Empty : reader["dur_typ_ds"].ToString(),
+
                             UnitId = reader["unit_id"] == DBNull.Value ? 0 : (int)reader["unit_id"],
                             UnitName = reader["unit_nm"] == DBNull.Value ? string.Empty : reader["unit_nm"].ToString(),
                             DepartmentId = reader["dept_id"] == DBNull.Value ? 0 : (int)reader["dept_id"],
                             DepartmentName = reader["dept_nm"] == DBNull.Value ? string.Empty : reader["dept_nm"].ToString(),
                             LocationId = reader["loc_id"] == DBNull.Value ? 0 : (int)reader["loc_id"],
                             LocationName = reader["loc_nm"] == DBNull.Value ? string.Empty : reader["loc_nm"].ToString(),
+
+                            LeaveYear = reader["lvs_yr"] == DBNull.Value ? 1900 : (int)reader["lvs_yr"],
+                            LeaveTypeCode = reader["lvs_typ_cd"] == DBNull.Value ? string.Empty : reader["lvs_typ_cd"].ToString(),
+                            LeaveTypeName = reader["lvs_typ_nm"] == DBNull.Value ? string.Empty : reader["lvs_typ_nm"].ToString(),
+                            LeaveReason = reader["lvs_rsn"] == DBNull.Value ? string.Empty : reader["lvs_rsn"].ToString(),
+                            LeaveStatus = reader["lvs_sts"] == DBNull.Value ? string.Empty : reader["lvs_sts"].ToString(),
                             IsPlan = reader["is_pln"] == DBNull.Value ? true : (bool)reader["is_pln"],
 
-                            ResumptionDate = reader["rsmptn_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["rsmptn_dt"],
-                            CloseRequestDate = reader["cls_rqs_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["cls_rqs_dt"],
+                            ProposedLeaveStartDate = reader["prp_lvs_sdt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["prp_lvs_sdt"],
+                            ProposedLeaveEndDate = reader["prp_lvs_edt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["prp_lvs_edt"],
+                            ProposedLeaveDuration = reader["prp_lvs_dur"] == DBNull.Value ? 0 : (int)reader["prp_lvs_dur"],
+                            ProposedDurationTypeId = reader["prp_lvs_dur_typ"] == DBNull.Value ? 0 : (int)reader["prp_lvs_dur_typ"],
+                            ProposedDurationDescription = reader["prp_dur_ds"] == DBNull.Value ? string.Empty : reader["prp_dur_ds"].ToString(),
+
+                            ApprovedLeaveStartDate = reader["apv_lvs_sdt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["apv_lvs_sdt"],
+                            ApprovedLeaveEndDate = reader["apv_lvs_edt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["apv_lvs_edt"],
+                            ApprovedLeaveDuration = reader["apv_lvs_dur"] == DBNull.Value ? 0 : (int)reader["apv_lvs_dur"],
+                            ApprovedDurationTypeId = reader["apv_lvs_dur_typ"] == DBNull.Value ? 0 : (int)reader["apv_lvs_dur_typ"],
+                            ApprovedDurationDescription = reader["apv_dur_ds"] == DBNull.Value ? string.Empty : reader["apv_dur_ds"].ToString(),
+
+                            ActualLeaveStartDate = reader["act_lvs_sdt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["act_lvs_sdt"],
+                            ActualLeaveEndDate = reader["act_lvs_edt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["act_lvs_edt"],
+                            ActualLeaveDuration = reader["act_lvs_dur"] == DBNull.Value ? 0 : (int)reader["act_lvs_dur"],
+                            ActualDurationTypeId = reader["act_lvs_dur_typ"] == DBNull.Value ? 0 : (int)reader["act_lvs_dur_typ"],
+                            ActualDurationDescription = reader["act_dur_ds"] == DBNull.Value ? string.Empty : reader["act_dur_ds"].ToString(),
+
+                            RequestCloseDate = reader["rqs_cls_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["rqs_cls_dt"],
+
                             LineManagersResumptionDate = reader["lm_rsmptn_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["lm_rsmptn_dt"],
                             LineManagerConfirmResumptionDate = reader["lm_confm_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["lm_confm_dt"],
                             LineManagerConfirmResumptionBy = reader["lm_confm_by"] == DBNull.Value ? string.Empty : reader["lm_confm_by"].ToString(),
+
+                            HrResumptionDate = reader["hr_rsmptn_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["hr_rsmptn_dt"],
                             HrConfirmResumptionDate = reader["hr_confm_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["hr_confm_dt"],
                             HrConfirmResumptionBy = reader["hr_confm_by"] == DBNull.Value ? string.Empty : reader["hr_confm_by"].ToString(),
 
@@ -1687,32 +1924,30 @@ namespace IntranetPortal.Data.Repositories.LmsRepositories
             List<EmployeeLeave> leaveList = new List<EmployeeLeave>();
             StringBuilder sb = new StringBuilder();
 
-            sb.Append("SELECT v.lvs_inf_id, v.emp_id, v.lvs_yr, v.lvs_typ_cd, ");
-            sb.Append("v.lvs_rsn, v.lvs_sts, v.lvs_sdt, v.lvs_edt, v.lvs_dur, ");
-            sb.Append("v.unit_id, v.dept_id, v.loc_id, v.is_pln, v.dur_typ, ");
-            sb.Append("CASE WHEN v.dur_typ = 0 THEN 'Working Day(s)' ");
-            sb.Append("WHEN v.dur_typ = 1 THEN 'Day(s)' ");
-            sb.Append("WHEN v.dur_typ = 2 THEN 'Week(s)' ");
-            sb.Append("WHEN v.dur_typ = 3 THEN 'Month(s)' ");
-            sb.Append("WHEN v.dur_typ = 4 THEN 'Year(s)' END as dur_typ_ds, ");
+            sb.Append("SELECT v.lvs_inf_id, v.emp_id, v.unit_id, v.dept_id, ");
+            sb.Append("v.loc_id, v.lvs_yr, v.lvs_typ_cd, v.lvs_rsn, v.lvs_sts, ");
+            sb.Append("v.is_pln, v.prp_lvs_sdt, v.prp_lvs_edt, v.prp_lvs_dur, ");
+            sb.Append("v.act_lvs_dur, v.prp_dur_ds, v.apv_lvs_sdt, v.apv_lvs_edt,  ");
+            sb.Append("v.apv_lvs_dur, v.apv_dur_ds, v.act_lvs_sdt, v.act_lvs_edt, ");
+            sb.Append("v.act_dur_ds, v.lm_rsmptn_dt, v.lm_confm_dt, v.lm_confm_by, ");
+            sb.Append("v.hr_rsmptn_dt, v.hr_confm_dt, v.hr_confm_by, v.rqs_cls_dt, ");
+            sb.Append("v.is_lm_aprv, v.is_hd_aprv, v.is_hr_aprv, v.is_xm_aprv, ");
+            sb.Append("v.is_sm_aprv, v.prp_lvs_dur_typ, v.apv_lvs_dur_typ, v.act_lvs_dur_typ,  ");
             sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = v.emp_id) ");
             sb.Append("as emp_nm, (SELECT lvs_typ_nm FROM public.lms_lvs_typs ");
             sb.Append("WHERE lvs_typ_cd = v.lvs_typ_cd) as lvs_typ_nm, ");
             sb.Append("(SELECT unitname FROM public.gst_units WHERE unitqk = v.unit_id) ");
             sb.Append("as unit_nm, (SELECT deptname FROM public.gst_depts WHERE deptqk ");
             sb.Append("= v.dept_id) as dept_nm, (SELECT locname FROM public.gst_locs ");
-            sb.Append("WHERE locqk = v.loc_id) as loc_nm, v.rsmptn_dt, ");
-            sb.Append("v.cls_rqs_dt, v.lm_rsmptn_dt, v.lm_confm_dt, ");
-            sb.Append("v.lm_confm_by, v.hr_confm_dt, v.hr_confm_by, ");
-            sb.Append("v.is_lm_aprv, v.is_hd_aprv, v.is_hr_aprv, ");
-            sb.Append("v.is_xm_aprv, v.is_sm_aprv ");
+            sb.Append("WHERE locqk = v.loc_id) as loc_nm ");
             sb.Append("FROM public.lms_lvs_infs v ");
-            sb.Append("WHERE v.lvs_yr = @lvs_yr AND v.is_pln = @is_pln ");
-            sb.Append("AND DATE_PART('Month', v.lvs_sdt) = @lvs_month ");
-            sb.Append("AND v.lvs_sts = @lvs_sts ");
+            sb.Append("WHERE v.is_pln = @is_pln AND v.lvs_sts = @lvs_sts ");
+            sb.Append("AND DATE_PART('Year', v.prp_lvs_sdt) = @lvs_yr ");
+            sb.Append("AND DATE_PART('Month', v.prp_lvs_sdt) = @lvs_month ");
             sb.Append("AND v.emp_id IN (SELECT r.emp_id FROM public.erm_emp_rpts r  ");
             sb.Append("WHERE r.rpt_emp_id = @rpt_emp_id) ");
-            sb.Append("ORDER BY v.lvs_sdt; ");
+            sb.Append("ORDER BY v.prp_lvs_sdt; ");
+
             string query = sb.ToString();
             using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
             {
@@ -1739,29 +1974,46 @@ namespace IntranetPortal.Data.Repositories.LmsRepositories
                             Id = reader["lvs_inf_id"] == DBNull.Value ? 0L : (long)reader["lvs_inf_id"],
                             EmployeeId = reader["emp_id"] == DBNull.Value ? string.Empty : reader["emp_id"].ToString(),
                             EmployeeFullName = reader["emp_nm"] == DBNull.Value ? string.Empty : reader["emp_nm"].ToString(),
-                            LeaveYear = reader["lvs_yr"] == DBNull.Value ? 1900 : (int)reader["lvs_yr"],
-                            LeaveTypeCode = reader["lvs_typ_cd"] == DBNull.Value ? string.Empty : reader["lvs_typ_cd"].ToString(),
-                            LeaveTypeName = reader["lvs_typ_nm"] == DBNull.Value ? string.Empty : reader["lvs_typ_nm"].ToString(),
-                            LeaveReason = reader["lvs_rsn"] == DBNull.Value ? string.Empty : reader["lvs_rsn"].ToString(),
-                            LeaveStatus = reader["lvs_sts"] == DBNull.Value ? string.Empty : reader["lvs_sts"].ToString(),
-                            LeaveStartDate = reader["lvs_sdt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["lvs_sdt"],
-                            LeaveEndDate = reader["lvs_edt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["lvs_edt"],
-                            Duration = reader["lvs_dur"] == DBNull.Value ? 0 : (int)reader["lvs_dur"],
-                            DurationTypeId = reader["dur_typ"] == DBNull.Value ? 0 : (int)reader["dur_typ"],
-                            DurationTypeDescription = reader["dur_typ_ds"] == DBNull.Value ? string.Empty : reader["dur_typ_ds"].ToString(),
+
                             UnitId = reader["unit_id"] == DBNull.Value ? 0 : (int)reader["unit_id"],
                             UnitName = reader["unit_nm"] == DBNull.Value ? string.Empty : reader["unit_nm"].ToString(),
                             DepartmentId = reader["dept_id"] == DBNull.Value ? 0 : (int)reader["dept_id"],
                             DepartmentName = reader["dept_nm"] == DBNull.Value ? string.Empty : reader["dept_nm"].ToString(),
                             LocationId = reader["loc_id"] == DBNull.Value ? 0 : (int)reader["loc_id"],
                             LocationName = reader["loc_nm"] == DBNull.Value ? string.Empty : reader["loc_nm"].ToString(),
+
+                            LeaveYear = reader["lvs_yr"] == DBNull.Value ? 1900 : (int)reader["lvs_yr"],
+                            LeaveTypeCode = reader["lvs_typ_cd"] == DBNull.Value ? string.Empty : reader["lvs_typ_cd"].ToString(),
+                            LeaveTypeName = reader["lvs_typ_nm"] == DBNull.Value ? string.Empty : reader["lvs_typ_nm"].ToString(),
+                            LeaveReason = reader["lvs_rsn"] == DBNull.Value ? string.Empty : reader["lvs_rsn"].ToString(),
+                            LeaveStatus = reader["lvs_sts"] == DBNull.Value ? string.Empty : reader["lvs_sts"].ToString(),
                             IsPlan = reader["is_pln"] == DBNull.Value ? true : (bool)reader["is_pln"],
 
-                            ResumptionDate = reader["rsmptn_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["rsmptn_dt"],
-                            CloseRequestDate = reader["cls_rqs_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["cls_rqs_dt"],
+                            ProposedLeaveStartDate = reader["prp_lvs_sdt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["prp_lvs_sdt"],
+                            ProposedLeaveEndDate = reader["prp_lvs_edt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["prp_lvs_edt"],
+                            ProposedLeaveDuration = reader["prp_lvs_dur"] == DBNull.Value ? 0 : (int)reader["prp_lvs_dur"],
+                            ProposedDurationTypeId = reader["prp_lvs_dur_typ"] == DBNull.Value ? 0 : (int)reader["prp_lvs_dur_typ"],
+                            ProposedDurationDescription = reader["prp_dur_ds"] == DBNull.Value ? string.Empty : reader["prp_dur_ds"].ToString(),
+
+                            ApprovedLeaveStartDate = reader["apv_lvs_sdt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["apv_lvs_sdt"],
+                            ApprovedLeaveEndDate = reader["apv_lvs_edt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["apv_lvs_edt"],
+                            ApprovedLeaveDuration = reader["apv_lvs_dur"] == DBNull.Value ? 0 : (int)reader["apv_lvs_dur"],
+                            ApprovedDurationTypeId = reader["apv_lvs_dur_typ"] == DBNull.Value ? 0 : (int)reader["apv_lvs_dur_typ"],
+                            ApprovedDurationDescription = reader["apv_dur_ds"] == DBNull.Value ? string.Empty : reader["apv_dur_ds"].ToString(),
+
+                            ActualLeaveStartDate = reader["act_lvs_sdt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["act_lvs_sdt"],
+                            ActualLeaveEndDate = reader["act_lvs_edt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["act_lvs_edt"],
+                            ActualLeaveDuration = reader["act_lvs_dur"] == DBNull.Value ? 0 : (int)reader["act_lvs_dur"],
+                            ActualDurationTypeId = reader["act_lvs_dur_typ"] == DBNull.Value ? 0 : (int)reader["act_lvs_dur_typ"],
+                            ActualDurationDescription = reader["act_dur_ds"] == DBNull.Value ? string.Empty : reader["act_dur_ds"].ToString(),
+
+                            RequestCloseDate = reader["rqs_cls_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["rqs_cls_dt"],
+
                             LineManagersResumptionDate = reader["lm_rsmptn_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["lm_rsmptn_dt"],
                             LineManagerConfirmResumptionDate = reader["lm_confm_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["lm_confm_dt"],
                             LineManagerConfirmResumptionBy = reader["lm_confm_by"] == DBNull.Value ? string.Empty : reader["lm_confm_by"].ToString(),
+
+                            HrResumptionDate = reader["hr_rsmptn_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["hr_rsmptn_dt"],
                             HrConfirmResumptionDate = reader["hr_confm_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["hr_confm_dt"],
                             HrConfirmResumptionBy = reader["hr_confm_by"] == DBNull.Value ? string.Empty : reader["hr_confm_by"].ToString(),
 
@@ -1782,31 +2034,27 @@ namespace IntranetPortal.Data.Repositories.LmsRepositories
             List<EmployeeLeave> leaveList = new List<EmployeeLeave>();
             StringBuilder sb = new StringBuilder();
 
-            sb.Append("SELECT v.lvs_inf_id, v.emp_id, v.lvs_yr, v.lvs_typ_cd, ");
-            sb.Append("v.lvs_rsn, v.lvs_sts, v.lvs_sdt, v.lvs_edt, v.lvs_dur, ");
-            sb.Append("v.unit_id, v.dept_id, v.loc_id, v.is_pln, v.dur_typ, ");
-            sb.Append("CASE WHEN v.dur_typ = 0 THEN 'Working Day(s)' ");
-            sb.Append("WHEN v.dur_typ = 1 THEN 'Day(s)' ");
-            sb.Append("WHEN v.dur_typ = 2 THEN 'Week(s)' ");
-            sb.Append("WHEN v.dur_typ = 3 THEN 'Month(s)' ");
-            sb.Append("WHEN v.dur_typ = 4 THEN 'Year(s)' END as dur_typ_ds, ");
+            sb.Append("SELECT v.lvs_inf_id, v.emp_id, v.unit_id, v.dept_id, ");
+            sb.Append("v.loc_id, v.lvs_yr, v.lvs_typ_cd, v.lvs_rsn, v.lvs_sts, ");
+            sb.Append("v.is_pln, v.prp_lvs_sdt, v.prp_lvs_edt, v.prp_lvs_dur, ");
+            sb.Append("v.act_lvs_dur, v.prp_dur_ds, v.apv_lvs_sdt, v.apv_lvs_edt,  ");
+            sb.Append("v.apv_lvs_dur, v.apv_dur_ds, v.act_lvs_sdt, v.act_lvs_edt, ");
+            sb.Append("v.act_dur_ds, v.lm_rsmptn_dt, v.lm_confm_dt, v.lm_confm_by, ");
+            sb.Append("v.hr_rsmptn_dt, v.hr_confm_dt, v.hr_confm_by, v.rqs_cls_dt, ");
+            sb.Append("v.is_lm_aprv, v.is_hd_aprv, v.is_hr_aprv, v.is_xm_aprv, ");
+            sb.Append("v.is_sm_aprv, v.prp_lvs_dur_typ, v.apv_lvs_dur_typ, v.act_lvs_dur_typ,  ");
             sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = v.emp_id) ");
             sb.Append("as emp_nm, (SELECT lvs_typ_nm FROM public.lms_lvs_typs ");
             sb.Append("WHERE lvs_typ_cd = v.lvs_typ_cd) as lvs_typ_nm, ");
             sb.Append("(SELECT unitname FROM public.gst_units WHERE unitqk = v.unit_id) ");
             sb.Append("as unit_nm, (SELECT deptname FROM public.gst_depts WHERE deptqk ");
             sb.Append("= v.dept_id) as dept_nm, (SELECT locname FROM public.gst_locs ");
-            sb.Append("WHERE locqk = v.loc_id) as loc_nm, v.rsmptn_dt, ");
-            sb.Append("v.cls_rqs_dt, v.lm_rsmptn_dt, v.lm_confm_dt, ");
-            sb.Append("v.lm_confm_by, v.hr_confm_dt, v.hr_confm_by, ");
-            sb.Append("v.is_lm_aprv, v.is_hd_aprv, v.is_hr_aprv, ");
-            sb.Append("v.is_xm_aprv, v.is_sm_aprv ");
+            sb.Append("WHERE locqk = v.loc_id) as loc_nm ");
             sb.Append("FROM public.lms_lvs_infs v ");
-            sb.Append("WHERE v.is_pln = @is_pln ");
-            sb.Append("AND v.lvs_sts = @lvs_sts ");
+            sb.Append("WHERE v.is_pln = @is_pln AND v.lvs_sts = @lvs_sts ");
             sb.Append("AND v.emp_id IN (SELECT r.emp_id FROM public.erm_emp_rpts r  ");
             sb.Append("WHERE r.rpt_emp_id = @rpt_emp_id) ");
-            sb.Append("ORDER BY v.lvs_sdt; ");
+            sb.Append("ORDER BY v.prp_lvs_sdt; ");
             string query = sb.ToString();
             using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
             {
@@ -1829,29 +2077,46 @@ namespace IntranetPortal.Data.Repositories.LmsRepositories
                             Id = reader["lvs_inf_id"] == DBNull.Value ? 0L : (long)reader["lvs_inf_id"],
                             EmployeeId = reader["emp_id"] == DBNull.Value ? string.Empty : reader["emp_id"].ToString(),
                             EmployeeFullName = reader["emp_nm"] == DBNull.Value ? string.Empty : reader["emp_nm"].ToString(),
-                            LeaveYear = reader["lvs_yr"] == DBNull.Value ? 1900 : (int)reader["lvs_yr"],
-                            LeaveTypeCode = reader["lvs_typ_cd"] == DBNull.Value ? string.Empty : reader["lvs_typ_cd"].ToString(),
-                            LeaveTypeName = reader["lvs_typ_nm"] == DBNull.Value ? string.Empty : reader["lvs_typ_nm"].ToString(),
-                            LeaveReason = reader["lvs_rsn"] == DBNull.Value ? string.Empty : reader["lvs_rsn"].ToString(),
-                            LeaveStatus = reader["lvs_sts"] == DBNull.Value ? string.Empty : reader["lvs_sts"].ToString(),
-                            LeaveStartDate = reader["lvs_sdt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["lvs_sdt"],
-                            LeaveEndDate = reader["lvs_edt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["lvs_edt"],
-                            Duration = reader["lvs_dur"] == DBNull.Value ? 0 : (int)reader["lvs_dur"],
-                            DurationTypeId = reader["dur_typ"] == DBNull.Value ? 0 : (int)reader["dur_typ"],
-                            DurationTypeDescription = reader["dur_typ_ds"] == DBNull.Value ? string.Empty : reader["dur_typ_ds"].ToString(),
+
                             UnitId = reader["unit_id"] == DBNull.Value ? 0 : (int)reader["unit_id"],
                             UnitName = reader["unit_nm"] == DBNull.Value ? string.Empty : reader["unit_nm"].ToString(),
                             DepartmentId = reader["dept_id"] == DBNull.Value ? 0 : (int)reader["dept_id"],
                             DepartmentName = reader["dept_nm"] == DBNull.Value ? string.Empty : reader["dept_nm"].ToString(),
                             LocationId = reader["loc_id"] == DBNull.Value ? 0 : (int)reader["loc_id"],
                             LocationName = reader["loc_nm"] == DBNull.Value ? string.Empty : reader["loc_nm"].ToString(),
+
+                            LeaveYear = reader["lvs_yr"] == DBNull.Value ? 1900 : (int)reader["lvs_yr"],
+                            LeaveTypeCode = reader["lvs_typ_cd"] == DBNull.Value ? string.Empty : reader["lvs_typ_cd"].ToString(),
+                            LeaveTypeName = reader["lvs_typ_nm"] == DBNull.Value ? string.Empty : reader["lvs_typ_nm"].ToString(),
+                            LeaveReason = reader["lvs_rsn"] == DBNull.Value ? string.Empty : reader["lvs_rsn"].ToString(),
+                            LeaveStatus = reader["lvs_sts"] == DBNull.Value ? string.Empty : reader["lvs_sts"].ToString(),
                             IsPlan = reader["is_pln"] == DBNull.Value ? true : (bool)reader["is_pln"],
 
-                            ResumptionDate = reader["rsmptn_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["rsmptn_dt"],
-                            CloseRequestDate = reader["cls_rqs_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["cls_rqs_dt"],
+                            ProposedLeaveStartDate = reader["prp_lvs_sdt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["prp_lvs_sdt"],
+                            ProposedLeaveEndDate = reader["prp_lvs_edt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["prp_lvs_edt"],
+                            ProposedLeaveDuration = reader["prp_lvs_dur"] == DBNull.Value ? 0 : (int)reader["prp_lvs_dur"],
+                            ProposedDurationTypeId = reader["prp_lvs_dur_typ"] == DBNull.Value ? 0 : (int)reader["prp_lvs_dur_typ"],
+                            ProposedDurationDescription = reader["prp_dur_ds"] == DBNull.Value ? string.Empty : reader["prp_dur_ds"].ToString(),
+
+                            ApprovedLeaveStartDate = reader["apv_lvs_sdt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["apv_lvs_sdt"],
+                            ApprovedLeaveEndDate = reader["apv_lvs_edt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["apv_lvs_edt"],
+                            ApprovedLeaveDuration = reader["apv_lvs_dur"] == DBNull.Value ? 0 : (int)reader["apv_lvs_dur"],
+                            ApprovedDurationTypeId = reader["apv_lvs_dur_typ"] == DBNull.Value ? 0 : (int)reader["apv_lvs_dur_typ"],
+                            ApprovedDurationDescription = reader["apv_dur_ds"] == DBNull.Value ? string.Empty : reader["apv_dur_ds"].ToString(),
+
+                            ActualLeaveStartDate = reader["act_lvs_sdt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["act_lvs_sdt"],
+                            ActualLeaveEndDate = reader["act_lvs_edt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["act_lvs_edt"],
+                            ActualLeaveDuration = reader["act_lvs_dur"] == DBNull.Value ? 0 : (int)reader["act_lvs_dur"],
+                            ActualDurationTypeId = reader["act_lvs_dur_typ"] == DBNull.Value ? 0 : (int)reader["act_lvs_dur_typ"],
+                            ActualDurationDescription = reader["act_dur_ds"] == DBNull.Value ? string.Empty : reader["act_dur_ds"].ToString(),
+
+                            RequestCloseDate = reader["rqs_cls_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["rqs_cls_dt"],
+
                             LineManagersResumptionDate = reader["lm_rsmptn_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["lm_rsmptn_dt"],
                             LineManagerConfirmResumptionDate = reader["lm_confm_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["lm_confm_dt"],
                             LineManagerConfirmResumptionBy = reader["lm_confm_by"] == DBNull.Value ? string.Empty : reader["lm_confm_by"].ToString(),
+
+                            HrResumptionDate = reader["hr_rsmptn_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["hr_rsmptn_dt"],
                             HrConfirmResumptionDate = reader["hr_confm_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["hr_confm_dt"],
                             HrConfirmResumptionBy = reader["hr_confm_by"] == DBNull.Value ? string.Empty : reader["hr_confm_by"].ToString(),
 
@@ -1867,8 +2132,9 @@ namespace IntranetPortal.Data.Repositories.LmsRepositories
             }
             return leaveList;
         }
+        #endregion
 
-
+        #region All Employee Leaves By Location, Department, Unit
         //=== All Employee Leaves By Location, Department, Unit etc ========//
         public async Task<EmployeeLeave> GetByIdAsync(long id)
         {
@@ -1876,27 +2142,25 @@ namespace IntranetPortal.Data.Repositories.LmsRepositories
             string query = string.Empty;
             StringBuilder sb = new StringBuilder();
 
-            sb.Append("SELECT v.lvs_inf_id, v.emp_id, v.lvs_yr, v.lvs_typ_cd, ");
-            sb.Append("v.lvs_rsn, v.lvs_sts, v.lvs_sdt, v.lvs_edt, v.lvs_dur, ");
-            sb.Append("v.unit_id, v.dept_id, v.loc_id, v.is_pln, v.dur_typ, ");
-            sb.Append("CASE WHEN v.dur_typ = 0 THEN 'Working Day(s)' ");
-            sb.Append("WHEN v.dur_typ = 1 THEN 'Day(s)' ");
-            sb.Append("WHEN v.dur_typ = 2 THEN 'Week(s)' ");
-            sb.Append("WHEN v.dur_typ = 3 THEN 'Month(s)' ");
-            sb.Append("WHEN v.dur_typ = 4 THEN 'Year(s)' END as dur_typ_ds, ");
+            sb.Append("SELECT v.lvs_inf_id, v.emp_id, v.unit_id, v.dept_id, ");
+            sb.Append("v.loc_id, v.lvs_yr, v.lvs_typ_cd, v.lvs_rsn, v.lvs_sts, ");
+            sb.Append("v.is_pln, v.prp_lvs_sdt, v.prp_lvs_edt, v.prp_lvs_dur, ");
+            sb.Append("v.act_lvs_dur, v.prp_dur_ds, v.apv_lvs_sdt, v.apv_lvs_edt,  ");
+            sb.Append("v.apv_lvs_dur, v.apv_dur_ds, v.act_lvs_sdt, v.act_lvs_edt, ");
+            sb.Append("v.act_dur_ds, v.lm_rsmptn_dt, v.lm_confm_dt, v.lm_confm_by, ");
+            sb.Append("v.hr_rsmptn_dt, v.hr_confm_dt, v.hr_confm_by, v.rqs_cls_dt, ");
+            sb.Append("v.is_lm_aprv, v.is_hd_aprv, v.is_hr_aprv, v.is_xm_aprv, ");
+            sb.Append("v.is_sm_aprv, v.prp_lvs_dur_typ, v.apv_lvs_dur_typ, v.act_lvs_dur_typ,  ");
             sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = v.emp_id) ");
             sb.Append("as emp_nm, (SELECT lvs_typ_nm FROM public.lms_lvs_typs ");
             sb.Append("WHERE lvs_typ_cd = v.lvs_typ_cd) as lvs_typ_nm, ");
             sb.Append("(SELECT unitname FROM public.gst_units WHERE unitqk = v.unit_id) ");
             sb.Append("as unit_nm, (SELECT deptname FROM public.gst_depts WHERE deptqk ");
             sb.Append("= v.dept_id) as dept_nm, (SELECT locname FROM public.gst_locs ");
-            sb.Append("WHERE locqk = v.loc_id) as loc_nm, v.rsmptn_dt, ");
-            sb.Append("v.cls_rqs_dt, v.lm_rsmptn_dt, v.lm_confm_dt, ");
-            sb.Append("v.lm_confm_by, v.hr_confm_dt, v.hr_confm_by, ");
-            sb.Append("v.is_lm_aprv, v.is_hd_aprv, v.is_hr_aprv, ");
-            sb.Append("v.is_xm_aprv, v.is_sm_aprv ");
+            sb.Append("WHERE locqk = v.loc_id) as loc_nm ");
             sb.Append("FROM public.lms_lvs_infs v ");
             sb.Append("WHERE (v.lvs_inf_id = @lvs_inf_id); ");
+
             query = sb.ToString();
             using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
             {
@@ -1913,29 +2177,46 @@ namespace IntranetPortal.Data.Repositories.LmsRepositories
                         e.Id = reader["lvs_inf_id"] == DBNull.Value ? 0L : (long)reader["lvs_inf_id"];
                         e.EmployeeId = reader["emp_id"] == DBNull.Value ? string.Empty : reader["emp_id"].ToString();
                         e.EmployeeFullName = reader["emp_nm"] == DBNull.Value ? string.Empty : reader["emp_nm"].ToString();
-                        e.LeaveYear = reader["lvs_yr"] == DBNull.Value ? 1900 : (int)reader["lvs_yr"];
-                        e.LeaveTypeCode = reader["lvs_typ_cd"] == DBNull.Value ? string.Empty : reader["lvs_typ_cd"].ToString();
-                        e.LeaveTypeName = reader["lvs_typ_nm"] == DBNull.Value ? string.Empty : reader["lvs_typ_nm"].ToString();
-                        e.LeaveReason = reader["lvs_rsn"] == DBNull.Value ? string.Empty : reader["lvs_rsn"].ToString();
-                        e.LeaveStatus = reader["lvs_sts"] == DBNull.Value ? string.Empty : reader["lvs_sts"].ToString();
-                        e.LeaveStartDate = reader["lvs_sdt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["lvs_sdt"];
-                        e.LeaveEndDate = reader["lvs_edt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["lvs_edt"];
-                        e.Duration = reader["lvs_dur"] == DBNull.Value ? 0 : (int)reader["lvs_dur"];
-                        e.DurationTypeId = reader["dur_typ"] == DBNull.Value ? 0 : (int)reader["dur_typ"];
-                        e.DurationTypeDescription = reader["dur_typ_ds"] == DBNull.Value ? string.Empty : reader["dur_typ_ds"].ToString();
+
                         e.UnitId = reader["unit_id"] == DBNull.Value ? 0 : (int)reader["unit_id"];
                         e.UnitName = reader["unit_nm"] == DBNull.Value ? string.Empty : reader["unit_nm"].ToString();
                         e.DepartmentId = reader["dept_id"] == DBNull.Value ? 0 : (int)reader["dept_id"];
                         e.DepartmentName = reader["dept_nm"] == DBNull.Value ? string.Empty : reader["dept_nm"].ToString();
                         e.LocationId = reader["loc_id"] == DBNull.Value ? 0 : (int)reader["loc_id"];
                         e.LocationName = reader["loc_nm"] == DBNull.Value ? string.Empty : reader["loc_nm"].ToString();
+
+                        e.LeaveYear = reader["lvs_yr"] == DBNull.Value ? 1900 : (int)reader["lvs_yr"];
+                        e.LeaveTypeCode = reader["lvs_typ_cd"] == DBNull.Value ? string.Empty : reader["lvs_typ_cd"].ToString();
+                        e.LeaveTypeName = reader["lvs_typ_nm"] == DBNull.Value ? string.Empty : reader["lvs_typ_nm"].ToString();
+                        e.LeaveReason = reader["lvs_rsn"] == DBNull.Value ? string.Empty : reader["lvs_rsn"].ToString();
+                        e.LeaveStatus = reader["lvs_sts"] == DBNull.Value ? string.Empty : reader["lvs_sts"].ToString();
                         e.IsPlan = reader["is_pln"] == DBNull.Value ? true : (bool)reader["is_pln"];
 
-                        e.ResumptionDate = reader["rsmptn_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["rsmptn_dt"];
-                        e.CloseRequestDate = reader["cls_rqs_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["cls_rqs_dt"];
+                        e.ProposedLeaveStartDate = reader["prp_lvs_sdt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["prp_lvs_sdt"];
+                        e.ProposedLeaveEndDate = reader["prp_lvs_edt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["prp_lvs_edt"];
+                        e.ProposedLeaveDuration = reader["prp_lvs_dur"] == DBNull.Value ? 0 : (int)reader["prp_lvs_dur"];
+                        e.ProposedDurationTypeId = reader["prp_lvs_dur_typ"] == DBNull.Value ? 0 : (int)reader["prp_lvs_dur_typ"];
+                        e.ProposedDurationDescription = reader["prp_dur_ds"] == DBNull.Value ? string.Empty : reader["prp_dur_ds"].ToString();
+
+                        e.ApprovedLeaveStartDate = reader["apv_lvs_sdt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["apv_lvs_sdt"];
+                        e.ApprovedLeaveEndDate = reader["apv_lvs_edt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["apv_lvs_edt"];
+                        e.ApprovedLeaveDuration = reader["apv_lvs_dur"] == DBNull.Value ? 0 : (int)reader["apv_lvs_dur"];
+                        e.ApprovedDurationTypeId = reader["apv_lvs_dur_typ"] == DBNull.Value ? 0 : (int)reader["apv_lvs_dur_typ"];
+                        e.ApprovedDurationDescription = reader["apv_dur_ds"] == DBNull.Value ? string.Empty : reader["apv_dur_ds"].ToString();
+
+                        e.ActualLeaveStartDate = reader["act_lvs_sdt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["act_lvs_sdt"];
+                        e.ActualLeaveEndDate = reader["act_lvs_edt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["act_lvs_edt"];
+                        e.ActualLeaveDuration = reader["act_lvs_dur"] == DBNull.Value ? 0 : (int)reader["act_lvs_dur"];
+                        e.ActualDurationTypeId = reader["act_lvs_dur_typ"] == DBNull.Value ? 0 : (int)reader["act_lvs_dur_typ"];
+                        e.ActualDurationDescription = reader["act_dur_ds"] == DBNull.Value ? string.Empty : reader["act_dur_ds"].ToString();
+
+                        e.RequestCloseDate = reader["rqs_cls_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["rqs_cls_dt"];
+
                         e.LineManagersResumptionDate = reader["lm_rsmptn_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["lm_rsmptn_dt"];
                         e.LineManagerConfirmResumptionDate = reader["lm_confm_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["lm_confm_dt"];
                         e.LineManagerConfirmResumptionBy = reader["lm_confm_by"] == DBNull.Value ? string.Empty : reader["lm_confm_by"].ToString();
+
+                        e.HrResumptionDate = reader["hr_rsmptn_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["hr_rsmptn_dt"];
                         e.HrConfirmResumptionDate = reader["hr_confm_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["hr_confm_dt"];
                         e.HrConfirmResumptionBy = reader["hr_confm_by"] == DBNull.Value ? string.Empty : reader["hr_confm_by"].ToString();
 
@@ -1955,28 +2236,26 @@ namespace IntranetPortal.Data.Repositories.LmsRepositories
             List<EmployeeLeave> leaveList = new List<EmployeeLeave>();
             StringBuilder sb = new StringBuilder();
 
-            sb.Append("SELECT v.lvs_inf_id, v.emp_id, v.lvs_yr, v.lvs_typ_cd, ");
-            sb.Append("v.lvs_rsn, v.lvs_sts, v.lvs_sdt, v.lvs_edt, v.lvs_dur, ");
-            sb.Append("v.unit_id, v.dept_id, v.loc_id, v.is_pln, v.dur_typ, ");
-            sb.Append("CASE WHEN v.dur_typ = 0 THEN 'Working Day(s)' ");
-            sb.Append("WHEN v.dur_typ = 1 THEN 'Day(s)' ");
-            sb.Append("WHEN v.dur_typ = 2 THEN 'Week(s)' ");
-            sb.Append("WHEN v.dur_typ = 3 THEN 'Month(s)' ");
-            sb.Append("WHEN v.dur_typ = 4 THEN 'Year(s)' END as dur_typ_ds, ");
+            sb.Append("SELECT v.lvs_inf_id, v.emp_id, v.unit_id, v.dept_id, ");
+            sb.Append("v.loc_id, v.lvs_yr, v.lvs_typ_cd, v.lvs_rsn, v.lvs_sts, ");
+            sb.Append("v.is_pln, v.prp_lvs_sdt, v.prp_lvs_edt, v.prp_lvs_dur, ");
+            sb.Append("v.act_lvs_dur, v.prp_dur_ds, v.apv_lvs_sdt, v.apv_lvs_edt,  ");
+            sb.Append("v.apv_lvs_dur, v.apv_dur_ds, v.act_lvs_sdt, v.act_lvs_edt, ");
+            sb.Append("v.act_dur_ds, v.lm_rsmptn_dt, v.lm_confm_dt, v.lm_confm_by, ");
+            sb.Append("v.hr_rsmptn_dt, v.hr_confm_dt, v.hr_confm_by, v.rqs_cls_dt, ");
+            sb.Append("v.is_lm_aprv, v.is_hd_aprv, v.is_hr_aprv, v.is_xm_aprv, ");
+            sb.Append("v.is_sm_aprv, v.prp_lvs_dur_typ, v.apv_lvs_dur_typ, v.act_lvs_dur_typ,  ");
             sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = v.emp_id) ");
             sb.Append("as emp_nm, (SELECT lvs_typ_nm FROM public.lms_lvs_typs ");
             sb.Append("WHERE lvs_typ_cd = v.lvs_typ_cd) as lvs_typ_nm, ");
             sb.Append("(SELECT unitname FROM public.gst_units WHERE unitqk = v.unit_id) ");
             sb.Append("as unit_nm, (SELECT deptname FROM public.gst_depts WHERE deptqk ");
             sb.Append("= v.dept_id) as dept_nm, (SELECT locname FROM public.gst_locs ");
-            sb.Append("WHERE locqk = v.loc_id) as loc_nm, v.rsmptn_dt, ");
-            sb.Append("v.cls_rqs_dt, v.lm_rsmptn_dt, v.lm_confm_dt, ");
-            sb.Append("v.lm_confm_by, v.hr_confm_dt, v.hr_confm_by, ");
-            sb.Append("v.is_lm_aprv, v.is_hd_aprv, v.is_hr_aprv, ");
-            sb.Append("v.is_xm_aprv, v.is_sm_aprv ");
+            sb.Append("WHERE locqk = v.loc_id) as loc_nm ");
             sb.Append("FROM public.lms_lvs_infs v ");
-            sb.Append("WHERE v.is_pln = @is_pln ");
-            sb.Append("ORDER BY v.lvs_sdt; ");
+            sb.Append("WHERE (v.is_pln = @is_pln) ");
+            sb.Append("ORDER BY v.prp_lvs_sdt; ");
+            
             string query = sb.ToString();
             using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
             {
@@ -1995,29 +2274,46 @@ namespace IntranetPortal.Data.Repositories.LmsRepositories
                             Id = reader["lvs_inf_id"] == DBNull.Value ? 0L : (long)reader["lvs_inf_id"],
                             EmployeeId = reader["emp_id"] == DBNull.Value ? string.Empty : reader["emp_id"].ToString(),
                             EmployeeFullName = reader["emp_nm"] == DBNull.Value ? string.Empty : reader["emp_nm"].ToString(),
-                            LeaveYear = reader["lvs_yr"] == DBNull.Value ? 1900 : (int)reader["lvs_yr"],
-                            LeaveTypeCode = reader["lvs_typ_cd"] == DBNull.Value ? string.Empty : reader["lvs_typ_cd"].ToString(),
-                            LeaveTypeName = reader["lvs_typ_nm"] == DBNull.Value ? string.Empty : reader["lvs_typ_nm"].ToString(),
-                            LeaveReason = reader["lvs_rsn"] == DBNull.Value ? string.Empty : reader["lvs_rsn"].ToString(),
-                            LeaveStatus = reader["lvs_sts"] == DBNull.Value ? string.Empty : reader["lvs_sts"].ToString(),
-                            LeaveStartDate = reader["lvs_sdt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["lvs_sdt"],
-                            LeaveEndDate = reader["lvs_edt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["lvs_edt"],
-                            Duration = reader["lvs_dur"] == DBNull.Value ? 0 : (int)reader["lvs_dur"],
-                            DurationTypeId = reader["dur_typ"] == DBNull.Value ? 0 : (int)reader["dur_typ"],
-                            DurationTypeDescription = reader["dur_typ_ds"] == DBNull.Value ? string.Empty : reader["dur_typ_ds"].ToString(),
+
                             UnitId = reader["unit_id"] == DBNull.Value ? 0 : (int)reader["unit_id"],
                             UnitName = reader["unit_nm"] == DBNull.Value ? string.Empty : reader["unit_nm"].ToString(),
                             DepartmentId = reader["dept_id"] == DBNull.Value ? 0 : (int)reader["dept_id"],
                             DepartmentName = reader["dept_nm"] == DBNull.Value ? string.Empty : reader["dept_nm"].ToString(),
                             LocationId = reader["loc_id"] == DBNull.Value ? 0 : (int)reader["loc_id"],
                             LocationName = reader["loc_nm"] == DBNull.Value ? string.Empty : reader["loc_nm"].ToString(),
+
+                            LeaveYear = reader["lvs_yr"] == DBNull.Value ? 1900 : (int)reader["lvs_yr"],
+                            LeaveTypeCode = reader["lvs_typ_cd"] == DBNull.Value ? string.Empty : reader["lvs_typ_cd"].ToString(),
+                            LeaveTypeName = reader["lvs_typ_nm"] == DBNull.Value ? string.Empty : reader["lvs_typ_nm"].ToString(),
+                            LeaveReason = reader["lvs_rsn"] == DBNull.Value ? string.Empty : reader["lvs_rsn"].ToString(),
+                            LeaveStatus = reader["lvs_sts"] == DBNull.Value ? string.Empty : reader["lvs_sts"].ToString(),
                             IsPlan = reader["is_pln"] == DBNull.Value ? true : (bool)reader["is_pln"],
 
-                            ResumptionDate = reader["rsmptn_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["rsmptn_dt"],
-                            CloseRequestDate = reader["cls_rqs_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["cls_rqs_dt"],
+                            ProposedLeaveStartDate = reader["prp_lvs_sdt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["prp_lvs_sdt"],
+                            ProposedLeaveEndDate = reader["prp_lvs_edt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["prp_lvs_edt"],
+                            ProposedLeaveDuration = reader["prp_lvs_dur"] == DBNull.Value ? 0 : (int)reader["prp_lvs_dur"],
+                            ProposedDurationTypeId = reader["prp_lvs_dur_typ"] == DBNull.Value ? 0 : (int)reader["prp_lvs_dur_typ"],
+                            ProposedDurationDescription = reader["prp_dur_ds"] == DBNull.Value ? string.Empty : reader["prp_dur_ds"].ToString(),
+
+                            ApprovedLeaveStartDate = reader["apv_lvs_sdt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["apv_lvs_sdt"],
+                            ApprovedLeaveEndDate = reader["apv_lvs_edt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["apv_lvs_edt"],
+                            ApprovedLeaveDuration = reader["apv_lvs_dur"] == DBNull.Value ? 0 : (int)reader["apv_lvs_dur"],
+                            ApprovedDurationTypeId = reader["apv_lvs_dur_typ"] == DBNull.Value ? 0 : (int)reader["apv_lvs_dur_typ"],
+                            ApprovedDurationDescription = reader["apv_dur_ds"] == DBNull.Value ? string.Empty : reader["apv_dur_ds"].ToString(),
+
+                            ActualLeaveStartDate = reader["act_lvs_sdt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["act_lvs_sdt"],
+                            ActualLeaveEndDate = reader["act_lvs_edt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["act_lvs_edt"],
+                            ActualLeaveDuration = reader["act_lvs_dur"] == DBNull.Value ? 0 : (int)reader["act_lvs_dur"],
+                            ActualDurationTypeId = reader["act_lvs_dur_typ"] == DBNull.Value ? 0 : (int)reader["act_lvs_dur_typ"],
+                            ActualDurationDescription = reader["act_dur_ds"] == DBNull.Value ? string.Empty : reader["act_dur_ds"].ToString(),
+
+                            RequestCloseDate = reader["rqs_cls_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["rqs_cls_dt"],
+
                             LineManagersResumptionDate = reader["lm_rsmptn_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["lm_rsmptn_dt"],
                             LineManagerConfirmResumptionDate = reader["lm_confm_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["lm_confm_dt"],
                             LineManagerConfirmResumptionBy = reader["lm_confm_by"] == DBNull.Value ? string.Empty : reader["lm_confm_by"].ToString(),
+
+                            HrResumptionDate = reader["hr_rsmptn_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["hr_rsmptn_dt"],
                             HrConfirmResumptionDate = reader["hr_confm_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["hr_confm_dt"],
                             HrConfirmResumptionBy = reader["hr_confm_by"] == DBNull.Value ? string.Empty : reader["hr_confm_by"].ToString(),
 
@@ -2038,28 +2334,26 @@ namespace IntranetPortal.Data.Repositories.LmsRepositories
             List<EmployeeLeave> leaveList = new List<EmployeeLeave>();
             StringBuilder sb = new StringBuilder();
 
-            sb.Append("SELECT v.lvs_inf_id, v.emp_id, v.lvs_yr, v.lvs_typ_cd, ");
-            sb.Append("v.lvs_rsn, v.lvs_sts, v.lvs_sdt, v.lvs_edt, v.lvs_dur, ");
-            sb.Append("v.unit_id, v.dept_id, v.loc_id, v.is_pln, v.dur_typ, ");
-            sb.Append("CASE WHEN v.dur_typ = 0 THEN 'Working Day(s)' ");
-            sb.Append("WHEN v.dur_typ = 1 THEN 'Day(s)' ");
-            sb.Append("WHEN v.dur_typ = 2 THEN 'Week(s)' ");
-            sb.Append("WHEN v.dur_typ = 3 THEN 'Month(s)' ");
-            sb.Append("WHEN v.dur_typ = 4 THEN 'Year(s)' END as dur_typ_ds, ");
+            sb.Append("SELECT v.lvs_inf_id, v.emp_id, v.unit_id, v.dept_id, ");
+            sb.Append("v.loc_id, v.lvs_yr, v.lvs_typ_cd, v.lvs_rsn, v.lvs_sts, ");
+            sb.Append("v.is_pln, v.prp_lvs_sdt, v.prp_lvs_edt, v.prp_lvs_dur, ");
+            sb.Append("v.act_lvs_dur, v.prp_dur_ds, v.apv_lvs_sdt, v.apv_lvs_edt,  ");
+            sb.Append("v.apv_lvs_dur, v.apv_dur_ds, v.act_lvs_sdt, v.act_lvs_edt, ");
+            sb.Append("v.act_dur_ds, v.lm_rsmptn_dt, v.lm_confm_dt, v.lm_confm_by, ");
+            sb.Append("v.hr_rsmptn_dt, v.hr_confm_dt, v.hr_confm_by, v.rqs_cls_dt, ");
+            sb.Append("v.is_lm_aprv, v.is_hd_aprv, v.is_hr_aprv, v.is_xm_aprv, ");
+            sb.Append("v.is_sm_aprv, v.prp_lvs_dur_typ, v.apv_lvs_dur_typ, v.act_lvs_dur_typ,  ");
             sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = v.emp_id) ");
             sb.Append("as emp_nm, (SELECT lvs_typ_nm FROM public.lms_lvs_typs ");
             sb.Append("WHERE lvs_typ_cd = v.lvs_typ_cd) as lvs_typ_nm, ");
             sb.Append("(SELECT unitname FROM public.gst_units WHERE unitqk = v.unit_id) ");
             sb.Append("as unit_nm, (SELECT deptname FROM public.gst_depts WHERE deptqk ");
             sb.Append("= v.dept_id) as dept_nm, (SELECT locname FROM public.gst_locs ");
-            sb.Append("WHERE locqk = v.loc_id) as loc_nm, v.rsmptn_dt, ");
-            sb.Append("v.cls_rqs_dt, v.lm_rsmptn_dt, v.lm_confm_dt, ");
-            sb.Append("v.lm_confm_by, v.hr_confm_dt, v.hr_confm_by, ");
-            sb.Append("v.is_lm_aprv, v.is_hd_aprv, v.is_hr_aprv, ");
-            sb.Append("v.is_xm_aprv, v.is_sm_aprv ");
+            sb.Append("WHERE locqk = v.loc_id) as loc_nm ");
             sb.Append("FROM public.lms_lvs_infs v ");
-            sb.Append("WHERE v.lvs_yr = @lvs_yr AND v.is_pln = @is_pln ");
-            sb.Append("ORDER BY v.lvs_sdt; ");
+            sb.Append("WHERE (v.lvs_yr = @lvs_yr) AND (v.is_pln = @is_pln) ");
+            sb.Append("ORDER BY v.prp_lvs_sdt; ");
+
             string query = sb.ToString();
             using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
             {
@@ -2080,29 +2374,46 @@ namespace IntranetPortal.Data.Repositories.LmsRepositories
                             Id = reader["lvs_inf_id"] == DBNull.Value ? 0L : (long)reader["lvs_inf_id"],
                             EmployeeId = reader["emp_id"] == DBNull.Value ? string.Empty : reader["emp_id"].ToString(),
                             EmployeeFullName = reader["emp_nm"] == DBNull.Value ? string.Empty : reader["emp_nm"].ToString(),
-                            LeaveYear = reader["lvs_yr"] == DBNull.Value ? 1900 : (int)reader["lvs_yr"],
-                            LeaveTypeCode = reader["lvs_typ_cd"] == DBNull.Value ? string.Empty : reader["lvs_typ_cd"].ToString(),
-                            LeaveTypeName = reader["lvs_typ_nm"] == DBNull.Value ? string.Empty : reader["lvs_typ_nm"].ToString(),
-                            LeaveReason = reader["lvs_rsn"] == DBNull.Value ? string.Empty : reader["lvs_rsn"].ToString(),
-                            LeaveStatus = reader["lvs_sts"] == DBNull.Value ? string.Empty : reader["lvs_sts"].ToString(),
-                            LeaveStartDate = reader["lvs_sdt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["lvs_sdt"],
-                            LeaveEndDate = reader["lvs_edt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["lvs_edt"],
-                            Duration = reader["lvs_dur"] == DBNull.Value ? 0 : (int)reader["lvs_dur"],
-                            DurationTypeId = reader["dur_typ"] == DBNull.Value ? 0 : (int)reader["dur_typ"],
-                            DurationTypeDescription = reader["dur_typ_ds"] == DBNull.Value ? string.Empty : reader["dur_typ_ds"].ToString(),
+
                             UnitId = reader["unit_id"] == DBNull.Value ? 0 : (int)reader["unit_id"],
                             UnitName = reader["unit_nm"] == DBNull.Value ? string.Empty : reader["unit_nm"].ToString(),
                             DepartmentId = reader["dept_id"] == DBNull.Value ? 0 : (int)reader["dept_id"],
                             DepartmentName = reader["dept_nm"] == DBNull.Value ? string.Empty : reader["dept_nm"].ToString(),
                             LocationId = reader["loc_id"] == DBNull.Value ? 0 : (int)reader["loc_id"],
                             LocationName = reader["loc_nm"] == DBNull.Value ? string.Empty : reader["loc_nm"].ToString(),
+
+                            LeaveYear = reader["lvs_yr"] == DBNull.Value ? 1900 : (int)reader["lvs_yr"],
+                            LeaveTypeCode = reader["lvs_typ_cd"] == DBNull.Value ? string.Empty : reader["lvs_typ_cd"].ToString(),
+                            LeaveTypeName = reader["lvs_typ_nm"] == DBNull.Value ? string.Empty : reader["lvs_typ_nm"].ToString(),
+                            LeaveReason = reader["lvs_rsn"] == DBNull.Value ? string.Empty : reader["lvs_rsn"].ToString(),
+                            LeaveStatus = reader["lvs_sts"] == DBNull.Value ? string.Empty : reader["lvs_sts"].ToString(),
                             IsPlan = reader["is_pln"] == DBNull.Value ? true : (bool)reader["is_pln"],
 
-                            ResumptionDate = reader["rsmptn_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["rsmptn_dt"],
-                            CloseRequestDate = reader["cls_rqs_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["cls_rqs_dt"],
+                            ProposedLeaveStartDate = reader["prp_lvs_sdt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["prp_lvs_sdt"],
+                            ProposedLeaveEndDate = reader["prp_lvs_edt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["prp_lvs_edt"],
+                            ProposedLeaveDuration = reader["prp_lvs_dur"] == DBNull.Value ? 0 : (int)reader["prp_lvs_dur"],
+                            ProposedDurationTypeId = reader["prp_lvs_dur_typ"] == DBNull.Value ? 0 : (int)reader["prp_lvs_dur_typ"],
+                            ProposedDurationDescription = reader["prp_dur_ds"] == DBNull.Value ? string.Empty : reader["prp_dur_ds"].ToString(),
+
+                            ApprovedLeaveStartDate = reader["apv_lvs_sdt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["apv_lvs_sdt"],
+                            ApprovedLeaveEndDate = reader["apv_lvs_edt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["apv_lvs_edt"],
+                            ApprovedLeaveDuration = reader["apv_lvs_dur"] == DBNull.Value ? 0 : (int)reader["apv_lvs_dur"],
+                            ApprovedDurationTypeId = reader["apv_lvs_dur_typ"] == DBNull.Value ? 0 : (int)reader["apv_lvs_dur_typ"],
+                            ApprovedDurationDescription = reader["apv_dur_ds"] == DBNull.Value ? string.Empty : reader["apv_dur_ds"].ToString(),
+
+                            ActualLeaveStartDate = reader["act_lvs_sdt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["act_lvs_sdt"],
+                            ActualLeaveEndDate = reader["act_lvs_edt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["act_lvs_edt"],
+                            ActualLeaveDuration = reader["act_lvs_dur"] == DBNull.Value ? 0 : (int)reader["act_lvs_dur"],
+                            ActualDurationTypeId = reader["act_lvs_dur_typ"] == DBNull.Value ? 0 : (int)reader["act_lvs_dur_typ"],
+                            ActualDurationDescription = reader["act_dur_ds"] == DBNull.Value ? string.Empty : reader["act_dur_ds"].ToString(),
+
+                            RequestCloseDate = reader["rqs_cls_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["rqs_cls_dt"],
+
                             LineManagersResumptionDate = reader["lm_rsmptn_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["lm_rsmptn_dt"],
                             LineManagerConfirmResumptionDate = reader["lm_confm_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["lm_confm_dt"],
                             LineManagerConfirmResumptionBy = reader["lm_confm_by"] == DBNull.Value ? string.Empty : reader["lm_confm_by"].ToString(),
+
+                            HrResumptionDate = reader["hr_rsmptn_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["hr_rsmptn_dt"],
                             HrConfirmResumptionDate = reader["hr_confm_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["hr_confm_dt"],
                             HrConfirmResumptionBy = reader["hr_confm_by"] == DBNull.Value ? string.Empty : reader["hr_confm_by"].ToString(),
 
@@ -2123,29 +2434,27 @@ namespace IntranetPortal.Data.Repositories.LmsRepositories
             List<EmployeeLeave> leaveList = new List<EmployeeLeave>();
             StringBuilder sb = new StringBuilder();
 
-            sb.Append("SELECT v.lvs_inf_id, v.emp_id, v.lvs_yr, v.lvs_typ_cd, ");
-            sb.Append("v.lvs_rsn, v.lvs_sts, v.lvs_sdt, v.lvs_edt, v.lvs_dur, ");
-            sb.Append("v.unit_id, v.dept_id, v.loc_id, v.is_pln, v.dur_typ, ");
-            sb.Append("CASE WHEN v.dur_typ = 0 THEN 'Working Day(s)' ");
-            sb.Append("WHEN v.dur_typ = 1 THEN 'Day(s)' ");
-            sb.Append("WHEN v.dur_typ = 2 THEN 'Week(s)' ");
-            sb.Append("WHEN v.dur_typ = 3 THEN 'Month(s)' ");
-            sb.Append("WHEN v.dur_typ = 4 THEN 'Year(s)' END as dur_typ_ds, ");
+            sb.Append("SELECT v.lvs_inf_id, v.emp_id, v.unit_id, v.dept_id, ");
+            sb.Append("v.loc_id, v.lvs_yr, v.lvs_typ_cd, v.lvs_rsn, v.lvs_sts, ");
+            sb.Append("v.is_pln, v.prp_lvs_sdt, v.prp_lvs_edt, v.prp_lvs_dur, ");
+            sb.Append("v.act_lvs_dur, v.prp_dur_ds, v.apv_lvs_sdt, v.apv_lvs_edt,  ");
+            sb.Append("v.apv_lvs_dur, v.apv_dur_ds, v.act_lvs_sdt, v.act_lvs_edt, ");
+            sb.Append("v.act_dur_ds, v.lm_rsmptn_dt, v.lm_confm_dt, v.lm_confm_by, ");
+            sb.Append("v.hr_rsmptn_dt, v.hr_confm_dt, v.hr_confm_by, v.rqs_cls_dt, ");
+            sb.Append("v.is_lm_aprv, v.is_hd_aprv, v.is_hr_aprv, v.is_xm_aprv, ");
+            sb.Append("v.is_sm_aprv, v.prp_lvs_dur_typ, v.apv_lvs_dur_typ, v.act_lvs_dur_typ,  ");
             sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = v.emp_id) ");
             sb.Append("as emp_nm, (SELECT lvs_typ_nm FROM public.lms_lvs_typs ");
             sb.Append("WHERE lvs_typ_cd = v.lvs_typ_cd) as lvs_typ_nm, ");
             sb.Append("(SELECT unitname FROM public.gst_units WHERE unitqk = v.unit_id) ");
             sb.Append("as unit_nm, (SELECT deptname FROM public.gst_depts WHERE deptqk ");
             sb.Append("= v.dept_id) as dept_nm, (SELECT locname FROM public.gst_locs ");
-            sb.Append("WHERE locqk = v.loc_id) as loc_nm, v.rsmptn_dt, ");
-            sb.Append("v.cls_rqs_dt, v.lm_rsmptn_dt, v.lm_confm_dt, ");
-            sb.Append("v.lm_confm_by, v.hr_confm_dt, v.hr_confm_by, ");
-            sb.Append("v.is_lm_aprv, v.is_hd_aprv, v.is_hr_aprv, ");
-            sb.Append("v.is_xm_aprv, v.is_sm_aprv ");
+            sb.Append("WHERE locqk = v.loc_id) as loc_nm ");
             sb.Append("FROM public.lms_lvs_infs v ");
-            sb.Append("WHERE v.lvs_yr = @lvs_yr AND v.is_pln = @is_pln ");
+            sb.Append("WHERE (v.lvs_yr = @lvs_yr) AND (v.is_pln = @is_pln) ");
             sb.Append("AND v.lvs_sts = @lvs_sts ");
-            sb.Append("ORDER BY v.lvs_sdt; ");
+            sb.Append("ORDER BY v.prp_lvs_sdt; ");
+
             string query = sb.ToString();
             using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
             {
@@ -2168,29 +2477,46 @@ namespace IntranetPortal.Data.Repositories.LmsRepositories
                             Id = reader["lvs_inf_id"] == DBNull.Value ? 0L : (long)reader["lvs_inf_id"],
                             EmployeeId = reader["emp_id"] == DBNull.Value ? string.Empty : reader["emp_id"].ToString(),
                             EmployeeFullName = reader["emp_nm"] == DBNull.Value ? string.Empty : reader["emp_nm"].ToString(),
-                            LeaveYear = reader["lvs_yr"] == DBNull.Value ? 1900 : (int)reader["lvs_yr"],
-                            LeaveTypeCode = reader["lvs_typ_cd"] == DBNull.Value ? string.Empty : reader["lvs_typ_cd"].ToString(),
-                            LeaveTypeName = reader["lvs_typ_nm"] == DBNull.Value ? string.Empty : reader["lvs_typ_nm"].ToString(),
-                            LeaveReason = reader["lvs_rsn"] == DBNull.Value ? string.Empty : reader["lvs_rsn"].ToString(),
-                            LeaveStatus = reader["lvs_sts"] == DBNull.Value ? string.Empty : reader["lvs_sts"].ToString(),
-                            LeaveStartDate = reader["lvs_sdt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["lvs_sdt"],
-                            LeaveEndDate = reader["lvs_edt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["lvs_edt"],
-                            Duration = reader["lvs_dur"] == DBNull.Value ? 0 : (int)reader["lvs_dur"],
-                            DurationTypeId = reader["dur_typ"] == DBNull.Value ? 0 : (int)reader["dur_typ"],
-                            DurationTypeDescription = reader["dur_typ_ds"] == DBNull.Value ? string.Empty : reader["dur_typ_ds"].ToString(),
+
                             UnitId = reader["unit_id"] == DBNull.Value ? 0 : (int)reader["unit_id"],
                             UnitName = reader["unit_nm"] == DBNull.Value ? string.Empty : reader["unit_nm"].ToString(),
                             DepartmentId = reader["dept_id"] == DBNull.Value ? 0 : (int)reader["dept_id"],
                             DepartmentName = reader["dept_nm"] == DBNull.Value ? string.Empty : reader["dept_nm"].ToString(),
                             LocationId = reader["loc_id"] == DBNull.Value ? 0 : (int)reader["loc_id"],
                             LocationName = reader["loc_nm"] == DBNull.Value ? string.Empty : reader["loc_nm"].ToString(),
+
+                            LeaveYear = reader["lvs_yr"] == DBNull.Value ? 1900 : (int)reader["lvs_yr"],
+                            LeaveTypeCode = reader["lvs_typ_cd"] == DBNull.Value ? string.Empty : reader["lvs_typ_cd"].ToString(),
+                            LeaveTypeName = reader["lvs_typ_nm"] == DBNull.Value ? string.Empty : reader["lvs_typ_nm"].ToString(),
+                            LeaveReason = reader["lvs_rsn"] == DBNull.Value ? string.Empty : reader["lvs_rsn"].ToString(),
+                            LeaveStatus = reader["lvs_sts"] == DBNull.Value ? string.Empty : reader["lvs_sts"].ToString(),
                             IsPlan = reader["is_pln"] == DBNull.Value ? true : (bool)reader["is_pln"],
 
-                            ResumptionDate = reader["rsmptn_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["rsmptn_dt"],
-                            CloseRequestDate = reader["cls_rqs_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["cls_rqs_dt"],
+                            ProposedLeaveStartDate = reader["prp_lvs_sdt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["prp_lvs_sdt"],
+                            ProposedLeaveEndDate = reader["prp_lvs_edt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["prp_lvs_edt"],
+                            ProposedLeaveDuration = reader["prp_lvs_dur"] == DBNull.Value ? 0 : (int)reader["prp_lvs_dur"],
+                            ProposedDurationTypeId = reader["prp_lvs_dur_typ"] == DBNull.Value ? 0 : (int)reader["prp_lvs_dur_typ"],
+                            ProposedDurationDescription = reader["prp_dur_ds"] == DBNull.Value ? string.Empty : reader["prp_dur_ds"].ToString(),
+
+                            ApprovedLeaveStartDate = reader["apv_lvs_sdt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["apv_lvs_sdt"],
+                            ApprovedLeaveEndDate = reader["apv_lvs_edt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["apv_lvs_edt"],
+                            ApprovedLeaveDuration = reader["apv_lvs_dur"] == DBNull.Value ? 0 : (int)reader["apv_lvs_dur"],
+                            ApprovedDurationTypeId = reader["apv_lvs_dur_typ"] == DBNull.Value ? 0 : (int)reader["apv_lvs_dur_typ"],
+                            ApprovedDurationDescription = reader["apv_dur_ds"] == DBNull.Value ? string.Empty : reader["apv_dur_ds"].ToString(),
+
+                            ActualLeaveStartDate = reader["act_lvs_sdt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["act_lvs_sdt"],
+                            ActualLeaveEndDate = reader["act_lvs_edt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["act_lvs_edt"],
+                            ActualLeaveDuration = reader["act_lvs_dur"] == DBNull.Value ? 0 : (int)reader["act_lvs_dur"],
+                            ActualDurationTypeId = reader["act_lvs_dur_typ"] == DBNull.Value ? 0 : (int)reader["act_lvs_dur_typ"],
+                            ActualDurationDescription = reader["act_dur_ds"] == DBNull.Value ? string.Empty : reader["act_dur_ds"].ToString(),
+
+                            RequestCloseDate = reader["rqs_cls_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["rqs_cls_dt"],
+
                             LineManagersResumptionDate = reader["lm_rsmptn_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["lm_rsmptn_dt"],
                             LineManagerConfirmResumptionDate = reader["lm_confm_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["lm_confm_dt"],
                             LineManagerConfirmResumptionBy = reader["lm_confm_by"] == DBNull.Value ? string.Empty : reader["lm_confm_by"].ToString(),
+
+                            HrResumptionDate = reader["hr_rsmptn_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["hr_rsmptn_dt"],
                             HrConfirmResumptionDate = reader["hr_confm_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["hr_confm_dt"],
                             HrConfirmResumptionBy = reader["hr_confm_by"] == DBNull.Value ? string.Empty : reader["hr_confm_by"].ToString(),
 
@@ -2211,29 +2537,28 @@ namespace IntranetPortal.Data.Repositories.LmsRepositories
             List<EmployeeLeave> leaveList = new List<EmployeeLeave>();
             StringBuilder sb = new StringBuilder();
 
-            sb.Append("SELECT v.lvs_inf_id, v.emp_id, v.lvs_yr, v.lvs_typ_cd, ");
-            sb.Append("v.lvs_rsn, v.lvs_sts, v.lvs_sdt, v.lvs_edt, v.lvs_dur, ");
-            sb.Append("v.unit_id, v.dept_id, v.loc_id, v.is_pln, v.dur_typ, ");
-            sb.Append("CASE WHEN v.dur_typ = 0 THEN 'Working Day(s)' ");
-            sb.Append("WHEN v.dur_typ = 1 THEN 'Day(s)' ");
-            sb.Append("WHEN v.dur_typ = 2 THEN 'Week(s)' ");
-            sb.Append("WHEN v.dur_typ = 3 THEN 'Month(s)' ");
-            sb.Append("WHEN v.dur_typ = 4 THEN 'Year(s)' END as dur_typ_ds, ");
+            sb.Append("SELECT v.lvs_inf_id, v.emp_id, v.unit_id, v.dept_id, ");
+            sb.Append("v.loc_id, v.lvs_yr, v.lvs_typ_cd, v.lvs_rsn, v.lvs_sts, ");
+            sb.Append("v.is_pln, v.prp_lvs_sdt, v.prp_lvs_edt, v.prp_lvs_dur, ");
+            sb.Append("v.act_lvs_dur, v.prp_dur_ds, v.apv_lvs_sdt, v.apv_lvs_edt,  ");
+            sb.Append("v.apv_lvs_dur, v.apv_dur_ds, v.act_lvs_sdt, v.act_lvs_edt, ");
+            sb.Append("v.act_dur_ds, v.lm_rsmptn_dt, v.lm_confm_dt, v.lm_confm_by, ");
+            sb.Append("v.hr_rsmptn_dt, v.hr_confm_dt, v.hr_confm_by, v.rqs_cls_dt, ");
+            sb.Append("v.is_lm_aprv, v.is_hd_aprv, v.is_hr_aprv, v.is_xm_aprv, ");
+            sb.Append("v.is_sm_aprv, v.prp_lvs_dur_typ, v.apv_lvs_dur_typ, v.act_lvs_dur_typ,  ");
             sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = v.emp_id) ");
             sb.Append("as emp_nm, (SELECT lvs_typ_nm FROM public.lms_lvs_typs ");
             sb.Append("WHERE lvs_typ_cd = v.lvs_typ_cd) as lvs_typ_nm, ");
             sb.Append("(SELECT unitname FROM public.gst_units WHERE unitqk = v.unit_id) ");
             sb.Append("as unit_nm, (SELECT deptname FROM public.gst_depts WHERE deptqk ");
             sb.Append("= v.dept_id) as dept_nm, (SELECT locname FROM public.gst_locs ");
-            sb.Append("WHERE locqk = v.loc_id) as loc_nm, v.rsmptn_dt, ");
-            sb.Append("v.cls_rqs_dt, v.lm_rsmptn_dt, v.lm_confm_dt, ");
-            sb.Append("v.lm_confm_by, v.hr_confm_dt, v.hr_confm_by, ");
-            sb.Append("v.is_lm_aprv, v.is_hd_aprv, v.is_hr_aprv, ");
-            sb.Append("v.is_xm_aprv, v.is_sm_aprv ");
+            sb.Append("WHERE locqk = v.loc_id) as loc_nm ");
             sb.Append("FROM public.lms_lvs_infs v ");
-            sb.Append("WHERE v.lvs_yr = @lvs_yr AND v.is_pln = @is_pln ");
-            sb.Append("AND DATE_PART('Month', v.lvs_sdt) = @lvs_month ");
-            sb.Append("ORDER BY v.lvs_sdt; ");
+            sb.Append("WHERE (v.is_pln = @is_pln) ");
+            sb.Append("AND DATE_PART('Year', v.prp_lvs_sdt) = @lvs_yr ");
+            sb.Append("AND DATE_PART('Month', v.prp_lvs_sdt) = @lvs_month ");
+            sb.Append("ORDER BY v.prp_lvs_sdt; ");
+
             string query = sb.ToString();
             using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
             {
@@ -2256,29 +2581,46 @@ namespace IntranetPortal.Data.Repositories.LmsRepositories
                             Id = reader["lvs_inf_id"] == DBNull.Value ? 0L : (long)reader["lvs_inf_id"],
                             EmployeeId = reader["emp_id"] == DBNull.Value ? string.Empty : reader["emp_id"].ToString(),
                             EmployeeFullName = reader["emp_nm"] == DBNull.Value ? string.Empty : reader["emp_nm"].ToString(),
-                            LeaveYear = reader["lvs_yr"] == DBNull.Value ? 1900 : (int)reader["lvs_yr"],
-                            LeaveTypeCode = reader["lvs_typ_cd"] == DBNull.Value ? string.Empty : reader["lvs_typ_cd"].ToString(),
-                            LeaveTypeName = reader["lvs_typ_nm"] == DBNull.Value ? string.Empty : reader["lvs_typ_nm"].ToString(),
-                            LeaveReason = reader["lvs_rsn"] == DBNull.Value ? string.Empty : reader["lvs_rsn"].ToString(),
-                            LeaveStatus = reader["lvs_sts"] == DBNull.Value ? string.Empty : reader["lvs_sts"].ToString(),
-                            LeaveStartDate = reader["lvs_sdt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["lvs_sdt"],
-                            LeaveEndDate = reader["lvs_edt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["lvs_edt"],
-                            Duration = reader["lvs_dur"] == DBNull.Value ? 0 : (int)reader["lvs_dur"],
-                            DurationTypeId = reader["dur_typ"] == DBNull.Value ? 0 : (int)reader["dur_typ"],
-                            DurationTypeDescription = reader["dur_typ_ds"] == DBNull.Value ? string.Empty : reader["dur_typ_ds"].ToString(),
+
                             UnitId = reader["unit_id"] == DBNull.Value ? 0 : (int)reader["unit_id"],
                             UnitName = reader["unit_nm"] == DBNull.Value ? string.Empty : reader["unit_nm"].ToString(),
                             DepartmentId = reader["dept_id"] == DBNull.Value ? 0 : (int)reader["dept_id"],
                             DepartmentName = reader["dept_nm"] == DBNull.Value ? string.Empty : reader["dept_nm"].ToString(),
                             LocationId = reader["loc_id"] == DBNull.Value ? 0 : (int)reader["loc_id"],
                             LocationName = reader["loc_nm"] == DBNull.Value ? string.Empty : reader["loc_nm"].ToString(),
+
+                            LeaveYear = reader["lvs_yr"] == DBNull.Value ? 1900 : (int)reader["lvs_yr"],
+                            LeaveTypeCode = reader["lvs_typ_cd"] == DBNull.Value ? string.Empty : reader["lvs_typ_cd"].ToString(),
+                            LeaveTypeName = reader["lvs_typ_nm"] == DBNull.Value ? string.Empty : reader["lvs_typ_nm"].ToString(),
+                            LeaveReason = reader["lvs_rsn"] == DBNull.Value ? string.Empty : reader["lvs_rsn"].ToString(),
+                            LeaveStatus = reader["lvs_sts"] == DBNull.Value ? string.Empty : reader["lvs_sts"].ToString(),
                             IsPlan = reader["is_pln"] == DBNull.Value ? true : (bool)reader["is_pln"],
 
-                            ResumptionDate = reader["rsmptn_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["rsmptn_dt"],
-                            CloseRequestDate = reader["cls_rqs_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["cls_rqs_dt"],
+                            ProposedLeaveStartDate = reader["prp_lvs_sdt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["prp_lvs_sdt"],
+                            ProposedLeaveEndDate = reader["prp_lvs_edt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["prp_lvs_edt"],
+                            ProposedLeaveDuration = reader["prp_lvs_dur"] == DBNull.Value ? 0 : (int)reader["prp_lvs_dur"],
+                            ProposedDurationTypeId = reader["prp_lvs_dur_typ"] == DBNull.Value ? 0 : (int)reader["prp_lvs_dur_typ"],
+                            ProposedDurationDescription = reader["prp_dur_ds"] == DBNull.Value ? string.Empty : reader["prp_dur_ds"].ToString(),
+
+                            ApprovedLeaveStartDate = reader["apv_lvs_sdt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["apv_lvs_sdt"],
+                            ApprovedLeaveEndDate = reader["apv_lvs_edt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["apv_lvs_edt"],
+                            ApprovedLeaveDuration = reader["apv_lvs_dur"] == DBNull.Value ? 0 : (int)reader["apv_lvs_dur"],
+                            ApprovedDurationTypeId = reader["apv_lvs_dur_typ"] == DBNull.Value ? 0 : (int)reader["apv_lvs_dur_typ"],
+                            ApprovedDurationDescription = reader["apv_dur_ds"] == DBNull.Value ? string.Empty : reader["apv_dur_ds"].ToString(),
+
+                            ActualLeaveStartDate = reader["act_lvs_sdt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["act_lvs_sdt"],
+                            ActualLeaveEndDate = reader["act_lvs_edt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["act_lvs_edt"],
+                            ActualLeaveDuration = reader["act_lvs_dur"] == DBNull.Value ? 0 : (int)reader["act_lvs_dur"],
+                            ActualDurationTypeId = reader["act_lvs_dur_typ"] == DBNull.Value ? 0 : (int)reader["act_lvs_dur_typ"],
+                            ActualDurationDescription = reader["act_dur_ds"] == DBNull.Value ? string.Empty : reader["act_dur_ds"].ToString(),
+
+                            RequestCloseDate = reader["rqs_cls_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["rqs_cls_dt"],
+
                             LineManagersResumptionDate = reader["lm_rsmptn_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["lm_rsmptn_dt"],
                             LineManagerConfirmResumptionDate = reader["lm_confm_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["lm_confm_dt"],
                             LineManagerConfirmResumptionBy = reader["lm_confm_by"] == DBNull.Value ? string.Empty : reader["lm_confm_by"].ToString(),
+
+                            HrResumptionDate = reader["hr_rsmptn_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["hr_rsmptn_dt"],
                             HrConfirmResumptionDate = reader["hr_confm_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["hr_confm_dt"],
                             HrConfirmResumptionBy = reader["hr_confm_by"] == DBNull.Value ? string.Empty : reader["hr_confm_by"].ToString(),
 
@@ -2299,30 +2641,28 @@ namespace IntranetPortal.Data.Repositories.LmsRepositories
             List<EmployeeLeave> leaveList = new List<EmployeeLeave>();
             StringBuilder sb = new StringBuilder();
 
-            sb.Append("SELECT v.lvs_inf_id, v.emp_id, v.lvs_yr, v.lvs_typ_cd, ");
-            sb.Append("v.lvs_rsn, v.lvs_sts, v.lvs_sdt, v.lvs_edt, v.lvs_dur, ");
-            sb.Append("v.unit_id, v.dept_id, v.loc_id, v.is_pln, v.dur_typ, ");
-            sb.Append("CASE WHEN v.dur_typ = 0 THEN 'Working Day(s)' ");
-            sb.Append("WHEN v.dur_typ = 1 THEN 'Day(s)' ");
-            sb.Append("WHEN v.dur_typ = 2 THEN 'Week(s)' ");
-            sb.Append("WHEN v.dur_typ = 3 THEN 'Month(s)' ");
-            sb.Append("WHEN v.dur_typ = 4 THEN 'Year(s)' END as dur_typ_ds, ");
+            sb.Append("SELECT v.lvs_inf_id, v.emp_id, v.unit_id, v.dept_id, ");
+            sb.Append("v.loc_id, v.lvs_yr, v.lvs_typ_cd, v.lvs_rsn, v.lvs_sts, ");
+            sb.Append("v.is_pln, v.prp_lvs_sdt, v.prp_lvs_edt, v.prp_lvs_dur, ");
+            sb.Append("v.act_lvs_dur, v.prp_dur_ds, v.apv_lvs_sdt, v.apv_lvs_edt,  ");
+            sb.Append("v.apv_lvs_dur, v.apv_dur_ds, v.act_lvs_sdt, v.act_lvs_edt, ");
+            sb.Append("v.act_dur_ds, v.lm_rsmptn_dt, v.lm_confm_dt, v.lm_confm_by, ");
+            sb.Append("v.hr_rsmptn_dt, v.hr_confm_dt, v.hr_confm_by, v.rqs_cls_dt, ");
+            sb.Append("v.is_lm_aprv, v.is_hd_aprv, v.is_hr_aprv, v.is_xm_aprv, ");
+            sb.Append("v.is_sm_aprv, v.prp_lvs_dur_typ, v.apv_lvs_dur_typ, v.act_lvs_dur_typ,  ");
             sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = v.emp_id) ");
             sb.Append("as emp_nm, (SELECT lvs_typ_nm FROM public.lms_lvs_typs ");
             sb.Append("WHERE lvs_typ_cd = v.lvs_typ_cd) as lvs_typ_nm, ");
             sb.Append("(SELECT unitname FROM public.gst_units WHERE unitqk = v.unit_id) ");
             sb.Append("as unit_nm, (SELECT deptname FROM public.gst_depts WHERE deptqk ");
             sb.Append("= v.dept_id) as dept_nm, (SELECT locname FROM public.gst_locs ");
-            sb.Append("WHERE locqk = v.loc_id) as loc_nm, v.rsmptn_dt, ");
-            sb.Append("v.cls_rqs_dt, v.lm_rsmptn_dt, v.lm_confm_dt, ");
-            sb.Append("v.lm_confm_by, v.hr_confm_dt, v.hr_confm_by, ");
-            sb.Append("v.is_lm_aprv, v.is_hd_aprv, v.is_hr_aprv, ");
-            sb.Append("v.is_xm_aprv, v.is_sm_aprv ");
+            sb.Append("WHERE locqk = v.loc_id) as loc_nm ");
             sb.Append("FROM public.lms_lvs_infs v ");
-            sb.Append("WHERE v.lvs_yr = @lvs_yr AND v.is_pln = @is_pln ");
-            sb.Append("AND DATE_PART('Month', v.lvs_sdt) = @lvs_month ");
-            sb.Append("AND v.lvs_sts = @lvs_sts ");
-            sb.Append("ORDER BY v.lvs_sdt; ");
+            sb.Append("WHERE (v.is_pln = @is_pln) AND (v.lvs_sts = @lvs_sts) ");
+            sb.Append("AND DATE_PART('Year', v.prp_lvs_sdt) = @lvs_yr ");
+            sb.Append("AND DATE_PART('Month', v.prp_lvs_sdt) = @lvs_month ");
+            sb.Append("ORDER BY v.prp_lvs_sdt; ");
+
             string query = sb.ToString();
             using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
             {
@@ -2347,29 +2687,46 @@ namespace IntranetPortal.Data.Repositories.LmsRepositories
                             Id = reader["lvs_inf_id"] == DBNull.Value ? 0L : (long)reader["lvs_inf_id"],
                             EmployeeId = reader["emp_id"] == DBNull.Value ? string.Empty : reader["emp_id"].ToString(),
                             EmployeeFullName = reader["emp_nm"] == DBNull.Value ? string.Empty : reader["emp_nm"].ToString(),
-                            LeaveYear = reader["lvs_yr"] == DBNull.Value ? 1900 : (int)reader["lvs_yr"],
-                            LeaveTypeCode = reader["lvs_typ_cd"] == DBNull.Value ? string.Empty : reader["lvs_typ_cd"].ToString(),
-                            LeaveTypeName = reader["lvs_typ_nm"] == DBNull.Value ? string.Empty : reader["lvs_typ_nm"].ToString(),
-                            LeaveReason = reader["lvs_rsn"] == DBNull.Value ? string.Empty : reader["lvs_rsn"].ToString(),
-                            LeaveStatus = reader["lvs_sts"] == DBNull.Value ? string.Empty : reader["lvs_sts"].ToString(),
-                            LeaveStartDate = reader["lvs_sdt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["lvs_sdt"],
-                            LeaveEndDate = reader["lvs_edt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["lvs_edt"],
-                            Duration = reader["lvs_dur"] == DBNull.Value ? 0 : (int)reader["lvs_dur"],
-                            DurationTypeId = reader["dur_typ"] == DBNull.Value ? 0 : (int)reader["dur_typ"],
-                            DurationTypeDescription = reader["dur_typ_ds"] == DBNull.Value ? string.Empty : reader["dur_typ_ds"].ToString(),
+
                             UnitId = reader["unit_id"] == DBNull.Value ? 0 : (int)reader["unit_id"],
                             UnitName = reader["unit_nm"] == DBNull.Value ? string.Empty : reader["unit_nm"].ToString(),
                             DepartmentId = reader["dept_id"] == DBNull.Value ? 0 : (int)reader["dept_id"],
                             DepartmentName = reader["dept_nm"] == DBNull.Value ? string.Empty : reader["dept_nm"].ToString(),
                             LocationId = reader["loc_id"] == DBNull.Value ? 0 : (int)reader["loc_id"],
                             LocationName = reader["loc_nm"] == DBNull.Value ? string.Empty : reader["loc_nm"].ToString(),
+
+                            LeaveYear = reader["lvs_yr"] == DBNull.Value ? 1900 : (int)reader["lvs_yr"],
+                            LeaveTypeCode = reader["lvs_typ_cd"] == DBNull.Value ? string.Empty : reader["lvs_typ_cd"].ToString(),
+                            LeaveTypeName = reader["lvs_typ_nm"] == DBNull.Value ? string.Empty : reader["lvs_typ_nm"].ToString(),
+                            LeaveReason = reader["lvs_rsn"] == DBNull.Value ? string.Empty : reader["lvs_rsn"].ToString(),
+                            LeaveStatus = reader["lvs_sts"] == DBNull.Value ? string.Empty : reader["lvs_sts"].ToString(),
                             IsPlan = reader["is_pln"] == DBNull.Value ? true : (bool)reader["is_pln"],
 
-                            ResumptionDate = reader["rsmptn_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["rsmptn_dt"],
-                            CloseRequestDate = reader["cls_rqs_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["cls_rqs_dt"],
+                            ProposedLeaveStartDate = reader["prp_lvs_sdt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["prp_lvs_sdt"],
+                            ProposedLeaveEndDate = reader["prp_lvs_edt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["prp_lvs_edt"],
+                            ProposedLeaveDuration = reader["prp_lvs_dur"] == DBNull.Value ? 0 : (int)reader["prp_lvs_dur"],
+                            ProposedDurationTypeId = reader["prp_lvs_dur_typ"] == DBNull.Value ? 0 : (int)reader["prp_lvs_dur_typ"],
+                            ProposedDurationDescription = reader["prp_dur_ds"] == DBNull.Value ? string.Empty : reader["prp_dur_ds"].ToString(),
+
+                            ApprovedLeaveStartDate = reader["apv_lvs_sdt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["apv_lvs_sdt"],
+                            ApprovedLeaveEndDate = reader["apv_lvs_edt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["apv_lvs_edt"],
+                            ApprovedLeaveDuration = reader["apv_lvs_dur"] == DBNull.Value ? 0 : (int)reader["apv_lvs_dur"],
+                            ApprovedDurationTypeId = reader["apv_lvs_dur_typ"] == DBNull.Value ? 0 : (int)reader["apv_lvs_dur_typ"],
+                            ApprovedDurationDescription = reader["apv_dur_ds"] == DBNull.Value ? string.Empty : reader["apv_dur_ds"].ToString(),
+
+                            ActualLeaveStartDate = reader["act_lvs_sdt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["act_lvs_sdt"],
+                            ActualLeaveEndDate = reader["act_lvs_edt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["act_lvs_edt"],
+                            ActualLeaveDuration = reader["act_lvs_dur"] == DBNull.Value ? 0 : (int)reader["act_lvs_dur"],
+                            ActualDurationTypeId = reader["act_lvs_dur_typ"] == DBNull.Value ? 0 : (int)reader["act_lvs_dur_typ"],
+                            ActualDurationDescription = reader["act_dur_ds"] == DBNull.Value ? string.Empty : reader["act_dur_ds"].ToString(),
+
+                            RequestCloseDate = reader["rqs_cls_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["rqs_cls_dt"],
+
                             LineManagersResumptionDate = reader["lm_rsmptn_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["lm_rsmptn_dt"],
                             LineManagerConfirmResumptionDate = reader["lm_confm_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["lm_confm_dt"],
                             LineManagerConfirmResumptionBy = reader["lm_confm_by"] == DBNull.Value ? string.Empty : reader["lm_confm_by"].ToString(),
+
+                            HrResumptionDate = reader["hr_rsmptn_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["hr_rsmptn_dt"],
                             HrConfirmResumptionDate = reader["hr_confm_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["hr_confm_dt"],
                             HrConfirmResumptionBy = reader["hr_confm_by"] == DBNull.Value ? string.Empty : reader["hr_confm_by"].ToString(),
 
@@ -2390,29 +2747,26 @@ namespace IntranetPortal.Data.Repositories.LmsRepositories
             List<EmployeeLeave> leaveList = new List<EmployeeLeave>();
             StringBuilder sb = new StringBuilder();
 
-            sb.Append("SELECT v.lvs_inf_id, v.emp_id, v.lvs_yr, v.lvs_typ_cd, ");
-            sb.Append("v.lvs_rsn, v.lvs_sts, v.lvs_sdt, v.lvs_edt, v.lvs_dur, ");
-            sb.Append("v.unit_id, v.dept_id, v.loc_id, v.is_pln, v.dur_typ, ");
-            sb.Append("CASE WHEN v.dur_typ = 0 THEN 'Working Day(s)' ");
-            sb.Append("WHEN v.dur_typ = 1 THEN 'Day(s)' ");
-            sb.Append("WHEN v.dur_typ = 2 THEN 'Week(s)' ");
-            sb.Append("WHEN v.dur_typ = 3 THEN 'Month(s)' ");
-            sb.Append("WHEN v.dur_typ = 4 THEN 'Year(s)' END as dur_typ_ds, ");
+            sb.Append("SELECT v.lvs_inf_id, v.emp_id, v.unit_id, v.dept_id, ");
+            sb.Append("v.loc_id, v.lvs_yr, v.lvs_typ_cd, v.lvs_rsn, v.lvs_sts, ");
+            sb.Append("v.is_pln, v.prp_lvs_sdt, v.prp_lvs_edt, v.prp_lvs_dur, ");
+            sb.Append("v.act_lvs_dur, v.prp_dur_ds, v.apv_lvs_sdt, v.apv_lvs_edt,  ");
+            sb.Append("v.apv_lvs_dur, v.apv_dur_ds, v.act_lvs_sdt, v.act_lvs_edt, ");
+            sb.Append("v.act_dur_ds, v.lm_rsmptn_dt, v.lm_confm_dt, v.lm_confm_by, ");
+            sb.Append("v.hr_rsmptn_dt, v.hr_confm_dt, v.hr_confm_by, v.rqs_cls_dt, ");
+            sb.Append("v.is_lm_aprv, v.is_hd_aprv, v.is_hr_aprv, v.is_xm_aprv, ");
+            sb.Append("v.is_sm_aprv, v.prp_lvs_dur_typ, v.apv_lvs_dur_typ, v.act_lvs_dur_typ,  ");
             sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = v.emp_id) ");
             sb.Append("as emp_nm, (SELECT lvs_typ_nm FROM public.lms_lvs_typs ");
             sb.Append("WHERE lvs_typ_cd = v.lvs_typ_cd) as lvs_typ_nm, ");
             sb.Append("(SELECT unitname FROM public.gst_units WHERE unitqk = v.unit_id) ");
             sb.Append("as unit_nm, (SELECT deptname FROM public.gst_depts WHERE deptqk ");
             sb.Append("= v.dept_id) as dept_nm, (SELECT locname FROM public.gst_locs ");
-            sb.Append("WHERE locqk = v.loc_id) as loc_nm, v.rsmptn_dt, ");
-            sb.Append("v.cls_rqs_dt, v.lm_rsmptn_dt, v.lm_confm_dt, ");
-            sb.Append("v.lm_confm_by, v.hr_confm_dt, v.hr_confm_by, ");
-            sb.Append("v.is_lm_aprv, v.is_hd_aprv, v.is_hr_aprv, ");
-            sb.Append("v.is_xm_aprv, v.is_sm_aprv ");
+            sb.Append("WHERE locqk = v.loc_id) as loc_nm ");
             sb.Append("FROM public.lms_lvs_infs v ");
-            sb.Append("WHERE v.is_pln = @is_pln ");
-            sb.Append("AND v.lvs_sts = @lvs_sts ");
-            sb.Append("ORDER BY v.lvs_sdt; ");
+            sb.Append("WHERE (v.is_pln = @is_pln) AND (v.lvs_sts = @lvs_sts) ");
+            sb.Append("ORDER BY v.prp_lvs_sdt; ");
+
             string query = sb.ToString();
             using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
             {
@@ -2433,29 +2787,46 @@ namespace IntranetPortal.Data.Repositories.LmsRepositories
                             Id = reader["lvs_inf_id"] == DBNull.Value ? 0L : (long)reader["lvs_inf_id"],
                             EmployeeId = reader["emp_id"] == DBNull.Value ? string.Empty : reader["emp_id"].ToString(),
                             EmployeeFullName = reader["emp_nm"] == DBNull.Value ? string.Empty : reader["emp_nm"].ToString(),
-                            LeaveYear = reader["lvs_yr"] == DBNull.Value ? 1900 : (int)reader["lvs_yr"],
-                            LeaveTypeCode = reader["lvs_typ_cd"] == DBNull.Value ? string.Empty : reader["lvs_typ_cd"].ToString(),
-                            LeaveTypeName = reader["lvs_typ_nm"] == DBNull.Value ? string.Empty : reader["lvs_typ_nm"].ToString(),
-                            LeaveReason = reader["lvs_rsn"] == DBNull.Value ? string.Empty : reader["lvs_rsn"].ToString(),
-                            LeaveStatus = reader["lvs_sts"] == DBNull.Value ? string.Empty : reader["lvs_sts"].ToString(),
-                            LeaveStartDate = reader["lvs_sdt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["lvs_sdt"],
-                            LeaveEndDate = reader["lvs_edt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["lvs_edt"],
-                            Duration = reader["lvs_dur"] == DBNull.Value ? 0 : (int)reader["lvs_dur"],
-                            DurationTypeId = reader["dur_typ"] == DBNull.Value ? 0 : (int)reader["dur_typ"],
-                            DurationTypeDescription = reader["dur_typ_ds"] == DBNull.Value ? string.Empty : reader["dur_typ_ds"].ToString(),
+
                             UnitId = reader["unit_id"] == DBNull.Value ? 0 : (int)reader["unit_id"],
                             UnitName = reader["unit_nm"] == DBNull.Value ? string.Empty : reader["unit_nm"].ToString(),
                             DepartmentId = reader["dept_id"] == DBNull.Value ? 0 : (int)reader["dept_id"],
                             DepartmentName = reader["dept_nm"] == DBNull.Value ? string.Empty : reader["dept_nm"].ToString(),
                             LocationId = reader["loc_id"] == DBNull.Value ? 0 : (int)reader["loc_id"],
                             LocationName = reader["loc_nm"] == DBNull.Value ? string.Empty : reader["loc_nm"].ToString(),
+
+                            LeaveYear = reader["lvs_yr"] == DBNull.Value ? 1900 : (int)reader["lvs_yr"],
+                            LeaveTypeCode = reader["lvs_typ_cd"] == DBNull.Value ? string.Empty : reader["lvs_typ_cd"].ToString(),
+                            LeaveTypeName = reader["lvs_typ_nm"] == DBNull.Value ? string.Empty : reader["lvs_typ_nm"].ToString(),
+                            LeaveReason = reader["lvs_rsn"] == DBNull.Value ? string.Empty : reader["lvs_rsn"].ToString(),
+                            LeaveStatus = reader["lvs_sts"] == DBNull.Value ? string.Empty : reader["lvs_sts"].ToString(),
                             IsPlan = reader["is_pln"] == DBNull.Value ? true : (bool)reader["is_pln"],
 
-                            ResumptionDate = reader["rsmptn_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["rsmptn_dt"],
-                            CloseRequestDate = reader["cls_rqs_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["cls_rqs_dt"],
+                            ProposedLeaveStartDate = reader["prp_lvs_sdt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["prp_lvs_sdt"],
+                            ProposedLeaveEndDate = reader["prp_lvs_edt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["prp_lvs_edt"],
+                            ProposedLeaveDuration = reader["prp_lvs_dur"] == DBNull.Value ? 0 : (int)reader["prp_lvs_dur"],
+                            ProposedDurationTypeId = reader["prp_lvs_dur_typ"] == DBNull.Value ? 0 : (int)reader["prp_lvs_dur_typ"],
+                            ProposedDurationDescription = reader["prp_dur_ds"] == DBNull.Value ? string.Empty : reader["prp_dur_ds"].ToString(),
+
+                            ApprovedLeaveStartDate = reader["apv_lvs_sdt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["apv_lvs_sdt"],
+                            ApprovedLeaveEndDate = reader["apv_lvs_edt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["apv_lvs_edt"],
+                            ApprovedLeaveDuration = reader["apv_lvs_dur"] == DBNull.Value ? 0 : (int)reader["apv_lvs_dur"],
+                            ApprovedDurationTypeId = reader["apv_lvs_dur_typ"] == DBNull.Value ? 0 : (int)reader["apv_lvs_dur_typ"],
+                            ApprovedDurationDescription = reader["apv_dur_ds"] == DBNull.Value ? string.Empty : reader["apv_dur_ds"].ToString(),
+
+                            ActualLeaveStartDate = reader["act_lvs_sdt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["act_lvs_sdt"],
+                            ActualLeaveEndDate = reader["act_lvs_edt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["act_lvs_edt"],
+                            ActualLeaveDuration = reader["act_lvs_dur"] == DBNull.Value ? 0 : (int)reader["act_lvs_dur"],
+                            ActualDurationTypeId = reader["act_lvs_dur_typ"] == DBNull.Value ? 0 : (int)reader["act_lvs_dur_typ"],
+                            ActualDurationDescription = reader["act_dur_ds"] == DBNull.Value ? string.Empty : reader["act_dur_ds"].ToString(),
+
+                            RequestCloseDate = reader["rqs_cls_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["rqs_cls_dt"],
+
                             LineManagersResumptionDate = reader["lm_rsmptn_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["lm_rsmptn_dt"],
                             LineManagerConfirmResumptionDate = reader["lm_confm_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["lm_confm_dt"],
                             LineManagerConfirmResumptionBy = reader["lm_confm_by"] == DBNull.Value ? string.Empty : reader["lm_confm_by"].ToString(),
+
+                            HrResumptionDate = reader["hr_rsmptn_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["hr_rsmptn_dt"],
                             HrConfirmResumptionDate = reader["hr_confm_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["hr_confm_dt"],
                             HrConfirmResumptionBy = reader["hr_confm_by"] == DBNull.Value ? string.Empty : reader["hr_confm_by"].ToString(),
 
@@ -2472,8 +2843,7 @@ namespace IntranetPortal.Data.Repositories.LmsRepositories
             return leaveList;
         }
         #endregion
-
-
+        #endregion
 
         #region Leave Submission Action Methods
         //==== Leave Submission Read Action Methods

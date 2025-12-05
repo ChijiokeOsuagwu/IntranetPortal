@@ -114,8 +114,63 @@ namespace IntranetPortal.Base.Services
 
         #endregion
 
-        //================================= Currency Action Methods ====================================//
-        #region
+        #region Location Groups Action Methods
+        public async Task<List<LocationGroup>> GetAllLocationGroupsAsync()
+        {
+            List<LocationGroup> locationGroups = new List<LocationGroup>();
+            var entities = await _locationRepository.GetLocationGroupsAsync();
+            if (entities != null)
+            {
+                locationGroups = entities;
+            }
+            return locationGroups;
+        }
+        public async Task<bool> CreateLocationGroupAsync(LocationGroup locationGroup)
+        {
+            if (locationGroup == null) { throw new ArgumentNullException(nameof(locationGroup), "Required parameter [locationGroup] is missing."); }
+            var entities = await _locationRepository.GetLocationGroupsByNameAsync(locationGroup.LocationGroupName);
+            if(entities != null && entities.Count > 0)
+            {
+                throw new Exception("Duplicate Entry. This name already exists in the system.");
+            }
+            return await _locationRepository.AddLocationGroupAsync(locationGroup);
+        }
+        public async Task<bool> UpdateLocationGroupAsync(LocationGroup locationGroup)
+        {
+            if (locationGroup == null) { throw new ArgumentNullException(nameof(locationGroup), "Required parameter [Location Group] is missing."); }
+            var entities = await _locationRepository.GetLocationGroupsByNameAsync(locationGroup.LocationGroupName);
+            if (entities != null && entities.Count > 0 && entities[0].LocationGroupId != locationGroup.LocationGroupId)
+            {
+                int noOfDuplicates = 0;
+                foreach(var e in entities)
+                {
+                    if(e.LocationGroupId != locationGroup.LocationGroupId)
+                    {
+                        noOfDuplicates++;
+                    }
+                }
+                if(noOfDuplicates > 0)
+                {
+                    throw new Exception("Duplicate Entry. This name already exists in the system.");
+                }
+            }
+            return await _locationRepository.EditLocationGroupAsync(locationGroup);
+        }
+        public async Task<bool> DeleteLocationGroupAsync(int locationGroupId)
+        {
+            if (locationGroupId < 1) { throw new ArgumentNullException(nameof(locationGroupId), "Required parameter [Location Group ID] is missing."); }
+            return await _locationRepository.DeleteLocationGroupAsync(locationGroupId);
+        }
+
+        public async Task<LocationGroup> GetLocationGroupByIdAsync(int locationGroupId)
+        {
+            if (locationGroupId < 1) { throw new ArgumentNullException(nameof(locationGroupId), "Required parameter [locationGroupId] is missing."); }
+            return await _locationRepository.GetLocationGroupByIdAsync(locationGroupId);
+        }
+
+        #endregion
+
+        #region Currency Action Methods
         public async Task<IList<Currency>> GetCurrenciesAsync()
         {
             List<Currency> currencies = new List<Currency>();
@@ -134,7 +189,7 @@ namespace IntranetPortal.Base.Services
         }
 
         #endregion
-        //================================= States Action Methods ======================================//
+
         #region States Action Methods
         public async Task<IList<State>> GetStatesAsync()
         {
@@ -187,7 +242,6 @@ namespace IntranetPortal.Base.Services
         }
         #endregion
 
-        //================================= Department Action Methods ==================================//
         #region Department Action Methods
 
         public async Task<bool> CreateDepartmentAsync(Department department)
@@ -268,7 +322,6 @@ namespace IntranetPortal.Base.Services
         }
         #endregion
 
-        //================================= Unit Service Methods =======================================//
         #region Unit Service Methods
         public async Task<bool> CreateUnitAsync(Unit unit)
         {
@@ -348,7 +401,6 @@ namespace IntranetPortal.Base.Services
         }
         #endregion
 
-        //================================= Company Action Methods =====================================//
         #region Company Action Methods
 
         public async Task<IList<Company>> GetCompaniesAsync()
@@ -383,7 +435,6 @@ namespace IntranetPortal.Base.Services
         }
         #endregion
 
-        //================================= Team Action Methods ==================================//
         #region Team Action Methods
 
         public async Task<bool> CreateTeamAsync(Team team)
@@ -480,7 +531,6 @@ namespace IntranetPortal.Base.Services
 
         #endregion
 
-        //================================ Team Members Action Methods ==========================//
         #region Team Members Action Methods
 
         public async Task<bool> CreateTeamMemberAsync(TeamMember teamMember)

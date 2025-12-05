@@ -32,7 +32,7 @@ namespace IntranetPortal.Areas.GlobalSettings.Controllers
             _dataProtector = dataProtectionProvider.CreateProtector(dataProtectionEncryptionStrings.RouteValuesEncryptionCode);
         }
 
-        //==================== Teams Controller Actions ====================================================================//
+        //===== Teams Controller Actions =========//
         #region Teams Actions
 
         [Authorize(Roles = "GBSVWASTT, GBSMGASTT, XYALLACCZ")]
@@ -206,7 +206,7 @@ namespace IntranetPortal.Areas.GlobalSettings.Controllers
         }
         #endregion
 
-        //======================== Team Members Controller Actions ==================================================================//
+        //==== Team Members Controller Actions ===//
         #region Team Members Actions
 
         [Authorize(Roles = "GBSVWASTT, GBSMGASTT, XYALLACCZ")]
