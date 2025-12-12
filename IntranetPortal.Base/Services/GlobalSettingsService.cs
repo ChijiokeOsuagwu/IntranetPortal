@@ -33,7 +33,6 @@ namespace IntranetPortal.Base.Services
             _currencyRepository = currencyRepository;
         }
 
-        //================================= Location Action Methods ====================================//
         #region Location Action Methods
         public async Task<bool> CreateLocationAsync(Location location)
         {
@@ -102,6 +101,17 @@ namespace IntranetPortal.Base.Services
             return locations;
         }
 
+        public async Task<List<Location>> SearchLocationsAsync(string LocationName)
+        {
+            List<Location> locationList = new List<Location>();
+            if (!string.IsNullOrWhiteSpace(LocationName))
+            {
+                locationList = await _locationRepository.GetLocationsByNameAsync(LocationName);
+            }
+            return locationList;
+        }
+
+
         public async Task<IList<Location>> GetStationsAsync()
         {
             return await _locationRepository.GetOnlyStationsAsync();
@@ -129,7 +139,7 @@ namespace IntranetPortal.Base.Services
         {
             if (locationGroup == null) { throw new ArgumentNullException(nameof(locationGroup), "Required parameter [locationGroup] is missing."); }
             var entities = await _locationRepository.GetLocationGroupsByNameAsync(locationGroup.LocationGroupName);
-            if(entities != null && entities.Count > 0)
+            if (entities != null && entities.Count > 0)
             {
                 throw new Exception("Duplicate Entry. This name already exists in the system.");
             }
@@ -142,14 +152,14 @@ namespace IntranetPortal.Base.Services
             if (entities != null && entities.Count > 0 && entities[0].LocationGroupId != locationGroup.LocationGroupId)
             {
                 int noOfDuplicates = 0;
-                foreach(var e in entities)
+                foreach (var e in entities)
                 {
-                    if(e.LocationGroupId != locationGroup.LocationGroupId)
+                    if (e.LocationGroupId != locationGroup.LocationGroupId)
                     {
                         noOfDuplicates++;
                     }
                 }
-                if(noOfDuplicates > 0)
+                if (noOfDuplicates > 0)
                 {
                     throw new Exception("Duplicate Entry. This name already exists in the system.");
                 }
@@ -166,6 +176,15 @@ namespace IntranetPortal.Base.Services
         {
             if (locationGroupId < 1) { throw new ArgumentNullException(nameof(locationGroupId), "Required parameter [locationGroupId] is missing."); }
             return await _locationRepository.GetLocationGroupByIdAsync(locationGroupId);
+        }
+
+        #endregion
+
+        #region Location Group Members Service Methods
+        public async Task<List<LocationGroupMember>> GetLocationGroupMembersByLocationGroupIdAsync(int LocationGroupId)
+        {
+            if (LocationGroupId < 1) { throw new ArgumentNullException(nameof(LocationGroupId), "Required parameter [Location Group ID] is missing."); }
+            return await _locationRepository.GetLocationGroupMembersByLocationGroupIdAsync(LocationGroupId);
         }
 
         #endregion

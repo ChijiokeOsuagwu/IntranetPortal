@@ -24,6 +24,7 @@ namespace IntranetPortal.Base.Services
         Task<IList<State>> SearchStatesAsync(string stateName);
         Task<State> GetStateAsync(string stateName);
         Task<IList<Country>> GetCountriesAsync();
+        Task<List<Location>> SearchLocationsAsync(string LocationName);
         #endregion
 
         #region Location Groups Service Methods
@@ -33,6 +34,12 @@ namespace IntranetPortal.Base.Services
         Task<bool> CreateLocationGroupAsync(LocationGroup locationGroup);
         Task<bool> UpdateLocationGroupAsync(LocationGroup locationGroup);
         Task<bool> DeleteLocationGroupAsync(int locationGroupId);
+        #endregion
+
+        #region Location Group Members Service Method
+        Task<List<LocationGroupMember>> GetLocationGroupMembersByLocationGroupIdAsync(int LocationGroupId);
+
+
         #endregion
 
         //============================= Department Service Methods ===========================================//

@@ -453,33 +453,25 @@ namespace IntranetPortal.Areas.GlobalSettings.Controllers
             return View(model);
         }
 
-
         #endregion
 
-        //==== Team Members Controller Actions ===//
-        #region Team Members Actions
+        //==== Location Group Members Controller Actions ===//
+        #region Location Group Members Actions
 
         [Authorize(Roles = "GBSVWASTT, GBSMGASTT, XYALLACCZ")]
-        public async Task<IActionResult> Members(string id, string searchString = null)
+        public async Task<IActionResult> GroupLocationList(int id)
         {
-            TeamMembersListViewModel model = new TeamMembersListViewModel();
-            List<TeamMember> teamMembersList = new List<TeamMember>();
-            if (!string.IsNullOrEmpty(id))
+            LocationGroupMembersListViewModel model = new LocationGroupMembersListViewModel();
+            model.LocationGroupMembersList = new List<LocationGroupMember>();
+            if (id>0)
             {
-                model.TeamID = id;
-                if (string.IsNullOrWhiteSpace(searchString))
+                model.LocationGroupId = id;
+                if (model.LocationGroupId > 0)
                 {
-                    var entities = await _globalSettingsService.GetTeamMembersByTeamIdAsync(id);
-                    teamMembersList = entities.ToList();
-                }
-                else
-                {
-                    var entities = await _globalSettingsService.GetTeamMembersByMemberNameAsync(id, searchString);
-                    teamMembersList = entities.ToList();
+                    var entities = await _globalSettingsService.GetLocationGroupMembersByLocationGroupIdAsync(id);
+                    model.LocationGroupMembersList = entities.ToList();
                 }
             }
-
-            model.TeamMembersList = teamMembersList;
             return View(model);
         }
 
@@ -638,6 +630,13 @@ namespace IntranetPortal.Areas.GlobalSettings.Controllers
         public JsonResult GetStateNames(string stateName)
         {
             List<string> locations = _globalSettingsService.SearchStatesAsync(stateName).Result.Select(x => x.Name).ToList();
+            return Json(locations);
+        }
+
+        [HttpGet]
+        public JsonResult GetLocationNames(string text)
+        {
+            List<string> locations = _globalSettingsService.SearchLocationsAsync(text).Result.Select(x => x.LocationName).ToList();
             return Json(locations);
         }
         #endregion

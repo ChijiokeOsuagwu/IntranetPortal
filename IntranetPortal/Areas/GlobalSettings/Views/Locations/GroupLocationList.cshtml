@@ -1,0 +1,88 @@
+﻿@model IntranetPortal.Areas.GlobalSettings.Models.LocationGroupMembersListViewModel
+@{
+    ViewData["Title"] = "Global Settings | Group Locations";
+}
+<div class="container">
+    <h4 class="mb-4">Group Location List</h4>
+    <hr />
+    <div class="mb-1">
+        <div class="row">
+            <div class="col-md-3">
+                <a asp-area="GlobalSettings" asp-controller="Locations" asp-action="LocationGroups" class="btn btn-sm btn-dark" style="width:75px" title="Click to Go Back">
+                    <span class="text-white">Back</span>
+                </a>
+            </div>
+            <div class="col-md-5">
+                <div class="input-group mb-3">
+                    <input type="hidden" name="id" value="@Model.LocationGroupId" />
+                    <input type="text" id="ln" class="form-control" placeholder="Enter Location" required>
+                    <button class="btn btn-outline-dark" type="button" id="button-addon2">Add</button>
+                </div>
+            </div>
+            <div class="col-md-4"></div>
+        </div>
+        @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-x-circle"></i>
+                <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (!String.IsNullOrEmpty(Model.ViewModelSuccessMessage))
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="bi bi-check-circle"></i>
+                <span class="fw-bold">@Model.ViewModelSuccessMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+
+        @if (Model.LocationGroupMembersList == null || Model.LocationGroupMembersList.Count < 1)
+        {
+            <div class="alert alert-info fade show" role="alert">
+                <i class="bi bi-info-circle"></i>
+                <span class="fw-bold">No record was found.</span>
+            </div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-sm table-hover">
+                    <thead>
+                        <tr class="bg-secondary">
+                            <th>
+                                <span class="text-white fw-bold">Location</span>
+                            </th>
+                            <th>
+                                <span class="text-white fw-bold">State</span>
+                            </th>
+                            <th>
+
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var location in Model.LocationGroupMembersList)
+                        {
+                            <tr>
+                                <td>
+                                    <span class="text-dark fw-bold">@Html.DisplayFor(modelItem => location.LocationName)</span>
+                                </td>
+                                <td>
+                                    <span class="text-dark fw-bold">@Html.DisplayFor(modelItem => location.LocationState)</span>
+                                </td>
+                                <td>
+                                    <button title="Revoke this Permission" class="btn btn-sm btn-outline-danger text-dark fw-bold" style="border-radius:10px; width:75px" id="btn_revoke_@location.LocationGroupMemberId" onclick="removeLocationFromGroup('@location.LocationGroupMemberId')">Remove</button>}
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>
+@section Scripts{
+    <script src="~/js/js_uad/global_settings.js"></script>
+}

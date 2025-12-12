@@ -4,12 +4,10 @@ using System.Text;
 
 namespace IntranetPortal.Base.Models.GlobalSettingsModels
 {
-    public class LocationGroupMember
+    public class LocationGroupMember:Location
     {
         public int LocationGroupMemberId { get; set; }
         public int LocationGroupId { get; set; }
         public string LocationGroupName { get; set; }
-        public int LocationId { get; set; }
-        public string LocationName { get; set; }
     }
 }

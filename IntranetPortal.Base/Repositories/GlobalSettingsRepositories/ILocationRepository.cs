@@ -19,6 +19,7 @@ namespace IntranetPortal.Base.Repositories.GlobalSettingsRepositories
         Task<Location> GetLocationByNameAsync(string locationName);
         Task<IList<Location>> GetLocationsByUserIdAsync(string userId);
         Task<IList<Location>> GetLocationsAsync();
+        Task<List<Location>> GetLocationsByNameAsync(string locationName);
         #endregion
 
         #region Location Group Action Methods
@@ -35,6 +36,8 @@ namespace IntranetPortal.Base.Repositories.GlobalSettingsRepositories
         Task<bool> DeleteLocationGroupMemberAsync(int locationGroupMemberId);
         Task<bool> EditLocationGroupMemberAsync(LocationGroupMember locationGroupMember);
         Task<List<Location>> GetLocationsByLocationGroupIdAsync(int locationGroupId);
+        Task<List<LocationGroupMember>> GetLocationGroupMembersByLocationGroupIdAsync(int locationGroupId);
+
         #endregion
 
         #region States, Stations, Bureaus and Countries Action Methods

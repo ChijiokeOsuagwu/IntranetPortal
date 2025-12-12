@@ -366,7 +366,7 @@ namespace IntranetPortal.Base.Services
         
         #endregion
        
-        //============== Work Item Folder Write Service Methods ================================//
+        //======= Work Item Folder Write Service Methods ===========//
         #region Work Item Folders Write Service Methods
         public async Task<long> CreateWorkItemFolderAsync(WorkItemFolder folder)
         {
