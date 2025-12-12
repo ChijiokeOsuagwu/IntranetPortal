@@ -38,7 +38,7 @@ namespace IntranetPortal.Base.Services
 
         Task<List<WorkItemFolder>> SearchWorkItemFoldersAsync(string OwnerId, bool? IsArchived = null, int? createdYear = null, int? createdMonth = null);
 
-        Task<List<WorkItemFolder>> GetWorkItemFoldersAsync(DateTime StartDate, DateTime EndDate, int ArchiveStatus, int? LocationId = null, int? DepartmentId = null, int? UnitId = null, string OwnerId = null, string OwnerName = null);
+        Task<List<WorkItemFolder>> GetWorkItemFoldersAsync(DateTime StartDate, DateTime EndDate, int ArchiveStatus, int? LocationId = null, int? DepartmentId = null, int? UnitId = null, string OwnerId = null, string OwnerName = null, int? LocationGroupId = null);
         #endregion
         #endregion
 
@@ -152,7 +152,7 @@ namespace IntranetPortal.Base.Services
 
         #region Task Item Evaluation Scores Service Interfaces
         Task<TaskEvaluationScores> GetTaskEvaluationScoresByOwnerId(string TaskOwnerId, DateTime? StartDate = null, DateTime? EndDate = null);
-        Task<List<TaskEvaluationScores>> GetTaskEvaluationScoresAsync(string TaskOwnerName = null, int? UnitId = null, int? DepartmentId = null, int? LocationId = null, DateTime? StartDate = null, DateTime? EndDate = null);
+        Task<List<TaskEvaluationScores>> GetTaskEvaluationScoresAsync(string TaskOwnerName = null, int? UnitId = null, int? DepartmentId = null, int? LocationId = null, int? LocationGroupId = null, DateTime? StartDate = null, DateTime? EndDate = null);
         #endregion
 
         #region Work Item Return Reasons Service Interfaces

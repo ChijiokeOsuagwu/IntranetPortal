@@ -38,8 +38,8 @@ namespace IntranetPortal.Base.Services
 
         #region Location Group Members Service Method
         Task<List<LocationGroupMember>> GetLocationGroupMembersByLocationGroupIdAsync(int LocationGroupId);
-
-
+        Task<bool> AddLocationGroupMemberAsync(LocationGroupMember locationGroupMember);
+        Task<bool> DeleteLocationGroupMemberAsync(int locationGroupMemberId);
         #endregion
 
         //============================= Department Service Methods ===========================================//

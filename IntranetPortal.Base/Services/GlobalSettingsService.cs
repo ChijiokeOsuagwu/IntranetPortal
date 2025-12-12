@@ -171,7 +171,6 @@ namespace IntranetPortal.Base.Services
             if (locationGroupId < 1) { throw new ArgumentNullException(nameof(locationGroupId), "Required parameter [Location Group ID] is missing."); }
             return await _locationRepository.DeleteLocationGroupAsync(locationGroupId);
         }
-
         public async Task<LocationGroup> GetLocationGroupByIdAsync(int locationGroupId)
         {
             if (locationGroupId < 1) { throw new ArgumentNullException(nameof(locationGroupId), "Required parameter [locationGroupId] is missing."); }
@@ -185,6 +184,21 @@ namespace IntranetPortal.Base.Services
         {
             if (LocationGroupId < 1) { throw new ArgumentNullException(nameof(LocationGroupId), "Required parameter [Location Group ID] is missing."); }
             return await _locationRepository.GetLocationGroupMembersByLocationGroupIdAsync(LocationGroupId);
+        }
+        public async Task<bool> AddLocationGroupMemberAsync(LocationGroupMember locationGroupMember)
+        {
+            if (locationGroupMember == null) { throw new ArgumentNullException(nameof(locationGroupMember), "Required parameter [locationGroup] is missing."); }
+            var entities = await _locationRepository.GetLocationGroupMembersByLocationIdnLocationGroupIdAsync(locationGroupMember.LocationID, locationGroupMember.LocationGroupId);
+            if (entities != null && entities.Count > 0)
+            {
+                throw new Exception("Duplicate Entry. This Location has already been added to this Group.");
+            }
+            return await _locationRepository.AddLocationGroupMemberAsync(locationGroupMember);
+        }
+        public async Task<bool> DeleteLocationGroupMemberAsync(int locationGroupMemberId)
+        {
+            if (locationGroupMemberId < 1) { throw new ArgumentNullException(nameof(locationGroupMemberId), "Required parameter [Location Group Member ID] is missing."); }
+            return await _locationRepository.DeleteLocationGroupMemberAsync(locationGroupMemberId);
         }
 
         #endregion

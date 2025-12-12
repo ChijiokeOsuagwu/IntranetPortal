@@ -1235,14 +1235,14 @@ namespace IntranetPortal.Areas.WSP.Controllers
         public async Task<IActionResult> CheckDuplicates(string id, string kw, DateTime? sd = null, DateTime? ed = null)
         {
             CheckDuplicatesViewModel model = new CheckDuplicatesViewModel();
-            if (string.IsNullOrWhiteSpace(kw)){model.ViewModelErrorMessage = "Please enter a keyword to search for duplicates.";}
+            if (string.IsNullOrWhiteSpace(kw)) { model.ViewModelErrorMessage = "Please enter a keyword to search for duplicates."; }
             model.kw = kw;
             if (string.IsNullOrWhiteSpace(id)) { model.ViewModelErrorMessage = "Invalid Request. No staff was specified."; }
             model.id = id;
             if (sd == null) { model.sd = DateTime.Now.AddMonths(-12); } else { model.sd = sd.Value; }
             if (ed == null) { model.ed = DateTime.Now.AddDays(1); } else { model.ed = ed.Value; }
             var taskOwner = await _ermService.GetEmployeeByIdAsync(model.id);
-            if(taskOwner != null)
+            if (taskOwner != null)
             {
                 model.TaskOwnerLocation = taskOwner.LocationName;
                 model.TaskOwnerName = taskOwner.FullName;
@@ -1277,11 +1277,12 @@ namespace IntranetPortal.Areas.WSP.Controllers
                 {
                     string _submissionPurpose = string.Empty;
                     var employee = await _ermService.GetEmployeeByNameAsync(model.ToEmployeeName);
-                    if (employee == null || string.IsNullOrWhiteSpace(employee.EmployeeID)) 
+                    if (employee == null || string.IsNullOrWhiteSpace(employee.EmployeeID))
                     {
                         model.ViewModelErrorMessage = "No record was found for the selected employee. Please select an employee from the dropdown. Do not type in the name.";
                         return View(model);
-                    } else { model.ToEmployeeID = employee.EmployeeID; }
+                    }
+                    else { model.ToEmployeeID = employee.EmployeeID; }
 
                     FolderSubmission submission = new FolderSubmission();
                     submission.IsActioned = false;
@@ -1530,7 +1531,7 @@ namespace IntranetPortal.Areas.WSP.Controllers
                     }
                 }
             }
-            
+
             return View(model);
         }
         public async Task<IActionResult> SubmittedEvaluations(long id, string fn, long sd, string ed, string od)
@@ -1546,7 +1547,7 @@ namespace IntranetPortal.Areas.WSP.Controllers
             model.SubmittedToEmployeeName = HttpContext.User.Identity.Name;
 
             FolderSubmission submission = await _wspService.GetFolderSubmissionByIdAsync(sd);
-            if(submission != null)
+            if (submission != null)
             {
                 model.FolderIsReturned = submission.IsActioned;
             }
@@ -1599,7 +1600,7 @@ namespace IntranetPortal.Areas.WSP.Controllers
                     model.TaskItemEvaluations = entities;
                 }
             }
-            
+
             return View(model);
         }
         #endregion
@@ -2066,7 +2067,7 @@ namespace IntranetPortal.Areas.WSP.Controllers
         }
 
         [Authorize(Roles = "WSPVWAEER, WSPVWAETK, XYALLACCZ")]
-        public async Task<IActionResult> ProductivityReport(string sn = null, int? ud = null, int? dd = null, int? ld = null, DateTime? sd = null, DateTime? ed = null)
+        public async Task<IActionResult> ProductivityReport(string sn = null, int? ud = null, int? dd = null, int? ld = null, int? gd = null, DateTime? sd = null, DateTime? ed = null)
         {
             ProductivityReportViewModel model = new ProductivityReportViewModel();
             model.EvaluationScoresList = new List<TaskEvaluationScores>();
@@ -2075,20 +2076,27 @@ namespace IntranetPortal.Areas.WSP.Controllers
             model.ud = ud;
             model.dd = dd;
             model.ld = ld;
+            model.gd = gd;
             model.sd = sd ?? DateTime.Now.AddMonths(-3);
             model.ed = ed ?? DateTime.Now.AddMonths(1);
 
             try
             {
-                var entities = await _wspService.GetTaskEvaluationScoresAsync(model.sn, model.ud, model.dd, model.ld, model.sd, model.ed);
+                var entities = await _wspService.GetTaskEvaluationScoresAsync(model.sn, model.ud, model.dd, model.ld, model.gd, model.sd, model.ed);
                 if (entities != null && entities.Count > 0)
                 {
                     model.EvaluationScoresList = entities;
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 model.ViewModelErrorMessage = ex.Message;
+            }
+
+            var grouploc_entities = await _globalSettingsService.GetAllLocationGroupsAsync();
+            if (grouploc_entities != null && grouploc_entities.Count > 0)
+            {
+                ViewBag.LocationGroupList = new SelectList(grouploc_entities, "LocationGroupId", "LocationGroupName", gd);
             }
 
             var loc_entities = await _globalSettingsService.GetAllLocationsAsync();
@@ -2102,7 +2110,6 @@ namespace IntranetPortal.Areas.WSP.Controllers
             {
                 ViewBag.DepartmentList = new SelectList(dept_entities, "DepartmentID", "DepartmentName", dd);
             }
-
 
             var unit_entities = await _globalSettingsService.GetUnitsAsync();
             if (unit_entities != null && unit_entities.Count > 0)
@@ -2119,7 +2126,7 @@ namespace IntranetPortal.Areas.WSP.Controllers
         }
 
         [Authorize(Roles = "WSPVWAEER, WSPVWAETK, XYALLACCZ")]
-        public async Task<IActionResult> FoldersReport(string id = null, int? ud = null, int? dd = null, int? ld = null, DateTime? sd = null, DateTime? ed = null, int vs = 2, string sn = null)
+        public async Task<IActionResult> FoldersReport(string id = null, int? ud = null, int? dd = null, int? ld = null, int? gd = null, DateTime? sd = null, DateTime? ed = null, int vs = 2, string sn = null)
         {
             EmployeesFoldersReportViewModel model = new EmployeesFoldersReportViewModel();
             model.FoldersList = new List<WorkItemFolder>();
@@ -2129,13 +2136,19 @@ namespace IntranetPortal.Areas.WSP.Controllers
             model.ud = ud;
             model.dd = dd;
             model.ld = ld;
+            model.gd = gd;
             model.vs = vs;
             model.sd = sd ?? DateTime.Now.AddMonths(-1);
             model.ed = ed ?? DateTime.Now.AddMonths(1);
 
-            var _folderEntities = await _wspService.GetWorkItemFoldersAsync(model.sd.Value, model.ed.Value, model.vs, model.ld, model.dd, model.ud, model.id);
-            if(_folderEntities != null) { model.FoldersList = _folderEntities; }
+            var _folderEntities = await _wspService.GetWorkItemFoldersAsync(model.sd.Value, model.ed.Value, model.vs, model.ld, model.dd, model.ud, model.id, model.sn, model.gd);
+            if (_folderEntities != null) { model.FoldersList = _folderEntities; }
 
+            var grouploc_entities = await _globalSettingsService.GetAllLocationGroupsAsync();
+            if (grouploc_entities != null && grouploc_entities.Count > 0)
+            {
+                ViewBag.LocationGroupList = new SelectList(grouploc_entities, "LocationGroupId", "LocationGroupName", gd);
+            }
 
             var loc_entities = await _globalSettingsService.GetAllLocationsAsync();
             if (loc_entities != null && loc_entities.Count > 0)
@@ -2174,7 +2187,7 @@ namespace IntranetPortal.Areas.WSP.Controllers
             TaskListViewModel model = new TaskListViewModel();
             model.FolderID = id;
             model.FolderTitle = fn;
-            if(model.FolderID > 0)
+            if (model.FolderID > 0)
             {
                 WorkItemFolder folder = await _wspService.GetWorkItemFolderAsync(model.FolderID);
                 if (folder != null)
@@ -2226,7 +2239,7 @@ namespace IntranetPortal.Areas.WSP.Controllers
         #endregion
 
         #region Download Report Action Methods
-        public async Task<IActionResult> DownloadCumulativeProductivityReport(string sn = null, int? ud = null, int? dd = null, int? ld = null, DateTime? sd = null, DateTime? ed = null)
+        public async Task<IActionResult> DownloadCumulativeProductivityReport(string sn = null, int? ud = null, int? dd = null, int? ld = null, int? gd = null, DateTime? sd = null, DateTime? ed = null)
         {
             ProductivityReportViewModel model = new ProductivityReportViewModel();
             model.EvaluationScoresList = new List<TaskEvaluationScores>();
@@ -2240,36 +2253,11 @@ namespace IntranetPortal.Areas.WSP.Controllers
             string fileName = $"Productivity Report for the Period {model.sd?.ToString("yyyy-MMM-dd")} To {model.ed?.ToString("yyyy-MMM-dd")} {DateTime.Now.ToString("yyyyMMddHHmmssfff")}.xlsx";
             try
             {
-                var entities = await _wspService.GetTaskEvaluationScoresAsync(model.sn, model.ud, model.dd, model.ld, model.sd, model.ed);
+                var entities = await _wspService.GetTaskEvaluationScoresAsync(model.sn, model.ud, model.dd, model.ld, model.gd, model.sd, model.ed);
                 if (entities != null && entities.Count > 0)
                 {
                     model.EvaluationScoresList = entities;
                 }
-
-
-                //var loc_entities = await _globalSettingsService.GetAllLocationsAsync();
-                //if (loc_entities != null && loc_entities.Count > 0)
-                //{
-                //    ViewBag.LocationList = new SelectList(loc_entities, "LocationID", "LocationName", ld);
-                //}
-
-                //var dept_entities = await _globalSettingsService.GetDepartmentsAsync();
-                //if (dept_entities != null && dept_entities.Count > 0)
-                //{
-                //    ViewBag.DepartmentList = new SelectList(dept_entities, "DepartmentID", "DepartmentName", dd);
-                //}
-
-
-                //var unit_entities = await _globalSettingsService.GetUnitsAsync();
-                //if (unit_entities != null && unit_entities.Count > 0)
-                //{
-                //    ViewBag.UnitList = new SelectList(unit_entities, "UnitID", "UnitName", ud);
-                //}
-
-                //if (TempData["ErrorMessage"] != null)
-                //{
-                //    model.ViewModelErrorMessage = TempData["ErrorMessage"].ToString();
-                //}
             }
             catch (Exception)
             {

@@ -62,13 +62,34 @@ namespace IntranetPortal.Base.Repositories.WspRepositories
         Task<List<WorkItemFolder>> GetWorkItemFoldersByUnitIdnArchivednDatesAsync(int unitId, bool IsArchived, DateTime? startDate = null, DateTime? endDate = null);
         Task<List<WorkItemFolder>> GetWorkItemFoldersByUnitIdnDatesAsync(int unitId, DateTime? startDate = null, DateTime? endDate = null);
 
+        Task<List<WorkItemFolder>> GetWorkItemFoldersByUnitIdnLocationIdnArchivednDatesAsync(int unitId, int locationId, bool IsArchived, DateTime? startDate = null, DateTime? endDate = null);
+        Task<List<WorkItemFolder>> GetWorkItemFoldersByUnitIdnLocationIdnDatesAsync(int unitId, int locationId, DateTime? startDate = null, DateTime? endDate = null);
+
+        Task<List<WorkItemFolder>> GetWorkItemFoldersByUnitIdnLocationGroupIdnArchivednDatesAsync(int unitId, int locationGroupId, bool IsArchived, DateTime? startDate = null, DateTime? endDate = null);
+        Task<List<WorkItemFolder>> GetWorkItemFoldersByUnitIdnLocationGroupIdnDatesAsync(int unitId, int locationGroupId, DateTime? startDate = null, DateTime? endDate = null);
+
+
+
+
         //====== Get By DepartmentId and Start and End Dates =======//
         Task<List<WorkItemFolder>> GetWorkItemFoldersByDepartmentIdnArchivednDatesAsync(int deptId, bool IsArchived, DateTime? startDate = null, DateTime? endDate = null);
         Task<List<WorkItemFolder>> GetWorkItemFoldersByDepartmentIdnDatesAsync(int deptId, DateTime? startDate = null, DateTime? endDate = null);
 
+        Task<List<WorkItemFolder>> GetWorkItemFoldersByDepartmentIdnLocationIdnArchivednDatesAsync(int deptId, int locationId, bool IsArchived, DateTime? startDate = null, DateTime? endDate = null);
+        Task<List<WorkItemFolder>> GetWorkItemFoldersByDepartmentIdnLocationIdnDatesAsync(int deptId, int locationId, DateTime? startDate = null, DateTime? endDate = null);
+
+        Task<List<WorkItemFolder>> GetWorkItemFoldersByDepartmentIdnLocationGroupIdnArchivednDatesAsync(int deptId, int locationGroupId, bool IsArchived, DateTime? startDate = null, DateTime? endDate = null);
+        Task<List<WorkItemFolder>> GetWorkItemFoldersByDepartmentIdnLocationGroupIdnDatesAsync(int deptId, int locationGroupId, DateTime? startDate = null, DateTime? endDate = null);
+
+
         //====== Get By LocationId and Start and End Dates =======//
         Task<List<WorkItemFolder>> GetWorkItemFoldersByLocationIdnArchivednDatesAsync(int locationId, bool IsArchived, DateTime? startDate = null, DateTime? endDate = null);
         Task<List<WorkItemFolder>> GetWorkItemFoldersByLocationIdnDatesAsync(int locationId, DateTime? startDate = null, DateTime? endDate = null);
+
+
+        //====== Get By Location Group Id and Start and End Dates ======//
+        Task<List<WorkItemFolder>> GetWorkItemFoldersByLocationGroupIdnArchivednDatesAsync(int locationGroupId, bool IsArchived, DateTime? startDate = null, DateTime? endDate = null);
+        Task<List<WorkItemFolder>> GetWorkItemFoldersByLocationGroupIdnDatesAsync(int locationGroupId, DateTime? startDate = null, DateTime? endDate = null);
 
         #endregion
 
@@ -239,13 +260,24 @@ namespace IntranetPortal.Base.Repositories.WspRepositories
         #endregion
 
         #region Task Evaluation Scores Read Action Methods
+
+        //===== Get By Task Owner =====//
         Task<TaskEvaluationScores> GetTaskEvaluationScoresByTaskOwnerIdAsync(string taskOwnerId, DateTime? fromDate = null, DateTime? toDate = null);
         Task<TaskEvaluationScores> GetTaskEvaluationScoresByTaskOwnerNameAsync(string taskOwnerName, DateTime? fromDate = null, DateTime? toDate = null);
+
+        //===== Get By Unit =====//
         Task<List<TaskEvaluationScores>> GetTaskEvaluationScoresByUnitIdAsync(int unitId, DateTime? fromDate = null, DateTime? toDate = null);
         Task<List<TaskEvaluationScores>> GetTaskEvaluationScoresByUnitIdnLocationIdAsync(int locationId, int unitId, DateTime? fromDate = null, DateTime? toDate = null);
+        Task<List<TaskEvaluationScores>> GetTaskEvaluationScoresByUnitIdnLocationGroupIdAsync(int locationGroupId, int unitId, DateTime? fromDate = null, DateTime? toDate = null);
+
+        //===== Get By Department =====//
         Task<List<TaskEvaluationScores>> GetTaskEvaluationScoresByDepartmentIdnLocationIdAsync(int locationId, int deptId, DateTime? fromDate = null, DateTime? toDate = null);
         Task<List<TaskEvaluationScores>> GetTaskEvaluationScoresByDepartmentIdAsync(int deptId, DateTime? fromDate = null, DateTime? toDate = null);
+        Task<List<TaskEvaluationScores>> GetTaskEvaluationScoresByDepartmentIdnLocationGroupIdAsync(int locationGroupId, int deptId, DateTime? fromDate = null, DateTime? toDate = null);
+        
+        //==== Get By Location & Location Group ====//
         Task<List<TaskEvaluationScores>> GetTaskEvaluationScoresByLocationIdAsync(int locationId, DateTime? fromDate = null, DateTime? toDate = null);
+        Task<List<TaskEvaluationScores>> GetTaskEvaluationScoresByLocationGroupIdAsync(int locationGroupId, DateTime? fromDate = null, DateTime? toDate = null);
         #endregion
 
         #endregion

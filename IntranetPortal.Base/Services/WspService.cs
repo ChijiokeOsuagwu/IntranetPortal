@@ -238,7 +238,7 @@ namespace IntranetPortal.Base.Services
             }
             return folderList;
         }
-        public async Task<List<WorkItemFolder>> GetWorkItemFoldersAsync(DateTime StartDate, DateTime EndDate, int ArchiveStatus, int? LocationId = null, int? DepartmentId = null, int? UnitId = null, string OwnerId = null, string OwnerName = null)
+        public async Task<List<WorkItemFolder>> GetWorkItemFoldersAsync(DateTime StartDate, DateTime EndDate, int ArchiveStatus, int? LocationId = null, int? DepartmentId = null, int? UnitId = null, string OwnerId = null, string OwnerName = null, int? LocationGroupId = null)
         {
             List<WorkItemFolder> folderList = new List<WorkItemFolder>();
             if (!string.IsNullOrWhiteSpace(OwnerId))
@@ -296,17 +296,56 @@ namespace IntranetPortal.Base.Services
                     case 0:
                     case 1:
                         bool IsArchived = Convert.ToBoolean(ArchiveStatus);
-                        var firstEntities = await _deskspaceRepository.GetWorkItemFoldersByUnitIdnArchivednDatesAsync(UnitId.Value, IsArchived, StartDate, EndDate);
-                        if (firstEntities != null)
+                        if(LocationId > 0)
                         {
-                            folderList = firstEntities;
+                            var firstEntities = await _deskspaceRepository.GetWorkItemFoldersByUnitIdnLocationIdnArchivednDatesAsync(UnitId.Value, LocationId.Value, IsArchived, StartDate, EndDate);
+                            if (firstEntities != null)
+                            {
+                                folderList = firstEntities;
+                            }
                         }
+                        else if(LocationGroupId > 0)
+                        {
+                            var firstEntities = await _deskspaceRepository.GetWorkItemFoldersByUnitIdnLocationGroupIdnArchivednDatesAsync(UnitId.Value, LocationId.Value, IsArchived, StartDate, EndDate);
+                            if (firstEntities != null)
+                            {
+                                folderList = firstEntities;
+                            }
+                        }
+                        else
+                        {
+                            var firstEntities = await _deskspaceRepository.GetWorkItemFoldersByUnitIdnArchivednDatesAsync(UnitId.Value, IsArchived, StartDate, EndDate);
+                            if (firstEntities != null)
+                            {
+                                folderList = firstEntities;
+                            }
+                        }
+
                         break;
                     case 2:
-                        var secondEntities = await _deskspaceRepository.GetWorkItemFoldersByUnitIdnDatesAsync(UnitId.Value, StartDate, EndDate);
-                        if (secondEntities != null)
+                        if(LocationId > 0)
                         {
-                            folderList = secondEntities;
+                            var secondEntities = await _deskspaceRepository.GetWorkItemFoldersByUnitIdnLocationIdnDatesAsync(UnitId.Value, LocationId.Value, StartDate, EndDate);
+                            if (secondEntities != null)
+                            {
+                                folderList = secondEntities;
+                            }
+                        }
+                        else if(LocationGroupId > 0)
+                        {
+                            var secondEntities = await _deskspaceRepository.GetWorkItemFoldersByUnitIdnLocationGroupIdnDatesAsync(UnitId.Value, LocationGroupId.Value, StartDate, EndDate);
+                            if (secondEntities != null)
+                            {
+                                folderList = secondEntities;
+                            }
+                        }
+                        else
+                        {
+                            var secondEntities = await _deskspaceRepository.GetWorkItemFoldersByUnitIdnDatesAsync(UnitId.Value, StartDate, EndDate);
+                            if (secondEntities != null)
+                            {
+                                folderList = secondEntities;
+                            }
                         }
                         break;
                     default:
@@ -320,17 +359,55 @@ namespace IntranetPortal.Base.Services
                     case 0:
                     case 1:
                         bool IsArchived = Convert.ToBoolean(ArchiveStatus);
-                        var firstEntities = await _deskspaceRepository.GetWorkItemFoldersByDepartmentIdnArchivednDatesAsync(DepartmentId.Value, IsArchived, StartDate, EndDate);
-                        if (firstEntities != null)
+                        if(LocationId > 0)
                         {
-                            folderList = firstEntities;
+                            var firstEntities = await _deskspaceRepository.GetWorkItemFoldersByDepartmentIdnLocationIdnArchivednDatesAsync(DepartmentId.Value, LocationId.Value, IsArchived, StartDate, EndDate);
+                            if (firstEntities != null)
+                            {
+                                folderList = firstEntities;
+                            }
+                        }
+                        else if(LocationGroupId > 0)
+                        {
+                            var firstEntities = await _deskspaceRepository.GetWorkItemFoldersByDepartmentIdnLocationGroupIdnArchivednDatesAsync(DepartmentId.Value, LocationGroupId.Value, IsArchived, StartDate, EndDate);
+                            if (firstEntities != null)
+                            {
+                                folderList = firstEntities;
+                            }
+                        }
+                        else
+                        {
+                            var firstEntities = await _deskspaceRepository.GetWorkItemFoldersByDepartmentIdnArchivednDatesAsync(DepartmentId.Value, IsArchived, StartDate, EndDate);
+                            if (firstEntities != null)
+                            {
+                                folderList = firstEntities;
+                            }
                         }
                         break;
                     case 2:
-                        var secondEntities = await _deskspaceRepository.GetWorkItemFoldersByDepartmentIdnDatesAsync(DepartmentId.Value, StartDate, EndDate);
-                        if (secondEntities != null)
+                        if(LocationId > 0)
                         {
-                            folderList = secondEntities;
+                            var secondEntities = await _deskspaceRepository.GetWorkItemFoldersByDepartmentIdnLocationIdnDatesAsync(DepartmentId.Value, LocationId.Value, StartDate, EndDate);
+                            if (secondEntities != null)
+                            {
+                                folderList = secondEntities;
+                            }
+                        }
+                        else if(LocationGroupId > 0)
+                        {
+                            var secondEntities = await _deskspaceRepository.GetWorkItemFoldersByDepartmentIdnLocationGroupIdnDatesAsync(DepartmentId.Value, LocationGroupId.Value, StartDate, EndDate);
+                            if (secondEntities != null)
+                            {
+                                folderList = secondEntities;
+                            }
+                        }
+                        else
+                        {
+                            var secondEntities = await _deskspaceRepository.GetWorkItemFoldersByDepartmentIdnDatesAsync(DepartmentId.Value, StartDate, EndDate);
+                            if (secondEntities != null)
+                            {
+                                folderList = secondEntities;
+                            }
                         }
                         break;
                     default:
@@ -343,6 +420,7 @@ namespace IntranetPortal.Base.Services
                 {
                     case 0:
                     case 1:
+                        //if()
                         bool IsArchived = Convert.ToBoolean(ArchiveStatus);
                         var firstEntities = await _deskspaceRepository.GetWorkItemFoldersByLocationIdnArchivednDatesAsync(LocationId.Value, IsArchived, StartDate, EndDate);
                         if (firstEntities != null)
@@ -352,6 +430,31 @@ namespace IntranetPortal.Base.Services
                         break;
                     case 2:
                         var secondEntities = await _deskspaceRepository.GetWorkItemFoldersByLocationIdnDatesAsync(LocationId.Value, StartDate, EndDate);
+                        if (secondEntities != null)
+                        {
+                            folderList = secondEntities;
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            }
+            else if (LocationGroupId > 0)
+            {
+                switch (ArchiveStatus)
+                {
+                    case 0:
+                    case 1:
+                        //if()
+                        bool IsArchived = Convert.ToBoolean(ArchiveStatus);
+                        var firstEntities = await _deskspaceRepository.GetWorkItemFoldersByLocationGroupIdnArchivednDatesAsync(LocationGroupId.Value, IsArchived, StartDate, EndDate);
+                        if (firstEntities != null)
+                        {
+                            folderList = firstEntities;
+                        }
+                        break;
+                    case 2:
+                        var secondEntities = await _deskspaceRepository.GetWorkItemFoldersByLocationGroupIdnDatesAsync(LocationGroupId.Value, StartDate, EndDate);
                         if (secondEntities != null)
                         {
                             folderList = secondEntities;
@@ -1813,7 +1916,7 @@ namespace IntranetPortal.Base.Services
             return await _deskspaceRepository.GetTaskEvaluationScoresByTaskOwnerIdAsync(TaskOwnerId, StartDate, EndDate);
         }
 
-        public async Task<List<TaskEvaluationScores>> GetTaskEvaluationScoresAsync(string TaskOwnerName = null, int? UnitId = null, int? DepartmentId = null, int? LocationId = null, DateTime? StartDate = null, DateTime? EndDate = null)
+        public async Task<List<TaskEvaluationScores>> GetTaskEvaluationScoresAsync(string TaskOwnerName = null, int? UnitId = null, int? DepartmentId = null, int? LocationId = null, int? LocationGroupId = null, DateTime? StartDate = null, DateTime? EndDate = null)
         {
             List<TaskEvaluationScores> _scoresList = new List<TaskEvaluationScores>();
             if (!string.IsNullOrWhiteSpace(TaskOwnerName))
@@ -1828,7 +1931,11 @@ namespace IntranetPortal.Base.Services
             {
                 if (UnitId != null)
                 {
-                    if (LocationId != null)
+                    if (LocationGroupId != null)
+                    {
+                        _scoresList = await _deskspaceRepository.GetTaskEvaluationScoresByUnitIdnLocationGroupIdAsync(LocationGroupId.Value, UnitId.Value, StartDate, EndDate);
+                    }
+                    else if (LocationId != null)
                     {
                         _scoresList = await _deskspaceRepository.GetTaskEvaluationScoresByUnitIdnLocationIdAsync(LocationId.Value, UnitId.Value, StartDate, EndDate);
                     }
@@ -1839,7 +1946,11 @@ namespace IntranetPortal.Base.Services
                 }
                 else if (DepartmentId != null)
                 {
-                    if (LocationId != null)
+                    if (LocationGroupId != null)
+                    {
+                        _scoresList = await _deskspaceRepository.GetTaskEvaluationScoresByDepartmentIdnLocationGroupIdAsync(LocationGroupId.Value, DepartmentId.Value, StartDate, EndDate);
+                    }
+                    else if (LocationId != null)
                     {
                         _scoresList = await _deskspaceRepository.GetTaskEvaluationScoresByDepartmentIdnLocationIdAsync(LocationId.Value, DepartmentId.Value, StartDate, EndDate);
                     }
@@ -1852,13 +1963,13 @@ namespace IntranetPortal.Base.Services
                 {
                     _scoresList = await _deskspaceRepository.GetTaskEvaluationScoresByLocationIdAsync(LocationId.Value, StartDate, EndDate);
                 }
+                else if(LocationGroupId != null)
+                {
+                    _scoresList = await _deskspaceRepository.GetTaskEvaluationScoresByLocationGroupIdAsync(LocationGroupId.Value, StartDate, EndDate);
+                }
             }
             return _scoresList;
         }
-
-
-
-
 
         #endregion
 

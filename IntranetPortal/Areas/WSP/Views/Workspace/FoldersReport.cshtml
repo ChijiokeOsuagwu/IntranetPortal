@@ -5,22 +5,22 @@
     <div class="row mb-3">
         <form asp-area="WSP" asp-controller="Workspace" asp-action="FoldersReport" method="get">
             <div class="row">
-                <div class="col-md-4 mb-3 text-start">
+                <div class="col-md-2 mb-1 text-start">
                     <a asp-area="WSP" asp-controller="Workspace" asp-action="Reports" title="Go Back" class="btn btn-sm btn-outline-light text-dark">
                         <i class="bi bi-backspace fw-bolder" style="font-size: 1.0rem;"></i><span class="fw-bold ml-1" style="font-size: 0.9rem;">Back</span>
                     </a>
-                    @*<a asp-area="WSP" asp-controller="Workspace" asp-action="DownloadCumulativeProductivityReport" asp-route-sn="@Model.sn" asp-route-ud="@Model.ud" asp-route-dd="@Model.dd" asp-route-ld="@Model.ld" asp-route-sd="@Model.sd" asp-route-ed="@Model.ed" title="Download Excel Report" class="btn btn-sm btn-outline-light ml-2 text-dark">
-                            <i class="bi bi-download fw-bolder" style="font-size: 1.0rem;"></i><span class="fw-bold ml-1" style="font-size: 0.9rem;">Download</span>
-                        </a>*@
                 </div>
-                <div class="col-md-2 text-end">
+                <div class="col-md-4 mb-1">
+                    <input asp-for="sn" class="form-control fw-bold" placeholder="Enter Staff Name">
+                </div>
+                <div class="col-md-2 mb-1">
                     <select asp-for="vs" class="form-control fw-bold">
                         <option value="2"> All Folders </option>
                         <option value="0"> Active Folders Only</option>
                         <option value="1"> Archived Folders Only</option>
                     </select>
                 </div>
-                <div class="col-md-6">
+                <div class="col-md-4 mb-1">
                     <span class="fw-bold">Start From: </span>
                     <input asp-for="sd" class="border-0" style="width:100px; margin-right:30px" type="date" />
                     <span class="fw-bold">End On: </span>
@@ -29,22 +29,24 @@
             </div>
             <div class="row">
                 <div class="col-md-2 mb-2">
+                    <select asp-for="gd" asp-items="@ViewBag.LocationGroupList" class="form-control fw-bold">
+                        <option value=""> Location Group</option>
+                    </select>
+                </div>
+                <div class="col-md-2 mb-2">
                     <select asp-for="ld" asp-items="@ViewBag.LocationList" class="form-control fw-bold">
                         <option value=""> Location </option>
                     </select>
                 </div>
-                <div class="col-md-2 mb-2">
+                <div class="col-md-3 mb-2">
                     <select asp-for="dd" asp-items="@ViewBag.DepartmentList" class="form-control fw-bold">
                         <option value=""> Department </option>
                     </select>
                 </div>
-                <div class="col-md-2 mb-2">
+                <div class="col-md-3 mb-2">
                     <select asp-for="ud" asp-items="@ViewBag.UnitList" class="form-control fw-bold">
                         <option value=""> Unit </option>
                     </select>
-                </div>
-                <div class="col-md-4 mb-2">
-                    <input asp-for="sn" class="form-control fw-bold" placeholder="Enter Staff Name">
                 </div>
                 <div class="col-md-2 mb-2">
                     <input type="submit" value="Search" class="btn btn-dark btn-sm text-white" />

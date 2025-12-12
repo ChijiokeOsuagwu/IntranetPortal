@@ -3,23 +3,23 @@
     ViewData["Title"] = "Global Settings | Group Locations";
 }
 <div class="container">
-    <h4 class="mb-4">Group Location List</h4>
-    <hr />
-    <div class="mb-1">
+    <h4 class="mb-1">Locations In @Model.LocationGroupName</h4>
+    <hr />    
         <div class="row">
-            <div class="col-md-3">
+            <div class="col-md-3 mb-1">
                 <a asp-area="GlobalSettings" asp-controller="Locations" asp-action="LocationGroups" class="btn btn-sm btn-dark" style="width:75px" title="Click to Go Back">
                     <span class="text-white">Back</span>
                 </a>
             </div>
-            <div class="col-md-5">
+            <div class="col-md-4 mb-1">
                 <div class="input-group mb-3">
-                    <input type="hidden" name="id" value="@Model.LocationGroupId" />
+                    <input type="hidden" name="id" id="id" value="@Model.LocationGroupId" />
+                    <div id="div-error" class="text-danger"></div>
                     <input type="text" id="ln" class="form-control" placeholder="Enter Location" required>
-                    <button class="btn btn-outline-dark" type="button" id="button-addon2">Add</button>
+                    <button class="btn btn-outline-dark" type="button" id="btnAdd" onclick="addLocationToLocationGroup()">Add</button>
                 </div>
             </div>
-            <div class="col-md-4"></div>
+            <div class="col-md-5 mb-1"></div>
         </div>
         @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
         {
@@ -47,10 +47,14 @@
         }
         else
         {
+            int row_no = 0;
             <div class="table-responsive">
                 <table class="table table-sm table-hover">
                     <thead>
-                        <tr class="bg-secondary">
+                        <tr class="bg-dark">
+                            <th>
+                                <span class="text-white fw-bold">#</span>
+                            </th>
                             <th>
                                 <span class="text-white fw-bold">Location</span>
                             </th>
@@ -65,23 +69,27 @@
                     <tbody>
                         @foreach (var location in Model.LocationGroupMembersList)
                         {
-                            <tr>
-                                <td>
-                                    <span class="text-dark fw-bold">@Html.DisplayFor(modelItem => location.LocationName)</span>
-                                </td>
-                                <td>
-                                    <span class="text-dark fw-bold">@Html.DisplayFor(modelItem => location.LocationState)</span>
-                                </td>
-                                <td>
-                                    <button title="Revoke this Permission" class="btn btn-sm btn-outline-danger text-dark fw-bold" style="border-radius:10px; width:75px" id="btn_revoke_@location.LocationGroupMemberId" onclick="removeLocationFromGroup('@location.LocationGroupMemberId')">Remove</button>}
-                                </td>
-                            </tr>
+                            row_no++;
+                        <tr>
+                            <td>
+                                <span class="text-dark fw-bold">@row_no.ToString()</span>
+                            </td>
+                            <td>
+                                <span class="text-dark fw-bold">@Html.DisplayFor(modelItem => location.LocationName)</span>
+                            </td>
+                            <td>
+                                <span class="text-dark fw-bold">@Html.DisplayFor(modelItem => location.LocationState)</span>
+                            </td>
+                            <td>
+                                <button title="Revoke this Permission" class="btn btn-sm btn-outline-danger text-dark fw-bold" style="border-radius:10px; width:75px" id="btn_remove_@location.LocationGroupMemberId" onclick="removeLocationFromLocationGroup('@location.LocationGroupMemberId')">Remove</button>
+                            </td>
+                        </tr>
                         }
                     </tbody>
                 </table>
             </div>
         }
-    </div>
+  
 </div>
 @section Scripts{
     <script src="~/js/js_uad/global_settings.js"></script>

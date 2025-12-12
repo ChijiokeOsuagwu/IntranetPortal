@@ -12,6 +12,8 @@ namespace IntranetPortal.Areas.WSP.Models
     {
         public string id { get; set; }
         public string sn { get; set; }
+        public int? gd { get; set; }
+        public string LocationGroupName { get; set; }
         public int? ld { get; set; }
         public string LocationName { get; set; }
         public int? dd { get; set; }

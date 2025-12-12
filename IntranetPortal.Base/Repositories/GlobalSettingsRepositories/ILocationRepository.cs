@@ -37,7 +37,7 @@ namespace IntranetPortal.Base.Repositories.GlobalSettingsRepositories
         Task<bool> EditLocationGroupMemberAsync(LocationGroupMember locationGroupMember);
         Task<List<Location>> GetLocationsByLocationGroupIdAsync(int locationGroupId);
         Task<List<LocationGroupMember>> GetLocationGroupMembersByLocationGroupIdAsync(int locationGroupId);
-
+        Task<List<LocationGroupMember>> GetLocationGroupMembersByLocationIdnLocationGroupIdAsync(int locationId, int locationGroupId);
         #endregion
 
         #region States, Stations, Bureaus and Countries Action Methods

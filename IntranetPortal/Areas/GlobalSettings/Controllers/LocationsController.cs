@@ -463,13 +463,17 @@ namespace IntranetPortal.Areas.GlobalSettings.Controllers
         {
             LocationGroupMembersListViewModel model = new LocationGroupMembersListViewModel();
             model.LocationGroupMembersList = new List<LocationGroupMember>();
-            if (id>0)
+            if (id > 0)
             {
                 model.LocationGroupId = id;
                 if (model.LocationGroupId > 0)
                 {
                     var entities = await _globalSettingsService.GetLocationGroupMembersByLocationGroupIdAsync(id);
-                    model.LocationGroupMembersList = entities.ToList();
+                    if(entities != null && entities.Count > 0)
+                    {
+                        model.LocationGroupMembersList = entities.ToList();
+                        model.LocationGroupName = entities[0].LocationGroupName;
+                    }
                 }
             }
             return View(model);
@@ -632,14 +636,64 @@ namespace IntranetPortal.Areas.GlobalSettings.Controllers
             List<string> locations = _globalSettingsService.SearchStatesAsync(stateName).Result.Select(x => x.Name).ToList();
             return Json(locations);
         }
-
         [HttpGet]
         public JsonResult GetLocationNames(string text)
         {
             List<string> locations = _globalSettingsService.SearchLocationsAsync(text).Result.Select(x => x.LocationName).ToList();
             return Json(locations);
         }
-        #endregion
+        public string AddLocationToLocationGroup(string ln, int id)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(ln)) { throw new Exception("Required parameter Location Name has an invalid value."); }
+                if (id < 1) { throw new Exception("Required parameter Location Group ID has an invalid value."); }
+                LocationGroupMember locationGroupMember = new LocationGroupMember();
+                locationGroupMember.LocationGroupId = id;
+                
+                Location location = _globalSettingsService.GetLocationByNameAsync(ln).Result;
+                if (location != null)
+                {
+                    locationGroupMember.LocationID = location.LocationID;
+                }
 
+                if (_globalSettingsService.AddLocationGroupMemberAsync(locationGroupMember).Result)
+                {
+                    return "saved";
+                }
+                else
+                {
+                    return "failed";
+                }
+            }
+            catch (Exception ex)
+            {
+                return ex.Message;
+            }
+        }
+        public string RemoveLocationFromLocationGroup(int id)
+        {
+            try
+            {
+                if (id < 1)
+                {
+                    return "parameter";
+                }
+
+                if (_globalSettingsService.DeleteLocationGroupMemberAsync(id).Result)
+                {
+                    return "success";
+                }
+                else
+                {
+                    return "failed";
+                }
+            }
+            catch (Exception ex)
+            {
+                return ex.Message;
+            }
+        }
+        #endregion
     }
 }

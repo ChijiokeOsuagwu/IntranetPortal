@@ -85,7 +85,7 @@ function addAssignmentNote() {
 
     if (note_content === null || note_content === undefined || note_content.trim().length === 0) {
         error_div.innerHTML = "Please enter a note!";
-        note_content.focus();
+        note_input.focus();
         return;
     }
     error_div.innerHTML = "";

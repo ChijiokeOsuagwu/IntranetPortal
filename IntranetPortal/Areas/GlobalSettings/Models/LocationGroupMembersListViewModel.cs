@@ -10,7 +10,7 @@ namespace IntranetPortal.Areas.GlobalSettings.Models
     public class LocationGroupMembersListViewModel:BaseListViewModel
     {
         public int LocationGroupId { get; set; }
-        public int LocationGroupName { get; set; }
+        public string LocationGroupName { get; set; }
         public List<LocationGroupMember> LocationGroupMembersList { get; set; }
     }
 }
