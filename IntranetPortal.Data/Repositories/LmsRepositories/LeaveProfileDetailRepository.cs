@@ -18,7 +18,6 @@ namespace IntranetPortal.Data.Repositories.LmsRepositories
             _config = configuration;
         }
 
-        //====== Leave Profile Details Action Methods =======//
         #region Leave Profile Details Read Action Methods
         public async Task<List<LeaveProfileDetail>> GetByProfileIdAsync(int profileId)
         {
@@ -26,7 +25,7 @@ namespace IntranetPortal.Data.Repositories.LmsRepositories
             string query = string.Empty;
             StringBuilder sb = new StringBuilder();
 
-            sb.Append("SELECT d.pfl_dtl_id, d.lvs_pfl_id, d.lvs_typ_cd, ");
+            sb.Append("SELECT d.pfl_dtl_id, d.lvs_pfl_id, d.lvs_typ_cd, d.lvs_dur_ds, ");
             sb.Append("d.lvs_dur, d.dur_typ, d.is_yrly, d.cancarryover, d.is_mntz, ");
             sb.Append("CASE WHEN d.dur_typ = 0 THEN 'Working Day(s)' ");
             sb.Append("WHEN d.dur_typ = 1 THEN 'Day(s)' ");
@@ -82,6 +81,7 @@ namespace IntranetPortal.Data.Repositories.LmsRepositories
                             CanBeMonetized = reader["is_mntz"] == DBNull.Value ? false : (bool)reader["is_mntz"],
                             CarryOverEndMonth = reader["carryoverends"] == DBNull.Value ? 0 : (int)reader["carryoverends"],
                             CarryOverEndMonthName = reader["carryoverends_month"] == DBNull.Value ? string.Empty : reader["carryoverends_month"].ToString(),
+                            DurationDescription = reader["lvs_dur_ds"] == DBNull.Value ? string.Empty : reader["lvs_dur_ds"].ToString(),
                         });
                     }
                 }
@@ -95,7 +95,7 @@ namespace IntranetPortal.Data.Repositories.LmsRepositories
             string query = string.Empty;
             StringBuilder sb = new StringBuilder();
 
-            sb.Append("SELECT d.pfl_dtl_id, d.lvs_pfl_id, d.lvs_typ_cd, ");
+            sb.Append("SELECT d.pfl_dtl_id, d.lvs_pfl_id, d.lvs_typ_cd, d.lvs_dur_ds, ");
             sb.Append("d.lvs_dur, d.dur_typ, d.is_yrly, d.cancarryover, d.is_mntz, ");
             sb.Append("CASE WHEN d.dur_typ = 0 THEN 'Working Day(s)' ");
             sb.Append("WHEN d.dur_typ = 1 THEN 'Day(s)' ");
@@ -150,6 +150,7 @@ namespace IntranetPortal.Data.Repositories.LmsRepositories
                             CanBeMonetized = reader["is_mntz"] == DBNull.Value ? false : (bool)reader["is_mntz"],
                             CarryOverEndMonth = reader["carryoverends"] == DBNull.Value ? 0 : (int)reader["carryoverends"],
                             CarryOverEndMonthName = reader["carryoverends_month"] == DBNull.Value ? string.Empty : reader["carryoverends_month"].ToString(),
+                            DurationDescription = reader["lvs_dur_ds"] == DBNull.Value ? string.Empty : reader["lvs_dur_ds"].ToString(),
                         });
                     }
                 }
@@ -161,7 +162,7 @@ namespace IntranetPortal.Data.Repositories.LmsRepositories
         {
             List<LeaveProfileDetail> leaveProfileDetails = new List<LeaveProfileDetail>();
             StringBuilder sb = new StringBuilder();
-            sb.Append("SELECT d.pfl_dtl_id, d.lvs_pfl_id, d.lvs_typ_cd, ");
+            sb.Append("SELECT d.pfl_dtl_id, d.lvs_pfl_id, d.lvs_typ_cd, d.lvs_dur_ds, ");
             sb.Append("d.lvs_dur, d.dur_typ, d.is_yrly, d.cancarryover, d.is_mntz, ");
             sb.Append("CASE WHEN d.dur_typ = 0 THEN 'Working Day(s)' ");
             sb.Append("WHEN d.dur_typ = 1 THEN 'Day(s)' ");
@@ -218,6 +219,7 @@ namespace IntranetPortal.Data.Repositories.LmsRepositories
                             CanBeMonetized = reader["is_mntz"] == DBNull.Value ? false : (bool)reader["is_mntz"],
                             CarryOverEndMonth = reader["carryoverends"] == DBNull.Value ? 0 : (int)reader["carryoverends"],
                             CarryOverEndMonthName = reader["carryoverends_month"] == DBNull.Value ? string.Empty : reader["carryoverends_month"].ToString(),
+                            DurationDescription = reader["lvs_dur_ds"] == DBNull.Value ? string.Empty : reader["lvs_dur_ds"].ToString(),
                         });
                     }
                 }
@@ -225,12 +227,11 @@ namespace IntranetPortal.Data.Repositories.LmsRepositories
             }
             return leaveProfileDetails;
         }
-
         public async Task<List<LeaveProfileDetail>> GetByEmployeeIdnLeaveTypeAsync(string employeeId)
         {
             List<LeaveProfileDetail> leaveProfileDetails = new List<LeaveProfileDetail>();
             StringBuilder sb = new StringBuilder();
-            sb.Append("SELECT d.pfl_dtl_id, d.lvs_pfl_id, d.lvs_typ_cd, ");
+            sb.Append("SELECT d.pfl_dtl_id, d.lvs_pfl_id, d.lvs_typ_cd, d.lvs_dur_ds, ");
             sb.Append("d.lvs_dur, d.dur_typ, d.is_yrly, d.cancarryover, d.is_mntz, ");
             sb.Append("CASE WHEN d.dur_typ = 0 THEN 'Working Day(s)' ");
             sb.Append("WHEN d.dur_typ = 1 THEN 'Day(s)' ");
@@ -286,6 +287,7 @@ namespace IntranetPortal.Data.Repositories.LmsRepositories
                             CanBeMonetized = reader["is_mntz"] == DBNull.Value ? false : (bool)reader["is_mntz"],
                             CarryOverEndMonth = reader["carryoverends"] == DBNull.Value ? 0 : (int)reader["carryoverends"],
                             CarryOverEndMonthName = reader["carryoverends_month"] == DBNull.Value ? string.Empty : reader["carryoverends_month"].ToString(),
+                            DurationDescription = reader["lvs_dur_ds"] == DBNull.Value ? string.Empty : reader["lvs_dur_ds"].ToString(),
                         });
                     }
                 }
@@ -297,7 +299,7 @@ namespace IntranetPortal.Data.Repositories.LmsRepositories
         {
             List<LeaveProfileDetail> leaveProfileDetails = new List<LeaveProfileDetail>();
             StringBuilder sb = new StringBuilder();
-            sb.Append("SELECT d.pfl_dtl_id, d.lvs_pfl_id, d.lvs_typ_cd, ");
+            sb.Append("SELECT d.pfl_dtl_id, d.lvs_pfl_id, d.lvs_typ_cd, d.lvs_dur_ds, ");
             sb.Append("d.lvs_dur, d.dur_typ, d.is_yrly, d.cancarryover, d.is_mntz, ");
             sb.Append("CASE WHEN d.dur_typ = 0 THEN 'Working Day(s)' ");
             sb.Append("WHEN d.dur_typ = 1 THEN 'Day(s)' ");
@@ -355,6 +357,7 @@ namespace IntranetPortal.Data.Repositories.LmsRepositories
                             CanBeMonetized = reader["is_mntz"] == DBNull.Value ? false : (bool)reader["is_mntz"],
                             CarryOverEndMonth = reader["carryoverends"] == DBNull.Value ? 0 : (int)reader["carryoverends"],
                             CarryOverEndMonthName = reader["carryoverends_month"] == DBNull.Value ? string.Empty : reader["carryoverends_month"].ToString(),
+                            DurationDescription = reader["lvs_dur_ds"] == DBNull.Value ? string.Empty : reader["lvs_dur_ds"].ToString(),
                         });
                     }
                 }
@@ -371,9 +374,9 @@ namespace IntranetPortal.Data.Repositories.LmsRepositories
             StringBuilder sb = new StringBuilder();
             sb.Append("INSERT INTO public.lms_pfl_dtls(lvs_pfl_id, ");
             sb.Append("lvs_typ_cd, is_yrly, cancarryover, is_mntz, ");
-            sb.Append("lvs_dur, dur_typ, carryoverends) VALUES (@lvs_pfl_id, ");
+            sb.Append("lvs_dur, dur_typ, carryoverends, lvs_dur_ds) VALUES (@lvs_pfl_id, ");
             sb.Append("@lvs_typ_cd, @is_yrly, @cancarryover, ");
-            sb.Append("@is_mntz, @lvs_dur, @dur_typ, @carryoverends); ");
+            sb.Append("@is_mntz, @lvs_dur, @dur_typ, @carryoverends, @lvs_dur_ds); ");
             string query = sb.ToString();
 
             using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
@@ -390,6 +393,7 @@ namespace IntranetPortal.Data.Repositories.LmsRepositories
                     var lvs_dur = cmd.Parameters.Add("@lvs_dur", NpgsqlDbType.Integer);
                     var dur_typ = cmd.Parameters.Add("@dur_typ", NpgsqlDbType.Integer);
                     var carryoverends = cmd.Parameters.Add("@carryoverends", NpgsqlDbType.Integer);
+                    var lvs_dur_ds = cmd.Parameters.Add("@lvs_dur_ds", NpgsqlDbType.Text);
                     cmd.Prepare();
                     lvs_pfl_id.Value = leaveProfileDetail.ProfileId;
                     lvs_typ_cd.Value = leaveProfileDetail.LeaveTypeCode;
@@ -399,6 +403,7 @@ namespace IntranetPortal.Data.Repositories.LmsRepositories
                     lvs_dur.Value = leaveProfileDetail.Duration;
                     dur_typ.Value = leaveProfileDetail.DurationTypeId;
                     carryoverends.Value = leaveProfileDetail.CarryOverEndMonth;
+                    lvs_dur_ds.Value = leaveProfileDetail.DurationDescription;
                     rows = await cmd.ExecuteNonQueryAsync();
                     await conn.CloseAsync();
                 }
@@ -432,7 +437,7 @@ namespace IntranetPortal.Data.Repositories.LmsRepositories
             sb.Append("lvs_typ_cd=@lvs_typ_cd, is_yrly=@is_yrly, ");
             sb.Append("cancarryover=@cancarryover, is_mntz=@is_mntz, ");
             sb.Append("lvs_dur=@lvs_dur, dur_typ=@dur_typ, ");
-            sb.Append("carryoverends=@carryoverends ");
+            sb.Append("carryoverends=@carryoverends, lvs_dur_ds=@lvs_dur_ds ");
             sb.Append("WHERE (pfl_dtl_id=@pfl_dtl_id); ");
             string query = sb.ToString();
 
@@ -451,6 +456,7 @@ namespace IntranetPortal.Data.Repositories.LmsRepositories
                     var lvs_dur = cmd.Parameters.Add("@lvs_dur", NpgsqlDbType.Integer);
                     var dur_typ = cmd.Parameters.Add("@dur_typ", NpgsqlDbType.Integer);
                     var carryoverends = cmd.Parameters.Add("@carryoverends", NpgsqlDbType.Integer);
+                    var lvs_dur_ds = cmd.Parameters.Add("@lvs_dur_ds", NpgsqlDbType.Text);
                     cmd.Prepare();
                     pfl_dtl_id.Value = leaveProfileDetail.Id;
                     lvs_pfl_id.Value = leaveProfileDetail.ProfileId;
@@ -461,12 +467,51 @@ namespace IntranetPortal.Data.Repositories.LmsRepositories
                     lvs_dur.Value = leaveProfileDetail.Duration;
                     dur_typ.Value = leaveProfileDetail.DurationTypeId;
                     carryoverends.Value = leaveProfileDetail.CarryOverEndMonth;
+                    lvs_dur_ds.Value = leaveProfileDetail.DurationDescription;
                     rows = await cmd.ExecuteNonQueryAsync();
                     await conn.CloseAsync();
                 }
             }
             return rows > 0;
         }
+        #endregion
+
+        #region Profile Details Utility Action Methods
+        public async Task<LeaveDuration> GetLeaveDurationByProfileIdnLeaveTypeAsync(int profileId, string leaveTypeCode)
+        {
+            LeaveDuration leaveDuration = new LeaveDuration();
+            StringBuilder sb = new StringBuilder();
+
+            sb.Append("SELECT lvs_dur, act_lvs_dur_typ, lvs_dur_ds ");
+            sb.Append("FROM public.lms_pfl_dtls ");
+            sb.Append("WHERE lvs_pfl_id = @lvs_pfl_id ");
+            sb.Append("AND lvs_typ_cd = @lvs_typ_cd; ");
+            string query = sb.ToString();
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
+            {
+                await conn.OpenAsync();
+                // Retrieve all rows
+                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+                {
+                    var lvs_pfl_id = cmd.Parameters.Add("@lvs_pfl_id", NpgsqlTypes.NpgsqlDbType.Integer);
+                    var lvs_typ_cd = cmd.Parameters.Add("@lvs_typ_cd", NpgsqlTypes.NpgsqlDbType.Text);
+                    await cmd.PrepareAsync();
+                    lvs_pfl_id.Value = profileId;
+                    lvs_typ_cd.Value = leaveTypeCode;
+
+                    var reader = await cmd.ExecuteReaderAsync();
+                    while (await reader.ReadAsync())
+                    {
+                        leaveDuration.Duration = reader["lvs_dur"] == DBNull.Value ? 0 : (int)reader["lvs_dur"];
+                        leaveDuration.DurationTypeId = reader["act_lvs_dur_typ"] == DBNull.Value ? 0 : (int)reader["act_lvs_dur_typ"];
+                        leaveDuration.DurationDescription = reader["lvs_dur_ds"] == DBNull.Value ? string.Empty : reader["lvs_dur_ds"].ToString();
+                    }
+                }
+                await conn.CloseAsync();
+            }
+            return leaveDuration;
+        }
+
         #endregion
     }
 }

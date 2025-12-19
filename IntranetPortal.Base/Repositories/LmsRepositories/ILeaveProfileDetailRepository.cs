@@ -20,5 +20,9 @@ namespace IntranetPortal.Base.Repositories.LmsRepositories
         Task<List<LeaveProfileDetail>> GetByEmployeeIdnLeaveTypeAsync(string employeeId);
         Task<LeaveProfileDetail> GetByEmployeeIdnLeaveTypeAsync(string employeeId, string leaveTypeCode);
         #endregion
+
+        #region Leave Duration
+        Task<LeaveDuration> GetLeaveDurationByProfileIdnLeaveTypeAsync(int profileId, string leaveTypeCode);
+        #endregion
     }
 }

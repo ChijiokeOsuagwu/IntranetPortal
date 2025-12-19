@@ -2843,6 +2843,46 @@ namespace IntranetPortal.Data.Repositories.LmsRepositories
             return leaveList;
         }
         #endregion
+
+
+        #region Employee Leave Days 
+        public async Task<LeaveDuration> GetUsedLeaveDurationByLeaveYearnEmployeeIdnLeaveTypeAsync(int leaveYear, string employeeId, string leaveTypeCode)
+        {
+            LeaveDuration leaveDuration = new LeaveDuration();
+            StringBuilder sb = new StringBuilder();
+            sb.Append("SELECT act_lvs_dur_typ, act_dur_ds, SUM(act_lvs_dur) as total_duration ");
+            sb.Append("FROM public.lms_lvs_infs WHERE emp_id = @emp_id ");
+            sb.Append("AND lvs_typ_cd = @lvs_typ_cd AND lvs_yr = @lvs_yr ");
+            sb.Append("GROUP BY act_lvs_dur_typ, act_dur_ds; ");
+            string query = sb.ToString();
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
+            {
+                await conn.OpenAsync();
+                // Retrieve all rows
+                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+                {
+                    var emp_id = cmd.Parameters.Add("@emp_id", NpgsqlDbType.Text);
+                    var lvs_yr = cmd.Parameters.Add("@lvs_yr", NpgsqlDbType.Integer);
+                    var lvs_typ_cd = cmd.Parameters.Add("@lvs_typ_cd", NpgsqlDbType.Text);
+                    await cmd.PrepareAsync();
+                    lvs_yr.Value = leaveYear;
+                    emp_id.Value = employeeId;
+                    lvs_typ_cd.Value = leaveTypeCode;
+                    var reader = await cmd.ExecuteReaderAsync();
+                    while (await reader.ReadAsync())
+                    {
+                        leaveDuration.Duration = reader["total_duration"] == DBNull.Value ? 0 : (int)reader["total_duration"];
+                        leaveDuration.DurationTypeId = reader["act_lvs_dur_typ"] == DBNull.Value ? 0 : (int)reader["act_lvs_dur_typ"];
+                        leaveDuration.DurationDescription = reader["act_dur_ds"] == DBNull.Value ? string.Empty : reader["act_dur_ds"].ToString();
+                    }
+                }
+                await conn.CloseAsync();
+            }
+            return leaveDuration;
+        }
+
+        #endregion
+
         #endregion
 
         #region Leave Submission Action Methods

@@ -17,7 +17,8 @@ namespace IntranetPortal.Base.Repositories.LmsRepositories
         #endregion
 
         #region Employee Leave Read Action Methods
-        // Employee Leave By Employee ID
+
+        #region Employee Leave By Employee ID
         Task<EmployeeLeave> GetByIdAsync(long id);
         Task<List<EmployeeLeave>> GetByEmployeeIdAsync(string employeeId, bool isPlan);
         Task<List<EmployeeLeave>> GetByEmployeeIdnYearAsync(string employeeId, int year, bool getPlan);
@@ -25,31 +26,38 @@ namespace IntranetPortal.Base.Repositories.LmsRepositories
         Task<List<EmployeeLeave>> GetByEmployeeIdnYearnMonthnStatusAsync(string employeeId, int year, int month, string leaveStatus, bool isPlan);
         Task<List<EmployeeLeave>> GetByEmployeeIdnYearnStatusAsync(string employeeId, int year, string leaveStatus, bool isPlan);
         Task<List<EmployeeLeave>> GetByEmployeeIdnStatusAsync(string employeeId, string leaveStatus, bool isPlan);
+        #endregion
 
-        //Employee Leave By Employee Name
+        #region Employee Leave By Employee Name
         Task<List<EmployeeLeave>> GetByEmployeeNamenYearAsync(string employeeName, int year, bool isPlan);
         Task<List<EmployeeLeave>> GetByEmployeeNamenYearnStatusAsync(string employeeName, int year, string leaveStatus, bool isPlan);
         Task<List<EmployeeLeave>> GetByEmployeeNamenYearnMonthnStatusAsync(string employeeName, int year, int month, string leaveStatus, bool isPlan);
         Task<List<EmployeeLeave>> GetByEmployeeNamenStatusAsync(string employeeName, string leaveStatus, bool isPlan);
         Task<List<EmployeeLeave>> GetByEmployeeNamenYearnMonthAsync(string employeeName, int year, int month, bool isPlan);
         Task<List<EmployeeLeave>> GetByEmployeeNameAsync(string employeeName, bool isPlan);
+        #endregion
 
-        // Employee Leaves By Team Lead ID
+        #region Employee Leaves By Team Lead ID
         Task<List<EmployeeLeave>> GetByReportingLineIdAsync(string teamLeadId, bool isPlan);
         Task<List<EmployeeLeave>> GetByReportingLineIdnYearAsync(string teamLeadId, int year, bool isPlan);
         Task<List<EmployeeLeave>> GetByReportingLineIdnYearnStatusAsync(string teamLeadId, int year, string leaveStatus, bool isPlan);
         Task<List<EmployeeLeave>> GetByReportingLineIdnYearnMonthAsync(string teamLeadId, int year, int month, bool isPlan);
         Task<List<EmployeeLeave>> GetByReportingLineIdnYearnMonthnStatusAsync(string teamLeadId, int year, int month, string leaveStatus, bool isPlan);
         Task<List<EmployeeLeave>> GetByReportingLineIdnStatusAsync(string teamLeadId, string leaveStatus, bool isPlan);
+        #endregion
 
-
-        //=== Employee Leaves by Location, Department, Unit etc.
+        #region Employee Leaves by Location, Department, Unit etc.
         Task<List<EmployeeLeave>> GetAllAsync(bool isPlan);
         Task<List<EmployeeLeave>> GetByYearAsync(int year, bool isPlan);
         Task<List<EmployeeLeave>> GetByYearnStatusAsync(int year, string leaveStatus, bool isPlan);
         Task<List<EmployeeLeave>> GetByYearnMonthAsync(int year, int month, bool isPlan);
         Task<List<EmployeeLeave>> GetByYearnMonthnStatusAsync(int year, int month, string leaveStatus, bool isPlan);
         Task<List<EmployeeLeave>> GetByStatusAsync(string leaveStatus, bool isPlan);
+        #endregion
+
+        #region Employee Leave Duration
+        Task<LeaveDuration> GetUsedLeaveDurationByLeaveYearnEmployeeIdnLeaveTypeAsync(int leaveYear, string employeeId, string leaveTypeCode);
+        #endregion
 
         #endregion
 

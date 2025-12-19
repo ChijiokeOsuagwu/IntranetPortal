@@ -1,0 +1,61 @@
+﻿@{
+    ViewData["Title"] = "Leave Management System | Settings";
+}
+<link href="~/lib/matrix/dist/css/style.min.css" rel="stylesheet" />
+<div class="my-2">
+    <!-- ============================================================== -->
+    <!-- Sales Cards  -->
+    <!-- ============================================================== -->
+    <h4 class="fw-bold">Leave Management Settings</h4>
+    <hr />
+    <div class="row">
+        <!-- Column -->
+        <div class="col-md-6 col-lg-2 col-xlg-3">
+            <a asp-area="LVS" asp-controller="Leave" asp-action="Index">
+                <div class="card card-hover">
+                    <div class="box bg-light text-center">
+                        <h1 class="font-light text-dark"><i class="bi bi-arrow-left-square"></i></h1>
+                        <h6 class="text-dark">Go Back</h6>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <!-- Column -->
+        <div class="col-md-6 col-lg-2 col-xlg-3">
+            <a asp-area="LVM" asp-controller="Settings" asp-action="LeaveTypes">
+                <div class="card card-hover">
+                    <div class="box bg-light text-center">
+                        <h1 class="font-light text-dark"><i class="bi bi-columns-gap"></i></h1>
+                        <h6 class="text-dark">Leave Types</h6>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <!-- Column -->
+        <div class="col-md-6 col-lg-2 col-xlg-3">
+            <a asp-area="LVM" asp-controller="Settings" asp-action="LeaveProfiles">
+                <div class="card card-hover">
+                    <div class="box bg-light text-center">
+                        <h1 class="font-light text-dark"><i class="bi bi-layout-wtf"></i></h1>
+                        <h6 class="text-dark">Leave Profiles</h6>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <!-- Column -->
+        <div class="col-md-6 col-lg-2 col-xlg-3">
+            <a asp-area="LVM" asp-Controller="Settings" asp-action="Holidays">
+                <div class="card card-hover">
+                    <div class="box bg-light text-center">
+                        <h1 class="font-light text-dark"><i class="bi bi-calendar-x"></i></h1>
+                        <h6 class="text-dark">Holidays</h6>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <!-- Column -->
+    </div>
+</div>
+@section Scripts{
+
+}

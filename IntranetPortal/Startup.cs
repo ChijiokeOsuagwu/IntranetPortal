@@ -132,6 +132,11 @@ namespace IntranetPortal
                  pattern: "LMS/{controller=Home}/{action=Index}/{id?}");
 
                 endpoints.MapAreaControllerRoute(
+                    name:"LVM",
+                    areaName:"LVM",
+                    pattern: "LVM/{controller=Home}/{action=Index}/{id?}");
+
+                endpoints.MapAreaControllerRoute(
                       name: "PMS",
                   areaName: "PMS",
                    pattern: "PMS/{controller=Home}/{action=Index}/{id?}");

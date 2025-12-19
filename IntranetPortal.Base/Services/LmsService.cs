@@ -976,6 +976,9 @@ namespace IntranetPortal.Base.Services
         public int GetLeaveBalance(string EmployeeId, string LeaveTypeCode, int LeaveYear)
         {
             int leaveBalance = 0;
+            int noOfCarriedOverLeaveDays = 0;
+            int noOfUsedLeaveDays = 0;
+
             //1.Get Leave Profile Details for the selected Leave Type
             LeaveProfileDetail leaveProfileDetail = new LeaveProfileDetail();
             var profileDetailEntity = _leaveProfileDetailRepository.GetByEmployeeIdnLeaveTypeAsync(EmployeeId, LeaveTypeCode).Result;
@@ -984,16 +987,31 @@ namespace IntranetPortal.Base.Services
             //2.Get Total Leave Days from Profile Details (P)
             int LeaveProfileDuration = leaveProfileDetail.Duration;
             int LeaveProfileDurationType = leaveProfileDetail.DurationTypeId;
+            string LeaveDurationDescription = leaveProfileDetail.DurationDescription;
 
             //3.If Leave Type is CarryOver Enabled : Get LeaveCarryOver Days(V)
-            if (leaveProfileDetail.CanBeCarriedOver)
+            if (leaveProfileDetail.CanBeCarriedOver && leaveProfileDetail.CarryOverEndMonth <= DateTime.Now.Month)
             {
                 //Get Total Number of Days of Leave Type used up the previous year.
-                
+                int _leaveYear = LeaveYear - 1;
+
+                LeaveDuration previousYearUsedLeaveDuration = _employeeLeaveRepository.GetUsedLeaveDurationByLeaveYearnEmployeeIdnLeaveTypeAsync(_leaveYear, EmployeeId, LeaveTypeCode).Result;
+                if(previousYearUsedLeaveDuration != null)
+                {
+                    noOfCarriedOverLeaveDays = LeaveProfileDuration - previousYearUsedLeaveDuration.Duration;
+                }
             }
 
             //4.Get Total Leave Days Used already(U)
+            LeaveDuration usedLeaveDuration = _employeeLeaveRepository.GetUsedLeaveDurationByLeaveYearnEmployeeIdnLeaveTypeAsync(LeaveYear, EmployeeId, LeaveTypeCode).Result;
+            if(usedLeaveDuration != null)
+            {
+                noOfUsedLeaveDays = usedLeaveDuration.Duration;
+            }
+
             //5.Calculate D = ((P + V) - U)
+            leaveBalance = (leaveProfileDetail.Duration + noOfCarriedOverLeaveDays) - noOfUsedLeaveDays;
+
             //6.Return D
             return leaveBalance;
         }

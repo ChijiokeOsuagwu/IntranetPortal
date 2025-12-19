@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace IntranetPortal.Base.Models.LmsModels
+namespace IntranetPortal.Base.Models.LeaveModels
 {
     public class LeaveProfileDetail
     {

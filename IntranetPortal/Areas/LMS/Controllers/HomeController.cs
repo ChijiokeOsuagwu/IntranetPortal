@@ -474,32 +474,38 @@ namespace IntranetPortal.Areas.LMS.Controllers
         public async Task<IActionResult> NewLeaveRequest(long id)
         {
             LeavePlanViewModel model = new LeavePlanViewModel();
-            if (id == 0)
+            try
             {
-                model.LeaveStartDate = DateTime.Today;
-                model.LeaveEndDate = null;
-                model.LeaveYear = DateTime.Today.Year;
-                //model.EmployeeFullName = HttpContext.User.Identity.Name;
-                model.EmployeeId = HttpContext.User.Claims.FirstOrDefault(c => c.Type.Contains("nameidentifier")).Value;
-                Employee e = await _ermService.GetEmployeeByIdAsync(model.EmployeeId);
-                if (e == null || string.IsNullOrWhiteSpace(e.FullName)) { throw new Exception("Sorry, no record was found for this staff."); }
+                if (id == 0)
+                {
+                    model.LeaveStartDate = DateTime.Today;
+                    model.LeaveEndDate = null;
+                    model.LeaveYear = DateTime.Today.Year;
+                    //model.EmployeeFullName = HttpContext.User.Identity.Name;
+                    model.EmployeeId = HttpContext.User.Claims.FirstOrDefault(c => c.Type.Contains("nameidentifier")).Value;
+                    Employee e = await _ermService.GetEmployeeByIdAsync(model.EmployeeId);
+                    if (e == null || string.IsNullOrWhiteSpace(e.FullName)) { throw new Exception("Sorry, no record was found for this staff."); }
+                    else
+                    {
+                        model.EmployeeId = e.EmployeeID;
+                        model.EmployeeFullName = e.FullName;
+                        model.DepartmentId = e.DepartmentID ?? 0;
+                        model.UnitId = e.UnitID ?? 0;
+                        model.LocationId = e.LocationID ?? 0;
+                    }
+                }
                 else
                 {
-                    model.EmployeeId = e.EmployeeID;
-                    model.EmployeeFullName = e.FullName;
-                    model.DepartmentId = e.DepartmentID ?? 0;
-                    model.UnitId = e.UnitID ?? 0;
-                    model.LocationId = e.LocationID ?? 0;
+                    var leavePlan = await _lmsService.GetEmployeeLeaveAsync(id);
+                    if (leavePlan != null)
+                    {
+                        model = model.Extract(leavePlan);
+                    }
                 }
             }
-            else
+            catch(Exception ex)
             {
-                var leavePlan = await _lmsService.GetEmployeeLeaveAsync(id);
-                if (leavePlan != null)
-                {
-                    model = model.Extract(leavePlan);
-                }
-
+                model.ViewModelErrorMessage = ex.Message;
             }
             model.IsPlan = false;
             model.LeaveStatus = LeaveStatus.New.ToString();
@@ -508,15 +514,25 @@ namespace IntranetPortal.Areas.LMS.Controllers
             if (entities != null) { ViewBag.LeaveTypeCodeList = new SelectList(entities, "Code", "Name"); }
             return View(model);
         }
+
         [HttpPost]
         public async Task<IActionResult> NewLeaveRequest(LeavePlanViewModel model)
         {
             try
             {
                 EmployeeLeave d = new EmployeeLeave();
+                int noOfOutstandingLeaveDays = 0;
+
                 if (ModelState.IsValid)
                 {
                     d = model.Convert();
+
+                    noOfOutstandingLeaveDays = _lmsService.GetLeaveBalance(d.EmployeeId, d.LeaveTypeCode, d.LeaveYear);
+                    if(d.ProposedLeaveDuration > noOfOutstandingLeaveDays)
+                    {
+                        throw new Exception("");
+                    }
+
                     long LeaveId = await _lmsService.CreateLeaveAsync(d);
                     if (LeaveId > 0)
                     {

@@ -61,6 +61,8 @@ namespace IntranetPortal.Base.Services
         Task<EmployeeLeave> GetEmployeeLeaveAsync(long Id);
         Task<List<EmployeeLeave>> SearchMyTeamsEmployeeLeavesAsync(string TeamLeadId, int LeaveYear, int LeaveMonth, string EmployeeId = null, string LeaveStatus = null, bool IsPlan = true);
         Task<List<EmployeeLeave>> SearchAllEmployeeLeavesAsync(int LeaveYear, int LeaveMonth, string EmployeeName = null, string LeaveStatus = null, bool IsPlan = true);
+
+        int GetLeaveBalance(string EmployeeId, string LeaveTypeCode, int LeaveYear);
         #endregion
 
         #region Leave Submission Service Interfaces
