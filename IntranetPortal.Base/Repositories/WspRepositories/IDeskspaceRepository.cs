@@ -142,6 +142,7 @@ namespace IntranetPortal.Base.Repositories.WspRepositories
         Task<List<TaskItem>> GetTaskItemsByOwnerIdnDescriptionnFolderIdAsync(string ownerId, string taskDescription, long? folderId);
         Task<List<TaskItem>> GetTaskItemsByOwnerIdnKeywordAsync(string ownerId, string keyword, DateTime startDate, DateTime endDate);
 
+        Task<List<TaskItem>> GetTaskItemsByProjectNumberAsync(string projectNumber);
 
         //========== Pending Task Items ================//
         Task<List<TaskItem>> GetTaskItemsPendingByOwnerIdAsync(string ownerId);
@@ -287,14 +288,16 @@ namespace IntranetPortal.Base.Repositories.WspRepositories
         Task<long> AddDelegationAsync(DelegatedTaskItem task);
         Task<bool> UpdateDelegationStatusAsync(long taskDelegationId);
 
-
         Task<DelegatedTaskItem> GetDelegatedTaskItemByDelegationIdAsync(long taskDelegationId);
+        Task<List<DelegatedTaskItem>> GetDelegatedTaskItemsByProjectNumberAsync(string linkProjectNumber);
+
+        //====== Get By Delegated-By-EmployeeId
         Task<List<DelegatedTaskItem>> GetDelegatedTaskItemsByDelegatedByEmployeeIdAsync(string delegatedByEmployeeId);
         Task<List<DelegatedTaskItem>> GetDelegatedTaskItemsByDelegatedByEmployeeIdnProgressStatusIdAsync(string delegatedByEmployeeId, int progressStatusId);
         Task<List<DelegatedTaskItem>> GetDelegatedTaskItemsByDelegatedByEmployeeIdnProgressStatusIdnAssignedDateAsync(string delegatedByEmployeeId, int progressStatusId, DateTime fromDate, DateTime toDate);
         Task<List<DelegatedTaskItem>> GetDelegatedTaskItemsByDelegatedByEmployeeIdnAssignedDateAsync(string delegatedByEmployeeId, DateTime fromDate, DateTime toDate);
 
-        //================ Get Delegated-To-Employee Id ========================//
+        //================ Get By Delegated-To-Employee Id ========================//
         Task<List<DelegatedTaskItem>> GetDelegatedTaskItemsByDelegatedByEmployeeIdnDelegatedToEmployeeIdAsync(string delegatedByEmployeeId, string delegatedToEmployeeId);
         Task<List<DelegatedTaskItem>> GetDelegatedTaskItemsByDelegatedByEmployeeIdnDelegatedToEmployeeIdnProgressStatusIdAsync(string delegatedByEmployeeId, string delegatedToEmployeeId, int progressStatusId);
         Task<List<DelegatedTaskItem>> GetDelegatedTaskItemsByDelegatedByEmployeeIdnDelegatedToEmployeeIdnAssignedDateAsync(string delegatedByEmployeeId, string delegatedToEmployeeId, DateTime fromDate, DateTime toDate);
@@ -307,6 +310,31 @@ namespace IntranetPortal.Base.Repositories.WspRepositories
 
         #region Work Item Return Reasons Action Methods
         Task<List<WorkItemReturnReason>> GetWorkItemReturnReasonsAsync();
+        #endregion
+
+        #region Project Repository Interfaces
+        
+        #region Project Write Methods
+        Task<long> AddProjectAsync(Project project);
+        Task<bool> UpdateProjectAsync(Project project);
+        Task<bool> DeleteProjectAsync(long projectId);
+        #endregion
+
+        #region Project Read Methods
+        Task<Project> GetProjectsByIdAsync(long projectId);
+        Task<Project> GetProjectsByNumberAsync(string projectNumber);
+        Task<List<Project>> GetProjectsByTypeIdAsync(int projectTypeId);
+        Task<List<Project>> GetProjectsByProjectCodeAsync(string projectCode);
+        Task<List<Project>> GetExecutiveManagementProjectsAsync();
+
+        Task<List<Project>> GetProjectsByOwnerIdAndProjectTitleAsync(string projectOwnerId, string projectTitle);
+
+        #endregion
+
+        #endregion
+
+        #region Project Types Repository Interfaces
+        Task<List<ProjectType>> GetExecutiveManagementProjectTypesAsync();
         #endregion
     }
 }

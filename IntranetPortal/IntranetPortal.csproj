@@ -32,6 +32,7 @@
     <Folder Include="Areas\PMS\Data\" />
     <Folder Include="Areas\UserAdministration\Data\" />
     <Folder Include="Areas\WSP\Data\" />
+    <Folder Include="Areas\XMD\Data\" />
     <Folder Include="wwwroot\db\" />
     <Folder Include="wwwroot\uploads\asm\" />
     <Folder Include="wwwroot\uploads\clm\imgs\" />

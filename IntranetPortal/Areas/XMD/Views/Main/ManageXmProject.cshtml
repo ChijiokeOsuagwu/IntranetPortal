@@ -1,0 +1,110 @@
+﻿
+@model IntranetPortal.Areas.XMD.Models.ManageProjectViewModel
+<h3>Executive Management Dashboard</h3>
+<hr />
+<div class="card mt-1" style="width:80pc">
+    <div class="card-header bg-info">
+        <div class="row">
+            @if (Model.ProjectId > 0)
+            {<div class="col-md-6"><h4 class="text-white">Edit Project</h4></div> }
+            else
+            { <div class="col-md-6"><h4 class="text-white">New Project</h4></div>}
+            <div class="col-md-6 text-end"><h5 class="text-white">Project No: @Model.ProjectCode</h5></div>
+        </div>
+    </div>
+    <div class="card-body table-secondary">
+        @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-x-circle"></i>
+                <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (!String.IsNullOrEmpty(Model.ViewModelSuccessMessage))
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="bi bi-check-circle"></i>
+                <span class="fw-bold">@Model.ViewModelSuccessMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (!String.IsNullOrEmpty(Model.ViewModelWarningMessage))
+        {
+            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                <i class="bi bi-exclamation-circle"></i>
+                <span class="fw-bold">@Model.ViewModelWarningMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+    <form asp-area="XMD" asp-controller="Main" asp-action="ManageXmProject" method="post" autocomplete="off">
+        <div class="row">
+            <div class="col-md-9 mb-3">
+                <label class="form-label text-dark">Title*</label>
+                <input asp-for="ProjectTitle" class="form-control fw-bold" autofocus>
+                <div><span asp-validation-for="ProjectTitle" class="text-danger"></span></div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <label class="form-label text-dark">Status</label>
+                <select asp-for="ProgressStatusId" class="form-select fw-bold">
+                    <option value="0">Not Started</option>
+                    <option value="1">In Progress</option>
+                    <option value="2">Completed</option>
+                    <option value="3">On Hold</option>
+                </select>
+                <div><span asp-validation-for="ProgressStatusId" class="text-danger"></span></div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12 mb-3">
+                <label class="form-label text-dark">Details</label>
+                <textarea asp-for="ProjectDetails" class="form-control fw-bold" rows="3">@Model.ProjectDetails</textarea>
+                <div><span asp-validation-for="ProjectDetails" class="text-danger"></span></div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-3 mb-3">
+                <label class="form-label text-dark">Type*</label>
+                <select asp-for="ProjectTypeId" class="form-select fw-bold" asp-items="@ViewBag.ProjectTypesList">
+                    <option value=""> Select </option>
+                </select>
+                <div><span asp-validation-for="ProjectTypeId" class="text-danger"></span></div>
+            </div>
+            <div class="col-md-5 mb-3">
+                <label class="form-label text-dark">Folder</label>
+                <select asp-for="ProjectDrawerId" class="form-select fw-bold">
+                    <option value=""> Select </option>
+                </select>
+                <div><span asp-validation-for="ProjectDrawerId" class="text-danger"></span></div>
+            </div>
+            <div class="col-md-2 mb-3">
+                <label class="form-label text-dark">Expected Start Date</label>
+                <input asp-for="ExpectedStartTime" class="form-control fw-bold" type="date">
+                <div><span asp-validation-for="ExpectedStartTime" class="text-danger"></span></div>
+            </div>
+            <div class="col-md-2 mb-3">
+                <label class="form-label text-dark">Expected Completion Date</label>
+                <input asp-for="ExpectedEndTime" class="form-control fw-bold" type="date">
+                <div><span asp-validation-for="ExpectedEndTime" class="text-danger"></span></div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12 text-end">
+                <a asp-area="XMD" asp-controller="Main" asp-action="Index" class="btn btn-dark" style="width:75px" title="Back">
+                    <span class="text-white">Back</span>
+                </a>
+                <a asp-area="XMD" asp-controller="Main" asp-action="ManageXmProject" asp-route-id="@Model.ProjectId" asp-route-od="@Model.ProjectOwnerId" asp-route-fd="@Model.ProjectDrawerId" class="btn btn-warning" style="width:75px" title="Clear">
+                    <span class="text-white">Clear</span>
+                </a>
+                <button type="submit" class="btn btn-info" title="Save" style="width:120px"><span class="text-white">Save</span></button>
+            </div>
+        </div>
+        <input type="hidden" asp-for="ProjectId" />
+        <input type="hidden" asp-for="ProjectCode" />
+        <input type="hidden" asp-for="ProjectOwnerId" />
+        <input type="hidden" asp-for="UnitId" />
+        <input type="hidden" asp-for="DepartmentId" />
+        <input type="hidden" asp-for="LocationId" />
+    </form>
+    </div>
+</div>

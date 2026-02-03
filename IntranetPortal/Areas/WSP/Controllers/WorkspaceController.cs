@@ -1426,16 +1426,20 @@ namespace IntranetPortal.Areas.WSP.Controllers
             }
             return View(model);
         }
-        public async Task<IActionResult> SubmittedToMe(SubmittedToMeViewModel model)
+        public async Task<IActionResult> SubmittedToMe(string ei, int? yy, int? mm, string sn = null)
         {
-            if (model == null) { model = new SubmittedToMeViewModel(); }
+            SubmittedToMeViewModel model = new SubmittedToMeViewModel();
+            model.ei = ei;
+            model.yy = yy ?? DateTime.Now.Year;
+            model.mm = mm;
+            model.sn = sn;
             var claims = HttpContext.User.Claims.ToList();
-            model.EmployeeID = claims?.Where(x => x.Type == ClaimTypes.NameIdentifier).Select(c => c.Value).SingleOrDefault();
-            if (!string.IsNullOrWhiteSpace(model.EmployeeID))
+            model.ei = claims?.Where(x => x.Type == ClaimTypes.NameIdentifier).Select(c => c.Value).SingleOrDefault();
+            if (!string.IsNullOrWhiteSpace(model.ei))
             {
-                var entities = await _wspService.SearchFolderSubmissionsAsync(model.EmployeeID, model.SubmittedYear, model.SubmittedMonth, model.FromEmployeeName);
+                var entities = await _wspService.SearchFolderSubmissionsAsync(model.ei, model.yy, model.mm, model.sn);
                 if (entities != null) { model.SubmissionList = entities.ToList(); }
-                if (model.SubmittedYear < 2025) { model.SubmittedYear = DateTime.Now.Year; }
+                if (model.yy < 2025) { model.yy = DateTime.Now.Year; }
             }
             else { model.ViewModelErrorMessage = "Sorry, it appears your session expired. Please login again to continue."; }
             return View(model);
@@ -2168,7 +2172,7 @@ namespace IntranetPortal.Areas.WSP.Controllers
                 ViewBag.UnitList = new SelectList(unit_entities, "UnitID", "UnitName", ud);
             }
 
-            var emp_entities = await _ermService.GetEmployeeRollsAsync(null, model.ld, model.dd, model.ud, model.id);
+            var emp_entities = await _ermService.GetEmployeeRollsAsync(null, model.ld, model.dd, model.ud, model.id, model.sn);
             if (emp_entities != null && emp_entities.Count > 0)
             {
                 model.EmployeesList = emp_entities;

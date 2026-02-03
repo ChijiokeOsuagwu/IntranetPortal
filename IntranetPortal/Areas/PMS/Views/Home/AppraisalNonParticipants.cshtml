@@ -78,47 +78,47 @@
                             @foreach (var item in Model.EmployeesList)
                             {
                                 row_count++;
-                            <tr>
-                                <td><span class="fw-bold">@row_count.ToString()</span></td>
-                                <td><span class="fw-bold">@item.FullName</span></td>
-                                <td>
-                                    @if (item.Sex.ToUpper() == "FEMALE")
-                                    {
-                                        <span class="fw-bold">F</span>
-                                    }
-                                    else
-                                    {
-                                        <span class="fw-bold">M</span>
-                                    }
-                                </td>
-                                <td>
-                                    @if (item.StartUpDate == null)
-                                    {
-                                        <span class="fw-bold">[N/A]</span>
-                                    }
-                                    else
-                                    {
-                                        <span class="fw-bold">@item.StartUpDate.Value.ToString("yyyy-MMM-dd")</span>
-                                    }
-                                </td>
-                                <td><span class="fw-bold">@item.UnitName</span></td>
-                                <td><span class="fw-bold">@item.LocationName</span></td>
-                                <td class="p-1 text-end">
-                                    <div class="btn-group dropstart">
-                                        <button type="button" class="bg-light" style="border:0px; height:10px" data-bs-toggle="dropdown" aria-expanded="false">
-                                            <span class="text-dark fw-bold"><i class="bi bi-three-dots" style="font-size:1.0rem"></i></span>
-                                        </button>
-                                        <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton2">
-                                            <li>
-                                                <a class="dropdown-item" asp-area="ERM" asp-controller="Employees" asp-action="Info" asp-route-id="@item.EmployeeID" title="View Staff Profile">
-                                                    <i class="bi bi-file-text"></i>
-                                                    <span class="text-white">View Profile</span>
-                                                </a>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </td>
-                            </tr>
+                                <tr>
+                                    <td><span class="fw-bold">@row_count.ToString()</span></td>
+                                    <td><span class="fw-bold">@item.FullName</span></td>
+                                    <td>
+                                        @if (item.Sex.ToUpper() == "FEMALE")
+                                        {
+                                            <span class="fw-bold">F</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="fw-bold">M</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (item.StartUpDate == null)
+                                        {
+                                            <span class="fw-bold">[N/A]</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="fw-bold">@item.StartUpDate.Value.ToString("yyyy-MMM-dd")</span>
+                                        }
+                                    </td>
+                                    <td><span class="fw-bold">@item.UnitName</span></td>
+                                    <td><span class="fw-bold">@item.LocationName</span></td>
+                                    <td class="p-1 text-end">
+                                        <div class="btn-group dropstart">
+                                            <button type="button" class="bg-light" style="border:0px; height:10px" data-bs-toggle="dropdown" aria-expanded="false">
+                                                <span class="text-dark fw-bold"><i class="bi bi-three-dots" style="font-size:1.0rem"></i></span>
+                                            </button>
+                                            <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton2">
+                                                <li>
+                                                    <a class="dropdown-item" asp-area="ERM" asp-controller="Employees" asp-action="Info" asp-route-id="@item.EmployeeID" title="View Staff Profile">
+                                                        <i class="bi bi-file-text"></i>
+                                                        <span class="text-white">View Profile</span>
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </td>
+                                </tr>
                             }
                         </tbody>
                     </table>

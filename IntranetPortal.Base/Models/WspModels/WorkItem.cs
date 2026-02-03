@@ -34,11 +34,11 @@ namespace IntranetPortal.Base.Models.WspModels
         public long ActualDurationInMinutes { get; set; }
         public WorkItemPriority Priority { get; set; }
         public WorkItemType ItemType { get; set; }
-        public long EstimatedCostForeignCurrency { get; set; }
-        public long ActualCostForeignCurrency { get; set; }
-        public string ForeignCurrencyCode { get; set; }
-        public long EstimatedCostLocalCurrency { get; set; }
-        public long ActualCostLocalCurrency { get; set; }
+        //public long EstimatedCostForeignCurrency { get; set; }
+        //public long ActualCostForeignCurrency { get; set; }
+        //public string ForeignCurrencyCode { get; set; }
+        //public long EstimatedCostLocalCurrency { get; set; }
+        //public long ActualCostLocalCurrency { get; set; }
         public int PercentageCompleted { get; set; }
         public string Deliverables { get; set; }
         public int? UnitID { get; set; }

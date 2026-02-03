@@ -473,10 +473,15 @@ namespace IntranetPortal.Base.Services
         #region Employee Rolls Service Methods
 
 
-        public async Task<List<EmployeeRoll>> GetEmployeeRollsAsync(DateTime? TerminalDate = null, int? LocationId = null, int? DepartmentId = null, int? UnitId = null, string EmployeeId = null)
+        public async Task<List<EmployeeRoll>> GetEmployeeRollsAsync(DateTime? TerminalDate = null, int? LocationId = null, int? DepartmentId = null, int? UnitId = null, string EmployeeId = null, string EmployeeName = null)
         {
             List<EmployeeRoll> employeeRolls = new List<EmployeeRoll>();
-            if (!string.IsNullOrWhiteSpace(EmployeeId))
+            if (!string.IsNullOrWhiteSpace(EmployeeName))
+            {
+                var alphaEmployeeRolls = await _employeesRepository.GetEmployeeRollsByEmployeeNameAsync(EmployeeName, TerminalDate);
+                if (alphaEmployeeRolls != null) { employeeRolls = alphaEmployeeRolls.ToList(); }
+            }
+            else if (!string.IsNullOrWhiteSpace(EmployeeId))
             {
                 var firstEmployeeRolls = await _employeesRepository.GetEmployeeRollsByEmployeeIdAsync(EmployeeId, TerminalDate);
                 if(firstEmployeeRolls != null) { employeeRolls = firstEmployeeRolls.ToList(); }

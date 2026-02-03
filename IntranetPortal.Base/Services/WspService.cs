@@ -822,7 +822,6 @@ namespace IntranetPortal.Base.Services
             if (entities != null && entities.Count > 0) { folderNotes = entities.ToList(); }
             return folderNotes;
         }
-
         public async Task<List<WorkItemNote>> GetTaskItemNotesAsync(long TaskId)
         {
             List<WorkItemNote> taskNotes = new List<WorkItemNote>();
@@ -830,7 +829,13 @@ namespace IntranetPortal.Base.Services
             if (entities != null && entities.Count > 0) { taskNotes = entities.ToList(); }
             return taskNotes;
         }
-
+        public async Task<List<WorkItemNote>> GetProjectNotesAsync(long ProjectId)
+        {
+            List<WorkItemNote> projectNotes = new List<WorkItemNote>();
+            var entities = await _deskspaceRepository.GetWorkItemNotesByProjectIdAsync(ProjectId);
+            if (entities != null && entities.Count > 0) { projectNotes = entities.ToList(); }
+            return projectNotes;
+        }
         #endregion
 
         #region Work Item Activity Log Service Actions
@@ -841,7 +846,6 @@ namespace IntranetPortal.Base.Services
             if (entities != null && entities.Count > 0) { activityLogs = entities.ToList(); }
             return activityLogs;
         }
-
         public async Task<List<WorkItemActivityLog>> GetWorkItemActivitiesByTaskIdAsync(long TaskId)
         {
             List<WorkItemActivityLog> activityLogs = new List<WorkItemActivityLog>();
@@ -849,6 +853,16 @@ namespace IntranetPortal.Base.Services
             if (entities != null && entities.Count > 0) { activityLogs = entities.ToList(); }
             return activityLogs;
         }
+
+        public async Task<List<WorkItemActivityLog>> GetWorkItemActivitiesByProjectIdAsync(long ProjectId)
+        {
+            List<WorkItemActivityLog> activityLogs = new List<WorkItemActivityLog>();
+            var entities = await _deskspaceRepository.GetWorkItemActivityLogByProjectIdAsync(ProjectId);
+            if (entities != null && entities.Count > 0) { activityLogs = entities.ToList(); }
+            return activityLogs;
+        }
+
+
         #endregion
 
         #region Task Items Service Methods
@@ -869,7 +883,6 @@ namespace IntranetPortal.Base.Services
             if (TaskId < 1) { throw new ArgumentNullException(nameof(TaskId)); }
             return await _deskspaceRepository.GetTaskItemByIdAsync(TaskId);
         }
-        
         public async Task<List<TaskItem>> GetTaskItemsWithSameKeyword(string TaskOwnerId, string Keyword, DateTime StartDate, DateTime EndDate)
         {
             List<TaskItem> taskItems = new List<TaskItem>();
@@ -880,6 +893,13 @@ namespace IntranetPortal.Base.Services
             }
             return taskItems;
         }
+
+        public async Task<List<TaskItem>> GetTasksByProjectNumberAsync(string ProjectNumber)
+        {
+            if (string.IsNullOrWhiteSpace(ProjectNumber)) { throw new ArgumentNullException(nameof(ProjectNumber)); }
+            return await _deskspaceRepository.GetTaskItemsByProjectNumberAsync(ProjectNumber);
+        }
+
         #endregion
 
         #region Pending Task Items
@@ -1384,6 +1404,17 @@ namespace IntranetPortal.Base.Services
         #endregion
 
         #region Delegated Task Items Service Methods
+
+        public async Task<List<DelegatedTaskItem>> GetDelegatedTaskItemsByProjectNumberAsync(string ProjectNumber)
+        {
+            List<DelegatedTaskItem> delegatedTaskItems = new List<DelegatedTaskItem>();
+
+            var entities = await _deskspaceRepository.GetDelegatedTaskItemsByProjectNumberAsync(ProjectNumber);
+            if (entities != null) { delegatedTaskItems = entities; }
+            return delegatedTaskItems;
+        }
+
+
         public async Task<List<DelegatedTaskItem>> SearchDelegatedTaskItemsAsync(string DelegatedByEmployeeId, string DelegatedToEmployeeId, int? ProgressStatusId = null, DateTime? FromDate = null, DateTime? ToDate = null)
         {
             List<DelegatedTaskItem> delegatedTaskItems = new List<DelegatedTaskItem>();
@@ -1510,6 +1541,7 @@ namespace IntranetPortal.Base.Services
             }
             return false;
         }
+        
         #endregion
 
         #endregion
@@ -1981,6 +2013,139 @@ namespace IntranetPortal.Base.Services
             if (entities != null && entities.Count > 0) { _returnReasons = entities; }
             return _returnReasons;
         }
+        #endregion
+
+        #region Project Service Methods
+        public async Task<Project> GetProjectAsync(long ProjectId)
+        {
+            Project project = new Project();
+            if(ProjectId > 0)
+            {
+                project = await _deskspaceRepository.GetProjectsByIdAsync(ProjectId);
+            }
+            return project;
+        }
+        public async Task<Project> GetProjectAsync(string ProjectNumber)
+        {
+            Project project = new Project();
+            if (!string.IsNullOrWhiteSpace(ProjectNumber))
+            {
+                project = await _deskspaceRepository.GetProjectsByNumberAsync(ProjectNumber);
+            }
+            return project;
+        }
+
+        #region Executive Management Projects 
+        public async Task<List<Project>> GetExecutiveManagementProjectsAsync(int? ProjectTypeId, int? ProgressStatusId = null)
+        {
+            List<Project> projectList = new List<Project>();
+            projectList = await _deskspaceRepository.GetExecutiveManagementProjectsAsync();
+            if(ProjectTypeId > 0)
+            {
+                projectList = projectList.Where(x => x.ProjectTypeId == ProjectTypeId.Value).ToList();
+            }
+
+            if (ProgressStatusId !=null )
+            {
+                projectList = projectList.Where(x => x.ProgressStatusId == ProgressStatusId.Value).ToList();
+            }
+            return projectList;
+        }
+        public async Task<List<ProjectType>> GetExecutiveManagementProjectTypesAsync()
+        {
+            List<ProjectType> projectTypeList = new List<ProjectType>();
+            projectTypeList = await _deskspaceRepository.GetExecutiveManagementProjectTypesAsync();
+            return projectTypeList;
+        }
+        #endregion
+
+        #region Projects Write Service Methods
+        public async Task<long> CreateProjectAsync(Project project)
+        {
+            if (project == null) { throw new ArgumentNullException(nameof(project), "The required parameter [Project] is missing."); }
+            var entities = await _deskspaceRepository.GetProjectsByOwnerIdAndProjectTitleAsync(project.ProjectOwnerId, project.ProjectTitle);
+            if (entities != null && entities.Count > 0 && entities[0].ProjectId > 0)
+            {
+                throw new Exception("There exists a Project with this Title already. Please choose a different Title.");
+            }
+
+            var same_no_entities = await _deskspaceRepository.GetProjectsByProjectCodeAsync(project.ProjectCode);
+            if (same_no_entities != null && same_no_entities.Count > 0 && same_no_entities[0].ProjectId > 0)
+            {
+                await _utilityRepository.IncrementAutoNumberAsync("projno");
+                if (!string.IsNullOrEmpty(project.ProjectCode))
+                {
+                    string inputString = project.ProjectCode;
+                    int lastNo = 0;
+                    char lastChar = inputString[inputString.Length - 1];
+                    if (char.IsDigit(lastChar))
+                    {
+                        lastNo = lastChar - '0';
+                    }
+                    else
+                    {
+                        throw new Exception("Error: Invalid Project Code.");
+                    }
+                    lastNo = lastNo + 1;
+                    string newLastChar = lastNo.ToString();
+                    string outputString = $"{project.ProjectCode.Substring(0, project.ProjectCode.Length - 1)}{newLastChar}";
+                    project.ProjectCode = outputString;
+                }
+            }
+
+            long _newProjectId = await _deskspaceRepository.AddProjectAsync(project);
+            if (_newProjectId > 0)
+            {
+                //bool _importAllPendingTasks = await _deskspaceRepository.UpdateTaskItemFolderIdForPendingTaskItemsAsync(folder.OwnerId, _newFolderId);
+                if(await _utilityRepository.IncrementAutoNumberAsync("projno"))
+                {
+                    WorkItemActivityLog activityLog = new WorkItemActivityLog
+                    {
+                        Time = DateTime.Now,
+                        ActivityBy = project.ModifiedBy,
+                        Description = $"New Project was created by {project.ModifiedBy} on {DateTime.Now.ToLongDateString()} at {DateTime.Now.ToLongTimeString()}.",
+                        WorkItemFolderId = null,
+                        Id = 0,
+                        ProjectId = _newProjectId,
+                        TaskItemId = null
+                    };
+                    await _deskspaceRepository.AddWorkItemActivityLogAsync(activityLog);
+                }
+            }
+            return _newProjectId;
+        }
+        public async Task<bool> UpdateProjectAsync(Project project)
+        {
+            if (project == null) { throw new ArgumentNullException(nameof(project), "The required parameter [Project] is missing."); }
+            var entities = await _deskspaceRepository.GetProjectsByOwnerIdAndProjectTitleAsync(project.ProjectOwnerId, project.ProjectTitle);
+            if (entities != null && entities.Count > 0 && entities[0].ProjectId != project.ProjectId)
+            {
+                throw new Exception("Please choose another Project Title. You already have another Project in the system with the same Title.");
+            }
+            bool IsUpdated = await _deskspaceRepository.UpdateProjectAsync(project);
+            if (IsUpdated)
+            {
+                WorkItemActivityLog activityLog = new WorkItemActivityLog
+                {
+                    Time = DateTime.Now,
+                    ActivityBy = project.ModifiedBy,
+                    Description = $"Project was updated by {project.ModifiedBy} on {DateTime.Now.ToLongDateString()} at {DateTime.Now.ToLongTimeString()}.",
+                    WorkItemFolderId = null,
+                    Id = 0,
+                    ProjectId = project.ProjectId,
+                    TaskItemId = null
+                };
+                await _deskspaceRepository.AddWorkItemActivityLogAsync(activityLog);
+            }
+            return IsUpdated;
+        }
+        public async Task<bool> DeleteProjectAsync(long ProjectId)
+        {
+            return await _deskspaceRepository.DeleteProjectAsync(ProjectId);
+        }
+
+
+        #endregion
         #endregion
     }
 }

@@ -50,5 +50,9 @@ namespace IntranetPortal.Base.Services
         Task<bool> DeleteLeaveProfileDetail(int Id);
         #endregion
 
+        #region Leave Plans Service Interfaces
+        Task<List<LeavePlan>> GetLeavePlansAsync(string EmployeeId, int LeaveYear);
+        Task<LeavePlan> GetLeavePlanAsync(long LeavePlanId);
+        #endregion
     }
 }

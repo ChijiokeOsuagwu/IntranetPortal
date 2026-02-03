@@ -12,11 +12,11 @@
             </a>
             <span class="fw-bold">Folders Submitted to Me |</span>
         </div>
-        <div class="col-md-8">
-            <form asp-area="WKS" asp-controller="Tasks" asp-action="SubmittedToMe" method="get">
+        <div class="col-md-6">
+            <form asp-area="WSP" asp-controller="Workspace" asp-action="SubmittedToMe" method="get">
                 <span class="fw-bold">From: </span>
-                <input asp-for="FromEmployeeName" class="border-0" style="width:250px" placeholder="Start typing ..." />
-                <select asp-for="SubmittedMonth" class="border-0" style="width:100px">
+                <input id="sn" asp-for="sn" class="border-0" style="width:250px" placeholder="Start typing ..." />
+                <select asp-for="mm" class="border-0" style="width:100px">
                     <option value="">All</option>
                     <option value="1">Jan</option>
                     <option value="2">Feb</option>
@@ -31,14 +31,16 @@
                     <option value="11">Nov</option>
                     <option value="12">Dec</option>
                 </select>
-                <input asp-for="SubmittedYear" class="border-0" style="width:100px" type="number" min="2024" max="2080" />
-                <input type="submit" value="Search" class="btn btn-sm btn-info mr-3" style="width:100px" />
-                <input type="hidden" asp-for="EmployeeID" />
-                @if (Model != null && Model.SubmissionList != null && Model.SubmissionList.Count > 0)
-                {
-                    <button class="btn btn-sm btn-danger" style="width:100px; color:white;" onclick="deleteActionedFolderSubmission('@Model.EmployeeID')" title="Remove All Actioned">Remove All</button>
-                }
+                <input type="hidden" asp-for="ei" />
+                <input asp-for="yy" class="border-0" style="width:100px" type="number" min="2024" max="2080" />
+                <button type="submit" class="btn btn-sm btn-info mr-3" style="width:100px"> Search </button>
             </form>
+        </div>
+        <div class="col-md-2">
+            @if (Model != null && Model.SubmissionList != null && Model.SubmissionList.Count > 0)
+            {
+                <button class="btn btn-sm btn-danger" style="width:100px; color:white;" onclick="deleteActionedFolderSubmission('@Model.ei')" title="Remove All Actioned">Remove All</button>
+            }
         </div>
     </div>
     <hr />
@@ -74,7 +76,7 @@
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton2">
                                     <li>
-                                        <a class="dropdown-item" asp-area="WSP" asp-controller="Workspace" asp-action="SubmittedTasks" asp-route-id="@submission.FolderId" asp-route-fn="@submission.FolderName" asp-route-sd="@submission.FolderSubmissionId" asp-route-ed="@Model.EmployeeID" asp-route-tp="@submission.SubmissionType" asp-route-od="@submission.FromEmployeeId">
+                                        <a class="dropdown-item" asp-area="WSP" asp-controller="Workspace" asp-action="SubmittedTasks" asp-route-id="@submission.FolderId" asp-route-fn="@submission.FolderName" asp-route-sd="@submission.FolderSubmissionId" asp-route-ed="@Model.ei" asp-route-tp="@submission.SubmissionType" asp-route-od="@submission.FromEmployeeId">
                                             <i class="bi bi-card-checklist"></i> <span>Open Folder</span>
                                         </a>
                                     </li>
@@ -109,7 +111,7 @@
                                     {
                                         <span class="badge badge-warning fw-bold" style="width:150px; border-radius:3px; color:black">Pending Approval</span>}
                                 </div>
-                                <a asp-area="WSP" asp-controller="Workspace" asp-action="SubmittedTasks" asp-route-id="@submission.FolderId" asp-route-fn="@submission.FolderName" asp-route-sd="@submission.FolderSubmissionId" asp-route-ed="@Model.EmployeeID" asp-route-tp="@submission.SubmissionType" asp-route-od="@submission.FromEmployeeId" asp-route-src="sbt">
+                                <a asp-area="WSP" asp-controller="Workspace" asp-action="SubmittedTasks" asp-route-id="@submission.FolderId" asp-route-fn="@submission.FolderName" asp-route-sd="@submission.FolderSubmissionId" asp-route-ed="@Model.ei" asp-route-tp="@submission.SubmissionType" asp-route-od="@submission.FromEmployeeId" asp-route-src="sbt">
                                     <h1 class="font-light text-dark" title="@submission.FolderName">
                                         @if (submission.IsActioned)
                                         {
@@ -171,7 +173,7 @@
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton2">
                                     <li>
-                                        <a class="dropdown-item" asp-area="WSP" asp-controller="Workspace" asp-action="SubmittedTasks" asp-route-id="@submission.FolderId" asp-route-fn="@submission.FolderName" asp-route-sd="@submission.FolderSubmissionId" asp-route-ed="@Model.EmployeeID" asp-route-tp="@submission.SubmissionType" asp-route-od="@submission.FromEmployeeId">
+                                        <a class="dropdown-item" asp-area="WSP" asp-controller="Workspace" asp-action="SubmittedTasks" asp-route-id="@submission.FolderId" asp-route-fn="@submission.FolderName" asp-route-sd="@submission.FolderSubmissionId" asp-route-ed="@Model.ei" asp-route-tp="@submission.SubmissionType" asp-route-od="@submission.FromEmployeeId">
                                             <i class="bi bi-card-checklist"></i> <span>Open Folder</span>
                                         </a>
                                     </li>
@@ -206,7 +208,7 @@
                                     {
                                         <span class="badge badge-warning fw-bold" style="width:150px; border-radius:3px; color:black">Pending Close Out</span>}
                                 </div>
-                                <a asp-area="WSP" asp-controller="Workspace" asp-action="SubmittedEvaluations" asp-route-id="@submission.FolderId" asp-route-fn="@submission.FolderName" asp-route-sd="@submission.FolderSubmissionId" asp-route-ed="@Model.EmployeeID" asp-route-tp="@submission.SubmissionType" asp-route-od="@submission.FromEmployeeId" asp-route-src="sbt">
+                                <a asp-area="WSP" asp-controller="Workspace" asp-action="SubmittedEvaluations" asp-route-id="@submission.FolderId" asp-route-fn="@submission.FolderName" asp-route-sd="@submission.FolderSubmissionId" asp-route-ed="@Model.ei" asp-route-tp="@submission.SubmissionType" asp-route-od="@submission.FromEmployeeId" asp-route-src="sbt">
                                     <h1 class="font-light text-dark" title="@submission.FolderName">
                                         @if (submission.IsActioned)
                                         {

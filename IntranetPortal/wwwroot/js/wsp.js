@@ -59,7 +59,6 @@ $(document).ready(function () {
 
 });
 
-
 //===== Function to save New Note to the database ========//
 function addNote() {
     console.log('saving note started ...')
@@ -289,8 +288,6 @@ function updateTaskProgress(task_item_id, new_status, old_status) {
     })
 }
 
-
-
 //======= Script to Approve a Task Item =========//
 function approveTaskItem(task_item_id) {
     $.ajax({
@@ -384,7 +381,6 @@ function deleteActionedFolderSubmission(to_employee_id) {
     }
 }
 
-
 //======= Script to Approve a Task Item =========//
 function evaluateTaskItem(task_item_id, task_folder_id, task_evaluator_id, quality_score, evaluation_header_id, evaluation_detail_id) {
     console.log("Calling ajax function....")
@@ -430,6 +426,83 @@ function moveTaskToFolder(task_item_id, folder_id) {
         error: function (msg) {
             alert(msg);
             console.log(msg);
+        }
+    })
+}
+
+//======= Script to Delete a Task Item =========//
+function deleteProject(project_id) {
+    if (confirm('Are you sure you want to delete this project permanently?')) {
+        $.ajax({
+            type: 'POST',
+            url: '/XMD/Main/DeleteProject',
+            dataType: "text",
+            data: { id: project_id },
+            success: function (result) {
+                if (result == "success") {
+                    location.reload();
+                }
+                else {
+                    console.log(result);
+                }
+            },
+            error: function (error) {
+                console.log(error);
+            }
+        })
+    }
+}
+
+//===== Function to save New Note to the database ========//
+function addProjectNote() {
+    console.log('saving note started ...')
+    //== validation labels==//
+    const error_div = document.getElementById("div-error");
+    const note_input = document.getElementById("leave_note");
+    let project_id = document.getElementById("project_id").value;
+    let task_id = document.getElementById("task_id").value;
+    let note_type = document.getElementById("note_type").value;
+    let from_name = document.getElementById("from_name").value;
+    let note_content = document.getElementById("note_content").value;
+
+    console.log('TaskItemID=' + task_id);
+    console.log('ProjectID=' + project_id);
+    console.log('From=' + from_name);
+    console.log('note=' + note_content);
+    console.log('type=' + note_type);
+
+    if (note_content === null || note_content === undefined || note_content.trim().length === 0) {
+        error_div.innerHTML = "Please enter a note!";
+        note_input.focus();
+        return;
+    }
+    error_div.innerHTML = "";
+
+    console.log('calling api .....')
+    $.ajax({
+        type: 'POST',
+        url: '/XMD/Main/SaveProjectNote',
+        dataType: "text",
+        data: { nm: from_name, msg: note_content, pd: project_id, td:task_id },
+        success: function (result) {
+            if (result == "saved") {
+                console.log(result);
+                location.reload();
+            }
+            else if (result == "failed") {
+                error_div.innerHTML = "Sorry, note was not saved. Please try again.";
+            }
+            else if (result == "parameter") {
+                error_div.innerHTML = "Sorry, some values are invalid. Please try again.";
+            }
+            else {
+                error_div.innerHTML = "Sorry, an error encountered. Please try again.";
+                alert(result);
+            }
+        },
+        error: function (err) {
+            error_div.innerHTML = "Sorry, an error encountered. Please try again.";
+            console.log(err);
         }
     })
 }

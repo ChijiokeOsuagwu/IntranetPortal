@@ -38,5 +38,23 @@ namespace IntranetPortal.Base.Repositories.LeaveRepositories
         Task<bool> DeleteLeaveProfileDetailAsync(int leaveProfileDetailId);
         Task<bool> EditLeaveProfileDetailAsync(LeaveProfileDetail leaveProfileDetail);
         #endregion
+
+        #region Leave Plans Action Methods
+
+        #region Leave Plan Write Action Methods
+        Task<long> AddLeavePlanAsync(LeavePlan e);
+        Task<bool> DeleteLeavePlanAsync(long leavePlanId);
+        Task<bool> EditLeavePlanAsync(LeavePlan e);
+        Task<bool> UpdateLeavePlanStatusAsync(long leavePlanId, string newStatus);
+        Task<bool> UpdateLeavePlanApprovalStatusAsync(long leavePlanId, bool isApproved, string approvedBy);
+        #endregion
+
+        #region Get Leave Plans By Id & Employee ID & Name
+        Task<LeavePlan> GetLeavePlanByIdAsync(long leavePlanId);
+        Task<List<LeavePlan>> GetLeavePlansByEmployeeIdAsync(string employeeId, int leaveYear);
+        Task<List<LeavePlan>> GetLeavePlansByEmployeeNameAsync(string employeeName, int leaveYear);
+        #endregion
+
+        #endregion
     }
 }

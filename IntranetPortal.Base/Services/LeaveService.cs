@@ -350,5 +350,292 @@ namespace IntranetPortal.Base.Services
             return IsDeleted;
         }
         #endregion
+
+
+
+        #region Leave Plan Read Service Methods
+        public async Task<List<LeavePlan>> GetLeavePlansAsync(string EmployeeId, int LeaveYear)
+        {
+            List<LeavePlan> leaveList = new List<LeavePlan>();
+            if (!string.IsNullOrWhiteSpace(EmployeeId) && LeaveYear > 0)
+            {
+                leaveList = await _leaveRepository.GetLeavePlansByEmployeeIdAsync(EmployeeId, LeaveYear);
+            }
+            return leaveList;
+        }
+        public async Task<LeavePlan> GetLeavePlanAsync(long LeavePlanId)
+        {
+            LeavePlan p = new LeavePlan();
+            if (LeavePlanId > 0)
+            {
+                p = await _leaveRepository.GetLeavePlanByIdAsync(LeavePlanId);
+            }
+            return p;
+        }
+        
+        //public async Task<List<EmployeeLeave>> SearchMyTeamsEmployeeLeavesAsync(string TeamLeadId, int LeaveYear, int LeaveMonth, string EmployeeId = null, string LeaveStatus = null, bool IsPlan = true)
+        //{
+        //    List<EmployeeLeave> LeaveList = new List<EmployeeLeave>();
+        //    if (string.IsNullOrWhiteSpace(EmployeeId))
+        //    {
+        //        if (LeaveYear > 0)
+        //        {
+        //            if (LeaveMonth > 0)
+        //            {
+        //                if (!string.IsNullOrWhiteSpace(LeaveStatus))
+        //                {
+        //                    var tyms_entities = await _employeeLeaveRepository.GetByReportingLineIdnYearnMonthnStatusAsync(TeamLeadId, LeaveYear, LeaveMonth, LeaveStatus, IsPlan);
+        //                    if (tyms_entities != null && tyms_entities.Count > 0)
+        //                    {
+        //                        LeaveList = tyms_entities;
+        //                    }
+        //                }
+        //                else
+        //                {
+        //                    var tym_entities = await _employeeLeaveRepository.GetByReportingLineIdnYearnMonthAsync(TeamLeadId, LeaveYear, LeaveMonth, IsPlan);
+        //                    if (tym_entities != null && tym_entities.Count > 0)
+        //                    {
+        //                        LeaveList = tym_entities;
+        //                    }
+        //                }
+        //            }
+        //            else
+        //            {
+        //                if (!string.IsNullOrWhiteSpace(LeaveStatus))
+        //                {
+        //                    var tys_entities = await _employeeLeaveRepository.GetByReportingLineIdnYearnStatusAsync(TeamLeadId, LeaveYear, LeaveStatus, IsPlan);
+        //                    if (tys_entities != null && tys_entities.Count > 0)
+        //                    {
+        //                        LeaveList = tys_entities;
+        //                    }
+        //                }
+        //                else
+        //                {
+        //                    var ty_entities = await _employeeLeaveRepository.GetByReportingLineIdnYearAsync(TeamLeadId, LeaveYear, IsPlan);
+        //                    if (ty_entities != null && ty_entities.Count > 0)
+        //                    {
+        //                        LeaveList = ty_entities;
+        //                    }
+        //                }
+        //            }
+        //        }
+        //        else
+        //        {
+        //            if (!string.IsNullOrWhiteSpace(LeaveStatus))
+        //            {
+        //                var ts_entities = await _employeeLeaveRepository.GetByReportingLineIdnStatusAsync(TeamLeadId, LeaveStatus, IsPlan);
+        //                if (ts_entities != null && ts_entities.Count > 0)
+        //                {
+        //                    LeaveList = ts_entities;
+        //                }
+        //            }
+        //            else
+        //            {
+        //                var t_entities = await _employeeLeaveRepository.GetByReportingLineIdAsync(TeamLeadId, IsPlan);
+        //                if (t_entities != null && t_entities.Count > 0)
+        //                {
+        //                    LeaveList = t_entities;
+        //                }
+        //            }
+        //        }
+        //    }
+        //    else
+        //    {
+        //        if (LeaveYear > 0)
+        //        {
+        //            if (LeaveMonth > 0)
+        //            {
+        //                if (!string.IsNullOrWhiteSpace(LeaveStatus))
+        //                {
+        //                    var eyms_entities = await _employeeLeaveRepository.GetByReportingLineIdnYearnMonthnStatusAsync(TeamLeadId, LeaveYear, LeaveMonth, LeaveStatus, IsPlan);
+        //                    if (eyms_entities != null && eyms_entities.Count > 0)
+        //                    {
+        //                        LeaveList = eyms_entities;
+        //                    }
+        //                }
+        //                else
+        //                {
+        //                    var eym_entities = await _employeeLeaveRepository.GetByReportingLineIdnYearnMonthAsync(TeamLeadId, LeaveYear, LeaveMonth, IsPlan);
+        //                    if (eym_entities != null && eym_entities.Count > 0)
+        //                    {
+        //                        LeaveList = eym_entities;
+        //                    }
+        //                }
+        //            }
+        //            else
+        //            {
+        //                if (!string.IsNullOrWhiteSpace(LeaveStatus))
+        //                {
+        //                    var eyms_entities = await _employeeLeaveRepository.GetByEmployeeIdnYearnMonthnStatusAsync(EmployeeId, LeaveYear, LeaveMonth, LeaveStatus, IsPlan);
+        //                    if (eyms_entities != null && eyms_entities.Count > 0)
+        //                    {
+        //                        LeaveList = eyms_entities;
+        //                    }
+        //                }
+        //                else
+        //                {
+        //                    var eym_entities = await _employeeLeaveRepository.GetByEmployeeIdnYearnMonthAsync(TeamLeadId, LeaveYear, LeaveMonth, IsPlan);
+        //                    if (eym_entities != null && eym_entities.Count > 0)
+        //                    {
+        //                        LeaveList = eym_entities;
+        //                    }
+        //                }
+        //            }
+        //        }
+        //        else
+        //        {
+        //            if (!string.IsNullOrWhiteSpace(LeaveStatus))
+        //            {
+        //                var es_entities = await _employeeLeaveRepository.GetByEmployeeIdnStatusAsync(EmployeeId, LeaveStatus, IsPlan);
+        //                if (es_entities != null && es_entities.Count > 0)
+        //                {
+        //                    LeaveList = es_entities;
+        //                }
+        //            }
+        //            else
+        //            {
+        //                var e_entities = await _employeeLeaveRepository.GetByEmployeeIdAsync(EmployeeId, IsPlan);
+        //                if (e_entities != null && e_entities.Count > 0)
+        //                {
+        //                    LeaveList = e_entities;
+        //                }
+        //            }
+        //        }
+        //    }
+        //    return LeaveList;
+        //}
+        //public async Task<List<EmployeeLeave>> SearchAllEmployeeLeavesAsync(int LeaveYear, int LeaveMonth, string EmployeeName = null, string LeaveStatus = null, bool IsPlan = true)
+        //{
+        //    List<EmployeeLeave> LeaveList = new List<EmployeeLeave>();
+        //    if (string.IsNullOrWhiteSpace(EmployeeName))
+        //    {
+        //        if (LeaveYear > 0)
+        //        {
+        //            if (LeaveMonth > 0)
+        //            {
+        //                if (!string.IsNullOrWhiteSpace(LeaveStatus))
+        //                {
+        //                    var tyms_entities = await _employeeLeaveRepository.GetByYearnMonthnStatusAsync(LeaveYear, LeaveMonth, LeaveStatus, IsPlan);
+        //                    if (tyms_entities != null && tyms_entities.Count > 0)
+        //                    {
+        //                        LeaveList = tyms_entities;
+        //                    }
+        //                }
+        //                else
+        //                {
+        //                    var tym_entities = await _employeeLeaveRepository.GetByYearnMonthAsync(LeaveYear, LeaveMonth, IsPlan);
+        //                    if (tym_entities != null && tym_entities.Count > 0)
+        //                    {
+        //                        LeaveList = tym_entities;
+        //                    }
+        //                }
+        //            }
+        //            else
+        //            {
+        //                if (!string.IsNullOrWhiteSpace(LeaveStatus))
+        //                {
+        //                    var tys_entities = await _employeeLeaveRepository.GetByYearnStatusAsync(LeaveYear, LeaveStatus, IsPlan);
+        //                    if (tys_entities != null && tys_entities.Count > 0)
+        //                    {
+        //                        LeaveList = tys_entities;
+        //                    }
+        //                }
+        //                else
+        //                {
+        //                    var ty_entities = await _employeeLeaveRepository.GetByYearAsync(LeaveYear, IsPlan);
+        //                    if (ty_entities != null && ty_entities.Count > 0)
+        //                    {
+        //                        LeaveList = ty_entities;
+        //                    }
+        //                }
+        //            }
+        //        }
+        //        else
+        //        {
+        //            if (!string.IsNullOrWhiteSpace(LeaveStatus))
+        //            {
+        //                var ts_entities = await _employeeLeaveRepository.GetByStatusAsync(LeaveStatus, IsPlan);
+        //                if (ts_entities != null && ts_entities.Count > 0)
+        //                {
+        //                    LeaveList = ts_entities;
+        //                }
+        //            }
+        //            else
+        //            {
+        //                var t_entities = await _employeeLeaveRepository.GetAllAsync(IsPlan);
+        //                if (t_entities != null && t_entities.Count > 0)
+        //                {
+        //                    LeaveList = t_entities;
+        //                }
+        //            }
+        //        }
+        //    }
+        //    else
+        //    {
+        //        if (LeaveYear > 0)
+        //        {
+        //            if (LeaveMonth > 0)
+        //            {
+        //                if (!string.IsNullOrWhiteSpace(LeaveStatus))
+        //                {
+        //                    var eyms_entities = await _employeeLeaveRepository.GetByEmployeeNamenYearnMonthnStatusAsync(EmployeeName, LeaveYear, LeaveMonth, LeaveStatus, IsPlan);
+        //                    if (eyms_entities != null && eyms_entities.Count > 0)
+        //                    {
+        //                        LeaveList = eyms_entities;
+        //                    }
+        //                }
+        //                else
+        //                {
+        //                    var eym_entities = await _employeeLeaveRepository.GetByEmployeeNamenYearnMonthAsync(EmployeeName, LeaveYear, LeaveMonth, IsPlan);
+        //                    if (eym_entities != null && eym_entities.Count > 0)
+        //                    {
+        //                        LeaveList = eym_entities;
+        //                    }
+        //                }
+        //            }
+        //            else
+        //            {
+        //                if (!string.IsNullOrWhiteSpace(LeaveStatus))
+        //                {
+        //                    var eyms_entities = await _employeeLeaveRepository.GetByEmployeeNamenYearnStatusAsync(EmployeeName, LeaveYear, LeaveStatus, IsPlan);
+        //                    if (eyms_entities != null && eyms_entities.Count > 0)
+        //                    {
+        //                        LeaveList = eyms_entities;
+        //                    }
+        //                }
+        //                else
+        //                {
+        //                    var eym_entities = await _employeeLeaveRepository.GetByEmployeeNamenYearAsync(EmployeeName, LeaveYear, IsPlan);
+        //                    if (eym_entities != null && eym_entities.Count > 0)
+        //                    {
+        //                        LeaveList = eym_entities;
+        //                    }
+        //                }
+        //            }
+        //        }
+        //        else
+        //        {
+        //            if (!string.IsNullOrWhiteSpace(LeaveStatus))
+        //            {
+        //                var es_entities = await _employeeLeaveRepository.GetByEmployeeNamenStatusAsync(EmployeeName, LeaveStatus, IsPlan);
+        //                if (es_entities != null && es_entities.Count > 0)
+        //                {
+        //                    LeaveList = es_entities;
+        //                }
+        //            }
+        //            else
+        //            {
+        //                var e_entities = await _employeeLeaveRepository.GetByEmployeeNameAsync(EmployeeName, IsPlan);
+        //                if (e_entities != null && e_entities.Count > 0)
+        //                {
+        //                    LeaveList = e_entities;
+        //                }
+        //            }
+        //        }
+        //    }
+        //    return LeaveList;
+        //}
+
+        #endregion
     }
 }

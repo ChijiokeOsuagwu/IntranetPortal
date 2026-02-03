@@ -9,10 +9,10 @@ namespace IntranetPortal.Areas.WSP.Models
 {
     public class SubmittedToMeViewModel:BaseViewModel
     {
-        public string EmployeeID { get; set; }
-        public string FromEmployeeName { get; set; }
-        public int SubmittedYear { get; set; }
-        public int SubmittedMonth { get; set; }
+        public string ei { get; set; }
+        public string sn { get; set; }
+        public int? yy { get; set; }
+        public int? mm { get; set; }
         public List<FolderSubmission> SubmissionList { get; set; }
     }
 }

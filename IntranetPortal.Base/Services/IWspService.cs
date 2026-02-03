@@ -29,6 +29,7 @@ namespace IntranetPortal.Base.Services
         Task<bool> UpdateWorkItemFolderLockStatusAsync(long FolderId, bool IsLocked, string LockedBy);
 
     #endregion
+
         #region Work Item Folder Read Service Methods
         Task<List<WorkItemFolder>> GetActiveWorkItemFoldersAsync(string OwnerId);
         Task<List<WorkItemFolder>> GetWorkItemFoldersByOwnerIdAsync(string OwnerId, bool? IsArchived = null);
@@ -46,11 +47,14 @@ namespace IntranetPortal.Base.Services
         Task<bool> AddWorkItemNoteAsync(WorkItemNote workItemNote);
         Task<List<WorkItemNote>> GetWorkItemFolderNotesAsync(long FolderId);
         Task<List<WorkItemNote>> GetTaskItemNotesAsync(long TaskId);
+        Task<List<WorkItemNote>> GetProjectNotesAsync(long ProjectId);
         #endregion
 
         #region Work Item Activities
         Task<List<WorkItemActivityLog>> GetWorkItemActivitiesByFolderIdAsync(long FolderId);
         Task<List<WorkItemActivityLog>> GetWorkItemActivitiesByTaskIdAsync(long TaskId);
+
+        Task<List<WorkItemActivityLog>> GetWorkItemActivitiesByProjectIdAsync(long ProjectId);
         #endregion
 
         #region Task Item Service Methods
@@ -59,6 +63,8 @@ namespace IntranetPortal.Base.Services
         Task<List<TaskItem>> GetTasksByFolderIdAsync(long FolderId);
         Task<TaskItem> GetTaskItemByIdAsync(long TaskId);
         Task<List<TaskItem>> GetTaskItemsWithSameKeyword(string TaskOwnerId, string Keyword, DateTime StartDate, DateTime EndDate);
+
+        Task<List<TaskItem>> GetTasksByProjectNumberAsync(string ProjectNumber);
         #endregion
 
         #region Pending Task Items Service Methods
@@ -88,6 +94,9 @@ namespace IntranetPortal.Base.Services
 
         #region Delegated Task Items Service Methods
         Task<List<DelegatedTaskItem>> SearchDelegatedTaskItemsAsync(string DelegatedByEmployeeId, string DelegatedToEmployeeId, int? ProgressStatusId = null, DateTime? FromDate = null, DateTime? ToDate = null);
+        Task<List<DelegatedTaskItem>> GetDelegatedTaskItemsByProjectNumberAsync(string ProjectNumber);
+
+
         Task<DelegatedTaskItem> GetDelegatedTaskItemAsync(long taskDelegationId);
         Task<bool> CreateDelegatedTaskItemAsync(DelegatedTaskItem delegatedTaskItem);
         Task<bool> ReDelegateTaskItemAsync(DelegatedTaskItem delegatedTaskItem, long oldDelegationId);
@@ -157,6 +166,22 @@ namespace IntranetPortal.Base.Services
 
         #region Work Item Return Reasons Service Interfaces
         Task<List<WorkItemReturnReason>> GetWorkItemReturnReasonsAsync();
+        #endregion
+
+        #region Projects Service Interfaces
+        Task<Project> GetProjectAsync(long ProjectId);
+        Task<Project> GetProjectAsync(string ProjectNumber);
+
+        #region Executive Management Projects Service Interfaces
+        Task<List<Project>> GetExecutiveManagementProjectsAsync(int? ProjectTypeId, int? ProgressStatusId = null);
+        Task<List<ProjectType>> GetExecutiveManagementProjectTypesAsync();
+        #endregion
+
+        #region Projects Write Service Interfaces
+        Task<long> CreateProjectAsync(Project project);
+        Task<bool> UpdateProjectAsync(Project project);
+        Task<bool> DeleteProjectAsync(long ProjectId);
+        #endregion
         #endregion
     }
 }

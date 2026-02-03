@@ -132,8 +132,8 @@ namespace IntranetPortal
                  pattern: "LMS/{controller=Home}/{action=Index}/{id?}");
 
                 endpoints.MapAreaControllerRoute(
-                    name:"LVM",
-                    areaName:"LVM",
+                    name: "LVM",
+                    areaName: "LVM",
                     pattern: "LVM/{controller=Home}/{action=Index}/{id?}");
 
                 endpoints.MapAreaControllerRoute(
@@ -155,6 +155,11 @@ namespace IntranetPortal
                     name: "GlobalSettings",
                 areaName: "GlobalSettings",
                  pattern: "GlobalSettings/{controller=Home}/{action=Index}/{id?}");
+
+                endpoints.MapAreaControllerRoute(
+                    name: "XMD",
+                areaName: "XMD",
+                 pattern: "XMD/{controller=Main}/{action=Index}/{id?}");
 
                 endpoints.MapControllerRoute(
                     name: "default",

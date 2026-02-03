@@ -28,14 +28,16 @@ namespace IntranetPortal.Base.Models.LeaveModels
         public DateTime? ProposedResumptionDate { get; set; }
         public int ProposedDurationInDays { get; set; }
         public int ProposedDuration { get; set; }
-        public string ProposedDurationType { get; set; }
+        public int ProposedDurationTypeId { get; set; }
+        public string ProposedDurationTypeDescription { get; set; }
         public string ProposedDurationDescription { get; set; }
         public DateTime? ApprovedStartDate { get; set; }
         public DateTime? ApprovedEndDate { get; set; }
         public DateTime? ApprovedResumptionDate { get; set; }
         public int ApprovedDurationInDays { get; set; }
         public int ApprovedDuration { get; set; }
-        public string ApprovedDurationType { get; set; }
+        public int ApprovedDurationTypeId { get; set; }
+        public string ApprovedDurationTypeDescription { get; set; }
         public string ApprovedDurationDescription { get; set; }
     }
 }

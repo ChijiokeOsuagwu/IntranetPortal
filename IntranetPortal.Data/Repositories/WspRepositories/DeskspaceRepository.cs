@@ -1162,8 +1162,9 @@ namespace IntranetPortal.Data.Repositories.WspRepositories
             sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = f.emp_id) as emp_nm, ");
             sb.Append("(SELECT COUNT(eval_hdr_id) FROM public.wsp_eval_hdr WHERE wki_fdr_id = f.wki_fdr_id) as no_of_eval ");
             sb.Append("FROM public.wsp_wki_fdr f ");
-            sb.Append("WHERE (emp_nm = @emp_name) AND (f.is_archived = @is_archived) ");
+            sb.Append("WHERE (f.is_archived = @is_archived) ");
             sb.Append("AND (f.dt_frm >= @dt_frm) AND (f.dt_to <= @dt_to) ");
+            sb.Append("AND f.emp_id IN (SELECT id FROM public.gst_prsns WHERE fullname = @emp_name) ");
             sb.Append("ORDER BY f.wki_fdr_id DESC;");
             string query = sb.ToString();
             using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
@@ -1229,7 +1230,8 @@ namespace IntranetPortal.Data.Repositories.WspRepositories
             sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = f.emp_id) as emp_nm, ");
             sb.Append("(SELECT COUNT(eval_hdr_id) FROM public.wsp_eval_hdr WHERE wki_fdr_id = f.wki_fdr_id) as no_of_eval ");
             sb.Append("FROM public.wsp_wki_fdr f ");
-            sb.Append("WHERE (emp_nm = @emp_name) AND (f.dt_frm >= @dt_frm) AND (f.dt_to <= @dt_to) ");
+            sb.Append("WHERE (f.dt_frm >= @dt_frm) AND (f.dt_to <= @dt_to) ");
+            sb.Append("AND f.emp_id IN (SELECT id FROM public.gst_prsns WHERE fullname = @emp_name) ");
             sb.Append("ORDER BY f.wki_fdr_id DESC;");
             string query = sb.ToString();
             using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
@@ -1275,7 +1277,6 @@ namespace IntranetPortal.Data.Repositories.WspRepositories
             }
             return folderList;
         }
-
 
         //========= Get By UnitId and Dates =================//
         public async Task<List<WorkItemFolder>> GetWorkItemFoldersByUnitIdnArchivednDatesAsync(int unitId, bool IsArchived, DateTime? startDate = null, DateTime? endDate = null)
@@ -3021,8 +3022,6 @@ namespace IntranetPortal.Data.Repositories.WspRepositories
             }
             return task;
         }
-
-
         public async Task<List<TaskItem>> GetTaskItemsByFolderIdAsync(long folderId)
         {
             List<TaskItem> taskList = new List<TaskItem>();
@@ -3426,6 +3425,129 @@ namespace IntranetPortal.Data.Repositories.WspRepositories
             }
             return taskList;
         }
+
+
+        public async Task<List<TaskItem>> GetTaskItemsByProjectNumberAsync(string projectNumber)
+        {
+            List<TaskItem> taskList = new List<TaskItem>();
+            StringBuilder sb = new StringBuilder();
+            sb.Append("SELECT t.tsk_itm_id, t.tsk_itm_no, t.tsk_itm_ds, t.tsk_itm_inf, t.wki_fdr_id, ");
+            sb.Append("t.mst_tsk_id, t.prj_no, t.prg_no, t.prg_dt, t.tsk_owner_id, t.assgnd_emp_id, ");
+            sb.Append("t.assigned_dt, t.tsk_itm_stg, t.prgs_stts, t.apprv_stts, t.approved_dt, ");
+            sb.Append("t.approved_by, t.exp_start_dt, t.act_start_dt, t.exp_due_dt, t.act_due_dt, ");
+            sb.Append("t.is_cancelled, t.cancelled_dt, t.cancelled_by, t.is_closed, t.closed_dt, ");
+            sb.Append("t.closed_by, t.unit_id, t.dept_id, t.loc_id, t.completion_is_confirmed, ");
+            sb.Append("t.completion_confirmed_by, t.completion_confirmed_on, t.is_carried_over, ");
+            sb.Append("t.mod_by, t.crt_by, t.assgnmt_id, t.is_lckd, t.crt_dt, t.mod_dt, ");
+            sb.Append("CASE t.tsk_itm_stg WHEN 0 THEN 'Not Yet Approved' ");
+            sb.Append("WHEN 1 THEN 'Submitted for Approval' ");
+            sb.Append("WHEN 2 THEN 'Approved for Execution' ");
+            sb.Append("WHEN 3 THEN 'Submitted For Evaluation' ");
+            sb.Append("WHEN 4 THEN 'Evaluation Completed' ");
+            sb.Append("WHEN 5 THEN 'Cancelled' END AS itm_stg_nm, ");
+
+            sb.Append("CASE t.prgs_stts WHEN 0 THEN 'Not Yet Started' ");
+            sb.Append("WHEN 1 THEN 'In Progress' ");
+            sb.Append("WHEN 2 THEN 'Completed' ");
+            sb.Append("WHEN 3 THEN 'On Hold' END AS prgs_stts_ds, ");
+
+            sb.Append("CASE t.apprv_stts WHEN 0 THEN 'Pending' ");
+            sb.Append("WHEN 1 THEN 'Approved' ");
+            sb.Append("WHEN 2 THEN 'Declined' END AS apprv_stts_ds, ");
+
+            sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = t.tsk_owner_id) as owner_nm, ");
+            sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = t.assgnd_emp_id) as assgnd_to_nm, ");
+            sb.Append("(SELECT unitname FROM public.gst_units WHERE unitqk = t.unit_id) as unit_nm, ");
+            sb.Append("(SELECT deptname FROM public.gst_depts WHERE deptqk = t.dept_id) as dept_nm, ");
+            sb.Append("(SELECT locname FROM public.gst_locs WHERE locqk = t.loc_id) as loc_nm, ");
+            sb.Append("(SELECT wki_fdr_nm FROM public.wsp_wki_fdr WHERE wki_fdr_id = t.wki_fdr_id) as wki_fdr_nm ");
+            sb.Append("FROM public.wsp_tsk_itms t ");
+            sb.Append("WHERE (t.prj_no=@prj_no) ");
+            sb.Append("ORDER BY t.tsk_itm_id;");
+            string query = sb.ToString();
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
+            {
+                await conn.OpenAsync();
+                // Retrieve all rows
+                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+                {
+                    var prj_no = cmd.Parameters.Add("@prj_no", NpgsqlDbType.Text);
+                    await cmd.PrepareAsync();
+                    prj_no.Value = projectNumber;
+                    using (var reader = await cmd.ExecuteReaderAsync())
+                        while (await reader.ReadAsync())
+                        {
+                            taskList.Add(new TaskItem
+                            {
+                                Id = reader["tsk_itm_id"] == DBNull.Value ? 0 : (long)reader["tsk_itm_id"],
+                                Number = reader["tsk_itm_no"] == DBNull.Value ? "" : reader["tsk_itm_no"].ToString(),
+                                Description = reader["tsk_itm_ds"] == DBNull.Value ? "" : reader["tsk_itm_ds"].ToString(),
+                                MoreInformation = reader["tsk_itm_inf"] == DBNull.Value ? "" : reader["tsk_itm_inf"].ToString(),
+                                WorkFolderId = reader["wki_fdr_id"] == DBNull.Value ? 0 : (long)reader["wki_fdr_id"],
+                                WorkFolderName = reader["wki_fdr_nm"] == DBNull.Value ? "" : reader["wki_fdr_nm"].ToString(),
+                                MasterTaskId = reader["mst_tsk_id"] == DBNull.Value ? 0 : (long)reader["mst_tsk_id"],
+                                LinkProjectNumber = reader["prj_no"] == DBNull.Value ? "" : reader["prj_no"].ToString(),
+                                LinkProgramCode = reader["prg_no"] == DBNull.Value ? "" : reader["prg_no"].ToString(),
+                                LinkProgramDate = reader["prg_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["prg_dt"],
+                                TaskOwnerId = reader["tsk_owner_id"] == DBNull.Value ? "" : reader["tsk_owner_id"].ToString(),
+                                TaskOwnerName = reader["owner_nm"] == DBNull.Value ? string.Empty : reader["owner_nm"].ToString(),
+                                AssignedByEmployeeId = reader["assgnd_emp_id"] == DBNull.Value ? "" : reader["assgnd_emp_id"].ToString(),
+                                AssignedByEmployeeName = reader["assgnd_to_nm"] == DBNull.Value ? string.Empty : reader["assgnd_to_nm"].ToString(),
+                                AssignedTime = reader["assigned_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["assigned_dt"],
+                                StageId = reader["tsk_itm_stg"] == DBNull.Value ? 0 : (int)reader["tsk_itm_stg"],
+                                StageDescription = reader["itm_stg_nm"] == DBNull.Value ? string.Empty : reader["itm_stg_nm"].ToString(),
+                                Stage = reader["tsk_itm_stg"] == DBNull.Value ? TaskItemStage.NotYetApproved : (TaskItemStage)reader["tsk_itm_stg"],
+
+                                ProgressStatusId = reader["prgs_stts"] == DBNull.Value ? 0 : (int)reader["prgs_stts"],
+                                ProgressStatus = reader["prgs_stts"] == DBNull.Value ? 0 : (WorkItemProgressStatus)reader["prgs_stts"],
+                                ProgressStatusDescription = reader["prgs_stts_ds"] == DBNull.Value ? string.Empty : reader["prgs_stts_ds"].ToString(),
+
+                                ApprovalStatusId = reader["apprv_stts"] == DBNull.Value ? 0 : (int)reader["apprv_stts"],
+                                ApprovalStatus = reader["apprv_stts"] == DBNull.Value ? ApprovalStatus.Pending : (ApprovalStatus)reader["apprv_stts"],
+                                ApprovalStatusDescription = reader["apprv_stts_ds"] == DBNull.Value ? string.Empty : reader["apprv_stts_ds"].ToString(),
+
+                                ApprovedTime = reader["approved_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["approved_dt"],
+                                ApprovedBy = reader["approved_by"] == DBNull.Value ? string.Empty : reader["approved_by"].ToString(),
+                                ExpectedStartTime = reader["exp_start_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["exp_start_dt"],
+                                ActualStartTime = reader["act_start_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["act_start_dt"],
+                                ExpectedDueTime = reader["exp_due_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["exp_due_dt"],
+                                ActualDueTime = reader["act_due_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["act_due_dt"],
+
+                                IsCancelled = reader["is_cancelled"] == DBNull.Value ? false : (bool)reader["is_cancelled"],
+                                CancelledBy = reader["cancelled_by"] == DBNull.Value ? "" : reader["cancelled_by"].ToString(),
+                                CancelledTime = reader["cancelled_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["cancelled_dt"],
+
+                                IsClosed = reader["is_closed"] == DBNull.Value ? false : (bool)reader["is_closed"],
+                                ClosedBy = reader["closed_by"] == DBNull.Value ? "" : reader["closed_by"].ToString(),
+                                ClosedTime = reader["closed_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["closed_dt"],
+
+                                UnitId = reader["unit_id"] == DBNull.Value ? 0 : (int)reader["unit_id"],
+                                UnitName = reader["unit_nm"] == DBNull.Value ? "" : reader["unit_nm"].ToString(),
+                                DepartmentId = reader["dept_id"] == DBNull.Value ? 0 : (int)reader["dept_id"],
+                                DepartmentName = reader["dept_nm"] == DBNull.Value ? "" : reader["dept_nm"].ToString(),
+                                LocationId = reader["loc_id"] == DBNull.Value ? 0 : (int)reader["loc_id"],
+                                LocationName = reader["loc_nm"] == DBNull.Value ? "" : reader["loc_nm"].ToString(),
+
+                                CompletionConfirmed = reader["completion_is_confirmed"] == DBNull.Value ? false : (bool)reader["completion_is_confirmed"],
+                                CompletionConfirmedBy = reader["completion_confirmed_by"] == DBNull.Value ? "" : reader["completion_confirmed_by"].ToString(),
+                                CompletionConfirmedTime = reader["completion_confirmed_on"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["completion_confirmed_on"],
+                                IsCarriedOver = reader["is_carried_over"] == DBNull.Value ? false : (bool)reader["is_carried_over"],
+
+                                CreatedTime = reader["crt_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["crt_dt"],
+                                CreatedBy = reader["crt_by"] == DBNull.Value ? string.Empty : reader["crt_by"].ToString(),
+                                LastModifiedTime = reader["mod_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["mod_dt"],
+                                LastModifiedBy = reader["mod_by"] == DBNull.Value ? string.Empty : reader["mod_by"].ToString(),
+
+                                IsLocked = reader["is_lckd"] == DBNull.Value ? false : (bool)reader["is_lckd"],
+                                AssignmentId = reader["assgnmt_id"] == DBNull.Value ? 0L : (long)reader["assgnmt_id"],
+                            });
+                        }
+                }
+                await conn.CloseAsync();
+            }
+            return taskList;
+        }
+
 
         //========= Pending Task Items ==================//
         public async Task<List<TaskItem>> GetTaskItemsPendingByOwnerIdAsync(string ownerId)
@@ -4450,6 +4572,145 @@ namespace IntranetPortal.Data.Repositories.WspRepositories
             return delegatedTaskList[0];
         }
 
+        public async Task<List<DelegatedTaskItem>> GetDelegatedTaskItemsByProjectNumberAsync(string linkProjectNumber)
+        {
+            List<DelegatedTaskItem> delegatedTaskList = new List<DelegatedTaskItem>();
+            StringBuilder sb = new StringBuilder();
+            sb.Append("SELECT t.tsk_itm_id, t.tsk_itm_no, t.tsk_itm_ds, t.tsk_itm_inf, t.wki_fdr_id, ");
+            sb.Append("t.mst_tsk_id, t.prj_no, t.prg_no, t.prg_dt, t.tsk_owner_id, t.assgnd_emp_id, ");
+            sb.Append("t.assigned_dt, t.tsk_itm_stg, t.prgs_stts, t.apprv_stts, t.approved_dt, ");
+            sb.Append("t.approved_by, t.exp_start_dt, t.act_start_dt, t.exp_due_dt, t.act_due_dt, ");
+            sb.Append("t.is_cancelled, t.cancelled_dt, t.cancelled_by, t.is_closed, t.closed_dt, ");
+            sb.Append("t.closed_by, t.unit_id, t.dept_id, t.loc_id, t.completion_is_confirmed, ");
+            sb.Append("t.completion_confirmed_by, t.completion_confirmed_on, t.is_carried_over, ");
+            sb.Append("t.mod_by, t.crt_by, t.assgnmt_id, t.is_lckd, t.crt_dt, t.mod_dt, ");
+            sb.Append("d.tsk_delg_id, d.frm_emp_id, d.to_emp_id, d.tsk_delg_dt, ");
+            sb.Append("d.is_re_assgn, d.dt_re_assgn, ");
+            sb.Append("CASE t.tsk_itm_stg WHEN 0 THEN 'Not Yet Approved' ");
+            sb.Append("WHEN 1 THEN 'Submitted for Approval' ");
+            sb.Append("WHEN 2 THEN 'Approved for Execution' ");
+            sb.Append("WHEN 3 THEN 'Submitted For Evaluation' ");
+            sb.Append("WHEN 4 THEN 'Evaluation Completed' ");
+            sb.Append("WHEN 5 THEN 'Cancelled' END AS itm_stg_nm, ");
+
+            sb.Append("CASE t.prgs_stts WHEN 0 THEN 'Not Yet Started' ");
+            sb.Append("WHEN 1 THEN 'In Progress' ");
+            sb.Append("WHEN 2 THEN 'Completed' ");
+            sb.Append("WHEN 3 THEN 'On Hold' END AS prgs_stts_ds, ");
+
+            sb.Append("CASE t.apprv_stts WHEN 0 THEN 'Pending' ");
+            sb.Append("WHEN 1 THEN 'Approved' ");
+            sb.Append("WHEN 2 THEN 'Declined' END AS apprv_stts_ds, ");
+
+            sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = t.tsk_owner_id) as owner_nm, ");
+            sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = t.assgnd_emp_id) as assgnd_to_nm, ");
+            sb.Append("(SELECT unitname FROM public.gst_units WHERE unitqk = t.unit_id) as unit_nm, ");
+            sb.Append("(SELECT deptname FROM public.gst_depts WHERE deptqk = t.dept_id) as dept_nm, ");
+            sb.Append("(SELECT locname FROM public.gst_locs WHERE locqk = t.loc_id) as loc_nm, ");
+            sb.Append("(SELECT wki_fdr_nm FROM public.wsp_wki_fdr WHERE wki_fdr_id = t.wki_fdr_id) as wki_fdr_nm, ");
+
+            sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = d.frm_emp_id) as frm_emp_nm, ");
+            sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = d.to_emp_id) as to_emp_nm ");
+
+            sb.Append("FROM public.wsp_tsk_itms t ");
+            sb.Append("INNER JOIN public.wsp_tsk_delg d ON t.tsk_itm_id = d.tsk_itm_id ");
+            sb.Append("WHERE (t.prj_no = @prj_no) AND (d.is_re_assgn = false) ");
+            sb.Append("ORDER BY t.tsk_itm_id DESC; ");
+            string query = sb.ToString();
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
+            {
+                await conn.OpenAsync();
+                // Retrieve all rows
+                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+                {
+                    var prj_no = cmd.Parameters.Add("@prj_no", NpgsqlDbType.Text);
+                    await cmd.PrepareAsync();
+                    prj_no.Value = linkProjectNumber;
+                    using (var reader = await cmd.ExecuteReaderAsync())
+                        while (await reader.ReadAsync())
+                        {
+                            delegatedTaskList.Add(new DelegatedTaskItem
+                            {
+                                Id = reader["tsk_itm_id"] == DBNull.Value ? 0 : (long)reader["tsk_itm_id"],
+                                Number = reader["tsk_itm_no"] == DBNull.Value ? "" : reader["tsk_itm_no"].ToString(),
+                                Description = reader["tsk_itm_ds"] == DBNull.Value ? "" : reader["tsk_itm_ds"].ToString(),
+                                MoreInformation = reader["tsk_itm_inf"] == DBNull.Value ? "" : reader["tsk_itm_inf"].ToString(),
+                                WorkFolderId = reader["wki_fdr_id"] == DBNull.Value ? 0 : (long)reader["wki_fdr_id"],
+                                WorkFolderName = reader["wki_fdr_nm"] == DBNull.Value ? "" : reader["wki_fdr_nm"].ToString(),
+                                MasterTaskId = reader["mst_tsk_id"] == DBNull.Value ? 0 : (long)reader["mst_tsk_id"],
+                                LinkProjectNumber = reader["prj_no"] == DBNull.Value ? "" : reader["prj_no"].ToString(),
+                                LinkProgramCode = reader["prg_no"] == DBNull.Value ? "" : reader["prg_no"].ToString(),
+                                LinkProgramDate = reader["prg_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["prg_dt"],
+                                TaskOwnerId = reader["tsk_owner_id"] == DBNull.Value ? "" : reader["tsk_owner_id"].ToString(),
+                                TaskOwnerName = reader["owner_nm"] == DBNull.Value ? string.Empty : reader["owner_nm"].ToString(),
+                                AssignedToId = reader["assgnd_emp_id"] == DBNull.Value ? "" : reader["assgnd_emp_id"].ToString(),
+                                AssignedToName = reader["assgnd_to_nm"] == DBNull.Value ? string.Empty : reader["assgnd_to_nm"].ToString(),
+                                AssignedTime = reader["assigned_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["assigned_dt"],
+                                StageId = reader["tsk_itm_stg"] == DBNull.Value ? 0 : (int)reader["tsk_itm_stg"],
+                                StageDescription = reader["itm_stg_nm"] == DBNull.Value ? string.Empty : reader["itm_stg_nm"].ToString(),
+                                Stage = reader["tsk_itm_stg"] == DBNull.Value ? TaskItemStage.NotYetApproved : (TaskItemStage)reader["tsk_itm_stg"],
+
+                                ProgressStatusId = reader["prgs_stts"] == DBNull.Value ? 0 : (int)reader["prgs_stts"],
+                                ProgressStatus = reader["prgs_stts"] == DBNull.Value ? 0 : (WorkItemProgressStatus)reader["prgs_stts"],
+                                ProgressStatusDescription = reader["prgs_stts_ds"] == DBNull.Value ? string.Empty : reader["prgs_stts_ds"].ToString(),
+
+                                ApprovalStatusId = reader["apprv_stts"] == DBNull.Value ? 0 : (int)reader["apprv_stts"],
+                                ApprovalStatus = reader["apprv_stts"] == DBNull.Value ? ApprovalStatus.Pending : (ApprovalStatus)reader["apprv_stts"],
+                                ApprovalStatusDescription = reader["apprv_stts_ds"] == DBNull.Value ? string.Empty : reader["apprv_stts_ds"].ToString(),
+
+                                ApprovedTime = reader["approved_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["approved_dt"],
+                                ApprovedBy = reader["approved_by"] == DBNull.Value ? string.Empty : reader["approved_by"].ToString(),
+                                ExpectedStartTime = reader["exp_start_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["exp_start_dt"],
+                                ActualStartTime = reader["act_start_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["act_start_dt"],
+                                ExpectedDueTime = reader["exp_due_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["exp_due_dt"],
+                                ActualDueTime = reader["act_due_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["act_due_dt"],
+
+                                IsCancelled = reader["is_cancelled"] == DBNull.Value ? false : (bool)reader["is_cancelled"],
+                                CancelledBy = reader["cancelled_by"] == DBNull.Value ? "" : reader["cancelled_by"].ToString(),
+                                CancelledTime = reader["cancelled_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["cancelled_dt"],
+
+                                IsClosed = reader["is_closed"] == DBNull.Value ? false : (bool)reader["is_closed"],
+                                ClosedBy = reader["closed_by"] == DBNull.Value ? "" : reader["closed_by"].ToString(),
+                                ClosedTime = reader["closed_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["closed_dt"],
+
+                                UnitId = reader["unit_id"] == DBNull.Value ? 0 : (int)reader["unit_id"],
+                                UnitName = reader["unit_nm"] == DBNull.Value ? "" : reader["unit_nm"].ToString(),
+                                DepartmentId = reader["dept_id"] == DBNull.Value ? 0 : (int)reader["dept_id"],
+                                DepartmentName = reader["dept_nm"] == DBNull.Value ? "" : reader["dept_nm"].ToString(),
+                                LocationId = reader["loc_id"] == DBNull.Value ? 0 : (int)reader["loc_id"],
+                                LocationName = reader["loc_nm"] == DBNull.Value ? "" : reader["loc_nm"].ToString(),
+
+                                CompletionConfirmed = reader["completion_is_confirmed"] == DBNull.Value ? false : (bool)reader["completion_is_confirmed"],
+                                CompletionConfirmedBy = reader["completion_confirmed_by"] == DBNull.Value ? "" : reader["completion_confirmed_by"].ToString(),
+                                CompletionConfirmedTime = reader["completion_confirmed_on"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["completion_confirmed_on"],
+                                IsCarriedOver = reader["is_carried_over"] == DBNull.Value ? false : (bool)reader["is_carried_over"],
+
+                                CreatedTime = reader["crt_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["crt_dt"],
+                                CreatedBy = reader["crt_by"] == DBNull.Value ? string.Empty : reader["crt_by"].ToString(),
+                                LastModifiedTime = reader["mod_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["mod_dt"],
+                                LastModifiedBy = reader["mod_by"] == DBNull.Value ? string.Empty : reader["mod_by"].ToString(),
+
+                                IsLocked = reader["is_lckd"] == DBNull.Value ? false : (bool)reader["is_lckd"],
+                                AssignmentId = reader["assgnmt_id"] == DBNull.Value ? 0 : (int)reader["assgnmt_id"],
+
+                                TaskDelegationId = reader["tsk_delg_id"] == DBNull.Value ? 0 : (long)reader["tsk_delg_id"],
+                                DelegatedByEmployeeId = reader["frm_emp_id"] == DBNull.Value ? string.Empty : reader["frm_emp_id"].ToString(),
+                                DelegatedByEmployeeName = reader["frm_emp_nm"] == DBNull.Value ? string.Empty : reader["frm_emp_nm"].ToString(),
+                                DelegatedToEmployeeId = reader["to_emp_id"] == DBNull.Value ? string.Empty : reader["to_emp_id"].ToString(),
+                                DelegatedToEmployeeName = reader["to_emp_nm"] == DBNull.Value ? string.Empty : reader["to_emp_nm"].ToString(),
+                                IsReAssigned = reader["is_re_assgn"] == DBNull.Value ? false : (bool)reader["is_re_assgn"],
+                                ReassignedTime = reader["dt_re_assgn"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["dt_re_assgn"],
+                                DelegatedTime = reader["tsk_delg_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["tsk_delg_dt"],
+
+                            });
+                        }
+                }
+                await conn.CloseAsync();
+            }
+            return delegatedTaskList;
+        }
+
+
         //===================== Get By Delegated By Employee ============================//
         public async Task<List<DelegatedTaskItem>> GetDelegatedTaskItemsByDelegatedByEmployeeIdAsync(string delegatedByEmployeeId)
         {
@@ -4494,7 +4755,7 @@ namespace IntranetPortal.Data.Repositories.WspRepositories
             sb.Append("FROM public.wsp_tsk_itms t ");
             sb.Append("INNER JOIN public.wsp_tsk_delg d ON t.tsk_itm_id = d.tsk_itm_id ");
             sb.Append("WHERE (d.frm_emp_id=@frm_emp_id) AND (d.is_re_assgn = false) ");
-            sb.Append("ORDER BY d.tsk_delg_id DESC;");
+            sb.Append("ORDER BY t.tsk_itm_id DESC;");
             string query = sb.ToString();
             using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
             {
@@ -4632,7 +4893,7 @@ namespace IntranetPortal.Data.Repositories.WspRepositories
             sb.Append("INNER JOIN public.wsp_tsk_delg d ON t.tsk_itm_id = d.tsk_itm_id ");
             sb.Append("WHERE (d.frm_emp_id=@frm_emp_id) AND (t.prgs_stts=@prgs_stts) ");
             sb.Append("AND (d.is_re_assgn = false) ");
-            sb.Append("ORDER BY d.tsk_delg_id DESC;");
+            sb.Append("ORDER BY t.tsk_itm_id DESC;");
             string query = sb.ToString();
             using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
             {
@@ -4775,7 +5036,7 @@ namespace IntranetPortal.Data.Repositories.WspRepositories
             sb.Append("WHERE (d.frm_emp_id=@frm_emp_id) AND (t.prgs_stts=@prgs_stts) ");
             sb.Append("AND (d.tsk_delg_dt >= @dt_frm::timestamp AND d.tsk_delg_dt <= @dt_to::timestamp) ");
             sb.Append("AND (d.is_re_assgn = false) ");
-            sb.Append("ORDER BY d.tsk_delg_id DESC;");
+            sb.Append("ORDER BY t.tsk_itm_id DESC;");
             string query = sb.ToString();
             using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
             {
@@ -4921,7 +5182,7 @@ namespace IntranetPortal.Data.Repositories.WspRepositories
             sb.Append("INNER JOIN public.wsp_tsk_delg d ON t.tsk_itm_id = d.tsk_itm_id ");
             sb.Append("WHERE (d.frm_emp_id=@frm_emp_id) AND (d.is_re_assgn = false) ");
             sb.Append("AND (d.tsk_delg_dt >= @dt_frm::timestamp AND d.tsk_delg_dt <= @dt_to::timestamp) ");
-            sb.Append("ORDER BY d.tsk_delg_id DESC;");
+            sb.Append("ORDER BY t.tsk_itm_id DESC;");
             string query = sb.ToString();
             using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
             {
@@ -5065,7 +5326,7 @@ namespace IntranetPortal.Data.Repositories.WspRepositories
             sb.Append("INNER JOIN public.wsp_tsk_delg d ON t.tsk_itm_id = d.tsk_itm_id ");
             sb.Append("WHERE (d.frm_emp_id=@frm_emp_id) AND (d.to_emp_id=@to_emp_id) ");
             sb.Append("AND (d.is_re_assgn = false) ");
-            sb.Append("ORDER BY d.tsk_delg_id DESC;");
+            sb.Append("ORDER BY t.tsk_itm_id DESC;");
             string query = sb.ToString();
             using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
             {
@@ -5205,7 +5466,7 @@ namespace IntranetPortal.Data.Repositories.WspRepositories
             sb.Append("INNER JOIN public.wsp_tsk_delg d ON t.tsk_itm_id = d.tsk_itm_id ");
             sb.Append("WHERE (d.frm_emp_id=@frm_emp_id) AND (d.to_emp_id=@to_emp_id) ");
             sb.Append("AND (t.prgs_stts=@prgs_stts) AND (d.is_re_assgn = false) ");
-            sb.Append("ORDER BY d.tsk_delg_id DESC;");
+            sb.Append("ORDER BY t.tsk_itm_id DESC;");
             string query = sb.ToString();
             using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
             {
@@ -5351,7 +5612,7 @@ namespace IntranetPortal.Data.Repositories.WspRepositories
             sb.Append("WHERE (d.frm_emp_id=@frm_emp_id)  AND (d.to_emp_id=@to_emp_id) ");
             sb.Append("AND (d.tsk_delg_dt >= @dt_frm::timestamp AND d.tsk_delg_dt <= @dt_to::timestamp) ");
             sb.Append("AND (t.prgs_stts=@prgs_stts) AND (d.is_re_assgn = false) ");
-            sb.Append("ORDER BY d.tsk_delg_id DESC;");
+            sb.Append("ORDER BY t.tsk_itm_id DESC;");
             string query = sb.ToString();
             using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
             {
@@ -5500,7 +5761,7 @@ namespace IntranetPortal.Data.Repositories.WspRepositories
             sb.Append("WHERE (d.frm_emp_id=@frm_emp_id)  AND (d.to_emp_id=@to_emp_id) ");
             sb.Append("AND (d.tsk_delg_dt >= @dt_frm::timestamp AND d.tsk_delg_dt <= @dt_to::timestamp) ");
             sb.Append("AND (d.is_re_assgn = false) ");
-            sb.Append("ORDER BY d.tsk_delg_id DESC;");
+            sb.Append("ORDER BY t.tsk_itm_id DESC;");
             string query = sb.ToString();
             using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
             {
@@ -6190,7 +6451,7 @@ namespace IntranetPortal.Data.Repositories.WspRepositories
             sb.Append("(SELECT unit_id FROM public.erm_emp_inf WHERE emp_id = s.frm_emp_id)) as unitname ");
             sb.Append("FROM public.wsp_fdr_sbms s ");
             sb.Append("WHERE LOWER(s.to_emp_id) = LOWER(@to_emp_id) ");
-            sb.Append("AND LOWER(frm_emp_nm) = LOWER(@frm_emp_nm) ");
+            sb.Append("AND (s.frm_emp_id IN (SELECT id FROM public.gst_prsns WHERE fullname = @frm_emp_nm)) ");
             sb.Append("ORDER BY s.fdr_sbm_id DESC; ");
             string query = sb.ToString();
             using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
@@ -6246,8 +6507,8 @@ namespace IntranetPortal.Data.Repositories.WspRepositories
             sb.Append("(SELECT unit_id FROM public.erm_emp_inf WHERE emp_id = s.frm_emp_id)) as unitname ");
             sb.Append("FROM public.wsp_fdr_sbms s ");
             sb.Append("WHERE LOWER(s.to_emp_id) = LOWER(@to_emp_id) ");
-            sb.Append("AND date_part('year', s.sbm_dt) = @dt_yr ");
-            sb.Append("AND LOWER(frm_emp_nm) = LOWER(@frm_emp_nm) ");
+            sb.Append("AND (date_part('year', s.sbm_dt) = @dt_yr) ");
+            sb.Append("AND (s.frm_emp_id IN (SELECT id FROM public.gst_prsns WHERE fullname = @frm_emp_nm)) ");
             sb.Append("ORDER BY s.fdr_sbm_id DESC; ");
             string query = sb.ToString();
             using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
@@ -6307,7 +6568,7 @@ namespace IntranetPortal.Data.Repositories.WspRepositories
             sb.Append("WHERE LOWER(s.to_emp_id) = LOWER(@to_emp_id) ");
             sb.Append("AND date_part('year', s.sbm_dt) = @dt_yr ");
             sb.Append("AND date_part('month', s.sbm_dt) = @dt_mm ");
-            sb.Append("AND LOWER(frm_emp_nm) = LOWER(@frm_emp_nm) ");
+            sb.Append("AND (s.frm_emp_id IN (SELECT id FROM public.gst_prsns WHERE fullname = @frm_emp_nm)) ");
             sb.Append("ORDER BY s.fdr_sbm_id DESC; ");
             string query = sb.ToString();
             using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
@@ -9645,5 +9906,636 @@ namespace IntranetPortal.Data.Repositories.WspRepositories
         #endregion
 
         #endregion
+
+        #region Projects Repository
+
+        #region Project Write Action Methods
+        public async Task<long> AddProjectAsync(Project project)
+        {
+            long inserted_record_id = 0;
+            StringBuilder sb = new StringBuilder();
+            sb.Append("INSERT INTO public.wsp_prj_inf(prj_cd, prj_ttl, ");
+            sb.Append("prj_dtl, prj_owner_id, prg_stts, exp_start_dt, ");
+            sb.Append("exp_due_dt, drw_id, unit_id, dept_id, loc_id, ");
+            sb.Append("typ_id, mstr_prj_id, is_xmp) VALUES (@prj_cd, @prj_ttl, ");
+            sb.Append("@prj_dtl, @prj_owner_id, @prg_stts, @exp_start_dt, ");
+            sb.Append("@exp_due_dt, @drw_id, @unit_id, @dept_id, @loc_id, ");
+            sb.Append("@typ_id, @mstr_prj_id, @is_xmp) RETURNING prj_id; ");
+            string query = sb.ToString();
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
+            {
+                await conn.OpenAsync();
+                using (var cmd = new NpgsqlCommand(query, conn))
+                {
+                    var prj_cd = cmd.Parameters.Add("@prj_cd", NpgsqlDbType.Text);
+                    var prj_ttl = cmd.Parameters.Add("@prj_ttl", NpgsqlDbType.Text);
+                    var prj_dtl = cmd.Parameters.Add("@prj_dtl", NpgsqlDbType.Text);
+                    var prj_owner_id = cmd.Parameters.Add("@prj_owner_id", NpgsqlDbType.Text);
+                    var prg_stts = cmd.Parameters.Add("@prg_stts", NpgsqlDbType.Integer);
+                    var exp_start_dt = cmd.Parameters.Add("@exp_start_dt", NpgsqlDbType.Timestamp);
+                    var exp_due_dt = cmd.Parameters.Add("@exp_due_dt", NpgsqlDbType.Timestamp);
+                    var drw_id = cmd.Parameters.Add("@drw_id", NpgsqlDbType.Integer);
+                    var unit_id = cmd.Parameters.Add("@unit_id", NpgsqlDbType.Integer);
+                    var dept_id = cmd.Parameters.Add("@dept_id", NpgsqlDbType.Integer);
+                    var loc_id = cmd.Parameters.Add("@loc_id", NpgsqlDbType.Integer);
+                    var typ_id = cmd.Parameters.Add("@typ_id", NpgsqlDbType.Integer);
+                    var mstr_prj_id = cmd.Parameters.Add("@mstr_prj_id", NpgsqlDbType.Bigint);
+                    var is_xmp = cmd.Parameters.Add("@is_xmp", NpgsqlDbType.Boolean);
+                    cmd.Prepare();
+                    prj_cd.Value = project.ProjectCode;
+                    prj_ttl.Value = project.ProjectTitle;
+                    prj_dtl.Value = project.ProjectDetails ?? (object)DBNull.Value;
+                    prj_owner_id.Value = project.ProjectOwnerId;
+                    prg_stts.Value = project.ProgressStatusId;
+                    exp_start_dt.Value = project.ExpectedStartTime ?? (object)DBNull.Value;
+                    exp_due_dt.Value = project.ExpectedEndTime ?? (object)DBNull.Value;
+                    drw_id.Value = project.ProjectDrawerId ?? (object)DBNull.Value;
+                    unit_id.Value = project.UnitId;
+                    dept_id.Value = project.DepartmentId;
+                    loc_id.Value = project.LocationId;
+                    typ_id.Value = project.ProjectTypeId;
+                    mstr_prj_id.Value = project.MasterProjectId ?? (object)DBNull.Value;
+                    is_xmp.Value = project.IsExecutiveManagementProject;
+                    var obj = await cmd.ExecuteScalarAsync();
+                    inserted_record_id = (long)obj;
+                }
+                await conn.CloseAsync();
+            }
+            return inserted_record_id;
+        }
+        public async Task<bool> UpdateProjectAsync(Project project)
+        {
+            int rows = 0;
+            StringBuilder sb = new StringBuilder();
+            sb.Append("UPDATE public.wsp_prj_inf SET prj_ttl=@prj_ttl, ");
+            sb.Append("prj_dtl=@prj_dtl, prg_stts=@prg_stts, exp_start_dt=@exp_start_dt, ");
+            sb.Append("exp_due_dt=@exp_due_dt, typ_id=@typ_id,  ");
+            sb.Append("act_start_dt=@act_start_dt, act_due_dt=@act_due_dt ");
+            sb.Append("WHERE (prj_id=@prj_id); ");
+            string query = sb.ToString();
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
+            {
+                await conn.OpenAsync();
+                //Insert data
+                using (var cmd = new NpgsqlCommand(query, conn))
+                {
+                    var prj_ttl = cmd.Parameters.Add("@prj_ttl", NpgsqlDbType.Text);
+                    var prj_dtl = cmd.Parameters.Add("@prj_dtl", NpgsqlDbType.Text);
+                    var prg_stts = cmd.Parameters.Add("@prg_stts", NpgsqlDbType.Integer);
+                    var exp_start_dt = cmd.Parameters.Add("@exp_start_dt", NpgsqlDbType.Timestamp);
+                    var exp_due_dt = cmd.Parameters.Add("@exp_due_dt", NpgsqlDbType.Timestamp);
+                    var act_start_dt = cmd.Parameters.Add("@act_start_dt", NpgsqlDbType.Timestamp);
+                    var act_due_dt = cmd.Parameters.Add("@act_due_dt", NpgsqlDbType.Timestamp);
+                    var typ_id = cmd.Parameters.Add("@typ_id", NpgsqlDbType.Integer);
+                    var prj_id = cmd.Parameters.Add("@prj_id", NpgsqlDbType.Bigint);
+                    cmd.Prepare();
+                    prj_ttl.Value = project.ProjectTitle;
+                    prj_dtl.Value = project.ProjectDetails ?? (object)DBNull.Value;
+                    prg_stts.Value = project.ProgressStatusId;
+                    exp_start_dt.Value = project.ExpectedStartTime ?? (object)DBNull.Value;
+                    exp_due_dt.Value = project.ActualEndTime ?? (object)DBNull.Value;
+                    act_start_dt.Value = project.ActualStartTime ?? (object)DBNull.Value;
+                    act_due_dt.Value = project.ActualEndTime ?? (object)DBNull.Value;
+                    typ_id.Value = project.ProjectTypeId;
+                    prj_id.Value = project.ProjectId;
+                    rows = await cmd.ExecuteNonQueryAsync();
+                }
+                await conn.CloseAsync();
+            }
+            return rows > 0;
+        }
+        public async Task<bool> DeleteProjectAsync(long projectId)
+        {
+            int rows = 0;
+            StringBuilder sb = new StringBuilder();
+            sb.Append("DELETE FROM public.wsp_wki_hst WHERE prj_id = @prj_id; ");
+            sb.Append("DELETE FROM public.wsp_wki_nts WHERE prj_id = @prj_id; ");
+            sb.Append("DELETE FROM public.wsp_prj_inf WHERE (prj_id = @prj_id); ");
+            string query = sb.ToString();
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
+            {
+                await conn.OpenAsync();
+                using (var cmd = new NpgsqlCommand(query, conn))
+                {
+                    var prj_id = cmd.Parameters.Add("@prj_id", NpgsqlDbType.Bigint);
+                    cmd.Prepare();
+                    prj_id.Value = projectId;
+                    rows = await cmd.ExecuteNonQueryAsync();
+                }
+                await conn.CloseAsync();
+            }
+            return rows > 0;
+        }
+        #endregion
+
+        #region Project Read Action Methods
+        public async Task<Project> GetProjectsByIdAsync(long projectId)
+        {
+            List<Project> projectList = new List<Project>();
+            StringBuilder sb = new StringBuilder();
+            sb.Append("SELECT p.prj_id, p.prj_cd, p.prj_ttl, p.prj_dtl, p.prj_owner_id, ");
+            sb.Append("p.prg_stts, p.exp_start_dt, p.exp_due_dt, p.drw_id, p.unit_id, ");
+            sb.Append("p.dept_id, p.loc_id, p.typ_id, p.mstr_prj_id, p.is_xmp, p.act_start_dt, ");
+            sb.Append("p.act_due_dt, is_closed, closed_by, closed_dt, t.typ_ds, ");
+            sb.Append("CASE p.prg_stts WHEN 0 THEN 'Not Started' ");
+            sb.Append("WHEN 1 THEN 'In Progress' ");
+            sb.Append("WHEN 2 THEN 'Completed' ");
+            sb.Append("WHEN 3 THEN 'On Hold' END AS prgs_stts_ds, ");
+            sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = p.prj_owner_id) as prj_owner_nm, ");
+            sb.Append("(SELECT unitname FROM public.gst_units WHERE unitqk = p.unit_id) as unit_nm, ");
+            sb.Append("(SELECT deptname FROM public.gst_depts WHERE deptqk = p.dept_id) as dept_nm, ");
+            sb.Append("(SELECT locname FROM public.gst_locs WHERE locqk = p.loc_id) as loc_nm, ");
+            sb.Append("(SELECT drw_nm FROM public.wsp_wki_drw WHERE drw_id = p.drw_id) as drw_nm, ");
+            sb.Append("(SELECT prj_ttl FROM public.wsp_prj_inf WHERE prj_id = p.mstr_prj_id) as mstr_prj_ttl ");
+            sb.Append("FROM public.wsp_prj_inf p ");
+            sb.Append("INNER JOIN public.wsp_prj_typs t ON t.typ_id = p.typ_id ");
+            sb.Append("WHERE (p.prj_id=@prj_id); ");
+
+            string query = sb.ToString();
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
+            {
+                await conn.OpenAsync();
+                // Retrieve all rows
+                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+                {
+                    var prj_id = cmd.Parameters.Add("@prj_id", NpgsqlDbType.Bigint);
+                    await cmd.PrepareAsync();
+                    prj_id.Value = projectId;
+                    using (var reader = await cmd.ExecuteReaderAsync())
+                        while (await reader.ReadAsync())
+                        {
+                            projectList.Add(new Project
+                            {
+                                ProjectId = reader["prj_id"] == DBNull.Value ? 0 : (long)reader["prj_id"],
+                                ProjectCode = reader["prj_cd"] == DBNull.Value ? "" : reader["prj_cd"].ToString(),
+                                ProjectTitle = reader["prj_ttl"] == DBNull.Value ? "" : reader["prj_ttl"].ToString(),
+                                ProjectDetails = reader["prj_dtl"] == DBNull.Value ? "" : reader["prj_dtl"].ToString(),
+                                ProjectOwnerId = reader["prj_owner_id"] == DBNull.Value ? "" : reader["prj_owner_id"].ToString(),
+                                ProjectOwnerName = reader["prj_owner_nm"] == DBNull.Value ? "" : reader["prj_owner_nm"].ToString(),
+                                ProgressStatusId = reader["prg_stts"] == DBNull.Value ? 0 : (int)reader["prg_stts"],
+                                ProgressStatusDescription = reader["prgs_stts_ds"] == DBNull.Value ? string.Empty : reader["prgs_stts_ds"].ToString(),
+
+                                ProjectTypeId = reader["typ_id"] == DBNull.Value ? 0 : (int)reader["typ_id"],
+                                ProjectTypeName = reader["typ_ds"] == DBNull.Value ? string.Empty : reader["typ_ds"].ToString(),
+
+                                ExpectedStartTime = reader["exp_start_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["exp_start_dt"],
+                                ActualStartTime = reader["act_start_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["act_start_dt"],
+                                ExpectedEndTime = reader["exp_due_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["exp_due_dt"],
+                                ActualEndTime = reader["act_due_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["act_due_dt"],
+                                UnitId = reader["unit_id"] == DBNull.Value ? 0 : (int)reader["unit_id"],
+                                UnitName = reader["unit_nm"] == DBNull.Value ? "" : reader["unit_nm"].ToString(),
+                                DepartmentId = reader["dept_id"] == DBNull.Value ? 0 : (int)reader["dept_id"],
+                                DepartmentName = reader["dept_nm"] == DBNull.Value ? "" : reader["dept_nm"].ToString(),
+                                LocationId = reader["loc_id"] == DBNull.Value ? 0 : (int)reader["loc_id"],
+                                LocationName = reader["loc_nm"] == DBNull.Value ? "" : reader["loc_nm"].ToString(),
+
+                                ProjectDrawerId = reader["drw_id"] == DBNull.Value ? 0 : (int)reader["drw_id"],
+                                ProjectDrawerTitle = reader["drw_nm"] == DBNull.Value ? string.Empty : reader["drw_nm"].ToString(),
+
+                                MasterProjectId = reader["mstr_prj_id"] == DBNull.Value ? 0 : (long)reader["mstr_prj_id"],
+                                MasterProjectTitle = reader["mstr_prj_ttl"] == DBNull.Value ? "" : reader["mstr_prj_ttl"].ToString(),
+                                IsExecutiveManagementProject = reader["is_xmp"] == DBNull.Value ? false : (bool)reader["is_xmp"],
+
+                                IsClosed = reader["is_closed"] == DBNull.Value ? false : (bool)reader["is_closed"],
+                                ClosedBy = reader["closed_by"] == DBNull.Value ? "" : reader["closed_by"].ToString(),
+                                ClosedTime = reader["closed_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["closed_dt"],
+                            });
+                        }
+                }
+                await conn.CloseAsync();
+            }
+            return projectList[0];
+        }
+        public async Task<Project> GetProjectsByNumberAsync(string projectNumber)
+        {
+            List<Project> projectList = new List<Project>();
+            StringBuilder sb = new StringBuilder();
+            sb.Append("SELECT p.prj_id, p.prj_cd, p.prj_ttl, p.prj_dtl, p.prj_owner_id, ");
+            sb.Append("p.prg_stts, p.exp_start_dt, p.exp_due_dt, p.drw_id, p.unit_id, ");
+            sb.Append("p.dept_id, p.loc_id, p.typ_id, p.mstr_prj_id, p.is_xmp, p.act_start_dt, ");
+            sb.Append("p.act_due_dt, is_closed, closed_by, closed_dt, t.typ_ds, ");
+            sb.Append("CASE p.prg_stts WHEN 0 THEN 'Not Started' ");
+            sb.Append("WHEN 1 THEN 'In Progress' ");
+            sb.Append("WHEN 2 THEN 'Completed' ");
+            sb.Append("WHEN 3 THEN 'On Hold' END AS prgs_stts_ds, ");
+            sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = p.prj_owner_id) as prj_owner_nm, ");
+            sb.Append("(SELECT unitname FROM public.gst_units WHERE unitqk = p.unit_id) as unit_nm, ");
+            sb.Append("(SELECT deptname FROM public.gst_depts WHERE deptqk = p.dept_id) as dept_nm, ");
+            sb.Append("(SELECT locname FROM public.gst_locs WHERE locqk = p.loc_id) as loc_nm, ");
+            sb.Append("(SELECT drw_nm FROM public.wsp_wki_drw WHERE drw_id = p.drw_id) as drw_nm, ");
+            sb.Append("(SELECT prj_ttl FROM public.wsp_prj_inf WHERE prj_id = p.mstr_prj_id) as mstr_prj_ttl ");
+            sb.Append("FROM public.wsp_prj_inf p ");
+            sb.Append("INNER JOIN public.wsp_prj_typs t ON t.typ_id = p.typ_id ");
+            sb.Append("WHERE (p.prj_cd=@prj_cd); ");
+
+            string query = sb.ToString();
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
+            {
+                await conn.OpenAsync();
+                // Retrieve all rows
+                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+                {
+                    var prj_cd = cmd.Parameters.Add("@prj_cd", NpgsqlDbType.Text);
+                    await cmd.PrepareAsync();
+                    prj_cd.Value = projectNumber;
+                    using (var reader = await cmd.ExecuteReaderAsync())
+                        while (await reader.ReadAsync())
+                        {
+                            projectList.Add(new Project
+                            {
+                                ProjectId = reader["prj_id"] == DBNull.Value ? 0 : (long)reader["prj_id"],
+                                ProjectCode = reader["prj_cd"] == DBNull.Value ? "" : reader["prj_cd"].ToString(),
+                                ProjectTitle = reader["prj_ttl"] == DBNull.Value ? "" : reader["prj_ttl"].ToString(),
+                                ProjectDetails = reader["prj_dtl"] == DBNull.Value ? "" : reader["prj_dtl"].ToString(),
+                                ProjectOwnerId = reader["prj_owner_id"] == DBNull.Value ? "" : reader["prj_owner_id"].ToString(),
+                                ProjectOwnerName = reader["prj_owner_nm"] == DBNull.Value ? "" : reader["prj_owner_nm"].ToString(),
+                                ProgressStatusId = reader["prg_stts"] == DBNull.Value ? 0 : (int)reader["prg_stts"],
+                                ProgressStatusDescription = reader["prgs_stts_ds"] == DBNull.Value ? string.Empty : reader["prgs_stts_ds"].ToString(),
+
+                                ProjectTypeId = reader["typ_id"] == DBNull.Value ? 0 : (int)reader["typ_id"],
+                                ProjectTypeName = reader["typ_ds"] == DBNull.Value ? string.Empty : reader["typ_ds"].ToString(),
+
+                                ExpectedStartTime = reader["exp_start_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["exp_start_dt"],
+                                ActualStartTime = reader["act_start_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["act_start_dt"],
+                                ExpectedEndTime = reader["exp_due_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["exp_due_dt"],
+                                ActualEndTime = reader["act_due_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["act_due_dt"],
+                                UnitId = reader["unit_id"] == DBNull.Value ? 0 : (int)reader["unit_id"],
+                                UnitName = reader["unit_nm"] == DBNull.Value ? "" : reader["unit_nm"].ToString(),
+                                DepartmentId = reader["dept_id"] == DBNull.Value ? 0 : (int)reader["dept_id"],
+                                DepartmentName = reader["dept_nm"] == DBNull.Value ? "" : reader["dept_nm"].ToString(),
+                                LocationId = reader["loc_id"] == DBNull.Value ? 0 : (int)reader["loc_id"],
+                                LocationName = reader["loc_nm"] == DBNull.Value ? "" : reader["loc_nm"].ToString(),
+
+                                ProjectDrawerId = reader["drw_id"] == DBNull.Value ? 0 : (int)reader["drw_id"],
+                                ProjectDrawerTitle = reader["drw_nm"] == DBNull.Value ? string.Empty : reader["drw_nm"].ToString(),
+
+                                MasterProjectId = reader["mstr_prj_id"] == DBNull.Value ? 0 : (long)reader["mstr_prj_id"],
+                                MasterProjectTitle = reader["mstr_prj_ttl"] == DBNull.Value ? "" : reader["mstr_prj_ttl"].ToString(),
+                                IsExecutiveManagementProject = reader["is_xmp"] == DBNull.Value ? false : (bool)reader["is_xmp"],
+
+                                IsClosed = reader["is_closed"] == DBNull.Value ? false : (bool)reader["is_closed"],
+                                ClosedBy = reader["closed_by"] == DBNull.Value ? "" : reader["closed_by"].ToString(),
+                                ClosedTime = reader["closed_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["closed_dt"],
+                            });
+                        }
+                }
+                await conn.CloseAsync();
+            }
+            return projectList[0];
+        }
+
+
+
+        public async Task<List<Project>> GetProjectsByTypeIdAsync(int projectTypeId)
+        {
+            List<Project> projectList = new List<Project>();
+            StringBuilder sb = new StringBuilder();
+            sb.Append("SELECT p.prj_id, p.prj_cd, p.prj_ttl, p.prj_dtl, p.prj_owner_id, ");
+            sb.Append("p.prg_stts, p.exp_start_dt, p.exp_due_dt, p.drw_id, p.unit_id, ");
+            sb.Append("p.dept_id, p.loc_id, p.typ_id, p.mstr_prj_id, p.is_xmp, p.act_start_dt, ");
+            sb.Append("p.act_due_dt, is_closed, closed_by, closed_dt, t.typ_ds, ");
+            sb.Append("CASE p.prg_stts WHEN 0 THEN 'Not Started' ");
+            sb.Append("WHEN 1 THEN 'In Progress' ");
+            sb.Append("WHEN 2 THEN 'Completed' ");
+            sb.Append("WHEN 3 THEN 'On Hold' END AS prgs_stts_ds, ");
+            sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = p.prj_owner_id) as prj_owner_nm, ");
+            sb.Append("(SELECT unitname FROM public.gst_units WHERE unitqk = p.unit_id) as unit_nm, ");
+            sb.Append("(SELECT deptname FROM public.gst_depts WHERE deptqk = p.dept_id) as dept_nm, ");
+            sb.Append("(SELECT locname FROM public.gst_locs WHERE locqk = p.loc_id) as loc_nm, ");
+            sb.Append("(SELECT drw_nm FROM public.wsp_wki_drw WHERE drw_id = p.drw_id) as drw_nm, ");
+            sb.Append("(SELECT prj_ttl FROM public.wsp_prj_inf WHERE prj_id = p.mstr_prj_id) as mstr_prj_ttl ");
+            sb.Append("FROM public.wsp_prj_inf p ");
+            sb.Append("INNER JOIN public.wsp_prj_typs t ON t.typ_id = p.typ_id ");
+            sb.Append("WHERE (p.typ_id=@typ_id) ");
+            sb.Append("ORDER BY p.prj_id;");
+            string query = sb.ToString();
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
+            {
+                await conn.OpenAsync();
+                // Retrieve all rows
+                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+                {
+                    var typ_id = cmd.Parameters.Add("@typ_id", NpgsqlDbType.Bigint);
+                    await cmd.PrepareAsync();
+                    typ_id.Value = projectTypeId;
+                    using (var reader = await cmd.ExecuteReaderAsync())
+                        while (await reader.ReadAsync())
+                        {
+                            projectList.Add(new Project
+                            {
+                                ProjectId = reader["prj_id"] == DBNull.Value ? 0 : (long)reader["prj_id"],
+                                ProjectCode = reader["prj_cd"] == DBNull.Value ? "" : reader["prj_cd"].ToString(),
+                                ProjectTitle = reader["prj_ttl"] == DBNull.Value ? "" : reader["prj_ttl"].ToString(),
+                                ProjectDetails = reader["prj_dtl"] == DBNull.Value ? "" : reader["prj_dtl"].ToString(),
+                                ProjectOwnerId = reader["prj_owner_id"] == DBNull.Value ? "" : reader["prj_owner_id"].ToString(),
+                                ProjectOwnerName = reader["prj_owner_nm"] == DBNull.Value ? "" : reader["prj_owner_nm"].ToString(),
+                                ProgressStatusId = reader["prg_stts"] == DBNull.Value ? 0 : (int)reader["prg_stts"],
+                                ProgressStatusDescription = reader["prgs_stts_ds"] == DBNull.Value ? string.Empty : reader["prgs_stts_ds"].ToString(),
+
+                                ProjectTypeId = reader["typ_id"] == DBNull.Value ? 0 : (int)reader["typ_id"],
+                                ProjectTypeName = reader["typ_ds"] == DBNull.Value ? string.Empty : reader["typ_ds"].ToString(),
+
+                                ExpectedStartTime = reader["exp_start_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["exp_start_dt"],
+                                ActualStartTime = reader["act_start_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["act_start_dt"],
+                                ExpectedEndTime = reader["exp_due_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["exp_due_dt"],
+                                ActualEndTime = reader["act_due_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["act_due_dt"],
+                                UnitId = reader["unit_id"] == DBNull.Value ? 0 : (int)reader["unit_id"],
+                                UnitName = reader["unit_nm"] == DBNull.Value ? "" : reader["unit_nm"].ToString(),
+                                DepartmentId = reader["dept_id"] == DBNull.Value ? 0 : (int)reader["dept_id"],
+                                DepartmentName = reader["dept_nm"] == DBNull.Value ? "" : reader["dept_nm"].ToString(),
+                                LocationId = reader["loc_id"] == DBNull.Value ? 0 : (int)reader["loc_id"],
+                                LocationName = reader["loc_nm"] == DBNull.Value ? "" : reader["loc_nm"].ToString(),
+
+                                ProjectDrawerId = reader["drw_id"] == DBNull.Value ? 0 : (int)reader["drw_id"],
+                                ProjectDrawerTitle = reader["drw_nm"] == DBNull.Value ? string.Empty : reader["drw_nm"].ToString(),
+
+                                MasterProjectId = reader["mstr_prj_id"] == DBNull.Value ? 0 : (long)reader["mstr_prj_id"],
+                                MasterProjectTitle = reader["mstr_prj_ttl"] == DBNull.Value ? "" : reader["mstr_prj_ttl"].ToString(),
+                                IsExecutiveManagementProject = reader["is_xmp"] == DBNull.Value ? false : (bool)reader["is_xmp"],
+
+                                IsClosed = reader["is_closed"] == DBNull.Value ? false : (bool)reader["is_closed"],
+                                ClosedBy = reader["closed_by"] == DBNull.Value ? "" : reader["closed_by"].ToString(),
+                                ClosedTime = reader["closed_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["closed_dt"],
+                            });
+                        }
+                }
+                await conn.CloseAsync();
+            }
+            return projectList;
+        }
+        public async Task<List<Project>> GetProjectsByProjectCodeAsync(string projectCode)
+        {
+            List<Project> projectList = new List<Project>();
+            StringBuilder sb = new StringBuilder();
+            sb.Append("SELECT p.prj_id, p.prj_cd, p.prj_ttl, p.prj_dtl, p.prj_owner_id, ");
+            sb.Append("p.prg_stts, p.exp_start_dt, p.exp_due_dt, p.drw_id, p.unit_id, ");
+            sb.Append("p.dept_id, p.loc_id, p.typ_id, p.mstr_prj_id, p.is_xmp, p.act_start_dt, ");
+            sb.Append("p.act_due_dt, is_closed, closed_by, closed_dt, t.typ_ds, ");
+            sb.Append("CASE p.prg_stts WHEN 0 THEN 'Not Started' ");
+            sb.Append("WHEN 1 THEN 'In Progress' ");
+            sb.Append("WHEN 2 THEN 'Completed' ");
+            sb.Append("WHEN 3 THEN 'On Hold' END AS prgs_stts_ds, ");
+            sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = p.prj_owner_id) as prj_owner_nm, ");
+            sb.Append("(SELECT unitname FROM public.gst_units WHERE unitqk = p.unit_id) as unit_nm, ");
+            sb.Append("(SELECT deptname FROM public.gst_depts WHERE deptqk = p.dept_id) as dept_nm, ");
+            sb.Append("(SELECT locname FROM public.gst_locs WHERE locqk = p.loc_id) as loc_nm, ");
+            sb.Append("(SELECT drw_nm FROM public.wsp_wki_drw WHERE drw_id = p.drw_id) as drw_nm, ");
+            sb.Append("(SELECT prj_ttl FROM public.wsp_prj_inf WHERE prj_id = p.mstr_prj_id) as mstr_prj_ttl ");
+            sb.Append("FROM public.wsp_prj_inf p ");
+            sb.Append("INNER JOIN public.wsp_prj_typs t ON t.typ_id = p.typ_id ");
+            sb.Append("WHERE (p.prj_cd=@prj_cd) ");
+            sb.Append("ORDER BY p.prj_id;");
+            string query = sb.ToString();
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
+            {
+                await conn.OpenAsync();
+                // Retrieve all rows
+                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+                {
+                    var prj_cd = cmd.Parameters.Add("@prj_cd", NpgsqlDbType.Text);
+                    await cmd.PrepareAsync();
+                    prj_cd.Value = projectCode;
+                    using (var reader = await cmd.ExecuteReaderAsync())
+                        while (await reader.ReadAsync())
+                        {
+                            projectList.Add(new Project
+                            {
+                                ProjectId = reader["prj_id"] == DBNull.Value ? 0 : (long)reader["prj_id"],
+                                ProjectCode = reader["prj_cd"] == DBNull.Value ? "" : reader["prj_cd"].ToString(),
+                                ProjectTitle = reader["prj_ttl"] == DBNull.Value ? "" : reader["prj_ttl"].ToString(),
+                                ProjectDetails = reader["prj_dtl"] == DBNull.Value ? "" : reader["prj_dtl"].ToString(),
+                                ProjectOwnerId = reader["prj_owner_id"] == DBNull.Value ? "" : reader["prj_owner_id"].ToString(),
+                                ProjectOwnerName = reader["prj_owner_nm"] == DBNull.Value ? "" : reader["prj_owner_nm"].ToString(),
+                                ProgressStatusId = reader["prg_stts"] == DBNull.Value ? 0 : (int)reader["prg_stts"],
+                                ProgressStatusDescription = reader["prgs_stts_ds"] == DBNull.Value ? string.Empty : reader["prgs_stts_ds"].ToString(),
+
+                                ProjectTypeId = reader["typ_id"] == DBNull.Value ? 0 : (int)reader["typ_id"],
+                                ProjectTypeName = reader["typ_ds"] == DBNull.Value ? string.Empty : reader["typ_ds"].ToString(),
+
+                                ExpectedStartTime = reader["exp_start_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["exp_start_dt"],
+                                ActualStartTime = reader["act_start_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["act_start_dt"],
+                                ExpectedEndTime = reader["exp_due_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["exp_due_dt"],
+                                ActualEndTime = reader["act_due_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["act_due_dt"],
+                                UnitId = reader["unit_id"] == DBNull.Value ? 0 : (int)reader["unit_id"],
+                                UnitName = reader["unit_nm"] == DBNull.Value ? "" : reader["unit_nm"].ToString(),
+                                DepartmentId = reader["dept_id"] == DBNull.Value ? 0 : (int)reader["dept_id"],
+                                DepartmentName = reader["dept_nm"] == DBNull.Value ? "" : reader["dept_nm"].ToString(),
+                                LocationId = reader["loc_id"] == DBNull.Value ? 0 : (int)reader["loc_id"],
+                                LocationName = reader["loc_nm"] == DBNull.Value ? "" : reader["loc_nm"].ToString(),
+
+                                ProjectDrawerId = reader["drw_id"] == DBNull.Value ? 0 : (int)reader["drw_id"],
+                                ProjectDrawerTitle = reader["drw_nm"] == DBNull.Value ? string.Empty : reader["drw_nm"].ToString(),
+
+                                MasterProjectId = reader["mstr_prj_id"] == DBNull.Value ? 0 : (long)reader["mstr_prj_id"],
+                                MasterProjectTitle = reader["mstr_prj_ttl"] == DBNull.Value ? "" : reader["mstr_prj_ttl"].ToString(),
+                                IsExecutiveManagementProject = reader["is_xmp"] == DBNull.Value ? false : (bool)reader["is_xmp"],
+
+                                IsClosed = reader["is_closed"] == DBNull.Value ? false : (bool)reader["is_closed"],
+                                ClosedBy = reader["closed_by"] == DBNull.Value ? "" : reader["closed_by"].ToString(),
+                                ClosedTime = reader["closed_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["closed_dt"],
+                            });
+                        }
+                }
+                await conn.CloseAsync();
+            }
+            return projectList;
+        }
+
+        public async Task<List<Project>> GetProjectsByOwnerIdAndProjectTitleAsync(string projectOwnerId, string projectTitle)
+        {
+            List<Project> projectList = new List<Project>();
+            StringBuilder sb = new StringBuilder();
+            sb.Append("SELECT p.prj_id, p.prj_cd, p.prj_ttl, p.prj_dtl, p.prj_owner_id, ");
+            sb.Append("p.prg_stts, p.exp_start_dt, p.exp_due_dt, p.drw_id, p.unit_id, ");
+            sb.Append("p.dept_id, p.loc_id, p.typ_id, p.mstr_prj_id, p.is_xmp, p.act_start_dt, ");
+            sb.Append("p.act_due_dt, is_closed, closed_by, closed_dt, t.typ_ds, ");
+            sb.Append("CASE p.prg_stts WHEN 0 THEN 'Not Started' ");
+            sb.Append("WHEN 1 THEN 'In Progress' ");
+            sb.Append("WHEN 2 THEN 'Completed' ");
+            sb.Append("WHEN 3 THEN 'On Hold' END AS prgs_stts_ds, ");
+            sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = p.prj_owner_id) as prj_owner_nm, ");
+            sb.Append("(SELECT unitname FROM public.gst_units WHERE unitqk = p.unit_id) as unit_nm, ");
+            sb.Append("(SELECT deptname FROM public.gst_depts WHERE deptqk = p.dept_id) as dept_nm, ");
+            sb.Append("(SELECT locname FROM public.gst_locs WHERE locqk = p.loc_id) as loc_nm, ");
+            sb.Append("(SELECT drw_nm FROM public.wsp_wki_drw WHERE drw_id = p.drw_id) as drw_nm, ");
+            sb.Append("(SELECT prj_ttl FROM public.wsp_prj_inf WHERE prj_id = p.mstr_prj_id) as mstr_prj_ttl ");
+            sb.Append("FROM public.wsp_prj_inf p ");
+            sb.Append("INNER JOIN public.wsp_prj_typs t ON t.typ_id = p.typ_id ");
+            sb.Append("WHERE (p.prj_owner_id=@prj_owner_id) ");
+            sb.Append("AND (p.prj_ttl=@prj_ttl) ");
+            sb.Append("ORDER BY p.prj_id DESC;");
+            string query = sb.ToString();
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
+            {
+                await conn.OpenAsync();
+                // Retrieve all rows
+                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+                {
+                    var prj_owner_id = cmd.Parameters.Add("@prj_owner_id", NpgsqlDbType.Text);
+                    var prj_ttl = cmd.Parameters.Add("@prj_ttl", NpgsqlDbType.Text);
+                    await cmd.PrepareAsync();
+                    prj_owner_id.Value = projectOwnerId;
+                    prj_ttl.Value = projectTitle;
+                    using (var reader = await cmd.ExecuteReaderAsync())
+                        while (await reader.ReadAsync())
+                        {
+                            projectList.Add(new Project
+                            {
+                                ProjectId = reader["prj_id"] == DBNull.Value ? 0 : (long)reader["prj_id"],
+                                ProjectCode = reader["prj_cd"] == DBNull.Value ? "" : reader["prj_cd"].ToString(),
+                                ProjectTitle = reader["prj_ttl"] == DBNull.Value ? "" : reader["prj_ttl"].ToString(),
+                                ProjectDetails = reader["prj_dtl"] == DBNull.Value ? "" : reader["prj_dtl"].ToString(),
+                                ProjectOwnerId = reader["prj_owner_id"] == DBNull.Value ? "" : reader["prj_owner_id"].ToString(),
+                                ProjectOwnerName = reader["prj_owner_nm"] == DBNull.Value ? "" : reader["prj_owner_nm"].ToString(),
+                                ProgressStatusId = reader["prg_stts"] == DBNull.Value ? 0 : (int)reader["prg_stts"],
+                                ProgressStatusDescription = reader["prgs_stts_ds"] == DBNull.Value ? string.Empty : reader["prgs_stts_ds"].ToString(),
+
+                                ProjectTypeId = reader["typ_id"] == DBNull.Value ? 0 : (int)reader["typ_id"],
+                                ProjectTypeName = reader["typ_ds"] == DBNull.Value ? string.Empty : reader["typ_ds"].ToString(),
+
+                                ExpectedStartTime = reader["exp_start_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["exp_start_dt"],
+                                ActualStartTime = reader["act_start_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["act_start_dt"],
+                                ExpectedEndTime = reader["exp_due_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["exp_due_dt"],
+                                ActualEndTime = reader["act_due_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["act_due_dt"],
+                                UnitId = reader["unit_id"] == DBNull.Value ? 0 : (int)reader["unit_id"],
+                                UnitName = reader["unit_nm"] == DBNull.Value ? "" : reader["unit_nm"].ToString(),
+                                DepartmentId = reader["dept_id"] == DBNull.Value ? 0 : (int)reader["dept_id"],
+                                DepartmentName = reader["dept_nm"] == DBNull.Value ? "" : reader["dept_nm"].ToString(),
+                                LocationId = reader["loc_id"] == DBNull.Value ? 0 : (int)reader["loc_id"],
+                                LocationName = reader["loc_nm"] == DBNull.Value ? "" : reader["loc_nm"].ToString(),
+
+                                ProjectDrawerId = reader["drw_id"] == DBNull.Value ? 0 : (int)reader["drw_id"],
+                                ProjectDrawerTitle = reader["drw_nm"] == DBNull.Value ? string.Empty : reader["drw_nm"].ToString(),
+
+                                MasterProjectId = reader["mstr_prj_id"] == DBNull.Value ? 0 : (long)reader["mstr_prj_id"],
+                                MasterProjectTitle = reader["mstr_prj_ttl"] == DBNull.Value ? "" : reader["mstr_prj_ttl"].ToString(),
+                                IsExecutiveManagementProject = reader["is_xmp"] == DBNull.Value ? false : (bool)reader["is_xmp"],
+
+                                IsClosed = reader["is_closed"] == DBNull.Value ? false : (bool)reader["is_closed"],
+                                ClosedBy = reader["closed_by"] == DBNull.Value ? "" : reader["closed_by"].ToString(),
+                                ClosedTime = reader["closed_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["closed_dt"],
+                            });
+                        }
+                }
+            }
+            return projectList;
+        }
+
+        public async Task<List<Project>> GetExecutiveManagementProjectsAsync()
+        {
+            List<Project> projectList = new List<Project>();
+            StringBuilder sb = new StringBuilder();
+            sb.Append("SELECT p.prj_id, p.prj_cd, p.prj_ttl, p.prj_dtl, p.prj_owner_id, ");
+            sb.Append("p.prg_stts, p.exp_start_dt, p.exp_due_dt, p.drw_id, p.unit_id, ");
+            sb.Append("p.dept_id, p.loc_id, p.typ_id, p.mstr_prj_id, p.is_xmp, p.act_start_dt, ");
+            sb.Append("p.act_due_dt, is_closed, closed_by, closed_dt, t.typ_ds, ");
+            sb.Append("CASE p.prg_stts WHEN 0 THEN 'Not Started' ");
+            sb.Append("WHEN 1 THEN 'In Progress' ");
+            sb.Append("WHEN 2 THEN 'Completed' ");
+            sb.Append("WHEN 3 THEN 'On Hold' END AS prgs_stts_ds, ");
+            sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = p.prj_owner_id) as prj_owner_nm, ");
+            sb.Append("(SELECT unitname FROM public.gst_units WHERE unitqk = p.unit_id) as unit_nm, ");
+            sb.Append("(SELECT deptname FROM public.gst_depts WHERE deptqk = p.dept_id) as dept_nm, ");
+            sb.Append("(SELECT locname FROM public.gst_locs WHERE locqk = p.loc_id) as loc_nm, ");
+            sb.Append("(SELECT drw_nm FROM public.wsp_wki_drw WHERE drw_id = p.drw_id) as drw_nm, ");
+            sb.Append("(SELECT prj_ttl FROM public.wsp_prj_inf WHERE prj_id = p.mstr_prj_id) as mstr_prj_ttl ");
+            sb.Append("FROM public.wsp_prj_inf p ");
+            sb.Append("INNER JOIN public.wsp_prj_typs t ON t.typ_id = p.typ_id ");
+            sb.Append("WHERE (p.is_xmp=true) ");
+            sb.Append("ORDER BY p.prj_id;");
+            string query = sb.ToString();
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
+            {
+                await conn.OpenAsync();
+                // Retrieve all rows
+                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+                {
+                    await cmd.PrepareAsync();
+                    using (var reader = await cmd.ExecuteReaderAsync())
+                        while (await reader.ReadAsync())
+                        {
+                            projectList.Add(new Project
+                            {
+                                ProjectId = reader["prj_id"] == DBNull.Value ? 0 : (long)reader["prj_id"],
+                                ProjectCode = reader["prj_cd"] == DBNull.Value ? "" : reader["prj_cd"].ToString(),
+                                ProjectTitle = reader["prj_ttl"] == DBNull.Value ? "" : reader["prj_ttl"].ToString(),
+                                ProjectDetails = reader["prj_dtl"] == DBNull.Value ? "" : reader["prj_dtl"].ToString(),
+                                ProjectOwnerId = reader["prj_owner_id"] == DBNull.Value ? "" : reader["prj_owner_id"].ToString(),
+                                ProjectOwnerName = reader["prj_owner_nm"] == DBNull.Value ? "" : reader["prj_owner_nm"].ToString(),
+                                ProgressStatusId = reader["prg_stts"] == DBNull.Value ? 0 : (int)reader["prg_stts"],
+                                ProgressStatusDescription = reader["prgs_stts_ds"] == DBNull.Value ? string.Empty : reader["prgs_stts_ds"].ToString(),
+
+                                ProjectTypeId = reader["typ_id"] == DBNull.Value ? 0 : (int)reader["typ_id"],
+                                ProjectTypeName = reader["typ_ds"] == DBNull.Value ? string.Empty : reader["typ_ds"].ToString(),
+
+                                ExpectedStartTime = reader["exp_start_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["exp_start_dt"],
+                                ActualStartTime = reader["act_start_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["act_start_dt"],
+                                ExpectedEndTime = reader["exp_due_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["exp_due_dt"],
+                                ActualEndTime = reader["act_due_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["act_due_dt"],
+                                UnitId = reader["unit_id"] == DBNull.Value ? 0 : (int)reader["unit_id"],
+                                UnitName = reader["unit_nm"] == DBNull.Value ? "" : reader["unit_nm"].ToString(),
+                                DepartmentId = reader["dept_id"] == DBNull.Value ? 0 : (int)reader["dept_id"],
+                                DepartmentName = reader["dept_nm"] == DBNull.Value ? "" : reader["dept_nm"].ToString(),
+                                LocationId = reader["loc_id"] == DBNull.Value ? 0 : (int)reader["loc_id"],
+                                LocationName = reader["loc_nm"] == DBNull.Value ? "" : reader["loc_nm"].ToString(),
+
+                                ProjectDrawerId = reader["drw_id"] == DBNull.Value ? 0 : (int)reader["drw_id"],
+                                ProjectDrawerTitle = reader["drw_nm"] == DBNull.Value ? string.Empty : reader["drw_nm"].ToString(),
+
+                                MasterProjectId = reader["mstr_prj_id"] == DBNull.Value ? 0 : (long)reader["mstr_prj_id"],
+                                MasterProjectTitle = reader["mstr_prj_ttl"] == DBNull.Value ? "" : reader["mstr_prj_ttl"].ToString(),
+                                IsExecutiveManagementProject = reader["is_xmp"] == DBNull.Value ? false : (bool)reader["is_xmp"],
+
+                                IsClosed = reader["is_closed"] == DBNull.Value ? false : (bool)reader["is_closed"],
+                                ClosedBy = reader["closed_by"] == DBNull.Value ? "" : reader["closed_by"].ToString(),
+                                ClosedTime = reader["closed_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["closed_dt"],
+                            });
+                        }
+                }
+                await conn.CloseAsync();
+            }
+            return projectList;
+        }
+        #endregion
+
+        #endregion
+
+        #region Project Types Read Actions
+        public async Task<List<ProjectType>> GetExecutiveManagementProjectTypesAsync()
+        {
+            List<ProjectType> projectTypeList = new List<ProjectType>();
+            StringBuilder sb = new StringBuilder();
+            sb.Append("SELECT typ_id, typ_ds, is_xm ");
+            sb.Append("FROM public.wsp_prj_typs ");
+            sb.Append("WHERE (is_xm=true) ");
+            sb.Append("ORDER BY typ_ds;");
+            string query = sb.ToString();
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
+            {
+                await conn.OpenAsync();
+                // Retrieve all rows
+                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+                {
+                    await cmd.PrepareAsync();
+                    using (var reader = await cmd.ExecuteReaderAsync())
+                        while (await reader.ReadAsync())
+                        {
+                            projectTypeList.Add(new ProjectType
+                            {
+                                ProjectTypeId = reader["typ_id"] == DBNull.Value ? 0 : (int)reader["typ_id"],
+                                ProjectTypeDescription = reader["typ_ds"] == DBNull.Value ? "" : reader["typ_ds"].ToString(),
+                                IsExecutiveManagementType = reader["is_xm"] == DBNull.Value ? false : (bool)reader["is_xm"],
+                            });
+                        }
+                }
+                await conn.CloseAsync();
+            }
+            return projectTypeList;
+        }
+
+        #endregion
+
+
+
     }
 }

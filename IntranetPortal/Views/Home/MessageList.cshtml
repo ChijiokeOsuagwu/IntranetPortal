@@ -32,19 +32,19 @@
             </nav>
         </div>
         <div class="mb-2">
-                 <a class="btn btn-info" asp-controller="Home" asp-action="MessageList" style="width:100px">
+                 <a class="btn btn-info" asp-controller="Home" asp-action="MessageList" style="width:200px">
                     <span class="fw-bold">All</span>
                     <span class="badge rounded-pill bg-light text-dark fw-bold">
                         @Model.TotalMesssagesCount
                     </span>
                 </a>
-                <a class="btn btn-success" asp-controller="Home" asp-action="MessageList" asp-route-tp="unread" style="width:100px">
+                <a class="btn btn-success" asp-controller="Home" asp-action="MessageList" asp-route-tp="unread" style="width:200px">
                     <span class="fw-bold">Unread</span>
                     <span class="badge rounded-pill bg-light text-dark fw-bold">
                         @Model.UnreadMessagesCount
                     </span>
                 </a>
-                <a class="btn btn-warning" asp-controller="Home" asp-action="MessageList" asp-route-tp="read" style="width:100px">
+                <a class="btn btn-warning" asp-controller="Home" asp-action="MessageList" asp-route-tp="read" style="width:200px">
                     <span class="fw-bold text-dark">Read</span>
                     <span class="badge rounded-pill bg-light text-dark fw-bold">
                         @Model.ReadMessagesCount

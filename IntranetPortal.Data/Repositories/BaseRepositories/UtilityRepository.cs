@@ -47,7 +47,7 @@ namespace IntranetPortal.Data.Repositories.BaseRepositories
         {
             string codeNumber = string.Empty;
             var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
-            if (String.IsNullOrEmpty(numberType)) { throw new ArgumentNullException(nameof(numberType), "The required parameter [Number Type] is missing or has an invalid value."); }
+            if (string.IsNullOrEmpty(numberType)) { throw new ArgumentNullException(nameof(numberType), "The required parameter [Number Type] is missing or has an invalid value."); }
             string query = $"SELECT COALESCE(prefix,'') || LPAD(next_no::text, no_length, '0') AS code_no FROM gst_auto_no WHERE (no_type = @no_type)";
             try
             {
@@ -73,7 +73,7 @@ namespace IntranetPortal.Data.Repositories.BaseRepositories
 
         public async Task<bool> IncrementAutoNumberAsync(string numberType)
         {
-            if (String.IsNullOrEmpty(numberType)) { throw new ArgumentNullException(nameof(numberType), "The required parameter [Number Type] is missing or has an invalid value."); }
+            if (string.IsNullOrEmpty(numberType)) { throw new ArgumentNullException(nameof(numberType), "The required parameter [Number Type] is missing or has an invalid value."); }
             int rows = 0;
             var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
             string query = $"UPDATE public.gst_auto_no SET next_no=next_no + 1	WHERE no_type=@no_type;";

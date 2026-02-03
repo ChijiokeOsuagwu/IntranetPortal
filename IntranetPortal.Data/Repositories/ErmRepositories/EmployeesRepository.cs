@@ -3567,6 +3567,75 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
             }
             return employeeList;
         }
+        public async Task<IList<EmployeeRoll>> GetEmployeeRollsByEmployeeNameAsync(string employeeName, DateTime? terminalDate = null)
+        {
+            List<EmployeeRoll> employeeList = new List<EmployeeRoll>();
+            string _terminalDate;
+            if (terminalDate == null) { _terminalDate = DateTime.Today.ToString("dd-MM-yyyy"); }
+            else { _terminalDate = terminalDate.Value.ToString("dd-MM-yyyy"); }
+
+            if (string.IsNullOrWhiteSpace(employeeName)) { throw new ArgumentNullException(nameof(employeeName)); }
+            StringBuilder sb = new StringBuilder();
+            sb.Append("SELECT e.emp_id, e.emp_no_1, e.dept_id, e.unit_id, e.loc_id, ");
+            sb.Append("p.fullname, p.sex, p.phone1, p.phone2, e.official_email, ");
+            sb.Append("l.locname, d.deptname, u.unitname ");
+            sb.Append("FROM erm_emp_inf e ");
+            sb.Append("JOIN gst_prsns p ON e.emp_id = p.id AND e.is_dx = false ");
+            sb.Append("LEFT JOIN gst_locs l ON e.loc_id = l.locqk ");
+            sb.Append("LEFT JOIN gst_depts d ON e.dept_id = d.deptqk ");
+            sb.Append("LEFT JOIN gst_units u ON e.unit_id = u.unitqk ");
+            sb.Append("WHERE(p.fullname = @emp_nm) ");
+            sb.Append("AND (e.dx_time IS NULL ");
+            sb.Append("OR e.dx_time >= to_date(@dx_time,'DD-MM-YYYY')) ");
+            sb.Append("AND ((e.start_up_date IS NULL) ");
+            sb.Append("OR (e.start_up_date <= to_date(@dx_time,'DD-MM-YYYY'))) ");
+            sb.Append("ORDER BY p.fullname; ");
+
+            string query = sb.ToString();
+
+            using (NpgsqlConnection conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
+            {
+                await conn.OpenAsync();
+                // Retrieve all rows
+                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+                {
+                    var emp_nm = cmd.Parameters.Add("@emp_nm", NpgsqlDbType.Text);
+                    var dx_time = cmd.Parameters.Add("@dx_time", NpgsqlDbType.Text);
+                    await cmd.PrepareAsync();
+                    emp_nm.Value = employeeName;
+                    dx_time.Value = _terminalDate;
+
+                    var reader = await cmd.ExecuteReaderAsync();
+                    while (await reader.ReadAsync())
+                    {
+                        employeeList.Add(new EmployeeRoll()
+                        {
+                            EmployeeID = reader["emp_id"] == DBNull.Value ? string.Empty : (reader["emp_id"]).ToString(),
+                            EmployeeNo1 = reader["emp_no_1"] == DBNull.Value ? string.Empty : (reader["emp_no_1"]).ToString(),
+
+                            OfficialEmail = reader["official_email"] == DBNull.Value ? String.Empty : reader["official_email"].ToString(),
+                            DepartmentID = reader["dept_id"] == DBNull.Value ? 0 : (int)(reader["dept_id"]),
+                            UnitID = reader["unit_id"] == DBNull.Value ? 0 : (int)(reader["unit_id"]),
+                            LocationID = reader["loc_id"] == DBNull.Value ? 0 : (int)(reader["loc_id"]),
+
+                            FullName = reader["fullname"] == DBNull.Value ? string.Empty : reader["fullname"].ToString(),
+                            Sex = reader["sex"] == DBNull.Value ? string.Empty : reader["sex"].ToString(),
+                            PhoneNo1 = reader["phone1"] == DBNull.Value ? string.Empty : reader["phone1"].ToString(),
+                            PhoneNo2 = reader["phone2"] == DBNull.Value ? string.Empty : reader["phone2"].ToString(),
+
+                            LocationName = reader["locname"] == DBNull.Value ? string.Empty : reader["locname"].ToString(),
+                            DepartmentName = reader["deptname"] == DBNull.Value ? string.Empty : reader["deptname"].ToString(),
+                            UnitName = reader["unitname"] == DBNull.Value ? string.Empty : reader["unitname"].ToString(),
+                        });
+                    }
+                }
+                await conn.CloseAsync();
+            }
+            return employeeList;
+        }
+
+
+
         public async Task<IList<EmployeeRoll>> GetEmployeeRollsByAllAsync(DateTime? terminalDate = null)
         {
             List<EmployeeRoll> employeeList = new List<EmployeeRoll>();

@@ -20,7 +20,6 @@ namespace IntranetPortal.Base.Services
             _utilityRepository = utilityRepository;
         }
 
-        //======================================== Utility Service Methods ==========================================================//
         #region Utility Service Methods
         public async Task<bool> DbConnectionIsOpenAsync()
         {
@@ -28,7 +27,6 @@ namespace IntranetPortal.Base.Services
         }
         #endregion
 
-        //======================================== Person Service Methods ===========================================================//
         #region Person Service Methods
         public async Task<bool> CreatePersonAsync(Person person)
         {
@@ -145,7 +143,6 @@ namespace IntranetPortal.Base.Services
 
         #endregion
 
-        //=================================== Auto Number Service Methods ============================================================//
         #region Auto Number Service Methods
         public async Task<string> GenerateAutoNumberAsync(string NumberType)
         {
@@ -162,7 +159,6 @@ namespace IntranetPortal.Base.Services
             }
             return autoNumber;
         }
-
         public async Task<bool> IncrementAutoNumberAsync(string NumberType)
         {
             bool autoNumberUpdated = false;
@@ -210,7 +206,6 @@ namespace IntranetPortal.Base.Services
 
         #endregion
 
-        //=================================== Messages Service Methods ===============================================================//
         #region Messages Service Methods
         public async Task<bool> SendMessageAsync(Message message, List<string> receipientIds)
         {
@@ -422,7 +417,6 @@ namespace IntranetPortal.Base.Services
 
         #endregion
 
-        //================================== System Application Service Methods ======================================================//
         #region System Application Service Methods
         public async Task<List<SystemApplication>> GetSystemApplicationsAsync()
         {
@@ -439,7 +433,6 @@ namespace IntranetPortal.Base.Services
         }
         #endregion
 
-        //================================== Industry Sectors Service Methods ======================================================//
         #region Industry Sectors Service Methods
         public async Task<List<IndustrySector>> GetIndustrySectorsAsync()
         {
@@ -502,7 +495,6 @@ namespace IntranetPortal.Base.Services
 
         #endregion
 
-        //================================= Entity Activity History Service Methods =============================================//
         #region Entity Activity History Service Methods
         public async Task<bool> AddEntityActivityHistoryAsync(EntityActivityHistory entityActivityHistory, EntityType entityType)
         {

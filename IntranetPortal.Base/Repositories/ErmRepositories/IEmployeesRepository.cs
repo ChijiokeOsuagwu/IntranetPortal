@@ -71,6 +71,7 @@ namespace IntranetPortal.Base.Repositories.ErmRepositories
         Task<IList<EmployeeRoll>> GetEmployeeRollsByDepartmentIdAsync(int departmentId, DateTime? terminalDate = null);
         Task<IList<EmployeeRoll>> GetEmployeeRollsByUnitIdAsync(int unitId, DateTime? terminalDate = null);
         Task<IList<EmployeeRoll>> GetEmployeeRollsByEmployeeIdAsync(string employeeId, DateTime? terminalDate = null);
+        Task<IList<EmployeeRoll>> GetEmployeeRollsByEmployeeNameAsync(string employeeName, DateTime? terminalDate = null);
         Task<IList<EmployeeRoll>> GetEmployeeRollsByAllAsync(DateTime? terminalDate = null);
 
         #endregion

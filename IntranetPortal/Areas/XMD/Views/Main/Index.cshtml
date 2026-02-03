@@ -1,0 +1,51 @@
+﻿
+@{
+    ViewData["Title"] = "OfficeManager | Executive Management Dashboard";
+}
+<link href="~/lib/matrix/dist/css/style.min.css" rel="stylesheet" />
+<div class="my-2">
+    <!-- ============================================================== -->
+    <!-- Sales Cards  -->
+    <!-- ============================================================== -->
+    <h3 class="fw-bold">Executive Management Dashboard</h3>
+    <hr />
+    <div class="row">
+        <!-- Column -->
+        <div class="col-md-6 col-lg-2 col-xlg-3">
+            <a asp-area="" asp-controller="Home" asp-action="Apps">
+                <div class="card card-hover">
+                    <div class="box bg-light text-center">
+                        <h1 class="font-light text-dark"><i class="bi bi-arrow-left-square"></i></h1>
+                        <h6 class="text-dark">Go Back</h6>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <!-- Column -->
+        <div class="col-md-6 col-lg-2 col-xlg-3">
+            <a asp-area="XMD" asp-controller="Main" asp-action="XmProjectList">
+                <div class="card card-hover">
+                    <div class="box bg-light text-center">
+                        <h1 class="font-light text-dark fw-bold"><i class="bi bi-file-earmark-ppt"></i></h1>
+                        <h6 class="text-dark">Projects</h6>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <!-- Column -->
+        <div class="col-md-6 col-lg-2 col-xlg-3">
+            <a asp-area="XMD" asp-controller="Main" asp-action="FoldersReport">
+                <div class="card card-hover">
+                    <div class="box bg-light text-center">
+                        <h1 class="font-light text-dark fw-bold"><i class="bi bi-file-earmark-font"></i></h1>
+                        <h6 class="text-dark">Task Enquiry</h6>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <!-- Column -->
+    </div>
+</div>
+@section Scripts{
+
+}

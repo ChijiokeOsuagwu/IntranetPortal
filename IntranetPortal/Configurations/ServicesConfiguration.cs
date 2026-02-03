@@ -30,6 +30,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using IntranetPortal.Base.Repositories.AtsRepositories;
+using IntranetPortal.Base.Repositories.LeaveRepositories;
+using IntranetPortal.Data.Repositories.LeaveRepositories;
 
 namespace IntranetPortal.Configurations
 {
@@ -128,8 +130,8 @@ namespace IntranetPortal.Configurations
             services.AddScoped<ILeaveProfileRepository, LeaveProfileRepository>();
             services.AddScoped<ILeaveProfileDetailRepository, LeaveProfileDetailRepository>();
             services.AddScoped<IEmployeeLeaveRepository, EmployeeLeaveRepository>();
-
             services.AddScoped<IAssignmentRepository, AssignmentRepository>();
+            services.AddScoped<ILeaveRepository, LeaveRepository>();
         }
 
         public static void ConfigureServiceManagers(this IServiceCollection services)
@@ -147,6 +149,7 @@ namespace IntranetPortal.Configurations
             services.AddScoped<ILmsService, LmsService>();
             services.AddScoped<IWspService, WspService>();
             services.AddScoped<IAssignmentService, AssignmentService>();
+            services.AddScoped<ILeaveService, LeaveService>();
         }
 
     }

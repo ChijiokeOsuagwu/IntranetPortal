@@ -89,7 +89,7 @@ namespace IntranetPortal.Areas.ContentManager.Controllers
                     Post post = new Post
                     {
                         PostTitle = model.Title,
-                        ImagePath = uploadsFolder,
+                        ImagePath = "/" + uploadsFolder,
                         ImageFullPath = absoluteFilePath,
                         EnableComment = model.EnableComments,
                         IsHidden = model.IsHidden,
@@ -260,7 +260,7 @@ namespace IntranetPortal.Areas.ContentManager.Controllers
                 post.ModifiedDate = DateTime.UtcNow;
                 post.ModifiedBy = HttpContext.User.Identity.Name ?? "Unknown";
                 post.PostTitle = model.Title;
-                post.ImagePath = newUploadFolderPath;
+                post.ImagePath = "/" + newUploadFolderPath;
                 post.ImageFullPath = newAbsoluteFilePath;
                 post.EnableComment = model.EnableComments;
 
