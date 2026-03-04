@@ -193,7 +193,7 @@ namespace IntranetPortal.Areas.ContentManager.Controllers
                 }
 
                 Post post = model.ConvertToPost();
-                post.ImagePath = uploadsFolder;
+                post.ImagePath = "/" + uploadsFolder;
                 post.ImageFullPath = absoluteFilePath;
                 post.ModifiedDate = DateTime.UtcNow;
                 post.ModifiedBy = HttpContext.User.Identity.Name ?? string.Empty;

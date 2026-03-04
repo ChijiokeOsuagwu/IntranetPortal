@@ -14,10 +14,10 @@
                 <select asp-for="sd" asp-items="@ViewBag.ReportsList" class="border-0 fw-bold" style="min-width:350px">
                     <option value="0">- Select -</option>
                 </select>
-                <select asp-for="id" asp-items="@ViewBag.SessionsList" class="border-0 fw-bold ml-3" style="min-width:350px">
+                <select asp-for="id" asp-items="@ViewBag.SessionsList" class="border-0 fw-bold ml-3" style="min-width:450px">
                     <option value="0">- Select -</option>
                 </select>
-                <input type="submit" value="Search" class="btn btn-dark text-white" style="width:100px" />
+                <input type="submit" value="Search" class="btn btn-sm btn-dark text-white" style="width:100px; border-radius:5px" />
             </form>
         </div>
     </div>
@@ -55,7 +55,7 @@
                             <th>
                                 <span class="text-white fw-bolder">Score</span>
                             </th>
-                            <th>    </th>
+                            <th colspan="2">    </th>
                         </tr>
                     </thead>
                     <tbody class="table-light">
@@ -76,20 +76,17 @@
                                 <td title="@item.PerformanceRating">
                                     <span class="fw-bolder">@item.CombinedScoreObtained</span>
                                 </td>
+                                <td class="text-end">
+                                    <a asp-area="PMS" asp-controller="Process" asp-action="AddRecommendation" asp-route-id="@item.ReviewHeaderId" title="Add Recommendation" class="btn btn-sm btn-dark" style="border-radius:5px;">
+                                        <span class="text-white">Add Recommendation</span>
+                                    </a>
+                                    </td>
                                 <td>
-                                    <div class="btn-group dropstart">
-                                        <button type="button" class="bg-light" style="border:0px; height:15px" data-bs-toggle="dropdown" aria-expanded="false">
-                                            <span class="text-dark fw-bold"><i class="bi bi-three-dots" style="font-size:1.2rem"></i></span>
-
+                                    <div class="dropdown">
+                                        <button class="btn btn-sm btn-dark dropdown-toggle" type="button" id="dropdownMenuButton2" data-bs-toggle="dropdown" aria-expanded="false" style="border-radius:5px;">
+                                            View Details
                                         </button>
                                         <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton2">
-                                            <li>
-                                                <a class="dropdown-item" asp-area="PMS" asp-controller="Process" asp-action="AddRecommendation" asp-route-id="@item.ReviewHeaderId" title="Add Recommendation">
-                                                    <i class="bi bi-file-earmark-plus"></i>
-                                                    <span class="text-white">Add Recommendation</span>
-                                                </a>
-                                            </li>
-                                            <li><hr class="dropdown-divider"></li>
                                             <li>
                                                 <a class="dropdown-item" asp-area="PMS" asp-controller="Process" asp-action="ShowContractInfo" asp-route-id="@item.ReviewHeaderId" title="View Performance Contract" class="dropdown-item">
                                                     <i class="bi bi-file-text"></i>
@@ -97,13 +94,43 @@
                                                 </a>
                                             </li>
                                             <li>
-                                                <a  class="dropdown-item" asp-area="PMS" asp-controller="Process" asp-action="ShowSelectedResult" asp-route-id="@item.ReviewHeaderId" asp-route-ad="@item.AppraiserId" title="View Evaluation Result" class="dropdown-item">
+                                                <a class="dropdown-item" asp-area="PMS" asp-controller="Process" asp-action="ShowSelectedResult" asp-route-id="@item.ReviewHeaderId" asp-route-ad="@item.AppraiserId" title="View Evaluation Result" class="dropdown-item">
                                                     <i class="bi bi-file-ruled"></i>
                                                     <span class="text-white">View Result</span>
                                                 </a>
                                             </li>
                                         </ul>
                                     </div>
+
+
+
+
+                                    @* <div class="btn-group dropstart">
+                                        <button type="button" class="bg-light" style="border:0px; height:15px" data-bs-toggle="dropdown" aria-expanded="false">
+                                            <span class="text-dark fw-bold"><i class="bi bi-three-dots" style="font-size:1.2rem"></i></span>
+                                        </button>
+                                        <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton2">
+                                            <li>
+                    <a class="dropdown-item" asp-area="PMS" asp-controller="Process" asp-action="AddRecommendation" asp-route-id="@item.ReviewHeaderId" title="Add Recommendation">
+                        <i class="bi bi-file-earmark-plus"></i>
+                        <span class="text-white">Add Recommendation</span>
+                    </a>
+                </li>
+                <li><hr class="dropdown-divider"></li>
+                                            <li>
+                                                <a class="dropdown-item" asp-area="PMS" asp-controller="Process" asp-action="ShowContractInfo" asp-route-id="@item.ReviewHeaderId" title="View Performance Contract" class="dropdown-item">
+                                                    <i class="bi bi-file-text"></i>
+                                                    <span class="text-white">View Contract</span>
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a class="dropdown-item" asp-area="PMS" asp-controller="Process" asp-action="ShowSelectedResult" asp-route-id="@item.ReviewHeaderId" asp-route-ad="@item.AppraiserId" title="View Evaluation Result" class="dropdown-item">
+                                                    <i class="bi bi-file-ruled"></i>
+                                                    <span class="text-white">View Result</span>
+                                                </a>
+                                            </li>
+                                            </ul>
+        </div>*@
                                 </td>
                             </tr>
                         }

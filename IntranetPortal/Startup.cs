@@ -161,6 +161,11 @@ namespace IntranetPortal
                 areaName: "XMD",
                  pattern: "XMD/{controller=Main}/{action=Index}/{id?}");
 
+                endpoints.MapAreaControllerRoute(
+                    name: "SRM",
+                areaName: "SRM",
+                 pattern: "SRM/{controller=Home}/{action=Index}/{id?}");
+
                 endpoints.MapControllerRoute(
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}");

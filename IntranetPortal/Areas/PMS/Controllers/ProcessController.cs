@@ -3166,6 +3166,61 @@ namespace IntranetPortal.Areas.PMS.Controllers
             return View(model);
         }
 
+        [Authorize(Roles = "PMSSTTMGA, XYALLACCZ")]
+        public async Task<IActionResult> DirectReportAppraisals(int id, string nm = null)
+        {
+            ProgressStatusReportViewModel model = new ProgressStatusReportViewModel();
+            model.ReviewHeaderList = new List<ReviewHeader>();
+            model.id = id;
+            model.nm = nm;
+            model.ReviewHeaderList = new List<ReviewHeader>();
+            string ReportsToID = string.Empty;
+            try
+            {
+                ApplicationUser user = new ApplicationUser();
+
+                ReportsToID = HttpContext.User.Claims.FirstOrDefault(c => c.Type.Contains("nameidentifier")).Value;
+                if (string.IsNullOrWhiteSpace(ReportsToID))
+                {
+                    await HttpContext.SignOutAsync(SecurityConstants.ChxCookieAuthentication);
+                    return LocalRedirect("/Home/Login");
+                }
+
+                if (id > 0)
+                {
+                    var entities = await _performanceService.GetReviewHeadersAsync(id, null, null, null, nm);
+                    if (entities != null && entities.Count > 0)
+                    {
+                        model.ReviewHeaderList = entities;
+                        model.RecordCount = entities.Count;
+                        model.ReviewSessionDescription = entities.FirstOrDefault().ReviewSessionName;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                model.ViewModelErrorMessage = ex.Message;
+            }
+
+            var sessions_entities = await _performanceService.GetReviewSessionsAsync();
+            if (sessions_entities != null && sessions_entities.Count > 0)
+            {
+                ViewBag.SessionsList = new SelectList(sessions_entities, "Id", "Name", id);
+            }
+
+            var reports_entities = await _ermService.GetEmployeeReportsByReportsToEmployeeIdAsync(ReportsToID);
+            if (reports_entities != null && reports_entities.Count > 0)
+            {
+                ViewBag.ReportsList = new SelectList(reports_entities, "EmployeeName", "EmployeeName", nm);
+            }
+
+            if (TempData["ErrorMessage"] != null)
+            {
+                model.ViewModelErrorMessage = TempData["ErrorMessage"].ToString();
+            }
+            return View(model);
+        }
+
         public async Task<IActionResult> AddRecommendation(int id)
         {
             AddRecommendationViewModel model = new AddRecommendationViewModel();

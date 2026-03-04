@@ -32,6 +32,8 @@ using System.Threading.Tasks;
 using IntranetPortal.Base.Repositories.AtsRepositories;
 using IntranetPortal.Base.Repositories.LeaveRepositories;
 using IntranetPortal.Data.Repositories.LeaveRepositories;
+using IntranetPortal.Base.Repositories.SrmRepositories;
+using IntranetPortal.Data.Repositories.SrmRepositories;
 
 namespace IntranetPortal.Configurations
 {
@@ -132,6 +134,9 @@ namespace IntranetPortal.Configurations
             services.AddScoped<IEmployeeLeaveRepository, EmployeeLeaveRepository>();
             services.AddScoped<IAssignmentRepository, AssignmentRepository>();
             services.AddScoped<ILeaveRepository, LeaveRepository>();
+
+            //====== Service Request Manager Repositories =============//
+            services.AddScoped<IServiceRequestRepository, ServiceRequestRepository>();
         }
 
         public static void ConfigureServiceManagers(this IServiceCollection services)
@@ -150,6 +155,7 @@ namespace IntranetPortal.Configurations
             services.AddScoped<IWspService, WspService>();
             services.AddScoped<IAssignmentService, AssignmentService>();
             services.AddScoped<ILeaveService, LeaveService>();
+            services.AddScoped<IRequestService, RequestService>();
         }
 
     }

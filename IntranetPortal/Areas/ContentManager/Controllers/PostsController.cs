@@ -105,7 +105,12 @@ namespace IntranetPortal.Areas.ContentManager.Controllers
 
                     uploadsFolder = "uploads/cms/" + Guid.NewGuid().ToString() + "_" + model.ImageFile.FileName;
                     absoluteFilePath = Path.Combine(_webHostEnvironment.WebRootPath, uploadsFolder);
-                    await model.ImageFile.CopyToAsync(new FileStream(absoluteFilePath, FileMode.Create));
+                    //await model.ImageFile.CopyToAsync(new FileStream(absoluteFilePath, FileMode.Create));
+
+                    using (var fileStream = new FileStream(absoluteFilePath, FileMode.Create))
+                    {
+                        await model.ImageFile.CopyToAsync(fileStream);
+                    }
                 }
                 Post post = new Post
                 {

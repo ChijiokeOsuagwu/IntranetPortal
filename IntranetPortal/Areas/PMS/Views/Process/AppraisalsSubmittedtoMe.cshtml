@@ -58,39 +58,35 @@
                                 switch (item.SubmissionPurposeId)
                                 {
                                     case 1:
-                                        <tr>
-                                            <td class="p-2">
-                                                <span class="fw-bolder">@item.FromEmployeeName</span>
-                                            </td>
-                                            <td class="p-2">
-                                                <span class="fw-bolder">@item.SubmissionPurposeDescription</span>
-                                            </td>
-                                            <td class="p-2">
-                                                <span class="fw-bolder">@item.TimeSubmitted.Value.ToLongDateString()  @item.TimeSubmitted.Value.ToLongTimeString()</span>
-                                            </td>
-                                            @if (item.IsActioned)
-                                            {
-                                                <td class="p-2 text-center">
-                                                    <span class="badge rounded-pill bg-success fw-bold" style="width:100px; font-size:0.9rem;">Actioned</span>
-                                                </td>
-                                                <td class="p-2 text-end">
-                                                    <button title="Delete" class="btn btn-sm btn-danger fw-bold" style="border-radius:10px; width:100px" onclick="deleteSubmission('@item.ReviewSubmissionId')"><span class="text-white fw-bold">Delete</span></button>
-                                                </td>
-                                            }
-                                            else
-                                            {
-                                                <td class="p-2 text-center">
-                                                    <span class="badge rounded-pill bg-warning fw-bold" style="font-size:0.9rem; color:black; width:100px">Pending</span>
-                                                </td>
-                                                <td class="p-2 text-end">
-                                                    <a asp-area="PMS" asp-controller="Process" asp-action="AppraisalInfo" asp-route-id="@item.ReviewHeaderId" asp-route-sd="@item.ReviewSubmissionId" asp-route-src="stm" title="Select" class="btn btn-sm" style="border-radius:10px; width:100px; background-color:#2e4053">
-                                                        <span class="text-white fw-bold">Select</span>
-                                                    </a>
-                                                    @*<button title="Mark as Done" class="btn btn-sm" style="border-radius:10px; width:100px; background-color:#6c3483" onclick="markDone('@item.ReviewSubmissionId')"><span class="fw-bold text-white">Mark as Done</span></button>*@
-                                                </td>
-                                            }
-
-                                        </tr>
+                            <tr>
+                                <td class="p-2">
+                                    <span class="fw-bolder">@item.FromEmployeeName</span>
+                                </td>
+                                <td class="p-2">
+                                    <span class="fw-bolder">@item.SubmissionPurposeDescription</span>
+                                </td>
+                                <td class="p-2">
+                                    <span class="fw-bolder">@item.TimeSubmitted.Value.ToLongDateString()  @item.TimeSubmitted.Value.ToLongTimeString()</span>
+                                </td>
+                                @if (item.IsActioned)
+                                {
+                                    <td class="p-2 text-center">
+                                        <span class="badge rounded-pill bg-success fw-bold" style="width:100px; font-size:0.9rem;">Actioned</span>
+                                    </td>
+                                }
+                                else
+                                {
+                                    <td class="p-2 text-center">
+                                        <span class="badge rounded-pill bg-warning fw-bold" style="font-size:0.9rem; color:black; width:100px">Pending</span>
+                                    </td>
+                                }
+                            <td class="p-2 text-end">
+                                <a asp-area="PMS" asp-controller="Process" asp-action="AppraisalInfo" asp-route-id="@item.ReviewHeaderId" asp-route-sd="@item.ReviewSubmissionId" asp-route-src="stm" title="Select" class="btn btn-sm" style="border-radius:10px; width:100px; background-color:#2e4053">
+                                    <span class="text-white fw-bold">Select</span>
+                                </a>
+                                <button title="Delete" class="btn btn-sm btn-danger fw-bold" style="border-radius:10px; width:100px" onclick="deleteSubmission('@item.ReviewSubmissionId')"><span class="text-white fw-bold">Delete</span></button>
+                            </td>
+                            </tr>
                                         break;
                                     case 2:
                                         <tr>
