@@ -16,23 +16,25 @@ namespace IntranetPortal.Areas.GlobalSettings.Models
         public string TeamID { get; set; }
 
         [Display(Name ="Member")]
-        [Required(ErrorMessage = "Please select a Member!")]
         public string MemberID { get; set; }
 
         [Display(Name ="Role")]
         [Required(ErrorMessage ="Role is required!")]
         public string MemberRole { get; set; }
 
-        [Display(Name = "Name")]
+        [Display(Name = "Member")]
+        [Required(ErrorMessage = "Please enter a staff name")]
         public string MemberName { get; set; }
+        
         public TeamMember ConvertToTeamMember() 
         {
             return new TeamMember
             {
-                TeamID = this.TeamID,
-                MemberID = this.MemberID,
-                MemberRole = this.MemberRole,
-                TeamMemberID = this.TeamMemberID,
+                TeamID = TeamID,
+                MemberID = MemberID,
+                MemberRole = MemberRole,
+                TeamMemberID = TeamMemberID,
+                FullName = MemberName
             };
         }
     }

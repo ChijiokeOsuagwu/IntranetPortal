@@ -1799,7 +1799,7 @@ namespace IntranetPortal.Base.Services
                                     int no_matches = 0;
                                     foreach (var a in result_approval_entities)
                                     {
-                                        if (r.ApprovalRoleId == a.ApproverRoleId)
+                                        if ((r.ApprovalRoleId == a.ApproverRoleId) || (a.ApproverRoleDescription == "Executive Management"))
                                         {
                                             no_matches++;
                                         }

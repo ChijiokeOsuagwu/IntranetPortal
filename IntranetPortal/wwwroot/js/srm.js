@@ -1,4 +1,47 @@
-﻿
+﻿$(document).ready(function () {
+
+    //============ Search Employee Names =======//
+    $("#sn").autocomplete(
+        {
+            minLength: 3,
+            source: function (request, response) {
+                var text = $("#sn").val();
+                $.ajax({
+                    type: "GET",
+                    url: "/ERM/Home/GetEmployeeNames?text=" + text,
+                    data: { text: request.term },
+                    success: function (data) {
+                        response($.map(data, function (item) {
+                            return { label: item, value: item }
+                        }))
+                    }
+                })
+            }
+        })
+});
+
+//======= Script to delete Service Incident from database =========//
+function deleteServiceIncident(id) {
+    if (confirm('Are you sure you want to delete this request permanently?')) {
+        $.ajax({
+            type: 'POST',
+            url: '/SRM/Service/DeleteServiceIncident',
+            dataType: "text",
+            data: { id: id },
+            success: function (result) {
+                if (result == "success") {
+                    location.reload();
+                }
+                else {
+                    console.log(result);
+                }
+            },
+            error: function (error) {
+                console.log(error);
+            }
+        })
+    }
+}
 
 //===== Function to save or update Service System to the database ========//
 function addServiceSystem() {
@@ -110,8 +153,6 @@ function populateSystemEditForm(id, name) {
     sys_name_div.focus();
 }
 
-
-
 //===== Function to save changes to Service Center to the database ========//
 function addServiceCenter() {
     console.log('saving service center started ...')
@@ -220,4 +261,101 @@ function populateCenterEditForm(id, name) {
     document.getElementById("cntr_name").value = name;
     document.getElementById("cntr_id").value = id;
     cntr_name_div.focus();
+}
+
+//===== Function to save New Note to the database ========//
+function addRequestNote() {
+    console.log('saving note started ...')
+    //== validation labels==//
+    const error_div = document.getElementById("div-error");
+    const note_content_input = document.getElementById("note_content");
+    let request_id = document.getElementById("request_id").value;
+
+    let from_name = document.getElementById("from_name").value;
+    let note_content = document.getElementById("note_content").value;
+    let source_page = document.getElementById("source_page").value;
+
+    console.log('ServiceIncidentId = ' + request_id);
+    console.log('From=' + from_name);
+    console.log('note=' + note_content);
+    console.log('source=' + source_page);
+
+    if (note_content === null || note_content === undefined || note_content.trim().length === 0) {
+        error_div.innerHTML = "Please enter a note!";
+        note_content_input.focus();
+        return;
+    }
+    error_div.innerHTML = "";
+
+    console.log('calling api .....')
+    $.ajax({
+        type: 'POST',
+        url: '/SRM/Home/SaveRequestNote',
+        dataType: "text",
+        data: { nm: from_name, msg: note_content, id: request_id },
+        success: function (result) {
+            if (result == "saved") {
+                console.log(result);
+                location.reload();
+            }
+            else if (result == "failed") {
+                error_div.innerHTML = "Sorry, note was not saved. Please try again.";
+            }
+            else if (result == "parameter") {
+                error_div.innerHTML = "Sorry, some values are invalid. Please try again.";
+            }
+            else {
+                error_div.innerHTML = "Sorry, an error encountered. Please try again.";
+                alert(result);
+            }
+        },
+        error: function (err) {
+            error_div.innerHTML = "Sorry, an error encountered. Please try again.";
+            console.log(err);
+        }
+    })
+}
+
+//======= Script to Update a Service Incident Status =========//
+function updateIncidentStatus(request_id, old_status, new_status) {
+    $.ajax({
+        type: 'POST',
+        url: '/SRM/Home/UpdateIncidentStatus',
+        dataType: "text",
+        data: { id: request_id, ns: new_status, os: old_status },
+        success: function (result) {
+            if (result == "success") {
+                location.reload();
+            }
+            else {
+                console.log(result);
+            }
+        },
+        error: function () {
+            console.log('Error Code: 500. Failure due to server error.');
+        }
+    })
+}
+
+//======= Script to Delete a Service Incident =========//
+function deleteServiceIncident(id) {
+    if (confirm('Are you sure you want to delete this request permanently?')) {
+        $.ajax({
+            type: 'POST',
+            url: '/SRM/Home/DeleteServiceIncident',
+            dataType: "text",
+            data: { id: id },
+            success: function (result) {
+                if (result == "success") {
+                    location.reload();
+                }
+                else {
+                    console.log(result);
+                }
+            },
+            error: function (error) {
+                console.log(error);
+            }
+        })
+    }
 }

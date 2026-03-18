@@ -11,7 +11,7 @@ namespace IntranetPortal.Areas.PMS.Models
         public EvaluationResultViewModel EvaluationSummaryResult { get; set; }
         public EvaluationListViewModel KpaFullResult { get; set; }
         public EvaluationListViewModel CmpFullResult { get; set; }
-
+        public bool IsActioned { get; set; }
     }
 
 }

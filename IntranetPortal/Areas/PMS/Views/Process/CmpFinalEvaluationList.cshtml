@@ -5,12 +5,12 @@
         <hr />
         <div class="row">
             <div class="col-md-6 text-start">
-                <a asp-area="PMS" asp-controller="Process" asp-action="KpaFinalEvaluationList" asp-route-id="@Model.ReviewHeaderID" asp-route-ad="@Model.AppraiserID" asp-route-sd="@Model.SubmissionID"  title="Go Back" class="btn btn-outline-light text-dark">
+                <a asp-area="PMS" asp-controller="Process" asp-action="KpaFinalEvaluationList" asp-route-id="@Model.ReviewHeaderID" asp-route-ad="@Model.AppraiserID" asp-route-sd="@Model.SubmissionID" asp-route-ia="@Model.IsActioned"  title="Go Back" class="btn btn-outline-light text-dark">
                     <i class="bi bi-backspace fw-bolder" style="font-size: 1.1rem;"></i><span class="fw-bold ml-2" style="font-size: 1.0rem;">Back</span>
                 </a>
             </div>
             <div class="col-md-6 text-end">
-                <a asp-area="PMS" asp-controller="Process" asp-action="FinalEvaluationResult" asp-route-id="@Model.ReviewHeaderID" asp-route-ad="@Model.AppraiserID" asp-route-sd="@Model.SubmissionID" title="Proceed to Evaluation Result" class="btn btn-sm btn-light text-dark ml-2">
+                <a asp-area="PMS" asp-controller="Process" asp-action="FinalEvaluationResult" asp-route-id="@Model.ReviewHeaderID" asp-route-ad="@Model.AppraiserID" asp-route-sd="@Model.SubmissionID" asp-route-ia="@Model.IsActioned" title="Proceed to Evaluation Result" class="btn btn-sm btn-light text-dark ml-2">
                     <span class="fw-bold mr-2" style="font-size: 1.0rem;">Proceed to Result</span><i class="bi bi-chevron-double-right fw-bolder" style="font-size: 1.1rem;"></i>
                 </a>
             </div>
@@ -68,9 +68,16 @@
                                                     </div>
                                                     <div class="col-md-3">
                                                         <label class="form-label text-white fw-bold">Final Score</label>
-                                                        <select id="dpd_appraiser_score_@cmp.ReviewMetricId" asp-for="@cmp.AppraiserScore" asp-items="@ViewBag.GradeList" class="form-control fw-bold" onchange="saveCmpScore(@cmp.ReviewResultId, @cmp.ReviewHeaderId, @cmp.ReviewMetricId, '@Model.AppraiserID', '@Model.PrimaryAppraiserID', @Model.SubmissionID)">
-                                                            <option value="0">Select Score</option>
-                                                        </select>
+                                                        @if (!Model.IsActioned)
+                                                        {
+                                                            <select id="dpd_appraiser_score_@cmp.ReviewMetricId" asp-for="@cmp.AppraiserScore" asp-items="@ViewBag.GradeList" class="form-control fw-bold" onchange="saveCmpScore(@cmp.ReviewResultId, @cmp.ReviewHeaderId, @cmp.ReviewMetricId, '@Model.AppraiserID', '@Model.PrimaryAppraiserID', @Model.SubmissionID)">
+                                                                <option value="0">Select Score</option>
+                                                            </select>
+                                                        }
+                                                        else
+                                                        {
+                                                            <div class="form-control fw-bold">@cmp.AppraiserScore</div>
+                                                        }
                                                     </div>
                                                     <div class="col-md-6">
                                                         <div style="margin-top:40px;" id="span_@cmp.ReviewMetricId">
@@ -87,12 +94,12 @@
                 </div>
                 <div class="row">
                     <div class="col-md-6 text-start">
-                        <a asp-area="PMS" asp-controller="Process" asp-action="KpaFinalEvaluationList" asp-route-id="@Model.ReviewHeaderID" asp-route-ad="@Model.AppraiserID" asp-route-sd="@Model.SubmissionID" title="Go Back" class="btn btn-outline-light text-dark">
+                        <a asp-area="PMS" asp-controller="Process" asp-action="KpaFinalEvaluationList" asp-route-id="@Model.ReviewHeaderID" asp-route-ad="@Model.AppraiserID" asp-route-sd="@Model.SubmissionID" asp-route-ia="@Model.IsActioned" title="Go Back" class="btn btn-outline-light text-dark">
                             <i class="bi bi-backspace fw-bolder" style="font-size: 1.1rem;"></i><span class="fw-bold ml-2" style="font-size: 1.0rem;">Back</span>
                         </a>
                     </div>
                     <div class="col-md-6 text-end">
-                        <a asp-area="PMS" asp-controller="Process" asp-action="FinalEvaluationResult" asp-route-id="@Model.ReviewHeaderID" asp-route-ad="@Model.AppraiserID" asp-route-sd="@Model.SubmissionID" title="Proceed to Evaluation Result" class="btn btn-sm btn-light text-dark ml-2">
+                        <a asp-area="PMS" asp-controller="Process" asp-action="FinalEvaluationResult" asp-route-id="@Model.ReviewHeaderID" asp-route-ad="@Model.AppraiserID" asp-route-sd="@Model.SubmissionID" asp-route-ia="@Model.IsActioned" title="Proceed to Evaluation Result" class="btn btn-sm btn-light text-dark ml-2">
                             <span class="fw-bold mr-2" style="font-size: 1.0rem;">Proceed to Result</span><i class="bi bi-chevron-double-right fw-bolder" style="font-size: 1.1rem;"></i>
                         </a>
                     </div>

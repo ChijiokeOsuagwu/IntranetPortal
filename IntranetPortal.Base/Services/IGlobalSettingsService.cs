@@ -76,11 +76,11 @@ namespace IntranetPortal.Base.Services
 
         Task<bool> UpdateTeamAsync(Team team);
 
-        Task<IList<Team>> GetTeamsAsync();
+        Task<List<Team>> GetTeamsAsync();
 
         Task<Team> GetTeamByIdAsync(string teamId);
 
-        Task<IList<Team>> SearchTeamsByNameAsync(string teamName);
+        Task<List<Team>> SearchTeamsByNameAsync(string teamName);
 
         #endregion
 

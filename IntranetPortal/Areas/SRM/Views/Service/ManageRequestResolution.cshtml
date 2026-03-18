@@ -1,0 +1,90 @@
+﻿
+@model IntranetPortal.Areas.SRM.Models.RequestResolutionViewModel
+<h3>Service Request Manager | Request Resolution</h3>
+<hr />
+<div class="card mt-1">
+    <div class="card-header bg-info">
+        <div class="row">
+            @if (string.IsNullOrWhiteSpace(Model.ResolutionDescription))
+            {<div class="col-md-8"><h4 class="text-white">Add Resolution</h4></div> }
+            else
+            { <div class="col-md-8"><h4 class="text-white">Update Resolution</h4></div>}
+            <div class="col-md-4 text-end"><h4 class="text-white"># @Model.IncidentNumber</h4></div>
+        </div>
+    </div>
+    <div class="card-body table-secondary">
+        @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-x-circle"></i>
+                <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (!String.IsNullOrEmpty(Model.ViewModelSuccessMessage))
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="bi bi-check-circle"></i>
+                <span class="fw-bold">@Model.ViewModelSuccessMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (!String.IsNullOrEmpty(Model.ViewModelWarningMessage))
+        {
+            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                <i class="bi bi-exclamation-circle"></i>
+                <span class="fw-bold">@Model.ViewModelWarningMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        <form asp-area="SRM" asp-controller="Service" asp-action="ManageRequestResolution" method="post" autocomplete="off">
+            <div class="row">
+                <div class="col-md-12 mb-2">
+                    <label class="form-label text-dark fw-bold">Problem Description</label>
+                    <textarea asp-for="IncidentDescription" class="form-control fw-bold" readonly>@Model.IncidentDescription</textarea>
+                    <div><span asp-validation-for="IncidentDescription" class="text-danger"></span></div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12 mb-1">
+                    <label class="form-label text-dark fw-bold">Solution Description</label>
+                    <textarea asp-for="ResolutionDescription" class="form-control fw-bold" rows="6" placeholder="Describe how the request or issue was resolved. Include the steps taken, final outcome, and any follow up needed." autofocus required>@Model.ResolutionDescription</textarea>
+                    <div><span asp-validation-for="ResolutionDescription" class="text-danger"></span></div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-4 mb-2">
+                    <label class="form-label text-dark fw-bold">Resolved By</label>
+                    <input id="sn" asp-for="ResolvedByEmployeeName" class="form-control fw-bold" />
+                    <div><span asp-validation-for="ResolvedByEmployeeName" class="text-danger"></span></div>
+                </div>
+                <div class="col-md-4 mb-2">
+                    <label class="form-label text-dark fw-bold">Resolved On</label>
+                    <input asp-for="ResolvedTime" class="form-control fw-bold" type="date" />
+                    <div><span asp-validation-for="ResolvedTime" class="text-danger"></span></div>
+                </div>
+                <div class="col-md-4 mb-2">
+                    <label asp-for="ServiceTypeId" class="form-label text-white fw-bold"></label>
+                    <select asp-for="ServiceTypeId" asp-items="@ViewBag.ServiceTypesList" class="form-control fw-bold">
+                        <option value=""> - Select - </option>
+                    </select>
+                    <div><span asp-validation-for="ServiceTypeId" class="text-danger"></span></div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12 text-end">
+                    <a asp-area="SRM" asp-controller="Service" asp-action="ServiceRequestBoard" asp-route-id="@Model.Id" class="btn btn-dark" style="width:75px; margin-top:30px" title="Back">
+                        <span class="text-white">Back</span>
+                    </a>
+                    <a asp-area="SRM" asp-controller="Service" asp-action="ManageRequestResolution" asp-route-id="@Model.Id" asp-route-rd="@Model.IncidentId" class="btn btn-warning" style="width:75px; margin-top:30px" title="Clear">
+                        <span class="text-white">Clear</span>
+                    </a>
+                    <button type="submit" class="btn btn-info" title="Save" style="width:100px; margin-top:30px"><span class="text-white">Save</span></button>
+                </div>
+            </div>
+            <input type="hidden" asp-for="IncidentId" />
+            <input type="hidden" asp-for="Id" />
+        </form>
+    </div>
+</div>
+

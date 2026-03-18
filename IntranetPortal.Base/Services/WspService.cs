@@ -893,7 +893,6 @@ namespace IntranetPortal.Base.Services
             }
             return taskItems;
         }
-
         public async Task<List<TaskItem>> GetTasksByProjectNumberAsync(string ProjectNumber)
         {
             if (string.IsNullOrWhiteSpace(ProjectNumber)) { throw new ArgumentNullException(nameof(ProjectNumber)); }

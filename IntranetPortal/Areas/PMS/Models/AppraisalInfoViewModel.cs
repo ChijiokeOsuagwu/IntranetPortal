@@ -14,5 +14,6 @@ namespace IntranetPortal.Areas.PMS.Models
         public List<ReviewMetric> KpaList { get; set; }
         public List<ReviewCDG> CdgList { get; set; }
         public string SourcePage { get; set; }
+        public bool IsActioned { get; set; }
     }
 }

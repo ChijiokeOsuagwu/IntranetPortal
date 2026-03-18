@@ -1,5 +1,6 @@
 ﻿using IntranetPortal.Base.Models.EmployeeRecordModels;
 using IntranetPortal.Base.Models.GlobalSettingsModels;
+using IntranetPortal.Base.Repositories.ErmRepositories;
 using IntranetPortal.Base.Repositories.GlobalSettingsRepositories;
 using System;
 using System.Collections.Generic;
@@ -18,11 +19,12 @@ namespace IntranetPortal.Base.Services
         private readonly ITeamRepository _teamRepository;
         private readonly IProgramRepository _programRepository;
         private readonly ICurrencyRepository _currencyRepository;
+        private readonly IEmployeesRepository _employeesRepository;
 
         public GlobalSettingsService(ILocationRepository locationRepository, IDepartmentRepository departmentRepository,
                                         IUnitRepository unitRepository, ICompanyRepository companyRepository,
                                         ITeamRepository teamRepository, IProgramRepository programRepository,
-                                        ICurrencyRepository currencyRepository)
+                                        ICurrencyRepository currencyRepository, IEmployeesRepository employeesRepository)
         {
             _locationRepository = locationRepository;
             _departmentRepository = departmentRepository;
@@ -31,6 +33,7 @@ namespace IntranetPortal.Base.Services
             _teamRepository = teamRepository;
             _programRepository = programRepository;
             _currencyRepository = currencyRepository;
+            _employeesRepository = employeesRepository;
         }
 
         #region Location Action Methods
@@ -469,7 +472,6 @@ namespace IntranetPortal.Base.Services
         #endregion
 
         #region Team Action Methods
-
         public async Task<bool> CreateTeamAsync(Team team)
         {
             if (team == null) { throw new ArgumentNullException(nameof(team), "Required parameter [team] is missing. The request cannot be processed."); }
@@ -484,7 +486,6 @@ namespace IntranetPortal.Base.Services
             }
             return IsSuccessful;
         }
-
         public async Task<bool> DeleteTeamAsync(string teamId)
         {
             if (string.IsNullOrWhiteSpace(teamId)) { throw new ArgumentNullException(nameof(teamId), "Required parameter [teamId] is missing."); }
@@ -500,7 +501,6 @@ namespace IntranetPortal.Base.Services
             }
             return IsSuccessful;
         }
-
         public async Task<bool> UpdateTeamAsync(Team team)
         {
             if (team == null) { throw new ArgumentNullException(nameof(team), "Required parameter [team] is missing."); }
@@ -515,8 +515,7 @@ namespace IntranetPortal.Base.Services
             }
             return IsSuccessful;
         }
-
-        public async Task<IList<Team>> GetTeamsAsync()
+        public async Task<List<Team>> GetTeamsAsync()
         {
             List<Team> teams = new List<Team>();
             try
@@ -530,7 +529,6 @@ namespace IntranetPortal.Base.Services
             }
             return teams;
         }
-
         public async Task<Team> GetTeamByIdAsync(string teamId)
         {
             Team team = new Team();
@@ -546,8 +544,7 @@ namespace IntranetPortal.Base.Services
             }
             return team;
         }
-
-        public async Task<IList<Team>> SearchTeamsByNameAsync(string teamName)
+        public async Task<List<Team>> SearchTeamsByNameAsync(string teamName)
         {
             List<Team> teams = new List<Team>();
             try
@@ -561,7 +558,6 @@ namespace IntranetPortal.Base.Services
             }
             return teams;
         }
-
         #endregion
 
         #region Team Members Action Methods
@@ -570,14 +566,20 @@ namespace IntranetPortal.Base.Services
         {
             if (teamMember == null) { throw new ArgumentNullException(nameof(teamMember), "Required parameter [Team Member] is missing. The request cannot be processed."); }
             bool IsSuccessful = false;
-            try
+
+            if (string.IsNullOrWhiteSpace(teamMember.MemberID) && string.IsNullOrWhiteSpace(teamMember.FullName))
             {
-                IsSuccessful = await _teamRepository.AddTeamMemberAsync(teamMember);
+                throw new Exception("Error: Missing parameter Member ID and Member Name.");
             }
-            catch (Exception ex)
+            var employee = await _employeesRepository.GetEmployeeByNameAsync(teamMember.FullName);
+            if (employee == null || string.IsNullOrWhiteSpace(employee.FullName))
             {
-                throw new Exception(ex.Message);
+                throw new Exception($"Error: No employee record was found for {teamMember.FullName}.");
             }
+
+            teamMember.MemberID = employee.EmployeeID;
+
+            IsSuccessful = await _teamRepository.AddTeamMemberAsync(teamMember);
             return IsSuccessful;
         }
 
@@ -585,15 +587,7 @@ namespace IntranetPortal.Base.Services
         {
             if (teamMemberId < 1) { throw new ArgumentNullException(nameof(teamMemberId), "Required parameter [TeamMemberID] is missing."); }
             bool IsSuccessful = false;
-            try
-            {
-                IsSuccessful = await _teamRepository.DeleteTeamMemberAsync(teamMemberId);
-            }
-            catch (Exception ex)
-            {
-
-                throw new Exception(ex.Message);
-            }
+            IsSuccessful = await _teamRepository.DeleteTeamMemberAsync(teamMemberId);
             return IsSuccessful;
         }
 

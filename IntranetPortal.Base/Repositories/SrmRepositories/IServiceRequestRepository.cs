@@ -1,5 +1,6 @@
 ﻿using IntranetPortal.Base.Models.SrmModels;
 using Microsoft.Extensions.Configuration;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -8,6 +9,39 @@ namespace IntranetPortal.Base.Repositories.SrmRepositories
     public interface IServiceRequestRepository
     {
         IConfiguration _config { get; }
+
+        #region Service Incident Action Methods
+
+        #region Write Action Methods
+        Task<long> AddServiceIncidentAsync(ServiceIncident incident);
+        Task<bool> UpdateServiceIncidentAsync(ServiceIncident incident);
+        Task<bool> UpdateServiceIncidentStatusAsync(long serviceIncidentId, string newIncidentStatus);
+        Task<bool> DeleteServiceIncidentAsync(long serviceIncidentId);
+        #endregion
+
+        #region Read Action Methods
+        Task<List<ServiceIncident>> GetServiceIncidentsByOwnerIdAsync(string ownerId, DateTime? startDate, DateTime? endDate);
+        Task<List<ServiceIncident>> GetServiceIncidentsByTeamMemberIdAsync(string teamMemberId, DateTime? startDate, DateTime? endDate);
+
+        Task<List<ServiceIncident>> GetServiceIncidentByIdAsync(long serviceIncidentId);
+        #endregion
+
+        #endregion
+
+        #region Incident Resolution Action Interfaces
+        #region Read Interfaces
+        Task<List<IncidentResolution>> GetIncidentResolutionsByIncidentIdAsync(long incidentId);
+        Task<List<IncidentResolution>> GetIncidentResolutionsByIdAsync(long incidentResolutionId);
+        #endregion
+
+        #region Write Interfaces
+        Task<long> AddIncidentResolutionAsync(IncidentResolution resolution);
+        Task<bool> UpdateIncidentResolutionAsync(IncidentResolution resolution);
+        Task<bool> UpdateIncidentResolutionConfirmationAsync(long incidentResolutionId, bool resolutionIsConfirmed, string resolutionConfirmedBy);
+        Task<bool> DeleteIncidentResolutionAsync(long incidentResolutionId);
+        #endregion
+        
+        #endregion
 
         #region Service Settings
 
@@ -59,8 +93,10 @@ namespace IntranetPortal.Base.Repositories.SrmRepositories
         Task<List<ServiceRequestActivity>> GetServiceRequestActivitysByServiceIncidentIdAsync(long serviceIncidentId);
         #endregion
 
+        #region Utility Action Methods
+        Task<List<string>> GetIncidentCodeNumbersByCreatedDateAsync(DateTime createdDate);
         #endregion
 
-
+        #endregion
     }
 }

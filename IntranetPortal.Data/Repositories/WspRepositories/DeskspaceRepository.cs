@@ -3426,7 +3426,6 @@ namespace IntranetPortal.Data.Repositories.WspRepositories
             return taskList;
         }
 
-
         public async Task<List<TaskItem>> GetTaskItemsByProjectNumberAsync(string projectNumber)
         {
             List<TaskItem> taskList = new List<TaskItem>();

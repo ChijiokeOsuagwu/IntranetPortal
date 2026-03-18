@@ -2,7 +2,6 @@
 @model IntranetPortal.Areas.GlobalSettings.Models.TeamMemberViewModel
 @{
     ViewData["Title"] = "Team Settings | New Member";
-    Layout = "~/Areas/GlobalSettings/Views/Shared/_GBSLayout.cshtml";
 }
 <div class="d-flex align-items-center justify-content-center" style="height:100vh">
     <div class="card" style="min-width:600px">
@@ -39,10 +38,14 @@
                     <div class="row">
                         <div class="col-md-12  mb-2">
                             <input type="hidden" asp-for="TeamID" />
-                            <label asp-for="MemberID" class="form-label text-white fw-bold"></label>
-                            <select asp-for="MemberID" asp-items="@ViewBag.StaffList" class="form-control fw-bold">
-                                <option value="">- Select Staff -</option>
-                            </select>
+                            <input type="hidden" asp-for="MemberID" />
+                            <label asp-for="MemberName" class="form-label text-white fw-bold"></label>
+                            <input asp-for="MemberName" id="sn" class="form-control fw-bold" />
+                            <div><span asp-validation-for="MemberName" class="text-danger"></span></div>
+
+                            @*<select asp-for="MemberID" asp-items="@ViewBag.StaffList" class="form-control fw-bold">
+            <option value="">- Select Staff -</option>
+        </select>*@
                         </div>
                     </div>
                 </div>
@@ -53,6 +56,7 @@
                             <option value="Team Member">Team Member</option>
                             <option value="Team Lead">Team Lead</option>
                         </select>
+                        <div><span asp-validation-for="MemberName" class="text-danger"></span></div>
                     </div>
                 </div>
                 <div class="row">
@@ -74,6 +78,7 @@
         </div>
     </div>
 </div>
-
-
+@section Scripts{
+    <script src="~/js/wsp.js"></script>
+}
 

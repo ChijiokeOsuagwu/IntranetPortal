@@ -20,16 +20,22 @@ namespace IntranetPortal.Data.Repositories.SrmRepositories
         }
 
         #region Service Incidents Data Access Methods
+        
+        #region Write Action Methods
         public async Task<long> AddServiceIncidentAsync(ServiceIncident incident)
         {
             long inserted_row_id = 0;
             StringBuilder sb = new StringBuilder();
-            sb.Append("INSERT INTO public.srm_inc_inf(inc_desc, inc_imp, inc_svrt, ");
-            sb.Append("inc_dt, inc_emp_id, inc_rpt_by, inc_rpt_dt, inc_sts, ");
-            sb.Append("inc_isfp, inc_sys_id, inc_loc_id, inc_unit_id) ");
-            sb.Append("VALUES (@inc_desc, @inc_imp, @inc_svrt, @inc_dt, @inc_emp_id, ");
-            sb.Append("@inc_rpt_by, @inc_rpt_dt, @inc_sts, @inc_isfp, @inc_sys_id, ");
-            sb.Append("@inc_loc_id, @inc_unit_id) RETURNING inc_id; ");
+            sb.Append("INSERT INTO public.srm_inc_inf(inc_desc, inc_imp, inc_dt, ");
+            sb.Append("inc_emp_id, inc_rpt_by, inc_rpt_dt, inc_sts, inc_isfn, ");
+            sb.Append("inc_sys_id, inc_loc_id, inc_unit_id, inc_svrt, is_assgnd, ");
+            sb.Append("inc_dept_id, srv_cntr_id, inc_no, res_cnfmd, cnfmd_by, ");
+            sb.Append("cnfmd_dt) VALUES (@inc_desc, @inc_imp, @inc_dt, ");
+            sb.Append("@inc_emp_id, @inc_rpt_by,  @inc_rpt_dt, @inc_sts, ");
+            sb.Append("@inc_isfn, @inc_sys_id, @inc_loc_id, @inc_unit_id, ");
+            sb.Append("@inc_svrt, @is_assgnd, @inc_dept_id, @srv_cntr_id, ");
+            sb.Append("@inc_no, @res_cnfmd, @cnfmd_by, @cnfmd_dt) ");
+            sb.Append("RETURNING inc_id; "); 
 
             string query = sb.ToString();
             using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
@@ -39,42 +45,651 @@ namespace IntranetPortal.Data.Repositories.SrmRepositories
                 {
                     var inc_desc = cmd.Parameters.Add("@inc_desc", NpgsqlDbType.Text);
                     var inc_imp = cmd.Parameters.Add("@inc_imp", NpgsqlDbType.Text);
-                    var inc_svrt = cmd.Parameters.Add("@inc_svrt", NpgsqlDbType.Integer);
                     var inc_dt = cmd.Parameters.Add("@inc_dt", NpgsqlDbType.Timestamp);
                     var inc_emp_id = cmd.Parameters.Add("@inc_emp_id", NpgsqlDbType.Text);
                     var inc_rpt_by = cmd.Parameters.Add("@inc_rpt_by", NpgsqlDbType.Text);
                     var inc_rpt_dt = cmd.Parameters.Add("@inc_rpt_dt", NpgsqlDbType.Timestamp);
                     var inc_sts = cmd.Parameters.Add("@inc_sts", NpgsqlDbType.Text);
-                    var inc_isfn = cmd.Parameters.Add("@inc_isfp", NpgsqlDbType.Boolean);
+                    var inc_isfn = cmd.Parameters.Add("@inc_isfn", NpgsqlDbType.Boolean);
                     var inc_sys_id = cmd.Parameters.Add("@inc_sys_id", NpgsqlDbType.Integer);
                     var inc_loc_id = cmd.Parameters.Add("@inc_loc_id", NpgsqlDbType.Integer);
                     var inc_unit_id = cmd.Parameters.Add("@inc_unit_id", NpgsqlDbType.Integer);
+                    var inc_svrt = cmd.Parameters.Add("@inc_svrt", NpgsqlDbType.Integer);
+                    var is_assgnd = cmd.Parameters.Add("@is_assgnd", NpgsqlDbType.Boolean);
+                    var inc_dept_id = cmd.Parameters.Add("@inc_dept_id", NpgsqlDbType.Integer);
+                    var srv_cntr_id = cmd.Parameters.Add("@srv_cntr_id", NpgsqlDbType.Text);
+                    var inc_no = cmd.Parameters.Add("@inc_no", NpgsqlDbType.Text);
+                    var res_cnfmd = cmd.Parameters.Add("@res_cnfmd", NpgsqlDbType.Boolean);
+                    var cnfmd_by = cmd.Parameters.Add("@cnfmd_by", NpgsqlDbType.Text);
+                    var cnfmd_dt = cmd.Parameters.Add("@cnfmd_dt", NpgsqlDbType.Timestamp);
                     cmd.Prepare();
                     inc_desc.Value = incident.Description;
-                    inc_imp.Value = incident.Impact;
-                    inc_svrt.Value = incident.Severity;
-                    inc_dt.Value = incident.IncidentTime;
+                    inc_imp.Value = incident.Impact ?? (object)DBNull.Value;
+                    inc_dt.Value = incident.IncidentTime ?? DateTime.Now;
                     inc_emp_id.Value = incident.IncidentEmployeeId;
                     inc_rpt_by.Value = incident.ReportedByEmployeeName;
-                    inc_rpt_dt.Value = incident.ReportedTime;
+                    inc_rpt_dt.Value = incident.ReportedTime ?? DateTime.Now;
                     inc_sts.Value = incident.IncidentStatus;
                     inc_isfn.Value = incident.IsFalseNegative;
-                    inc_desc.Value = incident.Description;
-                    inc_desc.Value = incident.Description;
-                    inc_desc.Value = incident.Description;
-                    inc_desc.Value = incident.Description;
-
-
+                    inc_sys_id.Value = incident.ServiceSystemId ?? (object)DBNull.Value;
+                    inc_loc_id.Value = incident.LocationId ?? (object)DBNull.Value;
+                    inc_unit_id.Value = incident.UnitId ?? (object)DBNull.Value;
+                    inc_svrt.Value = incident.Severity;
+                    is_assgnd.Value = incident.IsAssigned;
+                    inc_dept_id.Value = incident.DepartmentId;
+                    srv_cntr_id.Value = incident.ServiceCenterId;
+                    inc_no.Value = incident.Number;
+                    res_cnfmd.Value = incident.ConfirmedResolved;
+                    cnfmd_by.Value = incident.ConfirmedBy;
+                    cnfmd_dt.Value = incident.ConfirmedTime ?? (object)DBNull.Value;
                     var obj = await cmd.ExecuteScalarAsync();
-                    inserted_row_id = (int)obj;
+                    inserted_row_id = (long)obj;
                 }
                 await conn.CloseAsync();
             }
             return inserted_row_id;
         }
+        public async Task<bool> UpdateServiceIncidentAsync(ServiceIncident incident)
+        {
+            int rows = 0;
+            StringBuilder sb = new StringBuilder();
+
+            sb.Append("UPDATE public.srm_inc_inf SET inc_desc=@inc_desc, ");
+            sb.Append("inc_imp=@inc_imp, inc_dt=@inc_dt, inc_emp_id=@inc_emp_id, ");
+            sb.Append("inc_isfn=@inc_isfn, inc_sys_id=@inc_sys_id, ");
+            sb.Append("inc_loc_id=@inc_loc_id, inc_unit_id=@inc_unit_id, ");
+            sb.Append("inc_svrt=@inc_svrt, is_assgnd=@is_assgnd, ");
+            sb.Append("inc_dept_id=@inc_dept_id, srv_cntr_id=@srv_cntr_id ");
+            sb.Append("WHERE (inc_id=@inc_id); ");
+
+            string query = sb.ToString();
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
+            {
+                await conn.OpenAsync();
+                using (var cmd = new NpgsqlCommand(query, conn))
+                {
+                    var inc_desc = cmd.Parameters.Add("@inc_desc", NpgsqlDbType.Text);
+                    var inc_imp = cmd.Parameters.Add("@inc_imp", NpgsqlDbType.Text);
+                    var inc_dt = cmd.Parameters.Add("@inc_dt", NpgsqlDbType.Timestamp);
+                    var inc_emp_id = cmd.Parameters.Add("@inc_emp_id", NpgsqlDbType.Text);
+                    var inc_isfn = cmd.Parameters.Add("@inc_isfn", NpgsqlDbType.Boolean);
+                    var inc_sys_id = cmd.Parameters.Add("@inc_sys_id", NpgsqlDbType.Integer);
+                    var inc_loc_id = cmd.Parameters.Add("@inc_loc_id", NpgsqlDbType.Integer);
+                    var inc_unit_id = cmd.Parameters.Add("@inc_unit_id", NpgsqlDbType.Integer);
+                    var inc_svrt = cmd.Parameters.Add("@inc_svrt", NpgsqlDbType.Integer);
+                    var is_assgnd = cmd.Parameters.Add("@is_assgnd", NpgsqlDbType.Boolean);
+                    var inc_dept_id = cmd.Parameters.Add("@inc_dept_id", NpgsqlDbType.Integer);
+                    var srv_cntr_id = cmd.Parameters.Add("@srv_cntr_id", NpgsqlDbType.Text);
+                    var inc_id = cmd.Parameters.Add("@inc_id", NpgsqlDbType.Bigint);
+                    cmd.Prepare();
+                    inc_desc.Value = incident.Description;
+                    inc_imp.Value = incident.Impact ?? (object)DBNull.Value;
+                    inc_dt.Value = incident.IncidentTime ?? DateTime.Now;
+                    inc_emp_id.Value = incident.IncidentEmployeeId;
+                    inc_isfn.Value = incident.IsFalseNegative;
+                    inc_sys_id.Value = incident.ServiceSystemId ?? (object)DBNull.Value;
+                    inc_loc_id.Value = incident.LocationId ?? (object)DBNull.Value;
+                    inc_unit_id.Value = incident.UnitId ?? (object)DBNull.Value;
+                    inc_svrt.Value = incident.Severity;
+                    is_assgnd.Value = incident.IsAssigned;
+                    inc_dept_id.Value = incident.DepartmentId ?? (object)DBNull.Value;
+                    srv_cntr_id.Value = incident.ServiceCenterId ?? (object)DBNull.Value;
+                    inc_id.Value = incident.Id;
+                    rows = await cmd.ExecuteNonQueryAsync();
+                }
+                await conn.CloseAsync();
+            }
+            return rows > 0;
+        }
+        public async Task<bool> UpdateServiceIncidentStatusAsync(long serviceIncidentId, string newIncidentStatus)
+        {
+            int rows = 0;
+            StringBuilder sb = new StringBuilder();
+
+            sb.Append("UPDATE public.srm_inc_inf SET inc_sts=@inc_sts ");
+            sb.Append("WHERE (inc_id=@inc_id); ");
+
+            string query = sb.ToString();
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
+            {
+                await conn.OpenAsync();
+                using (var cmd = new NpgsqlCommand(query, conn))
+                {
+                    var inc_sts = cmd.Parameters.Add("@inc_sts", NpgsqlDbType.Text);
+                    var inc_id = cmd.Parameters.Add("@inc_id", NpgsqlDbType.Bigint);
+                    cmd.Prepare();
+                    inc_sts.Value = newIncidentStatus;
+                    inc_id.Value = serviceIncidentId;
+                    rows = await cmd.ExecuteNonQueryAsync();
+                }
+                await conn.CloseAsync();
+            }
+            return rows > 0;
+        }
+        public async Task<bool> DeleteServiceIncidentAsync(long serviceIncidentId)
+        {
+            int rows = 0;
+            StringBuilder sb = new StringBuilder();
+            sb.Append("DELETE FROM public.srm_inc_hst WHERE (inc_id=@inc_id); ");
+            sb.Append("DELETE FROM public.srm_inc_nts WHERE (inc_id=@inc_id); ");
+            sb.Append("DELETE FROM public.srm_inc_res WHERE (inc_id=@inc_id); ");
+            sb.Append("DELETE FROM public.srm_inc_inf WHERE (inc_id=@inc_id); ");
+            string query = sb.ToString();
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
+            {
+                await conn.OpenAsync();
+                using (var cmd = new NpgsqlCommand(query, conn))
+                {
+                    var inc_id = cmd.Parameters.Add("@inc_id", NpgsqlDbType.Bigint);
+                    cmd.Prepare();
+                    inc_id.Value = serviceIncidentId;
+                    rows = await cmd.ExecuteNonQueryAsync();
+                }
+                await conn.CloseAsync();
+            }
+            return rows > 0;
+        }
+        #endregion
+        
+        #region Read Action Methods
+        public async Task<List<ServiceIncident>> GetServiceIncidentsByOwnerIdAsync(string ownerId, DateTime? startDate, DateTime? endDate)
+        {
+            List<ServiceIncident> incidentsList = new List<ServiceIncident>();
+            if(startDate == null) { startDate = DateTime.Now.AddMonths(-6); }
+            if(endDate == null) { endDate = DateTime.Now.AddDays(1); }
+
+            string start_date = startDate.Value.ToString("yyyy-MM-dd");
+            string end_date = endDate.Value.ToString("yyyy-MM-dd");
+
+            StringBuilder sb = new StringBuilder();
+            sb.Append("SELECT i.inc_id, i.inc_desc, i.inc_imp, i.inc_dt, i.inc_emp_id, i.inc_rpt_by, ");
+            sb.Append("i.inc_rpt_dt, i.inc_sts, i.inc_isfn, i.inc_sys_id, i.inc_loc_id, i.inc_unit_id, ");
+            sb.Append("i.inc_svrt, i.is_assgnd, i.inc_dept_id, i.inc_no, i.srv_cntr_id, ");
+            sb.Append("i.res_cnfmd, i.cnfmd_by, i.cnfmd_dt, t.tm_nm, s.inc_sys_nm, ");
+            sb.Append("CASE i.inc_svrt WHEN 0 THEN 'Low' ");
+            sb.Append("WHEN 1 THEN 'Medium' ");
+            sb.Append("WHEN 2 THEN 'High' ");
+            sb.Append("WHEN 3 THEN 'Critical' END AS inc_svrt_desc, ");
+            sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id =  i.inc_emp_id) as inc_emp_nm, ");
+            sb.Append("(SELECT unitname FROM public.gst_units WHERE unitqk = i.inc_unit_id) as inc_unit_nm, ");
+            sb.Append("(SELECT deptname FROM public.gst_depts WHERE deptqk = i.inc_dept_id) as inc_dept_nm, ");
+            sb.Append("(SELECT locname FROM public.gst_locs WHERE locqk = i.inc_loc_id) as inc_loc_nm ");
+            sb.Append("FROM public.srm_inc_inf i ");
+            sb.Append("LEFT OUTER JOIN public.srm_inc_sys s ON i.inc_sys_id = s.inc_sys_id ");
+            sb.Append("LEFT OUTER JOIN public.gst_tms t ON i.srv_cntr_id = t.tm_id ");
+            sb.Append("WHERE (i.inc_emp_id = @inc_emp_id) ");
+            //sb.Append("AND (LOWER(t.tsk_itm_ds) LIKE '%'||LOWER(@kw)||'%') ");
+            sb.Append("AND (i.inc_rpt_dt >= to_date(@sdt,'YYYY-MM-DD')) ");
+            sb.Append("AND (i.inc_rpt_dt <= to_date(@edt,'YYYY-MM-DD')) ");
+            sb.Append("ORDER BY i.inc_id DESC;");
+
+            string query = sb.ToString();
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
+            {
+                await conn.OpenAsync();
+                // Retrieve all rows
+                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+                {
+                    var inc_emp_id = cmd.Parameters.Add("@inc_emp_id", NpgsqlDbType.Text);
+                    var sdt = cmd.Parameters.Add("@sdt", NpgsqlDbType.Text);
+                    var edt = cmd.Parameters.Add("@edt", NpgsqlDbType.Text);
+                    await cmd.PrepareAsync();
+                    inc_emp_id.Value = ownerId;
+                    sdt.Value = start_date;
+                    edt.Value = end_date;
+                    using (var reader = await cmd.ExecuteReaderAsync())
+                        while (await reader.ReadAsync())
+                        {
+                            incidentsList.Add(new ServiceIncident
+                            {
+                                Id = reader["inc_id"] == DBNull.Value ? 0 : (long)reader["inc_id"],
+                                Number = reader["inc_no"] == DBNull.Value ? "" : reader["inc_no"].ToString(),
+                                Description = reader["inc_desc"] == DBNull.Value ? "" : reader["inc_desc"].ToString(),
+                                Impact = reader["inc_imp"] == DBNull.Value ? "" : reader["inc_imp"].ToString(),
+                                IncidentTime = reader["inc_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["inc_dt"],
+                                IncidentEmployeeId = reader["inc_emp_id"] == DBNull.Value ? "" : reader["inc_emp_id"].ToString(),
+                                IncidentEmployeeName = reader["inc_emp_nm"] == DBNull.Value ? "" : reader["inc_emp_nm"].ToString(),
+                                ReportedByEmployeeName = reader["inc_rpt_by"] == DBNull.Value ? "" : reader["inc_rpt_by"].ToString(),
+                                ReportedTime = reader["inc_rpt_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["inc_rpt_dt"],
+                                IncidentStatus = reader["inc_sts"] == DBNull.Value ? string.Empty : reader["inc_sts"].ToString(),
+                                IsFalseNegative = reader["inc_isfn"] == DBNull.Value ? false : (bool)reader["inc_isfn"],
+                                ServiceSystemId = reader["inc_sys_id"] == DBNull.Value ? 0 : (int)reader["inc_sys_id"],
+                                ServiceSystemName = reader["inc_sys_nm"] == DBNull.Value ? "" : reader["inc_sys_nm"].ToString(),
+
+                                LocationId = reader["inc_loc_id"] == DBNull.Value ? 0 : (int)reader["inc_loc_id"],
+                                LocationName = reader["inc_loc_nm"] == DBNull.Value ? "" : reader["inc_loc_nm"].ToString(),
+                                UnitId = reader["inc_unit_id"] == DBNull.Value ? 0 : (int)reader["inc_unit_id"],
+                                UnitName = reader["inc_unit_nm"] == DBNull.Value ? "" : reader["inc_unit_nm"].ToString(),
+                                DepartmentId = reader["inc_dept_id"] == DBNull.Value ? 0 : (int)reader["inc_dept_id"],
+                                DepartmentName = reader["inc_dept_nm"] == DBNull.Value ? "" : reader["inc_dept_nm"].ToString(),
+                                Severity = reader["inc_svrt"] == DBNull.Value ? 0 : (int)reader["inc_svrt"],
+                                SeverityDescription = reader["inc_svrt_desc"] == DBNull.Value ? "" : reader["inc_svrt_desc"].ToString(),
+                                IsAssigned = reader["is_assgnd"] == DBNull.Value ? false : (bool)reader["is_assgnd"],
+                                ServiceCenterId = reader["srv_cntr_id"] == DBNull.Value ? "" : reader["srv_cntr_id"].ToString(),
+                                ServiceCenterName = reader["tm_nm"] == DBNull.Value ? string.Empty : reader["tm_nm"].ToString(),
+                            
+                                ConfirmedResolved = reader["res_cnfmd"] == DBNull.Value ? false : (bool)reader["res_cnfmd"],
+                                ConfirmedBy = reader["cnfmd_by"] == DBNull.Value ? string.Empty : reader["cnfmd_by"].ToString(),
+                                ConfirmedTime = reader["cnfmd_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["cnfmd_dt"],
+                            });
+                        }
+                }
+                await conn.CloseAsync();
+            }
+            return incidentsList;
+        }
+        public async Task<List<ServiceIncident>> GetServiceIncidentsByTeamMemberIdAsync(string teamMemberId, DateTime? startDate, DateTime? endDate)
+        {
+            List<ServiceIncident> incidentsList = new List<ServiceIncident>();
+            if (startDate == null) { startDate = DateTime.Now.AddMonths(-6); }
+            if (endDate == null) { endDate = DateTime.Now.AddDays(1); }
+
+            string start_date = startDate.Value.ToString("yyyy-MM-dd");
+            string end_date = endDate.Value.ToString("yyyy-MM-dd");
+
+            StringBuilder sb = new StringBuilder();
+            sb.Append("SELECT i.inc_id, i.inc_desc, i.inc_imp, i.inc_dt, i.inc_emp_id, i.inc_rpt_by, ");
+            sb.Append("i.inc_rpt_dt, i.inc_sts, i.inc_isfn, i.inc_sys_id, i.inc_loc_id, i.inc_unit_id, ");
+            sb.Append("i.inc_svrt, i.is_assgnd, i.inc_dept_id, i.inc_no, i.srv_cntr_id, ");
+            sb.Append("i.res_cnfmd, i.cnfmd_by, i.cnfmd_dt, t.tm_nm, s.inc_sys_nm, ");
+            sb.Append("CASE i.inc_svrt WHEN 0 THEN 'Low' ");
+            sb.Append("WHEN 1 THEN 'Medium' ");
+            sb.Append("WHEN 2 THEN 'High' ");
+            sb.Append("WHEN 3 THEN 'Critical' END AS inc_svrt_desc, ");
+            sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id =  i.inc_emp_id) as inc_emp_nm, ");
+            sb.Append("(SELECT unitname FROM public.gst_units WHERE unitqk = i.inc_unit_id) as inc_unit_nm, ");
+            sb.Append("(SELECT deptname FROM public.gst_depts WHERE deptqk = i.inc_dept_id) as inc_dept_nm, ");
+            sb.Append("(SELECT locname FROM public.gst_locs WHERE locqk = i.inc_loc_id) as inc_loc_nm ");
+            sb.Append("FROM public.srm_inc_inf i ");
+            sb.Append("LEFT OUTER JOIN public.srm_inc_sys s ON i.inc_sys_id = s.inc_sys_id ");
+            sb.Append("LEFT OUTER JOIN public.gst_tms t ON i.srv_cntr_id = t.tm_id ");
+
+            sb.Append("WHERE (@team_member_id IN (SELECT mbr_id FROM public.gst_tmbrs ");
+            sb.Append("WHERE tm_id = i.srv_cntr_id)) OR (i.srv_cntr_id IS NULL) ");
+
+            sb.Append("AND (i.inc_rpt_dt >= to_date(@sdt,'YYYY-MM-DD')) ");
+            sb.Append("AND (i.inc_rpt_dt <= to_date(@edt,'YYYY-MM-DD')) ");
+            sb.Append("ORDER BY i.inc_id DESC;");
+
+            string query = sb.ToString();
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
+            {
+                await conn.OpenAsync();
+                // Retrieve all rows
+                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+                {
+                    var team_member_id = cmd.Parameters.Add("@team_member_id", NpgsqlDbType.Text);
+                    var sdt = cmd.Parameters.Add("@sdt", NpgsqlDbType.Text);
+                    var edt = cmd.Parameters.Add("@edt", NpgsqlDbType.Text);
+                    await cmd.PrepareAsync();
+                    team_member_id.Value = teamMemberId;
+                    sdt.Value = start_date;
+                    edt.Value = end_date;
+                    using (var reader = await cmd.ExecuteReaderAsync())
+                        while (await reader.ReadAsync())
+                        {
+                            incidentsList.Add(new ServiceIncident
+                            {
+                                Id = reader["inc_id"] == DBNull.Value ? 0 : (long)reader["inc_id"],
+                                Number = reader["inc_no"] == DBNull.Value ? "" : reader["inc_no"].ToString(),
+                                Description = reader["inc_desc"] == DBNull.Value ? "" : reader["inc_desc"].ToString(),
+                                Impact = reader["inc_imp"] == DBNull.Value ? "" : reader["inc_imp"].ToString(),
+                                IncidentTime = reader["inc_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["inc_dt"],
+                                IncidentEmployeeId = reader["inc_emp_id"] == DBNull.Value ? "" : reader["inc_emp_id"].ToString(),
+                                IncidentEmployeeName = reader["inc_emp_nm"] == DBNull.Value ? "" : reader["inc_emp_nm"].ToString(),
+                                ReportedByEmployeeName = reader["inc_rpt_by"] == DBNull.Value ? "" : reader["inc_rpt_by"].ToString(),
+                                ReportedTime = reader["inc_rpt_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["inc_rpt_dt"],
+                                IncidentStatus = reader["inc_sts"] == DBNull.Value ? string.Empty : reader["inc_sts"].ToString(),
+                                IsFalseNegative = reader["inc_isfn"] == DBNull.Value ? false : (bool)reader["inc_isfn"],
+                                ServiceSystemId = reader["inc_sys_id"] == DBNull.Value ? 0 : (int)reader["inc_sys_id"],
+                                ServiceSystemName = reader["inc_sys_nm"] == DBNull.Value ? "" : reader["inc_sys_nm"].ToString(),
+
+                                LocationId = reader["inc_loc_id"] == DBNull.Value ? 0 : (int)reader["inc_loc_id"],
+                                LocationName = reader["inc_loc_nm"] == DBNull.Value ? "" : reader["inc_loc_nm"].ToString(),
+                                UnitId = reader["inc_unit_id"] == DBNull.Value ? 0 : (int)reader["inc_unit_id"],
+                                UnitName = reader["inc_unit_nm"] == DBNull.Value ? "" : reader["inc_unit_nm"].ToString(),
+                                DepartmentId = reader["inc_dept_id"] == DBNull.Value ? 0 : (int)reader["inc_dept_id"],
+                                DepartmentName = reader["inc_dept_nm"] == DBNull.Value ? "" : reader["inc_dept_nm"].ToString(),
+                                Severity = reader["inc_svrt"] == DBNull.Value ? 0 : (int)reader["inc_svrt"],
+                                SeverityDescription = reader["inc_svrt_desc"] == DBNull.Value ? "" : reader["inc_svrt_desc"].ToString(),
+                                IsAssigned = reader["is_assgnd"] == DBNull.Value ? false : (bool)reader["is_assgnd"],
+                                ServiceCenterId = reader["srv_cntr_id"] == DBNull.Value ? "" : reader["srv_cntr_id"].ToString(),
+                                ServiceCenterName = reader["tm_nm"] == DBNull.Value ? string.Empty : reader["tm_nm"].ToString(),
+
+                                ConfirmedResolved = reader["res_cnfmd"] == DBNull.Value ? false : (bool)reader["res_cnfmd"],
+                                ConfirmedBy = reader["cnfmd_by"] == DBNull.Value ? string.Empty : reader["cnfmd_by"].ToString(),
+                                ConfirmedTime = reader["cnfmd_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["cnfmd_dt"],
+                            });
+                        }
+                }
+                await conn.CloseAsync();
+            }
+            return incidentsList;
+        }
+        public async Task<List<ServiceIncident>> GetServiceIncidentByIdAsync(long serviceIncidentId)
+        {
+            List<ServiceIncident> incidentsList = new List<ServiceIncident>();
+
+            StringBuilder sb = new StringBuilder();
+            sb.Append("SELECT i.inc_id, i.inc_desc, i.inc_imp, i.inc_dt, i.inc_emp_id, i.inc_rpt_by, ");
+            sb.Append("i.inc_rpt_dt, i.inc_sts, i.inc_isfn, i.inc_sys_id, i.inc_loc_id, i.inc_unit_id, ");
+            sb.Append("i.inc_svrt, i.is_assgnd, i.inc_dept_id, i.inc_no, i.srv_cntr_id, ");
+            sb.Append("i.res_cnfmd, i.cnfmd_by, i.cnfmd_dt, t.tm_nm, s.inc_sys_nm, ");
+            sb.Append("CASE i.inc_svrt WHEN 0 THEN 'Low' ");
+            sb.Append("WHEN 1 THEN 'Medium' ");
+            sb.Append("WHEN 2 THEN 'High' ");
+            sb.Append("WHEN 3 THEN 'Critical' END AS inc_svrt_desc, ");
+            sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id =  i.inc_emp_id) as inc_emp_nm, ");
+            sb.Append("(SELECT unitname FROM public.gst_units WHERE unitqk = i.inc_unit_id) as inc_unit_nm, ");
+            sb.Append("(SELECT deptname FROM public.gst_depts WHERE deptqk = i.inc_dept_id) as inc_dept_nm, ");
+            sb.Append("(SELECT locname FROM public.gst_locs WHERE locqk = i.inc_loc_id) as inc_loc_nm ");
+            sb.Append("FROM public.srm_inc_inf i ");
+            sb.Append("LEFT OUTER JOIN public.srm_inc_sys s ON i.inc_sys_id = s.inc_sys_id ");
+            sb.Append("LEFT OUTER JOIN public.gst_tms t ON i.srv_cntr_id = t.tm_id ");
+            sb.Append("WHERE (i.inc_id = @inc_id) ");
+            sb.Append("ORDER BY i.inc_id DESC;");
+
+            string query = sb.ToString();
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
+            {
+                await conn.OpenAsync();
+                // Retrieve all rows
+                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+                {
+                    var inc_id = cmd.Parameters.Add("@inc_id", NpgsqlDbType.Bigint);
+                    await cmd.PrepareAsync();
+                    inc_id.Value = serviceIncidentId;
+                    using (var reader = await cmd.ExecuteReaderAsync())
+                        while (await reader.ReadAsync())
+                        {
+                            incidentsList.Add(new ServiceIncident
+                            {
+                                Id = reader["inc_id"] == DBNull.Value ? 0 : (long)reader["inc_id"],
+                                Number = reader["inc_no"] == DBNull.Value ? "" : reader["inc_no"].ToString(),
+                                Description = reader["inc_desc"] == DBNull.Value ? "" : reader["inc_desc"].ToString(),
+                                Impact = reader["inc_imp"] == DBNull.Value ? "" : reader["inc_imp"].ToString(),
+                                IncidentTime = reader["inc_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["inc_dt"],
+                                IncidentEmployeeId = reader["inc_emp_id"] == DBNull.Value ? "" : reader["inc_emp_id"].ToString(),
+                                IncidentEmployeeName = reader["inc_emp_nm"] == DBNull.Value ? "" : reader["inc_emp_nm"].ToString(),
+                                ReportedByEmployeeName = reader["inc_rpt_by"] == DBNull.Value ? "" : reader["inc_rpt_by"].ToString(),
+                                ReportedTime = reader["inc_rpt_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["inc_rpt_dt"],
+                                IncidentStatus = reader["inc_sts"] == DBNull.Value ? string.Empty : reader["inc_sts"].ToString(),
+                                IsFalseNegative = reader["inc_isfn"] == DBNull.Value ? false : (bool)reader["inc_isfn"],
+                                ServiceSystemId = reader["inc_sys_id"] == DBNull.Value ? 0 : (int)reader["inc_sys_id"],
+                                ServiceSystemName = reader["inc_sys_nm"] == DBNull.Value ? "" : reader["inc_sys_nm"].ToString(),
+
+                                LocationId = reader["inc_loc_id"] == DBNull.Value ? 0 : (int)reader["inc_loc_id"],
+                                LocationName = reader["inc_loc_nm"] == DBNull.Value ? "" : reader["inc_loc_nm"].ToString(),
+                                UnitId = reader["inc_unit_id"] == DBNull.Value ? 0 : (int)reader["inc_unit_id"],
+                                UnitName = reader["inc_unit_nm"] == DBNull.Value ? "" : reader["inc_unit_nm"].ToString(),
+                                DepartmentId = reader["inc_dept_id"] == DBNull.Value ? 0 : (int)reader["inc_dept_id"],
+                                DepartmentName = reader["inc_dept_nm"] == DBNull.Value ? "" : reader["inc_dept_nm"].ToString(),
+                                Severity = reader["inc_svrt"] == DBNull.Value ? 0 : (int)reader["inc_svrt"],
+                                SeverityDescription = reader["inc_svrt_desc"] == DBNull.Value ? "" : reader["inc_svrt_desc"].ToString(),
+                                IsAssigned = reader["is_assgnd"] == DBNull.Value ? false : (bool)reader["is_assgnd"],
+                                ServiceCenterId = reader["srv_cntr_id"] == DBNull.Value ? "" : reader["srv_cntr_id"].ToString(),
+                                ServiceCenterName = reader["tm_nm"] == DBNull.Value ? string.Empty : reader["tm_nm"].ToString(),
+
+                                ConfirmedResolved = reader["res_cnfmd"] == DBNull.Value ? false : (bool)reader["res_cnfmd"],
+                                ConfirmedBy = reader["cnfmd_by"] == DBNull.Value ? string.Empty : reader["cnfmd_by"].ToString(),
+                                ConfirmedTime = reader["cnfmd_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["cnfmd_dt"],
+                            });
+                        }
+                }
+                await conn.CloseAsync();
+            }
+            return incidentsList;
+        }
+        #endregion
+
+        #endregion
+
+        #region Incident Resolution Write Action Methods
+        public async Task<long> AddIncidentResolutionAsync(IncidentResolution resolution)
+        {
+            long inserted_row_id = 0;
+            StringBuilder sb = new StringBuilder();
+            sb.Append("INSERT INTO public.srm_inc_res(inc_id, res_emp_id, ");
+            sb.Append("res_dt, res_desc, res_iscf, res_cfby, res_cfdt, ");
+            sb.Append("inc_typ_id, recd_by, recd_dt) VALUES ");
+            sb.Append("(@inc_id, @res_emp_id, @res_dt, @res_desc, ");
+            sb.Append("@res_iscf, @res_cfby, @res_cfdt, @inc_typ_id, ");
+            sb.Append("@recd_by, @recd_dt) ");
+            sb.Append("RETURNING inc_res_id; ");
+
+            string query = sb.ToString();
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
+            {
+                await conn.OpenAsync();
+                using (var cmd = new NpgsqlCommand(query, conn))
+                {
+                    var inc_id = cmd.Parameters.Add("@inc_id", NpgsqlDbType.Bigint);
+                    var res_emp_id = cmd.Parameters.Add("@res_emp_id", NpgsqlDbType.Text);
+                    var res_dt = cmd.Parameters.Add("@res_dt", NpgsqlDbType.Timestamp);
+                    var res_desc = cmd.Parameters.Add("@res_desc", NpgsqlDbType.Text);
+                    var res_iscf = cmd.Parameters.Add("@res_iscf", NpgsqlDbType.Boolean);
+                    var res_cfby = cmd.Parameters.Add("@res_cfby", NpgsqlDbType.Text);
+                    var res_cfdt = cmd.Parameters.Add("@res_cfdt", NpgsqlDbType.Timestamp);
+                    var inc_typ_id = cmd.Parameters.Add("@inc_typ_id", NpgsqlDbType.Integer);
+                    var recd_by = cmd.Parameters.Add("@recd_by", NpgsqlDbType.Text);
+                    var recd_dt = cmd.Parameters.Add("@recd_dt", NpgsqlDbType.Timestamp);
+                    cmd.Prepare();
+                    inc_id.Value = resolution.IncidentId;
+                    res_emp_id.Value = resolution.ResolvedByEmployeeId;
+                    res_dt.Value = resolution.ResolvedTime;
+                    res_desc.Value = resolution.ResolutionDescription;
+                    res_iscf.Value = resolution.IsConfirmed;
+                    res_cfby.Value = resolution.ConfirmedBy ?? (object)DBNull.Value; 
+                    res_cfdt.Value = resolution.ConfirmedTime ?? (object)DBNull.Value;
+                    inc_typ_id.Value = resolution.ServiceTypeId ?? (object)DBNull.Value;
+                    recd_by.Value = resolution.RecordedByEmployeeName;
+                    recd_dt.Value = DateTime.Now;
+                    var obj = await cmd.ExecuteScalarAsync();
+                    inserted_row_id = (long)obj;
+                }
+                await conn.CloseAsync();
+            }
+            return inserted_row_id;
+        }
+        public async Task<bool> UpdateIncidentResolutionAsync(IncidentResolution resolution)
+        {
+            int rows = 0;
+            StringBuilder sb = new StringBuilder();
+            sb.Append("UPDATE public.srm_inc_res SET res_emp_id=@res_emp_id,  ");
+            sb.Append("res_dt=@res_dt, res_desc=@res_desc, inc_typ_id=@inc_typ_id, ");
+            sb.Append("recd_by=@recd_by, recd_dt=@recd_dt ");
+            sb.Append("WHERE (inc_res_id=@inc_res_id); ");
+
+            string query = sb.ToString();
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
+            {
+                await conn.OpenAsync();
+                using (var cmd = new NpgsqlCommand(query, conn))
+                {
+                    var res_emp_id = cmd.Parameters.Add("@res_emp_id", NpgsqlDbType.Text);
+                    var res_dt = cmd.Parameters.Add("@res_dt", NpgsqlDbType.Timestamp);
+                    var res_desc = cmd.Parameters.Add("@res_desc", NpgsqlDbType.Text);
+                    var inc_typ_id = cmd.Parameters.Add("@inc_typ_id", NpgsqlDbType.Integer);
+                    var inc_res_id = cmd.Parameters.Add("@inc_res_id", NpgsqlDbType.Bigint);
+                    var recd_dt = cmd.Parameters.Add("@recd_dt", NpgsqlDbType.Timestamp);
+                    var recd_by = cmd.Parameters.Add("@recd_by", NpgsqlDbType.Text);
+                    cmd.Prepare();
+                    res_emp_id.Value = resolution.ResolvedByEmployeeId;
+                    res_dt.Value = resolution.ResolvedTime ?? DateTime.Now;
+                    res_desc.Value = resolution.ResolutionDescription;
+                    inc_typ_id.Value = resolution.ServiceTypeId ?? (object)DBNull.Value;
+                    inc_res_id.Value = resolution.Id;
+                    recd_by.Value = resolution.RecordedByEmployeeName;
+                    recd_dt.Value = DateTime.Now;
+
+                    rows = await cmd.ExecuteNonQueryAsync();
+                }
+                await conn.CloseAsync();
+            }
+            return rows > 0;
+        }
+        public async Task<bool> UpdateIncidentResolutionConfirmationAsync(long incidentResolutionId, bool resolutionIsConfirmed, string resolutionConfirmedBy)
+        {
+            int rows = 0;
+            StringBuilder sb = new StringBuilder();
+            sb.Append("UPDATE public.srm_inc_res SET res_iscf=@res_iscf, ");
+            sb.Append("res_cfby=@res_cfby, res_cfdt=@res_cfdt ");
+            sb.Append("WHERE (inc_res_id=@inc_res_id); ");
+
+            string query = sb.ToString();
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
+            {
+                await conn.OpenAsync();
+                using (var cmd = new NpgsqlCommand(query, conn))
+                {
+                    var res_iscf = cmd.Parameters.Add("@res_iscf", NpgsqlDbType.Boolean);
+                    var res_cfdt = cmd.Parameters.Add("@res_cfdt", NpgsqlDbType.Timestamp);
+                    var res_cfby = cmd.Parameters.Add("@res_cfby", NpgsqlDbType.Text);
+                    var inc_res_id = cmd.Parameters.Add("@inc_res_id", NpgsqlDbType.Bigint);
+                    cmd.Prepare();
+                    res_iscf.Value = resolutionIsConfirmed;
+                    res_cfdt.Value = DateTime.Now;
+                    res_cfby.Value = resolutionConfirmedBy;
+                    inc_res_id.Value = incidentResolutionId;
+
+                    rows = await cmd.ExecuteNonQueryAsync();
+                }
+                await conn.CloseAsync();
+            }
+            return rows > 0;
+        }
+        public async Task<bool> DeleteIncidentResolutionAsync(long incidentResolutionId)
+        {
+            int rows = 0;
+            string query = "DELETE FROM public.srm_inc_res WHERE (inc_res_id=@inc_res_id); ";
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
+            {
+                await conn.OpenAsync();
+                using (var cmd = new NpgsqlCommand(query, conn))
+                {
+                    var inc_res_id = cmd.Parameters.Add("@inc_res_id", NpgsqlDbType.Bigint);
+                    cmd.Prepare();
+                    inc_res_id.Value = incidentResolutionId;
+                    rows = await cmd.ExecuteNonQueryAsync();
+                }
+                await conn.CloseAsync();
+            }
+            return rows > 0;
+        }
+
+        #endregion
+
+        #region Incident Resolution Read Action Methods
+        public async Task<List<IncidentResolution>> GetIncidentResolutionsByIncidentIdAsync(long incidentId)
+        {
+            List<IncidentResolution> incidentResolutionsList = new List<IncidentResolution>();
+            StringBuilder sb = new StringBuilder();
+            sb.Append("SELECT r.inc_res_id, r.inc_id, r.res_emp_id, r.res_dt, r.res_desc, ");
+            sb.Append("r.res_iscf, r.res_cfby, r.res_cfdt, r.inc_typ_id, r.recd_by, ");
+            sb.Append("r.recd_dt, i.inc_desc, i.inc_no, t.inc_typ_ds, ");
+            sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = r.res_emp_id) as res_emp_nm ");
+            sb.Append("FROM public.srm_inc_res r ");
+            sb.Append("INNER JOIN public.srm_inc_inf i ON r.inc_id = i.inc_id ");
+            sb.Append("LEFT JOIN public.srm_inc_typ t ON r.inc_typ_id = t.inc_typ_id ");
+            sb.Append("WHERE (r.inc_id = @inc_id) ORDER BY r.inc_res_id DESC; ");
+
+            string query = sb.ToString();
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
+            {
+                await conn.OpenAsync();
+                // Retrieve all rows
+                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+                {
+                    var inc_id = cmd.Parameters.Add("@inc_id", NpgsqlDbType.Bigint);
+                    await cmd.PrepareAsync();
+                    inc_id.Value = incidentId;
+                    using (var reader = await cmd.ExecuteReaderAsync())
+                        while (await reader.ReadAsync())
+                        {
+                            incidentResolutionsList.Add(new IncidentResolution
+                            {
+                                Id = reader["inc_res_id"] == DBNull.Value ? 0 : (long)reader["inc_res_id"],
+                                ResolvedTime = reader["res_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["res_dt"],
+                                ResolutionDescription = reader["res_desc"] == DBNull.Value ? "" : reader["res_desc"].ToString(),
+                                ResolvedByEmployeeId = reader["res_emp_id"] == DBNull.Value ? "" : reader["res_emp_id"].ToString(),
+                                ResolvedByEmployeeName = reader["res_emp_nm"] == DBNull.Value ? "" : reader["res_emp_nm"].ToString(),
+                                IncidentId = reader["inc_id"] == DBNull.Value ? 0 : (long)reader["inc_id"],
+                                IncidentNumber = reader["inc_no"] == DBNull.Value ? "" : reader["inc_no"].ToString(),
+                                IncidentDescription = reader["inc_desc"] == DBNull.Value ? "" : reader["inc_desc"].ToString(),
+
+                                IsConfirmed = reader["res_iscf"] == DBNull.Value ? false : (bool)reader["res_iscf"],
+                                ConfirmedBy = reader["res_cfby"] == DBNull.Value ? string.Empty : reader["res_cfby"].ToString(),
+                                ConfirmedTime = reader["res_cfdt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["res_cfdt"],
+
+                                ServiceTypeName = reader["inc_typ_ds"] == DBNull.Value ? "" : reader["inc_typ_ds"].ToString(),
+                                ServiceTypeId = reader["inc_typ_id"] == DBNull.Value ? 0 : (int)reader["inc_typ_id"],
+
+                                RecordedByEmployeeName = reader["recd_by"] == DBNull.Value ? string.Empty : reader["recd_by"].ToString(),
+                                RecordedTime = reader["recd_dt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["recd_dt"],
+                            });
+                        }
+                }
+                await conn.CloseAsync();
+            }
+            return incidentResolutionsList;
+        }
+        public async Task<List<IncidentResolution>> GetIncidentResolutionsByIdAsync(long incidentResolutionId)
+        {
+            List<IncidentResolution> incidentResolutionsList = new List<IncidentResolution>();
+            StringBuilder sb = new StringBuilder();
+            sb.Append("SELECT r.inc_res_id, r.inc_id, r.res_emp_id, r.res_dt, r.res_desc, ");
+            sb.Append("r.res_iscf, r.res_cfby, r.res_cfdt, r.inc_typ_id, r.recd_by, ");
+            sb.Append("r.recd_dt, i.inc_desc, i.inc_no, t.inc_typ_ds, ");
+            sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = r.res_emp_id) as res_emp_nm ");
+            sb.Append("FROM public.srm_inc_res r ");
+            sb.Append("INNER JOIN public.srm_inc_inf i ON r.inc_id = i.inc_id ");
+            sb.Append("LEFT JOIN public.srm_inc_typ t ON r.inc_typ_id = t.inc_typ_id ");
+            sb.Append("WHERE (r.inc_res_id = @inc_res_id) ORDER BY r.inc_res_id; ");
+
+            string query = sb.ToString();
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
+            {
+                await conn.OpenAsync();
+                // Retrieve all rows
+                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+                {
+                    var inc_res_id = cmd.Parameters.Add("@inc_res_id", NpgsqlDbType.Bigint);
+                    await cmd.PrepareAsync();
+                    inc_res_id.Value = incidentResolutionId;
+                    using (var reader = await cmd.ExecuteReaderAsync())
+                        while (await reader.ReadAsync())
+                        {
+                            incidentResolutionsList.Add(new IncidentResolution
+                            {
+                                Id = reader["inc_res_id"] == DBNull.Value ? 0 : (long)reader["inc_res_id"],
+                                ResolvedTime = reader["res_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["res_dt"],
+                                ResolutionDescription = reader["res_desc"] == DBNull.Value ? "" : reader["res_desc"].ToString(),
+                                ResolvedByEmployeeId = reader["res_emp_id"] == DBNull.Value ? "" : reader["res_emp_id"].ToString(),
+                                ResolvedByEmployeeName = reader["res_emp_nm"] == DBNull.Value ? "" : reader["res_emp_nm"].ToString(),
+                                IncidentId = reader["inc_id"] == DBNull.Value ? 0 : (long)reader["inc_id"],
+                                IncidentNumber = reader["inc_no"] == DBNull.Value ? "" : reader["inc_no"].ToString(),
+                                IncidentDescription = reader["inc_desc"] == DBNull.Value ? "" : reader["inc_desc"].ToString(),
+
+                                IsConfirmed = reader["res_iscf"] == DBNull.Value ? false : (bool)reader["res_iscf"],
+                                ConfirmedBy = reader["res_cfby"] == DBNull.Value ? string.Empty : reader["res_cfby"].ToString(),
+                                ConfirmedTime = reader["res_cfdt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["res_cfdt"],
+
+                                ServiceTypeName = reader["inc_typ_ds"] == DBNull.Value ? "" : reader["inc_typ_ds"].ToString(),
+                                ServiceTypeId = reader["inc_typ_id"] == DBNull.Value ? 0 : (int)reader["inc_typ_id"],
+
+                                RecordedByEmployeeName = reader["recd_by"] == DBNull.Value ? string.Empty : reader["recd_by"].ToString(),
+                                RecordedTime = reader["recd_dt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["recd_dt"],
+                            });
+                        }
+                }
+                await conn.CloseAsync();
+            }
+            return incidentResolutionsList;
+        }
 
 
         #endregion
+
 
         #region Settings Data Access Methods
         #region Service Systems Action Methods
@@ -582,8 +1197,10 @@ namespace IntranetPortal.Data.Repositories.SrmRepositories
         {
             List<ServiceRequestNote> serviceRequestNotes = new List<ServiceRequestNote>();
             StringBuilder sb = new StringBuilder();
-            sb.Append("SELECT nts_id, nts_tm, nts_ds, nts_by, inc_id, is_ccl, ccl_by, ccl_dt ");
-            sb.Append("FROM public.srm_inc_nts WHERE (inc_id = @inc_id ");
+           
+            sb.Append("SELECT nts_id, nts_tm, nts_ds, nts_by, ");
+            sb.Append("inc_id, is_ccl, ccl_by, ccl_dt ");
+            sb.Append("FROM public.srm_inc_nts ");
             sb.Append("WHERE (inc_id = @inc_id) ORDER BY nts_id DESC; ");
 
             string query = sb.ToString();
@@ -601,7 +1218,6 @@ namespace IntranetPortal.Data.Repositories.SrmRepositories
                         {
                             serviceRequestNotes.Add(new ServiceRequestNote
                             {
-
                                 NoteId = reader["nts_id"] == DBNull.Value ? 0 : (long)reader["nts_id"],
                                 NoteTime = reader["nts_tm"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["nts_tm"],
                                 NoteContent = reader["nts_ds"] == DBNull.Value ? string.Empty : reader["nts_ds"].ToString(),
@@ -787,6 +1403,42 @@ namespace IntranetPortal.Data.Repositories.SrmRepositories
             return rows > 0;
         }
         #endregion
+
+
+        public async Task<List<string>> GetIncidentCodeNumbersByCreatedDateAsync(DateTime createdDate)
+        {
+            List<string> listOfCodeNumbers = new List<string>();
+            string _newNumber = string.Empty;
+            StringBuilder sb = new StringBuilder();
+            sb.Append("SELECT inc_no FROM public.srm_inc_inf ");
+            sb.Append("WHERE date_part('year', inc_rpt_dt) = date_part('year', @inc_rpt_dt) ");
+            sb.Append("ORDER BY inc_no DESC; ");
+
+            string query = sb.ToString();
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
+            {
+                await conn.OpenAsync();
+                // Retrieve all rows
+                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+                {
+                    var inc_rpt_dt = cmd.Parameters.Add("@inc_rpt_dt", NpgsqlDbType.Timestamp);
+                    await cmd.PrepareAsync();
+                    inc_rpt_dt.Value = createdDate;
+
+                    using (var reader = await cmd.ExecuteReaderAsync())
+                        while (await reader.ReadAsync())
+                        {
+                            _newNumber = reader["inc_no"] == DBNull.Value ? string.Empty : reader["inc_no"].ToString();
+                            listOfCodeNumbers.Add(_newNumber);
+                        }
+                }
+                await conn.CloseAsync();
+            }
+            return listOfCodeNumbers;
+        }
+
+
         #endregion
+
     }
 }

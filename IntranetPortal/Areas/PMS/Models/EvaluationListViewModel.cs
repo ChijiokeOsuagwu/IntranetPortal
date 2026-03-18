@@ -16,5 +16,6 @@ namespace IntranetPortal.Areas.PMS.Models
         public string AppraiserID { get; set; }
         public string PrimaryAppraiserID { get; set; }
         public List<ReviewResult> ReviewResultList { get; set; }
+        public bool IsActioned { get; set; }
     }
 }

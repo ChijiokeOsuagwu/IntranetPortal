@@ -1,0 +1,390 @@
+﻿@model IntranetPortal.Areas.SRM.Models.MyServiceRequestsListViewModel
+<div class="container">
+    <h4 class="mb-1">Service Request Manager | My Teams' Service Requests</h4>
+    <hr />
+    <div class="row">
+        <div class="col-md-3">
+            <nav class="navbar navbar-expand-lg navbar-light bg-light">
+                <div class="container-fluid">
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <div class="collapse navbar-collapse" id="navbarNavDropdown">
+                        <ul class="navbar-nav">
+                            <li class="nav-item">
+                                <a asp-area="SRM" asp-controller="Home" asp-action="Index" title="Go Back" class="btn btn-sm btn-outline-light text-dark">
+                                    <i class="bi bi-backspace fw-bolder" style="font-size: 1.0rem;"></i> <span class="fw-bold ml-1" style="font-size: 0.9rem;">Back</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+        </div>
+        <div class="col-md-6 text-end">
+            <form asp-area="SRM" asp-controller="Service" asp-action="MyServiceRequests" method="get">
+                <span class="fw-bold">From: </span>
+                <input asp-for="sd" class="border-0" style="width:100px; margin-right:30px" type="date" />
+                <span class="fw-bold">To: </span>
+                <input asp-for="ed" class="border-0" style="width:100px; margin-right:30px" type="date" />
+                <input type="submit" value="Search" class="btn btn-sm btn-info" style="width:100px" />
+            </form>
+        </div>
+        <div class="col-md-3">
+            <a asp-area="SRM" asp-Controller="Service" asp-action="NewRequest" title="Create New Request" class="btn btn-sm btn-info text-white" style="width:150px;">
+                <span class="text-white"><i class="bi bi-plus-lg"></i>  New Request</span>
+            </a>
+        </div>
+    </div>
+    <div class="row">
+        @if (Model == null || Model.ServiceIncentsList == null || Model.ServiceIncentsList.Count < 1)
+        {
+            <div class="alert alert-secondary alert-dismissible fade show" role="alert">
+                <i class="bi bi-x-circle"></i>
+                <span class="fw-bold text-dark">No record was found.</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        else
+        {
+            int row_number = 0;
+            <div class="table-responsive">
+                @foreach (var request in Model.ServiceIncentsList)
+                {
+                    row_number++;
+                    <div class="card">
+                        @if (request.IncidentStatus == "Cancelled")
+                        {
+                            <div class="card-header bg-warning">
+                                <div class="row">
+                                    <div class="col-md-5" title="Reported By">
+                                       <span class="fw-bold text-white" title="Reported By"><i class="bi bi-person" style="font-size:1.2rem; font-weight:bold"></i> @request.ReportedByEmployeeName</span>
+                                    </div>
+                                    <div class="col-md-4" title="Time Reported">
+                                        <span class="fw-bold text-white" title="Time Reported"><i class="bi bi-clock" style="font-size:1.0rem; font-weight:bold"></i> @request.ReportedTime.Value.ToString("dd-MMM-yyyy ")   @request.ReportedTime.Value.ToShortTimeString()</span>
+                                    </div>
+                                    <div class="col-md-3">
+                                        @if (request.IncidentStatus == "Resolved")
+                                        {
+                                            <div class="fw-bold" style="color:white" title="Status">
+                                                <i class="bi bi-check-circle" style="color:white; font-size:1.0rem; font-weight:bold"></i> Resolved
+                                            </div>
+                                        }
+                                        else if (request.IncidentStatus == "In Progress")
+                                        {
+                                            <div class="fw-bold" style="font-size:1.0rem; color:white" title="Status">
+                                                <i class="bi bi-clock-history" style="color:white; font-size:1.0rem; font-weight:bold"></i>  In Progress
+                                            </div>
+                                        }
+                                        else if (request.IncidentStatus == "Pending")
+                                        {
+                                            <div class="fw-bold" style="color:white" title="Status">
+                                                <i class="bi bi-dash-circle" style="color:white; font-size:1.0rem; font-weight:bold"></i> Pending
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <div class="fw-bold" style="font-size:1.0rem" title="Status">
+                                                <i class="bi bi-circle" style="color:white; font-size:1.0rem; font-weight:bold"></i>  @request.IncidentStatus
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="card-header bg-info">
+                                <div class="row">
+                                    <div class="col-md-5" title="Reported By">
+                                           <span class="fw-bold text-white" title="Reported By"><i class="bi bi-person" style="font-size:1.2rem; font-weight:bold"></i> @request.ReportedByEmployeeName</span>
+                                    </div>
+                                    <div class="col-md-4" title="Time Reported">
+                                        <span class="fw-bold text-white" title="Time Reported"><i class="bi bi-clock" style="font-size:1.0rem; font-weight:bold"></i> @request.ReportedTime.Value.ToString("dd-MMM-yyyy ")   @request.ReportedTime.Value.ToShortTimeString()</span>
+                                    </div>
+                                    <div class="col-md-3">
+                                        @if (request.IncidentStatus == "Resolved")
+                                        {
+                                            <div class="fw-bold" style="color:white" title="Status">
+                                                <i class="bi bi-check-circle" style="color:white; font-size:1.0rem; font-weight:bold"></i> Resolved
+                                            </div>
+                                        }
+                                        else if (request.IncidentStatus == "In Progress")
+                                        {
+                                            <div class="fw-bold" style="font-size:1.0rem; color:white" title="Status">
+                                                <i class="bi bi-clock-history" style="color:white; font-size:1.0rem; font-weight:bold"></i>  In Progress
+                                            </div>
+                                        }
+                                        else if (request.IncidentStatus == "Pending")
+                                        {
+                                            <div class="fw-bold" style="color:white" title="Status">
+                                                <i class="bi bi-dash-circle" style="color:white; font-size:1.0rem; font-weight:bold"></i> Pending
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <div class="fw-bold" style="font-size:1.0rem" title="Status">
+                                                <i class="bi bi-circle" style="color:white; font-size:1.0rem; font-weight:bold"></i>  @request.IncidentStatus
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                        <div class="card-body table-secondary">
+                            <div class="row">
+                                <div class="col-md-2 mb-3">
+                                    <label class="form-label text-dark">Request No.</label>
+                                    <input asp-for="@request.Number" class="form-control fw-bold" readonly="readonly">
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label text-dark">Incident Time</label>
+                                    @if (request.IncidentTime != null)
+                                    {
+                                        <div class="form-control fw-bold">@request.IncidentTime.Value.ToString("F")</div>
+                                    }
+                                    else
+                                    {
+                                        <div class="form-control fw-bold">[Not Specified]</div>
+                                    }
+                                </div>
+                                <div class="col-md-2 mb-3">
+                                    <label class="form-label text-dark">Severity</label>
+                                    <div class="form-control fw-bold">@request.SeverityDescription</div>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label text-dark">Service Center</label>
+                                    <div class="form-control fw-bold">@request.ServiceCenterName</div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12 mb-3">
+                                    <label class="form-label text-dark">Description</label>
+                                    <textarea asp-for="@request.Description" class="form-control fw-bold" readonly="readonly">@request.Description</textarea>
+                                </div>
+                            </div>
+                            @if (!string.IsNullOrWhiteSpace(request.Impact))
+                            {
+                                <div class="row">
+                                    <div class="col-md-12 mb-3">
+                                        <label class="form-label text-dark">Resolution</label>
+                                        <textarea asp-for="@request.Impact" class="form-control fw-bold" readonly="readonly">@request.Impact</textarea>
+                                    </div>
+                                </div>
+                            }
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label text-dark">Affected Staff</label>
+                                    <input asp-for="@request.IncidentEmployeeName" class="form-control fw-bold" readonly="readonly">
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label text-dark">Location</label>
+                                    <input asp-for="@request.LocationName" class="form-control fw-bold" readonly="readonly">
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label text-dark">Affected System</label>
+                                    <input asp-for="@request.ServiceSystemName" class="form-control fw-bold" readonly="readonly">
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-3 mt-1">
+                                    <label class="form-label text-dark">Has this issue been resolved?</label>
+                                    <!-- Default dropstart button -->
+                                    <div class="btn-group dropend">
+                                        <button type="button" data-bs-toggle="dropdown" aria-expanded="false" class="btn btn-sm btn-info" style="border-radius:5px; width:200px" title="Update Task Progress">
+                                            <span style="font-size:0.8rem; color:white" class="mdi mdi-chart-line"></span>  <span class="text-white" style="font-size:0.8rem;"> Update Status</span>
+                                        </button>
+                                        <ul class="dropdown-menu dropdown-menu-dark">
+                                            <li>
+                                                <button class="dropdown-item" onclick="updateIncidentStatus('@request.Id', '@request.IncidentStatus', 'Pending')">
+                                                    <i class="bi bi-dash-circle"></i> <span>Pending</span>
+                                                </button>
+                                            </li>
+                                            <li>
+                                                <button class="dropdown-item" onclick="updateIncidentStatus('@request.Id', '@request.IncidentStatus', 'In Progress')">
+                                                    <i class="bi bi-clock-history"></i> <span>In Progress</span>
+                                                </button>
+                                            </li>
+                                            <li>
+                                                <button class="dropdown-item" onclick="updateIncidentStatus('@request.Id', '@request.IncidentStatus', 'Resolved')">
+                                                    <i class="bi bi-check-circle"></i> <span>Resolved</span>
+                                                </button>
+                                            </li>
+                                            @if (request.IncidentStatus != "Resolved")
+                                            {
+                                                <li>
+                                                    <button class="dropdown-item" onclick="updateIncidentStatus('@request.Id', '@request.IncidentStatus', 'Cancelled')">
+                                                        <i class="bi bi-slash-circle"></i> <span>Cancelled</span>
+                                                    </button>
+                                                </li>
+                                            }
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="col-md-3 mt-1">
+                                    <label class="form-label text-dark">Do you have updates on resolution?</label>
+                                    <a asp-area="SRM" asp-controller="Service" asp-action="RequestResolutions" asp-route-rd="@request.Id" class="btn btn-sm btn-dark" style="border-radius:5px; width:200px;" title="Update Request Resolution">
+                                        <span class="bi bi-list-check fw-bold" style="font-size:0.8rem; margin-right:2px; color:white"></span>
+                                        <span class="text-white" style="font-size:0.8rem">Resolution(s)</span>
+                                    </a>
+                                </div>
+                                <div class="col-md-6 mt-4 text-end">
+                                    <!-- Default dropstart button -->
+                                    <div class="btn-group dropstart">
+                                        <button type="button" data-bs-toggle="dropdown" aria-expanded="false" class="table-secondary" style="border:0px">
+                                            <span class="fw-bold" style="font-size:0.8rem;"><i class="bi bi-tools"></i> Options</span>
+                                        </button>
+                                        <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton2">
+                                            <li>
+                                                <a class="dropdown-item" asp-area="SRM" asp-controller="Service" asp-action="EditRequest" asp-route-id="@request.Id" asp-route-sp="msr">
+                                                    <i class="bi bi-pencil-fill"></i> <span>Edit</span>
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a class="dropdown-item" href="#">
+                                                    <i class="mdi mdi-arrow-left-bold-circle-outline"></i> <span>Transfer To </span>
+                                                </a>
+                                                <ul class="dropdown-menu dropdown-menu-dark dropdown-submenu">
+                                                    @if (Model.TeamList != null && Model.TeamList.Count > 0)
+                                                    {
+                                                        @foreach (var team in Model.TeamList)
+                                                        {
+                                                            <li>
+                                                                <button class="dropdown-item" onclick="moveRequestToTeam(@request.Id, @team.TeamID)">
+                                                                    <span class="mdi mdi-account-multiple-outline"></span> <span>@team.TeamName</span>
+                                                                </button>
+                                                            </li>
+                                                        }
+                                                    }
+                                                    else
+                                                    {
+                                                        <li>
+                                                            <button class="dropdown-item">
+                                                                <span class="mdi mdi-folder-outline"></span> <span>No Folder Found</span>
+                                                            </button>
+                                                        </li>
+                                                    }
+                                                </ul>
+                                            </li>
+                                            <li>
+                                                <a class="dropdown-item" asp-area="SRM" asp-controller="Home" asp-action="Notes" asp-route-id="@request.Id" asp-route-sp="msr">
+                                                    <i class="bi bi-stickies"></i> <span>Notes</span>
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a class="dropdown-item" asp-area="SRM" asp-controller="Home" asp-action="Activities" asp-route-id="@request.Id">
+                                                    <i class="bi bi-file-text"></i> <span>History</span>
+                                                </a>
+                                            </li>
+                                            @if (request.IncidentStatus == "Pending")
+                                            {
+                                                <li>
+                                                    <button class="dropdown-item" onclick="deleteServiceIncident(@request.Id)">
+                                                        <i class="bi bi-trash"></i> <span>Delete</span>
+                                                    </button>
+                                                </li>
+                                            }
+
+                                            @*
+        <li>
+            <a class="dropdown-item" href="#">
+                <i class="bi bi-calendar"></i> <span>Schedules</span>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-dark dropdown-submenu">
+                <li>
+                    <a class="dropdown-item" asp-area="WSP" asp-controller="Workspace" asp-action="RescheduleTask" asp-route-id="@task.Id" asp-route-fd="@task.WorkFolderId" asp-route-src="mtl">
+                        <i class="bi bi-pencil-fill"></i> <span>Reschedule</span>
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item" asp-area="WSP" asp-controller="Workspace" asp-action="ScheduleHistory" asp-route-id="@task.Id" asp-route-fd="@task.WorkFolderId">
+                        <i class="bi bi-file-text"></i> <span>Schedule History</span>
+                    </a>
+                </li>
+            </ul>
+        </li>
+        <li>
+            <a class="dropdown-item" href="#">
+                <i class="bi bi-link-45deg"></i> <span>Link</span>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-dark dropdown-submenu">
+                <li>
+                    <a class="dropdown-item" asp-area="WSP" asp-controller="Workspace" asp-action="LinkProgram" asp-route-id="@task.Id" asp-route-tl="@task.WorkFolderId" asp-route-src="mtl">
+                        <i class="bi bi-link-45deg"></i> <span>Link Program</span>
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item" asp-area="WSP" asp-controller="Workspace" asp-action="LinkProject" asp-route-id="@task.Id" asp-route-tl="@task.WorkFolderId" asp-route-src="mtl">
+                        <i class="bi bi-link-45deg"></i> <span>Link Project</span>
+                    </a>
+                </li>
+            </ul>
+        </li>
+        @if (task.IsClosed)
+        {
+            <li>
+                <button class="dropdown-item" onclick="ReopenTaskItem('@task.Id')">
+                    <i class="bi bi-bootstrap-reboot"></i> <span>Re-Open</span>
+                </button>
+            </li>
+        }
+        else
+        {
+            <li>
+                <button class="dropdown-item" onclick="closeTaskItem('@task.Id')">
+                    <i class="bi bi-x-circle"></i> <span>Close</span>
+                </button>
+            </li>
+        }
+        <li>
+            <a class="dropdown-item" href="#">
+                <i class="bi bi-box-arrow-in-left"></i> <span>Move To Folder</span>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-dark dropdown-submenu">
+                @if (Model.TaskFolderList != null && Model.TaskFolderList.Count > 0)
+                {
+                    @foreach (var folder in Model.TaskFolderList)
+                    {
+                        <li>
+                            <button class="dropdown-item" onclick="moveTaskToFolder(@task.Id, @folder.Id)">
+                                <span class="mdi mdi-folder-outline"></span> <span>@folder.Title</span>
+                            </button>
+                        </li>
+                    }
+                }
+                else
+                {
+                    <li>
+                        <button class="dropdown-item">
+                            <span class="mdi mdi-folder-outline"></span> <span>No Folder Found</span>
+                        </button>
+                    </li>
+                }
+            </ul>
+        </li>
+        <li>
+            <button class="dropdown-item" id="btn_delete_@task.Id" onclick="deleteTaskItem('@task.Id')">
+                <i class="bi bi-trash"></i> <span> Delete</span>
+            </button>
+        </li>
+        <li><hr class="dropdown-divider"></li>
+        <li>
+            <a class="dropdown-item" asp-area="WSP" asp-controller="Workspace" asp-action="TaskDetails" asp-route-id="@task.Id">
+                <i class="bi bi-info-circle"></i>  <span>Detail</span>
+            </a>
+        </li>*@
+
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</div>
+@section Scripts{
+    <script src="~/js/srm.js"></script>
+}

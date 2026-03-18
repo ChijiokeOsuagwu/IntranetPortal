@@ -10,7 +10,7 @@
             </a>
         </div>
         <div class="col-md-6 text-end">
-            <a asp-area="PMS" asp-controller="Process" asp-action="CmpFinalEvaluationList" asp-route-id="@Model.ReviewHeaderID" asp-route-ad="@Model.AppraiserID" asp-route-sd="@Model.SubmissionID" title="Proceed to Evaluate Competencies" class="btn btn-sm btn-light text-dark ml-2">
+            <a asp-area="PMS" asp-controller="Process" asp-action="CmpFinalEvaluationList" asp-route-id="@Model.ReviewHeaderID" asp-route-ad="@Model.AppraiserID" asp-route-sd="@Model.SubmissionID" asp-route-ia="@Model.IsActioned" title="Proceed to Evaluate Competencies" class="btn btn-sm btn-light text-dark ml-2">
                 <span class="fw-bold mr-2" style="font-size: 1.0rem;">Proceed to Competencies</span><i class="bi bi-chevron-double-right fw-bolder" style="font-size: 1.1rem;"></i>
             </a>
         </div>
@@ -92,17 +92,28 @@
                                                     <div class="form-control fw-bold">@kpa.AppraiseeScore</div>
                                                 </div>
                                                 <div class="col-md-2">
-                                                    <label class="form-label text-white fw-bold">Enter Final Score (1-100%)</label>
-                                                    <input id="txt_appraiser_score_@kpa.ReviewMetricId" value="@kpa.AppraiserScore" class="form-control fw-bold" type="number" min="0" max="100" placeholder="Enter Score" />
-                                                    <div id="validation_lbl_appraiser_score_@kpa.ReviewMetricId"></div>
+                                                    @if (!Model.IsActioned)
+                                                    {
+                                                        <label class="form-label text-white fw-bold">Enter Final Score (1-100%)</label>
+                                                        <input id="txt_appraiser_score_@kpa.ReviewMetricId" value="@kpa.AppraiserScore" class="form-control fw-bold" type="number" min="0" max="100" placeholder="Enter Score" />
+                                                        <div id="validation_lbl_appraiser_score_@kpa.ReviewMetricId"></div>
+                                                    }
+                                                    else
+                                                    {
+                                                        <label class="form-label text-white fw-bold">Final Score (1-100%)</label>
+                                                        <div class="form-control fw-bold">@kpa.AppraiserScore</div>
+                                                    }
                                                 </div>
                                                 <div class="col-md-8" style="padding-top:30px">
                                                     <div class="row">
-                                                        <div class="col-md-2">
-                                                            <button class="btn btn-info" onclick="saveKpaScore(@kpa.ReviewResultId, @kpa.ReviewHeaderId, @kpa.ReviewMetricId, '@Model.AppraiserID', '@Model.PrimaryAppraiserID', @Model.SubmissionID)"><span class="fw-bold">Save Score</span></button>
-                                                        </div>
-                                                        <div class="col-md-10 pt-2" id="span_@kpa.ReviewMetricId">
-                                                        </div>
+                                                        @if (!Model.IsActioned)
+                                                        {
+                                                            <div class="col-md-2">
+                                                                <button class="btn btn-info" onclick="saveKpaScore(@kpa.ReviewResultId, @kpa.ReviewHeaderId, @kpa.ReviewMetricId, '@Model.AppraiserID', '@Model.PrimaryAppraiserID', @Model.SubmissionID)"><span class="fw-bold">Save Score</span></button>
+                                                            </div>
+                                                            <div class="col-md-10 pt-2" id="span_@kpa.ReviewMetricId">
+                                                            </div>
+                                                        }
                                                     </div>
                                                 </div>
                                             </div>
@@ -121,7 +132,7 @@
                     </a>
                 </div>
                 <div class="col-md-6 text-end">
-                    <a asp-area="PMS" asp-controller="Process" asp-action="CmpFinalEvaluationList" asp-route-id="@Model.ReviewHeaderID" asp-route-ad="@Model.AppraiserID" asp-route-sd="@Model.SubmissionID" title="Proceed to Evaluate Competencies" class="btn btn-sm btn-light text-dark ml-2">
+                    <a asp-area="PMS" asp-controller="Process" asp-action="CmpFinalEvaluationList" asp-route-id="@Model.ReviewHeaderID" asp-route-ad="@Model.AppraiserID" asp-route-sd="@Model.SubmissionID" asp-route-ia="@Model.IsActioned" title="Proceed to Evaluate Competencies" class="btn btn-sm btn-light text-dark ml-2">
                         <span class="fw-bold mr-2" style="font-size: 1.0rem;">Proceed to Competencies</span><i class="bi bi-chevron-double-right fw-bolder" style="font-size: 1.1rem;"></i>
                     </a>
                 </div>

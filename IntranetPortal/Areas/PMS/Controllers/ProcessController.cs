@@ -1524,10 +1524,12 @@ namespace IntranetPortal.Areas.PMS.Controllers
             return View(model);
         }
 
-        public async Task<IActionResult> AppraisalInfo(int id, int sd, string src)
+        public async Task<IActionResult> AppraisalInfo(int id, int sd, string src, string ia)
         {
             AppraisalInfoViewModel model = new AppraisalInfoViewModel();
             model.SourcePage = src;
+            if(ia == "true") { model.IsActioned = true; } else { model.IsActioned = false; }
+
             ReviewHeader reviewHeader = new ReviewHeader();
             List<ReviewMetric> reviewKpas = new List<ReviewMetric>();
             List<ReviewMetric> reviewCmps = new List<ReviewMetric>();
@@ -2047,7 +2049,7 @@ namespace IntranetPortal.Areas.PMS.Controllers
 
         #region Approve Evaluation
 
-        public async Task<IActionResult> FullEvaluationResult(int id, int sd)
+        public async Task<IActionResult> FullEvaluationResult(int id, int sd, string ia)
         {
             ViewBag.ReviewSubmissionID = sd;
 
@@ -2055,7 +2057,7 @@ namespace IntranetPortal.Areas.PMS.Controllers
             model.EvaluationSummaryResult = new EvaluationResultViewModel();
             model.KpaFullResult = new EvaluationListViewModel();
             model.CmpFullResult = new EvaluationListViewModel();
-
+            if(ia == "true" || ia == "True"){ model.IsActioned = true; } else { model.IsActioned = false; }
             model.EvaluationSummaryResult.ReviewHeaderID = id;
             if (id > 0)
             {
@@ -2500,11 +2502,12 @@ namespace IntranetPortal.Areas.PMS.Controllers
         #region Final Evaluation Controller Actions 
 
         //==== Start of Final Evaluation Controller Action Methods ======//
-        public async Task<IActionResult> KpaFinalEvaluationList(int id, string ad, int sd)
+        public async Task<IActionResult> KpaFinalEvaluationList(int id, string ad, int sd, string ia)
         {
             EvaluationListViewModel model = new EvaluationListViewModel();
             if (id > 0 && !string.IsNullOrWhiteSpace(ad))
             {
+                if (ia == "true" || ia == "True") { model.IsActioned = true; } else { model.IsActioned = false; }
                 model.AppraiserID = ad;
                 model.ReviewHeaderID = id;
                 model.SubmissionID = sd;
@@ -2547,11 +2550,12 @@ namespace IntranetPortal.Areas.PMS.Controllers
             return View(model);
         }
 
-        public async Task<IActionResult> CmpFinalEvaluationList(int id, string ad, int sd)
+        public async Task<IActionResult> CmpFinalEvaluationList(int id, string ad, int sd, string ia)
         {
             EvaluationListViewModel model = new EvaluationListViewModel();
             if (id > 0 && !string.IsNullOrWhiteSpace(ad))
             {
+                if (ia == "true" || ia == "True") { model.IsActioned = true; } else { model.IsActioned = false; }
                 model.ReviewHeaderID = id;
                 model.AppraiserID = ad;
                 model.SubmissionID = sd;
@@ -2611,12 +2615,13 @@ namespace IntranetPortal.Areas.PMS.Controllers
             return View(model);
         }
 
-        public async Task<IActionResult> FinalEvaluationResult(int id, string ad, int sd)
+        public async Task<IActionResult> FinalEvaluationResult(int id, string ad, int sd, string ia)
         {
             EvaluationResultViewModel model = new EvaluationResultViewModel();
             model.AppraiserID = ad;
             model.ReviewHeaderID = id;
             model.SubmissionID = sd;
+            if(ia == "true" || ia=="True") { model.IsActioned = true; } else { model.IsActioned = false; }
 
             if (id > 0 && !string.IsNullOrWhiteSpace(ad))
             {

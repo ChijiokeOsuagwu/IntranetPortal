@@ -30,6 +30,7 @@ namespace IntranetPortal.Areas.PMS.Models
         public decimal QuantitativeScoreObtainable { get; set; }
         public decimal QualitativeScoreObtainable { get; set; }
         public decimal TotalScoreObtainable { get; set; }
+        public bool IsActioned { get; set; }
     }
 
 }

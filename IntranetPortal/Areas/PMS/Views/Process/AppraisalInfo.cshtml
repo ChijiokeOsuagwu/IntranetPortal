@@ -18,16 +18,19 @@
                                     <i class="bi bi-backspace fw-bolder" style="font-size: 1.0rem;"></i>&nbsp;<span class="fw-bold ml-1" style="font-size: 0.9rem;">Back</span>
                                 </a>
                             </li>
-                            <li class="nav-item">
-                                <a asp-area="PMS" asp-controller="Process" asp-action="ApproveContract" asp-route-id="@Model.AppraisalReviewHeader.ReviewHeaderId" asp-route-sd="@Model.ReviewSubmissionID" title="Approve Contract" class="btn btn-sm btn-light text-dark">
-                                    <i class="bi bi-clipboard-check fw-bolder" style="font-size: 1.0rem;"></i><span class="fw-bold ml-1" style="font-size: 0.9rem;">Approve this Contract</span>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a asp-area="PMS" asp-Controller="Process" asp-action="ReturnContract" asp-route-id="@Model.AppraisalReviewHeader.ReviewHeaderId" asp-route-sd="@Model.ReviewSubmissionID" title="Return for Correction" class="btn btn-sm btn-light text-dark">
-                                    <i class="bi bi-reply-all fw-bolder" style="font-size: 1.0rem;"></i><span class="fw-bold ml-1" style="font-size: 0.9rem;">Return for Correction</span>
-                                </a>
-                            </li>
+                            if (!Model.IsActioned)
+                            {
+                                <li class="nav-item">
+                                    <a asp-area="PMS" asp-controller="Process" asp-action="ApproveContract" asp-route-id="@Model.AppraisalReviewHeader.ReviewHeaderId" asp-route-sd="@Model.ReviewSubmissionID" title="Approve Contract" class="btn btn-sm btn-light text-dark">
+                                        <i class="bi bi-clipboard-check fw-bolder" style="font-size: 1.0rem;"></i><span class="fw-bold ml-1" style="font-size: 0.9rem;">Approve this Contract</span>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a asp-area="PMS" asp-Controller="Process" asp-action="ReturnContract" asp-route-id="@Model.AppraisalReviewHeader.ReviewHeaderId" asp-route-sd="@Model.ReviewSubmissionID" title="Return for Correction" class="btn btn-sm btn-light text-dark">
+                                        <i class="bi bi-reply-all fw-bolder" style="font-size: 1.0rem;"></i><span class="fw-bold ml-1" style="font-size: 0.9rem;">Return for Correction</span>
+                                    </a>
+                                </li>
+                            }
                             <li class="nav-item">
                                 <a asp-area="PMS" asp-controller="Process" asp-action="AppraisalNotes" asp-route-id="@Model.AppraisalReviewHeader.ReviewHeaderId" asp-route-sp="apr" asp-route-psp="@Model.SourcePage" asp-route-sbm="@Model.ReviewSubmissionID" title="Appraisal Notes" class="btn btn-sm btn-light text-dark">
                                     <i class="bi bi-journals fw-bolder" style="font-size: 1.0rem"></i><span class="fw-bold ml-1" style="font-size: 0.9rem;">Notes</span>

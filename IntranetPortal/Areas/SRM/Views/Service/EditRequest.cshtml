@@ -1,0 +1,152 @@
+﻿@model IntranetPortal.Areas.SRM.Models.NewRequestViewModel
+@{
+    ViewData["Title"] = "Service Request Manager | Edit Request";
+}
+<div class="container">
+    <h4 class="mb-1">Service Request Manager | Edit Service Request </h4>
+    <hr />
+    <div class="row">
+        <div class="col-md-12 mb-1">
+            @if (Model.SourcePage == "msr" || Model.src == "msr")
+            {
+                <a asp-area="SRM" asp-Controller="Service" asp-action="MyServiceRequests" title="Go Back" class="btn btn-sm btn-info text-white" style="width:75px; border-radius:5px">
+                    Back
+                </a>
+            }
+            else
+            {
+                <a asp-area="SRM" asp-Controller="Home" asp-action="Index" title="Go Back" class="btn btn-sm btn-info text-white" style="width:75px; border-radius:5px">
+                    Back
+                </a>
+            }
+        </div>
+    </div>
+    <div class="card" style="min-width:600px">
+        <div class="card-header bg-info">
+            <div class="row">
+                <div class="col-md-9">
+                    <h4 class="text-white">Edit Service Request</h4>
+                </div>
+                <div class="col-md-3 text-end" title="Request Number">
+                    <span class="fw-bold text-white" title="Request Number" style="font-size:1.0rem"># @Model.Number</span>
+                </div>
+            </div>
+        </div>
+        <div class="card-body bg-secondary">
+            @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bi bi-x-circle"></i>
+                    <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            @if (!String.IsNullOrEmpty(Model.ViewModelSuccessMessage))
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="bi bi-check-circle"></i>
+                    <span class="fw-bold">@Model.ViewModelSuccessMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            @if (!String.IsNullOrEmpty(Model.ViewModelWarningMessage))
+            {
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                    <i class="bi bi-exclamation-circle"></i>
+                    <span class="fw-bold">@Model.ViewModelWarningMessage</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+        <form asp-area="SRM" asp-controller="Service" asp-action="EditRequest" method="post">
+            <div class="row">
+                <div class="col-md-4 mb-2">
+                    <label asp-for="ServiceCenterId" class="form-label text-white fw-bold"></label>
+                    <select asp-for="ServiceCenterId" asp-items="@ViewBag.ServiceCentersList" class="form-control fw-bold">
+                        <option value=""> - Select - </option>
+                    </select>
+                    <div><span asp-validation-for="ServiceCenterId" class="text-danger"></span></div>
+                </div>
+                <div class="col-md-4 mb-2">
+                    <label asp-for="LocationId" class="form-label text-white fw-bold"></label>
+                    <select asp-for="LocationId" asp-items="@ViewBag.LocationsList" class="form-control fw-bold">
+                        <option value=""> - Select - </option>
+                    </select>
+                    <div><span asp-validation-for="LocationId" class="text-danger"></span></div>
+                </div>
+                <div class="col-md-4 mb-2">
+                    <label asp-for="ServiceSystemId" class="form-label text-white fw-bold"></label>
+                    <select asp-for="ServiceSystemId" asp-items="@ViewBag.ServiceSystemsList" class="form-control fw-bold">
+                        <option value=""> - Select - </option>
+                    </select>
+                    <div><span asp-validation-for="ServiceSystemId" class="text-danger"></span></div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12 mb-12">
+                    <label asp-for="Description" class="form-label text-white fw-bold"></label>
+                    <textarea class="form-control fw-bold" name="@Html.NameFor(m => m.Description)">@Model.Description</textarea>
+                    <div><span asp-validation-for="Description" class="text-danger"></span></div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12 mb-12">
+                    <label asp-for="Impact" class="form-label text-white fw-bold"></label>
+                    <textarea class="form-control fw-bold" name="@Html.NameFor(m => m.Impact)">@Model.Impact</textarea>
+                    <div><span asp-validation-for="Impact" class="text-danger"></span></div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label asp-for="IncidentEmployeeName" class="form-label text-white fw-bold"></label>
+                    <input id="sn" asp-for="IncidentEmployeeName" class="form-control fw-bold">
+                    <div><span asp-validation-for="IncidentEmployeeName" class="text-danger"></span></div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label asp-for="IncidentTime" class="form-label text-white fw-bold"></label>
+                    <input asp-for="IncidentTime" class="form-control fw-bold">
+                    <div><span asp-validation-for="IncidentTime" class="text-danger"></span></div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label asp-for="Severity" class="form-label text-white fw-bold"></label>
+                    <select asp-for="Severity" class="form-control fw-bold">
+                        <option value="0">Low</option>
+                        <option value="1">Medium</option>
+                        <option value="2">High</option>
+                        <option value="3">Critical</option>
+                    </select>
+                    <div><span asp-validation-for="Severity" class="text-danger"></span></div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12 text-end">
+                    @if (Model.SourcePage == "msr" || Model.src == "msr")
+                    {
+                        <a asp-area="SRM" asp-Controller="Service" asp-action="MyServiceRequests" title="Go Back" class="btn btn-sm btn-dark text-white" style="width:75px; border-radius:5px">
+                            Back
+                        </a>
+                    }
+                    else
+                    {
+                        <a asp-area="SRM" asp-Controller="Home" asp-action="Index" title="Go Back" class="btn btn-sm btn-dark text-white" style="width:75px; border-radius:5px">
+                            Back
+                        </a>
+                    }
+                    <a asp-area="SRM" asp-controller="Service" asp-action="EditRequest" class="btn btn-warning ml-1" style="width:100px" title="Cancel">
+                        <span class="text-white">Cancel</span>
+                    </a>
+                    @if (!Model.OperationIsSuccessful)
+                    {
+                        <button type="submit" class="btn btn-info ml-2" title="Save" style="width:200px"><span class="text-white">Save Changes</span></button>
+                    }
+                </div>
+            </div>
+            <input type="hidden" asp-for="Id" />
+            <input type="hidden" asp-for="Number" />
+            <input type="hidden" asp-for="SourcePage" />
+        </form>
+        </div>
+    </div>
+</div>
+@section Scripts{
+    <script src="~/js/srm.js"></script>
+}

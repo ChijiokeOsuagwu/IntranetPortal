@@ -1,6 +1,7 @@
 ﻿using IntranetPortal.Areas.SRM.Models;
 using IntranetPortal.Base.Models.SrmModels;
 using IntranetPortal.Base.Services;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -44,6 +45,48 @@ namespace IntranetPortal.Areas.SRM.Controllers
             if (entities != null) { model.ServiceCenterList = entities; }
             return View(model);
         }
+
+        public async Task<IActionResult> Notes(string sp = null, long? id = null)
+        {
+            ServiceRequestNotesViewModel model = new ServiceRequestNotesViewModel();
+            model.ServiceIncidentId = id;
+            model.SourcePage = model.src = sp;
+
+            if (model.ServiceIncidentId == null || model.ServiceIncidentId < 1) { return View(model); }
+            else
+            {
+                    var requestNotes = await _requestService.GetServiceRequestNotesAsync(model.ServiceIncidentId.Value);
+                    if (requestNotes != null) { model.NoteList = requestNotes; }
+            }
+
+            model.LoggedInEmployeeName = HttpContext.User.Identity.Name;
+            model.LoggedInEmployeeID = HttpContext.User.Claims.FirstOrDefault(c => c.Type.Contains("nameidentifier")).Value;
+
+            if (string.IsNullOrWhiteSpace(model.LoggedInEmployeeID))
+            {
+                await HttpContext.SignOutAsync(SecurityConstants.ChxCookieAuthentication);
+                return LocalRedirect("/Home/Login");
+            }
+            return View(model);
+        }
+        
+        
+        public async Task<IActionResult> Activities(long? id)
+        {
+            ServiceRequestActivitiesViewModel model = new ServiceRequestActivitiesViewModel();
+
+            model.ServiceIncidentId = id;
+            if (id == null || id < 1) { return View(model); }
+
+            if (model.ServiceIncidentId > 0)
+            {
+                var requestActivities = await _requestService.GetServiceRequestActivitiesAsync(model.ServiceIncidentId.Value);
+                if (requestActivities != null) { model.ActivityList = requestActivities; }
+            }
+            return View(model);
+        }
+
+
 
 
         #region Helper Controller Action Methods
@@ -203,7 +246,81 @@ namespace IntranetPortal.Areas.SRM.Controllers
             }
         }
         #endregion
-        
+
+        #region Notes Action Methods
+        public string SaveRequestNote(string nm, string msg, long id)
+        {
+            ServiceRequestNote note = new ServiceRequestNote()
+            {
+                NoteTime = DateTime.Now,
+                NoteWrittenBy = nm,
+                NoteContent = msg,
+                ServiceIncidentId = id,
+            };
+
+            if (note.ServiceIncidentId < 1  || string.IsNullOrWhiteSpace(nm) || string.IsNullOrWhiteSpace(msg)) { return "parameter"; }
+            try
+            {
+                if (_requestService.AddServiceRequestNoteAsync(note).Result)
+                {
+                    return "saved";
+                }
+                else
+                {
+                    return "failed";
+                }
+            }
+            catch (Exception ex)
+            {
+                return ex.Message;
+            }
+        }
+        #endregion
+
+        #region Service Incidents Helper Action Methods
+        public string UpdateIncidentStatus(long id, string ns, string os)
+        {
+            if (id < 1) { return "parameter error"; }
+            string updatedBy = HttpContext.User.Identity.Name;
+            try
+            {
+                if (_requestService.UpdateServiceIncidentStatusAsync(id, os, ns, updatedBy).Result)
+                {
+                    return "success";
+                }
+                else
+                {
+                    return "method failure";
+                }
+            }
+            catch
+            {
+                return "service error";
+            }
+        }
+
+        public string DeleteServiceIncident(long id)
+        {
+            if (id < 1) { return "parameter error"; }
+            string actionBy = HttpContext.User.Identity.Name;
+            try
+            {
+                if (_requestService.DeleteServiceIncidentAsync(id).Result)
+                {
+                    return "success";
+                }
+                else
+                {
+                    return "method failure";
+                }
+            }
+            catch (Exception ex)
+            {
+                return ex.Message;
+            }
+        }
+
+        #endregion
         #endregion
     }
 }
