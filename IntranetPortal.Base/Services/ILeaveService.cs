@@ -53,6 +53,59 @@ namespace IntranetPortal.Base.Services
         #region Leave Plans Service Interfaces
         Task<List<LeavePlan>> GetLeavePlansAsync(string EmployeeId, int LeaveYear);
         Task<LeavePlan> GetLeavePlanAsync(long LeavePlanId);
+        Task<List<LeavePlan>> SearchLeavePlansAsync(int LeaveYear, int LeaveMonth, string EmployeeName = null, int? LocationId = null, int? UnitId = null);
+
+        Task<long> CreateLeavePlanAsync(LeavePlan p);
+        Task<bool> UpdateLeavePlanAsync(LeavePlan p);
+        Task<bool> DeleteLeavePlanAsync(long id);
+        #endregion
+
+        #region Leave Request Service Interfaces
+       
+        #region Leave Request Write Interfaces
+        Task<long> CreateLeaveRequestAsync(LeaveRequest r);
+        Task<bool> UpdateLeaveRequestAsync(LeaveRequest r);
+        Task<bool> DeleteLeaveRequestAsync(long id);
+
+        #endregion
+       
+        #region Leave Request Read Interfaces
+        Task<List<LeaveRequest>> GetLeaveRequestsAsync(string EmployeeId, int LeaveYear);
+        Task<LeaveRequest> GetLeaveRequestAsync(long LeaveRequestId);
+        #endregion
+
+        #endregion
+
+        #region Leave Balances Service Interfaces
+        Task<LeaveBalances> GetLeaveBalancesAsync(string LeaveTypeCode, int LeaveYear, string EmployeeId = null, string EmployeeName = null);
+        #endregion
+
+        #region Leave Submission Service Interfaces
+        Task<bool> SubmitLeaveAsync(LeaveSubmission e);
+        Task<bool> DeleteLeaveSubmissionAsync(long LeaveSubmissionId);
+        Task<LeaveSubmission> GetLeaveSubmissionByIdAsync(long LeaveSubmissionId);
+        Task<List<LeaveSubmission>> GetLeaveSubmissionsByApproverIdAsync(string approverName, int? submittedYear = null);
+        #endregion
+
+        #region Leave Approval Service Methods
+        Task<bool> ApproveLeavePlanAsync(LeaveApproval e, LeaveSubmission s);
+        Task<List<LeaveApproval>> GetLeaveApprovalsAsync(long? LeavePlanId = null, long? LeaveRequestId = null);
+
+        Task<bool> DeclineLeavePlanAsync(LeaveApproval a, LeaveSubmission s);
+        #endregion
+
+        #region Leave Service Helper Interfaces
+        DateTime GenerateLeaveEndDate(DateTime StartDate, int DurationTypeId, int Duration);
+        int GetLeaveBalance(string EmployeeId, string LeaveTypeCode, int LeaveYear);
+
+        #endregion
+
+        #region Leave Notes & Activities Service Methods
+        Task<List<LeaveNote>> GetLeavePlanNotesAsync(long LeavePlanId);
+        Task<List<LeaveNote>> GetLeaveRequestNotesAsync(long LeaveRequestId);
+        Task<bool> AddLeaveNoteAsync(LeaveNote e);
+
+        Task<List<LeaveActivityLog>> GetLeaveActivitiesAsync(long? LeavePlanId = null, long? LeaveRequestId = null);
         #endregion
     }
 }

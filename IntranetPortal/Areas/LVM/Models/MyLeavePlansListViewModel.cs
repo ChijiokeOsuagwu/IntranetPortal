@@ -13,5 +13,6 @@ namespace IntranetPortal.Areas.LVM.Models
         public string nm { get; set; }
         public string ei { get; set; }
         public List<LeavePlan> LeavePlanList { get; set; }
+        public List<LeaveRequest> LeaveRequestList { get; set; }
     }
 }

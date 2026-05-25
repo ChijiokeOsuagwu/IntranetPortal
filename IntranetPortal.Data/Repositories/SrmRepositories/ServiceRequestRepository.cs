@@ -30,12 +30,12 @@ namespace IntranetPortal.Data.Repositories.SrmRepositories
             sb.Append("inc_emp_id, inc_rpt_by, inc_rpt_dt, inc_sts, inc_isfn, ");
             sb.Append("inc_sys_id, inc_loc_id, inc_unit_id, inc_svrt, is_assgnd, ");
             sb.Append("inc_dept_id, srv_cntr_id, inc_no, res_cnfmd, cnfmd_by, ");
-            sb.Append("cnfmd_dt) VALUES (@inc_desc, @inc_imp, @inc_dt, ");
-            sb.Append("@inc_emp_id, @inc_rpt_by,  @inc_rpt_dt, @inc_sts, ");
+            sb.Append("cnfmd_dt, assgnd_to, assgnd_dt) VALUES (@inc_desc, @inc_imp, ");
+            sb.Append("@inc_dt, @inc_emp_id, @inc_rpt_by,  @inc_rpt_dt, @inc_sts, ");
             sb.Append("@inc_isfn, @inc_sys_id, @inc_loc_id, @inc_unit_id, ");
             sb.Append("@inc_svrt, @is_assgnd, @inc_dept_id, @srv_cntr_id, ");
-            sb.Append("@inc_no, @res_cnfmd, @cnfmd_by, @cnfmd_dt) ");
-            sb.Append("RETURNING inc_id; "); 
+            sb.Append("@inc_no, @res_cnfmd, @cnfmd_by, @cnfmd_dt, @assgnd_to, ");
+            sb.Append("@assgnd_dt) RETURNING inc_id; "); 
 
             string query = sb.ToString();
             using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
@@ -62,6 +62,8 @@ namespace IntranetPortal.Data.Repositories.SrmRepositories
                     var res_cnfmd = cmd.Parameters.Add("@res_cnfmd", NpgsqlDbType.Boolean);
                     var cnfmd_by = cmd.Parameters.Add("@cnfmd_by", NpgsqlDbType.Text);
                     var cnfmd_dt = cmd.Parameters.Add("@cnfmd_dt", NpgsqlDbType.Timestamp);
+                    var assgnd_to = cmd.Parameters.Add("@assgnd_to", NpgsqlDbType.Text);
+                    var assgnd_dt = cmd.Parameters.Add("@assgnd_dt", NpgsqlDbType.Timestamp);
                     cmd.Prepare();
                     inc_desc.Value = incident.Description;
                     inc_imp.Value = incident.Impact ?? (object)DBNull.Value;
@@ -82,6 +84,8 @@ namespace IntranetPortal.Data.Repositories.SrmRepositories
                     res_cnfmd.Value = incident.ConfirmedResolved;
                     cnfmd_by.Value = incident.ConfirmedBy;
                     cnfmd_dt.Value = incident.ConfirmedTime ?? (object)DBNull.Value;
+                    assgnd_to.Value = incident.AssignedToName ?? (object)DBNull.Value;
+                    assgnd_dt.Value = incident.AssignedTime ?? (object)DBNull.Value;
                     var obj = await cmd.ExecuteScalarAsync();
                     inserted_row_id = (long)obj;
                 }
@@ -98,8 +102,8 @@ namespace IntranetPortal.Data.Repositories.SrmRepositories
             sb.Append("inc_imp=@inc_imp, inc_dt=@inc_dt, inc_emp_id=@inc_emp_id, ");
             sb.Append("inc_isfn=@inc_isfn, inc_sys_id=@inc_sys_id, ");
             sb.Append("inc_loc_id=@inc_loc_id, inc_unit_id=@inc_unit_id, ");
-            sb.Append("inc_svrt=@inc_svrt, is_assgnd=@is_assgnd, ");
-            sb.Append("inc_dept_id=@inc_dept_id, srv_cntr_id=@srv_cntr_id ");
+            sb.Append("inc_svrt=@inc_svrt, inc_dept_id=@inc_dept_id,  ");
+            sb.Append("srv_cntr_id=@srv_cntr_id ");
             sb.Append("WHERE (inc_id=@inc_id); ");
 
             string query = sb.ToString();
@@ -117,7 +121,6 @@ namespace IntranetPortal.Data.Repositories.SrmRepositories
                     var inc_loc_id = cmd.Parameters.Add("@inc_loc_id", NpgsqlDbType.Integer);
                     var inc_unit_id = cmd.Parameters.Add("@inc_unit_id", NpgsqlDbType.Integer);
                     var inc_svrt = cmd.Parameters.Add("@inc_svrt", NpgsqlDbType.Integer);
-                    var is_assgnd = cmd.Parameters.Add("@is_assgnd", NpgsqlDbType.Boolean);
                     var inc_dept_id = cmd.Parameters.Add("@inc_dept_id", NpgsqlDbType.Integer);
                     var srv_cntr_id = cmd.Parameters.Add("@srv_cntr_id", NpgsqlDbType.Text);
                     var inc_id = cmd.Parameters.Add("@inc_id", NpgsqlDbType.Bigint);
@@ -131,7 +134,6 @@ namespace IntranetPortal.Data.Repositories.SrmRepositories
                     inc_loc_id.Value = incident.LocationId ?? (object)DBNull.Value;
                     inc_unit_id.Value = incident.UnitId ?? (object)DBNull.Value;
                     inc_svrt.Value = incident.Severity;
-                    is_assgnd.Value = incident.IsAssigned;
                     inc_dept_id.Value = incident.DepartmentId ?? (object)DBNull.Value;
                     srv_cntr_id.Value = incident.ServiceCenterId ?? (object)DBNull.Value;
                     inc_id.Value = incident.Id;
@@ -166,6 +168,35 @@ namespace IntranetPortal.Data.Repositories.SrmRepositories
             }
             return rows > 0;
         }
+        public async Task<bool> UpdateServiceIncidentAssignmentAsync(long serviceIncidentId, string assignedToEmployeeName)
+        {
+            int rows = 0;
+            StringBuilder sb = new StringBuilder();
+            sb.Append("UPDATE public.srm_inc_inf SET is_assgnd='true', ");
+            sb.Append("assgnd_to=@assgnd_to, assgnd_dt=@assgnd_dt ");
+            sb.Append("WHERE (inc_id=@inc_id); ");
+
+            string query = sb.ToString();
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
+            {
+                await conn.OpenAsync();
+                using (var cmd = new NpgsqlCommand(query, conn))
+                {
+                    var assgnd_to = cmd.Parameters.Add("@assgnd_to", NpgsqlDbType.Text);
+                    var assgnd_dt = cmd.Parameters.Add("@assgnd_dt", NpgsqlDbType.Timestamp);
+                    var inc_id = cmd.Parameters.Add("@inc_id", NpgsqlDbType.Bigint);
+                    cmd.Prepare();
+                    assgnd_to.Value = assignedToEmployeeName;
+                    assgnd_dt.Value = DateTime.Now;
+                    inc_id.Value = serviceIncidentId;
+                    rows = await cmd.ExecuteNonQueryAsync();
+                }
+                await conn.CloseAsync();
+            }
+            return rows > 0;
+        }
+
+
         public async Task<bool> DeleteServiceIncidentAsync(long serviceIncidentId)
         {
             int rows = 0;
@@ -204,8 +235,8 @@ namespace IntranetPortal.Data.Repositories.SrmRepositories
             StringBuilder sb = new StringBuilder();
             sb.Append("SELECT i.inc_id, i.inc_desc, i.inc_imp, i.inc_dt, i.inc_emp_id, i.inc_rpt_by, ");
             sb.Append("i.inc_rpt_dt, i.inc_sts, i.inc_isfn, i.inc_sys_id, i.inc_loc_id, i.inc_unit_id, ");
-            sb.Append("i.inc_svrt, i.is_assgnd, i.inc_dept_id, i.inc_no, i.srv_cntr_id, ");
-            sb.Append("i.res_cnfmd, i.cnfmd_by, i.cnfmd_dt, t.tm_nm, s.inc_sys_nm, ");
+            sb.Append("i.inc_svrt, i.is_assgnd, i.inc_dept_id, i.inc_no, i.srv_cntr_id, i.res_cnfmd, ");
+            sb.Append("i.cnfmd_by, i.cnfmd_dt, i.assgnd_to, i.assgnd_dt, t.tm_nm, s.inc_sys_nm, ");
             sb.Append("CASE i.inc_svrt WHEN 0 THEN 'Low' ");
             sb.Append("WHEN 1 THEN 'Medium' ");
             sb.Append("WHEN 2 THEN 'High' ");
@@ -264,7 +295,11 @@ namespace IntranetPortal.Data.Repositories.SrmRepositories
                                 DepartmentName = reader["inc_dept_nm"] == DBNull.Value ? "" : reader["inc_dept_nm"].ToString(),
                                 Severity = reader["inc_svrt"] == DBNull.Value ? 0 : (int)reader["inc_svrt"],
                                 SeverityDescription = reader["inc_svrt_desc"] == DBNull.Value ? "" : reader["inc_svrt_desc"].ToString(),
+                                
                                 IsAssigned = reader["is_assgnd"] == DBNull.Value ? false : (bool)reader["is_assgnd"],
+                                AssignedToName = reader["assgnd_to"] == DBNull.Value ? string.Empty : reader["assgnd_to"].ToString(),
+                                AssignedTime = reader["assgnd_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["assgnd_dt"],
+
                                 ServiceCenterId = reader["srv_cntr_id"] == DBNull.Value ? "" : reader["srv_cntr_id"].ToString(),
                                 ServiceCenterName = reader["tm_nm"] == DBNull.Value ? string.Empty : reader["tm_nm"].ToString(),
                             
@@ -290,8 +325,8 @@ namespace IntranetPortal.Data.Repositories.SrmRepositories
             StringBuilder sb = new StringBuilder();
             sb.Append("SELECT i.inc_id, i.inc_desc, i.inc_imp, i.inc_dt, i.inc_emp_id, i.inc_rpt_by, ");
             sb.Append("i.inc_rpt_dt, i.inc_sts, i.inc_isfn, i.inc_sys_id, i.inc_loc_id, i.inc_unit_id, ");
-            sb.Append("i.inc_svrt, i.is_assgnd, i.inc_dept_id, i.inc_no, i.srv_cntr_id, ");
-            sb.Append("i.res_cnfmd, i.cnfmd_by, i.cnfmd_dt, t.tm_nm, s.inc_sys_nm, ");
+            sb.Append("i.inc_svrt, i.is_assgnd, i.inc_dept_id, i.inc_no, i.srv_cntr_id, i.res_cnfmd, ");
+            sb.Append("i.cnfmd_by, i.cnfmd_dt, i.assgnd_to, i.assgnd_dt, t.tm_nm, s.inc_sys_nm, ");
             sb.Append("CASE i.inc_svrt WHEN 0 THEN 'Low' ");
             sb.Append("WHEN 1 THEN 'Medium' ");
             sb.Append("WHEN 2 THEN 'High' ");
@@ -352,7 +387,11 @@ namespace IntranetPortal.Data.Repositories.SrmRepositories
                                 DepartmentName = reader["inc_dept_nm"] == DBNull.Value ? "" : reader["inc_dept_nm"].ToString(),
                                 Severity = reader["inc_svrt"] == DBNull.Value ? 0 : (int)reader["inc_svrt"],
                                 SeverityDescription = reader["inc_svrt_desc"] == DBNull.Value ? "" : reader["inc_svrt_desc"].ToString(),
+                                
                                 IsAssigned = reader["is_assgnd"] == DBNull.Value ? false : (bool)reader["is_assgnd"],
+                                AssignedToName = reader["assgnd_to"] == DBNull.Value ? string.Empty : reader["assgnd_to"].ToString(),
+                                AssignedTime = reader["assgnd_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["assgnd_dt"],
+
                                 ServiceCenterId = reader["srv_cntr_id"] == DBNull.Value ? "" : reader["srv_cntr_id"].ToString(),
                                 ServiceCenterName = reader["tm_nm"] == DBNull.Value ? string.Empty : reader["tm_nm"].ToString(),
 
@@ -373,8 +412,8 @@ namespace IntranetPortal.Data.Repositories.SrmRepositories
             StringBuilder sb = new StringBuilder();
             sb.Append("SELECT i.inc_id, i.inc_desc, i.inc_imp, i.inc_dt, i.inc_emp_id, i.inc_rpt_by, ");
             sb.Append("i.inc_rpt_dt, i.inc_sts, i.inc_isfn, i.inc_sys_id, i.inc_loc_id, i.inc_unit_id, ");
-            sb.Append("i.inc_svrt, i.is_assgnd, i.inc_dept_id, i.inc_no, i.srv_cntr_id, ");
-            sb.Append("i.res_cnfmd, i.cnfmd_by, i.cnfmd_dt, t.tm_nm, s.inc_sys_nm, ");
+            sb.Append("i.inc_svrt, i.is_assgnd, i.inc_dept_id, i.inc_no, i.srv_cntr_id, i.res_cnfmd, ");
+            sb.Append("i.cnfmd_by, i.cnfmd_dt, i.assgnd_to, i.assgnd_dt, t.tm_nm, s.inc_sys_nm, ");
             sb.Append("CASE i.inc_svrt WHEN 0 THEN 'Low' ");
             sb.Append("WHEN 1 THEN 'Medium' ");
             sb.Append("WHEN 2 THEN 'High' ");
@@ -426,7 +465,11 @@ namespace IntranetPortal.Data.Repositories.SrmRepositories
                                 DepartmentName = reader["inc_dept_nm"] == DBNull.Value ? "" : reader["inc_dept_nm"].ToString(),
                                 Severity = reader["inc_svrt"] == DBNull.Value ? 0 : (int)reader["inc_svrt"],
                                 SeverityDescription = reader["inc_svrt_desc"] == DBNull.Value ? "" : reader["inc_svrt_desc"].ToString(),
+                                
                                 IsAssigned = reader["is_assgnd"] == DBNull.Value ? false : (bool)reader["is_assgnd"],
+                                AssignedToName = reader["assgnd_to"] == DBNull.Value ? string.Empty : reader["assgnd_to"].ToString(),
+                                AssignedTime = reader["assgnd_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["assgnd_dt"],
+
                                 ServiceCenterId = reader["srv_cntr_id"] == DBNull.Value ? "" : reader["srv_cntr_id"].ToString(),
                                 ServiceCenterName = reader["tm_nm"] == DBNull.Value ? string.Empty : reader["tm_nm"].ToString(),
 
@@ -689,7 +732,6 @@ namespace IntranetPortal.Data.Repositories.SrmRepositories
 
 
         #endregion
-
 
         #region Settings Data Access Methods
         #region Service Systems Action Methods

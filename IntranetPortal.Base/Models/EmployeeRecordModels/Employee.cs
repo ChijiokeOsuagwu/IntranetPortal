@@ -64,6 +64,9 @@ namespace IntranetPortal.Base.Models.EmployeeRecordModels
         public DateTime? DeactivationTime { get; set; }
         public string DeactivatedBy { get; set; }
 
+        public string LeaveProfileCode { get; set; }
+        public string LeaveProfileName { get; set; }
+
         public Person ToPerson()
         {
             Person person = new Person

@@ -1,0 +1,38 @@
+﻿@{
+    ViewData["Title"] = "Leave Management System";
+}
+<link href="~/lib/matrix/dist/css/style.min.css" rel="stylesheet" />
+<div class="my-2">
+    <!-- ============================================================== -->
+    <!-- Sales Cards  -->
+    <!-- ============================================================== -->
+    <h4 class="fw-bold">Leave Management System | HR Dashboard</h4>
+    <hr />
+    <div class="row">
+        <!-- Column -->
+        <div class="col-md-6 col-lg-2 col-xlg-3">
+            <a asp-area="LVM" asp-controller="Leave" asp-action="Index">
+                <div class="card card-hover">
+                    <div class="box bg-light text-center">
+                        <h1 class="font-light text-dark"><i class="bi bi-arrow-left-square"></i></h1>
+                        <h6 class="text-dark">Go Back</h6>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <!-- Column -->
+        <div class="col-md-6 col-lg-2 col-xlg-3">
+            <a asp-area="LVM" asp-controller="Leave" asp-action="LeavePlans">
+                <div class="card card-hover">
+                    <div class="box bg-light text-center">
+                        <h1 class="font-light text-dark"><i class="bi bi-calendar-range"></i></h1>
+                        <h6 class="text-dark">Leave Plans</h6>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+</div>
+@section Scripts{
+
+}

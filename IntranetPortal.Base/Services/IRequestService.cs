@@ -11,7 +11,10 @@ namespace IntranetPortal.Base.Services
         Task<long> CreateServiceIncidentAsync(ServiceIncident serviceIncident);
         Task<bool> UpdateServiceIncidentAsync(ServiceIncident serviceIncident, string updatedBy);
         Task<bool> UpdateServiceIncidentStatusAsync(long serviceIncidentId, string oldIncidentStatus, string newIncidentStatus, string updatedBy);
+        Task<bool> UpdateIncidentAssignmentAsync(long ServiceIncidentId, string AssignedToEmployeeName, string AssignedByEmployeeName);
+
         Task<bool> DeleteServiceIncidentAsync(long serviceIncidentId);
+
         Task<ServiceIncident> GetServiceIncidentAsync(long ServiceIncidentId);
         Task<List<ServiceIncident>> GetMyServiceIncidentsAsync(string TaskOwnerId, DateTime? StartDate, DateTime? EndDate);
         Task<List<ServiceIncident>> GetMyTeamsServiceIncidentsAsync(string TeamMemberId, DateTime? StartDate, DateTime? EndDate);

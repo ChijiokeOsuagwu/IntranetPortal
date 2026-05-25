@@ -37,7 +37,7 @@
         </div>
     </div>
     <div class="row">
-        @if (Model == null || Model.ServiceIncentsList == null || Model.ServiceIncentsList.Count < 1)
+        @if (Model == null || Model.ServiceIncidentsList == null || Model.ServiceIncidentsList.Count < 1)
         {
             <div class="alert alert-secondary alert-dismissible fade show" role="alert">
                 <i class="bi bi-x-circle"></i>
@@ -49,7 +49,7 @@
         {
             int row_number = 0;
             <div class="table-responsive">
-                @foreach (var request in Model.ServiceIncentsList)
+                @foreach (var request in Model.ServiceIncidentsList)
                 {
                     row_number++;
                 <div class="card">

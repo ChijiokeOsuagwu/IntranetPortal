@@ -13,6 +13,11 @@ namespace IntranetPortal.Areas.LVM.Models
         public int Id { get; set; }
 
         [Required]
+        [Display(Name = "Code")]
+        [MaxLength(4, ErrorMessage = "Code must not exceed 4 characters.")]
+        public string Code { get; set; }
+
+        [Required]
         [Display(Name = "Name")]
         [MaxLength(65, ErrorMessage = "Name must not exceed 65 characters.")]
         public string Name { get; set; }

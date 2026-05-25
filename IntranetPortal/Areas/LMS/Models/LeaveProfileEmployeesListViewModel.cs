@@ -10,6 +10,7 @@ namespace IntranetPortal.Areas.LMS.Models
     public class LeaveProfileEmployeesListViewModel:BaseListViewModel
     {
         public int LeaveProfileId { get; set; }
+        public string LeaveProfileCode { get; set; }
         public List<EmployeeRoll> EmployeeRollsList { get; set; }
     }
 }

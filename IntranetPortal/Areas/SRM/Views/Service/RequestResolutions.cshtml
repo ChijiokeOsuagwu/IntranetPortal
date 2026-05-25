@@ -22,9 +22,12 @@
             </nav>
         </div>
         <div class="col-md-9 text-end">
-            <a asp-area="SRM" asp-Controller="Service" asp-action="ManageRequestResolution" asp-route-rd="@Model.rd" title="Add New Resolution" class="btn btn-sm btn-info text-white" style="width:200px;">
-                <span class="text-white"><i class="bi bi-plus-lg"></i>Add New Resolution</span>
-            </a>
+            @if (Model.LoggedInEmployeeName == Model.AssignedToEmployeeName)
+            {
+                <a asp-area="SRM" asp-Controller="Service" asp-action="ManageRequestResolution" asp-route-rd="@Model.rd" title="Add New Resolution" class="btn btn-sm btn-info text-white" style="width:200px;">
+                    <span class="text-white"><i class="bi bi-plus-lg"></i>Add New Resolution</span>
+                </a>
+            }
         </div>
     </div>
     <div class="row">

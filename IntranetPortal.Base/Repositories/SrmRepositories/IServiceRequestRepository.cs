@@ -16,6 +16,8 @@ namespace IntranetPortal.Base.Repositories.SrmRepositories
         Task<long> AddServiceIncidentAsync(ServiceIncident incident);
         Task<bool> UpdateServiceIncidentAsync(ServiceIncident incident);
         Task<bool> UpdateServiceIncidentStatusAsync(long serviceIncidentId, string newIncidentStatus);
+        Task<bool> UpdateServiceIncidentAssignmentAsync(long serviceIncidentId, string assignedToEmployeeName);
+
         Task<bool> DeleteServiceIncidentAsync(long serviceIncidentId);
         #endregion
 

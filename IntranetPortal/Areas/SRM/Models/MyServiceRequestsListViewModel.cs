@@ -14,7 +14,7 @@ namespace IntranetPortal.Areas.SRM.Models
         public DateTime? ed { get; set; }
         public string RequestOwnerID { get; set; }
         public string RequestOwnerName { get; set; }
-        public List<ServiceIncident> ServiceIncentsList { get; set; }
+        public List<ServiceIncident> ServiceIncidentsList { get; set; }
         public List<Team> TeamList { get; set; }
 
     }

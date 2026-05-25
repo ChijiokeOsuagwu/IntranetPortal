@@ -8,6 +8,7 @@ namespace IntranetPortal.Base.Models.LeaveModels
     {
         public int Id { get; set; }
         public int ProfileId { get; set; }
+        public string ProfileCode { get; set; }
         public string ProfileName { get; set; }
         public string LeaveTypeCode { get; set; }
         public string LeaveTypeName { get; set; }

@@ -509,12 +509,12 @@ namespace IntranetPortal.Base.Services
             return employeeRolls;
         }
 
-        public async Task<List<EmployeeRoll>> GetEmployeeRollsByLeaveProfileIdAsync(int LeaveProfileId)
+        public async Task<List<EmployeeRoll>> GetEmployeeRollsByLeaveProfileCodeAsync(string LeaveProfileCode)
         {
             List<EmployeeRoll> employees = new List<EmployeeRoll>();
             try
             {
-                var entities = await _employeesRepository.GetEmployeeRollsByLeaveProfileIdAsync(LeaveProfileId);
+                var entities = await _employeesRepository.GetEmployeeRollsByLeaveProfileCodeAsync(LeaveProfileCode);
                 employees = entities.ToList();
             }
             catch (Exception ex)

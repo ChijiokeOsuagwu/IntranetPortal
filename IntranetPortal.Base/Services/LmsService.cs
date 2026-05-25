@@ -171,23 +171,25 @@ namespace IntranetPortal.Base.Services
         }
         public async Task<bool> DeleteLeaveProfile(int Id)
         {
-            bool IsDeleted;
-            if (Id > 0)
-            {
-                var entities = await _leaveProfileDetailRepository.GetByProfileIdAsync(Id);
-                if (entities == null || entities.Count < 1)
+            bool IsDeleted = false;
+            if (Id > 0) { throw new Exception("Required parameter ID cannot be null."); }
+            LeaveProfile leaveProfile = await _leaveProfileRepository.GetByIdAsync(Id);
+                if(leaveProfile != null)
                 {
-                    var employees = await _employeesRepository.GetEmployeesByLeaveProfileIdAsync(Id);
-                    if (employees == null || employees.Count < 1)
+                    var entities = await _leaveProfileDetailRepository.GetByProfileIdAsync(Id);
+                    if (entities == null || entities.Count < 1)
                     {
-                        IsDeleted = await _leaveProfileRepository.DeleteAsync(Id);
+                        var employees = await _employeesRepository.GetEmployeesByLeaveProfileCodeAsync(leaveProfile.Code);
+                        if (employees == null || employees.Count < 1)
+                        {
+                            IsDeleted = await _leaveProfileRepository.DeleteAsync(Id);
+                        }
+                        else { throw new Exception("This Leave Profile cannot be deleted because it is linked to some employee records."); }
                     }
-                    else { throw new Exception("This Leave Profile cannot be deleted because it is linked to some employee records."); }
+                    else { throw new Exception("This Leave Profile cannot be deleted because it contains some profile options records."); }
+
                 }
-                else { throw new Exception("This Leave Profile cannot be deleted because it contains some profile options records."); }
-            }
-            else { throw new Exception("Required parameter ID cannot be null."); }
-            return IsDeleted;
+             return IsDeleted;
         }
         #endregion
 
@@ -884,7 +886,6 @@ namespace IntranetPortal.Base.Services
         }
 
         #endregion
-
 
         #region Leave Helper Service Methods
         public DateTime GenerateLeaveEndDate(DateTime StartDate, int DurationTypeId, int Duration)

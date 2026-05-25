@@ -1,0 +1,67 @@
+﻿@model IntranetPortal.Areas.LVM.Models.LeavePlanApprovalViewModel
+<h3 class="mb-1">Leave Plan</h3>
+<hr />
+<div class="card mt-1" style="max-width:1000px">
+    <div class="card-header bg-danger">
+        <h4 class="text-white">Decline Approval</h4>
+    </div>
+    <div class="card-body bg-secondary">
+        @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-x-circle"></i>
+                <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (!String.IsNullOrEmpty(Model.ViewModelSuccessMessage))
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="bi bi-check-circle"></i>
+                <span class="fw-bold">@Model.ViewModelSuccessMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (!String.IsNullOrEmpty(Model.ViewModelWarningMessage))
+        {
+            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                <i class="bi bi-exclamation-circle"></i>
+                <span class="fw-bold">@Model.ViewModelWarningMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+    <form asp-area="LVM" asp-controller="Leave" asp-action="LeavePlanDecline" method="post" autocomplete="off">
+        <div class="row">
+            <div class="col-md-12 mb-3">
+                <label class="form-label text-white fw-bold">Enter Reason(s)*:</label>
+                <textarea asp-for="DeclineReason" class="form-control fw-bold" rows="6" style="font-size:1.0rem" required>@Model.DeclineReason</textarea>
+                <div><span asp-validation-for="DeclineReason" class="text-white"></span></div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <a asp-area="LVM" asp-controller="Leave" asp-action="LeavePlanApproval" asp-route-id="@Model.LeavePlanId" asp-route-sd="@Model.LeaveSubmissionId" class="btn btn-dark" style="width:100px" title="Back">
+                    <span class="text-white">Back</span>
+                </a>
+                @if (!Model.OperationIsSuccessful)
+                {
+                    <button type="submit" class="btn btn-danger" title="Save" style="width:200px"><span class="text-white"> Decline </span></button>
+                }
+            </div>
+        </div>
+        <input type="hidden" asp-for="LeavePlanId">
+        <input type="hidden" asp-for="LeaveEmployeeId" />
+        <input type="hidden" asp-for="LeaveEmployeeName" />
+        <input type="hidden" asp-for="LeavePlanStartDate" />
+        <input type="hidden" asp-for="LeavePlanEndDate" />
+        <input type="hidden" asp-for="LeavePlanResumptionDate" />
+        <input type="hidden" asp-for="LeaveSubmissionId" />
+        <input type="hidden" asp-for="LeavePlanStatusId" />
+        <input type="hidden" asp-for="LeavePlanStatusDescription" />
+        <input type="hidden" asp-for="LeaveYear" />
+        <input type="hidden" asp-for="LeaveTypeCode" />
+        <input type="hidden" asp-for="LeavePlanDuration" />
+        <input type="hidden" asp-for="LeavePlanDurationTypeId" />
+    </form>
+    </div>
+</div>

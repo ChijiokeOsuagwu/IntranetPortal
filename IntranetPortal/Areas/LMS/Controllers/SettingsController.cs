@@ -416,7 +416,7 @@ namespace IntranetPortal.Areas.LMS.Controllers
             { 
                 if(id > 0)
                 {
-                    model.EmployeeRollsList = await _ermService.GetEmployeeRollsByLeaveProfileIdAsync(id);
+                    model.EmployeeRollsList = await _ermService.GetEmployeeRollsByLeaveProfileCodeAsync(model.LeaveProfileCode);
                 }
             }
             catch (Exception ex) { model.ViewModelErrorMessage = ex.Message; }

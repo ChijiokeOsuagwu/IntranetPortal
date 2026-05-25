@@ -357,6 +357,47 @@ namespace IntranetPortal.Base.Services
             return await _serviceRequestRepository.DeleteIncidentResolutionAsync(incidentResolutionId);
         }
 
+
+        public async Task<bool> UpdateIncidentAssignmentAsync(long ServiceIncidentId, string AssignedToEmployeeName, string AssignedByEmployeeName)
+        {
+            if (ServiceIncidentId < 1) { throw new ArgumentNullException(nameof(ServiceIncidentId), "The required parameter [Service Incident ID] is missing."); }
+            ServiceIncident oldIncident = new ServiceIncident();
+            List<ServiceIncident> oldIncidentsList = await _serviceRequestRepository.GetServiceIncidentByIdAsync(ServiceIncidentId);
+            if (oldIncidentsList != null && oldIncidentsList.Count == 1)
+            {
+                oldIncident = oldIncidentsList.FirstOrDefault();
+            }
+
+            bool IsUpdated = await _serviceRequestRepository.UpdateServiceIncidentAssignmentAsync(ServiceIncidentId, AssignedToEmployeeName);
+            if (IsUpdated)
+            {
+                StringBuilder sb = new StringBuilder();
+
+                if (AssignedToEmployeeName != oldIncident.AssignedToName)
+                {
+                    if (string.IsNullOrWhiteSpace(oldIncident.AssignedToName))
+                    {
+                        sb.AppendLine($"Request was assigned to [{AssignedToEmployeeName}] by [{AssignedByEmployeeName}] on {DateTime.Now.ToLongDateString()} at exactly {DateTime.Now.ToLongTimeString()}.");
+                    }
+                    else
+                    {
+                        sb.AppendLine($"Request was re-assigned from [{oldIncident.AssignedToName}] to [{AssignedToEmployeeName}] by [{AssignedByEmployeeName}] on {DateTime.Now.ToLongDateString()} at exactly {DateTime.Now.ToLongTimeString()}.");
+
+                    }
+                }
+
+                ServiceRequestActivity activityLog = new ServiceRequestActivity
+                {
+                    ActivityTime = DateTime.Now,
+                    ActivityBy = AssignedByEmployeeName,
+                    ActivityDescription = sb.ToString(),
+                    ServiceIncidentId = ServiceIncidentId,
+                };
+                await _serviceRequestRepository.AddServiceRequestActivityAsync(activityLog);
+            }
+            return IsUpdated;
+        }
+
         #endregion
 
         #endregion
@@ -483,7 +524,6 @@ namespace IntranetPortal.Base.Services
             return serviceTypes;
         }
         #endregion
-
 
         #region Service Incident Notes and Activity Logs Service Actions
         public async Task<List<ServiceRequestActivity>> GetServiceRequestActivitiesAsync(long serviceIncidentId)

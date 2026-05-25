@@ -3073,7 +3073,6 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
             }
             return employeeList;
         }
-
         public async Task<List<string>> GetEmployeeNumbersByStartUpDateAsync(int startUpYear, int startUpMonth, int startUpDay)
         {
             List<string> _employeeNos = new List<string>();
@@ -3118,14 +3117,13 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
             return _employeeNos;
         }
 
-
         #endregion
 
         #region Employee Leave Read Action Methods
-        public async Task<IList<Employee>> GetEmployeesByLeaveProfileIdAsync(int leaveProfileId)
+        public async Task<IList<Employee>> GetEmployeesByLeaveProfileCodeAsync(string leaveProfileCode)
         {
             List<Employee> employeeList = new List<Employee>();
-            if (leaveProfileId < 1) { throw new ArgumentNullException(nameof(leaveProfileId)); }
+            if (string.IsNullOrWhiteSpace(leaveProfileCode)) { throw new ArgumentNullException(nameof(leaveProfileCode)); }
             StringBuilder sb = new StringBuilder();
             sb.Append("SELECT e.emp_id, e.emp_no_1, e.emp_no_2, e.start_up_date, ");
             sb.Append("e.yrs_of_experience, e.start_up_designation, e.place_of_engagement, ");
@@ -3134,8 +3132,8 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
             sb.Append("e.lga_of_origin, e.religion, e.geo_political_region, e.next_of_kin_name, ");
             sb.Append("e.next_of_kin_relationship, e.modified_by, e.modified_date, e.dx_time, e.dx_by, ");
             sb.Append("e.created_by, e.created_date, e.next_of_kin_address, e.next_of_kin_phone, ");
-            sb.Append("e.next_of_kin_email, e.dept_id, e.unit_id, e.loc_id, e.coy_id, p.id, p.title, ");
-            sb.Append("p.sname, p.fname, p.oname, p.fullname, p.sex, p.phone1, p.phone2,");
+            sb.Append("e.next_of_kin_email, e.dept_id, e.unit_id, e.loc_id, e.coy_id, e.lvs_pfl_cd, ");
+            sb.Append("p.id, p.title, p.sname, p.fname, p.oname, p.fullname, p.sex, p.phone1, p.phone2,");
             sb.Append("p.email AS personal_email, p.address, p.mdb, p.mdt, p.ctb, p.ctt, ");
             sb.Append("p.imgp, p.birthday, p.birthmonth, p.birthyear, p.maritalstatus, l.locname, ");
             sb.Append("l.loctype, l.lochq1, l.lochq2, l.locmb, l.locmd, l.loccb, l.loccd, l.locctr, ");
@@ -3147,7 +3145,8 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
             sb.Append("LEFT JOIN gst_coys c ON e.coy_id = c.coy_code ");
             sb.Append("LEFT JOIN gst_depts d ON e.dept_id = d.deptqk ");
             sb.Append("LEFT JOIN gst_units u ON e.unit_id = u.unitqk ");
-            sb.Append("WHERE(e.lvs_pfl_id = @lvs_pfl_id); ");
+            sb.Append("WHERE(e.lvs_pfl_cd = @lvs_pfl_cd) AND (e.is_dx = false) ");
+            sb.Append("ORDER BY p.fullname; ");
 
             string query = sb.ToString();
 
@@ -3157,9 +3156,9 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
                 // Retrieve all rows
                 using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
                 {
-                    var lvs_pfl_id = cmd.Parameters.Add("@lvs_pfl_id", NpgsqlDbType.Integer);
+                    var lvs_pfl_cd = cmd.Parameters.Add("@lvs_pfl_cd", NpgsqlDbType.Text);
                     await cmd.PrepareAsync();
-                    lvs_pfl_id.Value = leaveProfileId;
+                    lvs_pfl_cd.Value = leaveProfileCode;
 
                     var reader = await cmd.ExecuteReaderAsync();
                     while (await reader.ReadAsync())
@@ -3236,6 +3235,8 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
                             UnitHead1 = reader["unithd1"] == DBNull.Value ? string.Empty : reader["unithd1"].ToString(),
                             UnitHead2 = reader["unithd2"] == DBNull.Value ? string.Empty : reader["unithd2"].ToString(),
                             UnitName = reader["unitname"] == DBNull.Value ? string.Empty : reader["unitname"].ToString(),
+                        
+                            LeaveProfileCode = reader["lvs_pfl_cd"] == DBNull.Value ? string.Empty : reader["lvs_pfl_cd"].ToString(),
                         });
                     }
                 }
@@ -3244,10 +3245,10 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
             return employeeList;
         }
 
-        public async Task<IList<EmployeeRoll>> GetEmployeeRollsByLeaveProfileIdAsync(int leaveProfileId)
+        public async Task<IList<EmployeeRoll>> GetEmployeeRollsByLeaveProfileCodeAsync(string leaveProfileCode)
         {
             List<EmployeeRoll> employeeList = new List<EmployeeRoll>();
-            if (leaveProfileId < 1) { throw new ArgumentNullException(nameof(leaveProfileId)); }
+            if (string.IsNullOrWhiteSpace(leaveProfileCode)) { throw new ArgumentNullException(nameof(leaveProfileCode)); }
             StringBuilder sb = new StringBuilder();
             sb.Append("SELECT e.emp_id, e.emp_no_1, e.dept_id, e.unit_id, e.loc_id, ");
             sb.Append("p.fullname, p.sex, p.phone1, p.phone2, e.official_email, ");
@@ -3257,19 +3258,18 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
             sb.Append("LEFT JOIN gst_locs l ON e.loc_id = l.locqk ");
             sb.Append("LEFT JOIN gst_depts d ON e.dept_id = d.deptqk ");
             sb.Append("LEFT JOIN gst_units u ON e.unit_id = u.unitqk ");
-            sb.Append("WHERE(e.lvs_pfl_id = @lvs_pfl_id); ");
-
+            sb.Append("WHERE(e.lvs_pfl_cd = @lvs_pfl_cd) AND (e.is_dx = false) ");
+            sb.Append("ORDER BY p.fullname; ");
             string query = sb.ToString();
-
             using (NpgsqlConnection conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
             {
                 await conn.OpenAsync();
                 // Retrieve all rows
                 using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
                 {
-                    var lvs_pfl_id = cmd.Parameters.Add("@lvs_pfl_id", NpgsqlDbType.Integer);
+                    var lvs_pfl_cd = cmd.Parameters.Add("@lvs_pfl_cd", NpgsqlDbType.Text);
                     await cmd.PrepareAsync();
-                    lvs_pfl_id.Value = leaveProfileId;
+                    lvs_pfl_cd.Value = leaveProfileCode;
 
                     var reader = await cmd.ExecuteReaderAsync();
                     while (await reader.ReadAsync())

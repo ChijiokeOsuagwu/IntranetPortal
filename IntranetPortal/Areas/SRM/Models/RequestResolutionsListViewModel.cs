@@ -10,6 +10,8 @@ namespace IntranetPortal.Areas.SRM.Models
     public class RequestResolutionsListViewModel:BaseListViewModel
     {
         public long rd { get; set; }
+        public string LoggedInEmployeeName { get; set; }
+        public string AssignedToEmployeeName { get; set; }
         public List<IncidentResolution> IncidentResolutionsList { get; set; }
     }
 }

@@ -19,25 +19,15 @@ namespace IntranetPortal.Base.Models.LeaveModels
         public string LeaveTypeCode { get; set; }
         public string LeaveTypeName { get; set; }
         public string LeaveReason { get; set; }
-        public string LeavePlanStatus { get; set; }
-        public bool IsApproved { get; set; }
-        public string ApprovedBy { get; set; }
-        public DateTime? ApprovedTime { get; set; }
-        public DateTime? ProposedStartDate { get; set; }
-        public DateTime? ProposedEndDate { get; set; }
-        public DateTime? ProposedResumptionDate { get; set; }
-        public int ProposedDurationInDays { get; set; }
-        public int ProposedDuration { get; set; }
-        public int ProposedDurationTypeId { get; set; }
-        public string ProposedDurationTypeDescription { get; set; }
-        public string ProposedDurationDescription { get; set; }
-        public DateTime? ApprovedStartDate { get; set; }
-        public DateTime? ApprovedEndDate { get; set; }
-        public DateTime? ApprovedResumptionDate { get; set; }
-        public int ApprovedDurationInDays { get; set; }
-        public int ApprovedDuration { get; set; }
-        public int ApprovedDurationTypeId { get; set; }
-        public string ApprovedDurationTypeDescription { get; set; }
-        public string ApprovedDurationDescription { get; set; }
+        public int LeavePlanStatusId { get; set; }
+        public string LeavePlanStatusDescription { get; set; }
+        public DateTime? LeavePlanStartDate { get; set; }
+        public DateTime? LeavePlanEndDate { get; set; }
+        public DateTime? LeavePlanResumptionDate { get; set; }
+        public int LeavePlanDurationInDays { get; set; }
+        public int LeavePlanDuration { get; set; }
+        public int LeavePlanDurationTypeId { get; set; }
+        public string LeavePlanDurationTypeDescription { get; set; }
+        public string LeavePlanDurationDescription { get; set; }
     }
 }

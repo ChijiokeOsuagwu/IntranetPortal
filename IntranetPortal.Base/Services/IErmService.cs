@@ -40,7 +40,7 @@ namespace IntranetPortal.Base.Services
 
         #region Employee Rolls Service Method Interfaces
         Task<List<EmployeeRoll>> GetEmployeeRollsAsync(DateTime? TerminalDate = null, int? LocationId = null, int? DepartmentId = null, int? UnitId = null, string EmployeeId = null, string EmployeeName = null);
-        Task<List<EmployeeRoll>> GetEmployeeRollsByLeaveProfileIdAsync(int LeaveProfileId);
+        Task<List<EmployeeRoll>> GetEmployeeRollsByLeaveProfileCodeAsync(string LeaveProfileCode);
         #endregion
 
         #region EmployeeReportLine Action Methods

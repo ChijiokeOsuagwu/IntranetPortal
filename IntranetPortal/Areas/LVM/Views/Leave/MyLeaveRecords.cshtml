@@ -1,0 +1,430 @@
+﻿@model IntranetPortal.Areas.LVM.Models.MyLeaveRecordsViewModel
+<div class="container">
+    <h3 class="mb-1">My Leave Records</h3>
+    <hr />
+    <div class="mb-2">
+        <form asp-area="LVM" asp-controller="Leave" asp-action="MyLeaveRecords" method="get">
+            <div class="row">
+                <div class="col-md-4">
+                    <a asp-area="LVM" asp-controller="Leave" asp-action="Index" class="btn btn-sm btn-dark" style="width:100px;" title="Exit">
+                        <span class="text-white">Back</span>
+                    </a>
+                </div>
+                <div class="col-md-8 text-end">
+                        <span class="text-dark fw-bold">Select Year: </span>
+                        <input asp-for="yr" class="border-0 mr-3 ml-2" style="width:100px" min="2020" max="2060">
+                        <input type="submit" value="Search" class="btn btn-sm btn-dark mr-3 text-white" style="width:100px;" />
+                </div>
+            </div>
+        </form>
+
+        @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-x-circle"></i>
+                <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+    </div>
+    <hr />
+    <!-- Beginning of Accordion -->
+    <div class="accordion" id="accordionExample">
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingOne">
+                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                    <span class="fw-bold"><i class="bi bi-clipboard-data"></i>  Leave Balances</span>
+                </button>
+            </h2>
+            <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
+                <div class="accordion-body">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-3 text-center" title="Annual Leave Days">
+                                    <div><i class="bi bi-calendar-check" style="font-size:1.5rem; font-weight:bold"></i> </div>
+                                    <label class="form-label fw-bold">Annual Leave Days</label>
+                                    <div class="fw-bold text-center" title="Annual Leave Days"> @Model.CurrentLeaveBalances.CurrentYearPrifileLeaveDays Day(s)</div>
+                                </div>
+                                <div class="col-md-3 text-center" title="Previous Balance">
+                                    <div><i class="bi bi-calendar-event" style="font-size:1.5rem; font-weight:bold"></i></div>
+                                    <label class="form-label fw-bold"> Previous Balance </label>
+                                    <div class="fw-bold" title="Previous Balance"> @Model.CurrentLeaveBalances.CarriedOverLeaveBalance Day(s)</div>
+                                </div>
+                                <div class="col-md-3 text-center" title="Total Used">
+                                    <div><i class="bi bi-calendar-range" style="font-size:1.5rem; font-weight:bold"></i></div>
+                                    <label class="form-label fw-bold"> Total Used </label>
+                                    <div class="fw-bold text-dark" title="Total Used">@Model.CurrentLeaveBalances.TotalLeaveDaysUsed Day(s)</div>
+                                </div>
+                                <div class="col-md-3 text-center" title="Total Unused">
+                                    <div><i class="bi bi-calendar-week" style="font-size:1.5rem; font-weight:bold"></i> </div>
+                                    <label class="form-label fw-bold">Total Unused </label>
+                                    <div class="fw-bold text-dark" title="Total Unused"> @Model.CurrentLeaveBalances.TotalOutstandingLeaveDays Day(s)</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingTwo">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                    <span class="fw-bold"><i class="bi bi-calendar-week"></i> Leave Plans</span>
+                </button>
+            </h2>
+            <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#accordionExample">
+                <div class="accordion-body">
+                    <div class="row">
+                        <div class="text-end mb-2">
+                            <a asp-area="LVM" asp-controller="Leave" asp-action="NewLeavePlan" class="btn btn-sm btn-info mr-2" style="width:150px" title="Create New Leave Plan">
+                                <span class="text-white">Create New Plan</span>
+                            </a>
+                        </div>
+                        @if (Model == null || Model.LeavePlanList == null || Model.LeavePlanList.Count < 1)
+                        {
+                            <div class="alert alert-info fade show" role="alert">
+                                <i class="bi bi-info-circle"></i>
+                                <span class="fw-bold">No record was found.</span>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="table-responsive" style="min-height:150px">
+                                @foreach (var plan in Model.LeavePlanList)
+                                {
+                                    <div class="card">
+                                        <div class="card-header bg-info">
+                                            <div class="row">
+                                                <div class="col-md-2" title="Leave Year">
+                                                    @if (plan.LeaveYear < 1)
+                                                    {
+                                                        <span class="fw-bold text-white" title="Leave Year"><i class="bi bi-calendar" style="font-size:1.0rem; font-weight:bold"></i> [Unspecified]</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="fw-bold text-white" title="Leave Year"><i class="bi bi-calendar" style="font-size:1.0rem; font-weight:bold"></i> @plan.LeaveYear.ToString()</span>
+                                                    }
+                                                </div>
+                                                <div class="col-md-3" title="Leave Type">
+                                                    @if (string.IsNullOrWhiteSpace(plan.LeaveTypeName))
+                                                    {
+                                                        <span class="fw-bold text-white" title="Leave Type"><i class="bi bi-person" style="font-size:1.2rem; font-weight:bold"></i> [Not Specified] </span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="fw-bold text-white" title="Leave Type"><i class="bi bi-person" style="font-size:1.2rem; font-weight:bold"></i> @plan.LeaveTypeName</span>
+                                                    }
+                                                </div>
+                                                <div class="col-md-3" title="Leave Duration">
+                                                    <span class="fw-bold text-white" title="Leave Duration"><i class="bi bi-clock" style="font-size:1.2rem; font-weight:bold"></i> @plan.LeavePlanDurationDescription</span>
+                                                </div>
+                                                <div class="col-md-2" title="Status">
+                                                    @switch (plan.LeavePlanStatusId)
+                                                    {
+                                                        case 0:
+                                                            <span class="fw-bold text-white" title="Status"><i class="bi bi-dash-circle" style="font-size: 1.2rem; font-weight: bold;"></i> Not Yet Approved</span>
+                                                            break;
+                                                        case 1:
+                                                            <span class="fw-bold text-white" title="Status"><i class="bi bi-dash-circle" style="font-size: 1.2rem; font-weight: bold;"></i> Pending Approval</span>
+                                                            break;
+                                                        case 2:
+                                                            <span class="fw-bold text-white" title="Status"><i class="bi bi-x-circle" style="font-size: 1.2rem; font-weight: bold;"></i> Declined</span>
+                                                            break;
+                                                        case 3:
+                                                            <span class="fw-bold text-white" title="Status"><i class="bi bi-check-circle" style="font-size: 1.2rem; font-weight: bold;"></i> Approved</span>
+                                                            break;
+                                                        case 4:
+                                                            <span class="fw-bold text-white" title="Status"><i class="bi bi-check-circle" style="font-size: 1.2rem; font-weight: bold;"></i> Confirmed</span>
+                                                            break;
+                                                        case 5:
+                                                            <span class="fw-bold text-white" title="Status"><i class="bi bi-x-circle" style="font-size: 1.2rem; font-weight: bold;"></i> Cancelled</span>
+                                                            break;
+                                                        case 6:
+                                                            <span class="fw-bold text-white" title="Status"><i class="bi bi-check2-circle" style="font-size: 1.2rem; font-weight: bold;"></i> Completed</span>
+                                                            break;
+                                                        default:
+                                                            break;
+                                                    }
+                                                </div>
+                                                <div class="col-md-2 text-end">
+                                                    <div class="dropdown">
+                                                        <button class="btn btn-info btn-sm" type="button" id="dropdownMenuButton2" data-bs-toggle="dropdown" aria-expanded="false" style="border-radius:5px; border-color:#fff;">
+                                                            <span class="fw-bold text-white"><i class="bi bi-tools"></i> Options</span>
+                                                        </button>
+                                                        <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton2">
+                                                            <li>
+                                                                <a asp-area="LVM" asp-controller="Leave" asp-action="LeavePlanDetails" asp-route-id="@plan.LeavePlanId" title="View Details" class="dropdown-item">
+                                                                    <span class="text-white"><i class="bi bi-info-circle"></i> View</span>
+                                                                </a>
+                                                            </li>
+                                                            @if (plan.LeavePlanStatusId < 3)
+                                                            {
+                                                                <li>
+                                                                    <a asp-area="LVM" asp-controller="Leave" asp-action="EditLeavePlan" asp-route-id="@plan.LeavePlanId" title="Edit" class="dropdown-item">
+                                                                        <span class="text-white"><i class="bi bi-pencil-square"></i> Edit</span>
+                                                                    </a>
+                                                                </li>
+                                                                <li>
+                                                                    <a asp-area="LVM" asp-controller="Leave" asp-action="DeleteLeavePlan" asp-route-id="@plan.LeavePlanId" title="Delete" class="dropdown-item">
+                                                                        <span class="text-white"><i class="bi bi-trash"></i> Delete</span>
+                                                                    </a>
+                                                                </li>
+                                                            }
+                                                            <li>
+                                                                <a asp-area="LVM" asp-controller="Leave" asp-action="SubmitLeavePlan" asp-route-pd="@plan.LeavePlanId" title="Submit" class="dropdown-item">
+                                                                    <span class="text-white"><i class="bi bi-box-arrow-in-right"></i> Submit</span>
+                                                                </a>
+                                                            </li>
+                                                            @if (plan.LeavePlanStatusId == 3)
+                                                            {
+                                                                <li>
+                                                                    <a asp-area="LVM" asp-controller="Leave" asp-action="NewLeaveRequest" asp-route-id="@plan.LeavePlanId" title="Create Leave Request" class="dropdown-item">
+                                                                        <span class="text-white"><i class="bi bi-envelope"></i> Request</span>
+                                                                    </a>
+                                                                </li>
+                                                            }
+                                                            <li>
+                                                                <a asp-area="LVM" asp-controller="Leave" asp-action="LeaveApprovals" asp-route-id="@plan.LeavePlanId" asp-route-sp="mlp" asp-route-yr="@plan.LeaveYear" title="View Approvals" class="dropdown-item">
+                                                                    <span class="text-white"><i class="bi bi-calendar-check"></i> View Approvals</span>
+                                                                </a>
+                                                            </li>
+                                                            <li>
+                                                                <a asp-area="LVM" asp-controller="Leave" asp-action="LeaveNotes" asp-route-pd="@plan.LeavePlanId" asp-route-sp="mlp" asp-route-yr="@plan.LeaveYear" title="View Notes" class="dropdown-item">
+                                                                    <span class="text-white"><i class="bi bi-journals"></i> View Notes</span>
+                                                                </a>
+                                                            </li>
+                                                            <li>
+                                                                <a asp-area="LVM" asp-controller="Leave" asp-action="LeaveActivities" asp-route-pd="@plan.LeavePlanId" title="Activity Log" class="dropdown-item">
+                                                                    <span class="text-white"><i class="bi bi-file-earmark-text"></i> View History</span>
+                                                                </a>
+                                                            </li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="card-body" style="background-color:#BDDFF2">
+                                            <div class="row">
+                                                <div class="col-md-4" title="Start Date">
+                                                    @if (plan.LeavePlanStartDate == null)
+                                                    {
+                                                        <span class="fw-bold text-dark" title="Start Date"><i class="bi bi-calendar" style="font-size:1.0rem; font-weight:bold"></i> Start Date: [Unspecified]</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="fw-bold text-dark" title="Start Date"><i class="bi bi-calendar" style="font-size:1.0rem; font-weight:bold"></i> Start Date: @plan.LeavePlanStartDate.Value.ToLongDateString()</span>
+                                                    }
+                                                </div>
+                                                <div class="col-md-4" title="Duration">
+                                                    @if (string.IsNullOrWhiteSpace(plan.LeavePlanDurationDescription))
+                                                    {
+                                                        <span class="fw-bold text-dark" title="Duration"><i class="bi bi-clock" style="font-size:1.2rem; font-weight:bold"></i> Duration: [N/A]</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="fw-bold text-dark" title="Duration"><i class="bi bi-clock" style="font-size:1.2rem; font-weight:bold"></i> Duration: @plan.LeavePlanDurationDescription</span>
+                                                    }
+                                                </div>
+                                                <div class="col-md-4" title="Resumption Date">
+                                                    @if (plan.LeavePlanResumptionDate == null)
+                                                    {
+                                                        <span class="fw-bold text-dark" title="Resumption Date"><i class="bi bi-calendar" style="font-size:1.0rem; font-weight:bold"></i> Resumption Date: [Unspecified]</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="fw-bold text-dark" title="Resumption Date"><i class="bi bi-calendar" style="font-size:1.0rem; font-weight:bold"></i> Resumption Date: @plan.LeavePlanResumptionDate.Value.ToLongDateString()</span>
+                                                    }
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingThree">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                    <span class="fw-bold"><i class="bi bi-envelope-open"></i> Leave Requests</span>
+                </button>
+            </h2>
+            <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#accordionExample">
+                <div class="accordion-body">
+                    <div class="text-end mb-2">
+                        <a asp-area="LVM" asp-controller="Leave" asp-action="NewLeaveRequest" class="btn btn-sm btn-info mr-2" style="width: 150px; background-color:#035711" title="Create New Leave Request">
+                            <span class="text-white">Create New Request</span>
+                        </a>
+                    </div>
+                    <div class="row">
+                        @if (Model == null || Model.LeaveRequestList == null || Model.LeaveRequestList.Count < 1)
+                        {
+                            <div class="alert alert-info fade show" role="alert">
+                                <i class="bi bi-info-circle"></i>
+                                <span class="fw-bold">No record was found.</span>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="table-responsive" style="min-height:150px">
+                                @foreach (var request in Model.LeaveRequestList)
+                                {
+                                    <div class="card">
+                                        <div class="card-header bg-success">
+                                            <div class="row">
+                                                <div class="col-md-2" title="Leave Year">
+                                                    @if (request.LeaveYear < 1)
+                                                    {
+                                                        <span class="fw-bold text-white" title="Leave Year"><i class="bi bi-calendar" style="font-size:1.0rem; font-weight:bold"></i> [Unspecified]</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="fw-bold text-white" title="Leave Year"><i class="bi bi-calendar" style="font-size:1.0rem; font-weight:bold"></i> @request.LeaveYear.ToString()</span>
+                                                    }
+                                                </div>
+                                                <div class="col-md-3" title="Leave Type">
+                                                    @if (string.IsNullOrWhiteSpace(request.LeaveTypeName))
+                                                    {
+                                                        <span class="fw-bold text-white" title="Leave Type"><i class="bi bi-person" style="font-size:1.2rem; font-weight:bold"></i> [Not Specified] </span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="fw-bold text-white" title="Leave Type"><i class="bi bi-person" style="font-size:1.2rem; font-weight:bold"></i> @request.LeaveTypeName</span>
+                                                    }
+                                                </div>
+                                                <div class="col-md-3" title="Leave Duration">
+                                                    <span class="fw-bold text-white" title="Leave Duration"><i class="bi bi-clock" style="font-size:1.2rem; font-weight:bold"></i> @request.RequestedDurationDescription</span>
+                                                </div>
+                                                <div class="col-md-2" title="Status">
+                                                    @switch (request.LeaveRequestStatusId)
+                                                    {
+                                                        case 0:
+                                                            <span class="fw-bold text-white" title="Status"><i class="bi bi-dash-circle" style="font-size: 1.2rem; font-weight: bold;"></i> Not Yet Approved</span>
+                                                            break;
+                                                        case 1:
+                                                            <span class="fw-bold text-white" title="Status"><i class="bi bi-dash-circle" style="font-size: 1.2rem; font-weight: bold;"></i> Pending Approval</span>
+                                                            break;
+                                                        case 2:
+                                                            <span class="fw-bold text-white" title="Status"><i class="bi bi-x-circle" style="font-size: 1.2rem; font-weight: bold;"></i> Declined</span>
+                                                            break;
+                                                        case 3:
+                                                            <span class="fw-bold text-white" title="Status"><i class="bi bi-check-circle" style="font-size: 1.2rem; font-weight: bold;"></i> Approved</span>
+                                                            break;
+                                                        case 4:
+                                                            <span class="fw-bold text-white" title="Status"><i class="bi bi-check-circle" style="font-size: 1.2rem; font-weight: bold;"></i> Confirmed</span>
+                                                            break;
+                                                        case 5:
+                                                            <span class="fw-bold text-white" title="Status"><i class="bi bi-x-circle" style="font-size: 1.2rem; font-weight: bold;"></i> Cancelled</span>
+                                                            break;
+                                                        case 6:
+                                                            <span class="fw-bold text-white" title="Status"><i class="bi bi-check2-circle" style="font-size: 1.2rem; font-weight: bold;"></i> Completed</span>
+                                                            break;
+                                                        default:
+                                                            break;
+                                                    }
+                                                </div>
+                                                <div class="col-md-2 text-end">
+                                                    <div class="dropdown">
+                                                        <button class="btn btn-info btn-sm" type="button" id="dropdownMenuButton2" data-bs-toggle="dropdown" aria-expanded="false" style="border-radius:5px; border-color:#fff;">
+                                                            <span class="fw-bold text-white"><i class="bi bi-tools"></i> Options</span>
+                                                        </button>
+                                                        <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton2">
+                                                            <li>
+                                                                <a asp-area="LVM" asp-controller="Leave" asp-action="LeaveRequestDetails" asp-route-id="@request.LeaveRequestId" title="View Details" class="dropdown-item">
+                                                                    <span class="text-white"><i class="bi bi-info-circle"></i> View</span>
+                                                                </a>
+                                                            </li>
+                                                            @if (request.LeaveRequestStatusId < 3)
+                                                            {
+                                                                <li>
+                                                                    <a asp-area="LVM" asp-controller="Leave" asp-action="EditLeaveRequest" asp-route-id="@request.LeaveRequestId" title="Edit" class="dropdown-item">
+                                                                        <span class="text-white"><i class="bi bi-pencil-square"></i> Edit</span>
+                                                                    </a>
+                                                                </li>
+                                                                <li>
+                                                                    <a asp-area="LVM" asp-controller="Leave" asp-action="DeleteLeaveRequest" asp-route-id="@request.LeaveRequestId" title="Delete" class="dropdown-item">
+                                                                        <span class="text-white"><i class="bi bi-trash"></i> Delete</span>
+                                                                    </a>
+                                                                </li>
+                                                            }
+                                                            <li>
+                                                                <a asp-area="LVM" asp-controller="Leave" asp-action="SubmitLeaveRequest" asp-route-pd="@request.LeaveRequestId" title="Submit" class="dropdown-item">
+                                                                    <span class="text-white"><i class="bi bi-box-arrow-in-right"></i> Submit</span>
+                                                                </a>
+                                                            </li>
+                                                            @if (request.LeaveRequestStatusId == 3)
+                                                            {
+                                                                <li>
+                                                                    <a asp-area="LVM" asp-controller="Leave" asp-action="NewLeaveRequest" asp-route-id="@request.LeaveRequestId" title="Create Leave Request" class="dropdown-item">
+                                                                        <span class="text-white"><i class="bi bi-envelope"></i> Request</span>
+                                                                    </a>
+                                                                </li>
+                                                            }
+                                                            <li>
+                                                                <a asp-area="LVM" asp-controller="Leave" asp-action="LeaveApprovals" asp-route-id="@request.LeaveRequestId" asp-route-sp="mlp" asp-route-yr="@request.LeaveYear" title="View Approvals" class="dropdown-item">
+                                                                    <span class="text-white"><i class="bi bi-calendar-check"></i> View Approvals</span>
+                                                                </a>
+                                                            </li>
+                                                            <li>
+                                                                <a asp-area="LVM" asp-controller="Leave" asp-action="LeaveNotes" asp-route-pd="@request.LeaveRequestId" asp-route-sp="mlp" asp-route-yr="@request.LeaveYear" title="View Notes" class="dropdown-item">
+                                                                    <span class="text-white"><i class="bi bi-journals"></i> View Notes</span>
+                                                                </a>
+                                                            </li>
+                                                            <li>
+                                                                <a asp-area="LVM" asp-controller="Leave" asp-action="LeaveActivities" asp-route-pd="@request.LeaveRequestId" title="Activity Log" class="dropdown-item">
+                                                                    <span class="text-white"><i class="bi bi-file-earmark-text"></i> View History</span>
+                                                                </a>
+                                                            </li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="card-body" style="background-color:#BDDFF2">
+                                            <div class="row">
+                                                <div class="col-md-4" title="Start Date">
+                                                    @if (request.RequestedStartDate == null)
+                                                    {
+                                                        <span class="fw-bold text-dark" title="Start Date"><i class="bi bi-calendar" style="font-size:1.0rem; font-weight:bold"></i> Start Date: [Unspecified]</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="fw-bold text-dark" title="Start Date"><i class="bi bi-calendar" style="font-size:1.0rem; font-weight:bold"></i> Start Date: @request.RequestedStartDate.ToLongDateString()</span>
+                                                    }
+                                                </div>
+                                                <div class="col-md-4" title="Duration">
+                                                    @if (string.IsNullOrWhiteSpace(request.RequestedDurationDescription))
+                                                    {
+                                                        <span class="fw-bold text-dark" title="Duration"><i class="bi bi-clock" style="font-size:1.2rem; font-weight:bold"></i> Duration: [N/A]</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="fw-bold text-dark" title="Duration"><i class="bi bi-clock" style="font-size:1.2rem; font-weight:bold"></i> Duration: @request.RequestedDurationDescription</span>
+                                                    }
+                                                </div>
+                                                <div class="col-md-4" title="Resumption Date">
+                                                    @if (request.RequestedResumptionDate == null)
+                                                    {
+                                                        <span class="fw-bold text-dark" title="Resumption Date"><i class="bi bi-calendar" style="font-size:1.0rem; font-weight:bold"></i> Resumption Date: [Unspecified]</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="fw-bold text-dark" title="Resumption Date"><i class="bi bi-calendar" style="font-size:1.0rem; font-weight:bold"></i> Resumption Date: @request.RequestedResumptionDate.Value.ToLongDateString()</span>
+                                                    }
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- End of Accordion -->
+</div>

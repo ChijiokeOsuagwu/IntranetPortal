@@ -28,6 +28,8 @@ namespace IntranetPortal.Base.Models.SrmModels
         public int? UnitId { get; set; }
         public string UnitName { get; set; }
         public bool IsAssigned { get; set; }
+        public string AssignedToName { get; set; }
+        public DateTime? AssignedTime { get; set; }
         public string ServiceCenterId { get; set; }
         public string ServiceCenterName { get; set; }
         public bool ConfirmedResolved { get; set; }

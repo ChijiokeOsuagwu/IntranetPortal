@@ -1,0 +1,89 @@
+﻿
+@model IntranetPortal.Areas.LVM.Models.LeavePlanViewModel
+<h3 class="mb-1">My Leave Plans</h3>
+<hr />
+<div class="card mt-1" style="max-width:1000px">
+    <div class="card-header bg-danger">
+        <h4 class="text-white">Delete Leave Plan</h4>
+    </div>
+    <div class="card-body bg-secondary">
+        @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-x-circle"></i>
+                <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (!String.IsNullOrEmpty(Model.ViewModelSuccessMessage))
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="bi bi-check-circle"></i>
+                <span class="fw-bold">@Model.ViewModelSuccessMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (!String.IsNullOrEmpty(Model.ViewModelWarningMessage))
+        {
+            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                <i class="bi bi-exclamation-circle"></i>
+                <span class="fw-bold">@Model.ViewModelWarningMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        <form asp-area="LVM" asp-controller="Leave" asp-action="DeleteLeavePlan" method="post" autocomplete="off">
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label asp-for="LeaveEmployeeName" class="form-label text-white fw-bold"></label>
+                    <input asp-for="LeaveEmployeeName" class="form-control fw-bold" readonly>
+                </div>
+                <div class="col-md-2 mb-3">
+                    <label asp-for="LeaveYear" class="form-label text-white fw-bold"></label>
+                    <input asp-for="LeaveYear" class="form-control fw-bold" min="2020" max="2060" readonly>
+                    <div><span asp-validation-for="LeaveYear" class="text-danger"></span></div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label asp-for="LeaveTypeCode" class="form-label text-white fw-bold"></label>
+                    <input asp-for="LeaveTypeName" class="form-control fw-bold"  readonly>
+                    <div><span asp-validation-for="LeaveTypeName" class="text-danger"></span></div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-3 mb-3">
+                    <label asp-for="LeavePlanStartDate" class="form-label text-white fw-bold"></label>
+                    <div  class="form-control fw-bold">@Model.LeavePlanStartDate.Value.ToLongDateString()</div>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label class="form-label text-white fw-bold">Leave Duration</label>
+                    <div  class="form-control fw-bold">@Model.LeavePlanDurationDescription</div>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label class="form-label text-white fw-bold">Leave Ends On:</label>
+                    <div class="form-control fw-bold">@Model.LeavePlanEndDate.Value.ToLongDateString()</div>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label class="form-label text-white fw-bold">Resumes Work On:</label>
+                    <div class="form-control fw-bold">@Model.LeavePlanResumptionDate.Value.ToLongDateString()</div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12 mb-3">
+                    <label asp-for="LeaveReason" class="form-label text-white fw-bold"></label>
+                    <textarea asp-for="LeaveReason" class="form-control fw-bold" readonly>@Model.LeaveReason</textarea>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12 text-end">
+                    <a asp-area="LVM" asp-controller="Leave" asp-action="MyLeavePlans" class="btn btn-dark" style="width:100px" title="Exit">
+                        <span class="text-white">Exit</span>
+                    </a>
+                    <button type="submit" class="btn btn-danger" title="Delete" style="width:200px" onclick="return confirm('Proceed and delete this Leave Plan? ')"><span class="text-white">Delete</span></button>
+                </div>
+            </div>
+            <input type="hidden" asp-for="LeavePlanId">
+            <input type="hidden" asp-for="LeaveEmployeeId" />
+            <input type="hidden" asp-for="LeaveEmployeeName" />
+            <input type="hidden" asp-for="LeavePlanStartDate" />
+        </form>
+    </div>
+</div>

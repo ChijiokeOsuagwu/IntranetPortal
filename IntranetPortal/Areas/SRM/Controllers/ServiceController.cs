@@ -163,7 +163,7 @@ namespace IntranetPortal.Areas.SRM.Controllers
             var claims = HttpContext.User.Claims.ToList();
             model.RequestOwnerID = claims?.Where(x => x.Type == ClaimTypes.NameIdentifier).Select(c => c.Value).SingleOrDefault();
             var entities = await _requestService.GetMyServiceIncidentsAsync(model.RequestOwnerID, sd, ed);
-            if (entities != null) { model.ServiceIncentsList = entities; }
+            if (entities != null) { model.ServiceIncidentsList = entities; }
             model.RequestOwnerName = HttpContext.User.Identity.Name;
             return View(model);
         }
@@ -174,7 +174,7 @@ namespace IntranetPortal.Areas.SRM.Controllers
             var claims = HttpContext.User.Claims.ToList();
             model.RequestOwnerID = claims?.Where(x => x.Type == ClaimTypes.NameIdentifier).Select(c => c.Value).SingleOrDefault();
             var entities = await _requestService.GetMyServiceIncidentsAsync(model.RequestOwnerID, sd, ed);
-            if (entities != null) { model.ServiceIncentsList = entities; }
+            if (entities != null) { model.ServiceIncidentsList = entities; }
             model.RequestOwnerName = HttpContext.User.Identity.Name;
 
             var teamEntities = await _globalSettingsService.GetTeamsAsync();
@@ -189,15 +189,15 @@ namespace IntranetPortal.Areas.SRM.Controllers
             RequestResolutionsListViewModel model = new RequestResolutionsListViewModel();
             model.IncidentResolutionsList = new List<IncidentResolution>();
             model.rd = rd;
-           // var claims = HttpContext.User.Claims.ToList();
-            //model.RequestOwnerID = claims?.Where(x => x.Type == ClaimTypes.NameIdentifier).Select(c => c.Value).SingleOrDefault();
+            model.LoggedInEmployeeName = HttpContext.User.Identity.Name;
+            ServiceIncident serviceIncident = new ServiceIncident();
+            var service_incident_entity = await _requestService.GetServiceIncidentAsync(model.rd);
+            if(service_incident_entity != null) { model.AssignedToEmployeeName = service_incident_entity.AssignedToName; }
             var entities = await _requestService.GetIncidentResolutionsAsync(model.rd);
             if (entities != null) { model.IncidentResolutionsList = entities; }
-            //model.RequestOwnerName = HttpContext.User.Identity.Name;
 
             return View(model);
         }
-
         public async Task<IActionResult> ManageRequestResolution(long id, long rd)
         {
             RequestResolutionViewModel model = new RequestResolutionViewModel();
@@ -255,6 +255,53 @@ namespace IntranetPortal.Areas.SRM.Controllers
                 {
                     model.ViewModelErrorMessage = ex.Message;
                 }
+            }
+            return View(model);
+        }
+
+        public async Task<IActionResult> AssignRequest(long id, string td)
+        {
+            AssignRequestViewModel model = new AssignRequestViewModel();
+            model.IncidentId = id;
+            model.ServiceTeamId = td;
+            var team_members_entities = await _globalSettingsService.GetTeamMembersByTeamIdAsync(model.ServiceTeamId);
+            if (team_members_entities != null && team_members_entities.ToList().Count > 0)
+            {
+                ViewBag.TeamMembersList = new SelectList(team_members_entities, "FullName", "FullName", model.AssignedToEmployeeName);
+            }
+            return View(model);
+        }
+        
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AssignRequest(AssignRequestViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                model.AssignedByEmployeeName = HttpContext.User.Identity.Name;
+
+                try
+                {
+                        bool isUpdated = await _requestService.UpdateIncidentAssignmentAsync(model.IncidentId, model.AssignedToEmployeeName, model.AssignedByEmployeeName);
+                        if (isUpdated)
+                        {
+                            return RedirectToAction("ServiceRequestBoard");
+                        }
+                        else
+                        {
+                            model.ViewModelErrorMessage = "An error was encountered. The attempted update failed.";
+                        }
+                }
+                catch (Exception ex)
+                {
+                    model.ViewModelErrorMessage = ex.Message;
+                }
+            }
+
+            var team_members_entities = await _globalSettingsService.GetTeamMembersByTeamIdAsync(model.ServiceTeamId);
+            if (team_members_entities != null && team_members_entities.ToList().Count > 0)
+            {
+                ViewBag.TeamMembersList = new SelectList(team_members_entities, "FullName", "FullName", model.AssignedToEmployeeName);
             }
             return View(model);
         }

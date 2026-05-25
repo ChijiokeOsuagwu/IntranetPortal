@@ -296,11 +296,13 @@ namespace IntranetPortal.Areas.LVM.Controllers
             catch (Exception ex) { model.ViewModelErrorMessage = ex.Message; }
             return View(model);
         }
+        
         public IActionResult NewLeaveProfile()
         {
             LeaveProfileViewModel model = new LeaveProfileViewModel();
             return View(model);
         }
+        
         [HttpPost]
         public async Task<IActionResult> NewLeaveProfile(LeaveProfileViewModel model)
         {
@@ -312,6 +314,7 @@ namespace IntranetPortal.Areas.LVM.Controllers
                     e.Id = model.Id;
                     e.Name = model.Name;
                     e.Description = model.Description;
+                    e.Code = model.Code;
                     if (await _leaveService.CreateLeaveProfile(e))
                     {
                         return RedirectToAction("LeaveProfiles");
@@ -323,6 +326,7 @@ namespace IntranetPortal.Areas.LVM.Controllers
             catch (Exception ex) { model.ViewModelErrorMessage = ex.Message; }
             return View(model);
         }
+        
         public async Task<IActionResult> EditLeaveProfile(int id)
         {
             LeaveProfileViewModel model = new LeaveProfileViewModel();
@@ -336,6 +340,7 @@ namespace IntranetPortal.Areas.LVM.Controllers
                         model.Id = leaveProfile.Id;
                         model.Name = leaveProfile.Name;
                         model.Description = leaveProfile.Description;
+                        model.Code = leaveProfile.Code;
                     }
                     else { throw new Exception("No record was found for the selected item."); }
                 }
@@ -344,6 +349,7 @@ namespace IntranetPortal.Areas.LVM.Controllers
             catch (Exception ex) { model.ViewModelErrorMessage = ex.Message; }
             return View(model);
         }
+        
         [HttpPost]
         public async Task<IActionResult> EditLeaveProfile(LeaveProfileViewModel model)
         {
@@ -355,6 +361,7 @@ namespace IntranetPortal.Areas.LVM.Controllers
                     e.Id = model.Id;
                     e.Name = model.Name;
                     e.Description = model.Description;
+                    e.Code = model.Code;
                     if (await _leaveService.UpdateLeaveProfile(e))
                     {
                         return RedirectToAction("LeaveProfiles");
@@ -365,6 +372,7 @@ namespace IntranetPortal.Areas.LVM.Controllers
             catch (Exception ex) { model.ViewModelErrorMessage = ex.Message; }
             return View(model);
         }
+        
         public async Task<IActionResult> DeleteLeaveProfile(int id)
         {
             LeaveProfileViewModel model = new LeaveProfileViewModel();
@@ -386,6 +394,7 @@ namespace IntranetPortal.Areas.LVM.Controllers
             catch (Exception ex) { model.ViewModelErrorMessage = ex.Message; }
             return View(model);
         }
+        
         [HttpPost]
         public async Task<IActionResult> DeleteLeaveProfile(LeaveProfileViewModel model)
         {
@@ -403,15 +412,16 @@ namespace IntranetPortal.Areas.LVM.Controllers
             catch (Exception ex) { model.ViewModelErrorMessage = ex.Message; }
             return View(model);
         }
-        public async Task<IActionResult> LeaveProfileEmployees(int id)
+        
+        public async Task<IActionResult> LeaveProfileEmployees(string cd)
         {
             LeaveProfileEmployeesListViewModel model = new LeaveProfileEmployeesListViewModel();
-            model.LeaveProfileId = id;
+            model.LeaveProfileCode = cd;
             try
             {
-                if (id > 0)
+                if (!string.IsNullOrWhiteSpace(model.LeaveProfileCode))
                 {
-                    model.EmployeeRollsList = await _ermService.GetEmployeeRollsByLeaveProfileIdAsync(id);
+                    model.EmployeeRollsList = await _ermService.GetEmployeeRollsByLeaveProfileCodeAsync(model.LeaveProfileCode);
                 }
             }
             catch (Exception ex) { model.ViewModelErrorMessage = ex.Message; }
@@ -429,6 +439,7 @@ namespace IntranetPortal.Areas.LVM.Controllers
             catch (Exception ex) { model.ViewModelErrorMessage = ex.Message; }
             return View(model);
         }
+        
         public async Task<IActionResult> NewProfileDetail(int id, string nm)
         {
             LeaveProfileDetailViewModel model = new LeaveProfileDetailViewModel();
@@ -438,6 +449,7 @@ namespace IntranetPortal.Areas.LVM.Controllers
             if (entities != null) { ViewBag.LeaveTypeCodeList = new SelectList(entities, "Code", "Name"); }
             return View(model);
         }
+        
         [HttpPost]
         public async Task<IActionResult> NewProfileDetail(LeaveProfileDetailViewModel model)
         {
@@ -468,6 +480,7 @@ namespace IntranetPortal.Areas.LVM.Controllers
             if (entities != null) { ViewBag.LeaveTypeCodeList = new SelectList(entities, "Code", "Name", model.LeaveTypeCode); }
             return View(model);
         }
+        
         public async Task<IActionResult> EditProfileDetail(int id)
         {
             LeaveProfileDetailViewModel model = new LeaveProfileDetailViewModel();
@@ -491,6 +504,7 @@ namespace IntranetPortal.Areas.LVM.Controllers
             if (entities != null) { ViewBag.LeaveTypeCodeList = new SelectList(entities, "Code", "Name"); }
             return View(model);
         }
+        
         [HttpPost]
         public async Task<IActionResult> EditProfileDetail(LeaveProfileDetailViewModel model)
         {
@@ -521,6 +535,7 @@ namespace IntranetPortal.Areas.LVM.Controllers
             if (entities != null) { ViewBag.LeaveTypeCodeList = new SelectList(entities, "Code", "Name", model.LeaveTypeCode); }
             return View(model);
         }
+        
         public async Task<IActionResult> DeleteProfileDetail(int id)
         {
             LeaveProfileDetailViewModel model = new LeaveProfileDetailViewModel();
@@ -544,6 +559,7 @@ namespace IntranetPortal.Areas.LVM.Controllers
             return View(model);
         }
         [HttpPost]
+        
         public async Task<IActionResult> DeleteProfileDetail(LeaveProfileDetailViewModel model)
         {
             try
@@ -561,6 +577,7 @@ namespace IntranetPortal.Areas.LVM.Controllers
             catch (Exception ex) { model.ViewModelErrorMessage = ex.Message; }
             return View(model);
         }
+        
         public async Task<IActionResult> ViewProfileDetail(int id)
         {
             LeaveProfileDetailViewModel model = new LeaveProfileDetailViewModel();
