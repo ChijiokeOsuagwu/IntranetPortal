@@ -33,7 +33,7 @@ namespace IntranetPortal.Base.Models.LeaveModels
         public DateTime? ActualLeaveStartDate { get; set; }
         public DateTime? ActualLeaveEndDate { get; set; }
         public int ActualLeaveDuration { get; set; }
-        public int ActualLeaveDurationTypeId { get; set; }
+        public int? ActualLeaveDurationTypeId { get; set; }
         public string ActualLeaveDurationDescription { get; set; }
 
         public DateTime? LineManagersResumptionDate { get; set; }

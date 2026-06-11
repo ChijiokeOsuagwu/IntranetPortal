@@ -1,11 +1,11 @@
 ﻿@model IntranetPortal.Areas.LVM.Models.LeavePlansListViewModel
 <div class="container">
-    <h3 class="mb-1">Search Leave Plans</h3>
+    <h4 class="mb-1">Search Leave Plans</h4>
     <hr />
     <div class="mb-2">
         <div class="row">
             <div class="col-md-2">
-                <a asp-area="LVM" asp-controller="Leave" asp-action="Index" class="btn btn-sm btn-dark" style="width:100px;" title="Exit">
+                <a asp-area="LVM" asp-controller="Leave" asp-action="Dashboard" class="btn btn-sm btn-dark" style="width:100px;" title="Exit">
                     <span class="text-white">Back</span>
                 </a>
             </div>
@@ -139,17 +139,17 @@
                                         </button>
                                         <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton2">
                                             <li>
-                                                <a asp-area="LVM" asp-controller="Leave" asp-action="LeavePlanDetails" asp-route-id="@plan.LeavePlanId" title="View Details" class="dropdown-item">
+                                                <a asp-area="LVM" asp-controller="Leave" asp-action="ViewLeavePlan" asp-route-id="@plan.LeavePlanId" title="View Details" class="dropdown-item">
                                                     <span class="text-white"><i class="bi bi-info-circle"></i> View Details</span>
                                                 </a>
                                             </li>
                                             <li>
-                                                <a asp-area="LVM" asp-controller="Leave" asp-action="LeaveApprovals" asp-route-id="@plan.LeavePlanId" asp-route-sp="mlp" asp-route-yr="@plan.LeaveYear" title="View Approvals" class="dropdown-item">
+                                                <a asp-area="LVM" asp-controller="Leave" asp-action="LeaveApprovals" asp-route-id="@plan.LeavePlanId" asp-route-sp="slp" asp-route-yr="@plan.LeaveYear" title="View Approvals" class="dropdown-item">
                                                     <span class="text-white"><i class="bi bi-calendar-check"></i> View Approvals</span>
                                                 </a>
                                             </li>
                                             <li>
-                                                <a asp-area="LVM" asp-controller="Leave" asp-action="LeaveNotes" asp-route-pd="@plan.LeavePlanId" asp-route-sp="mlp" asp-route-yr="@plan.LeaveYear" title="View Notes" class="dropdown-item">
+                                                <a asp-area="LVM" asp-controller="Leave" asp-action="LeaveNotes" asp-route-pd="@plan.LeavePlanId" asp-route-sp="slp" asp-route-yr="@plan.LeaveYear" title="View Notes" class="dropdown-item">
                                                     <span class="text-white"><i class="bi bi-journals"></i> View Notes</span>
                                                 </a>
                                             </li>

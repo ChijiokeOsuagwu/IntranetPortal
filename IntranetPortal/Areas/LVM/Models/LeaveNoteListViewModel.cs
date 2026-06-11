@@ -17,6 +17,7 @@ namespace IntranetPortal.Areas.LVM.Models
         public string ApplicantID { get; set; }
         public string ApplicantName { get; set; }
         public string NewLeaveNote { get; set; }
+        public long? LeaveSubmissionId { get; set; }
         public List<LeaveNote> LeaveNoteList { get; set; }
     }
 }

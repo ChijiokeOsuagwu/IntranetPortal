@@ -74,7 +74,7 @@
         </div>
         <div class="row">
             <div class="col-md-12 text-end">
-                <a asp-area="LVM" asp-controller="Leave" asp-action="MyLeavePlans" class="btn btn-dark" style="width:75px" title="Exit">
+                <a asp-area="LVM" asp-controller="Leave" asp-action="LeavePendingApproval" class="btn btn-dark" style="width:75px" title="Exit">
                     <span class="text-white">Exit</span>
                 </a>
                 <a asp-area="LVM" asp-controller="Leave" asp-action="LeavePlanDecline" asp-route-id="@Model.LeavePlanId" asp-route-sd="@Model.LeaveSubmissionId" class="btn btn-danger" style="width:100px" title="Decline">
@@ -98,6 +98,8 @@
         <input type="hidden" asp-for="LeaveTypeCode" />
         <input type="hidden" asp-for="LeavePlanDuration" />
         <input type="hidden" asp-for="LeavePlanDurationTypeId" />
+        <input type="hidden" asp-for="SourcePage" />
+        <input type="hidden" asp-for="src" />
     </form>
     </div>
 </div>

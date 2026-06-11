@@ -1,0 +1,132 @@
+﻿
+@model IntranetPortal.Areas.LVM.Models.LeaveRequestApprovalViewModel
+<h4 class="mb-1">Leave Requests</h4>
+<hr />
+<div class="card mt-1" style="max-width:1000px">
+    <div class="card-header bg-success">
+        <h4 class="text-white">Approve Leave Request</h4>
+    </div>
+    <div class="card-body bg-secondary">
+        @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-x-circle"></i>
+                <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (!String.IsNullOrEmpty(Model.ViewModelSuccessMessage))
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="bi bi-check-circle"></i>
+                <span class="fw-bold">@Model.ViewModelSuccessMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (!String.IsNullOrEmpty(Model.ViewModelWarningMessage))
+        {
+            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                <i class="bi bi-exclamation-circle"></i>
+                <span class="fw-bold">@Model.ViewModelWarningMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        <form asp-area="LVM" asp-controller="Leave" asp-action="LeaveRequestApproval" method="post" autocomplete="off">
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label text-white fw-bold">Name</label>
+                    <input asp-for="LeaveEmployeeName" class="form-control fw-bold" readonly>
+                </div>
+                <div class="col-md-2 mb-3">
+                    <label class="form-label text-white fw-bold">Year</label>
+                    <input asp-for="LeaveYear" class="form-control fw-bold" min="2020" max="2060" readonly>
+                    <div><span asp-validation-for="LeaveYear" class="text-danger"></span></div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label text-white fw-bold">Type</label>
+                    <input asp-for="LeaveTypeName" class="form-control fw-bold" readonly>
+                    <div><span asp-validation-for="LeaveTypeName" class="text-danger"></span></div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-3 mb-3">
+                    <label class="form-label text-white fw-bold">Leave Starts On:</label>
+                    <div class="form-control fw-bold">@Model.RequestedStartDate.ToLongDateString()</div>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label class="form-label text-white fw-bold">Leave Duration</label>
+                    <div class="form-control fw-bold">@Model.RequestedDurationDescription</div>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label class="form-label text-white fw-bold">Leave Ends On:</label>
+                    <div class="form-control fw-bold">@Model.RequestedEndDate.ToLongDateString()</div>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label class="form-label text-white fw-bold">Resumes Work On:</label>
+                    <div class="form-control fw-bold">@Model.RequestedResumptionDate.Value.ToLongDateString()</div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12 mb-3">
+                    <label class="form-label text-white fw-bold"> Reason </label>
+                    <textarea asp-for="LeaveReason" class="form-control fw-bold" readonly>@Model.LeaveReason</textarea>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-9 text-end">
+                    <a asp-area="LVM" asp-controller="Leave" asp-action="LeavePendingApproval" class="btn btn-dark" style="width: 100px; border-radius: 5px; margin-right:5px" title="Exit">
+                        <span class="text-white">Exit</span>
+                    </a>
+                         <a asp-area="LVM" asp-controller="Leave" asp-action="LeaveRequestDecline" asp-route-id="@Model.LeaveRequestId" asp-route-sd="@Model.LeaveSubmissionId" class="btn btn-danger" style="width: 120px; border-radius: 5px;" title="Decline">
+                        <span class="text-white"><i class="bi bi-x-lg"></i> Decline</span>
+                    </a>
+                    <button type="submit" class="btn btn-success" title="Approve this Leave Request" style="width: 120px; border-radius: 5px;">
+                        <span class="text-white"><i class="bi bi-check-lg"></i> Approve</span>
+                    </button>
+                </div>
+                <div class="col-md-3 text-end">
+                    <div class="dropdown">
+                        <button class="btn btn-dark" type="button" id="dropdownMenuButton2" data-bs-toggle="dropdown" aria-expanded="false" style="width:100px;" >
+                            <span class="text-white"><i class="bi bi-tools"></i> Options</span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton2">
+                            <li>
+                                <a asp-area="LVM" asp-controller="Leave" asp-action="LeaveDocuments" asp-route-id="@Model.LeaveRequestId" asp-route-sp="lra" asp-route-sd="@Model.LeaveSubmissionId" title="View Attachments" class="dropdown-item">
+                                    <span class="text-white"><i class="bi bi-paperclip"></i> View Attachments </span>
+                                </a>
+                            </li>
+                            <li>
+                                <a asp-area="LVM" asp-controller="Leave" asp-action="LeaveApprovals" asp-route-id="@Model.LeaveRequestId" asp-route-sd="@Model.LeaveSubmissionId" asp-route-sp="lra" title="View Approvals" class="dropdown-item">
+                                    <span class="text-white"><i class="bi bi-calendar-check"></i> View Approvals</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a asp-area="LVM" asp-controller="Leave" asp-action="LeaveNotes" asp-route-rd="@Model.LeaveRequestId" asp-route-sp="lra" asp-route-sd="@Model.LeaveSubmissionId" title="View Notes" class="dropdown-item">
+                                    <span class="text-white"><i class="bi bi-journals"></i> View Notes</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a asp-area="LVM" asp-controller="Leave" asp-action="LeaveActivities" asp-route-rd="@Model.LeaveRequestId" title="Activity Log" class="dropdown-item">
+                                    <span class="text-white"><i class="bi bi-file-earmark-text"></i> View History</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <input type="hidden" asp-for="LeaveRequestId">
+            <input type="hidden" asp-for="LeaveEmployeeId" />
+            <input type="hidden" asp-for="LeaveEmployeeName" />
+            <input type="hidden" asp-for="RequestedStartDate" />
+            <input type="hidden" asp-for="RequestedEndDate" />
+            <input type="hidden" asp-for="RequestedResumptionDate" />
+            <input type="hidden" asp-for="LeaveSubmissionId" />
+            <input type="hidden" asp-for="LeaveRequestStatusId" />
+            <input type="hidden" asp-for="LeaveRequestStatusDescription" />
+            <input type="hidden" asp-for="LeaveYear" />
+            <input type="hidden" asp-for="LeaveTypeCode" />
+            <input type="hidden" asp-for="RequestedDuration" />
+            <input type="hidden" asp-for="RequestedDurationTypeId" />
+        </form>
+    </div>
+</div>

@@ -48,7 +48,6 @@ namespace IntranetPortal.Areas.LVM.Models
         public bool IsApprovedByHR { get; set; }
         public bool IsApprovedByExecutiveManagement { get; set; }
 
-
         public LeaveRequestViewModel ExtractFromLeavePlan(LeavePlan plan)
         {
             LeaveRequestViewModel model = new LeaveRequestViewModel();
@@ -58,6 +57,10 @@ namespace IntranetPortal.Areas.LVM.Models
             model.RequestedResumptionDate = plan.LeavePlanResumptionDate;
             model.RequestedStartDate = plan.LeavePlanStartDate ?? DateTime.Now;
             model.LeaveTypeCode = plan.LeaveTypeCode;
+            model.LeaveYear = plan.LeaveYear;
+            model.LeaveEmployeeId = plan.LeaveEmployeeId;
+            model.LeaveEmployeeName = plan.LeaveEmployeeName;
+            model.LeaveReason = plan.LeaveReason;
 
             return model;
         }
@@ -104,5 +107,27 @@ namespace IntranetPortal.Areas.LVM.Models
 
             return request;
         }
+
+        public LeaveRequestViewModel ExtractFromLeaveRequest(LeaveRequest request)
+        {
+            LeaveRequestViewModel model = new LeaveRequestViewModel();
+            model.LeaveRequestId = request.LeaveRequestId;
+            model.RequestedDuration = request.RequestedDuration;
+            model.RequestedDurationTypeId = request.RequestedDurationTypeId;
+            model.RequestedEndDate = request.RequestedEndDate;
+            model.RequestedResumptionDate = request.RequestedResumptionDate;
+            model.RequestedStartDate = request.RequestedStartDate;
+            model.LeaveTypeCode = request.LeaveTypeCode;
+            model.LeaveTypeName = request.LeaveTypeName;
+            model.LeaveYear = request.LeaveYear;
+            model.LeaveEmployeeId = request.LeaveEmployeeId;
+            model.LeaveEmployeeName = request.LeaveEmployeeName;
+            model.LeaveReason = request.LeaveReason;
+            model.LeaveRequestStatusDescription = request.LeaveRequestStatusDescription;
+            model.LeaveRequestStatusId = request.LeaveRequestStatusId;
+
+            return model;
+        }
+
     }
 }

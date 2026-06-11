@@ -1,4 +1,5 @@
-﻿using IntranetPortal.Base.Models.LeaveModels;
+﻿using IntranetPortal.Base.Enums;
+using IntranetPortal.Base.Models.LeaveModels;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -90,6 +91,7 @@ namespace IntranetPortal.Base.Repositories.LeaveRepositories
         Task<bool> DeleteLeaveRequestAsync(long leaveRequestId);
         Task<bool> EditLeaveRequestAsync(LeaveRequest r);
         Task<bool> UpdateLeaveRequestStatusAsync(long leaveRequestId, int newStatus);
+        Task<bool> UpdateLeaveRequestApprovalStatusAsync(long leaveRequestId, ApprovalType approvalType);
         #endregion
 
         #region Leave Requests Read Action Methods
@@ -101,6 +103,30 @@ namespace IntranetPortal.Base.Repositories.LeaveRepositories
         Task<List<LeaveRequest>> GetLeaveRequestsByEmployeeNameAsync(string employeeName);
         Task<List<LeaveRequest>> GetLeaveRequestsByEmployeeNameAsync(string employeeName, int leaveYear);
         Task<List<LeaveRequest>> GetLeaveRequestsByEmployeeNameAsync(string employeeName, int leaveYear, int leaveMonth);
+
+
+        #region Leave Requests By LocationId & UnitId
+
+        // By LocationId
+        Task<List<LeaveRequest>> GetLeaveRequestsByLocationIdAsync(int locationId, int leaveYear);
+        Task<List<LeaveRequest>> GetLeaveRequestsByLocationIdAsync(int locationId, int leaveYear, int leaveMonth);
+
+
+        // By UnitId
+        Task<List<LeaveRequest>> GetLeaveRequestsByUnitIdAsync(int unitId, int leaveYear);
+        Task<List<LeaveRequest>> GetLeaveRequestsByUnitIdAsync(int unitId, int leaveYear, int leaveMonth);
+
+        // By LocationId & UnitId
+        Task<List<LeaveRequest>> GetLeaveRequestsByLocationIdnUnitIdAsync(int locationId, int unitId, int leaveYear);
+        Task<List<LeaveRequest>> GetLeaveRequestsByLocationIdnUnitIdAsync(int locationId, int unitId, int leaveYear, int leaveMonth);
+        #endregion
+
+        #region Leave Requests By Leave Year & Leave Month
+        // By Leave Year and Leave Months
+        Task<List<LeaveRequest>> GetLeaveRequestsByLeaveYearAsync(int leaveYear);
+        Task<List<LeaveRequest>> GetLeaveRequestsByLeaveYearnLeaveMonthAsync(int leaveYear, int leaveMonth);
+        #endregion
+
         #endregion
 
         #endregion
@@ -117,6 +143,9 @@ namespace IntranetPortal.Base.Repositories.LeaveRepositories
         Task<List<LeaveSubmission>> GetLeaveSubmissionsByLeaveSubmissionIdAsync(long leaveSubmissionId);
         Task<List<LeaveSubmission>> GetLeaveSubmissionsByToEmployeeNameAsync(string toEmployeeName);
         Task<List<LeaveSubmission>> GetLeaveSubmissionsByYearSubmittedAsync(string toEmployeeName, int yearSubmitted);
+
+
+        Task<List<LeaveSubmission>> GetLeaveSubmissionsByRolenYearSubmittedAsync(string toEmployeeRole, int yearSubmitted);
         #endregion
 
         #region Leave Approval Action Methods
@@ -125,6 +154,13 @@ namespace IntranetPortal.Base.Repositories.LeaveRepositories
         Task<List<LeaveApproval>> GetLeaveApprovalsByLeavePlanIdAsync(long leavePlanId);
         Task<List<LeaveApproval>> GetLeaveApprovalsByLeaveRequestIdAsync(long leaveRequestId);
         Task<LeaveApproval> GetApprovalByIdAsync(long leaveApprovalId);
+        #endregion
+
+        #region Leave Document Action Interfaces
+        Task<long> AddLeaveDocumentAsync(LeaveDocument e);
+        Task<bool> DeleteLeaveDocumentAsync(long leaveDocumentId);
+        Task<LeaveDocument> GetLeaveDocumentByIdAsync(long leaveDocumentId);
+        Task<List<LeaveDocument>> GetLeaveDocumentsByLeaveRequestIdAsync(long leaveRequestId);
         #endregion
 
         #region Leave Activity Log Action Methods

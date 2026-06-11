@@ -65,6 +65,7 @@ $(document).ready(function () {
         }
     }
 
+
     //======= Leave Plan Helper Functions =======//
     //===== Get the Last Leave Date from the Start Date and Duration =====//
     getLastLeaveDate = function () {
@@ -113,6 +114,8 @@ $(document).ready(function () {
             });
         }
     }
+
+
 
     //===== Leave Request Helper Functions =======//
     //===== Get the Last Leave Date from the Start Date and Duration =====//
@@ -163,87 +166,108 @@ $(document).ready(function () {
     }
 
 
-})
+    //===== Function to save New Leave Note to the database ========//
+    addLeaveNote = function () {
+        console.log('function started ...')
+        //== validation labels==//
+        const error_div = document.getElementById("div-error");
+        const note_input = document.getElementById("leave_note");
+        let leave_plan_id = document.getElementById("leave_plan_id").value;
+        let leave_request_id = document.getElementById("leave_request_id").value;
 
-//===== Function to save New Leave Note to the database ========//
-addLeaveNote = function () {
-    console.log('function started ...')
-    //== validation labels==//
-    const error_div = document.getElementById("div-error");
-    const note_input = document.getElementById("leave_note");
-    let leave_plan_id = document.getElementById("leave_plan_id").value;
-    let leave_request_id = document.getElementById("leave_request_id").value;
+        let from_name = document.getElementById("from_name").value;
+        let leave_note = document.getElementById("leave_note").value;
+        let source_page = document.getElementById("source_page").value;
+        let leave_year = document.getElementById("leave_year").value;
+        console.log('LeavePlanId: ' + leave_plan_id);
+        console.log('LeaveRequestId: ' + leave_request_id);
 
-    let from_name = document.getElementById("from_name").value;
-    let leave_note = document.getElementById("leave_note").value;
-    let source_page = document.getElementById("source_page").value;
-    let leave_year = document.getElementById("leave_year").value;
-    console.log('LeavePlanId: ' + leave_plan_id);
-    console.log('LeaveRequestId: ' + leave_request_id);
+        console.log('From: ' + from_name);
+        console.log('Note: ' + leave_note);
+        console.log('source: ' + source_page);
+        console.log('LeaveYear: ' + leave_year);
+        console.log('LeavePlanId: ' + leave_plan_id);
+        console.log('LeaveRequestId: ' + leave_request_id);
 
-    console.log('From: ' + from_name);
-    console.log('Note: ' + leave_note);
-    console.log('source: ' + source_page);
-    console.log('LeaveYear: ' + leave_year);
-    console.log('LeavePlanId: ' + leave_plan_id);
-    console.log('LeaveRequestId: ' + leave_request_id);
-
-    if (leave_note === null || leave_note === undefined || leave_note.trim().length === 0) {
-        error_div.innerHTML = "Please enter a note!";
-        note_input.focus();
-        return;
-    }
-    error_div.innerHTML = "";
-    console.log('calling api .....')
-    $.ajax({
-        type: 'POST',
-        url: '/LVM/Leave/SaveLeaveNote',
-        dataType: "text",
-        data: { nm: from_name, msg: leave_note, pd: leave_plan_id, rd: leave_request_id },
-        success: function (result) {
-            if (result == "saved") {
-                console.log(result);
-                location.reload();
-            }
-            else if (result == "failed") {
-                error_div.innerHTML = "Sorry, note was not saved. Please try again.";
-            }
-            else {
-                error_div.innerHTML = "Sorry, an error encountered. Please try again.";
-                alert(result);
-            }
-        },
-        error: function (err) {
-            error_div.innerHTML = "Sorry, an error encountered. Please try again.";
-            console.log(err);
+        if (leave_note === null || leave_note === undefined || leave_note.trim().length === 0) {
+            error_div.innerHTML = "Please enter a note!";
+            note_input.focus();
+            return;
         }
-    })
-}
-
-
-//===== Function to delete a submission message ========//
-function deleteLeaveSubmission(submission_id) {
-    if (confirm("Are you sure you want to delete this item?")) {
+        error_div.innerHTML = "";
+        console.log('calling api .....')
         $.ajax({
             type: 'POST',
-            url: '/LVM/Leave/DeleteLeaveSubmission',
+            url: '/LVM/Leave/SaveLeaveNote',
             dataType: "text",
-            data: { sd: submission_id },
+            data: { nm: from_name, msg: leave_note, pd: leave_plan_id, rd: leave_request_id },
             success: function (result) {
-                if (result == "deleted") {
+                if (result == "saved") {
+                    console.log(result);
                     location.reload();
                 }
+                else if (result == "failed") {
+                    error_div.innerHTML = "Sorry, note was not saved. Please try again.";
+                }
                 else {
-                    alert('Deleting record failed!');
-                    console.log(result);
+                    error_div.innerHTML = "Sorry, an error encountered. Please try again.";
+                    alert(result);
                 }
             },
-            error: function () {
-                alert('Sorry deleting operation could not be completed.');
-                console.log('Failed ');
+            error: function (err) {
+                error_div.innerHTML = "Sorry, an error encountered. Please try again.";
+                console.log(err);
             }
         })
     }
 
-}
+    //===== Function to delete a submission message ========//
+    deleteLeaveSubmission = function (submission_id) {
+        if (confirm("Are you sure you want to delete this item?")) {
+            $.ajax({
+                type: 'POST',
+                url: '/LVM/Leave/DeleteLeaveSubmission',
+                dataType: "text",
+                data: { sd: submission_id },
+                success: function (result) {
+                    if (result == "deleted") {
+                        location.reload();
+                    }
+                    else {
+                        alert('Deleting record failed!');
+                        console.log(result);
+                    }
+                },
+                error: function () {
+                    alert('Sorry deleting operation could not be completed.');
+                    console.log('Failed ');
+                }
+            })
+        }
+
+    }
+
+    //===== Function to delete a submission message ========//
+    approveLeaveRequest = function (leave_request_id, submission_id) {
+        $.ajax({
+            type: 'POST',
+            url: '/LVM/Leave/ApproveLeaveRequest',
+            dataType: "text",
+            data: { rd: leave_request_id, sd: submission_id },
+            success: function (result) {
+                if (result == "approved") {
+                    location.reload();
+                }
+                else {
+                    alert(result);
+                    console.log(result);
+                }
+            },
+            error: function () {
+                alert(result);
+                console.log(result);
+            }
+        })
+    }
+})
 

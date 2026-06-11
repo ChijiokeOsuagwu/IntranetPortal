@@ -1,6 +1,6 @@
 ﻿@model IntranetPortal.Areas.LVM.Models.MyLeaveRecordsViewModel
 <div class="container">
-    <h3 class="mb-1">My Leave Records</h3>
+    <h4 class="mb-1">My Leave Records</h4>
     <hr />
     <div class="mb-2">
         <form asp-area="LVM" asp-controller="Leave" asp-action="MyLeaveRecords" method="get">
@@ -11,9 +11,9 @@
                     </a>
                 </div>
                 <div class="col-md-8 text-end">
-                        <span class="text-dark fw-bold">Select Year: </span>
-                        <input asp-for="yr" class="border-0 mr-3 ml-2" style="width:100px" min="2020" max="2060">
-                        <input type="submit" value="Search" class="btn btn-sm btn-dark mr-3 text-white" style="width:100px;" />
+                    <span class="text-dark fw-bold">Select Year: </span>
+                    <input asp-for="yr" class="border-0 mr-3 ml-2" style="width:100px" min="2020" max="2060">
+                    <input type="submit" value="Search" class="btn btn-sm btn-dark mr-3 text-white" style="width:100px;" />
                 </div>
             </div>
         </form>
@@ -78,7 +78,7 @@
                     <div class="row">
                         <div class="text-end mb-2">
                             <a asp-area="LVM" asp-controller="Leave" asp-action="NewLeavePlan" class="btn btn-sm btn-info mr-2" style="width:150px" title="Create New Leave Plan">
-                                <span class="text-white">Create New Plan</span>
+                                <span class="text-white fw-bold"><i class="bi bi-plus-lg"></i> New Leave Plan</span>
                             </a>
                         </div>
                         @if (Model == null || Model.LeavePlanList == null || Model.LeavePlanList.Count < 1)
@@ -116,10 +116,10 @@
                                                         <span class="fw-bold text-white" title="Leave Type"><i class="bi bi-person" style="font-size:1.2rem; font-weight:bold"></i> @plan.LeaveTypeName</span>
                                                     }
                                                 </div>
-                                                <div class="col-md-3" title="Leave Duration">
+                                                <div class="col-md-4" title="Leave Duration">
                                                     <span class="fw-bold text-white" title="Leave Duration"><i class="bi bi-clock" style="font-size:1.2rem; font-weight:bold"></i> @plan.LeavePlanDurationDescription</span>
                                                 </div>
-                                                <div class="col-md-2" title="Status">
+                                                <div class="col-md-3" title="Status">
                                                     @switch (plan.LeavePlanStatusId)
                                                     {
                                                         case 0:
@@ -146,61 +146,6 @@
                                                         default:
                                                             break;
                                                     }
-                                                </div>
-                                                <div class="col-md-2 text-end">
-                                                    <div class="dropdown">
-                                                        <button class="btn btn-info btn-sm" type="button" id="dropdownMenuButton2" data-bs-toggle="dropdown" aria-expanded="false" style="border-radius:5px; border-color:#fff;">
-                                                            <span class="fw-bold text-white"><i class="bi bi-tools"></i> Options</span>
-                                                        </button>
-                                                        <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton2">
-                                                            <li>
-                                                                <a asp-area="LVM" asp-controller="Leave" asp-action="LeavePlanDetails" asp-route-id="@plan.LeavePlanId" title="View Details" class="dropdown-item">
-                                                                    <span class="text-white"><i class="bi bi-info-circle"></i> View</span>
-                                                                </a>
-                                                            </li>
-                                                            @if (plan.LeavePlanStatusId < 3)
-                                                            {
-                                                                <li>
-                                                                    <a asp-area="LVM" asp-controller="Leave" asp-action="EditLeavePlan" asp-route-id="@plan.LeavePlanId" title="Edit" class="dropdown-item">
-                                                                        <span class="text-white"><i class="bi bi-pencil-square"></i> Edit</span>
-                                                                    </a>
-                                                                </li>
-                                                                <li>
-                                                                    <a asp-area="LVM" asp-controller="Leave" asp-action="DeleteLeavePlan" asp-route-id="@plan.LeavePlanId" title="Delete" class="dropdown-item">
-                                                                        <span class="text-white"><i class="bi bi-trash"></i> Delete</span>
-                                                                    </a>
-                                                                </li>
-                                                            }
-                                                            <li>
-                                                                <a asp-area="LVM" asp-controller="Leave" asp-action="SubmitLeavePlan" asp-route-pd="@plan.LeavePlanId" title="Submit" class="dropdown-item">
-                                                                    <span class="text-white"><i class="bi bi-box-arrow-in-right"></i> Submit</span>
-                                                                </a>
-                                                            </li>
-                                                            @if (plan.LeavePlanStatusId == 3)
-                                                            {
-                                                                <li>
-                                                                    <a asp-area="LVM" asp-controller="Leave" asp-action="NewLeaveRequest" asp-route-id="@plan.LeavePlanId" title="Create Leave Request" class="dropdown-item">
-                                                                        <span class="text-white"><i class="bi bi-envelope"></i> Request</span>
-                                                                    </a>
-                                                                </li>
-                                                            }
-                                                            <li>
-                                                                <a asp-area="LVM" asp-controller="Leave" asp-action="LeaveApprovals" asp-route-id="@plan.LeavePlanId" asp-route-sp="mlp" asp-route-yr="@plan.LeaveYear" title="View Approvals" class="dropdown-item">
-                                                                    <span class="text-white"><i class="bi bi-calendar-check"></i> View Approvals</span>
-                                                                </a>
-                                                            </li>
-                                                            <li>
-                                                                <a asp-area="LVM" asp-controller="Leave" asp-action="LeaveNotes" asp-route-pd="@plan.LeavePlanId" asp-route-sp="mlp" asp-route-yr="@plan.LeaveYear" title="View Notes" class="dropdown-item">
-                                                                    <span class="text-white"><i class="bi bi-journals"></i> View Notes</span>
-                                                                </a>
-                                                            </li>
-                                                            <li>
-                                                                <a asp-area="LVM" asp-controller="Leave" asp-action="LeaveActivities" asp-route-pd="@plan.LeavePlanId" title="Activity Log" class="dropdown-item">
-                                                                    <span class="text-white"><i class="bi bi-file-earmark-text"></i> View History</span>
-                                                                </a>
-                                                            </li>
-                                                        </ul>
-                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -238,6 +183,60 @@
                                                 </div>
                                             </div>
                                         </div>
+                                        <div class="card-footer bg-info">
+                                            <div class="row">
+                                                <div class="col-md-10 text-end">
+                                                    @if (plan.LeavePlanStatusId == 3)
+                                                    {
+                                                        <a asp-area="LVM" asp-controller="Leave" asp-action="NewLeaveRequest" asp-route-pd="@plan.LeavePlanId" title="Create Leave Request" class="btn btn-info btn-sm mr-2" style="width:100px; border-radius:5px; border-color:#fff;">
+                                                            <span class="text-white fw-bold"><i class="bi bi-envelope"></i> Request</span>
+                                                        </a>
+                                                    }
+
+                                                    @if (plan.LeavePlanStatusId < 4)
+                                                    {
+                                                        <a asp-area="LVM" asp-controller="Leave" asp-action="EditLeavePlan" asp-route-id="@plan.LeavePlanId" title="Edit" class="btn btn-info btn-sm mr-2" style="width:100px; border-radius:5px; border-color:#fff;">
+                                                            <span class="text-white fw-bold"><i class="bi bi-pencil-square"></i> Edit</span>
+                                                        </a>
+                                                    }
+                                                    <a asp-area="LVM" asp-controller="Leave" asp-action="SubmitLeave" asp-route-pd="@plan.LeavePlanId" title="Submit" class="btn btn-info btn-sm" style="width:100px; border-radius:5px; border-color:#fff;">
+                                                        <span class="text-white fw-bold"><i class="bi bi-box-arrow-in-right"></i> Submit</span>
+                                                    </a>
+                                                    <a asp-area="LVM" asp-controller="Leave" asp-action="DeleteLeavePlan" asp-route-id="@plan.LeavePlanId" title="Delete" class="btn btn-danger btn-sm" style="width:100px; border-radius:5px; border-color:#fff;">
+                                                        <span class="text-white"><i class="bi bi-trash"></i> Delete</span>
+                                                    </a>
+                                                </div>
+                                                <div class="col-md-2 text-end">
+                                                    <div class="dropdown">
+                                                        <button class="btn btn-dark btn-sm" type="button" id="dropdownMenuButton2" data-bs-toggle="dropdown" aria-expanded="false" style="border-radius:5px; border-color:#fff;">
+                                                            <span class="fw-bold text-white"><i class="bi bi-tools"></i> Options</span>
+                                                        </button>
+                                                        <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton2">
+                                                            <li>
+                                                                <a asp-area="LVM" asp-controller="Leave" asp-action="ViewLeavePlan" asp-route-id="@plan.LeavePlanId" title="View Details" class="dropdown-item">
+                                                                    <span class="text-white"><i class="bi bi-info-circle"></i> View Details</span>
+                                                                </a>
+                                                            </li>
+                                                            <li>
+                                                                <a asp-area="LVM" asp-controller="Leave" asp-action="LeaveApprovals" asp-route-pd="@plan.LeavePlanId" asp-route-sp="mlr" asp-route-yr="@plan.LeaveYear" title="View Approvals" class="dropdown-item">
+                                                                    <span class="text-white"><i class="bi bi-calendar-check"></i> View Approvals</span>
+                                                                </a>
+                                                            </li>
+                                                            <li>
+                                                                <a asp-area="LVM" asp-controller="Leave" asp-action="LeaveNotes" asp-route-pd="@plan.LeavePlanId" asp-route-sp="mlr" asp-route-yr="@plan.LeaveYear" title="View Notes" class="dropdown-item">
+                                                                    <span class="text-white"><i class="bi bi-journals"></i> View Notes</span>
+                                                                </a>
+                                                            </li>
+                                                            <li>
+                                                                <a asp-area="LVM" asp-controller="Leave" asp-action="LeaveActivities" asp-route-pd="@plan.LeavePlanId" title="Activity Log" class="dropdown-item">
+                                                                    <span class="text-white"><i class="bi bi-file-earmark-text"></i> View History</span>
+                                                                </a>
+                                                            </li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 }
                             </div>
@@ -256,7 +255,7 @@
                 <div class="accordion-body">
                     <div class="text-end mb-2">
                         <a asp-area="LVM" asp-controller="Leave" asp-action="NewLeaveRequest" class="btn btn-sm btn-info mr-2" style="width: 150px; background-color:#035711" title="Create New Leave Request">
-                            <span class="text-white">Create New Request</span>
+                            <span class="text-white fw-bold"><i class="bi bi-plus-lg"></i> New Leave Request</span>
                         </a>
                     </div>
                     <div class="row">
@@ -269,11 +268,11 @@
                         }
                         else
                         {
-                            <div class="table-responsive" style="min-height:150px">
+                            <div class="table-responsive" style="min-height:250px">
                                 @foreach (var request in Model.LeaveRequestList)
                                 {
                                     <div class="card">
-                                        <div class="card-header bg-success">
+                                        <div class="card-header" style="background-color:#035711">
                                             <div class="row">
                                                 <div class="col-md-2" title="Leave Year">
                                                     @if (request.LeaveYear < 1)
@@ -327,59 +326,6 @@
                                                     }
                                                 </div>
                                                 <div class="col-md-2 text-end">
-                                                    <div class="dropdown">
-                                                        <button class="btn btn-info btn-sm" type="button" id="dropdownMenuButton2" data-bs-toggle="dropdown" aria-expanded="false" style="border-radius:5px; border-color:#fff;">
-                                                            <span class="fw-bold text-white"><i class="bi bi-tools"></i> Options</span>
-                                                        </button>
-                                                        <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton2">
-                                                            <li>
-                                                                <a asp-area="LVM" asp-controller="Leave" asp-action="LeaveRequestDetails" asp-route-id="@request.LeaveRequestId" title="View Details" class="dropdown-item">
-                                                                    <span class="text-white"><i class="bi bi-info-circle"></i> View</span>
-                                                                </a>
-                                                            </li>
-                                                            @if (request.LeaveRequestStatusId < 3)
-                                                            {
-                                                                <li>
-                                                                    <a asp-area="LVM" asp-controller="Leave" asp-action="EditLeaveRequest" asp-route-id="@request.LeaveRequestId" title="Edit" class="dropdown-item">
-                                                                        <span class="text-white"><i class="bi bi-pencil-square"></i> Edit</span>
-                                                                    </a>
-                                                                </li>
-                                                                <li>
-                                                                    <a asp-area="LVM" asp-controller="Leave" asp-action="DeleteLeaveRequest" asp-route-id="@request.LeaveRequestId" title="Delete" class="dropdown-item">
-                                                                        <span class="text-white"><i class="bi bi-trash"></i> Delete</span>
-                                                                    </a>
-                                                                </li>
-                                                            }
-                                                            <li>
-                                                                <a asp-area="LVM" asp-controller="Leave" asp-action="SubmitLeaveRequest" asp-route-pd="@request.LeaveRequestId" title="Submit" class="dropdown-item">
-                                                                    <span class="text-white"><i class="bi bi-box-arrow-in-right"></i> Submit</span>
-                                                                </a>
-                                                            </li>
-                                                            @if (request.LeaveRequestStatusId == 3)
-                                                            {
-                                                                <li>
-                                                                    <a asp-area="LVM" asp-controller="Leave" asp-action="NewLeaveRequest" asp-route-id="@request.LeaveRequestId" title="Create Leave Request" class="dropdown-item">
-                                                                        <span class="text-white"><i class="bi bi-envelope"></i> Request</span>
-                                                                    </a>
-                                                                </li>
-                                                            }
-                                                            <li>
-                                                                <a asp-area="LVM" asp-controller="Leave" asp-action="LeaveApprovals" asp-route-id="@request.LeaveRequestId" asp-route-sp="mlp" asp-route-yr="@request.LeaveYear" title="View Approvals" class="dropdown-item">
-                                                                    <span class="text-white"><i class="bi bi-calendar-check"></i> View Approvals</span>
-                                                                </a>
-                                                            </li>
-                                                            <li>
-                                                                <a asp-area="LVM" asp-controller="Leave" asp-action="LeaveNotes" asp-route-pd="@request.LeaveRequestId" asp-route-sp="mlp" asp-route-yr="@request.LeaveYear" title="View Notes" class="dropdown-item">
-                                                                    <span class="text-white"><i class="bi bi-journals"></i> View Notes</span>
-                                                                </a>
-                                                            </li>
-                                                            <li>
-                                                                <a asp-area="LVM" asp-controller="Leave" asp-action="LeaveActivities" asp-route-pd="@request.LeaveRequestId" title="Activity Log" class="dropdown-item">
-                                                                    <span class="text-white"><i class="bi bi-file-earmark-text"></i> View History</span>
-                                                                </a>
-                                                            </li>
-                                                        </ul>
-                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -417,6 +363,61 @@
                                                 </div>
                                             </div>
                                         </div>
+                                        <div class="card-footer" style="background-color: #035711">
+                                            <div class="row">
+                                                <div class="col-md-10 text-end">
+                                                    <a asp-area="LVM" asp-controller="Leave" asp-action="LeaveApprovals" asp-route-rd="@request.LeaveRequestId" asp-route-sp="mlr" asp-route-yr="@request.LeaveYear" title="View Approvals" class="btn btn-sm" style="width:120px; border-radius: 5px; border-color: #fff; background-color: #035711;">
+                                                        <span class="text-white fw-bold"><i class="bi bi-clipboard-check"></i> Approvals</span>
+                                                    </a>
+                                                    <a asp-area="LVM" asp-controller="Leave" asp-action="LeaveDocuments" asp-route-id="@request.LeaveRequestId" asp-route-sp="mlr" title="View Documents" class="btn btn-sm" style="width:120px; border-radius: 5px; border-color: #fff; background-color: #035711;">
+                                                        <span class="text-white fw-bold"><i class="bi bi-paperclip"></i> Attachments</span>
+                                                    </a>
+
+                                                    @if (request.LeaveRequestStatusId < 4)
+                                                    {
+                                                        <a asp-area="LVM" asp-controller="Leave" asp-action="EditLeaveRequest" asp-route-id="@request.LeaveRequestId" title="Edit" class="btn btn-sm" style="width: 100px; border-radius: 5px; border-color: #fff; background-color: #035711;">
+                                                            <span class="text-white fw-bold"><i class="bi bi-pencil-square"></i> Edit</span>
+                                                        </a>
+                                                    }
+                                                    <a asp-area="LVM" asp-controller="Leave" asp-action="SubmitLeave" asp-route-rd="@request.LeaveRequestId" title="Submit" class="btn btn-sm" style="width: 100px; border-radius: 5px; border-color: #fff; background-color: #035711;">
+                                                        <span class="text-white fw-bold"><i class="bi bi-box-arrow-in-right"></i> Submit</span>
+                                                    </a>
+                                                    <a asp-area="LVM" asp-controller="Leave" asp-action="DeleteLeaveRequest" asp-route-id="@request.LeaveRequestId" title="Delete" class="btn btn-danger btn-sm" style="width:100px; border-radius:5px; border-color:#fff;">
+                                                        <span class="text-white"><i class="bi bi-trash"></i> Delete</span>
+                                                    </a>
+                                                </div>
+                                                <div class="col-md-2 text-end">
+                                                    <div class="dropdown">
+                                                        <button class="btn btn-sm btn-dark" type="button" id="dropdownMenuButton2" data-bs-toggle="dropdown" aria-expanded="false" style="width:100px; border-radius: 5px; border-color: #fff;">
+                                                            <span class="fw-bold text-white"><i class="bi bi-tools"></i> Options</span>
+                                                        </button>
+                                                        <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton2">
+                                                            <li>
+                                                                <a asp-area="LVM" asp-controller="Leave" asp-action="ViewLeaveRequest" asp-route-id="@request.LeaveRequestId" title="View Details" class="dropdown-item">
+                                                                    <span class="text-white"><i class="bi bi-info-circle"></i> View</span>
+                                                                </a>
+                                                            </li>
+                                                            <li>
+                                                                <a asp-area="LVM" asp-controller="Leave" asp-action="LeaveApprovals" asp-route-id="@request.LeaveRequestId" asp-route-sp="mlp" asp-route-yr="@request.LeaveYear" title="View Approvals" class="dropdown-item">
+                                                                    <span class="text-white"><i class="bi bi-calendar-check"></i> View Approvals</span>
+                                                                </a>
+                                                            </li>
+                                                            <li>
+                                                                <a asp-area="LVM" asp-controller="Leave" asp-action="LeaveNotes" asp-route-rd="@request.LeaveRequestId" asp-route-sp="mlr" asp-route-yr="@request.LeaveYear" title="View Notes" class="dropdown-item">
+                                                                    <span class="text-white"><i class="bi bi-journals"></i> View Notes</span>
+                                                                </a>
+                                                            </li>
+                                                            <li>
+                                                                <a asp-area="LVM" asp-controller="Leave" asp-action="LeaveActivities" asp-route-rd="@request.LeaveRequestId" title="Activity Log" class="dropdown-item">
+                                                                    <span class="text-white"><i class="bi bi-file-earmark-text"></i> View History</span>
+                                                                </a>
+                                                            </li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                        </div>
                                     </div>
                                 }
                             </div>
@@ -428,3 +429,6 @@
     </div>
     <!-- End of Accordion -->
 </div>
+@section Scripts{
+    <script src="~/js/lvs.js"></script>
+}

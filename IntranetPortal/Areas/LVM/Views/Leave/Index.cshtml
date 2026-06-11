@@ -33,33 +33,11 @@
         </div>
         <!-- Column -->
         <div class="col-md-6 col-lg-2 col-xlg-3">
-            <a asp-area="LVM" asp-controller="Leave" asp-action="MyLeavePlans">
-                <div class="card card-hover">
-                    <div class="box bg-light text-center">
-                        <h1 class="font-light text-dark"><i class="bi bi-calendar-range"></i></h1>
-                        <h6 class="text-dark">My Leave Plan</h6>
-                    </div>
-                </div>
-            </a>
-        </div>
-        <!-- Column -->
-        <div class="col-md-6 col-lg-2 col-xlg-3">
-            <a asp-area="LVM" asp-controller="Leave" asp-action="MyLeaveRequests">
-                <div class="card card-hover">
-                    <div class="box bg-light text-center">
-                        <h1 class="font-light text-dark"><i class="bi bi-calendar2-range"></i></h1>
-                        <h6 class="text-dark">My Leave Requests</h6>
-                    </div>
-                </div>
-            </a>
-        </div>
-        <!-- Column -->
-        <div class="col-md-6 col-lg-2 col-xlg-3">
             <a asp-area="LVM" asp-controller="Leave" asp-action="LeavePendingApproval">
                 <div class="card card-hover">
                     <div class="box bg-light text-center">
                         <h1 class="font-light text-dark"><i class="bi bi-calendar-week"></i></h1>
-                        <h6 class="text-dark">Leave Pending My Approval</h6>
+                        <h6 class="text-dark">Leave Pending My Action</h6>
                     </div>
                 </div>
             </a>
@@ -86,7 +64,7 @@
                 </div>
             </a>
         </div>
-        @if (User.IsInRole("XYALLACCZ"))
+        @if (User.IsInRole("XYALLACCZ") || User.IsInRole("GBSHRDEDT") || User.IsInRole("GBSHRDAPV"))
         {
             <!-- Column -->
             <div class="col-md-6 col-lg-2 col-xlg-3">

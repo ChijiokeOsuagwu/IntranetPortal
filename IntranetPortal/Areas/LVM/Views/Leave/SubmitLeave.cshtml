@@ -1,0 +1,107 @@
+﻿
+@model IntranetPortal.Areas.LVM.Models.SubmitLeaveViewModel
+<h3 class="mb-1">My Leave Plans</h3>
+<hr />
+<div class="card mt-1" style="max-width:700px">
+    <div class="card-header bg-info">
+        @if (Model.LeaveRequestId > 0)
+        {
+            <h4 class="text-white">Submit Leave Request</h4>
+        }
+        else
+        {
+            <h4 class="text-white">Submit Leave Plan</h4>
+        }
+    </div>
+    <div class="card-body bg-secondary">
+        @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-x-circle"></i>
+                <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (!String.IsNullOrEmpty(Model.ViewModelSuccessMessage))
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="bi bi-check-circle"></i>
+                <span class="fw-bold">@Model.ViewModelSuccessMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (!String.IsNullOrEmpty(Model.ViewModelWarningMessage))
+        {
+            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                <i class="bi bi-exclamation-circle"></i>
+                <span class="fw-bold">@Model.ViewModelWarningMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        <form asp-area="LVM" asp-controller="Leave" asp-action="SubmitLeave" method="post" autocomplete="off">
+            <div class="row">
+                <div class="col-md-12 mb-3">
+                    <label asp-for="ToEmployeeName" class="form-label text-white fw-bold"></label>
+                    <input asp-for="ToEmployeeName" id="sn" class="form-control fw-bold">
+                    <div><span asp-validation-for="ToEmployeeName" class="text-danger"></span></div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label asp-for="ToEmployeeRole" class="form-label text-white fw-bold"></label>
+                    <select asp-for="ToEmployeeRole" class="form-control fw-bold">
+                        <option value="">Select</option>
+                        <option value="Supervisor">Supervisor</option>
+                        <option value="Line Manager">Line Manager</option>
+                        <option value="Head of Department">Head of Department</option>
+                        <option value="Station Manager">Station Manager</option>
+                        <option value="HR Department">HR Department</option>
+                        <option value="Executive Management">Executive Management</option>
+                    </select>
+                    <div><span asp-validation-for="ToEmployeeRole" class="text-danger"></span></div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label asp-for="Purpose" class="form-label text-white fw-bold"></label>
+                    <select asp-for="Purpose" class="form-control fw-bold">
+                        <option value="">Select</option>
+                        <option value="Approval">Approval</option>
+                        <option value="Notification">Notification</option>
+                    </select>
+                    <div><span asp-validation-for="Purpose" class="text-danger"></span></div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12 mb-3">
+                    <label asp-for="Message" class="form-label text-white fw-bold"></label>
+                    <textarea asp-for="Message" class="form-control fw-bold">@Model.Message</textarea>
+                    <div><span asp-validation-for="Message" class="text-danger"></span></div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12 text-end">
+                    <a asp-area="LVM" asp-controller="Leave" asp-action="MyLeaveRecords" class="btn btn-dark" style="width:100px" title="Exit">
+                        <span class="text-white">Exit</span>
+                    </a>
+                        <button type="submit" class="btn btn-info" title="Submit" style="width:200px"><span class="text-white">Submit</span></button>
+                        <partial name="_SendingPartial" />
+                </div>
+            </div>
+            <input type="hidden" id="leave_plan_id" asp-for="LeavePlanId" />
+            <input type="hidden" id="leave_request_id" asp-for="LeaveRequestId" />
+            <input type="hidden" id="from_emp_name" asp-for="FromEmployeeName">
+        </form>
+    </div>
+</div>
+@section Scripts{
+    <script src="~/js/lvs.js"></script>
+    <script>
+         function displayProcessingImage(){
+             if (document.getElementById("leave_plan_id").value != "" ||
+                 document.getElementById("leave_request_id").value != "" ||
+                 document.getElementById("from_emp_nm").value != "" ||
+                 document.getElementById("sn").value != "") {
+            document.getElementById("sending").style.display = "block";
+        }
+    }
+    </script>
+}

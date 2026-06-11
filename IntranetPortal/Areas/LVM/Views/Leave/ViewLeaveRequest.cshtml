@@ -1,0 +1,91 @@
+﻿
+@model IntranetPortal.Areas.LVM.Models.LeaveRequestViewModel
+<h3 class="mb-1">My Leave Records</h3>
+<hr />
+<div class="card mt-1" style="max-width:1000px">
+    <div class="card-header bg-dark">
+        <h4 class="text-white">Leave Request Details</h4>
+    </div>
+    <div class="card-body bg-secondary">
+        @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-x-circle"></i>
+                <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (!String.IsNullOrEmpty(Model.ViewModelSuccessMessage))
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="bi bi-check-circle"></i>
+                <span class="fw-bold">@Model.ViewModelSuccessMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (!String.IsNullOrEmpty(Model.ViewModelWarningMessage))
+        {
+            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                <i class="bi bi-exclamation-circle"></i>
+                <span class="fw-bold">@Model.ViewModelWarningMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label asp-for="LeaveEmployeeName" class="form-label text-white fw-bold">Employee Name</label>
+                <div class="form-control fw-bold">@Model.LeaveEmployeeName</div>
+            </div>
+            <div class="col-md-2 mb-3">
+                <label class="form-label text-white fw-bold">Year</label>
+                <div class="form-control fw-bold">@Model.LeaveYear</div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <label class="form-label text-white fw-bold">Type</label>
+                <div class="form-control fw-bold">@Model.LeaveTypeName</div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-3 mb-3">
+                <label class="form-label text-white fw-bold">Leave Starts On:</label>
+                <div class="form-control fw-bold">@Model.RequestedStartDate.ToLongDateString()</div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <label class="form-label text-white fw-bold">Requested Duration</label>
+                <div class="form-control fw-bold">@Model.RequestedDurationDescription</div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <label class="form-label text-white fw-bold">Leave Ends On:</label>
+                <div class="form-control fw-bold">@Model.RequestedEndDate.ToLongDateString()</div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <label class="form-label text-white fw-bold">Resumes Work On:</label>
+                @if (Model.RequestedResumptionDate == null)
+                {
+                    <div class="form-control fw-bold"> [Not Set] </div>
+                }
+                else
+                {
+                    <div class="form-control fw-bold">@Model.RequestedResumptionDate.Value.ToLongDateString()</div>
+                }
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12 mb-3">
+                <label asp-for="LeaveReason" class="form-label text-white fw-bold"></label>
+                <textarea asp-for="LeaveReason" class="form-control fw-bold" readonly>@Model.LeaveReason</textarea>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-3">
+                <label class="form-label text-white fw-bold">Status:</label>
+                <div class="form-control fw-bold">@Model.LeaveRequestStatusDescription</div>
+            </div>
+            <div class="col-md-9 text-end">
+                <button class="btn btn-dark" title="Back" style="width:200px; margin-top:30px" onclick="history.back()"><span class="text-white">Go Back</span></button>
+            </div>
+        </div>
+    </div>
+</div>
+
+

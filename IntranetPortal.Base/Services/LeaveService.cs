@@ -461,7 +461,6 @@ namespace IntranetPortal.Base.Services
             return leavePlanList;
         }
 
-
         //public async Task<List<EmployeeLeave>> SearchMyTeamsEmployeeLeavesAsync(string TeamLeadId, int LeaveYear, int LeaveMonth, string EmployeeId = null, string LeaveStatus = null, bool IsPlan = true)
         //{
         //    List<EmployeeLeave> LeaveList = new List<EmployeeLeave>();
@@ -753,6 +752,8 @@ namespace IntranetPortal.Base.Services
             bool IsSuccessful;
             if (p != null)
             {
+                if (p.LeavePlanStatusId > 1) { p.LeavePlanStatusId = 0; }
+
                 IsSuccessful = await _leaveRepository.EditLeavePlanAsync(p);
                 if (IsSuccessful)
                 {
@@ -858,12 +859,33 @@ namespace IntranetPortal.Base.Services
         #endregion
 
         #region Leave Request Service Methods
+
         #region Leave Request Write Service Methods
         public async Task<long> CreateLeaveRequestAsync(LeaveRequest r)
         {
             long LeaveRequestId;
             if (r != null)
             {
+                switch (r.RequestedDurationTypeId)
+                {
+                    case 0:
+                        r.RequestedDurationDescription = $"{r.RequestedDuration} Working Day(s)";
+                        break;
+                    case 1:
+                        r.RequestedDurationDescription = $"{r.RequestedDuration} Day(s)";
+                        break;
+                    case 2:
+                        r.RequestedDurationDescription = $"{r.RequestedDuration} Week(s)";
+                        break;
+                    case 3:
+                        r.RequestedDurationDescription = $"{r.RequestedDuration} Month(s)";
+                        break;
+                    case 4:
+                        r.RequestedDurationDescription = $"{r.RequestedDuration} Year(s)";
+                        break;
+                    default:
+                        break;
+                }
                 LeaveRequestId = await _leaveRepository.AddLeaveRequestAsync(r);
                 if (LeaveRequestId > 0)
                 {
@@ -882,56 +904,65 @@ namespace IntranetPortal.Base.Services
         public async Task<bool> UpdateLeaveRequestAsync(LeaveRequest r)
         {
             bool IsSuccessful;
+            long _leaveRequestId = r.LeaveRequestId;
+
             if (r != null)
             {
+                if (r.LeaveRequestStatusId > 1) { r.LeaveRequestStatusId = 0; }
+                switch (r.RequestedDurationTypeId)
+                {
+                    case 0:
+                        r.RequestedDurationDescription = $"{r.RequestedDuration} Working Day(s)";
+                        break;
+                    case 1:
+                        r.RequestedDurationDescription = $"{r.RequestedDuration} Day(s)";
+                        break;
+                    case 2:
+                        r.RequestedDurationDescription = $"{r.RequestedDuration} Week(s)";
+                        break;
+                    case 3:
+                        r.RequestedDurationDescription = $"{r.RequestedDuration} Month(s)";
+                        break;
+                    case 4:
+                        r.RequestedDurationDescription = $"{r.RequestedDuration} Year(s)";
+                        break;
+                    default:
+                        break;
+                }
+
                 IsSuccessful = await _leaveRepository.EditLeaveRequestAsync(r);
                 if (IsSuccessful)
                 {
                     StringBuilder sb = new StringBuilder();
                     sb.AppendLine($"Leave Request was updated by {r.LeaveEmployeeName} on {DateTime.Now.ToLongDateString()} at {DateTime.Now.ToLongTimeString()}");
 
-                    LeaveRequest oldLeaveRequest = await _leaveRepository.GetLeaveRequestByIdAsync(r.LeaveRequestId);
+                    LeaveRequest oldLeaveRequest = await _leaveRepository.GetLeaveRequestByIdAsync(_leaveRequestId);
                     if (oldLeaveRequest != null)
                     {
-                        //if (!(string.IsNullOrWhiteSpace(p.LeaveReason) && string.IsNullOrWhiteSpace(oldLeavePlan.LeaveReason)))
-                        //{
                         if (!string.Equals(r.LeaveReason, oldLeaveRequest.LeaveReason, StringComparison.OrdinalIgnoreCase))
                         {
                             sb.AppendLine($"Updated Reason from: [{oldLeaveRequest.LeaveReason}] to [{r.LeaveReason}].");
                         }
-                        //}
 
-                        ////if (!(p.LeavePlanStartDate == null && oldLeavePlan.LeavePlanStartDate == null))
-                        ////{
                         if (r.RequestedStartDate != oldLeaveRequest.RequestedStartDate)
                         {
                             sb.AppendLine($"Updated Start Date from: [{oldLeaveRequest.RequestedStartDate.ToLongDateString()}] to [{r.RequestedStartDate.ToLongDateString()}].");
                         }
-                        //}
 
-                        //if (!(p.LeavePlanEndDate == null && oldLeavePlan.LeavePlanEndDate == null))
-                        //{
                         if (r.RequestedEndDate != oldLeaveRequest.RequestedEndDate)
                         {
                             sb.AppendLine($"Updated End Date from: [{oldLeaveRequest.RequestedEndDate.ToLongDateString()}] to [{r.RequestedEndDate.ToLongDateString()}].");
                         }
-                        //}
 
-                        //if (!(p.LeavePlanResumptionDate == null && oldLeavePlan.LeavePlanResumptionDate == null))
-                        //{
                         if (r.RequestedResumptionDate != oldLeaveRequest.RequestedResumptionDate)
                         {
                             sb.AppendLine($"Updated Resumption Date from: [{oldLeaveRequest.RequestedResumptionDate.Value.ToLongDateString()}] to [{r.RequestedResumptionDate.Value.ToLongDateString()}].");
                         }
-                        //}
 
-                        //if (!(p.LeavePlanDuration == 0 && oldLeavePlan.LeavePlanDuration == 0))
-                        //{
                         if (r.RequestedDuration != oldLeaveRequest.RequestedDuration)
                         {
                             sb.AppendLine($"Updated Duration from: [{oldLeaveRequest.RequestedDurationDescription}] to [{r.RequestedDurationDescription}].");
                         }
-                        //}
 
                         if (!string.Equals(r.LeaveTypeCode, oldLeaveRequest.LeaveTypeCode, StringComparison.OrdinalIgnoreCase))
                         {
@@ -979,6 +1010,7 @@ namespace IntranetPortal.Base.Services
         }
 
         #endregion
+
         #region Leave Request Read Service Methods
         public async Task<List<LeaveRequest>> GetLeaveRequestsAsync(string EmployeeId, int LeaveYear)
         {
@@ -998,21 +1030,112 @@ namespace IntranetPortal.Base.Services
             }
             return p;
         }
+
+        public async Task<List<LeaveRequest>> SearchLeaveRequestsAsync(int LeaveYear, int LeaveMonth, string EmployeeName = null, int? LocationId = null, int? UnitId = null)
+        {
+            List<LeaveRequest> leaveRequestList = new List<LeaveRequest>();
+            if (!string.IsNullOrWhiteSpace(EmployeeName))
+            {
+                if (LeaveYear > 0)
+                {
+                    if (LeaveMonth > 0)
+                    {
+                        leaveRequestList = await _leaveRepository.GetLeaveRequestsByEmployeeNameAsync(EmployeeName, LeaveYear, LeaveMonth);
+                    }
+                    else
+                    {
+                        leaveRequestList = await _leaveRepository.GetLeaveRequestsByEmployeeNameAsync(EmployeeName, LeaveYear, LeaveMonth);
+                    }
+                }
+                else
+                {
+                    leaveRequestList = await _leaveRepository.GetLeaveRequestsByEmployeeNameAsync(EmployeeName);
+                }
+            }
+            else
+            {
+                if (LocationId != null && LocationId > 0)
+                {
+                    if (UnitId != null && UnitId > 0)
+                    {
+                        if (LeaveYear > 0)
+                        {
+                            if (LeaveMonth > 0)
+                            {
+                                leaveRequestList = await _leaveRepository.GetLeaveRequestsByLocationIdnUnitIdAsync(LocationId.Value, UnitId.Value, LeaveYear, LeaveMonth);
+                            }
+                            else
+                            {
+                                leaveRequestList = await _leaveRepository.GetLeaveRequestsByLocationIdnUnitIdAsync(LocationId.Value, UnitId.Value, LeaveYear);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if (LeaveYear > 0)
+                        {
+                            if (LeaveMonth > 0)
+                            {
+                                leaveRequestList = await _leaveRepository.GetLeaveRequestsByLocationIdAsync(LocationId.Value, LeaveYear, LeaveMonth);
+                            }
+                            else
+                            {
+                                leaveRequestList = await _leaveRepository.GetLeaveRequestsByLocationIdAsync(LocationId.Value, LeaveYear);
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    if (UnitId != null && UnitId > 0)
+                    {
+                        if (LeaveYear > 0)
+                        {
+                            if (LeaveMonth > 0)
+                            {
+                                leaveRequestList = await _leaveRepository.GetLeaveRequestsByUnitIdAsync(UnitId.Value, LeaveYear, LeaveMonth);
+                            }
+                            else
+                            {
+                                leaveRequestList = await _leaveRepository.GetLeaveRequestsByUnitIdAsync(UnitId.Value, LeaveYear);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if (LeaveYear > 0)
+                        {
+                            if (LeaveMonth > 0)
+                            {
+                                leaveRequestList = await _leaveRepository.GetLeaveRequestsByLeaveYearnLeaveMonthAsync(LeaveYear, LeaveMonth);
+                            }
+                            else
+                            {
+                                leaveRequestList = await _leaveRepository.GetLeaveRequestsByLeaveYearAsync(LeaveYear);
+                            }
+                        }
+                    }
+                }
+            }
+            return leaveRequestList;
+        }
+
         #endregion
+
         #endregion
 
         #region Leave Balances Service Methods
         public async Task<LeaveBalances> GetLeaveBalancesAsync(string LeaveTypeCode, int LeaveYear, string EmployeeId = null, string EmployeeName = null)
         {
             if (string.IsNullOrWhiteSpace(LeaveTypeCode)) { throw new Exception("Required parameter Leave Type Code has an invalid value."); }
-            if (LeaveYear < 1) { throw new Exception("Required parameter Leave Year has an invalid value."); }
+            if (LeaveYear < 2020) { throw new Exception("Required parameter Leave Year has an invalid value."); }
             if (string.IsNullOrWhiteSpace(EmployeeId) && string.IsNullOrWhiteSpace(EmployeeName)) { throw new Exception("Required parameter Employee ID and Employee Name both have invalid values."); }
-            
+
             LeaveBalances balances = new LeaveBalances();
             balances.LeaveYear = LeaveYear;
 
             var entity = await _leaveRepository.GetLeaveTypeByCodeAsync(LeaveTypeCode);
-            if(entity != null) 
+            if (entity != null)
             {
                 balances.LeaveTypeName = entity.Name;
             }
@@ -1049,28 +1172,21 @@ namespace IntranetPortal.Base.Services
                     default:
                         break;
                 }
-                _totalLeaveDaysUsedInPreviousYear = await _leaveRepository.GetLeaveDaysUsedByEmployeeIdnLeaveTypeCodenLeaveYearAsync(EmployeeId, LeaveTypeCode, _previousLeaveYear);
-                _totalLeaveDaysUnusedInPreviousYear = _totalAnnualLeaveDays - _totalLeaveDaysUsedInPreviousYear;
 
+                if (_profileDetail.CanBeCarriedOver && _profileDetail.CarryOverEndMonth > DateTime.Today.Month)
+                {
+                    _totalLeaveDaysUsedInPreviousYear = await _leaveRepository.GetLeaveDaysUsedByEmployeeIdnLeaveTypeCodenLeaveYearAsync(EmployeeId, LeaveTypeCode, _previousLeaveYear);
+                    _totalLeaveDaysUnusedInPreviousYear = _totalAnnualLeaveDays - _totalLeaveDaysUsedInPreviousYear;
+                }
 
                 _totalLeaveDaysUsedInCurrentYear = await _leaveRepository.GetLeaveDaysUsedByEmployeeIdnLeaveTypeCodenLeaveYearAsync(EmployeeId, LeaveTypeCode, LeaveYear);
                 _totalLeaveDaysUnusedInCurrentYear = _totalAnnualLeaveDays - _totalLeaveDaysUsedInCurrentYear;
 
-                if (_profileDetail.CanBeCarriedOver && (_profileDetail.CarryOverEndMonth <= DateTime.Now.Month))
-                {
-                    _totalLeaveDaysDue = _totalAnnualLeaveDays + _totalLeaveDaysUnusedInPreviousYear;
-                    balances.CarriedOverLeaveBalance = _totalLeaveDaysUnusedInPreviousYear;
-                    balances.CurrentYearPrifileLeaveDays = _totalAnnualLeaveDays;
-                    balances.TotalLeaveDaysUsed = _totalLeaveDaysUsedInCurrentYear;
-                    balances.TotalOutstandingLeaveDays = _totalLeaveDaysDue - _totalLeaveDaysUsedInCurrentYear;
-                }
-                else
-                {
-                    _totalLeaveDaysDue = _totalAnnualLeaveDays;
-                    balances.CurrentYearPrifileLeaveDays = _totalAnnualLeaveDays;
-                    balances.TotalLeaveDaysUsed = _totalLeaveDaysUsedInCurrentYear;
-                    balances.TotalOutstandingLeaveDays = _totalLeaveDaysDue - _totalLeaveDaysUsedInCurrentYear;
-                }
+                _totalLeaveDaysDue = _totalLeaveDaysUnusedInCurrentYear + _totalLeaveDaysUnusedInPreviousYear;
+                balances.CurrentYearPrifileLeaveDays = _totalAnnualLeaveDays;
+                balances.TotalLeaveDaysUsed = _totalLeaveDaysUsedInCurrentYear;
+                balances.TotalOutstandingLeaveDays = _totalLeaveDaysDue;
+                balances.CarriedOverLeaveBalance = _totalLeaveDaysUnusedInPreviousYear;
             }
             else
             {
@@ -1149,6 +1265,12 @@ namespace IntranetPortal.Base.Services
             else { throw new Exception("Required parameter [Leave Submission] has invalid value."); }
             return IsSubmitted;
         }
+        public async Task<bool> DeleteLeaveSubmissionAsync(long LeaveSubmissionId)
+        {
+            return await _leaveRepository.DeleteSubmissionAsync(LeaveSubmissionId);
+        }
+
+
         public async Task<LeaveSubmission> GetLeaveSubmissionByIdAsync(long LeaveSubmissionId)
         {
             LeaveSubmission leaveSubmission = new LeaveSubmission();
@@ -1160,7 +1282,6 @@ namespace IntranetPortal.Base.Services
             }
             return leaveSubmission;
         }
-
         public async Task<List<LeaveSubmission>> GetLeaveSubmissionsByApproverIdAsync(string approverName, int? submittedYear = null)
         {
             List<LeaveSubmission> leaveSubmissions = new List<LeaveSubmission>();
@@ -1182,93 +1303,132 @@ namespace IntranetPortal.Base.Services
             }
             return leaveSubmissions;
         }
-        public async Task<bool> DeleteLeaveSubmissionAsync(long LeaveSubmissionId)
+
+        public async Task<List<LeaveSubmission>> GetLeaveSubmissionsByApproverRoleAsync(string approverRole, int? submittedYear = null)
         {
-            return await _leaveRepository.DeleteSubmissionAsync(LeaveSubmissionId);
+            List<LeaveSubmission> leaveSubmissions = new List<LeaveSubmission>();
+            if (submittedYear == null || submittedYear < 2020) { submittedYear = DateTime.Now.Year; }
+            var entities = await _leaveRepository.GetLeaveSubmissionsByRolenYearSubmittedAsync(approverRole, submittedYear.Value);
+            if (entities != null && entities.Count > 0)
+            {
+                leaveSubmissions = entities;
+            }
+            return leaveSubmissions;
         }
 
         #endregion
 
         #region Leave Approval Service Methods
-        public async Task<bool> ApproveLeavePlanAsync(LeaveApproval a, LeaveSubmission s)
+        public async Task<bool> ApproveLeaveAsync(LeaveApproval a, LeaveSubmission s, DocumentType t)
         {
             bool IsUpdated = false;
             int newStatusId = 0;
             string newStatusDescription = "";
-            if (a != null)
+            if (a == null) { throw new Exception("Required parameter [Leave Approval] has invalid value."); }
+
+            if (a.IsApproved)
             {
+                newStatusId = (int)LeaveStatusEnum.Approved;
+                newStatusDescription = LeaveStatusEnum.Approved.ToString();
+            }
+            else
+            {
+                newStatusId = (int)LeaveStatusEnum.Declined;
+                newStatusDescription = LeaveStatusEnum.Declined.ToString();
+            }
+
+            long approvalId = await _leaveRepository.AddLeaveApprovalAsync(a);
+            if (approvalId < 1) { throw new Exception("Sorry an error was encountered while attempting to add the approval record."); }
+
+            if (t == DocumentType.LeavePlan)
+            {
+                //Update Leave Plan Status to Pending
+                IsUpdated = await _leaveRepository.UpdateLeavePlanStatusAsync(a.LeavePlanId.Value, newStatusId);
+                if (!IsUpdated)
+                {
+                    await _leaveRepository.DeleteApprovalAsync(approvalId);
+                    throw new Exception("An error was encountered while attempting to update Leave Plan status.");
+                }
+
+                if (await _leaveRepository.UpdateSubmissionActionStatusAsync(s.LeaveSubmissionId, a.TimeApproved))
+                {
+                    //====== Add Leave Activity Log =======//
+                    LeaveActivityLog history = new LeaveActivityLog();
+                    history.ActivityDescription = $"Leave Plan was approved by {a.ApproverName} on {DateTime.UtcNow.ToLongDateString()} at {DateTime.UtcNow.ToLongTimeString()}.";
+                    history.ActivityTime = DateTime.UtcNow;
+                    history.LeavePlanId = a.LeavePlanId;
+                    await _leaveRepository.AddLeaveActivityLogAsync(history);
+
+                    LeaveNote note = new LeaveNote();
+                    //====== Add Leave Note =======//
+                    if (!string.IsNullOrWhiteSpace(a.ApproverComments))
+                    {
+                        note.NoteContent = a.ApproverComments;
+                        note.LeavePlanId = a.LeavePlanId;
+                        note.TimeAdded = DateTime.Now;
+                        note.FromEmployeeName = a.ApproverName;
+                        await _leaveRepository.AddNoteAsync(note);
+                    }
+                }
+                return true;
+            }
+            else if (t == DocumentType.LeaveRequest)
+            {
+                //Update Leave Request Status to Pending
+                IsUpdated = await _leaveRepository.UpdateLeaveRequestStatusAsync(a.LeaveRequestId.Value, newStatusId);
+                if (!IsUpdated)
+                {
+                    await _leaveRepository.DeleteApprovalAsync(approvalId);
+                    throw new Exception("An error was encountered while attempting to update Leave Plan status.");
+                }
+
                 if (a.IsApproved)
                 {
-                    newStatusId = (int)LeaveStatusEnum.Approved;
-                    newStatusDescription = LeaveStatusEnum.Approved.ToString();
-                }
-                else
-                {
-                    newStatusId = (int)LeaveStatusEnum.Declined;
-                    newStatusDescription = LeaveStatusEnum.Declined.ToString();
-                }
-
-                //string ApprovalType;
-                //switch (a.ApproverRole)
-                //{
-                //    case "Line Manager":
-                //        ApprovalType = "LM";
-                //        break;
-                //    case "Head of Department":
-                //        ApprovalType = "HD";
-                //        break;
-                //    case "HR Representative":
-                //        ApprovalType = "HR";
-                //        break;
-                //    case "Station Manager":
-                //        ApprovalType = "SM";
-                //        break;
-                //    case "Executive Management":
-                //        ApprovalType = "XM";
-                //        break;
-                //    default:
-                //        break;
-                //}
-
-                long approvalId = await _leaveRepository.AddLeaveApprovalAsync(a);
-                if (approvalId > 0)
-                {
-                    //Update Leave Plan Status to Pending
-                    IsUpdated = await _leaveRepository.UpdateLeavePlanStatusAsync(a.LeavePlanId.Value, newStatusId);
-                    if (IsUpdated)
+                    switch (s.ToEmployeeRole)
                     {
-                        await _leaveRepository.UpdateSubmissionActionStatusAsync(s.LeaveSubmissionId, a.TimeApproved);
-
-                        LeaveNote note = new LeaveNote();
-                        //====== Add Leave Note =======//
-                        if (!string.IsNullOrWhiteSpace(a.ApproverComments))
-                        {
-                            note.NoteContent = a.ApproverComments;
-                            note.LeavePlanId = a.LeavePlanId;
-                            note.TimeAdded = DateTime.Now;
-                            note.FromEmployeeName = a.ApproverName;
-                            await _leaveRepository.AddNoteAsync(note);
-                        }
-
-                        //====== Add Leave Activity Log =======//
-                        LeaveActivityLog history = new LeaveActivityLog();
-                        history.ActivityDescription = $"Leave Plan was approved by {a.ApproverName} on {DateTime.UtcNow.ToLongDateString()} at {DateTime.UtcNow.ToLongTimeString()}.";
-                        history.ActivityTime = DateTime.UtcNow;
-                        history.LeavePlanId = a.LeavePlanId;
-                        await _leaveRepository.AddLeaveActivityLogAsync(history);
-
-                        return true;
-                    }
-                    else
-                    {
-                        await _leaveRepository.DeleteApprovalAsync(approvalId);
-                        throw new Exception("An error was encountered while attempting to update Leave Plan status.");
+                        case "Line Manager":
+                            await _leaveRepository.UpdateLeaveRequestApprovalStatusAsync(a.LeaveRequestId.Value, Enums.ApprovalType.LineManager);
+                            break;
+                        case "Head of Department":
+                            await _leaveRepository.UpdateLeaveRequestApprovalStatusAsync(a.LeaveRequestId.Value, Enums.ApprovalType.HeadofDepartment);
+                            break;
+                        case "Station Manager":
+                            await _leaveRepository.UpdateLeaveRequestApprovalStatusAsync(a.LeaveRequestId.Value, Enums.ApprovalType.StationManager);
+                            break;
+                        case "HR Department":
+                            await _leaveRepository.UpdateLeaveRequestApprovalStatusAsync(a.LeaveRequestId.Value, Enums.ApprovalType.HrDepartment);
+                            break;
+                        case "Executive Management":
+                            await _leaveRepository.UpdateLeaveRequestApprovalStatusAsync(a.LeaveRequestId.Value, Enums.ApprovalType.ExecutiveManagement);
+                            break;
+                        default:
+                            break;
                     }
                 }
-                else { throw new Exception("Sorry an error was encountered while attempting to add the approval record."); }
+
+                if (await _leaveRepository.UpdateSubmissionActionStatusAsync(s.LeaveSubmissionId, a.TimeApproved))
+                {
+                    //====== Add Leave Activity Log =======//
+                    LeaveActivityLog history = new LeaveActivityLog();
+                    history.ActivityDescription = $"Leave Request was approved by {a.ApproverName} on {DateTime.UtcNow.ToLongDateString()} at {DateTime.UtcNow.ToLongTimeString()}.";
+                    history.ActivityTime = DateTime.UtcNow;
+                    history.LeaveRequestId = a.LeaveRequestId;
+                    await _leaveRepository.AddLeaveActivityLogAsync(history);
+
+                    LeaveNote note = new LeaveNote();
+                    //====== Add Leave Note =======//
+                    if (!string.IsNullOrWhiteSpace(a.ApproverComments))
+                    {
+                        note.NoteContent = a.ApproverComments;
+                        note.LeaveRequestId = a.LeaveRequestId;
+                        note.TimeAdded = DateTime.Now;
+                        note.FromEmployeeName = a.ApproverName;
+                        await _leaveRepository.AddNoteAsync(note);
+                    }
+                }
+                return true;
             }
-            else { throw new Exception("Required parameter [Leave Approval] has invalid value."); }
-
+            else { throw new Exception("Error: Unknown document type. The document type was not specified."); }
         }
         public async Task<List<LeaveApproval>> GetLeaveApprovalsAsync(long? LeavePlanId = null, long? LeaveRequestId = null)
         {
@@ -1291,25 +1451,25 @@ namespace IntranetPortal.Base.Services
             }
             return approvalsList;
         }
-
-        public async Task<bool> DeclineLeavePlanAsync(LeaveApproval a, LeaveSubmission s)
+        public async Task<bool> DeclineLeaveAsync(LeaveApproval a, LeaveSubmission s, DocumentType t)
         {
             bool IsUpdated = false;
             int newStatusId = 0;
             string newStatusDescription = "";
-            if (a != null)
+            if (a == null) { throw new Exception("Required parameter [Leave Approval] has invalid value."); }
+            if (a.IsApproved)
             {
-                if (a.IsApproved)
-                {
-                    newStatusId = (int)LeaveStatusEnum.Approved;
-                    newStatusDescription = LeaveStatusEnum.Approved.ToString();
-                }
-                else
-                {
-                    newStatusId = (int)LeaveStatusEnum.Declined;
-                    newStatusDescription = LeaveStatusEnum.Declined.ToString();
-                }
+                newStatusId = (int)LeaveStatusEnum.Approved;
+                newStatusDescription = LeaveStatusEnum.Approved.ToString();
+            }
+            else
+            {
+                newStatusId = (int)LeaveStatusEnum.Declined;
+                newStatusDescription = LeaveStatusEnum.Declined.ToString();
+            }
 
+            if (t == DocumentType.LeavePlan)
+            {
                 //Update Leave Plan Status to Pending
                 IsUpdated = await _leaveRepository.UpdateLeavePlanStatusAsync(a.LeavePlanId.Value, newStatusId);
                 if (IsUpdated)
@@ -1341,16 +1501,112 @@ namespace IntranetPortal.Base.Services
                     throw new Exception("An error was encountered while attempting to update Leave Plan status.");
                 }
             }
-            else { throw new Exception("Required parameter [Leave Approval] has invalid value."); }
+            else if (t == DocumentType.LeaveRequest)
+            {
+                //Update Leave Request Status to Pending
+                IsUpdated = await _leaveRepository.UpdateLeaveRequestStatusAsync(a.LeaveRequestId.Value, newStatusId);
+                if (IsUpdated)
+                {
+                    await _leaveRepository.UpdateSubmissionActionStatusAsync(s.LeaveSubmissionId, a.TimeApproved);
 
+                    LeaveNote note = new LeaveNote();
+                    //====== Add Leave Note =======//
+                    if (!string.IsNullOrWhiteSpace(a.ApproverComments))
+                    {
+                        note.NoteContent = a.ApproverComments;
+                        note.LeaveRequestId = a.LeaveRequestId;
+                        note.TimeAdded = DateTime.Now;
+                        note.FromEmployeeName = a.ApproverName;
+                        await _leaveRepository.AddNoteAsync(note);
+                    }
+
+                    //====== Add Leave Activity Log =======//
+                    LeaveActivityLog history = new LeaveActivityLog();
+                    history.ActivityDescription = $"Leave Request was declined by {a.ApproverName} on {DateTime.UtcNow.ToLongDateString()} at {DateTime.UtcNow.ToLongTimeString()}.";
+                    history.ActivityTime = DateTime.UtcNow;
+                    history.LeaveRequestId = a.LeaveRequestId;
+                    await _leaveRepository.AddLeaveActivityLogAsync(history);
+
+                    return true;
+                }
+                else
+                {
+                    throw new Exception("An error was encountered while attempting to update Leave Plan status.");
+                }
+            }
+            else
+            {
+                throw new Exception("Error: Unknown document type. The document type was not specified. ");
+            }
         }
 
         #endregion
 
+        #region Leave Documents Service Methods
+        public async Task<bool> AddLeaveDocumentAsync(LeaveDocument document)
+        {
+            if (document == null) { throw new Exception("Required parameter [Leave Document] has invalid value."); }
+
+            long documentId = await _leaveRepository.AddLeaveDocumentAsync(document);
+            if (documentId < 1) { throw new Exception("Sorry an error was encountered while attempting to add this document."); }
+
+            //====== Add Leave Activity Log =======//
+            LeaveActivityLog history = new LeaveActivityLog();
+            history.ActivityDescription = $"Uploaded a document with title [{document.DocumentTitle}] on {DateTime.UtcNow.ToLongDateString()} at {DateTime.UtcNow.ToLongTimeString()}.";
+            history.ActivityTime = DateTime.UtcNow;
+            history.LeaveRequestId = document.LeaveRequestId;
+            await _leaveRepository.AddLeaveActivityLogAsync(history);
+
+            return true;
+        }
+        public async Task<bool> DeleteLeaveDocumentAsync(long LeaveDocumentId)
+        {
+            if (LeaveDocumentId < 1) { throw new Exception("Required parameter [Leave Document ID] has invalid value."); }
+
+            LeaveDocument document = await _leaveRepository.GetLeaveDocumentByIdAsync(LeaveDocumentId);
+
+            bool IsDeleted = await _leaveRepository.DeleteLeaveDocumentAsync(LeaveDocumentId);
+            if (!IsDeleted) { throw new Exception("Sorry an error was encountered while attempting to delete this document."); }
+
+            //====== Add Leave Activity Log =======//
+            LeaveActivityLog history = new LeaveActivityLog();
+            history.ActivityDescription = $"Document with title [{document.DocumentTitle}] on {DateTime.UtcNow.ToLongDateString()} at {DateTime.UtcNow.ToLongTimeString()}.";
+            history.ActivityTime = DateTime.UtcNow;
+            history.LeaveRequestId = document.LeaveRequestId;
+            await _leaveRepository.AddLeaveActivityLogAsync(history);
+
+            return true;
+        }
+
+        public async Task<List<LeaveDocument>> GetLeaveDocumentsAsync(long LeaveRequestId)
+        {
+            List<LeaveDocument> documentsList = new List<LeaveDocument>();
+            if (LeaveRequestId > 0)
+            {
+                var entities = await _leaveRepository.GetLeaveDocumentsByLeaveRequestIdAsync(LeaveRequestId);
+                if (entities != null && entities.Count > 0)
+                {
+                    documentsList = entities;
+                }
+            }
+            return documentsList;
+        }
+        public async Task<LeaveDocument> GetLeaveDocumentAsync(long LeaveDocumentId)
+        {
+            LeaveDocument document = new LeaveDocument();
+            if (LeaveDocumentId > 0)
+            {
+                var entity = await _leaveRepository.GetLeaveDocumentByIdAsync(LeaveDocumentId);
+                if (entity != null)
+                {
+                    document = entity;
+                }
+            }
+            return document;
+        }
 
 
-
-
+        #endregion
 
         #region Leave Service Helper Methods
         public DateTime GenerateLeaveEndDate(DateTime StartDate, int DurationTypeId, int Duration)

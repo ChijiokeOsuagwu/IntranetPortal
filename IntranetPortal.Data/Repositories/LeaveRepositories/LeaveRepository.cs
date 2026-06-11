@@ -1,4 +1,5 @@
-﻿using IntranetPortal.Base.Models.LeaveModels;
+﻿using IntranetPortal.Base.Enums;
+using IntranetPortal.Base.Models.LeaveModels;
 using IntranetPortal.Base.Repositories.LeaveRepositories;
 using Microsoft.Extensions.Configuration;
 using Npgsql;
@@ -3733,570 +3734,6 @@ namespace IntranetPortal.Data.Repositories.LeaveRepositories
         #endregion
 
         #endregion
-
-        #region Leave Submission Action Methods
-        //==== Leave Plan Submission Read Action Methods
-        public async Task<List<LeaveSubmission>> GetLeaveSubmissionsByLeaveSubmissionIdAsync(long leaveSubmissionId)
-        {
-            List<LeaveSubmission> submissionList = new List<LeaveSubmission>();
-            StringBuilder sb = new StringBuilder();
-            sb.Append("SELECT lvs_sbm_id, lvs_pln_id, lvs_rqst_id, frm_emp_nm,  ");
-            sb.Append("to_emp_nm, sbm_purps, sbm_dt, sbm_msg, is_xtn, dt_xtn, ");
-            sb.Append("to_emp_rl  FROM public.lvm_lvs_sbms ");
-            sb.Append("WHERE (lvs_sbm_id=@lvs_sbm_id) ");
-            sb.Append("ORDER BY lvs_sbm_id; ");
-            string query = sb.ToString();
-            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
-            {
-                await conn.OpenAsync();
-                // Retrieve all rows
-                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
-                {
-                    var lvs_sbm_id = cmd.Parameters.Add("@lvs_sbm_id", NpgsqlDbType.Bigint);
-                    await cmd.PrepareAsync();
-                    lvs_sbm_id.Value = leaveSubmissionId;
-                    var reader = await cmd.ExecuteReaderAsync();
-                    while (await reader.ReadAsync())
-                    {
-                        submissionList.Add(new LeaveSubmission()
-                        {
-                            LeaveSubmissionId = reader["lvs_sbm_id"] == DBNull.Value ? 0 : (long)reader["lvs_sbm_id"],
-                            LeavePlanId = reader["lvs_pln_id"] == DBNull.Value ? 0 : (long)reader["lvs_pln_id"],
-                            LeaveRequestId = reader["lvs_rqst_id"] == DBNull.Value ? 0 : (long)reader["lvs_rqst_id"],
-                            ToEmployeeName = reader["to_emp_nm"] == DBNull.Value ? string.Empty : reader["to_emp_nm"].ToString(),
-                            FromEmployeeName = reader["frm_emp_nm"] == DBNull.Value ? string.Empty : reader["frm_emp_nm"].ToString(),
-                            TimeSubmitted = reader["sbm_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["sbm_dt"],
-                            Purpose = reader["sbm_purps"] == DBNull.Value ? string.Empty : reader["sbm_purps"].ToString(),
-                            Message = reader["sbm_msg"] == DBNull.Value ? string.Empty : reader["sbm_msg"].ToString(),
-                            IsActioned = reader["is_xtn"] == DBNull.Value ? false : (bool)reader["is_xtn"],
-                            TimeActioned = reader["dt_xtn"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["dt_xtn"],
-                            ToEmployeeRole = reader["to_emp_rl"] == DBNull.Value ? string.Empty : reader["to_emp_rl"].ToString(),
-                        });
-                    }
-                }
-                await conn.CloseAsync();
-            }
-            return submissionList;
-        }
-
-        public async Task<List<LeaveSubmission>> GetLeaveSubmissionsByToEmployeeNameAsync(string toEmployeeName)
-        {
-            List<LeaveSubmission> submissionList = new List<LeaveSubmission>();
-            StringBuilder sb = new StringBuilder();
-            sb.Append("SELECT lvs_sbm_id, lvs_pln_id, lvs_rqst_id, frm_emp_nm,  ");
-            sb.Append("to_emp_nm, sbm_purps, sbm_dt, sbm_msg, is_xtn, dt_xtn, ");
-            sb.Append("to_emp_rl  FROM public.lvm_lvs_sbms ");
-            sb.Append("WHERE (to_emp_nm=@to_emp_nm) ");
-            sb.Append("ORDER BY lvs_sbm_id DESC; ");
-            string query = sb.ToString();
-            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
-            {
-                await conn.OpenAsync();
-                // Retrieve all rows
-                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
-                {
-                    var to_emp_nm = cmd.Parameters.Add("@to_emp_nm", NpgsqlDbType.Text);
-                    await cmd.PrepareAsync();
-                    to_emp_nm.Value = toEmployeeName;
-                    var reader = await cmd.ExecuteReaderAsync();
-                    while (await reader.ReadAsync())
-                    {
-                        submissionList.Add(new LeaveSubmission()
-                        {
-                            LeaveSubmissionId = reader["lvs_sbm_id"] == DBNull.Value ? 0 : (long)reader["lvs_sbm_id"],
-                            LeavePlanId = reader["lvs_pln_id"] == DBNull.Value ? 0 : (long)reader["lvs_pln_id"],
-                            LeaveRequestId = reader["lvs_rqst_id"] == DBNull.Value ? 0 : (long)reader["lvs_rqst_id"],
-                            ToEmployeeName = reader["to_emp_nm"] == DBNull.Value ? string.Empty : reader["to_emp_nm"].ToString(),
-                            FromEmployeeName = reader["frm_emp_nm"] == DBNull.Value ? string.Empty : reader["frm_emp_nm"].ToString(),
-                            TimeSubmitted = reader["sbm_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["sbm_dt"],
-                            Purpose = reader["sbm_purps"] == DBNull.Value ? string.Empty : reader["sbm_purps"].ToString(),
-                            Message = reader["sbm_msg"] == DBNull.Value ? string.Empty : reader["sbm_msg"].ToString(),
-                            IsActioned = reader["is_xtn"] == DBNull.Value ? false : (bool)reader["is_xtn"],
-                            TimeActioned = reader["dt_xtn"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["dt_xtn"],
-                            ToEmployeeRole = reader["to_emp_rl"] == DBNull.Value ? string.Empty : reader["to_emp_rl"].ToString(),
-                        });
-                    }
-                }
-                await conn.CloseAsync();
-            }
-            return submissionList;
-        }
-        public async Task<List<LeaveSubmission>> GetLeaveSubmissionsByYearSubmittedAsync(string toEmployeeName, int yearSubmitted)
-        {
-            List<LeaveSubmission> submissionList = new List<LeaveSubmission>();
-            StringBuilder sb = new StringBuilder();
-            sb.Append("SELECT lvs_sbm_id, lvs_pln_id, lvs_rqst_id, frm_emp_nm,  ");
-            sb.Append("to_emp_nm, sbm_purps, sbm_dt, sbm_msg, is_xtn, dt_xtn, ");
-            sb.Append("to_emp_rl  FROM public.lvm_lvs_sbms ");
-            sb.Append("WHERE (to_emp_nm=@to_emp_nm) ");
-            sb.Append("AND (DATE_PART('Year', sbm_dt) = @yr) ");
-            sb.Append("ORDER BY lvs_sbm_id DESC; ");
-
-            string query = sb.ToString();
-            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
-            {
-                await conn.OpenAsync();
-                // Retrieve all rows
-                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
-                {
-                    var to_emp_nm = cmd.Parameters.Add("@to_emp_nm", NpgsqlDbType.Text);
-                    var yr = cmd.Parameters.Add("@yr", NpgsqlDbType.Integer);
-                    await cmd.PrepareAsync();
-                    to_emp_nm.Value = toEmployeeName;
-                    yr.Value = yearSubmitted;
-
-                    var reader = await cmd.ExecuteReaderAsync();
-                    while (await reader.ReadAsync())
-                    {
-                        submissionList.Add(new LeaveSubmission()
-                        {
-                            LeaveSubmissionId = reader["lvs_sbm_id"] == DBNull.Value ? 0 : (long)reader["lvs_sbm_id"],
-                            LeavePlanId = reader["lvs_pln_id"] == DBNull.Value ? 0 : (long)reader["lvs_pln_id"],
-                            LeaveRequestId = reader["lvs_rqst_id"] == DBNull.Value ? 0 : (long)reader["lvs_rqst_id"],
-                            ToEmployeeName = reader["to_emp_nm"] == DBNull.Value ? string.Empty : reader["to_emp_nm"].ToString(),
-                            FromEmployeeName = reader["frm_emp_nm"] == DBNull.Value ? string.Empty : reader["frm_emp_nm"].ToString(),
-                            TimeSubmitted = reader["sbm_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["sbm_dt"],
-                            Purpose = reader["sbm_purps"] == DBNull.Value ? string.Empty : reader["sbm_purps"].ToString(),
-                            Message = reader["sbm_msg"] == DBNull.Value ? string.Empty : reader["sbm_msg"].ToString(),
-                            IsActioned = reader["is_xtn"] == DBNull.Value ? false : (bool)reader["is_xtn"],
-                            TimeActioned = reader["dt_xtn"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["dt_xtn"],
-                            ToEmployeeRole = reader["to_emp_rl"] == DBNull.Value ? string.Empty : reader["to_emp_rl"].ToString(),
-                        });
-                    }
-                }
-                await conn.CloseAsync();
-            }
-            return submissionList;
-        }
-
-        //public async Task<List<LeaveSubmission>> GetSubmissionsByYearnMonthSubmittedAsync(int yearSubmitted, int monthSubmitted)
-        //{
-        //    List<LeaveSubmission> submissionList = new List<LeaveSubmission>();
-        //    StringBuilder sb = new StringBuilder();
-        //    sb.Append("SELECT s.lvs_sbm_id, s.lvs_inf_id, s.frm_emp_id, s.to_emp_id, ");
-        //    sb.Append("s.sbm_purps, s.sbm_dt, s.sbm_msg, s.is_xtn, s.dt_xtn, s.to_emp_rl, ");
-        //    sb.Append("(SELECT fullname FROM public.gst_prsns p1 ");
-        //    sb.Append("WHERE p1.id = s.frm_emp_id) as frm_emp_nm, ");
-        //    sb.Append("(SELECT fullname FROM public.gst_prsns p2 ");
-        //    sb.Append("WHERE p2.id = s.to_emp_id) as to_emp_nm ");
-        //    sb.Append("FROM public.lms_lvs_sbms s ");
-        //    sb.Append("WHERE DATE_PART('Year', s.sbm_dt) = @yr ");
-        //    sb.Append("AND DATE_PART('Month', s.sbm_dt) = @mn ");
-        //    sb.Append("ORDER BY s.lvs_sbm_id DESC; ");
-        //    string query = sb.ToString();
-        //    using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
-        //    {
-        //        await conn.OpenAsync();
-        //        // Retrieve all rows
-        //        using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
-        //        {
-        //            var yr = cmd.Parameters.Add("@yr", NpgsqlDbType.Integer);
-        //            var mn = cmd.Parameters.Add("@mn", NpgsqlDbType.Integer);
-        //            await cmd.PrepareAsync();
-        //            yr.Value = yearSubmitted;
-        //            mn.Value = monthSubmitted;
-        //            var reader = await cmd.ExecuteReaderAsync();
-        //            while (await reader.ReadAsync())
-        //            {
-        //                submissionList.Add(new LeaveSubmission()
-        //                {
-        //                    Id = reader["lvs_sbm_id"] == DBNull.Value ? 0 : (long)reader["lvs_sbm_id"],
-        //                    LeaveId = reader["lvs_inf_id"] == DBNull.Value ? 0 : (long)reader["lvs_inf_id"],
-        //                    ToEmployeeId = reader["to_emp_id"] == DBNull.Value ? string.Empty : reader["to_emp_id"].ToString(),
-        //                    ToEmployeeName = reader["to_emp_nm"] == DBNull.Value ? string.Empty : reader["to_emp_nm"].ToString(),
-        //                    FromEmployeeId = reader["frm_emp_id"] == DBNull.Value ? string.Empty : reader["frm_emp_id"].ToString(),
-        //                    FromEmployeeName = reader["frm_emp_nm"] == DBNull.Value ? string.Empty : reader["frm_emp_nm"].ToString(),
-        //                    TimeSubmitted = reader["sbm_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["sbm_dt"],
-        //                    Purpose = reader["sbm_purps"] == DBNull.Value ? string.Empty : reader["sbm_purps"].ToString(),
-        //                    Message = reader["sbm_msg"] == DBNull.Value ? string.Empty : reader["sbm_msg"].ToString(),
-        //                    IsActioned = reader["is_xtn"] == DBNull.Value ? false : (bool)reader["is_xtn"],
-        //                    TimeActioned = reader["dt_xtn"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["dt_xtn"],
-        //                    ToEmployeeRole = reader["to_emp_rl"] == DBNull.Value ? string.Empty : reader["to_emp_rl"].ToString(),
-        //                });
-        //            }
-        //        }
-        //        await conn.CloseAsync();
-        //    }
-        //    return submissionList;
-        //}
-        //public async Task<List<LeaveSubmission>> GetSubmissionsByToEmployeeIdnYearSubmittedAsync(string toEmployeeId, int yearSubmitted)
-        //{
-        //    List<LeaveSubmission> submissionList = new List<LeaveSubmission>();
-        //    StringBuilder sb = new StringBuilder();
-        //    sb.Append("SELECT s.lvs_sbm_id, s.lvs_inf_id, s.frm_emp_id, s.to_emp_id, ");
-        //    sb.Append("s.sbm_purps, s.sbm_dt, s.sbm_msg, s.is_xtn, s.dt_xtn, s.to_emp-rl, ");
-        //    sb.Append("(SELECT fullname FROM public.gst_prsns p1 ");
-        //    sb.Append("WHERE p1.id = s.frm_emp_id) as frm_emp_nm, ");
-        //    sb.Append("(SELECT fullname FROM public.gst_prsns p2 ");
-        //    sb.Append("WHERE p2.id = s.to_emp_id) as to_emp_nm ");
-        //    sb.Append("FROM public.lms_lvs_sbms s ");
-        //    sb.Append("WHERE s.to_emp_id = @to_emp_id ");
-        //    sb.Append("AND DATE_PART('Year', s.sbm_dt) = @yr ");
-        //    sb.Append("ORDER BY s.lvs_sbm_id DESC; ");
-        //    string query = sb.ToString();
-        //    using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
-        //    {
-        //        await conn.OpenAsync();
-        //        // Retrieve all rows
-        //        using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
-        //        {
-        //            var to_emp_id = cmd.Parameters.Add("@to_emp_id", NpgsqlDbType.Text);
-        //            var yr = cmd.Parameters.Add("@yr", NpgsqlDbType.Integer);
-        //            await cmd.PrepareAsync();
-        //            to_emp_id.Value = toEmployeeId;
-        //            yr.Value = yearSubmitted;
-        //            var reader = await cmd.ExecuteReaderAsync();
-        //            while (await reader.ReadAsync())
-        //            {
-        //                submissionList.Add(new LeaveSubmission()
-        //                {
-        //                    Id = reader["lvs_sbm_id"] == DBNull.Value ? 0 : (long)reader["lvs_sbm_id"],
-        //                    LeaveId = reader["lvs_inf_id"] == DBNull.Value ? 0 : (long)reader["lvs_inf_id"],
-        //                    ToEmployeeId = reader["to_emp_id"] == DBNull.Value ? string.Empty : reader["to_emp_id"].ToString(),
-        //                    ToEmployeeName = reader["to_emp_nm"] == DBNull.Value ? string.Empty : reader["to_emp_nm"].ToString(),
-        //                    FromEmployeeId = reader["frm_emp_id"] == DBNull.Value ? string.Empty : reader["frm_emp_id"].ToString(),
-        //                    FromEmployeeName = reader["frm_emp_nm"] == DBNull.Value ? string.Empty : reader["frm_emp_nm"].ToString(),
-        //                    TimeSubmitted = reader["sbm_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["sbm_dt"],
-        //                    Purpose = reader["sbm_purps"] == DBNull.Value ? string.Empty : reader["sbm_purps"].ToString(),
-        //                    Message = reader["sbm_msg"] == DBNull.Value ? string.Empty : reader["sbm_msg"].ToString(),
-        //                    IsActioned = reader["is_xtn"] == DBNull.Value ? false : (bool)reader["is_xtn"],
-        //                    TimeActioned = reader["dt_xtn"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["dt_xtn"],
-        //                    ToEmployeeRole = reader["to_emp_rl"] == DBNull.Value ? string.Empty : reader["to_emp_rl"].ToString(),
-        //                });
-        //            }
-        //        }
-        //        await conn.CloseAsync();
-        //    }
-        //    return submissionList;
-        //}
-        //public async Task<List<LeaveSubmission>> GetSubmissionsByToEmployeeIdnYearnMonthSubmittedAsync(string toEmployeeId, int yearSubmitted, int monthSubmitted)
-        //{
-        //    List<LeaveSubmission> submissionList = new List<LeaveSubmission>();
-        //    StringBuilder sb = new StringBuilder();
-        //    sb.Append("SELECT s.lvs_sbm_id, s.lvs_inf_id, s.frm_emp_id, s.to_emp_id, ");
-        //    sb.Append("s.sbm_purps, s.sbm_dt, s.sbm_msg, s.is_xtn, s.dt_xtn, s.to_emp_rl, ");
-        //    sb.Append("(SELECT fullname FROM public.gst_prsns p1 ");
-        //    sb.Append("WHERE p1.id = s.frm_emp_id) as frm_emp_nm, ");
-        //    sb.Append("(SELECT fullname FROM public.gst_prsns p2 ");
-        //    sb.Append("WHERE p2.id = s.to_emp_id) as to_emp_nm ");
-        //    sb.Append("FROM public.lms_lvs_sbms s ");
-        //    sb.Append("WHERE s.to_emp_id = @to_emp_id ");
-        //    sb.Append("AND DATE_PART('Year', s.sbm_dt) = @yr ");
-        //    sb.Append("AND DATE_PART('Month', s.sbm_dt) = @mn ");
-        //    sb.Append("ORDER BY s.lvs_sbm_id DESC; ");
-        //    string query = sb.ToString();
-        //    using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
-        //    {
-        //        await conn.OpenAsync();
-        //        // Retrieve all rows
-        //        using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
-        //        {
-        //            var to_emp_id = cmd.Parameters.Add("@to_emp_id", NpgsqlDbType.Text);
-        //            var yr = cmd.Parameters.Add("@yr", NpgsqlDbType.Integer);
-        //            var mn = cmd.Parameters.Add("@mn", NpgsqlDbType.Integer);
-        //            await cmd.PrepareAsync();
-        //            to_emp_id.Value = toEmployeeId;
-        //            yr.Value = yearSubmitted;
-        //            mn.Value = monthSubmitted;
-        //            var reader = await cmd.ExecuteReaderAsync();
-        //            while (await reader.ReadAsync())
-        //            {
-        //                submissionList.Add(new LeaveSubmission()
-        //                {
-        //                    Id = reader["lvs_sbm_id"] == DBNull.Value ? 0 : (long)reader["lvs_sbm_id"],
-        //                    LeaveId = reader["lvs_inf_id"] == DBNull.Value ? 0 : (long)reader["lvs_inf_id"],
-        //                    ToEmployeeId = reader["to_emp_id"] == DBNull.Value ? string.Empty : reader["to_emp_id"].ToString(),
-        //                    ToEmployeeName = reader["to_emp_nm"] == DBNull.Value ? string.Empty : reader["to_emp_nm"].ToString(),
-        //                    FromEmployeeId = reader["frm_emp_id"] == DBNull.Value ? string.Empty : reader["frm_emp_id"].ToString(),
-        //                    FromEmployeeName = reader["frm_emp_nm"] == DBNull.Value ? string.Empty : reader["frm_emp_nm"].ToString(),
-        //                    TimeSubmitted = reader["sbm_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["sbm_dt"],
-        //                    Purpose = reader["sbm_purps"] == DBNull.Value ? string.Empty : reader["sbm_purps"].ToString(),
-        //                    Message = reader["sbm_msg"] == DBNull.Value ? string.Empty : reader["sbm_msg"].ToString(),
-        //                    IsActioned = reader["is_xtn"] == DBNull.Value ? false : (bool)reader["is_xtn"],
-        //                    TimeActioned = reader["dt_xtn"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["dt_xtn"],
-        //                    ToEmployeeRole = reader["to_emp_rl"] == DBNull.Value ? string.Empty : reader["to_emp_rl"].ToString(),
-        //                });
-        //            }
-        //        }
-        //        await conn.CloseAsync();
-        //    }
-        //    return submissionList;
-        //}
-
-        //==== Leave Submission Write Action Methods
-        public async Task<bool> AddLeaveSubmissionAsync(LeaveSubmission e)
-        {
-            int rows = 0;
-            StringBuilder sb = new StringBuilder();
-            sb.Append("INSERT INTO public.lvm_lvs_sbms(lvs_pln_id, lvs_rqst_id, ");
-            sb.Append("frm_emp_nm, to_emp_nm, sbm_purps, sbm_dt, sbm_msg, is_xtn, ");
-            sb.Append("dt_xtn, to_emp_rl) VALUES (@lvs_pln_id, @lvs_rqst_id, ");
-            sb.Append("@frm_emp_nm, @to_emp_nm, @sbm_purps, @sbm_dt, @sbm_msg, ");
-            sb.Append("@is_xtn, @dt_xtn, @to_emp_rl); ");
-
-            string query = sb.ToString();
-            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
-            {
-                await conn.OpenAsync();
-                //Insert data
-                using (var cmd = new NpgsqlCommand(query, conn))
-                {
-                    var lvs_pln_id = cmd.Parameters.Add("@lvs_pln_id", NpgsqlDbType.Bigint);
-                    var lvs_rqst_id = cmd.Parameters.Add("@lvs_rqst_id", NpgsqlDbType.Bigint);
-                    var frm_emp_nm = cmd.Parameters.Add("@frm_emp_nm", NpgsqlDbType.Text);
-                    var to_emp_nm = cmd.Parameters.Add("@to_emp_nm", NpgsqlDbType.Text);
-                    var sbm_purps = cmd.Parameters.Add("@sbm_purps", NpgsqlDbType.Text);
-                    var sbm_dt = cmd.Parameters.Add("@sbm_dt", NpgsqlDbType.TimestampTz);
-                    var sbm_msg = cmd.Parameters.Add("@sbm_msg", NpgsqlDbType.Text);
-                    var is_xtn = cmd.Parameters.Add("@is_xtn", NpgsqlDbType.Boolean);
-                    var dt_xtn = cmd.Parameters.Add("@dt_xtn", NpgsqlDbType.TimestampTz);
-                    var to_emp_rl = cmd.Parameters.Add("@to_emp_rl", NpgsqlDbType.Text);
-                    cmd.Prepare();
-                    lvs_pln_id.Value = e.LeavePlanId ?? (object)DBNull.Value;
-                    lvs_rqst_id.Value = e.LeaveRequestId ?? (object)DBNull.Value;
-                    frm_emp_nm.Value = e.FromEmployeeName;
-                    to_emp_nm.Value = e.ToEmployeeName;
-                    sbm_purps.Value = e.Purpose;
-                    sbm_dt.Value = e.TimeSubmitted;
-                    sbm_msg.Value = e.Message ?? (object)DBNull.Value;
-                    is_xtn.Value = e.IsActioned;
-                    dt_xtn.Value = e.TimeActioned ?? (object)DBNull.Value;
-                    to_emp_rl.Value = e.ToEmployeeRole;
-                    rows = await cmd.ExecuteNonQueryAsync();
-                    await conn.CloseAsync();
-                }
-            }
-            return rows > 0;
-        }
-        public async Task<bool> DeleteSubmissionAsync(long id)
-        {
-            int rows = 0;
-            string query = "DELETE FROM public.lvm_lvs_sbms WHERE (lvs_sbm_id = @lvs_sbm_id);";
-            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
-            {
-                await conn.OpenAsync();
-                //Delete data
-                using (var cmd = new NpgsqlCommand(query, conn))
-                {
-                    var lvs_sbm_id = cmd.Parameters.Add("@lvs_sbm_id", NpgsqlDbType.Bigint);
-                    cmd.Prepare();
-                    lvs_sbm_id.Value = id;
-                    rows = await cmd.ExecuteNonQueryAsync();
-                    await conn.CloseAsync();
-                }
-            }
-            return rows > 0;
-        }
-        public async Task<bool> UpdateSubmissionActionStatusAsync(long leaveSubmissionId, DateTime? timeActioned)
-        {
-            int rows = 0;
-            StringBuilder sb = new StringBuilder();
-            sb.Append("UPDATE public.lvm_lvs_sbms SET is_xtn=true, dt_xtn=@dt_xtn ");
-            sb.Append("WHERE lvs_sbm_id = @lvs_sbm_id; ");
-            string query = sb.ToString();
-
-            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
-            {
-                await conn.OpenAsync();
-                //Insert data
-                using (var cmd = new NpgsqlCommand(query, conn))
-                {
-                    var lvs_sbm_id = cmd.Parameters.Add("@lvs_sbm_id", NpgsqlDbType.Bigint);
-                    var dt_xtn = cmd.Parameters.Add("@dt_xtn", NpgsqlDbType.TimestampTz);
-                    cmd.Prepare();
-                    lvs_sbm_id.Value = leaveSubmissionId;
-                    dt_xtn.Value = timeActioned;
-                    rows = await cmd.ExecuteNonQueryAsync();
-                    await conn.CloseAsync();
-                }
-            }
-            return rows > 0;
-        }
-
-        #endregion
-
-        #region Leave Approval Action Methods
-        public async Task<long> AddLeaveApprovalAsync(LeaveApproval e)
-        {
-            long _newLeaveApprovalId = 0;
-            StringBuilder sb = new StringBuilder();
-            sb.Append("INSERT INTO public.lvm_lvs_aprvs(lvs_pln_id, ");
-            sb.Append("lvs_rqst_id, aprv_emp_nm, lvs_emp_nm, is_aprvd, ");
-            sb.Append("lvs_aprv_dt, lvs_aprv_rmk, lvs_aprv_as) VALUES (");
-            sb.Append("@lvs_pln_id, @lvs_rqst_id, @aprv_emp_nm, @lvs_emp_nm, ");
-            sb.Append("@is_aprvd, @lvs_aprv_dt, @lvs_aprv_rmk, @lvs_aprv_as) ");
-            sb.Append("RETURNING lvs_aprv_id;");
-
-            string query = sb.ToString();
-            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
-            {
-                await conn.OpenAsync();
-                //Insert data
-                using (var cmd = new NpgsqlCommand(query, conn))
-                {
-                    var lvs_pln_id = cmd.Parameters.Add("@lvs_pln_id", NpgsqlDbType.Bigint);
-                    var lvs_rqst_id = cmd.Parameters.Add("@lvs_rqst_id", NpgsqlDbType.Bigint);
-                    var aprv_emp_nm = cmd.Parameters.Add("@aprv_emp_nm", NpgsqlDbType.Text);
-                    var lvs_emp_nm = cmd.Parameters.Add("@lvs_emp_nm", NpgsqlDbType.Text);
-                    var is_aprvd = cmd.Parameters.Add("@is_aprvd", NpgsqlDbType.Boolean);
-                    var lvs_aprv_dt = cmd.Parameters.Add("@lvs_aprv_dt", NpgsqlDbType.TimestampTz);
-                    var lvs_aprv_rmk = cmd.Parameters.Add("@lvs_aprv_rmk", NpgsqlDbType.Text);
-                    var lvs_aprv_as = cmd.Parameters.Add("@lvs_aprv_as", NpgsqlDbType.Text);
-                    cmd.Prepare();
-                    lvs_pln_id.Value = e.LeavePlanId ?? (object)DBNull.Value;
-                    lvs_rqst_id.Value = e.LeaveRequestId ?? (object)DBNull.Value;
-                    aprv_emp_nm.Value = e.ApproverName;
-                    lvs_emp_nm.Value = e.ApplicantName;
-                    is_aprvd.Value = e.IsApproved;
-                    lvs_aprv_dt.Value = e.TimeApproved ?? DateTime.Now;
-                    lvs_aprv_rmk.Value = e.ApproverComments ?? string.Empty;
-                    lvs_aprv_as.Value = e.ApproverRole;
-
-                    var obj = await cmd.ExecuteScalarAsync();
-                    _newLeaveApprovalId = (long)obj;
-                    await conn.CloseAsync();
-                }
-            }
-            return _newLeaveApprovalId;
-        }
-        public async Task<bool> DeleteApprovalAsync(long leaveApprovalId)
-        {
-            int rows = 0;
-            string query = "DELETE FROM public.lvm_lvs_aprvs WHERE (lvs_aprv_id = @lvs_aprv_id);";
-            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
-            {
-                await conn.OpenAsync();
-                //Delete data
-                using (var cmd = new NpgsqlCommand(query, conn))
-                {
-                    var lvs_aprv_id = cmd.Parameters.Add("@lvs_aprv_id", NpgsqlDbType.Bigint);
-                    cmd.Prepare();
-                    lvs_aprv_id.Value = leaveApprovalId;
-                    rows = await cmd.ExecuteNonQueryAsync();
-                    await conn.CloseAsync();
-                }
-            }
-            return rows > 0;
-        }
-        public async Task<List<LeaveApproval>> GetLeaveApprovalsByLeavePlanIdAsync(long leavePlanId)
-        {
-            List<LeaveApproval> approvalsList = new List<LeaveApproval>();
-            StringBuilder sb = new StringBuilder();
-            sb.Append("SELECT lvs_aprv_id, lvs_pln_id, lvs_rqst_id, aprv_emp_nm, ");
-            sb.Append("lvs_emp_nm, is_aprvd, lvs_aprv_dt, lvs_aprv_rmk, lvs_aprv_as ");
-            sb.Append("FROM public.lvm_lvs_aprvs WHERE (lvs_pln_id = @lvs_pln_id) ");
-            sb.Append("ORDER BY lvs_aprv_id DESC; ");
-            string query = sb.ToString();
-            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
-            {
-                await conn.OpenAsync();
-                // Retrieve all rows
-                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
-                {
-                    var lvs_pln_id = cmd.Parameters.Add("@lvs_pln_id", NpgsqlDbType.Bigint);
-                    await cmd.PrepareAsync();
-                    lvs_pln_id.Value = leavePlanId;
-                    var reader = await cmd.ExecuteReaderAsync();
-                    while (await reader.ReadAsync())
-                    {
-                        approvalsList.Add(new LeaveApproval()
-                        {
-                            LeaveApprovalId = reader["lvs_aprv_id"] == DBNull.Value ? 0L : (long)reader["lvs_aprv_id"],
-                            LeavePlanId = reader["lvs_pln_id"] == DBNull.Value ? 0L : (long)reader["lvs_pln_id"],
-                            LeaveRequestId = reader["lvs_rqst_id"] == DBNull.Value ? 0L : (long)reader["lvs_rqst_id"],
-                            ApproverName = reader["aprv_emp_nm"] == DBNull.Value ? string.Empty : reader["aprv_emp_nm"].ToString(),
-                            ApplicantName = reader["lvs_emp_nm"] == DBNull.Value ? string.Empty : reader["lvs_emp_nm"].ToString(),
-                            IsApproved = reader["is_aprvd"] == DBNull.Value ? false : (bool)reader["is_aprvd"],
-                            TimeApproved = reader["lvs_aprv_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["lvs_aprv_dt"],
-                            ApproverComments = reader["lvs_aprv_rmk"] == DBNull.Value ? string.Empty : reader["lvs_aprv_rmk"].ToString(),
-                            ApproverRole = reader["lvs_aprv_as"] == DBNull.Value ? string.Empty : reader["lvs_aprv_as"].ToString(),
-                        });
-                    }
-                }
-                await conn.CloseAsync();
-            }
-            return approvalsList;
-        }
-        public async Task<List<LeaveApproval>> GetLeaveApprovalsByLeaveRequestIdAsync(long leaveRequestId)
-        {
-            List<LeaveApproval> approvalsList = new List<LeaveApproval>();
-            StringBuilder sb = new StringBuilder();
-            sb.Append("SELECT lvs_aprv_id, lvs_pln_id, lvs_rqst_id, aprv_emp_nm, ");
-            sb.Append("lvs_emp_nm, is_aprvd, lvs_aprv_dt, lvs_aprv_rmk, lvs_aprv_as ");
-            sb.Append("FROM public.lvm_lvs_aprvs WHERE (lvs_rqst_id = @lvs_rqst_id) ");
-            sb.Append("ORDER BY lvs_aprv_id DESC; ");
-            string query = sb.ToString();
-            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
-            {
-                await conn.OpenAsync();
-                // Retrieve all rows
-                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
-                {
-                    var lvs_rqst_id = cmd.Parameters.Add("@lvs_rqst_id", NpgsqlDbType.Bigint);
-                    await cmd.PrepareAsync();
-                    lvs_rqst_id.Value = leaveRequestId;
-                    var reader = await cmd.ExecuteReaderAsync();
-                    while (await reader.ReadAsync())
-                    {
-                        approvalsList.Add(new LeaveApproval()
-                        {
-                            LeaveApprovalId = reader["lvs_aprv_id"] == DBNull.Value ? 0L : (long)reader["lvs_aprv_id"],
-                            LeavePlanId = reader["lvs_pln_id"] == DBNull.Value ? 0L : (long)reader["lvs_pln_id"],
-                            LeaveRequestId = reader["lvs_rqst_id"] == DBNull.Value ? 0L : (long)reader["lvs_rqst_id"],
-                            ApproverName = reader["aprv_emp_nm"] == DBNull.Value ? string.Empty : reader["aprv_emp_nm"].ToString(),
-                            ApplicantName = reader["lvs_emp_nm"] == DBNull.Value ? string.Empty : reader["lvs_emp_nm"].ToString(),
-                            IsApproved = reader["is_aprvd"] == DBNull.Value ? false : (bool)reader["is_aprvd"],
-                            TimeApproved = reader["lvs_aprv_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["lvs_aprv_dt"],
-                            ApproverComments = reader["lvs_aprv_rmk"] == DBNull.Value ? string.Empty : reader["lvs_aprv_rmk"].ToString(),
-                            ApproverRole = reader["lvs_aprv_as"] == DBNull.Value ? string.Empty : reader["lvs_aprv_as"].ToString(),
-                        });
-                    }
-                }
-                await conn.CloseAsync();
-            }
-            return approvalsList;
-        }
-        public async Task<LeaveApproval> GetApprovalByIdAsync(long leaveApprovalId)
-        {
-            List<LeaveApproval> approvalsList = new List<LeaveApproval>();
-            StringBuilder sb = new StringBuilder();
-            sb.Append("SELECT lvs_aprv_id, lvs_pln_id, lvs_rqst_id, aprv_emp_nm, ");
-            sb.Append("lvs_emp_nm, is_aprvd, lvs_aprv_dt, lvs_aprv_rmk, lvs_aprv_as ");
-            sb.Append("FROM public.lvm_lvs_aprvs WHERE (lvs_aprv_id = @lvs_aprv_id); ");
-
-            string query = sb.ToString();
-            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
-            {
-                await conn.OpenAsync();
-                // Retrieve all rows
-                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
-                {
-                    var lvs_aprv_id = cmd.Parameters.Add("@lvs_aprv_id", NpgsqlDbType.Bigint);
-                    await cmd.PrepareAsync();
-                    lvs_aprv_id.Value = leaveApprovalId;
-                    var reader = await cmd.ExecuteReaderAsync();
-                    while (await reader.ReadAsync())
-                    {
-                        approvalsList.Add(new LeaveApproval()
-                        {
-                            LeaveApprovalId = reader["lvs_aprv_id"] == DBNull.Value ? 0L : (long)reader["lvs_aprv_id"],
-                            LeavePlanId = reader["lvs_pln_id"] == DBNull.Value ? 0L : (long)reader["lvs_pln_id"],
-                            LeaveRequestId = reader["lvs_rqst_id"] == DBNull.Value ? 0L : (long)reader["lvs_rqst_id"],
-                            ApproverName = reader["aprv_emp_nm"] == DBNull.Value ? string.Empty : reader["aprv_emp_nm"].ToString(),
-                            ApplicantName = reader["lvs_emp_nm"] == DBNull.Value ? string.Empty : reader["lvs_emp_nm"].ToString(),
-                            IsApproved = reader["is_aprvd"] == DBNull.Value ? false : (bool)reader["is_aprvd"],
-                            TimeApproved = reader["lvs_aprv_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["lvs_aprv_dt"],
-                            ApproverComments = reader["lvs_aprv_rmk"] == DBNull.Value ? string.Empty : reader["lvs_aprv_rmk"].ToString(),
-                            ApproverRole = reader["lvs_aprv_as"] == DBNull.Value ? string.Empty : reader["lvs_aprv_as"].ToString(),
-                        });
-                    }
-                }
-                await conn.CloseAsync();
-            }
-            return approvalsList[0];
-        }
-
-        #endregion
         #endregion
 
         #region Leave Requests Action Methods
@@ -4395,7 +3832,7 @@ namespace IntranetPortal.Data.Repositories.LeaveRepositories
                     act_lvs_sdt.Value = r.ActualLeaveStartDate ?? (object)DBNull.Value;
                     act_lvs_edt.Value = r.ActualLeaveEndDate ?? (object)DBNull.Value;
                     act_lvs_dur.Value = r.ActualLeaveDuration;
-                    act_dur_ds.Value = r.ActualLeaveDurationDescription;
+                    act_dur_ds.Value = r.ActualLeaveDurationDescription ?? (object)DBNull.Value;
 
                     lm_rsmptn_dt.Value = r.LineManagersResumptionDate ?? (object)DBNull.Value;
                     lm_confm_dt.Value = r.LineManagerConfirmResumptionTime ?? (object)DBNull.Value;
@@ -4414,7 +3851,7 @@ namespace IntranetPortal.Data.Repositories.LeaveRepositories
                     is_xm_aprv.Value = r.IsApprovedByExecutiveManagement;
 
                     lvs_rqst_dur_typ.Value = r.RequestedDurationTypeId;
-                    act_lvs_dur_typ.Value = r.ActualLeaveDurationTypeId;
+                    act_lvs_dur_typ.Value = r.ActualLeaveDurationTypeId ?? (object)DBNull.Value;
                     rqst_rsmptn_dt.Value = r.RequestedResumptionDate ?? (object)DBNull.Value;
                     
                     var obj = await cmd.ExecuteScalarAsync();
@@ -4434,7 +3871,7 @@ namespace IntranetPortal.Data.Repositories.LeaveRepositories
             sb.Append("DELETE FROM public.lvm_lvs_msgs WHERE (lvs_rqs_id = @lvs_rqs_id); ");
             //sb.Append("DELETE FROM public.lms_lvs_sbms WHERE (lvs_inf_id = @lvs_inf_id); ");
             //sb.Append("DELETE FROM public.lms_lvs_trnx WHERE (lvs_inf_id = @lvs_inf_id); ");
-            sb.Append("DELETE FROM public.lvm_lvs_rqsts WHERE (lvs_rqst_id = @lvs_rqst_id);");
+            sb.Append("DELETE FROM public.lvm_lvs_rqsts WHERE (lvs_rqst_id = @lvs_rqs_id); ");
             string query = sb.ToString();
             using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
             {
@@ -4532,8 +3969,52 @@ namespace IntranetPortal.Data.Repositories.LeaveRepositories
             }
             return rows > 0;
         }
+        public async Task<bool> UpdateLeaveRequestApprovalStatusAsync(long leaveRequestId, ApprovalType approvalType)
+        {
+            int rows = 0;
+            string query = string.Empty;
+            switch (approvalType)
+            {
+                case ApprovalType.LineManager:
+                    query = "UPDATE public.lvm_lvs_rqsts SET is_lm_aprv=true WHERE (lvs_rqst_id=@lvs_rqst_id);";
+                    break;
+                case ApprovalType.HeadofDepartment:
+                    query = "UPDATE public.lvm_lvs_rqsts SET is_hd_aprv=true WHERE (lvs_rqst_id=@lvs_rqst_id);";
+                    break;
+                case ApprovalType.HrDepartment:
+                    query = "UPDATE public.lvm_lvs_rqsts SET is_hr_aprv=true WHERE (lvs_rqst_id=@lvs_rqst_id);";
+                    break;
+                case ApprovalType.StationManager:
+                    query = "UPDATE public.lvm_lvs_rqsts SET is_sm_aprv=true WHERE (lvs_rqst_id=@lvs_rqst_id);";
+                    break;
+                case ApprovalType.ExecutiveManagement:
+                    query = "UPDATE public.lvm_lvs_rqsts SET is_xm_aprv=true WHERE (lvs_rqst_id=@lvs_rqst_id);";
+                    break;
+                default:
+                    break;
+            }
+
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
+            {
+                await conn.OpenAsync();
+                //Insert data
+                using (var cmd = new NpgsqlCommand(query, conn))
+                {
+                    var lvs_rqst_id = cmd.Parameters.Add("@lvs_rqst_id", NpgsqlDbType.Bigint);
+                    cmd.Prepare();
+                    lvs_rqst_id.Value = leaveRequestId;
+
+                    rows = await cmd.ExecuteNonQueryAsync();
+                    await conn.CloseAsync();
+                }
+            }
+            return rows > 0;
+        }
+
+
         #endregion
 
+        #region Leave Request Read Action Methods
 
         #region Leave Requests By LeaveRequestId & Employee Id & Name
         public async Task<LeaveRequest> GetLeaveRequestByIdAsync(long leaveRequestId)
@@ -4854,7 +4335,6 @@ namespace IntranetPortal.Data.Repositories.LeaveRepositories
             }
             return leaveRequestList;
         }
-
         public async Task<List<LeaveRequest>> GetLeaveRequestsByEmployeeNameAsync(string employeeName, int leaveYear)
         {
             List<LeaveRequest> leaveRequestList = new List<LeaveRequest>();
@@ -5078,6 +4558,1706 @@ namespace IntranetPortal.Data.Repositories.LeaveRepositories
         }
         #endregion
 
+        #region Leave Requests By Location & Unit
+
+        // For Leave Year & Leave Month
+        public async Task<List<LeaveRequest>> GetLeaveRequestsByLeaveYearAsync(int leaveYear)
+        {
+            List<LeaveRequest> leaveRequestList = new List<LeaveRequest>();
+            StringBuilder sb = new StringBuilder();
+
+            sb.Append("SELECT r.lvs_rqst_id, r.lvs_emp_id, r.lvs_unit_id, ");
+            sb.Append("r.lvs_dept_id, r.lvs_loc_id, r.lvs_rqst_yr, ");
+            sb.Append("r.lvs_typ_cd, r.lvs_rsn, r.lvs_rqst_sts, ");
+            sb.Append("CASE WHEN r.lvs_rqst_sts = 0 THEN 'Not Yet Approved' ");
+            sb.Append("WHEN r.lvs_rqst_sts = 1 THEN 'Pending Approval' ");
+            sb.Append("WHEN r.lvs_rqst_sts = 2 THEN 'Declined' ");
+            sb.Append("WHEN r.lvs_rqst_sts = 3 THEN 'Approved' ");
+            sb.Append("WHEN r.lvs_rqst_sts = 4 THEN 'Confirmed' ");
+            sb.Append("WHEN r.lvs_rqst_sts = 5 THEN 'Cancelled' ");
+            sb.Append("WHEN r.lvs_rqst_sts = 6 THEN 'Completed' ");
+            sb.Append("ELSE 'Unknown' END AS lvs_rqst_sts_ds, ");
+            sb.Append("r.lvs_rqst_sdt, r.lvs_rqst_edt, r.lvs_rqst_dur, ");
+            sb.Append("r.lvs_rqst_dur_ds, r.act_lvs_sdt, r.act_lvs_edt, ");
+            sb.Append("r.act_lvs_dur, r.act_dur_ds, r.lm_rsmptn_dt, ");
+            sb.Append("r.lm_confm_dt, r.lm_confm_by, r.hr_rsmptn_dt, ");
+            sb.Append("r.hr_confm_dt, r.hr_confm_by, r.rqs_cls_dt, r.is_lm_aprv, ");
+            sb.Append("r.is_hd_aprv, r.is_hr_aprv, r.is_xm_aprv, r.is_sm_aprv, ");
+            sb.Append("r.lvs_rqst_dur_typ, r.act_lvs_dur_typ, r.rqst_rsmptn_dt, ");
+
+            sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = r.lvs_emp_id) ");
+            sb.Append("as lvs_emp_nm, (SELECT lvs_typ_nm FROM public.lvm_lvs_typs ");
+            sb.Append("WHERE lvs_typ_cd = r.lvs_typ_cd) as lvs_typ_nm, ");
+            sb.Append("(SELECT unitname FROM public.gst_units WHERE unitqk = r.lvs_unit_id) ");
+            sb.Append("as lvs_unit_nm, (SELECT deptname FROM public.gst_depts WHERE deptqk ");
+            sb.Append("= r.lvs_dept_id) as lvs_dept_nm, (SELECT locname FROM public.gst_locs ");
+            sb.Append("WHERE locqk = r.lvs_loc_id) as lvs_loc_nm ");
+            sb.Append("FROM public.lvm_lvs_rqsts r ");
+            sb.Append("WHERE (r.lvs_rqst_yr = @lvs_rqst_yr) ");
+            sb.Append("ORDER BY r.lvs_rqst_sdt; ");
+
+            string query = sb.ToString();
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
+            {
+                await conn.OpenAsync();
+                // Retrieve all rows
+                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+                {
+                    var lvs_rqst_yr = cmd.Parameters.Add("@lvs_rqst_yr", NpgsqlDbType.Integer);
+                    await cmd.PrepareAsync();
+                    lvs_rqst_yr.Value = leaveYear;
+                    var reader = await cmd.ExecuteReaderAsync();
+                    while (await reader.ReadAsync())
+                    {
+                        leaveRequestList.Add(new LeaveRequest()
+                        {
+                            LeaveRequestId = reader["lvs_rqst_id"] == DBNull.Value ? 0L : (long)reader["lvs_rqst_id"],
+                            LeaveEmployeeId = reader["lvs_emp_id"] == DBNull.Value ? string.Empty : reader["lvs_emp_id"].ToString(),
+                            LeaveEmployeeName = reader["lvs_emp_nm"] == DBNull.Value ? string.Empty : reader["lvs_emp_nm"].ToString(),
+
+                            UnitId = reader["lvs_unit_id"] == DBNull.Value ? 0 : (int)reader["lvs_unit_id"],
+                            UnitName = reader["lvs_unit_nm"] == DBNull.Value ? string.Empty : reader["lvs_unit_nm"].ToString(),
+                            DepartmentId = reader["lvs_dept_id"] == DBNull.Value ? 0 : (int)reader["lvs_dept_id"],
+                            DepartmentName = reader["lvs_dept_nm"] == DBNull.Value ? string.Empty : reader["lvs_dept_nm"].ToString(),
+                            LocationId = reader["lvs_loc_id"] == DBNull.Value ? 0 : (int)reader["lvs_loc_id"],
+                            LocationName = reader["lvs_loc_nm"] == DBNull.Value ? string.Empty : reader["lvs_loc_nm"].ToString(),
+
+                            LeaveYear = reader["lvs_rqst_yr"] == DBNull.Value ? 2020 : (int)reader["lvs_rqst_yr"],
+                            LeaveTypeCode = reader["lvs_typ_cd"] == DBNull.Value ? string.Empty : reader["lvs_typ_cd"].ToString(),
+                            LeaveTypeName = reader["lvs_typ_nm"] == DBNull.Value ? string.Empty : reader["lvs_typ_nm"].ToString(),
+                            LeaveReason = reader["lvs_rsn"] == DBNull.Value ? string.Empty : reader["lvs_rsn"].ToString(),
+
+                            RequestedStartDate = reader["lvs_rqst_sdt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["lvs_rqst_sdt"],
+                            RequestedEndDate = reader["lvs_rqst_edt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["lvs_rqst_edt"],
+                            RequestedDuration = reader["lvs_rqst_dur"] == DBNull.Value ? 0 : (int)reader["lvs_rqst_dur"],
+                            RequestedDurationTypeId = reader["lvs_rqst_dur_typ"] == DBNull.Value ? 0 : (int)reader["lvs_rqst_dur_typ"],
+                            RequestedDurationDescription = reader["lvs_rqst_dur_ds"] == DBNull.Value ? string.Empty : reader["lvs_rqst_dur_ds"].ToString(),
+                            RequestedResumptionDate = reader["rqst_rsmptn_dt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["rqst_rsmptn_dt"],
+
+                            LeaveRequestStatusId = reader["lvs_rqst_sts"] == DBNull.Value ? 0 : (int)reader["lvs_rqst_sts"],
+                            LeaveRequestStatusDescription = reader["lvs_rqst_sts_ds"] == DBNull.Value ? string.Empty : reader["lvs_rqst_sts_ds"].ToString(),
+
+                            ActualLeaveStartDate = reader["act_lvs_sdt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["act_lvs_sdt"],
+                            ActualLeaveEndDate = reader["act_lvs_edt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["act_lvs_edt"],
+                            ActualLeaveDuration = reader["act_lvs_dur"] == DBNull.Value ? 0 : (int)reader["act_lvs_dur"],
+                            ActualLeaveDurationTypeId = reader["act_lvs_dur_typ"] == DBNull.Value ? 0 : (int)reader["act_lvs_dur_typ"],
+                            ActualLeaveDurationDescription = reader["act_dur_ds"] == DBNull.Value ? string.Empty : reader["act_dur_ds"].ToString(),
+
+                            LineManagersResumptionDate = reader["lm_rsmptn_dt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["lm_rsmptn_dt"],
+                            LineManagerConfirmResumptionBy = reader["lm_confm_by"] == DBNull.Value ? string.Empty : reader["lm_confm_by"].ToString(),
+                            LineManagerConfirmResumptionTime = reader["lm_confm_dt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["lm_confm_dt"],
+
+                            HrResumptionDate = reader["hr_rsmptn_dt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["hr_rsmptn_dt"],
+                            HrConfirmResumptionBy = reader["hr_confm_by"] == DBNull.Value ? string.Empty : reader["hr_confm_by"].ToString(),
+                            HrConfirmResumptionTime = reader["hr_confm_dt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["hr_confm_dt"],
+
+                            LeaveRequestCloseDate = reader["rqs_cls_dt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["rqs_cls_dt"],
+
+                            IsApprovedByLineManager = reader["is_lm_aprv"] == DBNull.Value ? false : (bool)reader["is_lm_aprv"],
+                            IsApprovedByHeadOfDepartment = reader["is_hd_aprv"] == DBNull.Value ? false : (bool)reader["is_hd_aprv"],
+                            IsApprovedByHR = reader["is_hr_aprv"] == DBNull.Value ? false : (bool)reader["is_hr_aprv"],
+                            IsApprovedByStationManager = reader["is_sm_aprv"] == DBNull.Value ? false : (bool)reader["is_sm_aprv"],
+                            IsApprovedByExecutiveManagement = reader["is_xm_aprv"] == DBNull.Value ? false : (bool)reader["is_xm_aprv"],
+                        });
+                    }
+                }
+                await conn.CloseAsync();
+            }
+            return leaveRequestList;
+        }
+        public async Task<List<LeaveRequest>> GetLeaveRequestsByLeaveYearnLeaveMonthAsync(int leaveYear, int leaveMonth)
+        {
+            List<LeaveRequest> leaveRequestList = new List<LeaveRequest>();
+            StringBuilder sb = new StringBuilder();
+
+            sb.Append("SELECT r.lvs_rqst_id, r.lvs_emp_id, r.lvs_unit_id, ");
+            sb.Append("r.lvs_dept_id, r.lvs_loc_id, r.lvs_rqst_yr, ");
+            sb.Append("r.lvs_typ_cd, r.lvs_rsn, r.lvs_rqst_sts, ");
+            sb.Append("CASE WHEN r.lvs_rqst_sts = 0 THEN 'Not Yet Approved' ");
+            sb.Append("WHEN r.lvs_rqst_sts = 1 THEN 'Pending Approval' ");
+            sb.Append("WHEN r.lvs_rqst_sts = 2 THEN 'Declined' ");
+            sb.Append("WHEN r.lvs_rqst_sts = 3 THEN 'Approved' ");
+            sb.Append("WHEN r.lvs_rqst_sts = 4 THEN 'Confirmed' ");
+            sb.Append("WHEN r.lvs_rqst_sts = 5 THEN 'Cancelled' ");
+            sb.Append("WHEN r.lvs_rqst_sts = 6 THEN 'Completed' ");
+            sb.Append("ELSE 'Unknown' END AS lvs_rqst_sts_ds, ");
+            sb.Append("r.lvs_rqst_sdt, r.lvs_rqst_edt, r.lvs_rqst_dur, ");
+            sb.Append("r.lvs_rqst_dur_ds, r.act_lvs_sdt, r.act_lvs_edt, ");
+            sb.Append("r.act_lvs_dur, r.act_dur_ds, r.lm_rsmptn_dt, ");
+            sb.Append("r.lm_confm_dt, r.lm_confm_by, r.hr_rsmptn_dt, ");
+            sb.Append("r.hr_confm_dt, r.hr_confm_by, r.rqs_cls_dt, r.is_lm_aprv, ");
+            sb.Append("r.is_hd_aprv, r.is_hr_aprv, r.is_xm_aprv, r.is_sm_aprv, ");
+            sb.Append("r.lvs_rqst_dur_typ, r.act_lvs_dur_typ, r.rqst_rsmptn_dt, ");
+
+            sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = r.lvs_emp_id) ");
+            sb.Append("as lvs_emp_nm, (SELECT lvs_typ_nm FROM public.lvm_lvs_typs ");
+            sb.Append("WHERE lvs_typ_cd = r.lvs_typ_cd) as lvs_typ_nm, ");
+            sb.Append("(SELECT unitname FROM public.gst_units WHERE unitqk = r.lvs_unit_id) ");
+            sb.Append("as lvs_unit_nm, (SELECT deptname FROM public.gst_depts WHERE deptqk ");
+            sb.Append("= r.lvs_dept_id) as lvs_dept_nm, (SELECT locname FROM public.gst_locs ");
+            sb.Append("WHERE locqk = r.lvs_loc_id) as lvs_loc_nm ");
+            sb.Append("FROM public.lvm_lvs_rqsts r ");
+
+            sb.Append("WHERE (r.lvs_rqst_yr = @lvs_rqst_yr) AND ");
+            sb.Append("(EXTRACT(MONTH FROM r.lvs_rqst_sdt) = @sdt_month) ");
+            sb.Append("ORDER BY r.lvs_rqst_sdt; ");
+
+            string query = sb.ToString();
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
+            {
+                await conn.OpenAsync();
+                // Retrieve all rows
+                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+                {
+                    var lvs_rqst_yr = cmd.Parameters.Add("@lvs_rqst_yr", NpgsqlDbType.Integer);
+                    var sdt_month = cmd.Parameters.Add("@sdt_month", NpgsqlDbType.Integer);
+                    await cmd.PrepareAsync();
+                    lvs_rqst_yr.Value = leaveYear;
+                    sdt_month.Value = leaveMonth;
+                    var reader = await cmd.ExecuteReaderAsync();
+                    while (await reader.ReadAsync())
+                    {
+                        leaveRequestList.Add(new LeaveRequest()
+                        {
+                            LeaveRequestId = reader["lvs_rqst_id"] == DBNull.Value ? 0L : (long)reader["lvs_rqst_id"],
+                            LeaveEmployeeId = reader["lvs_emp_id"] == DBNull.Value ? string.Empty : reader["lvs_emp_id"].ToString(),
+                            LeaveEmployeeName = reader["lvs_emp_nm"] == DBNull.Value ? string.Empty : reader["lvs_emp_nm"].ToString(),
+
+                            UnitId = reader["lvs_unit_id"] == DBNull.Value ? 0 : (int)reader["lvs_unit_id"],
+                            UnitName = reader["lvs_unit_nm"] == DBNull.Value ? string.Empty : reader["lvs_unit_nm"].ToString(),
+                            DepartmentId = reader["lvs_dept_id"] == DBNull.Value ? 0 : (int)reader["lvs_dept_id"],
+                            DepartmentName = reader["lvs_dept_nm"] == DBNull.Value ? string.Empty : reader["lvs_dept_nm"].ToString(),
+                            LocationId = reader["lvs_loc_id"] == DBNull.Value ? 0 : (int)reader["lvs_loc_id"],
+                            LocationName = reader["lvs_loc_nm"] == DBNull.Value ? string.Empty : reader["lvs_loc_nm"].ToString(),
+
+                            LeaveYear = reader["lvs_rqst_yr"] == DBNull.Value ? 2020 : (int)reader["lvs_rqst_yr"],
+                            LeaveTypeCode = reader["lvs_typ_cd"] == DBNull.Value ? string.Empty : reader["lvs_typ_cd"].ToString(),
+                            LeaveTypeName = reader["lvs_typ_nm"] == DBNull.Value ? string.Empty : reader["lvs_typ_nm"].ToString(),
+                            LeaveReason = reader["lvs_rsn"] == DBNull.Value ? string.Empty : reader["lvs_rsn"].ToString(),
+
+                            RequestedStartDate = reader["lvs_rqst_sdt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["lvs_rqst_sdt"],
+                            RequestedEndDate = reader["lvs_rqst_edt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["lvs_rqst_edt"],
+                            RequestedDuration = reader["lvs_rqst_dur"] == DBNull.Value ? 0 : (int)reader["lvs_rqst_dur"],
+                            RequestedDurationTypeId = reader["lvs_rqst_dur_typ"] == DBNull.Value ? 0 : (int)reader["lvs_rqst_dur_typ"],
+                            RequestedDurationDescription = reader["lvs_rqst_dur_ds"] == DBNull.Value ? string.Empty : reader["lvs_rqst_dur_ds"].ToString(),
+                            RequestedResumptionDate = reader["rqst_rsmptn_dt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["rqst_rsmptn_dt"],
+
+                            LeaveRequestStatusId = reader["lvs_rqst_sts"] == DBNull.Value ? 0 : (int)reader["lvs_rqst_sts"],
+                            LeaveRequestStatusDescription = reader["lvs_rqst_sts_ds"] == DBNull.Value ? string.Empty : reader["lvs_rqst_sts_ds"].ToString(),
+
+                            ActualLeaveStartDate = reader["act_lvs_sdt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["act_lvs_sdt"],
+                            ActualLeaveEndDate = reader["act_lvs_edt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["act_lvs_edt"],
+                            ActualLeaveDuration = reader["act_lvs_dur"] == DBNull.Value ? 0 : (int)reader["act_lvs_dur"],
+                            ActualLeaveDurationTypeId = reader["act_lvs_dur_typ"] == DBNull.Value ? 0 : (int)reader["act_lvs_dur_typ"],
+                            ActualLeaveDurationDescription = reader["act_dur_ds"] == DBNull.Value ? string.Empty : reader["act_dur_ds"].ToString(),
+
+                            LineManagersResumptionDate = reader["lm_rsmptn_dt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["lm_rsmptn_dt"],
+                            LineManagerConfirmResumptionBy = reader["lm_confm_by"] == DBNull.Value ? string.Empty : reader["lm_confm_by"].ToString(),
+                            LineManagerConfirmResumptionTime = reader["lm_confm_dt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["lm_confm_dt"],
+
+                            HrResumptionDate = reader["hr_rsmptn_dt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["hr_rsmptn_dt"],
+                            HrConfirmResumptionBy = reader["hr_confm_by"] == DBNull.Value ? string.Empty : reader["hr_confm_by"].ToString(),
+                            HrConfirmResumptionTime = reader["hr_confm_dt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["hr_confm_dt"],
+
+                            LeaveRequestCloseDate = reader["rqs_cls_dt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["rqs_cls_dt"],
+
+                            IsApprovedByLineManager = reader["is_lm_aprv"] == DBNull.Value ? false : (bool)reader["is_lm_aprv"],
+                            IsApprovedByHeadOfDepartment = reader["is_hd_aprv"] == DBNull.Value ? false : (bool)reader["is_hd_aprv"],
+                            IsApprovedByHR = reader["is_hr_aprv"] == DBNull.Value ? false : (bool)reader["is_hr_aprv"],
+                            IsApprovedByStationManager = reader["is_sm_aprv"] == DBNull.Value ? false : (bool)reader["is_sm_aprv"],
+                            IsApprovedByExecutiveManagement = reader["is_xm_aprv"] == DBNull.Value ? false : (bool)reader["is_xm_aprv"],
+                        });
+                    }
+                }
+                await conn.CloseAsync();
+            }
+            return leaveRequestList;
+        }
+
+
+        // For LocationId
+        public async Task<List<LeaveRequest>> GetLeaveRequestsByLocationIdAsync(int locationId, int leaveYear)
+        {
+            List<LeaveRequest> leaveRequestList = new List<LeaveRequest>();
+            StringBuilder sb = new StringBuilder();
+
+            sb.Append("SELECT r.lvs_rqst_id, r.lvs_emp_id, r.lvs_unit_id, ");
+            sb.Append("r.lvs_dept_id, r.lvs_loc_id, r.lvs_rqst_yr, ");
+            sb.Append("r.lvs_typ_cd, r.lvs_rsn, r.lvs_rqst_sts, ");
+            sb.Append("CASE WHEN r.lvs_rqst_sts = 0 THEN 'Not Yet Approved' ");
+            sb.Append("WHEN r.lvs_rqst_sts = 1 THEN 'Pending Approval' ");
+            sb.Append("WHEN r.lvs_rqst_sts = 2 THEN 'Declined' ");
+            sb.Append("WHEN r.lvs_rqst_sts = 3 THEN 'Approved' ");
+            sb.Append("WHEN r.lvs_rqst_sts = 4 THEN 'Confirmed' ");
+            sb.Append("WHEN r.lvs_rqst_sts = 5 THEN 'Cancelled' ");
+            sb.Append("WHEN r.lvs_rqst_sts = 6 THEN 'Completed' ");
+            sb.Append("ELSE 'Unknown' END AS lvs_rqst_sts_ds, ");
+            sb.Append("r.lvs_rqst_sdt, r.lvs_rqst_edt, r.lvs_rqst_dur, ");
+            sb.Append("r.lvs_rqst_dur_ds, r.act_lvs_sdt, r.act_lvs_edt, ");
+            sb.Append("r.act_lvs_dur, r.act_dur_ds, r.lm_rsmptn_dt, ");
+            sb.Append("r.lm_confm_dt, r.lm_confm_by, r.hr_rsmptn_dt, ");
+            sb.Append("r.hr_confm_dt, r.hr_confm_by, r.rqs_cls_dt, r.is_lm_aprv, ");
+            sb.Append("r.is_hd_aprv, r.is_hr_aprv, r.is_xm_aprv, r.is_sm_aprv, ");
+            sb.Append("r.lvs_rqst_dur_typ, r.act_lvs_dur_typ, r.rqst_rsmptn_dt, ");
+
+            sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = r.lvs_emp_id) ");
+            sb.Append("as lvs_emp_nm, (SELECT lvs_typ_nm FROM public.lvm_lvs_typs ");
+            sb.Append("WHERE lvs_typ_cd = r.lvs_typ_cd) as lvs_typ_nm, ");
+            sb.Append("(SELECT unitname FROM public.gst_units WHERE unitqk = r.lvs_unit_id) ");
+            sb.Append("as lvs_unit_nm, (SELECT deptname FROM public.gst_depts WHERE deptqk ");
+            sb.Append("= r.lvs_dept_id) as lvs_dept_nm, (SELECT locname FROM public.gst_locs ");
+            sb.Append("WHERE locqk = r.lvs_loc_id) as lvs_loc_nm ");
+            sb.Append("FROM public.lvm_lvs_rqsts r ");
+            sb.Append("WHERE (r.lvs_rqst_yr = @lvs_rqst_yr) ");
+            sb.Append("AND (r.lvs_loc_id = @lvs_loc_id) ");
+            sb.Append("ORDER BY r.lvs_rqst_sdt; ");
+
+            string query = sb.ToString();
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
+            {
+                await conn.OpenAsync();
+                // Retrieve all rows
+                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+                {
+                    var lvs_rqst_yr = cmd.Parameters.Add("@lvs_rqst_yr", NpgsqlDbType.Integer);
+                    var lvs_loc_id = cmd.Parameters.Add("@lvs_loc_id", NpgsqlDbType.Integer);
+                    await cmd.PrepareAsync();
+                    lvs_rqst_yr.Value = leaveYear;
+                    lvs_loc_id.Value = locationId;
+                    var reader = await cmd.ExecuteReaderAsync();
+                    while (await reader.ReadAsync())
+                    {
+                        leaveRequestList.Add(new LeaveRequest()
+                        {
+                            LeaveRequestId = reader["lvs_rqst_id"] == DBNull.Value ? 0L : (long)reader["lvs_rqst_id"],
+                            LeaveEmployeeId = reader["lvs_emp_id"] == DBNull.Value ? string.Empty : reader["lvs_emp_id"].ToString(),
+                            LeaveEmployeeName = reader["lvs_emp_nm"] == DBNull.Value ? string.Empty : reader["lvs_emp_nm"].ToString(),
+
+                            UnitId = reader["lvs_unit_id"] == DBNull.Value ? 0 : (int)reader["lvs_unit_id"],
+                            UnitName = reader["lvs_unit_nm"] == DBNull.Value ? string.Empty : reader["lvs_unit_nm"].ToString(),
+                            DepartmentId = reader["lvs_dept_id"] == DBNull.Value ? 0 : (int)reader["lvs_dept_id"],
+                            DepartmentName = reader["lvs_dept_nm"] == DBNull.Value ? string.Empty : reader["lvs_dept_nm"].ToString(),
+                            LocationId = reader["lvs_loc_id"] == DBNull.Value ? 0 : (int)reader["lvs_loc_id"],
+                            LocationName = reader["lvs_loc_nm"] == DBNull.Value ? string.Empty : reader["lvs_loc_nm"].ToString(),
+
+                            LeaveYear = reader["lvs_rqst_yr"] == DBNull.Value ? 2020 : (int)reader["lvs_rqst_yr"],
+                            LeaveTypeCode = reader["lvs_typ_cd"] == DBNull.Value ? string.Empty : reader["lvs_typ_cd"].ToString(),
+                            LeaveTypeName = reader["lvs_typ_nm"] == DBNull.Value ? string.Empty : reader["lvs_typ_nm"].ToString(),
+                            LeaveReason = reader["lvs_rsn"] == DBNull.Value ? string.Empty : reader["lvs_rsn"].ToString(),
+
+                            RequestedStartDate = reader["lvs_rqst_sdt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["lvs_rqst_sdt"],
+                            RequestedEndDate = reader["lvs_rqst_edt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["lvs_rqst_edt"],
+                            RequestedDuration = reader["lvs_rqst_dur"] == DBNull.Value ? 0 : (int)reader["lvs_rqst_dur"],
+                            RequestedDurationTypeId = reader["lvs_rqst_dur_typ"] == DBNull.Value ? 0 : (int)reader["lvs_rqst_dur_typ"],
+                            RequestedDurationDescription = reader["lvs_rqst_dur_ds"] == DBNull.Value ? string.Empty : reader["lvs_rqst_dur_ds"].ToString(),
+                            RequestedResumptionDate = reader["rqst_rsmptn_dt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["rqst_rsmptn_dt"],
+
+                            LeaveRequestStatusId = reader["lvs_rqst_sts"] == DBNull.Value ? 0 : (int)reader["lvs_rqst_sts"],
+                            LeaveRequestStatusDescription = reader["lvs_rqst_sts_ds"] == DBNull.Value ? string.Empty : reader["lvs_rqst_sts_ds"].ToString(),
+
+                            ActualLeaveStartDate = reader["act_lvs_sdt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["act_lvs_sdt"],
+                            ActualLeaveEndDate = reader["act_lvs_edt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["act_lvs_edt"],
+                            ActualLeaveDuration = reader["act_lvs_dur"] == DBNull.Value ? 0 : (int)reader["act_lvs_dur"],
+                            ActualLeaveDurationTypeId = reader["act_lvs_dur_typ"] == DBNull.Value ? 0 : (int)reader["act_lvs_dur_typ"],
+                            ActualLeaveDurationDescription = reader["act_dur_ds"] == DBNull.Value ? string.Empty : reader["act_dur_ds"].ToString(),
+
+                            LineManagersResumptionDate = reader["lm_rsmptn_dt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["lm_rsmptn_dt"],
+                            LineManagerConfirmResumptionBy = reader["lm_confm_by"] == DBNull.Value ? string.Empty : reader["lm_confm_by"].ToString(),
+                            LineManagerConfirmResumptionTime = reader["lm_confm_dt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["lm_confm_dt"],
+
+                            HrResumptionDate = reader["hr_rsmptn_dt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["hr_rsmptn_dt"],
+                            HrConfirmResumptionBy = reader["hr_confm_by"] == DBNull.Value ? string.Empty : reader["hr_confm_by"].ToString(),
+                            HrConfirmResumptionTime = reader["hr_confm_dt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["hr_confm_dt"],
+
+                            LeaveRequestCloseDate = reader["rqs_cls_dt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["rqs_cls_dt"],
+
+                            IsApprovedByLineManager = reader["is_lm_aprv"] == DBNull.Value ? false : (bool)reader["is_lm_aprv"],
+                            IsApprovedByHeadOfDepartment = reader["is_hd_aprv"] == DBNull.Value ? false : (bool)reader["is_hd_aprv"],
+                            IsApprovedByHR = reader["is_hr_aprv"] == DBNull.Value ? false : (bool)reader["is_hr_aprv"],
+                            IsApprovedByStationManager = reader["is_sm_aprv"] == DBNull.Value ? false : (bool)reader["is_sm_aprv"],
+                            IsApprovedByExecutiveManagement = reader["is_xm_aprv"] == DBNull.Value ? false : (bool)reader["is_xm_aprv"],
+                        });
+                    }
+                }
+                await conn.CloseAsync();
+            }
+            return leaveRequestList;
+        }
+
+        public async Task<List<LeaveRequest>> GetLeaveRequestsByLocationIdAsync(int locationId, int leaveYear, int leaveMonth)
+        {
+            List<LeaveRequest> leaveRequestList = new List<LeaveRequest>();
+            StringBuilder sb = new StringBuilder();
+
+            sb.Append("SELECT r.lvs_rqst_id, r.lvs_emp_id, r.lvs_unit_id, ");
+            sb.Append("r.lvs_dept_id, r.lvs_loc_id, r.lvs_rqst_yr, ");
+            sb.Append("r.lvs_typ_cd, r.lvs_rsn, r.lvs_rqst_sts, ");
+            sb.Append("CASE WHEN r.lvs_rqst_sts = 0 THEN 'Not Yet Approved' ");
+            sb.Append("WHEN r.lvs_rqst_sts = 1 THEN 'Pending Approval' ");
+            sb.Append("WHEN r.lvs_rqst_sts = 2 THEN 'Declined' ");
+            sb.Append("WHEN r.lvs_rqst_sts = 3 THEN 'Approved' ");
+            sb.Append("WHEN r.lvs_rqst_sts = 4 THEN 'Confirmed' ");
+            sb.Append("WHEN r.lvs_rqst_sts = 5 THEN 'Cancelled' ");
+            sb.Append("WHEN r.lvs_rqst_sts = 6 THEN 'Completed' ");
+            sb.Append("ELSE 'Unknown' END AS lvs_rqst_sts_ds, ");
+            sb.Append("r.lvs_rqst_sdt, r.lvs_rqst_edt, r.lvs_rqst_dur, ");
+            sb.Append("r.lvs_rqst_dur_ds, r.act_lvs_sdt, r.act_lvs_edt, ");
+            sb.Append("r.act_lvs_dur, r.act_dur_ds, r.lm_rsmptn_dt, ");
+            sb.Append("r.lm_confm_dt, r.lm_confm_by, r.hr_rsmptn_dt, ");
+            sb.Append("r.hr_confm_dt, r.hr_confm_by, r.rqs_cls_dt, r.is_lm_aprv, ");
+            sb.Append("r.is_hd_aprv, r.is_hr_aprv, r.is_xm_aprv, r.is_sm_aprv, ");
+            sb.Append("r.lvs_rqst_dur_typ, r.act_lvs_dur_typ, r.rqst_rsmptn_dt, ");
+
+            sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = r.lvs_emp_id) ");
+            sb.Append("as lvs_emp_nm, (SELECT lvs_typ_nm FROM public.lvm_lvs_typs ");
+            sb.Append("WHERE lvs_typ_cd = r.lvs_typ_cd) as lvs_typ_nm, ");
+            sb.Append("(SELECT unitname FROM public.gst_units WHERE unitqk = r.lvs_unit_id) ");
+            sb.Append("as lvs_unit_nm, (SELECT deptname FROM public.gst_depts WHERE deptqk ");
+            sb.Append("= r.lvs_dept_id) as lvs_dept_nm, (SELECT locname FROM public.gst_locs ");
+            sb.Append("WHERE locqk = r.lvs_loc_id) as lvs_loc_nm ");
+            sb.Append("FROM public.lvm_lvs_rqsts r ");
+            sb.Append("WHERE (r.lvs_loc_id = @lvs_loc_id) ");
+            sb.Append("AND (r.lvs_rqst_yr = @lvs_rqst_yr) AND ");
+            sb.Append("(EXTRACT(MONTH FROM r.lvs_rqst_sdt) = @sdt_month) ");
+            sb.Append("ORDER BY r.lvs_rqst_sdt; ");
+
+            string query = sb.ToString();
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
+            {
+                await conn.OpenAsync();
+                // Retrieve all rows
+                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+                {
+                    var lvs_loc_id = cmd.Parameters.Add("@lvs_loc_id", NpgsqlDbType.Integer);
+                    var lvs_rqst_yr = cmd.Parameters.Add("@lvs_rqst_yr", NpgsqlDbType.Integer);
+                    var sdt_month = cmd.Parameters.Add("@sdt_month", NpgsqlDbType.Integer);
+                    await cmd.PrepareAsync();
+                    lvs_loc_id.Value = locationId;
+                    lvs_rqst_yr.Value = leaveYear;
+                    sdt_month.Value = leaveMonth;
+                    var reader = await cmd.ExecuteReaderAsync();
+                    while (await reader.ReadAsync())
+                    {
+                        leaveRequestList.Add(new LeaveRequest()
+                        {
+                            LeaveRequestId = reader["lvs_rqst_id"] == DBNull.Value ? 0L : (long)reader["lvs_rqst_id"],
+                            LeaveEmployeeId = reader["lvs_emp_id"] == DBNull.Value ? string.Empty : reader["lvs_emp_id"].ToString(),
+                            LeaveEmployeeName = reader["lvs_emp_nm"] == DBNull.Value ? string.Empty : reader["lvs_emp_nm"].ToString(),
+
+                            UnitId = reader["lvs_unit_id"] == DBNull.Value ? 0 : (int)reader["lvs_unit_id"],
+                            UnitName = reader["lvs_unit_nm"] == DBNull.Value ? string.Empty : reader["lvs_unit_nm"].ToString(),
+                            DepartmentId = reader["lvs_dept_id"] == DBNull.Value ? 0 : (int)reader["lvs_dept_id"],
+                            DepartmentName = reader["lvs_dept_nm"] == DBNull.Value ? string.Empty : reader["lvs_dept_nm"].ToString(),
+                            LocationId = reader["lvs_loc_id"] == DBNull.Value ? 0 : (int)reader["lvs_loc_id"],
+                            LocationName = reader["lvs_loc_nm"] == DBNull.Value ? string.Empty : reader["lvs_loc_nm"].ToString(),
+
+                            LeaveYear = reader["lvs_rqst_yr"] == DBNull.Value ? 2020 : (int)reader["lvs_rqst_yr"],
+                            LeaveTypeCode = reader["lvs_typ_cd"] == DBNull.Value ? string.Empty : reader["lvs_typ_cd"].ToString(),
+                            LeaveTypeName = reader["lvs_typ_nm"] == DBNull.Value ? string.Empty : reader["lvs_typ_nm"].ToString(),
+                            LeaveReason = reader["lvs_rsn"] == DBNull.Value ? string.Empty : reader["lvs_rsn"].ToString(),
+
+                            RequestedStartDate = reader["lvs_rqst_sdt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["lvs_rqst_sdt"],
+                            RequestedEndDate = reader["lvs_rqst_edt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["lvs_rqst_edt"],
+                            RequestedDuration = reader["lvs_rqst_dur"] == DBNull.Value ? 0 : (int)reader["lvs_rqst_dur"],
+                            RequestedDurationTypeId = reader["lvs_rqst_dur_typ"] == DBNull.Value ? 0 : (int)reader["lvs_rqst_dur_typ"],
+                            RequestedDurationDescription = reader["lvs_rqst_dur_ds"] == DBNull.Value ? string.Empty : reader["lvs_rqst_dur_ds"].ToString(),
+                            RequestedResumptionDate = reader["rqst_rsmptn_dt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["rqst_rsmptn_dt"],
+
+                            LeaveRequestStatusId = reader["lvs_rqst_sts"] == DBNull.Value ? 0 : (int)reader["lvs_rqst_sts"],
+                            LeaveRequestStatusDescription = reader["lvs_rqst_sts_ds"] == DBNull.Value ? string.Empty : reader["lvs_rqst_sts_ds"].ToString(),
+
+                            ActualLeaveStartDate = reader["act_lvs_sdt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["act_lvs_sdt"],
+                            ActualLeaveEndDate = reader["act_lvs_edt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["act_lvs_edt"],
+                            ActualLeaveDuration = reader["act_lvs_dur"] == DBNull.Value ? 0 : (int)reader["act_lvs_dur"],
+                            ActualLeaveDurationTypeId = reader["act_lvs_dur_typ"] == DBNull.Value ? 0 : (int)reader["act_lvs_dur_typ"],
+                            ActualLeaveDurationDescription = reader["act_dur_ds"] == DBNull.Value ? string.Empty : reader["act_dur_ds"].ToString(),
+
+                            LineManagersResumptionDate = reader["lm_rsmptn_dt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["lm_rsmptn_dt"],
+                            LineManagerConfirmResumptionBy = reader["lm_confm_by"] == DBNull.Value ? string.Empty : reader["lm_confm_by"].ToString(),
+                            LineManagerConfirmResumptionTime = reader["lm_confm_dt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["lm_confm_dt"],
+
+                            HrResumptionDate = reader["hr_rsmptn_dt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["hr_rsmptn_dt"],
+                            HrConfirmResumptionBy = reader["hr_confm_by"] == DBNull.Value ? string.Empty : reader["hr_confm_by"].ToString(),
+                            HrConfirmResumptionTime = reader["hr_confm_dt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["hr_confm_dt"],
+
+                            LeaveRequestCloseDate = reader["rqs_cls_dt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["rqs_cls_dt"],
+
+                            IsApprovedByLineManager = reader["is_lm_aprv"] == DBNull.Value ? false : (bool)reader["is_lm_aprv"],
+                            IsApprovedByHeadOfDepartment = reader["is_hd_aprv"] == DBNull.Value ? false : (bool)reader["is_hd_aprv"],
+                            IsApprovedByHR = reader["is_hr_aprv"] == DBNull.Value ? false : (bool)reader["is_hr_aprv"],
+                            IsApprovedByStationManager = reader["is_sm_aprv"] == DBNull.Value ? false : (bool)reader["is_sm_aprv"],
+                            IsApprovedByExecutiveManagement = reader["is_xm_aprv"] == DBNull.Value ? false : (bool)reader["is_xm_aprv"],
+                        });
+                    }
+                }
+                await conn.CloseAsync();
+            }
+            return leaveRequestList;
+        }
+
+        // For UnitId
+        public async Task<List<LeaveRequest>> GetLeaveRequestsByUnitIdAsync(int unitId, int leaveYear)
+        {
+            List<LeaveRequest> leaveRequestList = new List<LeaveRequest>();
+            StringBuilder sb = new StringBuilder();
+
+            sb.Append("SELECT r.lvs_rqst_id, r.lvs_emp_id, r.lvs_unit_id, ");
+            sb.Append("r.lvs_dept_id, r.lvs_loc_id, r.lvs_rqst_yr, ");
+            sb.Append("r.lvs_typ_cd, r.lvs_rsn, r.lvs_rqst_sts, ");
+            sb.Append("CASE WHEN r.lvs_rqst_sts = 0 THEN 'Not Yet Approved' ");
+            sb.Append("WHEN r.lvs_rqst_sts = 1 THEN 'Pending Approval' ");
+            sb.Append("WHEN r.lvs_rqst_sts = 2 THEN 'Declined' ");
+            sb.Append("WHEN r.lvs_rqst_sts = 3 THEN 'Approved' ");
+            sb.Append("WHEN r.lvs_rqst_sts = 4 THEN 'Confirmed' ");
+            sb.Append("WHEN r.lvs_rqst_sts = 5 THEN 'Cancelled' ");
+            sb.Append("WHEN r.lvs_rqst_sts = 6 THEN 'Completed' ");
+            sb.Append("ELSE 'Unknown' END AS lvs_rqst_sts_ds, ");
+            sb.Append("r.lvs_rqst_sdt, r.lvs_rqst_edt, r.lvs_rqst_dur, ");
+            sb.Append("r.lvs_rqst_dur_ds, r.act_lvs_sdt, r.act_lvs_edt, ");
+            sb.Append("r.act_lvs_dur, r.act_dur_ds, r.lm_rsmptn_dt, ");
+            sb.Append("r.lm_confm_dt, r.lm_confm_by, r.hr_rsmptn_dt, ");
+            sb.Append("r.hr_confm_dt, r.hr_confm_by, r.rqs_cls_dt, r.is_lm_aprv, ");
+            sb.Append("r.is_hd_aprv, r.is_hr_aprv, r.is_xm_aprv, r.is_sm_aprv, ");
+            sb.Append("r.lvs_rqst_dur_typ, r.act_lvs_dur_typ, r.rqst_rsmptn_dt, ");
+
+            sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = r.lvs_emp_id) ");
+            sb.Append("as lvs_emp_nm, (SELECT lvs_typ_nm FROM public.lvm_lvs_typs ");
+            sb.Append("WHERE lvs_typ_cd = r.lvs_typ_cd) as lvs_typ_nm, ");
+            sb.Append("(SELECT unitname FROM public.gst_units WHERE unitqk = r.lvs_unit_id) ");
+            sb.Append("as lvs_unit_nm, (SELECT deptname FROM public.gst_depts WHERE deptqk ");
+            sb.Append("= r.lvs_dept_id) as lvs_dept_nm, (SELECT locname FROM public.gst_locs ");
+            sb.Append("WHERE locqk = r.lvs_loc_id) as lvs_loc_nm ");
+            sb.Append("FROM public.lvm_lvs_rqsts r ");
+            sb.Append("WHERE (r.lvs_rqst_yr = @lvs_rqst_yr) ");
+            sb.Append("AND (r.lvs_unit_id = @lvs_unit_id) ");
+            sb.Append("ORDER BY r.lvs_rqst_sdt; ");
+
+            string query = sb.ToString();
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
+            {
+                await conn.OpenAsync();
+                // Retrieve all rows
+                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+                {
+                    var lvs_rqst_yr = cmd.Parameters.Add("@lvs_rqst_yr", NpgsqlDbType.Integer);
+                    var lvs_unit_id = cmd.Parameters.Add("@lvs_unit_id", NpgsqlDbType.Integer);
+                    await cmd.PrepareAsync();
+                    lvs_rqst_yr.Value = leaveYear;
+                    lvs_unit_id.Value = unitId;
+                    var reader = await cmd.ExecuteReaderAsync();
+                    while (await reader.ReadAsync())
+                    {
+                        leaveRequestList.Add(new LeaveRequest()
+                        {
+                            LeaveRequestId = reader["lvs_rqst_id"] == DBNull.Value ? 0L : (long)reader["lvs_rqst_id"],
+                            LeaveEmployeeId = reader["lvs_emp_id"] == DBNull.Value ? string.Empty : reader["lvs_emp_id"].ToString(),
+                            LeaveEmployeeName = reader["lvs_emp_nm"] == DBNull.Value ? string.Empty : reader["lvs_emp_nm"].ToString(),
+
+                            UnitId = reader["lvs_unit_id"] == DBNull.Value ? 0 : (int)reader["lvs_unit_id"],
+                            UnitName = reader["lvs_unit_nm"] == DBNull.Value ? string.Empty : reader["lvs_unit_nm"].ToString(),
+                            DepartmentId = reader["lvs_dept_id"] == DBNull.Value ? 0 : (int)reader["lvs_dept_id"],
+                            DepartmentName = reader["lvs_dept_nm"] == DBNull.Value ? string.Empty : reader["lvs_dept_nm"].ToString(),
+                            LocationId = reader["lvs_loc_id"] == DBNull.Value ? 0 : (int)reader["lvs_loc_id"],
+                            LocationName = reader["lvs_loc_nm"] == DBNull.Value ? string.Empty : reader["lvs_loc_nm"].ToString(),
+
+                            LeaveYear = reader["lvs_rqst_yr"] == DBNull.Value ? 2020 : (int)reader["lvs_rqst_yr"],
+                            LeaveTypeCode = reader["lvs_typ_cd"] == DBNull.Value ? string.Empty : reader["lvs_typ_cd"].ToString(),
+                            LeaveTypeName = reader["lvs_typ_nm"] == DBNull.Value ? string.Empty : reader["lvs_typ_nm"].ToString(),
+                            LeaveReason = reader["lvs_rsn"] == DBNull.Value ? string.Empty : reader["lvs_rsn"].ToString(),
+
+                            RequestedStartDate = reader["lvs_rqst_sdt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["lvs_rqst_sdt"],
+                            RequestedEndDate = reader["lvs_rqst_edt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["lvs_rqst_edt"],
+                            RequestedDuration = reader["lvs_rqst_dur"] == DBNull.Value ? 0 : (int)reader["lvs_rqst_dur"],
+                            RequestedDurationTypeId = reader["lvs_rqst_dur_typ"] == DBNull.Value ? 0 : (int)reader["lvs_rqst_dur_typ"],
+                            RequestedDurationDescription = reader["lvs_rqst_dur_ds"] == DBNull.Value ? string.Empty : reader["lvs_rqst_dur_ds"].ToString(),
+                            RequestedResumptionDate = reader["rqst_rsmptn_dt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["rqst_rsmptn_dt"],
+
+                            LeaveRequestStatusId = reader["lvs_rqst_sts"] == DBNull.Value ? 0 : (int)reader["lvs_rqst_sts"],
+                            LeaveRequestStatusDescription = reader["lvs_rqst_sts_ds"] == DBNull.Value ? string.Empty : reader["lvs_rqst_sts_ds"].ToString(),
+
+                            ActualLeaveStartDate = reader["act_lvs_sdt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["act_lvs_sdt"],
+                            ActualLeaveEndDate = reader["act_lvs_edt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["act_lvs_edt"],
+                            ActualLeaveDuration = reader["act_lvs_dur"] == DBNull.Value ? 0 : (int)reader["act_lvs_dur"],
+                            ActualLeaveDurationTypeId = reader["act_lvs_dur_typ"] == DBNull.Value ? 0 : (int)reader["act_lvs_dur_typ"],
+                            ActualLeaveDurationDescription = reader["act_dur_ds"] == DBNull.Value ? string.Empty : reader["act_dur_ds"].ToString(),
+
+                            LineManagersResumptionDate = reader["lm_rsmptn_dt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["lm_rsmptn_dt"],
+                            LineManagerConfirmResumptionBy = reader["lm_confm_by"] == DBNull.Value ? string.Empty : reader["lm_confm_by"].ToString(),
+                            LineManagerConfirmResumptionTime = reader["lm_confm_dt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["lm_confm_dt"],
+
+                            HrResumptionDate = reader["hr_rsmptn_dt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["hr_rsmptn_dt"],
+                            HrConfirmResumptionBy = reader["hr_confm_by"] == DBNull.Value ? string.Empty : reader["hr_confm_by"].ToString(),
+                            HrConfirmResumptionTime = reader["hr_confm_dt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["hr_confm_dt"],
+
+                            LeaveRequestCloseDate = reader["rqs_cls_dt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["rqs_cls_dt"],
+
+                            IsApprovedByLineManager = reader["is_lm_aprv"] == DBNull.Value ? false : (bool)reader["is_lm_aprv"],
+                            IsApprovedByHeadOfDepartment = reader["is_hd_aprv"] == DBNull.Value ? false : (bool)reader["is_hd_aprv"],
+                            IsApprovedByHR = reader["is_hr_aprv"] == DBNull.Value ? false : (bool)reader["is_hr_aprv"],
+                            IsApprovedByStationManager = reader["is_sm_aprv"] == DBNull.Value ? false : (bool)reader["is_sm_aprv"],
+                            IsApprovedByExecutiveManagement = reader["is_xm_aprv"] == DBNull.Value ? false : (bool)reader["is_xm_aprv"],
+                        });
+                    }
+                }
+                await conn.CloseAsync();
+            }
+            return leaveRequestList;
+        }
+        public async Task<List<LeaveRequest>> GetLeaveRequestsByUnitIdAsync(int unitId, int leaveYear, int leaveMonth)
+        {
+            List<LeaveRequest> leaveRequestList = new List<LeaveRequest>();
+            StringBuilder sb = new StringBuilder();
+
+            sb.Append("SELECT r.lvs_rqst_id, r.lvs_emp_id, r.lvs_unit_id, ");
+            sb.Append("r.lvs_dept_id, r.lvs_loc_id, r.lvs_rqst_yr, ");
+            sb.Append("r.lvs_typ_cd, r.lvs_rsn, r.lvs_rqst_sts, ");
+            sb.Append("CASE WHEN r.lvs_rqst_sts = 0 THEN 'Not Yet Approved' ");
+            sb.Append("WHEN r.lvs_rqst_sts = 1 THEN 'Pending Approval' ");
+            sb.Append("WHEN r.lvs_rqst_sts = 2 THEN 'Declined' ");
+            sb.Append("WHEN r.lvs_rqst_sts = 3 THEN 'Approved' ");
+            sb.Append("WHEN r.lvs_rqst_sts = 4 THEN 'Confirmed' ");
+            sb.Append("WHEN r.lvs_rqst_sts = 5 THEN 'Cancelled' ");
+            sb.Append("WHEN r.lvs_rqst_sts = 6 THEN 'Completed' ");
+            sb.Append("ELSE 'Unknown' END AS lvs_rqst_sts_ds, ");
+            sb.Append("r.lvs_rqst_sdt, r.lvs_rqst_edt, r.lvs_rqst_dur, ");
+            sb.Append("r.lvs_rqst_dur_ds, r.act_lvs_sdt, r.act_lvs_edt, ");
+            sb.Append("r.act_lvs_dur, r.act_dur_ds, r.lm_rsmptn_dt, ");
+            sb.Append("r.lm_confm_dt, r.lm_confm_by, r.hr_rsmptn_dt, ");
+            sb.Append("r.hr_confm_dt, r.hr_confm_by, r.rqs_cls_dt, r.is_lm_aprv, ");
+            sb.Append("r.is_hd_aprv, r.is_hr_aprv, r.is_xm_aprv, r.is_sm_aprv, ");
+            sb.Append("r.lvs_rqst_dur_typ, r.act_lvs_dur_typ, r.rqst_rsmptn_dt, ");
+
+            sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = r.lvs_emp_id) ");
+            sb.Append("as lvs_emp_nm, (SELECT lvs_typ_nm FROM public.lvm_lvs_typs ");
+            sb.Append("WHERE lvs_typ_cd = r.lvs_typ_cd) as lvs_typ_nm, ");
+            sb.Append("(SELECT unitname FROM public.gst_units WHERE unitqk = r.lvs_unit_id) ");
+            sb.Append("as lvs_unit_nm, (SELECT deptname FROM public.gst_depts WHERE deptqk ");
+            sb.Append("= r.lvs_dept_id) as lvs_dept_nm, (SELECT locname FROM public.gst_locs ");
+            sb.Append("WHERE locqk = r.lvs_loc_id) as lvs_loc_nm ");
+            sb.Append("FROM public.lvm_lvs_rqsts r ");
+            sb.Append("WHERE (r.lvs_unit_id = @lvs_unit_id) ");
+            sb.Append("AND (r.lvs_rqst_yr = @lvs_rqst_yr) AND ");
+            sb.Append("(EXTRACT(MONTH FROM r.lvs_rqst_sdt) = @sdt_month) ");
+            sb.Append("ORDER BY r.lvs_rqst_sdt; ");
+
+            string query = sb.ToString();
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
+            {
+                await conn.OpenAsync();
+                // Retrieve all rows
+                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+                {
+                    var lvs_unit_id = cmd.Parameters.Add("@lvs_unit_id", NpgsqlDbType.Integer);
+                    var lvs_rqst_yr = cmd.Parameters.Add("@lvs_rqst_yr", NpgsqlDbType.Integer);
+                    var sdt_month = cmd.Parameters.Add("@sdt_month", NpgsqlDbType.Integer);
+                    await cmd.PrepareAsync();
+                    lvs_unit_id.Value = unitId;
+                    lvs_rqst_yr.Value = leaveYear;
+                    sdt_month.Value = leaveMonth;
+                    var reader = await cmd.ExecuteReaderAsync();
+                    while (await reader.ReadAsync())
+                    {
+                        leaveRequestList.Add(new LeaveRequest()
+                        {
+                            LeaveRequestId = reader["lvs_rqst_id"] == DBNull.Value ? 0L : (long)reader["lvs_rqst_id"],
+                            LeaveEmployeeId = reader["lvs_emp_id"] == DBNull.Value ? string.Empty : reader["lvs_emp_id"].ToString(),
+                            LeaveEmployeeName = reader["lvs_emp_nm"] == DBNull.Value ? string.Empty : reader["lvs_emp_nm"].ToString(),
+
+                            UnitId = reader["lvs_unit_id"] == DBNull.Value ? 0 : (int)reader["lvs_unit_id"],
+                            UnitName = reader["lvs_unit_nm"] == DBNull.Value ? string.Empty : reader["lvs_unit_nm"].ToString(),
+                            DepartmentId = reader["lvs_dept_id"] == DBNull.Value ? 0 : (int)reader["lvs_dept_id"],
+                            DepartmentName = reader["lvs_dept_nm"] == DBNull.Value ? string.Empty : reader["lvs_dept_nm"].ToString(),
+                            LocationId = reader["lvs_loc_id"] == DBNull.Value ? 0 : (int)reader["lvs_loc_id"],
+                            LocationName = reader["lvs_loc_nm"] == DBNull.Value ? string.Empty : reader["lvs_loc_nm"].ToString(),
+
+                            LeaveYear = reader["lvs_rqst_yr"] == DBNull.Value ? 2020 : (int)reader["lvs_rqst_yr"],
+                            LeaveTypeCode = reader["lvs_typ_cd"] == DBNull.Value ? string.Empty : reader["lvs_typ_cd"].ToString(),
+                            LeaveTypeName = reader["lvs_typ_nm"] == DBNull.Value ? string.Empty : reader["lvs_typ_nm"].ToString(),
+                            LeaveReason = reader["lvs_rsn"] == DBNull.Value ? string.Empty : reader["lvs_rsn"].ToString(),
+
+                            RequestedStartDate = reader["lvs_rqst_sdt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["lvs_rqst_sdt"],
+                            RequestedEndDate = reader["lvs_rqst_edt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["lvs_rqst_edt"],
+                            RequestedDuration = reader["lvs_rqst_dur"] == DBNull.Value ? 0 : (int)reader["lvs_rqst_dur"],
+                            RequestedDurationTypeId = reader["lvs_rqst_dur_typ"] == DBNull.Value ? 0 : (int)reader["lvs_rqst_dur_typ"],
+                            RequestedDurationDescription = reader["lvs_rqst_dur_ds"] == DBNull.Value ? string.Empty : reader["lvs_rqst_dur_ds"].ToString(),
+                            RequestedResumptionDate = reader["rqst_rsmptn_dt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["rqst_rsmptn_dt"],
+
+                            LeaveRequestStatusId = reader["lvs_rqst_sts"] == DBNull.Value ? 0 : (int)reader["lvs_rqst_sts"],
+                            LeaveRequestStatusDescription = reader["lvs_rqst_sts_ds"] == DBNull.Value ? string.Empty : reader["lvs_rqst_sts_ds"].ToString(),
+
+                            ActualLeaveStartDate = reader["act_lvs_sdt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["act_lvs_sdt"],
+                            ActualLeaveEndDate = reader["act_lvs_edt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["act_lvs_edt"],
+                            ActualLeaveDuration = reader["act_lvs_dur"] == DBNull.Value ? 0 : (int)reader["act_lvs_dur"],
+                            ActualLeaveDurationTypeId = reader["act_lvs_dur_typ"] == DBNull.Value ? 0 : (int)reader["act_lvs_dur_typ"],
+                            ActualLeaveDurationDescription = reader["act_dur_ds"] == DBNull.Value ? string.Empty : reader["act_dur_ds"].ToString(),
+
+                            LineManagersResumptionDate = reader["lm_rsmptn_dt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["lm_rsmptn_dt"],
+                            LineManagerConfirmResumptionBy = reader["lm_confm_by"] == DBNull.Value ? string.Empty : reader["lm_confm_by"].ToString(),
+                            LineManagerConfirmResumptionTime = reader["lm_confm_dt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["lm_confm_dt"],
+
+                            HrResumptionDate = reader["hr_rsmptn_dt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["hr_rsmptn_dt"],
+                            HrConfirmResumptionBy = reader["hr_confm_by"] == DBNull.Value ? string.Empty : reader["hr_confm_by"].ToString(),
+                            HrConfirmResumptionTime = reader["hr_confm_dt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["hr_confm_dt"],
+
+                            LeaveRequestCloseDate = reader["rqs_cls_dt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["rqs_cls_dt"],
+
+                            IsApprovedByLineManager = reader["is_lm_aprv"] == DBNull.Value ? false : (bool)reader["is_lm_aprv"],
+                            IsApprovedByHeadOfDepartment = reader["is_hd_aprv"] == DBNull.Value ? false : (bool)reader["is_hd_aprv"],
+                            IsApprovedByHR = reader["is_hr_aprv"] == DBNull.Value ? false : (bool)reader["is_hr_aprv"],
+                            IsApprovedByStationManager = reader["is_sm_aprv"] == DBNull.Value ? false : (bool)reader["is_sm_aprv"],
+                            IsApprovedByExecutiveManagement = reader["is_xm_aprv"] == DBNull.Value ? false : (bool)reader["is_xm_aprv"],
+                        });
+                    }
+                }
+                await conn.CloseAsync();
+            }
+            return leaveRequestList;
+        }
+
+        // For LocationId & UnitId
+        public async Task<List<LeaveRequest>> GetLeaveRequestsByLocationIdnUnitIdAsync(int locationId, int unitId, int leaveYear)
+        {
+            List<LeaveRequest> leaveRequestList = new List<LeaveRequest>();
+            StringBuilder sb = new StringBuilder();
+
+            sb.Append("SELECT r.lvs_rqst_id, r.lvs_emp_id, r.lvs_unit_id, ");
+            sb.Append("r.lvs_dept_id, r.lvs_loc_id, r.lvs_rqst_yr, ");
+            sb.Append("r.lvs_typ_cd, r.lvs_rsn, r.lvs_rqst_sts, ");
+            sb.Append("CASE WHEN r.lvs_rqst_sts = 0 THEN 'Not Yet Approved' ");
+            sb.Append("WHEN r.lvs_rqst_sts = 1 THEN 'Pending Approval' ");
+            sb.Append("WHEN r.lvs_rqst_sts = 2 THEN 'Declined' ");
+            sb.Append("WHEN r.lvs_rqst_sts = 3 THEN 'Approved' ");
+            sb.Append("WHEN r.lvs_rqst_sts = 4 THEN 'Confirmed' ");
+            sb.Append("WHEN r.lvs_rqst_sts = 5 THEN 'Cancelled' ");
+            sb.Append("WHEN r.lvs_rqst_sts = 6 THEN 'Completed' ");
+            sb.Append("ELSE 'Unknown' END AS lvs_rqst_sts_ds, ");
+            sb.Append("r.lvs_rqst_sdt, r.lvs_rqst_edt, r.lvs_rqst_dur, ");
+            sb.Append("r.lvs_rqst_dur_ds, r.act_lvs_sdt, r.act_lvs_edt, ");
+            sb.Append("r.act_lvs_dur, r.act_dur_ds, r.lm_rsmptn_dt, ");
+            sb.Append("r.lm_confm_dt, r.lm_confm_by, r.hr_rsmptn_dt, ");
+            sb.Append("r.hr_confm_dt, r.hr_confm_by, r.rqs_cls_dt, r.is_lm_aprv, ");
+            sb.Append("r.is_hd_aprv, r.is_hr_aprv, r.is_xm_aprv, r.is_sm_aprv, ");
+            sb.Append("r.lvs_rqst_dur_typ, r.act_lvs_dur_typ, r.rqst_rsmptn_dt, ");
+
+            sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = r.lvs_emp_id) ");
+            sb.Append("as lvs_emp_nm, (SELECT lvs_typ_nm FROM public.lvm_lvs_typs ");
+            sb.Append("WHERE lvs_typ_cd = r.lvs_typ_cd) as lvs_typ_nm, ");
+            sb.Append("(SELECT unitname FROM public.gst_units WHERE unitqk = r.lvs_unit_id) ");
+            sb.Append("as lvs_unit_nm, (SELECT deptname FROM public.gst_depts WHERE deptqk ");
+            sb.Append("= r.lvs_dept_id) as lvs_dept_nm, (SELECT locname FROM public.gst_locs ");
+            sb.Append("WHERE locqk = r.lvs_loc_id) as lvs_loc_nm ");
+            sb.Append("FROM public.lvm_lvs_rqsts r ");
+            sb.Append("WHERE (r.lvs_rqst_yr = @lvs_rqst_yr) ");
+            sb.Append("AND (r.lvs_loc_id = @lvs_loc_id) ");
+            sb.Append("AND (r.lvs_unit_id = @lvs_unit_id) ");
+            sb.Append("ORDER BY r.lvs_rqst_sdt; ");
+
+            string query = sb.ToString();
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
+            {
+                await conn.OpenAsync();
+                // Retrieve all rows
+                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+                {
+                    var lvs_rqst_yr = cmd.Parameters.Add("@lvs_rqst_yr", NpgsqlDbType.Integer);
+                    var lvs_unit_id = cmd.Parameters.Add("@lvs_unit_id", NpgsqlDbType.Integer);
+                    var lvs_loc_id = cmd.Parameters.Add("@lvs_loc_id", NpgsqlDbType.Integer);
+                    await cmd.PrepareAsync();
+                    lvs_rqst_yr.Value = leaveYear;
+                    lvs_unit_id.Value = unitId;
+                    lvs_loc_id.Value = locationId;
+                    var reader = await cmd.ExecuteReaderAsync();
+                    while (await reader.ReadAsync())
+                    {
+                        leaveRequestList.Add(new LeaveRequest()
+                        {
+                            LeaveRequestId = reader["lvs_rqst_id"] == DBNull.Value ? 0L : (long)reader["lvs_rqst_id"],
+                            LeaveEmployeeId = reader["lvs_emp_id"] == DBNull.Value ? string.Empty : reader["lvs_emp_id"].ToString(),
+                            LeaveEmployeeName = reader["lvs_emp_nm"] == DBNull.Value ? string.Empty : reader["lvs_emp_nm"].ToString(),
+
+                            UnitId = reader["lvs_unit_id"] == DBNull.Value ? 0 : (int)reader["lvs_unit_id"],
+                            UnitName = reader["lvs_unit_nm"] == DBNull.Value ? string.Empty : reader["lvs_unit_nm"].ToString(),
+                            DepartmentId = reader["lvs_dept_id"] == DBNull.Value ? 0 : (int)reader["lvs_dept_id"],
+                            DepartmentName = reader["lvs_dept_nm"] == DBNull.Value ? string.Empty : reader["lvs_dept_nm"].ToString(),
+                            LocationId = reader["lvs_loc_id"] == DBNull.Value ? 0 : (int)reader["lvs_loc_id"],
+                            LocationName = reader["lvs_loc_nm"] == DBNull.Value ? string.Empty : reader["lvs_loc_nm"].ToString(),
+
+                            LeaveYear = reader["lvs_rqst_yr"] == DBNull.Value ? 2020 : (int)reader["lvs_rqst_yr"],
+                            LeaveTypeCode = reader["lvs_typ_cd"] == DBNull.Value ? string.Empty : reader["lvs_typ_cd"].ToString(),
+                            LeaveTypeName = reader["lvs_typ_nm"] == DBNull.Value ? string.Empty : reader["lvs_typ_nm"].ToString(),
+                            LeaveReason = reader["lvs_rsn"] == DBNull.Value ? string.Empty : reader["lvs_rsn"].ToString(),
+
+                            RequestedStartDate = reader["lvs_rqst_sdt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["lvs_rqst_sdt"],
+                            RequestedEndDate = reader["lvs_rqst_edt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["lvs_rqst_edt"],
+                            RequestedDuration = reader["lvs_rqst_dur"] == DBNull.Value ? 0 : (int)reader["lvs_rqst_dur"],
+                            RequestedDurationTypeId = reader["lvs_rqst_dur_typ"] == DBNull.Value ? 0 : (int)reader["lvs_rqst_dur_typ"],
+                            RequestedDurationDescription = reader["lvs_rqst_dur_ds"] == DBNull.Value ? string.Empty : reader["lvs_rqst_dur_ds"].ToString(),
+                            RequestedResumptionDate = reader["rqst_rsmptn_dt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["rqst_rsmptn_dt"],
+
+                            LeaveRequestStatusId = reader["lvs_rqst_sts"] == DBNull.Value ? 0 : (int)reader["lvs_rqst_sts"],
+                            LeaveRequestStatusDescription = reader["lvs_rqst_sts_ds"] == DBNull.Value ? string.Empty : reader["lvs_rqst_sts_ds"].ToString(),
+
+                            ActualLeaveStartDate = reader["act_lvs_sdt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["act_lvs_sdt"],
+                            ActualLeaveEndDate = reader["act_lvs_edt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["act_lvs_edt"],
+                            ActualLeaveDuration = reader["act_lvs_dur"] == DBNull.Value ? 0 : (int)reader["act_lvs_dur"],
+                            ActualLeaveDurationTypeId = reader["act_lvs_dur_typ"] == DBNull.Value ? 0 : (int)reader["act_lvs_dur_typ"],
+                            ActualLeaveDurationDescription = reader["act_dur_ds"] == DBNull.Value ? string.Empty : reader["act_dur_ds"].ToString(),
+
+                            LineManagersResumptionDate = reader["lm_rsmptn_dt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["lm_rsmptn_dt"],
+                            LineManagerConfirmResumptionBy = reader["lm_confm_by"] == DBNull.Value ? string.Empty : reader["lm_confm_by"].ToString(),
+                            LineManagerConfirmResumptionTime = reader["lm_confm_dt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["lm_confm_dt"],
+
+                            HrResumptionDate = reader["hr_rsmptn_dt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["hr_rsmptn_dt"],
+                            HrConfirmResumptionBy = reader["hr_confm_by"] == DBNull.Value ? string.Empty : reader["hr_confm_by"].ToString(),
+                            HrConfirmResumptionTime = reader["hr_confm_dt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["hr_confm_dt"],
+
+                            LeaveRequestCloseDate = reader["rqs_cls_dt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["rqs_cls_dt"],
+
+                            IsApprovedByLineManager = reader["is_lm_aprv"] == DBNull.Value ? false : (bool)reader["is_lm_aprv"],
+                            IsApprovedByHeadOfDepartment = reader["is_hd_aprv"] == DBNull.Value ? false : (bool)reader["is_hd_aprv"],
+                            IsApprovedByHR = reader["is_hr_aprv"] == DBNull.Value ? false : (bool)reader["is_hr_aprv"],
+                            IsApprovedByStationManager = reader["is_sm_aprv"] == DBNull.Value ? false : (bool)reader["is_sm_aprv"],
+                            IsApprovedByExecutiveManagement = reader["is_xm_aprv"] == DBNull.Value ? false : (bool)reader["is_xm_aprv"],
+                        });
+                    }
+                }
+                await conn.CloseAsync();
+            }
+            return leaveRequestList;
+        }
+        public async Task<List<LeaveRequest>> GetLeaveRequestsByLocationIdnUnitIdAsync(int locationId, int unitId, int leaveYear, int leaveMonth)
+        {
+            List<LeaveRequest> leaveRequestList = new List<LeaveRequest>();
+            StringBuilder sb = new StringBuilder();
+
+            sb.Append("SELECT r.lvs_rqst_id, r.lvs_emp_id, r.lvs_unit_id, ");
+            sb.Append("r.lvs_dept_id, r.lvs_loc_id, r.lvs_rqst_yr, ");
+            sb.Append("r.lvs_typ_cd, r.lvs_rsn, r.lvs_rqst_sts, ");
+            sb.Append("CASE WHEN r.lvs_rqst_sts = 0 THEN 'Not Yet Approved' ");
+            sb.Append("WHEN r.lvs_rqst_sts = 1 THEN 'Pending Approval' ");
+            sb.Append("WHEN r.lvs_rqst_sts = 2 THEN 'Declined' ");
+            sb.Append("WHEN r.lvs_rqst_sts = 3 THEN 'Approved' ");
+            sb.Append("WHEN r.lvs_rqst_sts = 4 THEN 'Confirmed' ");
+            sb.Append("WHEN r.lvs_rqst_sts = 5 THEN 'Cancelled' ");
+            sb.Append("WHEN r.lvs_rqst_sts = 6 THEN 'Completed' ");
+            sb.Append("ELSE 'Unknown' END AS lvs_rqst_sts_ds, ");
+            sb.Append("r.lvs_rqst_sdt, r.lvs_rqst_edt, r.lvs_rqst_dur, ");
+            sb.Append("r.lvs_rqst_dur_ds, r.act_lvs_sdt, r.act_lvs_edt, ");
+            sb.Append("r.act_lvs_dur, r.act_dur_ds, r.lm_rsmptn_dt, ");
+            sb.Append("r.lm_confm_dt, r.lm_confm_by, r.hr_rsmptn_dt, ");
+            sb.Append("r.hr_confm_dt, r.hr_confm_by, r.rqs_cls_dt, r.is_lm_aprv, ");
+            sb.Append("r.is_hd_aprv, r.is_hr_aprv, r.is_xm_aprv, r.is_sm_aprv, ");
+            sb.Append("r.lvs_rqst_dur_typ, r.act_lvs_dur_typ, r.rqst_rsmptn_dt, ");
+
+            sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = r.lvs_emp_id) ");
+            sb.Append("as lvs_emp_nm, (SELECT lvs_typ_nm FROM public.lvm_lvs_typs ");
+            sb.Append("WHERE lvs_typ_cd = r.lvs_typ_cd) as lvs_typ_nm, ");
+            sb.Append("(SELECT unitname FROM public.gst_units WHERE unitqk = r.lvs_unit_id) ");
+            sb.Append("as lvs_unit_nm, (SELECT deptname FROM public.gst_depts WHERE deptqk ");
+            sb.Append("= r.lvs_dept_id) as lvs_dept_nm, (SELECT locname FROM public.gst_locs ");
+            sb.Append("WHERE locqk = r.lvs_loc_id) as lvs_loc_nm ");
+            sb.Append("FROM public.lvm_lvs_rqsts r ");
+            sb.Append("WHERE (r.lvs_unit_id = @lvs_unit_id) ");
+            sb.Append("AND (r.lvs_loc_id = @lvs_loc_id) ");
+            sb.Append("AND (r.lvs_rqst_yr = @lvs_rqst_yr) AND ");
+            sb.Append("(EXTRACT(MONTH FROM r.lvs_rqst_sdt) = @sdt_month) ");
+            sb.Append("ORDER BY r.lvs_rqst_sdt; ");
+
+            string query = sb.ToString();
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
+            {
+                await conn.OpenAsync();
+                // Retrieve all rows
+                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+                {
+                    var lvs_loc_id = cmd.Parameters.Add("@lvs_loc_id", NpgsqlDbType.Integer);
+                    var lvs_unit_id = cmd.Parameters.Add("@lvs_unit_id", NpgsqlDbType.Integer);
+                    var lvs_rqst_yr = cmd.Parameters.Add("@lvs_rqst_yr", NpgsqlDbType.Integer);
+                    var sdt_month = cmd.Parameters.Add("@sdt_month", NpgsqlDbType.Integer);
+                    await cmd.PrepareAsync();
+                    lvs_unit_id.Value = unitId;
+                    lvs_loc_id.Value = locationId;
+                    lvs_rqst_yr.Value = leaveYear;
+                    sdt_month.Value = leaveMonth;
+                    var reader = await cmd.ExecuteReaderAsync();
+                    while (await reader.ReadAsync())
+                    {
+                        leaveRequestList.Add(new LeaveRequest()
+                        {
+                            LeaveRequestId = reader["lvs_rqst_id"] == DBNull.Value ? 0L : (long)reader["lvs_rqst_id"],
+                            LeaveEmployeeId = reader["lvs_emp_id"] == DBNull.Value ? string.Empty : reader["lvs_emp_id"].ToString(),
+                            LeaveEmployeeName = reader["lvs_emp_nm"] == DBNull.Value ? string.Empty : reader["lvs_emp_nm"].ToString(),
+
+                            UnitId = reader["lvs_unit_id"] == DBNull.Value ? 0 : (int)reader["lvs_unit_id"],
+                            UnitName = reader["lvs_unit_nm"] == DBNull.Value ? string.Empty : reader["lvs_unit_nm"].ToString(),
+                            DepartmentId = reader["lvs_dept_id"] == DBNull.Value ? 0 : (int)reader["lvs_dept_id"],
+                            DepartmentName = reader["lvs_dept_nm"] == DBNull.Value ? string.Empty : reader["lvs_dept_nm"].ToString(),
+                            LocationId = reader["lvs_loc_id"] == DBNull.Value ? 0 : (int)reader["lvs_loc_id"],
+                            LocationName = reader["lvs_loc_nm"] == DBNull.Value ? string.Empty : reader["lvs_loc_nm"].ToString(),
+
+                            LeaveYear = reader["lvs_rqst_yr"] == DBNull.Value ? 2020 : (int)reader["lvs_rqst_yr"],
+                            LeaveTypeCode = reader["lvs_typ_cd"] == DBNull.Value ? string.Empty : reader["lvs_typ_cd"].ToString(),
+                            LeaveTypeName = reader["lvs_typ_nm"] == DBNull.Value ? string.Empty : reader["lvs_typ_nm"].ToString(),
+                            LeaveReason = reader["lvs_rsn"] == DBNull.Value ? string.Empty : reader["lvs_rsn"].ToString(),
+
+                            RequestedStartDate = reader["lvs_rqst_sdt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["lvs_rqst_sdt"],
+                            RequestedEndDate = reader["lvs_rqst_edt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["lvs_rqst_edt"],
+                            RequestedDuration = reader["lvs_rqst_dur"] == DBNull.Value ? 0 : (int)reader["lvs_rqst_dur"],
+                            RequestedDurationTypeId = reader["lvs_rqst_dur_typ"] == DBNull.Value ? 0 : (int)reader["lvs_rqst_dur_typ"],
+                            RequestedDurationDescription = reader["lvs_rqst_dur_ds"] == DBNull.Value ? string.Empty : reader["lvs_rqst_dur_ds"].ToString(),
+                            RequestedResumptionDate = reader["rqst_rsmptn_dt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["rqst_rsmptn_dt"],
+
+                            LeaveRequestStatusId = reader["lvs_rqst_sts"] == DBNull.Value ? 0 : (int)reader["lvs_rqst_sts"],
+                            LeaveRequestStatusDescription = reader["lvs_rqst_sts_ds"] == DBNull.Value ? string.Empty : reader["lvs_rqst_sts_ds"].ToString(),
+
+                            ActualLeaveStartDate = reader["act_lvs_sdt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["act_lvs_sdt"],
+                            ActualLeaveEndDate = reader["act_lvs_edt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["act_lvs_edt"],
+                            ActualLeaveDuration = reader["act_lvs_dur"] == DBNull.Value ? 0 : (int)reader["act_lvs_dur"],
+                            ActualLeaveDurationTypeId = reader["act_lvs_dur_typ"] == DBNull.Value ? 0 : (int)reader["act_lvs_dur_typ"],
+                            ActualLeaveDurationDescription = reader["act_dur_ds"] == DBNull.Value ? string.Empty : reader["act_dur_ds"].ToString(),
+
+                            LineManagersResumptionDate = reader["lm_rsmptn_dt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["lm_rsmptn_dt"],
+                            LineManagerConfirmResumptionBy = reader["lm_confm_by"] == DBNull.Value ? string.Empty : reader["lm_confm_by"].ToString(),
+                            LineManagerConfirmResumptionTime = reader["lm_confm_dt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["lm_confm_dt"],
+
+                            HrResumptionDate = reader["hr_rsmptn_dt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["hr_rsmptn_dt"],
+                            HrConfirmResumptionBy = reader["hr_confm_by"] == DBNull.Value ? string.Empty : reader["hr_confm_by"].ToString(),
+                            HrConfirmResumptionTime = reader["hr_confm_dt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["hr_confm_dt"],
+
+                            LeaveRequestCloseDate = reader["rqs_cls_dt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["rqs_cls_dt"],
+
+                            IsApprovedByLineManager = reader["is_lm_aprv"] == DBNull.Value ? false : (bool)reader["is_lm_aprv"],
+                            IsApprovedByHeadOfDepartment = reader["is_hd_aprv"] == DBNull.Value ? false : (bool)reader["is_hd_aprv"],
+                            IsApprovedByHR = reader["is_hr_aprv"] == DBNull.Value ? false : (bool)reader["is_hr_aprv"],
+                            IsApprovedByStationManager = reader["is_sm_aprv"] == DBNull.Value ? false : (bool)reader["is_sm_aprv"],
+                            IsApprovedByExecutiveManagement = reader["is_xm_aprv"] == DBNull.Value ? false : (bool)reader["is_xm_aprv"],
+                        });
+                    }
+                }
+                await conn.CloseAsync();
+            }
+            return leaveRequestList;
+        }
+
+        #endregion
+
+
+        #endregion
+
+        #endregion
+
+        #region Leave Submission Action Methods
+        //==== Leave Plan Submission Read Action Methods
+        public async Task<List<LeaveSubmission>> GetLeaveSubmissionsByLeaveSubmissionIdAsync(long leaveSubmissionId)
+        {
+            List<LeaveSubmission> submissionList = new List<LeaveSubmission>();
+            StringBuilder sb = new StringBuilder();
+            sb.Append("SELECT lvs_sbm_id, lvs_pln_id, lvs_rqst_id, frm_emp_nm,  ");
+            sb.Append("to_emp_nm, sbm_purps, sbm_dt, sbm_msg, is_xtn, dt_xtn, ");
+            sb.Append("to_emp_rl  FROM public.lvm_lvs_sbms ");
+            sb.Append("WHERE (lvs_sbm_id=@lvs_sbm_id) ");
+            sb.Append("ORDER BY lvs_sbm_id; ");
+            string query = sb.ToString();
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
+            {
+                await conn.OpenAsync();
+                // Retrieve all rows
+                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+                {
+                    var lvs_sbm_id = cmd.Parameters.Add("@lvs_sbm_id", NpgsqlDbType.Bigint);
+                    await cmd.PrepareAsync();
+                    lvs_sbm_id.Value = leaveSubmissionId;
+                    var reader = await cmd.ExecuteReaderAsync();
+                    while (await reader.ReadAsync())
+                    {
+                        submissionList.Add(new LeaveSubmission()
+                        {
+                            LeaveSubmissionId = reader["lvs_sbm_id"] == DBNull.Value ? 0 : (long)reader["lvs_sbm_id"],
+                            LeavePlanId = reader["lvs_pln_id"] == DBNull.Value ? 0 : (long)reader["lvs_pln_id"],
+                            LeaveRequestId = reader["lvs_rqst_id"] == DBNull.Value ? 0 : (long)reader["lvs_rqst_id"],
+                            ToEmployeeName = reader["to_emp_nm"] == DBNull.Value ? string.Empty : reader["to_emp_nm"].ToString(),
+                            FromEmployeeName = reader["frm_emp_nm"] == DBNull.Value ? string.Empty : reader["frm_emp_nm"].ToString(),
+                            TimeSubmitted = reader["sbm_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["sbm_dt"],
+                            Purpose = reader["sbm_purps"] == DBNull.Value ? string.Empty : reader["sbm_purps"].ToString(),
+                            Message = reader["sbm_msg"] == DBNull.Value ? string.Empty : reader["sbm_msg"].ToString(),
+                            IsActioned = reader["is_xtn"] == DBNull.Value ? false : (bool)reader["is_xtn"],
+                            TimeActioned = reader["dt_xtn"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["dt_xtn"],
+                            ToEmployeeRole = reader["to_emp_rl"] == DBNull.Value ? string.Empty : reader["to_emp_rl"].ToString(),
+                        });
+                    }
+                }
+                await conn.CloseAsync();
+            }
+            return submissionList;
+        }
+        public async Task<List<LeaveSubmission>> GetLeaveSubmissionsByToEmployeeNameAsync(string toEmployeeName)
+        {
+            List<LeaveSubmission> submissionList = new List<LeaveSubmission>();
+            StringBuilder sb = new StringBuilder();
+            sb.Append("SELECT lvs_sbm_id, lvs_pln_id, lvs_rqst_id, frm_emp_nm,  ");
+            sb.Append("to_emp_nm, sbm_purps, sbm_dt, sbm_msg, is_xtn, dt_xtn, ");
+            sb.Append("to_emp_rl  FROM public.lvm_lvs_sbms ");
+            sb.Append("WHERE (to_emp_nm=@to_emp_nm) ");
+            sb.Append("ORDER BY lvs_sbm_id DESC; ");
+            string query = sb.ToString();
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
+            {
+                await conn.OpenAsync();
+                // Retrieve all rows
+                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+                {
+                    var to_emp_nm = cmd.Parameters.Add("@to_emp_nm", NpgsqlDbType.Text);
+                    await cmd.PrepareAsync();
+                    to_emp_nm.Value = toEmployeeName;
+                    var reader = await cmd.ExecuteReaderAsync();
+                    while (await reader.ReadAsync())
+                    {
+                        submissionList.Add(new LeaveSubmission()
+                        {
+                            LeaveSubmissionId = reader["lvs_sbm_id"] == DBNull.Value ? 0 : (long)reader["lvs_sbm_id"],
+                            LeavePlanId = reader["lvs_pln_id"] == DBNull.Value ? 0 : (long)reader["lvs_pln_id"],
+                            LeaveRequestId = reader["lvs_rqst_id"] == DBNull.Value ? 0 : (long)reader["lvs_rqst_id"],
+                            ToEmployeeName = reader["to_emp_nm"] == DBNull.Value ? string.Empty : reader["to_emp_nm"].ToString(),
+                            FromEmployeeName = reader["frm_emp_nm"] == DBNull.Value ? string.Empty : reader["frm_emp_nm"].ToString(),
+                            TimeSubmitted = reader["sbm_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["sbm_dt"],
+                            Purpose = reader["sbm_purps"] == DBNull.Value ? string.Empty : reader["sbm_purps"].ToString(),
+                            Message = reader["sbm_msg"] == DBNull.Value ? string.Empty : reader["sbm_msg"].ToString(),
+                            IsActioned = reader["is_xtn"] == DBNull.Value ? false : (bool)reader["is_xtn"],
+                            TimeActioned = reader["dt_xtn"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["dt_xtn"],
+                            ToEmployeeRole = reader["to_emp_rl"] == DBNull.Value ? string.Empty : reader["to_emp_rl"].ToString(),
+                        });
+                    }
+                }
+                await conn.CloseAsync();
+            }
+            return submissionList;
+        }
+        public async Task<List<LeaveSubmission>> GetLeaveSubmissionsByYearSubmittedAsync(string toEmployeeName, int yearSubmitted)
+        {
+            List<LeaveSubmission> submissionList = new List<LeaveSubmission>();
+            StringBuilder sb = new StringBuilder();
+            sb.Append("SELECT lvs_sbm_id, lvs_pln_id, lvs_rqst_id, frm_emp_nm,  ");
+            sb.Append("to_emp_nm, sbm_purps, sbm_dt, sbm_msg, is_xtn, dt_xtn, ");
+            sb.Append("to_emp_rl  FROM public.lvm_lvs_sbms ");
+            sb.Append("WHERE (to_emp_nm=@to_emp_nm) ");
+            sb.Append("AND (DATE_PART('Year', sbm_dt) = @yr) ");
+            sb.Append("ORDER BY lvs_sbm_id DESC; ");
+
+            string query = sb.ToString();
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
+            {
+                await conn.OpenAsync();
+                // Retrieve all rows
+                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+                {
+                    var to_emp_nm = cmd.Parameters.Add("@to_emp_nm", NpgsqlDbType.Text);
+                    var yr = cmd.Parameters.Add("@yr", NpgsqlDbType.Integer);
+                    await cmd.PrepareAsync();
+                    to_emp_nm.Value = toEmployeeName;
+                    yr.Value = yearSubmitted;
+
+                    var reader = await cmd.ExecuteReaderAsync();
+                    while (await reader.ReadAsync())
+                    {
+                        submissionList.Add(new LeaveSubmission()
+                        {
+                            LeaveSubmissionId = reader["lvs_sbm_id"] == DBNull.Value ? 0 : (long)reader["lvs_sbm_id"],
+                            LeavePlanId = reader["lvs_pln_id"] == DBNull.Value ? 0 : (long)reader["lvs_pln_id"],
+                            LeaveRequestId = reader["lvs_rqst_id"] == DBNull.Value ? 0 : (long)reader["lvs_rqst_id"],
+                            ToEmployeeName = reader["to_emp_nm"] == DBNull.Value ? string.Empty : reader["to_emp_nm"].ToString(),
+                            FromEmployeeName = reader["frm_emp_nm"] == DBNull.Value ? string.Empty : reader["frm_emp_nm"].ToString(),
+                            TimeSubmitted = reader["sbm_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["sbm_dt"],
+                            Purpose = reader["sbm_purps"] == DBNull.Value ? string.Empty : reader["sbm_purps"].ToString(),
+                            Message = reader["sbm_msg"] == DBNull.Value ? string.Empty : reader["sbm_msg"].ToString(),
+                            IsActioned = reader["is_xtn"] == DBNull.Value ? false : (bool)reader["is_xtn"],
+                            TimeActioned = reader["dt_xtn"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["dt_xtn"],
+                            ToEmployeeRole = reader["to_emp_rl"] == DBNull.Value ? string.Empty : reader["to_emp_rl"].ToString(),
+                        });
+                    }
+                }
+                await conn.CloseAsync();
+            }
+            return submissionList;
+        }
+
+
+        //==== Leave Request Submission Read Action Methods
+        public async Task<List<LeaveSubmission>> GetLeaveSubmissionsByRolenYearSubmittedAsync(string toEmployeeRole, int yearSubmitted)
+        {
+            List<LeaveSubmission> submissionList = new List<LeaveSubmission>();
+            StringBuilder sb = new StringBuilder();
+            sb.Append("SELECT s.lvs_sbm_id, s.lvs_pln_id, s.lvs_rqst_id, ");
+            sb.Append("s.frm_emp_nm, s.to_emp_nm, s.sbm_purps, s.sbm_dt, ");
+            sb.Append("s.sbm_msg, s.is_xtn, s.dt_xtn, s.to_emp_rl, ");
+
+            sb.Append("p.lvs_yr, p.lvs_pln_sdt, p.lvs_pln_edt, ");
+            sb.Append("p.pln_dur_ds, p.pln_rsmptn_dt, p.lvs_pln_sts, ");
+            sb.Append("CASE WHEN p.lvs_pln_sts = 0 THEN 'Not Yet Approved' ");
+            sb.Append("WHEN p.lvs_pln_sts = 1 THEN 'Pending Approval' ");
+            sb.Append("WHEN p.lvs_pln_sts = 2 THEN 'Declined' ");
+            sb.Append("WHEN p.lvs_pln_sts = 3 THEN 'Approved' ");
+            sb.Append("WHEN p.lvs_pln_sts = 4 THEN 'Confirmed' ");
+            sb.Append("WHEN p.lvs_pln_sts = 5 THEN 'Cancelled' ");
+            sb.Append("WHEN p.lvs_pln_sts = 6 THEN 'Completed' ");
+            sb.Append("ELSE 'Unknown' END AS lvs_pln_sts_ds, ");
+            sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = p.emp_id) ");
+            sb.Append("as pln_emp_nm, (SELECT lvs_typ_nm FROM public.lvm_lvs_typs ");
+            sb.Append("WHERE lvs_typ_cd = p.lvs_typ_cd) as lvs_pln_typ_nm, ");
+            sb.Append("(SELECT unitname FROM public.gst_units WHERE unitqk = p.unit_id) ");
+            sb.Append("as pln_unit_nm, (SELECT deptname FROM public.gst_depts WHERE deptqk ");
+            sb.Append("= p.dept_id) as pln_dept_nm, (SELECT locname FROM public.gst_locs ");
+            sb.Append("WHERE locqk = p.loc_id) as pln_loc_nm, ");
+
+
+            sb.Append("r.lvs_rqst_yr, r.lvs_rqst_sts, ");
+            sb.Append("CASE WHEN r.lvs_rqst_sts = 0 THEN 'Not Yet Approved' ");
+            sb.Append("WHEN r.lvs_rqst_sts = 1 THEN 'Pending Approval' ");
+            sb.Append("WHEN r.lvs_rqst_sts = 2 THEN 'Declined' ");
+            sb.Append("WHEN r.lvs_rqst_sts = 3 THEN 'Approved' ");
+            sb.Append("WHEN r.lvs_rqst_sts = 4 THEN 'Confirmed' ");
+            sb.Append("WHEN r.lvs_rqst_sts = 5 THEN 'Cancelled' ");
+            sb.Append("WHEN r.lvs_rqst_sts = 6 THEN 'Completed' ");
+            sb.Append("ELSE 'Unknown' END AS lvs_rqst_sts_ds, ");
+            sb.Append("r.lvs_rqst_sdt, r.lvs_rqst_edt, r.lvs_rqst_dur_ds, ");
+            sb.Append("r.rqst_rsmptn_dt, ");
+            sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = r.lvs_emp_id) ");
+            sb.Append("as lvs_emp_nm, (SELECT lvs_typ_nm FROM public.lvm_lvs_typs ");
+            sb.Append("WHERE lvs_typ_cd = r.lvs_typ_cd) as lvs_typ_nm, ");
+            sb.Append("(SELECT unitname FROM public.gst_units WHERE unitqk = r.lvs_unit_id) ");
+            sb.Append("as lvs_unit_nm, (SELECT deptname FROM public.gst_depts WHERE deptqk ");
+            sb.Append("= r.lvs_dept_id) as lvs_dept_nm, (SELECT locname FROM public.gst_locs ");
+            sb.Append("WHERE locqk = r.lvs_loc_id) as lvs_loc_nm ");
+
+
+            sb.Append("FROM public.lvm_lvs_sbms s ");
+            sb.Append("LEFT JOIN public.lvm_lvs_plns p ON p.lvs_pln_id = s.lvs_pln_id ");
+            sb.Append("LEFT JOIN public.lvm_lvs_rqsts r ON r.lvs_rqst_id = s.lvs_rqst_id ");
+            sb.Append("WHERE LOWER(s.to_emp_rl) = LOWER(@to_emp_rl) ");
+            sb.Append("AND (DATE_PART('Year', s.sbm_dt) = @yr) ");
+            sb.Append("ORDER BY s.lvs_sbm_id DESC; ");
+
+            string query = sb.ToString();
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
+            {
+                await conn.OpenAsync();
+                // Retrieve all rows
+                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+                {
+                    var to_emp_rl = cmd.Parameters.Add("@to_emp_rl", NpgsqlDbType.Text);
+                    var yr = cmd.Parameters.Add("@yr", NpgsqlDbType.Integer);
+                    await cmd.PrepareAsync();
+                    to_emp_rl.Value = toEmployeeRole;
+                    yr.Value = yearSubmitted;
+
+                    var reader = await cmd.ExecuteReaderAsync();
+                    while (await reader.ReadAsync())
+                    {
+                        submissionList.Add(new LeaveSubmission()
+                        {
+                            LeaveSubmissionId = reader["lvs_sbm_id"] == DBNull.Value ? 0 : (long)reader["lvs_sbm_id"],
+                            LeavePlanId = reader["lvs_pln_id"] == DBNull.Value ? 0 : (long)reader["lvs_pln_id"],
+                            LeaveRequestId = reader["lvs_rqst_id"] == DBNull.Value ? 0 : (long)reader["lvs_rqst_id"],
+                            ToEmployeeName = reader["to_emp_nm"] == DBNull.Value ? string.Empty : reader["to_emp_nm"].ToString(),
+                            FromEmployeeName = reader["frm_emp_nm"] == DBNull.Value ? string.Empty : reader["frm_emp_nm"].ToString(),
+                            TimeSubmitted = reader["sbm_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["sbm_dt"],
+                            Purpose = reader["sbm_purps"] == DBNull.Value ? string.Empty : reader["sbm_purps"].ToString(),
+                            Message = reader["sbm_msg"] == DBNull.Value ? string.Empty : reader["sbm_msg"].ToString(),
+                            IsActioned = reader["is_xtn"] == DBNull.Value ? false : (bool)reader["is_xtn"],
+                            TimeActioned = reader["dt_xtn"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["dt_xtn"],
+                            ToEmployeeRole = reader["to_emp_rl"] == DBNull.Value ? string.Empty : reader["to_emp_rl"].ToString(),
+
+                            LeavePlanYear = reader["lvs_yr"] == DBNull.Value ? 0 : (int)reader["lvs_yr"],
+                            LeavePlanStartDate = reader["lvs_pln_sdt"] == DBNull.Value ? new DateTime(2020,1,1) : (DateTime)reader["lvs_pln_sdt"],
+                            LeavePlanEndDate = reader["lvs_pln_edt"] == DBNull.Value ? new DateTime(2020, 1, 1) : (DateTime)reader["lvs_pln_edt"],
+                            LeavePlanDurationDescription = reader["pln_dur_ds"] == DBNull.Value ? string.Empty : reader["pln_dur_ds"].ToString(),
+                            LeavePlanResumptionDate = reader["pln_rsmptn_dt"] == DBNull.Value ? new DateTime(2020, 1, 1) : (DateTime)reader["pln_rsmptn_dt"],
+                            LeavePlanStatusDescription = reader["lvs_pln_sts_ds"] == DBNull.Value ? string.Empty : reader["lvs_pln_sts_ds"].ToString(),
+                            LeavePlanEmployeeName = reader["pln_emp_nm"] == DBNull.Value ? string.Empty : reader["pln_emp_nm"].ToString(),
+                            LeavePlanTypeName = reader["lvs_pln_typ_nm"] == DBNull.Value ? string.Empty : reader["lvs_pln_typ_nm"].ToString(),
+                            LeavePlanUnitName = reader["pln_unit_nm"] == DBNull.Value ? string.Empty : reader["pln_unit_nm"].ToString(),
+                            LeavePlanLocationName = reader["pln_loc_nm"] == DBNull.Value ? string.Empty : reader["pln_loc_nm"].ToString(),
+
+
+                            LeaveRequestYear = reader["lvs_rqst_yr"] == DBNull.Value ? 0 : (int)reader["lvs_rqst_yr"],
+                            LeaveRequestStartDate = reader["lvs_rqst_sdt"] == DBNull.Value ? new DateTime(2000, 1, 1) : (DateTime)reader["lvs_rqst_sdt"],
+                            LeaveRequestEndDate = reader["lvs_rqst_edt"] == DBNull.Value ? new DateTime(2000, 1, 1) : (DateTime)reader["lvs_rqst_edt"],
+                            LeaveRequestDurationDescription = reader["lvs_rqst_dur_ds"] == DBNull.Value ? string.Empty : reader["lvs_rqst_dur_ds"].ToString(),
+                            LeaveRequestResumptionDate = reader["rqst_rsmptn_dt"] == DBNull.Value ? new DateTime(2000, 1, 1) : (DateTime)reader["rqst_rsmptn_dt"],
+                            LeaveRequestStatusDescription = reader["lvs_rqst_sts_ds"] == DBNull.Value ? string.Empty : reader["lvs_rqst_sts_ds"].ToString(),
+                            LeaveRequestEmployeeName = reader["lvs_emp_nm"] == DBNull.Value ? string.Empty : reader["lvs_emp_nm"].ToString(),
+                            LeaveRequestTypeName = reader["lvs_typ_nm"] == DBNull.Value ? string.Empty : reader["lvs_typ_nm"].ToString(),
+                            LeaveRequestUnitName = reader["lvs_unit_nm"] == DBNull.Value ? string.Empty : reader["lvs_unit_nm"].ToString(),
+                            LeaveRequestLocationName = reader["lvs_loc_nm"] == DBNull.Value ? string.Empty : reader["lvs_loc_nm"].ToString(),
+
+                        });
+                    }
+                }
+                await conn.CloseAsync();
+            }
+            return submissionList;
+        }
+
+
+        //public async Task<List<LeaveSubmission>> GetSubmissionsByYearnMonthSubmittedAsync(int yearSubmitted, int monthSubmitted)
+        //{
+        //    List<LeaveSubmission> submissionList = new List<LeaveSubmission>();
+        //    StringBuilder sb = new StringBuilder();
+        //    sb.Append("SELECT s.lvs_sbm_id, s.lvs_inf_id, s.frm_emp_id, s.to_emp_id, ");
+        //    sb.Append("s.sbm_purps, s.sbm_dt, s.sbm_msg, s.is_xtn, s.dt_xtn, s.to_emp_rl, ");
+        //    sb.Append("(SELECT fullname FROM public.gst_prsns p1 ");
+        //    sb.Append("WHERE p1.id = s.frm_emp_id) as frm_emp_nm, ");
+        //    sb.Append("(SELECT fullname FROM public.gst_prsns p2 ");
+        //    sb.Append("WHERE p2.id = s.to_emp_id) as to_emp_nm ");
+        //    sb.Append("FROM public.lms_lvs_sbms s ");
+        //    sb.Append("WHERE DATE_PART('Year', s.sbm_dt) = @yr ");
+        //    sb.Append("AND DATE_PART('Month', s.sbm_dt) = @mn ");
+        //    sb.Append("ORDER BY s.lvs_sbm_id DESC; ");
+        //    string query = sb.ToString();
+        //    using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
+        //    {
+        //        await conn.OpenAsync();
+        //        // Retrieve all rows
+        //        using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+        //        {
+        //            var yr = cmd.Parameters.Add("@yr", NpgsqlDbType.Integer);
+        //            var mn = cmd.Parameters.Add("@mn", NpgsqlDbType.Integer);
+        //            await cmd.PrepareAsync();
+        //            yr.Value = yearSubmitted;
+        //            mn.Value = monthSubmitted;
+        //            var reader = await cmd.ExecuteReaderAsync();
+        //            while (await reader.ReadAsync())
+        //            {
+        //                submissionList.Add(new LeaveSubmission()
+        //                {
+        //                    Id = reader["lvs_sbm_id"] == DBNull.Value ? 0 : (long)reader["lvs_sbm_id"],
+        //                    LeaveId = reader["lvs_inf_id"] == DBNull.Value ? 0 : (long)reader["lvs_inf_id"],
+        //                    ToEmployeeId = reader["to_emp_id"] == DBNull.Value ? string.Empty : reader["to_emp_id"].ToString(),
+        //                    ToEmployeeName = reader["to_emp_nm"] == DBNull.Value ? string.Empty : reader["to_emp_nm"].ToString(),
+        //                    FromEmployeeId = reader["frm_emp_id"] == DBNull.Value ? string.Empty : reader["frm_emp_id"].ToString(),
+        //                    FromEmployeeName = reader["frm_emp_nm"] == DBNull.Value ? string.Empty : reader["frm_emp_nm"].ToString(),
+        //                    TimeSubmitted = reader["sbm_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["sbm_dt"],
+        //                    Purpose = reader["sbm_purps"] == DBNull.Value ? string.Empty : reader["sbm_purps"].ToString(),
+        //                    Message = reader["sbm_msg"] == DBNull.Value ? string.Empty : reader["sbm_msg"].ToString(),
+        //                    IsActioned = reader["is_xtn"] == DBNull.Value ? false : (bool)reader["is_xtn"],
+        //                    TimeActioned = reader["dt_xtn"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["dt_xtn"],
+        //                    ToEmployeeRole = reader["to_emp_rl"] == DBNull.Value ? string.Empty : reader["to_emp_rl"].ToString(),
+        //                });
+        //            }
+        //        }
+        //        await conn.CloseAsync();
+        //    }
+        //    return submissionList;
+        //}
+        //public async Task<List<LeaveSubmission>> GetSubmissionsByToEmployeeIdnYearSubmittedAsync(string toEmployeeId, int yearSubmitted)
+        //{
+        //    List<LeaveSubmission> submissionList = new List<LeaveSubmission>();
+        //    StringBuilder sb = new StringBuilder();
+        //    sb.Append("SELECT s.lvs_sbm_id, s.lvs_inf_id, s.frm_emp_id, s.to_emp_id, ");
+        //    sb.Append("s.sbm_purps, s.sbm_dt, s.sbm_msg, s.is_xtn, s.dt_xtn, s.to_emp-rl, ");
+        //    sb.Append("(SELECT fullname FROM public.gst_prsns p1 ");
+        //    sb.Append("WHERE p1.id = s.frm_emp_id) as frm_emp_nm, ");
+        //    sb.Append("(SELECT fullname FROM public.gst_prsns p2 ");
+        //    sb.Append("WHERE p2.id = s.to_emp_id) as to_emp_nm ");
+        //    sb.Append("FROM public.lms_lvs_sbms s ");
+        //    sb.Append("WHERE s.to_emp_id = @to_emp_id ");
+        //    sb.Append("AND DATE_PART('Year', s.sbm_dt) = @yr ");
+        //    sb.Append("ORDER BY s.lvs_sbm_id DESC; ");
+        //    string query = sb.ToString();
+        //    using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
+        //    {
+        //        await conn.OpenAsync();
+        //        // Retrieve all rows
+        //        using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+        //        {
+        //            var to_emp_id = cmd.Parameters.Add("@to_emp_id", NpgsqlDbType.Text);
+        //            var yr = cmd.Parameters.Add("@yr", NpgsqlDbType.Integer);
+        //            await cmd.PrepareAsync();
+        //            to_emp_id.Value = toEmployeeId;
+        //            yr.Value = yearSubmitted;
+        //            var reader = await cmd.ExecuteReaderAsync();
+        //            while (await reader.ReadAsync())
+        //            {
+        //                submissionList.Add(new LeaveSubmission()
+        //                {
+        //                    Id = reader["lvs_sbm_id"] == DBNull.Value ? 0 : (long)reader["lvs_sbm_id"],
+        //                    LeaveId = reader["lvs_inf_id"] == DBNull.Value ? 0 : (long)reader["lvs_inf_id"],
+        //                    ToEmployeeId = reader["to_emp_id"] == DBNull.Value ? string.Empty : reader["to_emp_id"].ToString(),
+        //                    ToEmployeeName = reader["to_emp_nm"] == DBNull.Value ? string.Empty : reader["to_emp_nm"].ToString(),
+        //                    FromEmployeeId = reader["frm_emp_id"] == DBNull.Value ? string.Empty : reader["frm_emp_id"].ToString(),
+        //                    FromEmployeeName = reader["frm_emp_nm"] == DBNull.Value ? string.Empty : reader["frm_emp_nm"].ToString(),
+        //                    TimeSubmitted = reader["sbm_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["sbm_dt"],
+        //                    Purpose = reader["sbm_purps"] == DBNull.Value ? string.Empty : reader["sbm_purps"].ToString(),
+        //                    Message = reader["sbm_msg"] == DBNull.Value ? string.Empty : reader["sbm_msg"].ToString(),
+        //                    IsActioned = reader["is_xtn"] == DBNull.Value ? false : (bool)reader["is_xtn"],
+        //                    TimeActioned = reader["dt_xtn"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["dt_xtn"],
+        //                    ToEmployeeRole = reader["to_emp_rl"] == DBNull.Value ? string.Empty : reader["to_emp_rl"].ToString(),
+        //                });
+        //            }
+        //        }
+        //        await conn.CloseAsync();
+        //    }
+        //    return submissionList;
+        //}
+        //public async Task<List<LeaveSubmission>> GetSubmissionsByToEmployeeIdnYearnMonthSubmittedAsync(string toEmployeeId, int yearSubmitted, int monthSubmitted)
+        //{
+        //    List<LeaveSubmission> submissionList = new List<LeaveSubmission>();
+        //    StringBuilder sb = new StringBuilder();
+        //    sb.Append("SELECT s.lvs_sbm_id, s.lvs_inf_id, s.frm_emp_id, s.to_emp_id, ");
+        //    sb.Append("s.sbm_purps, s.sbm_dt, s.sbm_msg, s.is_xtn, s.dt_xtn, s.to_emp_rl, ");
+        //    sb.Append("(SELECT fullname FROM public.gst_prsns p1 ");
+        //    sb.Append("WHERE p1.id = s.frm_emp_id) as frm_emp_nm, ");
+        //    sb.Append("(SELECT fullname FROM public.gst_prsns p2 ");
+        //    sb.Append("WHERE p2.id = s.to_emp_id) as to_emp_nm ");
+        //    sb.Append("FROM public.lms_lvs_sbms s ");
+        //    sb.Append("WHERE s.to_emp_id = @to_emp_id ");
+        //    sb.Append("AND DATE_PART('Year', s.sbm_dt) = @yr ");
+        //    sb.Append("AND DATE_PART('Month', s.sbm_dt) = @mn ");
+        //    sb.Append("ORDER BY s.lvs_sbm_id DESC; ");
+        //    string query = sb.ToString();
+        //    using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
+        //    {
+        //        await conn.OpenAsync();
+        //        // Retrieve all rows
+        //        using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+        //        {
+        //            var to_emp_id = cmd.Parameters.Add("@to_emp_id", NpgsqlDbType.Text);
+        //            var yr = cmd.Parameters.Add("@yr", NpgsqlDbType.Integer);
+        //            var mn = cmd.Parameters.Add("@mn", NpgsqlDbType.Integer);
+        //            await cmd.PrepareAsync();
+        //            to_emp_id.Value = toEmployeeId;
+        //            yr.Value = yearSubmitted;
+        //            mn.Value = monthSubmitted;
+        //            var reader = await cmd.ExecuteReaderAsync();
+        //            while (await reader.ReadAsync())
+        //            {
+        //                submissionList.Add(new LeaveSubmission()
+        //                {
+        //                    Id = reader["lvs_sbm_id"] == DBNull.Value ? 0 : (long)reader["lvs_sbm_id"],
+        //                    LeaveId = reader["lvs_inf_id"] == DBNull.Value ? 0 : (long)reader["lvs_inf_id"],
+        //                    ToEmployeeId = reader["to_emp_id"] == DBNull.Value ? string.Empty : reader["to_emp_id"].ToString(),
+        //                    ToEmployeeName = reader["to_emp_nm"] == DBNull.Value ? string.Empty : reader["to_emp_nm"].ToString(),
+        //                    FromEmployeeId = reader["frm_emp_id"] == DBNull.Value ? string.Empty : reader["frm_emp_id"].ToString(),
+        //                    FromEmployeeName = reader["frm_emp_nm"] == DBNull.Value ? string.Empty : reader["frm_emp_nm"].ToString(),
+        //                    TimeSubmitted = reader["sbm_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["sbm_dt"],
+        //                    Purpose = reader["sbm_purps"] == DBNull.Value ? string.Empty : reader["sbm_purps"].ToString(),
+        //                    Message = reader["sbm_msg"] == DBNull.Value ? string.Empty : reader["sbm_msg"].ToString(),
+        //                    IsActioned = reader["is_xtn"] == DBNull.Value ? false : (bool)reader["is_xtn"],
+        //                    TimeActioned = reader["dt_xtn"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["dt_xtn"],
+        //                    ToEmployeeRole = reader["to_emp_rl"] == DBNull.Value ? string.Empty : reader["to_emp_rl"].ToString(),
+        //                });
+        //            }
+        //        }
+        //        await conn.CloseAsync();
+        //    }
+        //    return submissionList;
+        //}
+
+        //==== Leave Submission Write Action Methods
+        public async Task<bool> AddLeaveSubmissionAsync(LeaveSubmission e)
+        {
+            int rows = 0;
+            StringBuilder sb = new StringBuilder();
+            sb.Append("INSERT INTO public.lvm_lvs_sbms(lvs_pln_id, lvs_rqst_id, ");
+            sb.Append("frm_emp_nm, to_emp_nm, sbm_purps, sbm_dt, sbm_msg, is_xtn, ");
+            sb.Append("dt_xtn, to_emp_rl) VALUES (@lvs_pln_id, @lvs_rqst_id, ");
+            sb.Append("@frm_emp_nm, @to_emp_nm, @sbm_purps, @sbm_dt, @sbm_msg, ");
+            sb.Append("@is_xtn, @dt_xtn, @to_emp_rl); ");
+
+            string query = sb.ToString();
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
+            {
+                await conn.OpenAsync();
+                //Insert data
+                using (var cmd = new NpgsqlCommand(query, conn))
+                {
+                    var lvs_pln_id = cmd.Parameters.Add("@lvs_pln_id", NpgsqlDbType.Bigint);
+                    var lvs_rqst_id = cmd.Parameters.Add("@lvs_rqst_id", NpgsqlDbType.Bigint);
+                    var frm_emp_nm = cmd.Parameters.Add("@frm_emp_nm", NpgsqlDbType.Text);
+                    var to_emp_nm = cmd.Parameters.Add("@to_emp_nm", NpgsqlDbType.Text);
+                    var sbm_purps = cmd.Parameters.Add("@sbm_purps", NpgsqlDbType.Text);
+                    var sbm_dt = cmd.Parameters.Add("@sbm_dt", NpgsqlDbType.TimestampTz);
+                    var sbm_msg = cmd.Parameters.Add("@sbm_msg", NpgsqlDbType.Text);
+                    var is_xtn = cmd.Parameters.Add("@is_xtn", NpgsqlDbType.Boolean);
+                    var dt_xtn = cmd.Parameters.Add("@dt_xtn", NpgsqlDbType.TimestampTz);
+                    var to_emp_rl = cmd.Parameters.Add("@to_emp_rl", NpgsqlDbType.Text);
+                    cmd.Prepare();
+                    lvs_pln_id.Value = e.LeavePlanId ?? (object)DBNull.Value;
+                    lvs_rqst_id.Value = e.LeaveRequestId ?? (object)DBNull.Value;
+                    frm_emp_nm.Value = e.FromEmployeeName;
+                    to_emp_nm.Value = e.ToEmployeeName;
+                    sbm_purps.Value = e.Purpose;
+                    sbm_dt.Value = e.TimeSubmitted;
+                    sbm_msg.Value = e.Message ?? (object)DBNull.Value;
+                    is_xtn.Value = e.IsActioned;
+                    dt_xtn.Value = e.TimeActioned ?? (object)DBNull.Value;
+                    to_emp_rl.Value = e.ToEmployeeRole;
+                    rows = await cmd.ExecuteNonQueryAsync();
+                    await conn.CloseAsync();
+                }
+            }
+            return rows > 0;
+        }
+        public async Task<bool> DeleteSubmissionAsync(long id)
+        {
+            int rows = 0;
+            string query = "DELETE FROM public.lvm_lvs_sbms WHERE (lvs_sbm_id = @lvs_sbm_id);";
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
+            {
+                await conn.OpenAsync();
+                //Delete data
+                using (var cmd = new NpgsqlCommand(query, conn))
+                {
+                    var lvs_sbm_id = cmd.Parameters.Add("@lvs_sbm_id", NpgsqlDbType.Bigint);
+                    cmd.Prepare();
+                    lvs_sbm_id.Value = id;
+                    rows = await cmd.ExecuteNonQueryAsync();
+                    await conn.CloseAsync();
+                }
+            }
+            return rows > 0;
+        }
+        public async Task<bool> UpdateSubmissionActionStatusAsync(long leaveSubmissionId, DateTime? timeActioned)
+        {
+            int rows = 0;
+            StringBuilder sb = new StringBuilder();
+            sb.Append("UPDATE public.lvm_lvs_sbms SET is_xtn=true, dt_xtn=@dt_xtn ");
+            sb.Append("WHERE lvs_sbm_id = @lvs_sbm_id; ");
+            string query = sb.ToString();
+
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
+            {
+                await conn.OpenAsync();
+                //Insert data
+                using (var cmd = new NpgsqlCommand(query, conn))
+                {
+                    var lvs_sbm_id = cmd.Parameters.Add("@lvs_sbm_id", NpgsqlDbType.Bigint);
+                    var dt_xtn = cmd.Parameters.Add("@dt_xtn", NpgsqlDbType.TimestampTz);
+                    cmd.Prepare();
+                    lvs_sbm_id.Value = leaveSubmissionId;
+                    dt_xtn.Value = timeActioned;
+                    rows = await cmd.ExecuteNonQueryAsync();
+                    await conn.CloseAsync();
+                }
+            }
+            return rows > 0;
+        }
+
+        #endregion
+
+
+        #region Leave Approval Action Methods
+        public async Task<long> AddLeaveApprovalAsync(LeaveApproval e)
+        {
+            long _newLeaveApprovalId = 0;
+            StringBuilder sb = new StringBuilder();
+            sb.Append("INSERT INTO public.lvm_lvs_aprvs(lvs_pln_id, ");
+            sb.Append("lvs_rqst_id, aprv_emp_nm, lvs_emp_nm, is_aprvd, ");
+            sb.Append("lvs_aprv_dt, lvs_aprv_rmk, lvs_aprv_as) VALUES (");
+            sb.Append("@lvs_pln_id, @lvs_rqst_id, @aprv_emp_nm, @lvs_emp_nm, ");
+            sb.Append("@is_aprvd, @lvs_aprv_dt, @lvs_aprv_rmk, @lvs_aprv_as) ");
+            sb.Append("RETURNING lvs_aprv_id;");
+
+            string query = sb.ToString();
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
+            {
+                await conn.OpenAsync();
+                //Insert data
+                using (var cmd = new NpgsqlCommand(query, conn))
+                {
+                    var lvs_pln_id = cmd.Parameters.Add("@lvs_pln_id", NpgsqlDbType.Bigint);
+                    var lvs_rqst_id = cmd.Parameters.Add("@lvs_rqst_id", NpgsqlDbType.Bigint);
+                    var aprv_emp_nm = cmd.Parameters.Add("@aprv_emp_nm", NpgsqlDbType.Text);
+                    var lvs_emp_nm = cmd.Parameters.Add("@lvs_emp_nm", NpgsqlDbType.Text);
+                    var is_aprvd = cmd.Parameters.Add("@is_aprvd", NpgsqlDbType.Boolean);
+                    var lvs_aprv_dt = cmd.Parameters.Add("@lvs_aprv_dt", NpgsqlDbType.TimestampTz);
+                    var lvs_aprv_rmk = cmd.Parameters.Add("@lvs_aprv_rmk", NpgsqlDbType.Text);
+                    var lvs_aprv_as = cmd.Parameters.Add("@lvs_aprv_as", NpgsqlDbType.Text);
+                    cmd.Prepare();
+                    lvs_pln_id.Value = e.LeavePlanId ?? (object)DBNull.Value;
+                    lvs_rqst_id.Value = e.LeaveRequestId ?? (object)DBNull.Value;
+                    aprv_emp_nm.Value = e.ApproverName;
+                    lvs_emp_nm.Value = e.ApplicantName;
+                    is_aprvd.Value = e.IsApproved;
+                    lvs_aprv_dt.Value = e.TimeApproved ?? DateTime.Now;
+                    lvs_aprv_rmk.Value = e.ApproverComments ?? string.Empty;
+                    lvs_aprv_as.Value = e.ApproverRole;
+
+                    var obj = await cmd.ExecuteScalarAsync();
+                    _newLeaveApprovalId = (long)obj;
+                    await conn.CloseAsync();
+                }
+            }
+            return _newLeaveApprovalId;
+        }
+        public async Task<bool> DeleteApprovalAsync(long leaveApprovalId)
+        {
+            int rows = 0;
+            string query = "DELETE FROM public.lvm_lvs_aprvs WHERE (lvs_aprv_id = @lvs_aprv_id);";
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
+            {
+                await conn.OpenAsync();
+                //Delete data
+                using (var cmd = new NpgsqlCommand(query, conn))
+                {
+                    var lvs_aprv_id = cmd.Parameters.Add("@lvs_aprv_id", NpgsqlDbType.Bigint);
+                    cmd.Prepare();
+                    lvs_aprv_id.Value = leaveApprovalId;
+                    rows = await cmd.ExecuteNonQueryAsync();
+                    await conn.CloseAsync();
+                }
+            }
+            return rows > 0;
+        }
+        public async Task<List<LeaveApproval>> GetLeaveApprovalsByLeavePlanIdAsync(long leavePlanId)
+        {
+            List<LeaveApproval> approvalsList = new List<LeaveApproval>();
+            StringBuilder sb = new StringBuilder();
+            sb.Append("SELECT lvs_aprv_id, lvs_pln_id, lvs_rqst_id, aprv_emp_nm, ");
+            sb.Append("lvs_emp_nm, is_aprvd, lvs_aprv_dt, lvs_aprv_rmk, lvs_aprv_as ");
+            sb.Append("FROM public.lvm_lvs_aprvs WHERE (lvs_pln_id = @lvs_pln_id) ");
+            sb.Append("ORDER BY lvs_aprv_id DESC; ");
+            string query = sb.ToString();
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
+            {
+                await conn.OpenAsync();
+                // Retrieve all rows
+                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+                {
+                    var lvs_pln_id = cmd.Parameters.Add("@lvs_pln_id", NpgsqlDbType.Bigint);
+                    await cmd.PrepareAsync();
+                    lvs_pln_id.Value = leavePlanId;
+                    var reader = await cmd.ExecuteReaderAsync();
+                    while (await reader.ReadAsync())
+                    {
+                        approvalsList.Add(new LeaveApproval()
+                        {
+                            LeaveApprovalId = reader["lvs_aprv_id"] == DBNull.Value ? 0L : (long)reader["lvs_aprv_id"],
+                            LeavePlanId = reader["lvs_pln_id"] == DBNull.Value ? 0L : (long)reader["lvs_pln_id"],
+                            LeaveRequestId = reader["lvs_rqst_id"] == DBNull.Value ? 0L : (long)reader["lvs_rqst_id"],
+                            ApproverName = reader["aprv_emp_nm"] == DBNull.Value ? string.Empty : reader["aprv_emp_nm"].ToString(),
+                            ApplicantName = reader["lvs_emp_nm"] == DBNull.Value ? string.Empty : reader["lvs_emp_nm"].ToString(),
+                            IsApproved = reader["is_aprvd"] == DBNull.Value ? false : (bool)reader["is_aprvd"],
+                            TimeApproved = reader["lvs_aprv_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["lvs_aprv_dt"],
+                            ApproverComments = reader["lvs_aprv_rmk"] == DBNull.Value ? string.Empty : reader["lvs_aprv_rmk"].ToString(),
+                            ApproverRole = reader["lvs_aprv_as"] == DBNull.Value ? string.Empty : reader["lvs_aprv_as"].ToString(),
+                        });
+                    }
+                }
+                await conn.CloseAsync();
+            }
+            return approvalsList;
+        }
+        public async Task<List<LeaveApproval>> GetLeaveApprovalsByLeaveRequestIdAsync(long leaveRequestId)
+        {
+            List<LeaveApproval> approvalsList = new List<LeaveApproval>();
+            StringBuilder sb = new StringBuilder();
+            sb.Append("SELECT lvs_aprv_id, lvs_pln_id, lvs_rqst_id, aprv_emp_nm, ");
+            sb.Append("lvs_emp_nm, is_aprvd, lvs_aprv_dt, lvs_aprv_rmk, lvs_aprv_as ");
+            sb.Append("FROM public.lvm_lvs_aprvs WHERE (lvs_rqst_id = @lvs_rqst_id) ");
+            sb.Append("ORDER BY lvs_aprv_id DESC; ");
+            string query = sb.ToString();
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
+            {
+                await conn.OpenAsync();
+                // Retrieve all rows
+                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+                {
+                    var lvs_rqst_id = cmd.Parameters.Add("@lvs_rqst_id", NpgsqlDbType.Bigint);
+                    await cmd.PrepareAsync();
+                    lvs_rqst_id.Value = leaveRequestId;
+                    var reader = await cmd.ExecuteReaderAsync();
+                    while (await reader.ReadAsync())
+                    {
+                        approvalsList.Add(new LeaveApproval()
+                        {
+                            LeaveApprovalId = reader["lvs_aprv_id"] == DBNull.Value ? 0L : (long)reader["lvs_aprv_id"],
+                            LeavePlanId = reader["lvs_pln_id"] == DBNull.Value ? 0L : (long)reader["lvs_pln_id"],
+                            LeaveRequestId = reader["lvs_rqst_id"] == DBNull.Value ? 0L : (long)reader["lvs_rqst_id"],
+                            ApproverName = reader["aprv_emp_nm"] == DBNull.Value ? string.Empty : reader["aprv_emp_nm"].ToString(),
+                            ApplicantName = reader["lvs_emp_nm"] == DBNull.Value ? string.Empty : reader["lvs_emp_nm"].ToString(),
+                            IsApproved = reader["is_aprvd"] == DBNull.Value ? false : (bool)reader["is_aprvd"],
+                            TimeApproved = reader["lvs_aprv_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["lvs_aprv_dt"],
+                            ApproverComments = reader["lvs_aprv_rmk"] == DBNull.Value ? string.Empty : reader["lvs_aprv_rmk"].ToString(),
+                            ApproverRole = reader["lvs_aprv_as"] == DBNull.Value ? string.Empty : reader["lvs_aprv_as"].ToString(),
+                        });
+                    }
+                }
+                await conn.CloseAsync();
+            }
+            return approvalsList;
+        }
+        public async Task<LeaveApproval> GetApprovalByIdAsync(long leaveApprovalId)
+        {
+            List<LeaveApproval> approvalsList = new List<LeaveApproval>();
+            StringBuilder sb = new StringBuilder();
+            sb.Append("SELECT lvs_aprv_id, lvs_pln_id, lvs_rqst_id, aprv_emp_nm, ");
+            sb.Append("lvs_emp_nm, is_aprvd, lvs_aprv_dt, lvs_aprv_rmk, lvs_aprv_as ");
+            sb.Append("FROM public.lvm_lvs_aprvs WHERE (lvs_aprv_id = @lvs_aprv_id); ");
+
+            string query = sb.ToString();
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
+            {
+                await conn.OpenAsync();
+                // Retrieve all rows
+                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+                {
+                    var lvs_aprv_id = cmd.Parameters.Add("@lvs_aprv_id", NpgsqlDbType.Bigint);
+                    await cmd.PrepareAsync();
+                    lvs_aprv_id.Value = leaveApprovalId;
+                    var reader = await cmd.ExecuteReaderAsync();
+                    while (await reader.ReadAsync())
+                    {
+                        approvalsList.Add(new LeaveApproval()
+                        {
+                            LeaveApprovalId = reader["lvs_aprv_id"] == DBNull.Value ? 0L : (long)reader["lvs_aprv_id"],
+                            LeavePlanId = reader["lvs_pln_id"] == DBNull.Value ? 0L : (long)reader["lvs_pln_id"],
+                            LeaveRequestId = reader["lvs_rqst_id"] == DBNull.Value ? 0L : (long)reader["lvs_rqst_id"],
+                            ApproverName = reader["aprv_emp_nm"] == DBNull.Value ? string.Empty : reader["aprv_emp_nm"].ToString(),
+                            ApplicantName = reader["lvs_emp_nm"] == DBNull.Value ? string.Empty : reader["lvs_emp_nm"].ToString(),
+                            IsApproved = reader["is_aprvd"] == DBNull.Value ? false : (bool)reader["is_aprvd"],
+                            TimeApproved = reader["lvs_aprv_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["lvs_aprv_dt"],
+                            ApproverComments = reader["lvs_aprv_rmk"] == DBNull.Value ? string.Empty : reader["lvs_aprv_rmk"].ToString(),
+                            ApproverRole = reader["lvs_aprv_as"] == DBNull.Value ? string.Empty : reader["lvs_aprv_as"].ToString(),
+                        });
+                    }
+                }
+                await conn.CloseAsync();
+            }
+            return approvalsList[0];
+        }
+
+        #endregion
+
+        #region Leave Documents Action Methods
+        public async Task<long> AddLeaveDocumentAsync(LeaveDocument e)
+        {
+            long _newLeaveDocumentId = 0;
+            StringBuilder sb = new StringBuilder();
+            sb.Append("INSERT INTO public.lvm_lvs_docs(doc_ref_pth, ");
+            sb.Append("lvs_rqst_id, doc_title, doc_ful_pth, upl_dt, ");
+            sb.Append("doc_desc) VALUES (@doc_ref_pth, @lvs_rqst_id, ");
+            sb.Append("@doc_title, @doc_ful_pth, @upl_dt, @doc_desc) ");
+            sb.Append("RETURNING lvs_doc_id;");
+
+            string query = sb.ToString();
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
+            {
+                await conn.OpenAsync();
+                //Insert data
+                using (var cmd = new NpgsqlCommand(query, conn))
+                {
+                    var lvs_rqst_id = cmd.Parameters.Add("@lvs_rqst_id", NpgsqlDbType.Bigint);
+                    var doc_title = cmd.Parameters.Add("@doc_title", NpgsqlDbType.Text);
+                    var doc_desc = cmd.Parameters.Add("@doc_desc", NpgsqlDbType.Text);
+                    var upl_dt = cmd.Parameters.Add("@upl_dt", NpgsqlDbType.Timestamp);
+                    var doc_ref_pth = cmd.Parameters.Add("@doc_ref_pth", NpgsqlDbType.Text);
+                    var doc_ful_pth = cmd.Parameters.Add("@doc_ful_pth", NpgsqlDbType.Text);
+                    cmd.Prepare();
+                    lvs_rqst_id.Value = e.LeaveRequestId;
+                    doc_title.Value = e.DocumentTitle;
+                    doc_desc.Value = e.DocumentDescription ?? (object)DBNull.Value;
+                    upl_dt.Value = e.TimeUploaded ?? DateTime.Now;
+                    doc_ref_pth.Value = e.DocumentReferencePath ?? (object)DBNull.Value;
+                    doc_ful_pth.Value = e.DocumentFullPath ?? (object)DBNull.Value;
+
+                    var obj = await cmd.ExecuteScalarAsync();
+                    _newLeaveDocumentId = (long)obj;
+                    await conn.CloseAsync();
+                }
+            }
+            return _newLeaveDocumentId;
+        }
+        public async Task<bool> DeleteLeaveDocumentAsync(long leaveDocumentId)
+        {
+            int rows = 0;
+            string query = "DELETE FROM public.lvm_lvs_docs WHERE (lvs_doc_id = @lvs_doc_id);";
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
+            {
+                await conn.OpenAsync();
+                //Delete data
+                using (var cmd = new NpgsqlCommand(query, conn))
+                {
+                    var lvs_doc_id = cmd.Parameters.Add("@lvs_doc_id", NpgsqlDbType.Bigint);
+                    cmd.Prepare();
+                    lvs_doc_id.Value = leaveDocumentId;
+                    rows = await cmd.ExecuteNonQueryAsync();
+                    await conn.CloseAsync();
+                }
+            }
+            return rows > 0;
+        }
+        public async Task<LeaveDocument> GetLeaveDocumentByIdAsync(long leaveDocumentId)
+        {
+            LeaveDocument document = new LeaveDocument();
+            StringBuilder sb = new StringBuilder();
+            sb.Append("SELECT lvs_doc_id, doc_ref_pth, lvs_rqst_id, ");
+            sb.Append("doc_title, doc_ful_pth, upl_dt, doc_desc ");
+            sb.Append("FROM public.lvm_lvs_docs ");
+            sb.Append("WHERE (lvs_doc_id = @lvs_doc_id); ");
+            string query = sb.ToString();
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
+            {
+                await conn.OpenAsync();
+                // Retrieve all rows
+                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+                {
+                    var lvs_doc_id = cmd.Parameters.Add("@lvs_doc_id", NpgsqlDbType.Bigint);
+                    await cmd.PrepareAsync();
+                    lvs_doc_id.Value = leaveDocumentId;
+                    var reader = await cmd.ExecuteReaderAsync();
+                    while (await reader.ReadAsync())
+                    {
+                        document.LeaveDocumentId = reader["lvs_doc_id"] == DBNull.Value ? 0L : (long)reader["lvs_doc_id"];
+                        document.LeaveRequestId = reader["lvs_rqst_id"] == DBNull.Value ? 0L : (long)reader["lvs_rqst_id"];
+                        document.DocumentTitle = reader["doc_title"] == DBNull.Value ? string.Empty : reader["doc_title"].ToString();
+                        document.DocumentDescription = reader["doc_desc"] == DBNull.Value ? string.Empty : reader["doc_desc"].ToString();
+                        document.DocumentReferencePath = reader["doc_ref_pth"] == DBNull.Value ? string.Empty : reader["doc_ref_pth"].ToString();
+                        document.DocumentFullPath = reader["doc_ful_pth"] == DBNull.Value ? string.Empty : reader["doc_ful_pth"].ToString();
+                        document.TimeUploaded = reader["upl_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["upl_dt"];
+                    }
+                }
+                await conn.CloseAsync();
+            }
+            return document;
+        }
+        public async Task<List<LeaveDocument>> GetLeaveDocumentsByLeaveRequestIdAsync(long leaveRequestId)
+        {
+            List<LeaveDocument> documentsList = new List<LeaveDocument>();
+            StringBuilder sb = new StringBuilder();
+            sb.Append("SELECT lvs_doc_id, doc_ref_pth, lvs_rqst_id, ");
+            sb.Append("doc_title, doc_ful_pth, upl_dt, doc_desc ");
+            sb.Append("FROM public.lvm_lvs_docs ");
+            sb.Append("WHERE (lvs_rqst_id = @lvs_rqst_id) ");
+            sb.Append("ORDER BY lvs_doc_id DESC; ");
+            string query = sb.ToString();
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
+            {
+                await conn.OpenAsync();
+                // Retrieve all rows
+                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+                {
+                    var lvs_rqst_id = cmd.Parameters.Add("@lvs_rqst_id", NpgsqlDbType.Bigint);
+                    await cmd.PrepareAsync();
+                    lvs_rqst_id.Value = leaveRequestId;
+                    var reader = await cmd.ExecuteReaderAsync();
+                    while (await reader.ReadAsync())
+                    {
+                        documentsList.Add(new LeaveDocument()
+                        {
+                            LeaveDocumentId = reader["lvs_doc_id"] == DBNull.Value ? 0L : (long)reader["lvs_doc_id"],
+                            LeaveRequestId = reader["lvs_rqst_id"] == DBNull.Value ? 0L : (long)reader["lvs_rqst_id"],
+                            DocumentTitle = reader["doc_title"] == DBNull.Value ? string.Empty : reader["doc_title"].ToString(),
+                            DocumentDescription = reader["doc_desc"] == DBNull.Value ? string.Empty : reader["doc_desc"].ToString(),
+                            DocumentReferencePath = reader["doc_ref_pth"] == DBNull.Value ? string.Empty : reader["doc_ref_pth"].ToString(),
+                            DocumentFullPath = reader["doc_ful_pth"] == DBNull.Value ? string.Empty : reader["doc_ful_pth"].ToString(),
+                            TimeUploaded = reader["upl_dt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["upl_dt"],
+                        });
+                    }
+                }
+                await conn.CloseAsync();
+            }
+            return documentsList;
+        }
 
         #endregion
 
@@ -5224,8 +6404,8 @@ namespace IntranetPortal.Data.Repositories.LeaveRepositories
             int rows = 0;
             StringBuilder sb = new StringBuilder();
             sb.Append("INSERT INTO public.lvm_lvs_logs(act_ds, act_dt, ");
-            sb.Append("lvs_pln_id, lvs_rqs_id) ");
-            sb.Append("VALUES (@act_ds, @act_dt, @lvs_pln_id, @lvs_rqs_id); ");
+            sb.Append("lvs_pln_id, lvs_rqs_id) VALUES (@act_ds, ");
+            sb.Append("@act_dt, @lvs_pln_id, @lvs_rqs_id); ");
             string query = sb.ToString();
 
             using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))

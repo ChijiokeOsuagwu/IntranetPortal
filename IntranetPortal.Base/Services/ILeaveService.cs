@@ -72,6 +72,7 @@ namespace IntranetPortal.Base.Services
         #region Leave Request Read Interfaces
         Task<List<LeaveRequest>> GetLeaveRequestsAsync(string EmployeeId, int LeaveYear);
         Task<LeaveRequest> GetLeaveRequestAsync(long LeaveRequestId);
+        Task<List<LeaveRequest>> SearchLeaveRequestsAsync(int LeaveYear, int LeaveMonth, string EmployeeName = null, int? LocationId = null, int? UnitId = null);
         #endregion
 
         #endregion
@@ -85,13 +86,23 @@ namespace IntranetPortal.Base.Services
         Task<bool> DeleteLeaveSubmissionAsync(long LeaveSubmissionId);
         Task<LeaveSubmission> GetLeaveSubmissionByIdAsync(long LeaveSubmissionId);
         Task<List<LeaveSubmission>> GetLeaveSubmissionsByApproverIdAsync(string approverName, int? submittedYear = null);
+        Task<List<LeaveSubmission>> GetLeaveSubmissionsByApproverRoleAsync(string approverRole, int? submittedYear = null);
+
         #endregion
 
         #region Leave Approval Service Methods
-        Task<bool> ApproveLeavePlanAsync(LeaveApproval e, LeaveSubmission s);
+        Task<bool> ApproveLeaveAsync(LeaveApproval e, LeaveSubmission s, DocumentType t);
         Task<List<LeaveApproval>> GetLeaveApprovalsAsync(long? LeavePlanId = null, long? LeaveRequestId = null);
 
-        Task<bool> DeclineLeavePlanAsync(LeaveApproval a, LeaveSubmission s);
+        Task<bool> DeclineLeaveAsync(LeaveApproval a, LeaveSubmission s, DocumentType t);
+        #endregion
+
+        #region Leave Documents Service Interfaces
+        Task<bool> AddLeaveDocumentAsync(LeaveDocument document);
+        Task<bool> DeleteLeaveDocumentAsync(long LeaveDocumentId);
+
+        Task<LeaveDocument> GetLeaveDocumentAsync(long LeaveDocumentId);
+        Task<List<LeaveDocument>> GetLeaveDocumentsAsync(long LeaveRequestId);
         #endregion
 
         #region Leave Service Helper Interfaces

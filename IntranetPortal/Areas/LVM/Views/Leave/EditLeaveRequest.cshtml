@@ -1,12 +1,12 @@
 ﻿
-@model IntranetPortal.Areas.LVM.Models.LeavePlanViewModel
+@model IntranetPortal.Areas.LVM.Models.LeaveRequestViewModel
 <h3 class="mb-1">My Leave Records</h3>
 <hr />
 <div class="card mt-1" style="max-width:1000px">
-    <div class="card-header bg-success">
-        <h4 class="text-white">New Leave Plan</h4>
+    <div class="card-header" style="background-color:#035711">
+        <h4 class="text-white">Edit Leave Request</h4>
     </div>
-    <div class="card-body bg-secondary">
+    <div class="card-body" style="background-color: #79AB81; ">
         @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
         {
             <div class="alert alert-danger alert-dismissible fade show" role="alert">
@@ -31,19 +31,19 @@
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         }
-        <form asp-area="LVM" asp-controller="Leave" asp-action="NewLeavePlan" method="post" autocomplete="off">
+        <form asp-area="LVM" asp-controller="Leave" asp-action="EditLeaveRequest" method="post" autocomplete="off">
             <div class="row">
                 <div class="col-md-6 mb-3">
-                    <label asp-for="LeaveEmployeeName" class="form-label text-white fw-bold"></label>
+                    <label asp-for="LeaveEmployeeName" class="form-label text-dark">Employee Name</label>
                     <input asp-for="LeaveEmployeeName" class="form-control fw-bold" readonly>
                 </div>
                 <div class="col-md-2 mb-3">
-                    <label asp-for="LeaveYear" class="form-label text-white fw-bold"></label>
+                    <label asp-for="LeaveYear" class="form-label text-dark">Year</label>
                     <input asp-for="LeaveYear" class="form-control fw-bold" min="2020" max="2060" autofocus>
                     <div><span asp-validation-for="LeaveYear" class="text-danger"></span></div>
                 </div>
                 <div class="col-md-4 mb-3">
-                    <label asp-for="LeaveTypeCode" class="form-label text-white fw-bold"></label>
+                    <label asp-for="LeaveTypeCode" class="form-label text-dark">Type</label>
                     <select asp-for="LeaveTypeCode" class="form-control fw-bold" asp-items="@ViewBag.LeaveTypeCodeList" autofocus>
                         <option value="">Select</option>
                     </select>
@@ -52,15 +52,15 @@
             </div>
             <div class="row">
                 <div class="col-md-3 mb-3">
-                    <label asp-for="LeavePlanStartDate" class="form-label text-white fw-bold"></label>
-                    <input asp-for="LeavePlanStartDate" class="form-control fw-bold" type="date">
-                    <div><span asp-validation-for="LeavePlanStartDate" class="text-danger"></span></div>
+                    <label asp-for="RequestedStartDate" class="form-label text-dark">Starts On:</label>
+                    <input asp-for="RequestedStartDate" class="form-control fw-bold" type="date">
+                    <div><span asp-validation-for="RequestedStartDate" class="text-danger"></span></div>
                 </div>
                 <div class="col-md-3 mb-3">
-                    <label class="form-label text-white fw-bold">Leave Duration</label>
+                    <label class="form-label text-dark">Leave Duration</label>
                     <div class="input-group">
-                        <input asp-for="LeavePlanDuration" class="form-control fw-bold" min="1" max="31" style="max-width:100px">
-                        <select asp-for="LeavePlanDurationTypeId" class="form-control fw-bold">
+                        <input asp-for="RequestedDuration" class="form-control fw-bold" min="1" style="max-width:75px">
+                        <select asp-for="RequestedDurationTypeId" class="form-control fw-bold" style="min-width:130px">
                             <option value="">Select</option>
                             <option value="0">Working Day(s)</option>
                             <option value="1">Day(s)</option>
@@ -69,23 +69,23 @@
                             <option value="4">Year(s)</option>
                         </select>
                     </div>
-                    <div><span asp-validation-for="LeavePlanDuration" class="text-danger"></span></div>
-                    <div><span asp-validation-for="LeavePlanDurationTypeId" class="text-danger"></span></div>
+                    <div><span asp-validation-for="RequestedDuration" class="text-danger"></span></div>
+                    <div><span asp-validation-for="RequestedDurationTypeId" class="text-danger"></span></div>
                 </div>
                 <div class="col-md-3 mb-3">
-                    <label class="form-label text-white fw-bold">Leave Ends On:</label>
-                    <input asp-for="LeavePlanEndDate" id="LeavePlanEndDate" class="form-control fw-bold" type="date" readonly onclick="getLastLeaveDate()">
-                    <div><span id="leavePlanEndDateErrorSpan" asp-validation-for="LeavePlanEndDate" class="text-danger"></span></div>
+                    <label class="form-label text-dark">Ends On:</label>
+                    <input asp-for="RequestedEndDate" id="RequestedEndDate" class="form-control fw-bold" type="date" readonly onclick="getRequestLastLeaveDate()">
+                    <div><span id="requestedEndDateErrorSpan" asp-validation-for="RequestedEndDate" class="text-danger"></span></div>
                 </div>
                 <div class="col-md-3 mb-3">
-                    <label class="form-label text-white fw-bold">Resumes Work On:</label>
-                    <input asp-for="LeavePlanResumptionDate" id="LeavePlanResumptionDate" class="form-control fw-bold" type="date" readonly onclick="getExpectedResumptionDate()">
-                    <div><span id="LeavePlanResumptionDateErrorSpan" asp-validation-for="LeavePlanResumptionDate" class="text-danger"></span></div>
+                    <label class="form-label text-dark">Resumes Work On:</label>
+                    <input asp-for="RequestedResumptionDate" id="RequestedResumptionDate" class="form-control fw-bold" type="date" readonly onclick="getRequestedExpectedResumptionDate()">
+                    <div><span id="requestedResumptionDateErrorSpan" asp-validation-for="RequestedResumptionDate" class="text-danger"></span></div>
                 </div>
             </div>
             <div class="row">
                 <div class="col-md-12 mb-3">
-                    <label asp-for="LeaveReason" class="form-label text-white fw-bold"></label>
+                    <label asp-for="LeaveReason" class="form-label text-dark">Reason <small>(optional)</small></label>
                     <textarea asp-for="LeaveReason" class="form-control fw-bold">@Model.LeaveReason</textarea>
                     <div><span asp-validation-for="LeaveReason" class="text-danger"></span></div>
                 </div>
@@ -95,22 +95,23 @@
                     <a asp-area="LVM" asp-controller="Leave" asp-action="MyLeaveRecords" class="btn btn-dark" style="width:100px" title="Exit">
                         <span class="text-white">Exit</span>
                     </a>
-                    <a asp-area="LVM" asp-controller="Leave" asp-action="NewLeavePlan" class="btn btn-warning" style="width:100px" title="Clear">
+                    <a asp-area="LVM" asp-controller="Leave" asp-action="NewLeaveRequest" class="btn btn-warning" style="width:100px" title="Clear">
                         <span class="text-white">Clear</span>
                     </a>
                     @if (!Model.OperationIsSuccessful)
                     {
-                        <button type="submit" class="btn btn-success" title="Save" style="width:200px"><span class="text-white">Save</span></button>
+                        <button type="submit" class="btn" title="Save" style="width: 200px; background-color:#035711"><span class="text-white">Save</span></button>
                     }
                 </div>
             </div>
-            <input type="hidden" asp-for="LeavePlanId">
+            <input type="hidden" asp-for="LeaveRequestId">
             <input type="hidden" asp-for="LeaveEmployeeId" />
             <input type="hidden" asp-for="LeaveEmployeeName" />
-            <input type="hidden" asp-for="LeavePlanStatusId" />
+            <input type="hidden" asp-for="LeaveRequestStatusId" />
         </form>
     </div>
 </div>
 @section Scripts{
     <script src="~/js/lvs.js"></script>
 }
+
