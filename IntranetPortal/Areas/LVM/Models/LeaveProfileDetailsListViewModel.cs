@@ -9,7 +9,7 @@ namespace IntranetPortal.Areas.LVM.Models
 {
     public class LeaveProfileDetailsListViewModel:BaseListViewModel
     {
-        public int LeaveProfileId { get; set; }
+        public string LeaveProfileCode { get; set; }
         public string LeaveProfileName { get; set; }
         public List<LeaveProfileDetail> LeaveProfileDetailList { get; set; }
 

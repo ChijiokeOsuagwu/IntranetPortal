@@ -10,9 +10,6 @@ namespace IntranetPortal.Areas.LVM.Models
     public class LeaveProfileViewModel:BaseViewModel
     {
         [Required]
-        public int Id { get; set; }
-
-        [Required]
         [Display(Name = "Code")]
         [MaxLength(4, ErrorMessage = "Code must not exceed 4 characters.")]
         public string Code { get; set; }
@@ -25,6 +22,5 @@ namespace IntranetPortal.Areas.LVM.Models
         [Display(Name = "Description")]
         [MaxLength(150, ErrorMessage = "Name must not exceed 150 characters.")]
         public string Description { get; set; }
-
     }
 }

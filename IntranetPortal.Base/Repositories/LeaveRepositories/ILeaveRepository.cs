@@ -21,17 +21,17 @@ namespace IntranetPortal.Base.Repositories.LeaveRepositories
 
         #region LeaveProfile Action Methods
         Task<bool> AddLeaveProfileAsync(LeaveProfile leaveProfile);
-        Task<bool> DeleteLeaveProfileAsync(int id);
+        Task<bool> DeleteLeaveProfileAsync(string profileCode);
         Task<bool> EditLeaveProfileAsync(LeaveProfile leaveProfile);
-        Task<LeaveProfile> GetLeaveProfileByIdAsync(int id);
+        Task<LeaveProfile> GetLeaveProfileByCodeAsync(string profileCode);
         Task<LeaveProfile> GetLeaveProfileByNameAsync(string profileName);
         Task<List<LeaveProfile>> GetAllLeaveProfilesAsync();
         #endregion
 
         #region LeaveProfileDetails Action Interfaces
-        Task<List<LeaveProfileDetail>> GetLeaveProfileDetailsByProfileIdAsync(int profileId);
+        Task<List<LeaveProfileDetail>> GetLeaveProfileDetailsByProfileCodeAsync(string profileCode);
         Task<List<LeaveProfileDetail>> GetLeaveProfileDetailByIdAsync(int leaveProfileDetailId);
-        Task<List<LeaveProfileDetail>> GetLeaveProfileDetailsByProfileIdnLeaveTypeAsync(int profileId, string leaveTypeCode);
+        Task<List<LeaveProfileDetail>> GetLeaveProfileDetailsByProfileCodenLeaveTypeAsync(string profileCode, string leaveTypeCode);
         Task<List<LeaveProfileDetail>> GetLeaveProfileDetailsByEmployeeIdAsync(string employeeId);
         Task<LeaveProfileDetail> GetLeaveProfileDetailByEmployeeIdnLeaveTypeAsync(string employeeId, string leaveTypeCode);
         Task<LeaveProfileDetail> GetLeaveProfileDetailByEmployeeNamenLeaveTypeAsync(string employeeName, string leaveTypeCode);
@@ -86,12 +86,16 @@ namespace IntranetPortal.Base.Repositories.LeaveRepositories
         #endregion
 
         #region Leave Requests Action Methods
+        
         #region Leave Requests Write Action Methods
         Task<long> AddLeaveRequestAsync(LeaveRequest r);
         Task<bool> DeleteLeaveRequestAsync(long leaveRequestId);
         Task<bool> EditLeaveRequestAsync(LeaveRequest r);
         Task<bool> UpdateLeaveRequestStatusAsync(long leaveRequestId, int newStatus);
         Task<bool> UpdateLeaveRequestApprovalStatusAsync(long leaveRequestId, ApprovalType approvalType);
+        Task<bool> UpdateLeaveRequestHrConfirmedAsync(long leaveRequestId, string confirmedBy, DateTime confirmedTime);
+        Task<bool> UpdateLeaveRequestToClosedAsync(LeaveRequest leaveRequest, string leaveRequestClosedBy);
+
         #endregion
 
         #region Leave Requests Read Action Methods
@@ -134,6 +138,9 @@ namespace IntranetPortal.Base.Repositories.LeaveRepositories
         #region Leave Balances Action Interfaces
         Task<long> GetLeaveDaysUsedByEmployeeIdnLeaveTypeCodenLeaveYearAsync(string employeeId, string leaveTypeCode, int leaveYear);
         Task<long> GetLeaveDaysUsedByEmployeeNamenLeaveTypeCodenLeaveYearAsync(string employeeName, string leaveTypeCode, int leaveYear);
+
+        Task<LeaveBalances> GetLeaveBalancesByEmployeeIdnLeaveTypeCodenLeaveYearAsync(string employeeId, string leaveTypeCode, int leaveYear);
+        Task<LeaveBalances> GetLeaveBalancesByEmployeeNamenLeaveTypeCodenLeaveYearAsync(string employeeName, string leaveTypeCode, int leaveYear);
         #endregion
 
         #region Leave Submission Action Methods
@@ -161,6 +168,19 @@ namespace IntranetPortal.Base.Repositories.LeaveRepositories
         Task<bool> DeleteLeaveDocumentAsync(long leaveDocumentId);
         Task<LeaveDocument> GetLeaveDocumentByIdAsync(long leaveDocumentId);
         Task<List<LeaveDocument>> GetLeaveDocumentsByLeaveRequestIdAsync(long leaveRequestId);
+        #endregion
+
+        #region Leave Adjustments Action Interfaces
+        Task<long> AddLeaveAdjustmentAsync(LeaveAdjustment e);
+        Task<bool> DeleteLeaveAdjustmentAsync(long leaveAdjustmentId);
+        Task<LeaveAdjustment> GetLeaveAdjustmentByIdAsync(long leaveAdjustmentId);
+        Task<List<LeaveAdjustment>> GetLeaveAdjustmentsByLeaveRequestIdAsync(long leaveRequestId);
+        #endregion
+
+
+        #region Leave Transactions Action Interfaces
+        Task<long> AddLeaveTransactionAsync(LeaveTransaction t);
+        Task<bool> DeleteLeaveTransactionAsync(long leaveTransactionId);
         #endregion
 
         #region Leave Activity Log Action Methods

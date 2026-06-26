@@ -66,7 +66,7 @@ namespace IntranetPortal.Areas.LVM.Controllers
             {
                 model.LeavePlanList = await _leaveService.GetLeavePlansAsync(model.ei, model.yr);
                 model.LeaveRequestList = await _leaveService.GetLeaveRequestsAsync(model.ei, model.yr);
-                model.CurrentLeaveBalances = await _leaveService.GetLeaveBalancesAsync("ANL", DateTime.Now.Year, model.ei, model.nm);
+                model.CurrentLeaveBalances = await _leaveService.RefreshAndRetrieveLeaveBalancesAsync("ANL", DateTime.Now.Year, model.ei, model.nm);
             }
             catch (Exception ex) { model.ViewModelErrorMessage = ex.Message; }
             return View(model);
@@ -1135,9 +1135,151 @@ namespace IntranetPortal.Areas.LVM.Controllers
             return View(model);
         }
 
+        public async Task<IActionResult> LeaveAdjustments(long id, string sp)
+        {
+            LeaveAdjustmentListViewModel model = new LeaveAdjustmentListViewModel();
+            model.LeaveRequestDetail = new LeaveRequest();
+            model.SourcePage = model.src = sp;
+
+            try
+            {
+                if (id > 0)
+                {
+                    var entity = await _leaveService.GetLeaveRequestAsync(id);
+                    if (entity != null)
+                    {
+                        model.LeaveRequestDetail = entity;
+                    }
+
+                    var entities = await _leaveService.GetLeaveAdjustmentsAsync(id);
+                    if(entities != null)
+                    {
+                        model.LeaveAdjustmentList = entities;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                model.ViewModelErrorMessage = ex.Message;
+            }
+            return View(model);
+        }
+
+        public async Task<IActionResult> AddLeaveAdjustment(long id, string sp = null)
+        {
+            AddLeaveAdjustmentViewModel model = new AddLeaveAdjustmentViewModel();
+            model.SourcePage = model.src = sp;
+            model.LeaveRequestId = id;
+            try
+            {
+                LeaveRequest request = new LeaveRequest();
+
+                if (id < 1)
+                {
+                    throw new Exception("No record was found for this Leave.");
+                }
+                var entity = await _leaveService.GetLeaveRequestAsync(id);
+                if (entity != null) { request = entity; }
+                model.LeaveEmployeeId = request.LeaveEmployeeId;
+                model.LeaveEmployeeName = request.LeaveEmployeeName;
+                model.LeaveTypeCode = request.LeaveTypeCode;
+                model.LeaveTypeName = request.LeaveTypeName;
+                model.LeaveYear = request.LeaveYear;
+                model.LeaveUnitId = request.UnitId;
+                model.LeaveDepartmentId = request.DepartmentId;
+                model.LeaveLocationId = request.LocationId;
+            }
+            catch(Exception ex)
+            {
+                model.ViewModelErrorMessage = ex.Message;
+            }
+            List<LeaveType> entities = await _leaveService.GetLeaveTypes();
+            if (entities != null) { ViewBag.LeaveTypeCodeList = new SelectList(entities, "Code", "Name", model.LeaveTypeCode); }
+            return View(model);
+        }
+        
+        [HttpPost]
+        public async Task<IActionResult> AddLeaveAdjustment(AddLeaveAdjustmentViewModel model)
+        {
+            try
+            {
+                LeaveAdjustment adjustment = new LeaveAdjustment();
+                if (ModelState.IsValid)
+                {
+                    adjustment = model.Convert();
+                    adjustment.AdjustmentAddedBy = HttpContext.User.Identity.Name;
+                    adjustment.AdjustmentDate = DateTime.UtcNow;
+                    adjustment.DurationDescription = $"{model.NumberOfDays} Working Day(s)"; 
+
+                    if (await _leaveService.AddLeaveAdjustmentAsync(adjustment))
+                    {
+                        return RedirectToAction("LeaveAdjustments", new { id = model.LeaveRequestId });
+                    }
+                    else { throw new Exception("An error was encountered. Attempt to add Leave Adjustment was not successful."); }
+                }
+                else { throw new Exception("Sorry, some key form parameters are missing."); }
+            }
+            catch (Exception ex) { model.ViewModelErrorMessage = ex.Message; }
+            return View(model);
+        }
+
+        public async Task<IActionResult> CloseLeaveRequest(long id, string sp)
+        {
+            CloseLeaveRequestViewModel model = new CloseLeaveRequestViewModel();
+            model.SourcePage = model.src = sp;
+
+            LeaveRequest request = new LeaveRequest();
+            try
+            {
+                if (id < 1)
+                {
+                    throw new Exception("No record was found for this Leave Request.");
+                }
+                var entity = await _leaveService.GetLeaveRequestAsync(id);
+                if (entity != null) { request = entity; }
+                model = model.Convert(request);
+                model.ActualLeaveDuration = request.RequestedDuration;
+                model.ActualLeaveDurationTypeId = request.RequestedDurationTypeId;
+                model.ActualLeaveEndDate = request.RequestedEndDate;
+                model.ActualLeaveStartDate = request.RequestedStartDate;
+                model.HrResumptionDate = request.RequestedResumptionDate;
+            }
+            catch (Exception ex)
+            {
+                model.ViewModelErrorMessage = ex.Message;
+            }
+
+            List<LeaveType> entities = await _leaveService.GetLeaveTypes();
+            if (entities != null) { ViewBag.LeaveTypeCodeList = new SelectList(entities, "Code", "Name", model.LeaveTypeCode); }
+            return View(model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CloseLeaveRequest(CloseLeaveRequestViewModel model)
+        {
+            try
+            {
+                LeaveRequest request = new LeaveRequest();
+                if (ModelState.IsValid)
+                {
+                    request = model.Convert();
+
+                    if (!_validateEndDate(request.ActualLeaveStartDate.Value, request.ActualLeaveEndDate.Value)) { throw new Exception("Error: Invalid Start Date and/or End Date."); }
+                    if (!_validateResumptionDate(request.HrResumptionDate.Value, request.ActualLeaveEndDate.Value)) { throw new Exception("Error: Invalid Resumption Date."); }
+
+                    if (await _leaveService.CloseLeaveRequestAsync(request, HttpContext.User.Identity.Name))
+                    {
+                        return RedirectToAction("ApprovedLeaveRequests", new { yr = model.RequestedStartDate.Year });
+                    }
+                    else { throw new Exception("An error was encountered. Attempt to update Leave Request was not successful."); }
+                }
+                else { throw new Exception("Sorry, some key form parameters are missing."); }
+            }
+            catch (Exception ex) { model.ViewModelErrorMessage = ex.Message; }
+            return View(model);
+        }
 
         #endregion
-
 
         #region Leave Utilities Controller Methods
         public async Task<IActionResult> LeaveNotes(string sp, int yr, long? pd = null, long? rd = null, long? sd = null)
@@ -1542,7 +1684,7 @@ namespace IntranetPortal.Areas.LVM.Controllers
             LeaveApproval leaveApproval = new LeaveApproval();
             try
             {
-                leaveSubmission =  _leaveService.GetLeaveSubmissionByIdAsync(sd).Result;
+                leaveSubmission = _leaveService.GetLeaveSubmissionByIdAsync(sd).Result;
                 if (leaveSubmission == null) { throw new Exception("Error! This submission record was not found. Please try again."); }
                 leaveApproval.ApproverName = HttpContext.User.Identity.Name;
                 leaveApproval.ApproverRole = leaveSubmission.ToEmployeeRole;
@@ -1623,7 +1765,30 @@ namespace IntranetPortal.Areas.LVM.Controllers
             }
             return "approved";
         }
+        public string ConfirmLeaveRequest(long rd)
+        {
+            long LeaveRequestId = rd;
+            string ConfirmedBy = HttpContext.User.Identity.Name;
+            DateTime ConfirmedTime = DateTime.UtcNow;
 
+            if (string.IsNullOrWhiteSpace(ConfirmedBy) || string.IsNullOrWhiteSpace(ConfirmedBy)) { return "parameter"; }
+            if (LeaveRequestId < 1) { return "parameter"; }
+            try
+            {
+                if (_leaveService.HrConfirmLeaveRequestAsync(LeaveRequestId, ConfirmedBy, ConfirmedTime).Result)
+                {
+                    return "confirmed";
+                }
+                else
+                {
+                    return "failed";
+                }
+            }
+            catch
+            {
+                return "failed";
+            }
+        }
 
         private bool _validateEndDate(DateTime leaveStartDate, DateTime leaveEndDate)
         {

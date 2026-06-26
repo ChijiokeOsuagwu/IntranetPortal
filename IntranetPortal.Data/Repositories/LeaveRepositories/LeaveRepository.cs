@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace IntranetPortal.Data.Repositories.LeaveRepositories
 {
-    public class LeaveRepository:ILeaveRepository
+    public class LeaveRepository : ILeaveRepository
     {
         public IConfiguration _config { get; }
         public LeaveRepository(IConfiguration configuration)
@@ -258,19 +258,19 @@ namespace IntranetPortal.Data.Repositories.LeaveRepositories
             return rows > 0;
         }
 
-        public async Task<bool> DeleteLeaveProfileAsync(int id)
+        public async Task<bool> DeleteLeaveProfileAsync(string profileCode)
         {
             int rows = 0;
-            string query = "DELETE FROM public.lvm_lvs_pfls WHERE (lvs_pfl_id = @lvs_pfl_id);";
+            string query = "DELETE FROM public.lvm_lvs_pfls WHERE (lvs_pfl_cd = @lvs_pfl_cd);";
             using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
             {
                 await conn.OpenAsync();
                 //Delete data
                 using (var cmd = new NpgsqlCommand(query, conn))
                 {
-                    var lvs_pfl_id = cmd.Parameters.Add("@lvs_pfl_id", NpgsqlDbType.Integer);
+                    var lvs_pfl_cd = cmd.Parameters.Add("@lvs_pfl_cd", NpgsqlDbType.Text);
                     cmd.Prepare();
-                    lvs_pfl_id.Value = id;
+                    lvs_pfl_cd.Value = profileCode;
                     rows = await cmd.ExecuteNonQueryAsync();
                     await conn.CloseAsync();
                 }
@@ -284,7 +284,7 @@ namespace IntranetPortal.Data.Repositories.LeaveRepositories
             StringBuilder sb = new StringBuilder();
             sb.Append("UPDATE public.lvm_lvs_pfls SET lvs_pfl_nm=@lvs_pfl_nm, ");
             sb.Append("lvs_pfl_ds=@lvs_pfl_ds ");
-            sb.Append("WHERE (lvs_pfl_id=@lvs_pfl_id); ");
+            sb.Append("WHERE (lvs_pfl_cd=@lvs_pfl_cd); ");
             string query = sb.ToString();
 
             using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
@@ -293,11 +293,11 @@ namespace IntranetPortal.Data.Repositories.LeaveRepositories
                 //Insert data
                 using (var cmd = new NpgsqlCommand(query, conn))
                 {
-                    var lvs_pfl_id = cmd.Parameters.Add("@lvs_pfl_id", NpgsqlDbType.Integer);
+                    var lvs_pfl_cd = cmd.Parameters.Add("@lvs_pfl_cd", NpgsqlDbType.Text);
                     var lvs_pfl_nm = cmd.Parameters.Add("@lvs_pfl_nm", NpgsqlDbType.Text);
                     var lvs_pfl_ds = cmd.Parameters.Add("@lvs_pfl_ds", NpgsqlDbType.Text);
                     cmd.Prepare();
-                    lvs_pfl_id.Value = leaveProfile.Id;
+                    lvs_pfl_cd.Value = leaveProfile.Code;
                     lvs_pfl_nm.Value = leaveProfile.Name;
                     lvs_pfl_ds.Value = leaveProfile.Description ?? (object)DBNull.Value;
                     rows = await cmd.ExecuteNonQueryAsync();
@@ -307,15 +307,15 @@ namespace IntranetPortal.Data.Repositories.LeaveRepositories
             return rows > 0;
         }
 
-        public async Task<LeaveProfile> GetLeaveProfileByIdAsync(int id)
+        public async Task<LeaveProfile> GetLeaveProfileByCodeAsync(string profileCode)
         {
             LeaveProfile leaveProfile = new LeaveProfile();
             string query = string.Empty;
             StringBuilder sb = new StringBuilder();
-            if (id < 1) { return null; }
-            sb.Append("SELECT lvs_pfl_id, lvs_pfl_nm, lvs_pfl_ds, ");
+            if (string.IsNullOrWhiteSpace(profileCode)) { throw new Exception("Required parameter [Profile Code] cannot be null."); }
+            sb.Append("SELECT lvs_pfl_cd, lvs_pfl_nm, lvs_pfl_ds, ");
             sb.Append("lvs_pfl_cd FROM public.lvm_lvs_pfls ");
-            sb.Append("WHERE (lvs_pfl_id = @lvs_pfl_id);");
+            sb.Append("WHERE (lvs_pfl_cd = @lvs_pfl_cd);");
             query = sb.ToString();
 
             using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
@@ -324,13 +324,12 @@ namespace IntranetPortal.Data.Repositories.LeaveRepositories
                 // Retrieve all rows
                 using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
                 {
-                    var lvs_pfl_id = cmd.Parameters.Add("@lvs_pfl_id", NpgsqlDbType.Integer);
+                    var lvs_pfl_cd = cmd.Parameters.Add("@lvs_pfl_cd", NpgsqlDbType.Text);
                     await cmd.PrepareAsync();
-                    lvs_pfl_id.Value = id;
+                    lvs_pfl_cd.Value = profileCode;
                     using (var reader = await cmd.ExecuteReaderAsync())
                         while (await reader.ReadAsync())
                         {
-                            leaveProfile.Id = reader["lvs_pfl_id"] == DBNull.Value ? 0 : (int)reader["lvs_pfl_id"];
                             leaveProfile.Name = reader["lvs_pfl_nm"] == DBNull.Value ? string.Empty : reader["lvs_pfl_nm"].ToString();
                             leaveProfile.Description = reader["lvs_pfl_ds"] == DBNull.Value ? string.Empty : reader["lvs_pfl_ds"].ToString();
                             leaveProfile.Code = reader["lvs_pfl_cd"] == DBNull.Value ? string.Empty : reader["lvs_pfl_cd"].ToString();
@@ -347,7 +346,7 @@ namespace IntranetPortal.Data.Repositories.LeaveRepositories
             string query = string.Empty;
             StringBuilder sb = new StringBuilder();
             if (string.IsNullOrWhiteSpace(profileName)) { return null; }
-            sb.Append("SELECT lvs_pfl_id, lvs_pfl_nm, lvs_pfl_ds, ");
+            sb.Append("SELECT lvs_pfl_nm, lvs_pfl_ds, ");
             sb.Append("lvs_pfl_cd FROM public.lvm_lvs_pfls ");
             sb.Append("WHERE LOWER(lvs_pfl_nm)=LOWER(@lvs_pfl_nm);");
             query = sb.ToString();
@@ -364,7 +363,6 @@ namespace IntranetPortal.Data.Repositories.LeaveRepositories
                     using (var reader = await cmd.ExecuteReaderAsync())
                         while (await reader.ReadAsync())
                         {
-                            leaveProfile.Id = reader["lvs_pfl_id"] == DBNull.Value ? 0 : (int)reader["lvs_pfl_id"];
                             leaveProfile.Name = reader["lvs_pfl_nm"] == DBNull.Value ? string.Empty : reader["lvs_pfl_nm"].ToString();
                             leaveProfile.Description = reader["lvs_pfl_ds"] == DBNull.Value ? string.Empty : reader["lvs_pfl_ds"].ToString();
                             leaveProfile.Code = reader["lvs_pfl_cd"] == DBNull.Value ? string.Empty : reader["lvs_pfl_cd"].ToString();
@@ -381,7 +379,7 @@ namespace IntranetPortal.Data.Repositories.LeaveRepositories
             string query = string.Empty;
             StringBuilder sb = new StringBuilder();
 
-            sb.Append("SELECT lvs_pfl_id, lvs_pfl_nm, lvs_pfl_ds, ");
+            sb.Append("SELECT lvs_pfl_nm, lvs_pfl_ds, ");
             sb.Append("lvs_pfl_cd FROM public.lvm_lvs_pfls ");
             sb.Append("ORDER BY lvs_pfl_nm; ");
             query = sb.ToString();
@@ -397,7 +395,6 @@ namespace IntranetPortal.Data.Repositories.LeaveRepositories
                     {
                         leaveProfiles.Add(new LeaveProfile()
                         {
-                            Id = reader["lvs_pfl_id"] == DBNull.Value ? 0 : (int)reader["lvs_pfl_id"],
                             Name = reader["lvs_pfl_nm"] == DBNull.Value ? string.Empty : reader["lvs_pfl_nm"].ToString(),
                             Description = reader["lvs_pfl_ds"] == DBNull.Value ? string.Empty : reader["lvs_pfl_ds"].ToString(),
                             Code = reader["lvs_pfl_cd"] == DBNull.Value ? string.Empty : reader["lvs_pfl_cd"].ToString()
@@ -414,11 +411,11 @@ namespace IntranetPortal.Data.Repositories.LeaveRepositories
         #region Leave Profile Details Action Methods
 
         #region Leave Profile Details Read Action Methods
-        public async Task<List<LeaveProfileDetail>> GetLeaveProfileDetailsByProfileIdAsync(int profileId)
+        public async Task<List<LeaveProfileDetail>> GetLeaveProfileDetailsByProfileCodeAsync(string profileCode)
         {
             List<LeaveProfileDetail> leaveProfileDetails = new List<LeaveProfileDetail>();
             StringBuilder sb = new StringBuilder();
-            sb.Append("SELECT d.pfl_dtl_id, d.lvs_pfl_id, d.lvs_typ_cd, ");
+            sb.Append("SELECT d.pfl_dtl_id, d.lvs_pfl_cd, d.lvs_typ_cd, ");
             sb.Append("d.is_yrly, d.cancarryover, d.is_mntz, d.lvs_dur, ");
             sb.Append("d.dur_typ, d.carryover_end_mn, d.lvs_dur_ds,  ");
             sb.Append("CASE WHEN d.dur_typ = 0 THEN 'Working Day(s)' ");
@@ -440,11 +437,11 @@ namespace IntranetPortal.Data.Repositories.LeaveRepositories
             sb.Append("WHEN d.carryover_end_mn = 12 THEN 'December' ");
             sb.Append("END as carryover_end_mn_name, ");
             sb.Append("(SELECT lvs_pfl_nm FROM public.lms_lvs_pfls ");
-            sb.Append("WHERE lvs_pfl_id = d.lvs_pfl_id) as lvs_pfl_nm, ");
+            sb.Append("WHERE lvs_pfl_cd = d.lvs_pfl_cd) as lvs_pfl_nm, ");
             sb.Append("(SELECT lvs_typ_nm FROM public.lms_lvs_typs  ");
             sb.Append("WHERE lvs_typ_cd = d.lvs_typ_cd) as lvs_typ_nm  ");
             sb.Append("FROM public.lvm_lvs_pfdt d ");
-            sb.Append("WHERE (d.lvs_pfl_id = @lvs_pfl_id) ");
+            sb.Append("WHERE (d.lvs_pfl_cd = @lvs_pfl_cd) ");
             sb.Append("ORDER BY d.lvs_typ_cd; ");
 
             string query = sb.ToString();
@@ -454,9 +451,9 @@ namespace IntranetPortal.Data.Repositories.LeaveRepositories
                 // Retrieve all rows
                 using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
                 {
-                    var lvs_pfl_id = cmd.Parameters.Add("@lvs_pfl_id", NpgsqlTypes.NpgsqlDbType.Integer);
+                    var lvs_pfl_cd = cmd.Parameters.Add("@lvs_pfl_cd", NpgsqlDbType.Text);
                     await cmd.PrepareAsync();
-                    lvs_pfl_id.Value = profileId;
+                    lvs_pfl_cd.Value = profileCode;
 
                     var reader = await cmd.ExecuteReaderAsync();
                     while (await reader.ReadAsync())
@@ -464,7 +461,7 @@ namespace IntranetPortal.Data.Repositories.LeaveRepositories
                         leaveProfileDetails.Add(new LeaveProfileDetail()
                         {
                             Id = reader["pfl_dtl_id"] == DBNull.Value ? 0 : (int)reader["pfl_dtl_id"],
-                            ProfileId = reader["lvs_pfl_id"] == DBNull.Value ? 0 : (int)reader["lvs_pfl_id"],
+                            ProfileCode = reader["lvs_pfl_cd"] == DBNull.Value ? string.Empty : reader["lvs_pfl_id"].ToString(),
                             ProfileName = reader["lvs_pfl_nm"] == DBNull.Value ? string.Empty : reader["lvs_pfl_nm"].ToString(),
                             LeaveTypeCode = reader["lvs_typ_cd"] == DBNull.Value ? string.Empty : reader["lvs_typ_cd"].ToString(),
                             LeaveTypeName = reader["lvs_typ_nm"] == DBNull.Value ? string.Empty : reader["lvs_typ_nm"].ToString(),
@@ -488,7 +485,7 @@ namespace IntranetPortal.Data.Repositories.LeaveRepositories
         {
             List<LeaveProfileDetail> leaveProfileDetails = new List<LeaveProfileDetail>();
             StringBuilder sb = new StringBuilder();
-            sb.Append("SELECT d.pfl_dtl_id, d.lvs_pfl_id, d.lvs_typ_cd, ");
+            sb.Append("SELECT d.pfl_dtl_id, d.lvs_pfl_cd, d.lvs_typ_cd, ");
             sb.Append("d.is_yrly, d.cancarryover, d.is_mntz, d.lvs_dur, ");
             sb.Append("d.dur_typ, d.carryover_end_mn, d.lvs_dur_ds,  ");
             sb.Append("CASE WHEN d.dur_typ = 0 THEN 'Working Day(s)' ");
@@ -510,7 +507,7 @@ namespace IntranetPortal.Data.Repositories.LeaveRepositories
             sb.Append("WHEN d.carryover_end_mn = 12 THEN 'December' ");
             sb.Append("END as carryover_end_mn_name, ");
             sb.Append("(SELECT lvs_pfl_nm FROM public.lms_lvs_pfls ");
-            sb.Append("WHERE lvs_pfl_id = d.lvs_pfl_id) as lvs_pfl_nm, ");
+            sb.Append("WHERE lvs_pfl_cd = d.lvs_pfl_cd) as lvs_pfl_nm, ");
             sb.Append("(SELECT lvs_typ_nm FROM public.lms_lvs_typs  ");
             sb.Append("WHERE lvs_typ_cd = d.lvs_typ_cd) as lvs_typ_nm  ");
             sb.Append("FROM public.lvm_lvs_pfdt d ");
@@ -532,7 +529,7 @@ namespace IntranetPortal.Data.Repositories.LeaveRepositories
                         leaveProfileDetails.Add(new LeaveProfileDetail()
                         {
                             Id = reader["pfl_dtl_id"] == DBNull.Value ? 0 : (int)reader["pfl_dtl_id"],
-                            ProfileId = reader["lvs_pfl_id"] == DBNull.Value ? 0 : (int)reader["lvs_pfl_id"],
+                            ProfileCode = reader["lvs_pfl_cd"] == DBNull.Value ? string.Empty : reader["lvs_pfl_id"].ToString(),
                             ProfileName = reader["lvs_pfl_nm"] == DBNull.Value ? string.Empty : reader["lvs_pfl_nm"].ToString(),
                             LeaveTypeCode = reader["lvs_typ_cd"] == DBNull.Value ? string.Empty : reader["lvs_typ_cd"].ToString(),
                             LeaveTypeName = reader["lvs_typ_nm"] == DBNull.Value ? string.Empty : reader["lvs_typ_nm"].ToString(),
@@ -552,11 +549,11 @@ namespace IntranetPortal.Data.Repositories.LeaveRepositories
             }
             return leaveProfileDetails;
         }
-        public async Task<List<LeaveProfileDetail>> GetLeaveProfileDetailsByProfileIdnLeaveTypeAsync(int profileId, string leaveTypeCode)
+        public async Task<List<LeaveProfileDetail>> GetLeaveProfileDetailsByProfileCodenLeaveTypeAsync(string profileCode, string leaveTypeCode)
         {
             List<LeaveProfileDetail> leaveProfileDetails = new List<LeaveProfileDetail>();
             StringBuilder sb = new StringBuilder();
-            sb.Append("SELECT d.pfl_dtl_id, d.lvs_pfl_id, d.lvs_typ_cd, ");
+            sb.Append("SELECT d.pfl_dtl_id, d.lvs_pfl_cd, d.lvs_typ_cd, ");
             sb.Append("d.is_yrly, d.cancarryover, d.is_mntz, d.lvs_dur, ");
             sb.Append("d.dur_typ, d.carryover_end_mn, d.lvs_dur_ds,  ");
             sb.Append("CASE WHEN d.dur_typ = 0 THEN 'Working Day(s)' ");
@@ -578,11 +575,11 @@ namespace IntranetPortal.Data.Repositories.LeaveRepositories
             sb.Append("WHEN d.carryover_end_mn = 12 THEN 'December' ");
             sb.Append("END as carryover_end_mn_name, ");
             sb.Append("(SELECT lvs_pfl_nm FROM public.lms_lvs_pfls ");
-            sb.Append("WHERE lvs_pfl_id = d.lvs_pfl_id) as lvs_pfl_nm, ");
+            sb.Append("WHERE lvs_pfl_cd = d.lvs_pfl_cd) as lvs_pfl_nm, ");
             sb.Append("(SELECT lvs_typ_nm FROM public.lms_lvs_typs  ");
             sb.Append("WHERE lvs_typ_cd = d.lvs_typ_cd) as lvs_typ_nm  ");
             sb.Append("FROM public.lvm_lvs_pfdt d ");
-            sb.Append("WHERE (d.lvs_pfl_id = @lvs_pfl_id) ");
+            sb.Append("WHERE (d.lvs_pfl_cd = @lvs_pfl_cd) ");
             sb.Append("AND (d.lvs_typ_cd = @lvs_typ_cd); ");
             string query = sb.ToString();
             using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
@@ -591,10 +588,10 @@ namespace IntranetPortal.Data.Repositories.LeaveRepositories
                 // Retrieve all rows
                 using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
                 {
-                    var lvs_pfl_id = cmd.Parameters.Add("@lvs_pfl_id", NpgsqlDbType.Integer);
+                    var lvs_pfl_cd = cmd.Parameters.Add("@lvs_pfl_cd", NpgsqlDbType.Text);
                     var lvs_typ_cd = cmd.Parameters.Add("@lvs_typ_cd", NpgsqlDbType.Text);
                     await cmd.PrepareAsync();
-                    lvs_pfl_id.Value = profileId;
+                    lvs_pfl_cd.Value = profileCode;
                     lvs_typ_cd.Value = leaveTypeCode;
                     var reader = await cmd.ExecuteReaderAsync();
                     while (await reader.ReadAsync())
@@ -602,7 +599,7 @@ namespace IntranetPortal.Data.Repositories.LeaveRepositories
                         leaveProfileDetails.Add(new LeaveProfileDetail()
                         {
                             Id = reader["pfl_dtl_id"] == DBNull.Value ? 0 : (int)reader["pfl_dtl_id"],
-                            ProfileId = reader["lvs_pfl_id"] == DBNull.Value ? 0 : (int)reader["lvs_pfl_id"],
+                            ProfileCode = reader["lvs_pfl_cd"] == DBNull.Value ? string.Empty : reader["lvs_pfl_id"].ToString(),
                             ProfileName = reader["lvs_pfl_nm"] == DBNull.Value ? string.Empty : reader["lvs_pfl_nm"].ToString(),
                             LeaveTypeCode = reader["lvs_typ_cd"] == DBNull.Value ? string.Empty : reader["lvs_typ_cd"].ToString(),
                             LeaveTypeName = reader["lvs_typ_nm"] == DBNull.Value ? string.Empty : reader["lvs_typ_nm"].ToString(),
@@ -626,7 +623,7 @@ namespace IntranetPortal.Data.Repositories.LeaveRepositories
         {
             List<LeaveProfileDetail> leaveProfileDetails = new List<LeaveProfileDetail>();
             StringBuilder sb = new StringBuilder();
-            sb.Append("SELECT d.pfl_dtl_id, d.lvs_pfl_id, d.lvs_typ_cd, ");
+            sb.Append("SELECT d.pfl_dtl_id, d.lvs_pfl_cd, d.lvs_typ_cd, ");
             sb.Append("d.is_yrly, d.cancarryover, d.is_mntz, d.lvs_dur, ");
             sb.Append("d.dur_typ, d.carryover_end_mn, d.lvs_dur_ds,  ");
             sb.Append("CASE WHEN d.dur_typ = 0 THEN 'Working Day(s)' ");
@@ -648,11 +645,11 @@ namespace IntranetPortal.Data.Repositories.LeaveRepositories
             sb.Append("WHEN d.carryover_end_mn = 12 THEN 'December' ");
             sb.Append("END as carryover_end_mn_name, ");
             sb.Append("(SELECT lvs_pfl_nm FROM public.lms_lvs_pfls ");
-            sb.Append("WHERE lvs_pfl_id = d.lvs_pfl_id) as lvs_pfl_nm, ");
+            sb.Append("WHERE lvs_pfl_cd = d.lvs_pfl_cd) as lvs_pfl_nm, ");
             sb.Append("(SELECT lvs_typ_nm FROM public.lms_lvs_typs  ");
             sb.Append("WHERE lvs_typ_cd = d.lvs_typ_cd) as lvs_typ_nm  ");
             sb.Append("FROM public.lvm_lvs_pfdt d ");
-            sb.Append("WHERE d.lvs_pfl_id = (SELECT lvs_pfl_id FROM public.erm_emp_inf ");
+            sb.Append("WHERE d.lvs_pfl_cd = (SELECT lvs_pfl_cd FROM public.erm_emp_inf ");
             sb.Append("WHERE emp_id = @emp_id); ");
 
             string query = sb.ToString();
@@ -671,7 +668,7 @@ namespace IntranetPortal.Data.Repositories.LeaveRepositories
                         leaveProfileDetails.Add(new LeaveProfileDetail()
                         {
                             Id = reader["pfl_dtl_id"] == DBNull.Value ? 0 : (int)reader["pfl_dtl_id"],
-                            ProfileId = reader["lvs_pfl_id"] == DBNull.Value ? 0 : (int)reader["lvs_pfl_id"],
+                            ProfileCode = reader["lvs_pfl_cd"] == DBNull.Value ? string.Empty : reader["lvs_pfl_id"].ToString(),
                             ProfileName = reader["lvs_pfl_nm"] == DBNull.Value ? string.Empty : reader["lvs_pfl_nm"].ToString(),
                             LeaveTypeCode = reader["lvs_typ_cd"] == DBNull.Value ? string.Empty : reader["lvs_typ_cd"].ToString(),
                             LeaveTypeName = reader["lvs_typ_nm"] == DBNull.Value ? string.Empty : reader["lvs_typ_nm"].ToString(),
@@ -695,7 +692,7 @@ namespace IntranetPortal.Data.Repositories.LeaveRepositories
         {
             List<LeaveProfileDetail> leaveProfileDetails = new List<LeaveProfileDetail>();
             StringBuilder sb = new StringBuilder();
-            sb.Append("SELECT d.pfl_dtl_id, d.lvs_pfl_id, d.lvs_typ_cd, ");
+            sb.Append("SELECT d.pfl_dtl_id, d.lvs_pfl_cd, d.lvs_typ_cd, ");
             sb.Append("d.is_yrly, d.cancarryover, d.is_mntz, d.lvs_dur, ");
             sb.Append("d.dur_typ, d.carryover_end_mn, d.lvs_dur_ds,  ");
             sb.Append("CASE WHEN d.dur_typ = 0 THEN 'Working Day(s)' ");
@@ -717,11 +714,11 @@ namespace IntranetPortal.Data.Repositories.LeaveRepositories
             sb.Append("WHEN d.carryover_end_mn = 12 THEN 'December' ");
             sb.Append("END as carryover_end_mn_name, ");
             sb.Append("(SELECT lvs_pfl_nm FROM public.lms_lvs_pfls ");
-            sb.Append("WHERE lvs_pfl_id = d.lvs_pfl_id) as lvs_pfl_nm, ");
+            sb.Append("WHERE lvs_pfl_cd = d.lvs_pfl_cd) as lvs_pfl_nm, ");
             sb.Append("(SELECT lvs_typ_nm FROM public.lms_lvs_typs  ");
             sb.Append("WHERE lvs_typ_cd = d.lvs_typ_cd) as lvs_typ_nm  ");
             sb.Append("FROM public.lvm_lvs_pfdt d ");
-            sb.Append("WHERE d.lvs_pfl_id = (SELECT lvs_pfl_id FROM public.erm_emp_inf ");
+            sb.Append("WHERE d.lvs_pfl_cd = (SELECT lvs_pfl_cd FROM public.erm_emp_inf ");
             sb.Append("WHERE emp_id = @emp_id) ");
             sb.Append("AND (d.lvs_typ_cd = @lvs_typ_cd); ");
             string query = sb.ToString();
@@ -742,7 +739,7 @@ namespace IntranetPortal.Data.Repositories.LeaveRepositories
                         leaveProfileDetails.Add(new LeaveProfileDetail()
                         {
                             Id = reader["pfl_dtl_id"] == DBNull.Value ? 0 : (int)reader["pfl_dtl_id"],
-                            ProfileId = reader["lvs_pfl_id"] == DBNull.Value ? 0 : (int)reader["lvs_pfl_id"],
+                            ProfileCode = reader["lvs_pfl_cd"] == DBNull.Value ? string.Empty : reader["lvs_pfl_id"].ToString(),
                             ProfileName = reader["lvs_pfl_nm"] == DBNull.Value ? string.Empty : reader["lvs_pfl_nm"].ToString(),
                             LeaveTypeCode = reader["lvs_typ_cd"] == DBNull.Value ? string.Empty : reader["lvs_typ_cd"].ToString(),
                             LeaveTypeName = reader["lvs_typ_nm"] == DBNull.Value ? string.Empty : reader["lvs_typ_nm"].ToString(),
@@ -766,7 +763,7 @@ namespace IntranetPortal.Data.Repositories.LeaveRepositories
         {
             List<LeaveProfileDetail> leaveProfileDetails = new List<LeaveProfileDetail>();
             StringBuilder sb = new StringBuilder();
-            sb.Append("SELECT d.pfl_dtl_id, d.lvs_pfl_id, d.lvs_typ_cd, ");
+            sb.Append("SELECT d.pfl_dtl_id, d.lvs_pfl_cd, d.lvs_typ_cd, ");
             sb.Append("d.is_yrly, d.cancarryover, d.is_mntz, d.lvs_dur, ");
             sb.Append("d.dur_typ, d.carryover_end_mn, d.lvs_dur_ds,  ");
             sb.Append("CASE WHEN d.dur_typ = 0 THEN 'Working Day(s)' ");
@@ -788,12 +785,12 @@ namespace IntranetPortal.Data.Repositories.LeaveRepositories
             sb.Append("WHEN d.carryover_end_mn = 12 THEN 'December' ");
             sb.Append("END as carryover_end_mn_name, ");
             sb.Append("(SELECT lvs_pfl_nm FROM public.lms_lvs_pfls ");
-            sb.Append("WHERE lvs_pfl_id = d.lvs_pfl_id) as lvs_pfl_nm, ");
+            sb.Append("WHERE lvs_pfl_cd = d.lvs_pfl_cd) as lvs_pfl_nm, ");
             sb.Append("(SELECT lvs_typ_nm FROM public.lms_lvs_typs  ");
             sb.Append("WHERE lvs_typ_cd = d.lvs_typ_cd) as lvs_typ_nm  ");
             sb.Append("FROM public.lvm_lvs_pfdt d ");
             sb.Append("WHERE (d.lvs_typ_cd = @lvs_typ_cd) ");
-            sb.Append("AND d.lvs_pfl_id = (SELECT lvs_pfl_cd FROM public.erm_emp_inf ");
+            sb.Append("AND d.lvs_pfl_cd = (SELECT lvs_pfl_cd FROM public.erm_emp_inf ");
             sb.Append("WHERE emp_id = (SELECT id FROM public.gst_prsns  ");
             sb.Append("WHERE fullname = @emp_nm)); ");
 
@@ -816,7 +813,7 @@ namespace IntranetPortal.Data.Repositories.LeaveRepositories
                         leaveProfileDetails.Add(new LeaveProfileDetail()
                         {
                             Id = reader["pfl_dtl_id"] == DBNull.Value ? 0 : (int)reader["pfl_dtl_id"],
-                            ProfileId = reader["lvs_pfl_id"] == DBNull.Value ? 0 : (int)reader["lvs_pfl_id"],
+                            ProfileCode = reader["lvs_pfl_cd"] == DBNull.Value ? string.Empty : reader["lvs_pfl_cd"].ToString(),
                             ProfileName = reader["lvs_pfl_nm"] == DBNull.Value ? string.Empty : reader["lvs_pfl_nm"].ToString(),
                             LeaveTypeCode = reader["lvs_typ_cd"] == DBNull.Value ? string.Empty : reader["lvs_typ_cd"].ToString(),
                             LeaveTypeName = reader["lvs_typ_nm"] == DBNull.Value ? string.Empty : reader["lvs_typ_nm"].ToString(),
@@ -995,10 +992,10 @@ namespace IntranetPortal.Data.Repositories.LeaveRepositories
         {
             int rows = 0;
             StringBuilder sb = new StringBuilder();
-            sb.Append("INSERT INTO public.lvm_lvs_pfdt(lvs_pfl_id, ");
+            sb.Append("INSERT INTO public.lvm_lvs_pfdt(lvs_pfl_cd, ");
             sb.Append("lvs_typ_cd, is_yrly, cancarryover, is_mntz, ");
             sb.Append("lvs_dur, dur_typ, carryover_end_mn, lvs_dur_ds) ");
-            sb.Append("VALUES (@lvs_pfl_id, @lvs_typ_cd, @is_yrly, ");
+            sb.Append("VALUES (@lvs_pfl_cd, @lvs_typ_cd, @is_yrly, ");
             sb.Append("@cancarryover, @is_mntz, @lvs_dur, @dur_typ, ");
             sb.Append("@carryover_end_mn, @lvs_dur_ds); ");
             string query = sb.ToString();
@@ -1009,7 +1006,7 @@ namespace IntranetPortal.Data.Repositories.LeaveRepositories
                 //Insert data
                 using (var cmd = new NpgsqlCommand(query, conn))
                 {
-                    var lvs_pfl_id = cmd.Parameters.Add("@lvs_pfl_id", NpgsqlDbType.Integer);
+                    var lvs_pfl_cd = cmd.Parameters.Add("@lvs_pfl_cd", NpgsqlDbType.Text);
                     var lvs_typ_cd = cmd.Parameters.Add("@lvs_typ_cd", NpgsqlDbType.Text);
                     var is_yrly = cmd.Parameters.Add("@is_yrly", NpgsqlDbType.Boolean);
                     var cancarryover = cmd.Parameters.Add("@cancarryover", NpgsqlDbType.Boolean);
@@ -1019,7 +1016,7 @@ namespace IntranetPortal.Data.Repositories.LeaveRepositories
                     var carryover_end_mn = cmd.Parameters.Add("@carryover_end_mn", NpgsqlDbType.Integer);
                     var lvs_dur_ds = cmd.Parameters.Add("@lvs_dur_ds", NpgsqlDbType.Text);
                     cmd.Prepare();
-                    lvs_pfl_id.Value = leaveProfileDetail.ProfileId;
+                    lvs_pfl_cd.Value = leaveProfileDetail.ProfileCode;
                     lvs_typ_cd.Value = leaveProfileDetail.LeaveTypeCode;
                     is_yrly.Value = leaveProfileDetail.IsYearly;
                     cancarryover.Value = leaveProfileDetail.CanBeCarriedOver;
@@ -1098,14 +1095,14 @@ namespace IntranetPortal.Data.Repositories.LeaveRepositories
         #endregion
 
         #region Profile Details Utility Action Methods
-        public async Task<LeaveDuration> GetLeaveDurationByProfileIdnLeaveTypeAsync(int profileId, string leaveTypeCode)
+        public async Task<LeaveDuration> GetLeaveDurationByProfileCodenLeaveTypeAsync(string profileCode, string leaveTypeCode)
         {
             LeaveDuration leaveDuration = new LeaveDuration();
             StringBuilder sb = new StringBuilder();
 
             sb.Append("SELECT lvs_dur, act_lvs_dur_typ, lvs_dur_ds ");
             sb.Append("FROM public.lvm_lvs_pfdt ");
-            sb.Append("WHERE lvs_pfl_id = @lvs_pfl_id ");
+            sb.Append("WHERE lvs_pfl_cd = @lvs_pfl_cd ");
             sb.Append("AND lvs_typ_cd = @lvs_typ_cd; ");
             string query = sb.ToString();
             using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
@@ -1114,10 +1111,10 @@ namespace IntranetPortal.Data.Repositories.LeaveRepositories
                 // Retrieve all rows
                 using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
                 {
-                    var lvs_pfl_id = cmd.Parameters.Add("@lvs_pfl_id", NpgsqlTypes.NpgsqlDbType.Integer);
-                    var lvs_typ_cd = cmd.Parameters.Add("@lvs_typ_cd", NpgsqlTypes.NpgsqlDbType.Text);
+                    var lvs_pfl_cd = cmd.Parameters.Add("@lvs_pfl_cd", NpgsqlDbType.Text);
+                    var lvs_typ_cd = cmd.Parameters.Add("@lvs_typ_cd", NpgsqlDbType.Text);
                     await cmd.PrepareAsync();
-                    lvs_pfl_id.Value = profileId;
+                    lvs_pfl_cd.Value = profileCode;
                     lvs_typ_cd.Value = leaveTypeCode;
 
                     var reader = await cmd.ExecuteReaderAsync();
@@ -1151,10 +1148,10 @@ namespace IntranetPortal.Data.Repositories.LeaveRepositories
             sb.Append("pln_rsmptn_dt, pln_dur_typ, lvs_pln_sts) ");
             sb.Append("VALUES (@emp_id, @unit_id, @dept_id, @loc_id, ");
             sb.Append("@lvs_yr, @lvs_typ_cd, @lvs_rsn, @lvs_pln_sdt, ");
-            sb.Append("@lvs_pln_edt, @lvs_pln_dur, @pln_dur_ds, "); 
+            sb.Append("@lvs_pln_edt, @lvs_pln_dur, @pln_dur_ds, ");
             sb.Append("@pln_rsmptn_dt, @pln_dur_typ, @lvs_pln_sts) ");
             sb.Append(" RETURNING lvs_pln_id;  ");
-       
+
             string query = sb.ToString();
 
             using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
@@ -1171,7 +1168,7 @@ namespace IntranetPortal.Data.Repositories.LeaveRepositories
                     var lvs_yr = cmd.Parameters.Add("@lvs_yr", NpgsqlDbType.Integer);
                     var lvs_typ_cd = cmd.Parameters.Add("@lvs_typ_cd", NpgsqlDbType.Text);
                     var lvs_rsn = cmd.Parameters.Add("@lvs_rsn", NpgsqlDbType.Text);
-                    
+
                     var lvs_pln_sdt = cmd.Parameters.Add("@lvs_pln_sdt", NpgsqlDbType.Timestamp);
                     var lvs_pln_edt = cmd.Parameters.Add("@lvs_pln_edt", NpgsqlDbType.Timestamp);
                     var lvs_pln_dur = cmd.Parameters.Add("@lvs_pln_dur", NpgsqlDbType.Integer);
@@ -1383,7 +1380,7 @@ namespace IntranetPortal.Data.Repositories.LeaveRepositories
                             LeavePlanDurationTypeId = reader["pln_dur_typ"] == DBNull.Value ? 0 : (int)reader["pln_dur_typ"],
                             LeavePlanDurationDescription = reader["pln_dur_ds"] == DBNull.Value ? string.Empty : reader["pln_dur_ds"].ToString(),
                             LeavePlanResumptionDate = reader["pln_rsmptn_dt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["pln_rsmptn_dt"],
-                            
+
                             LeavePlanStatusId = reader["lvs_pln_sts"] == DBNull.Value ? 0 : (int)reader["lvs_pln_sts"],
                             LeavePlanStatusDescription = reader["lvs_pln_sts_ds"] == DBNull.Value ? string.Empty : reader["lvs_pln_sts_ds"].ToString(),
                         });
@@ -3801,7 +3798,7 @@ namespace IntranetPortal.Data.Repositories.LeaveRepositories
                     var hr_confm_by = cmd.Parameters.Add("@hr_confm_by", NpgsqlDbType.Text);
 
                     var rqs_cls_dt = cmd.Parameters.Add("@rqs_cls_dt", NpgsqlDbType.Timestamp);
-                    
+
                     var is_lm_aprv = cmd.Parameters.Add("@is_lm_aprv", NpgsqlDbType.Boolean);
                     var is_hd_aprv = cmd.Parameters.Add("@is_hd_aprv", NpgsqlDbType.Boolean);
                     var is_hr_aprv = cmd.Parameters.Add("@is_hr_aprv", NpgsqlDbType.Boolean);
@@ -3853,7 +3850,7 @@ namespace IntranetPortal.Data.Repositories.LeaveRepositories
                     lvs_rqst_dur_typ.Value = r.RequestedDurationTypeId;
                     act_lvs_dur_typ.Value = r.ActualLeaveDurationTypeId ?? (object)DBNull.Value;
                     rqst_rsmptn_dt.Value = r.RequestedResumptionDate ?? (object)DBNull.Value;
-                    
+
                     var obj = await cmd.ExecuteScalarAsync();
                     newLeaveId = (long)obj;
                     await conn.CloseAsync();
@@ -4010,7 +4007,97 @@ namespace IntranetPortal.Data.Repositories.LeaveRepositories
             }
             return rows > 0;
         }
+        public async Task<bool> UpdateLeaveRequestHrConfirmedAsync(long leaveRequestId, string confirmedBy, DateTime confirmedTime)
+        {
+            int rows = 0;
+            StringBuilder sb = new StringBuilder();
+            sb.Append("UPDATE public.lvm_lvs_rqsts ");
+            sb.Append("SET hr_confm_dt=@hr_confm_dt, ");
+            sb.Append("hr_confm_by=@hr_confm_by, lvs_rqst_sts=@lvs_rqst_sts ");
+            sb.Append("WHERE (lvs_rqst_id = @lvs_rqst_id); ");
 
+            string query = sb.ToString();
+
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
+            {
+                await conn.OpenAsync();
+                //Insert data
+                using (var cmd = new NpgsqlCommand(query, conn))
+                {
+                    var lvs_rqst_id = cmd.Parameters.Add("@lvs_rqst_id", NpgsqlDbType.Bigint);
+                    var hr_confm_by = cmd.Parameters.Add("@hr_confm_by", NpgsqlDbType.Text);
+                    var hr_confm_dt = cmd.Parameters.Add("@hr_confm_dt", NpgsqlDbType.Timestamp);
+                    var lvs_rqst_sts = cmd.Parameters.Add("@lvs_rqst_sts", NpgsqlDbType.Integer);
+                    cmd.Prepare();
+                    lvs_rqst_id.Value = leaveRequestId;
+                    hr_confm_by.Value = confirmedBy;
+                    hr_confm_dt.Value = confirmedTime;
+                    lvs_rqst_sts.Value = (int)LeaveStatusEnum.Confirmed;
+
+                    rows = await cmd.ExecuteNonQueryAsync();
+                    await conn.CloseAsync();
+                }
+            }
+            return rows > 0;
+        }
+        public async Task<bool> UpdateLeaveRequestToClosedAsync(LeaveRequest leaveRequest, string leaveRequestClosedBy)
+        {
+            int rows = 0;
+            int leaveRequestStatus = (int)LeaveStatusEnum.Completed;
+
+            StringBuilder sb = new StringBuilder();
+            sb.Append("UPDATE public.lvm_lvs_rqsts ");
+            sb.Append("SET is_rqs_cls=@is_rqs_cls, rqs_cls_dt=@rqs_cls_dt, ");
+            sb.Append("rqs_cls_by=@rqs_cls_by, lvs_rqst_sts=@lvs_rqst_sts, ");
+            sb.Append("act_lvs_sdt=@act_lvs_sdt, act_lvs_edt=@act_lvs_edt, ");
+            sb.Append("hr_rsmptn_dt=@hr_rsmptn_dt, act_lvs_dur=@act_lvs_dur, ");
+            sb.Append("act_dur_ds=@act_dur_ds, act_lvs_dur_typ=@act_lvs_dur_typ ");
+            sb.Append("WHERE (lvs_rqst_id = @lvs_rqst_id); ");
+
+            string query = sb.ToString();
+
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
+            {
+                await conn.OpenAsync();
+                //Insert data
+                using (var cmd = new NpgsqlCommand(query, conn))
+                {
+                    var lvs_rqst_id = cmd.Parameters.Add("@lvs_rqst_id", NpgsqlDbType.Bigint);
+                    var rqs_cls_by = cmd.Parameters.Add("@rqs_cls_by", NpgsqlDbType.Text);
+                    var rqs_cls_dt = cmd.Parameters.Add("@rqs_cls_dt", NpgsqlDbType.Timestamp);
+                    var lvs_rqst_sts = cmd.Parameters.Add("@lvs_rqst_sts", NpgsqlDbType.Integer);
+                    var is_rqs_cls = cmd.Parameters.Add("@is_rqs_cls", NpgsqlDbType.Boolean);
+
+                    var act_lvs_sdt = cmd.Parameters.Add("@act_lvs_sdt", NpgsqlDbType.Timestamp);
+                    var act_lvs_edt = cmd.Parameters.Add("@act_lvs_edt", NpgsqlDbType.Timestamp);
+                    var hr_rsmptn_dt = cmd.Parameters.Add("@hr_rsmptn_dt", NpgsqlDbType.Timestamp);
+
+                    var act_lvs_dur = cmd.Parameters.Add("@act_lvs_dur", NpgsqlDbType.Integer);
+                    var act_dur_ds = cmd.Parameters.Add("@act_dur_ds", NpgsqlDbType.Text);
+                    var act_lvs_dur_typ = cmd.Parameters.Add("@act_lvs_dur_typ", NpgsqlDbType.Integer);
+
+                    cmd.Prepare();
+
+                    lvs_rqst_id.Value = leaveRequest.LeaveRequestId;
+                    rqs_cls_by.Value = leaveRequestClosedBy;
+                    rqs_cls_dt.Value = DateTime.Now;
+                    lvs_rqst_sts.Value = leaveRequestStatus;
+                    is_rqs_cls.Value = true;
+
+                    act_lvs_sdt.Value = leaveRequest.ActualLeaveStartDate;
+                    act_lvs_edt.Value = leaveRequest.ActualLeaveEndDate;
+                    hr_rsmptn_dt.Value = leaveRequest.HrResumptionDate;
+
+                    act_lvs_dur.Value = leaveRequest.ActualLeaveDuration;
+                    act_dur_ds.Value = leaveRequest.ActualLeaveDurationDescription;
+                    act_lvs_dur_typ.Value = leaveRequest.ActualLeaveDurationTypeId;
+
+                    rows = await cmd.ExecuteNonQueryAsync();
+                    await conn.CloseAsync();
+                }
+            }
+            return rows > 0;
+        }
 
         #endregion
 
@@ -4035,11 +4122,11 @@ namespace IntranetPortal.Data.Repositories.LeaveRepositories
             sb.Append("ELSE 'Unknown' END AS lvs_rqst_sts_ds, ");
             sb.Append("r.lvs_rqst_sdt, r.lvs_rqst_edt, r.lvs_rqst_dur, ");
             sb.Append("r.lvs_rqst_dur_ds, r.act_lvs_sdt, r.act_lvs_edt, ");
-            sb.Append("r.act_lvs_dur, r.act_dur_ds, r.lm_rsmptn_dt, ");
-            sb.Append("r.lm_confm_dt, r.lm_confm_by, r.hr_rsmptn_dt, ");
-            sb.Append("r.hr_confm_dt, r.hr_confm_by, r.rqs_cls_dt, r.is_lm_aprv, ");
-            sb.Append("r.is_hd_aprv, r.is_hr_aprv, r.is_xm_aprv, r.is_sm_aprv, ");
-            sb.Append("r.lvs_rqst_dur_typ, r.act_lvs_dur_typ, r.rqst_rsmptn_dt, ");
+            sb.Append("r.act_lvs_dur, r.act_dur_ds, r.lm_rsmptn_dt, r.lm_confm_dt, ");
+            sb.Append("r.lm_confm_by, r.hr_rsmptn_dt, r.hr_confm_dt, r.hr_confm_by, ");
+            sb.Append("r.rqs_cls_dt, r.is_lm_aprv, r.is_hd_aprv, r.is_hr_aprv, ");
+            sb.Append("r.is_xm_aprv, r.is_sm_aprv, r.lvs_rqst_dur_typ, r.act_lvs_dur_typ, ");
+            sb.Append("r.rqst_rsmptn_dt, is_rqs_cls, rqs_cls_by,");
 
             sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = r.lvs_emp_id) ");
             sb.Append("as lvs_emp_nm, (SELECT lvs_typ_nm FROM public.lvm_lvs_typs ");
@@ -4108,7 +4195,9 @@ namespace IntranetPortal.Data.Repositories.LeaveRepositories
                             HrConfirmResumptionTime = reader["hr_confm_dt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["hr_confm_dt"],
 
                             LeaveRequestCloseDate = reader["rqs_cls_dt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["rqs_cls_dt"],
-                            
+                            IsLeaveRequestClosed = reader["is_rqs_cls"] == DBNull.Value ? false : (bool)reader["is_rqs_cls"],
+                            LeaveRequestClosedBy = reader["rqs_cls_by"] == DBNull.Value ? string.Empty : reader["rqs_cls_by"].ToString(),
+
                             IsApprovedByLineManager = reader["is_lm_aprv"] == DBNull.Value ? false : (bool)reader["is_lm_aprv"],
                             IsApprovedByHeadOfDepartment = reader["is_hd_aprv"] == DBNull.Value ? false : (bool)reader["is_hd_aprv"],
                             IsApprovedByHR = reader["is_hr_aprv"] == DBNull.Value ? false : (bool)reader["is_hr_aprv"],
@@ -4139,11 +4228,11 @@ namespace IntranetPortal.Data.Repositories.LeaveRepositories
             sb.Append("ELSE 'Unknown' END AS lvs_rqst_sts_ds, ");
             sb.Append("r.lvs_rqst_sdt, r.lvs_rqst_edt, r.lvs_rqst_dur, ");
             sb.Append("r.lvs_rqst_dur_ds, r.act_lvs_sdt, r.act_lvs_edt, ");
-            sb.Append("r.act_lvs_dur, r.act_dur_ds, r.lm_rsmptn_dt, ");
-            sb.Append("r.lm_confm_dt, r.lm_confm_by, r.hr_rsmptn_dt, ");
-            sb.Append("r.hr_confm_dt, r.hr_confm_by, r.rqs_cls_dt, r.is_lm_aprv, ");
-            sb.Append("r.is_hd_aprv, r.is_hr_aprv, r.is_xm_aprv, r.is_sm_aprv, ");
-            sb.Append("r.lvs_rqst_dur_typ, r.act_lvs_dur_typ, r.rqst_rsmptn_dt, ");
+            sb.Append("r.act_lvs_dur, r.act_dur_ds, r.lm_rsmptn_dt, r.lm_confm_dt, ");
+            sb.Append("r.lm_confm_by, r.hr_rsmptn_dt, r.hr_confm_dt, r.hr_confm_by, ");
+            sb.Append("r.rqs_cls_dt, r.is_lm_aprv, r.is_hd_aprv, r.is_hr_aprv, ");
+            sb.Append("r.is_xm_aprv, r.is_sm_aprv, r.lvs_rqst_dur_typ, r.act_lvs_dur_typ, ");
+            sb.Append("r.rqst_rsmptn_dt, is_rqs_cls, rqs_cls_by,");
 
             sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = r.lvs_emp_id) ");
             sb.Append("as lvs_emp_nm, (SELECT lvs_typ_nm FROM public.lvm_lvs_typs ");
@@ -4215,6 +4304,8 @@ namespace IntranetPortal.Data.Repositories.LeaveRepositories
                             HrConfirmResumptionTime = reader["hr_confm_dt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["hr_confm_dt"],
 
                             LeaveRequestCloseDate = reader["rqs_cls_dt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["rqs_cls_dt"],
+                            IsLeaveRequestClosed = reader["is_rqs_cls"] == DBNull.Value ? false : (bool)reader["is_rqs_cls"],
+                            LeaveRequestClosedBy = reader["rqs_cls_by"] == DBNull.Value ? string.Empty : reader["rqs_cls_by"].ToString(),
 
                             IsApprovedByLineManager = reader["is_lm_aprv"] == DBNull.Value ? false : (bool)reader["is_lm_aprv"],
                             IsApprovedByHeadOfDepartment = reader["is_hd_aprv"] == DBNull.Value ? false : (bool)reader["is_hd_aprv"],
@@ -4248,11 +4339,11 @@ namespace IntranetPortal.Data.Repositories.LeaveRepositories
             sb.Append("ELSE 'Unknown' END AS lvs_rqst_sts_ds, ");
             sb.Append("r.lvs_rqst_sdt, r.lvs_rqst_edt, r.lvs_rqst_dur, ");
             sb.Append("r.lvs_rqst_dur_ds, r.act_lvs_sdt, r.act_lvs_edt, ");
-            sb.Append("r.act_lvs_dur, r.act_dur_ds, r.lm_rsmptn_dt, ");
-            sb.Append("r.lm_confm_dt, r.lm_confm_by, r.hr_rsmptn_dt, ");
-            sb.Append("r.hr_confm_dt, r.hr_confm_by, r.rqs_cls_dt, r.is_lm_aprv, ");
-            sb.Append("r.is_hd_aprv, r.is_hr_aprv, r.is_xm_aprv, r.is_sm_aprv, ");
-            sb.Append("r.lvs_rqst_dur_typ, r.act_lvs_dur_typ, r.rqst_rsmptn_dt, ");
+            sb.Append("r.act_lvs_dur, r.act_dur_ds, r.lm_rsmptn_dt, r.lm_confm_dt, ");
+            sb.Append("r.lm_confm_by, r.hr_rsmptn_dt, r.hr_confm_dt, r.hr_confm_by, ");
+            sb.Append("r.rqs_cls_dt, r.is_lm_aprv, r.is_hd_aprv, r.is_hr_aprv, ");
+            sb.Append("r.is_xm_aprv, r.is_sm_aprv, r.lvs_rqst_dur_typ, r.act_lvs_dur_typ, ");
+            sb.Append("r.rqst_rsmptn_dt, is_rqs_cls, rqs_cls_by,");
 
             sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = r.lvs_emp_id) ");
             sb.Append("as lvs_emp_nm, (SELECT lvs_typ_nm FROM public.lvm_lvs_typs ");
@@ -4322,6 +4413,8 @@ namespace IntranetPortal.Data.Repositories.LeaveRepositories
                             HrConfirmResumptionTime = reader["hr_confm_dt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["hr_confm_dt"],
 
                             LeaveRequestCloseDate = reader["rqs_cls_dt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["rqs_cls_dt"],
+                            IsLeaveRequestClosed = reader["is_rqs_cls"] == DBNull.Value ? false : (bool)reader["is_rqs_cls"],
+                            LeaveRequestClosedBy = reader["rqs_cls_by"] == DBNull.Value ? string.Empty : reader["rqs_cls_by"].ToString(),
 
                             IsApprovedByLineManager = reader["is_lm_aprv"] == DBNull.Value ? false : (bool)reader["is_lm_aprv"],
                             IsApprovedByHeadOfDepartment = reader["is_hd_aprv"] == DBNull.Value ? false : (bool)reader["is_hd_aprv"],
@@ -4353,11 +4446,11 @@ namespace IntranetPortal.Data.Repositories.LeaveRepositories
             sb.Append("ELSE 'Unknown' END AS lvs_rqst_sts_ds, ");
             sb.Append("r.lvs_rqst_sdt, r.lvs_rqst_edt, r.lvs_rqst_dur, ");
             sb.Append("r.lvs_rqst_dur_ds, r.act_lvs_sdt, r.act_lvs_edt, ");
-            sb.Append("r.act_lvs_dur, r.act_dur_ds, r.lm_rsmptn_dt, ");
-            sb.Append("r.lm_confm_dt, r.lm_confm_by, r.hr_rsmptn_dt, ");
-            sb.Append("r.hr_confm_dt, r.hr_confm_by, r.rqs_cls_dt, r.is_lm_aprv, ");
-            sb.Append("r.is_hd_aprv, r.is_hr_aprv, r.is_xm_aprv, r.is_sm_aprv, ");
-            sb.Append("r.lvs_rqst_dur_typ, r.act_lvs_dur_typ, r.rqst_rsmptn_dt, ");
+            sb.Append("r.act_lvs_dur, r.act_dur_ds, r.lm_rsmptn_dt, r.lm_confm_dt, ");
+            sb.Append("r.lm_confm_by, r.hr_rsmptn_dt, r.hr_confm_dt, r.hr_confm_by, ");
+            sb.Append("r.rqs_cls_dt, r.is_lm_aprv, r.is_hd_aprv, r.is_hr_aprv, ");
+            sb.Append("r.is_xm_aprv, r.is_sm_aprv, r.lvs_rqst_dur_typ, r.act_lvs_dur_typ, ");
+            sb.Append("r.rqst_rsmptn_dt, is_rqs_cls, rqs_cls_by,");
 
             sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = r.lvs_emp_id) ");
             sb.Append("as lvs_emp_nm, (SELECT lvs_typ_nm FROM public.lvm_lvs_typs ");
@@ -4431,6 +4524,8 @@ namespace IntranetPortal.Data.Repositories.LeaveRepositories
                             HrConfirmResumptionTime = reader["hr_confm_dt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["hr_confm_dt"],
 
                             LeaveRequestCloseDate = reader["rqs_cls_dt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["rqs_cls_dt"],
+                            IsLeaveRequestClosed = reader["is_rqs_cls"] == DBNull.Value ? false : (bool)reader["is_rqs_cls"],
+                            LeaveRequestClosedBy = reader["rqs_cls_by"] == DBNull.Value ? string.Empty : reader["rqs_cls_by"].ToString(),
 
                             IsApprovedByLineManager = reader["is_lm_aprv"] == DBNull.Value ? false : (bool)reader["is_lm_aprv"],
                             IsApprovedByHeadOfDepartment = reader["is_hd_aprv"] == DBNull.Value ? false : (bool)reader["is_hd_aprv"],
@@ -4462,11 +4557,11 @@ namespace IntranetPortal.Data.Repositories.LeaveRepositories
             sb.Append("ELSE 'Unknown' END AS lvs_rqst_sts_ds, ");
             sb.Append("r.lvs_rqst_sdt, r.lvs_rqst_edt, r.lvs_rqst_dur, ");
             sb.Append("r.lvs_rqst_dur_ds, r.act_lvs_sdt, r.act_lvs_edt, ");
-            sb.Append("r.act_lvs_dur, r.act_dur_ds, r.lm_rsmptn_dt, ");
-            sb.Append("r.lm_confm_dt, r.lm_confm_by, r.hr_rsmptn_dt, ");
-            sb.Append("r.hr_confm_dt, r.hr_confm_by, r.rqs_cls_dt, r.is_lm_aprv, ");
-            sb.Append("r.is_hd_aprv, r.is_hr_aprv, r.is_xm_aprv, r.is_sm_aprv, ");
-            sb.Append("r.lvs_rqst_dur_typ, r.act_lvs_dur_typ, r.rqst_rsmptn_dt, ");
+            sb.Append("r.act_lvs_dur, r.act_dur_ds, r.lm_rsmptn_dt, r.lm_confm_dt, ");
+            sb.Append("r.lm_confm_by, r.hr_rsmptn_dt, r.hr_confm_dt, r.hr_confm_by, ");
+            sb.Append("r.rqs_cls_dt, r.is_lm_aprv, r.is_hd_aprv, r.is_hr_aprv, ");
+            sb.Append("r.is_xm_aprv, r.is_sm_aprv, r.lvs_rqst_dur_typ, r.act_lvs_dur_typ, ");
+            sb.Append("r.rqst_rsmptn_dt, is_rqs_cls, rqs_cls_by,");
 
             sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = r.lvs_emp_id) ");
             sb.Append("as lvs_emp_nm, (SELECT lvs_typ_nm FROM public.lvm_lvs_typs ");
@@ -4543,6 +4638,8 @@ namespace IntranetPortal.Data.Repositories.LeaveRepositories
                             HrConfirmResumptionTime = reader["hr_confm_dt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["hr_confm_dt"],
 
                             LeaveRequestCloseDate = reader["rqs_cls_dt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["rqs_cls_dt"],
+                            IsLeaveRequestClosed = reader["is_rqs_cls"] == DBNull.Value ? false : (bool)reader["is_rqs_cls"],
+                            LeaveRequestClosedBy = reader["rqs_cls_by"] == DBNull.Value ? string.Empty : reader["rqs_cls_by"].ToString(),
 
                             IsApprovedByLineManager = reader["is_lm_aprv"] == DBNull.Value ? false : (bool)reader["is_lm_aprv"],
                             IsApprovedByHeadOfDepartment = reader["is_hd_aprv"] == DBNull.Value ? false : (bool)reader["is_hd_aprv"],
@@ -4579,11 +4676,11 @@ namespace IntranetPortal.Data.Repositories.LeaveRepositories
             sb.Append("ELSE 'Unknown' END AS lvs_rqst_sts_ds, ");
             sb.Append("r.lvs_rqst_sdt, r.lvs_rqst_edt, r.lvs_rqst_dur, ");
             sb.Append("r.lvs_rqst_dur_ds, r.act_lvs_sdt, r.act_lvs_edt, ");
-            sb.Append("r.act_lvs_dur, r.act_dur_ds, r.lm_rsmptn_dt, ");
-            sb.Append("r.lm_confm_dt, r.lm_confm_by, r.hr_rsmptn_dt, ");
-            sb.Append("r.hr_confm_dt, r.hr_confm_by, r.rqs_cls_dt, r.is_lm_aprv, ");
-            sb.Append("r.is_hd_aprv, r.is_hr_aprv, r.is_xm_aprv, r.is_sm_aprv, ");
-            sb.Append("r.lvs_rqst_dur_typ, r.act_lvs_dur_typ, r.rqst_rsmptn_dt, ");
+            sb.Append("r.act_lvs_dur, r.act_dur_ds, r.lm_rsmptn_dt, r.lm_confm_dt, ");
+            sb.Append("r.lm_confm_by, r.hr_rsmptn_dt, r.hr_confm_dt, r.hr_confm_by, ");
+            sb.Append("r.rqs_cls_dt, r.is_lm_aprv, r.is_hd_aprv, r.is_hr_aprv, ");
+            sb.Append("r.is_xm_aprv, r.is_sm_aprv, r.lvs_rqst_dur_typ, r.act_lvs_dur_typ, ");
+            sb.Append("r.rqst_rsmptn_dt, is_rqs_cls, rqs_cls_by,");
 
             sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = r.lvs_emp_id) ");
             sb.Append("as lvs_emp_nm, (SELECT lvs_typ_nm FROM public.lvm_lvs_typs ");
@@ -4652,6 +4749,8 @@ namespace IntranetPortal.Data.Repositories.LeaveRepositories
                             HrConfirmResumptionTime = reader["hr_confm_dt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["hr_confm_dt"],
 
                             LeaveRequestCloseDate = reader["rqs_cls_dt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["rqs_cls_dt"],
+                            IsLeaveRequestClosed = reader["is_rqs_cls"] == DBNull.Value ? false : (bool)reader["is_rqs_cls"],
+                            LeaveRequestClosedBy = reader["rqs_cls_by"] == DBNull.Value ? string.Empty : reader["rqs_cls_by"].ToString(),
 
                             IsApprovedByLineManager = reader["is_lm_aprv"] == DBNull.Value ? false : (bool)reader["is_lm_aprv"],
                             IsApprovedByHeadOfDepartment = reader["is_hd_aprv"] == DBNull.Value ? false : (bool)reader["is_hd_aprv"],
@@ -4683,11 +4782,11 @@ namespace IntranetPortal.Data.Repositories.LeaveRepositories
             sb.Append("ELSE 'Unknown' END AS lvs_rqst_sts_ds, ");
             sb.Append("r.lvs_rqst_sdt, r.lvs_rqst_edt, r.lvs_rqst_dur, ");
             sb.Append("r.lvs_rqst_dur_ds, r.act_lvs_sdt, r.act_lvs_edt, ");
-            sb.Append("r.act_lvs_dur, r.act_dur_ds, r.lm_rsmptn_dt, ");
-            sb.Append("r.lm_confm_dt, r.lm_confm_by, r.hr_rsmptn_dt, ");
-            sb.Append("r.hr_confm_dt, r.hr_confm_by, r.rqs_cls_dt, r.is_lm_aprv, ");
-            sb.Append("r.is_hd_aprv, r.is_hr_aprv, r.is_xm_aprv, r.is_sm_aprv, ");
-            sb.Append("r.lvs_rqst_dur_typ, r.act_lvs_dur_typ, r.rqst_rsmptn_dt, ");
+            sb.Append("r.act_lvs_dur, r.act_dur_ds, r.lm_rsmptn_dt, r.lm_confm_dt, ");
+            sb.Append("r.lm_confm_by, r.hr_rsmptn_dt, r.hr_confm_dt, r.hr_confm_by, ");
+            sb.Append("r.rqs_cls_dt, r.is_lm_aprv, r.is_hd_aprv, r.is_hr_aprv, ");
+            sb.Append("r.is_xm_aprv, r.is_sm_aprv, r.lvs_rqst_dur_typ, r.act_lvs_dur_typ, ");
+            sb.Append("r.rqst_rsmptn_dt, is_rqs_cls, rqs_cls_by,");
 
             sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = r.lvs_emp_id) ");
             sb.Append("as lvs_emp_nm, (SELECT lvs_typ_nm FROM public.lvm_lvs_typs ");
@@ -4760,6 +4859,8 @@ namespace IntranetPortal.Data.Repositories.LeaveRepositories
                             HrConfirmResumptionTime = reader["hr_confm_dt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["hr_confm_dt"],
 
                             LeaveRequestCloseDate = reader["rqs_cls_dt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["rqs_cls_dt"],
+                            IsLeaveRequestClosed = reader["is_rqs_cls"] == DBNull.Value ? false : (bool)reader["is_rqs_cls"],
+                            LeaveRequestClosedBy = reader["rqs_cls_by"] == DBNull.Value ? string.Empty : reader["rqs_cls_by"].ToString(),
 
                             IsApprovedByLineManager = reader["is_lm_aprv"] == DBNull.Value ? false : (bool)reader["is_lm_aprv"],
                             IsApprovedByHeadOfDepartment = reader["is_hd_aprv"] == DBNull.Value ? false : (bool)reader["is_hd_aprv"],
@@ -4794,11 +4895,11 @@ namespace IntranetPortal.Data.Repositories.LeaveRepositories
             sb.Append("ELSE 'Unknown' END AS lvs_rqst_sts_ds, ");
             sb.Append("r.lvs_rqst_sdt, r.lvs_rqst_edt, r.lvs_rqst_dur, ");
             sb.Append("r.lvs_rqst_dur_ds, r.act_lvs_sdt, r.act_lvs_edt, ");
-            sb.Append("r.act_lvs_dur, r.act_dur_ds, r.lm_rsmptn_dt, ");
-            sb.Append("r.lm_confm_dt, r.lm_confm_by, r.hr_rsmptn_dt, ");
-            sb.Append("r.hr_confm_dt, r.hr_confm_by, r.rqs_cls_dt, r.is_lm_aprv, ");
-            sb.Append("r.is_hd_aprv, r.is_hr_aprv, r.is_xm_aprv, r.is_sm_aprv, ");
-            sb.Append("r.lvs_rqst_dur_typ, r.act_lvs_dur_typ, r.rqst_rsmptn_dt, ");
+            sb.Append("r.act_lvs_dur, r.act_dur_ds, r.lm_rsmptn_dt, r.lm_confm_dt, ");
+            sb.Append("r.lm_confm_by, r.hr_rsmptn_dt, r.hr_confm_dt, r.hr_confm_by, ");
+            sb.Append("r.rqs_cls_dt, r.is_lm_aprv, r.is_hd_aprv, r.is_hr_aprv, ");
+            sb.Append("r.is_xm_aprv, r.is_sm_aprv, r.lvs_rqst_dur_typ, r.act_lvs_dur_typ, ");
+            sb.Append("r.rqst_rsmptn_dt, is_rqs_cls, rqs_cls_by,");
 
             sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = r.lvs_emp_id) ");
             sb.Append("as lvs_emp_nm, (SELECT lvs_typ_nm FROM public.lvm_lvs_typs ");
@@ -4870,6 +4971,8 @@ namespace IntranetPortal.Data.Repositories.LeaveRepositories
                             HrConfirmResumptionTime = reader["hr_confm_dt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["hr_confm_dt"],
 
                             LeaveRequestCloseDate = reader["rqs_cls_dt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["rqs_cls_dt"],
+                            IsLeaveRequestClosed = reader["is_rqs_cls"] == DBNull.Value ? false : (bool)reader["is_rqs_cls"],
+                            LeaveRequestClosedBy = reader["rqs_cls_by"] == DBNull.Value ? string.Empty : reader["rqs_cls_by"].ToString(),
 
                             IsApprovedByLineManager = reader["is_lm_aprv"] == DBNull.Value ? false : (bool)reader["is_lm_aprv"],
                             IsApprovedByHeadOfDepartment = reader["is_hd_aprv"] == DBNull.Value ? false : (bool)reader["is_hd_aprv"],
@@ -4883,7 +4986,6 @@ namespace IntranetPortal.Data.Repositories.LeaveRepositories
             }
             return leaveRequestList;
         }
-
         public async Task<List<LeaveRequest>> GetLeaveRequestsByLocationIdAsync(int locationId, int leaveYear, int leaveMonth)
         {
             List<LeaveRequest> leaveRequestList = new List<LeaveRequest>();
@@ -4902,11 +5004,11 @@ namespace IntranetPortal.Data.Repositories.LeaveRepositories
             sb.Append("ELSE 'Unknown' END AS lvs_rqst_sts_ds, ");
             sb.Append("r.lvs_rqst_sdt, r.lvs_rqst_edt, r.lvs_rqst_dur, ");
             sb.Append("r.lvs_rqst_dur_ds, r.act_lvs_sdt, r.act_lvs_edt, ");
-            sb.Append("r.act_lvs_dur, r.act_dur_ds, r.lm_rsmptn_dt, ");
-            sb.Append("r.lm_confm_dt, r.lm_confm_by, r.hr_rsmptn_dt, ");
-            sb.Append("r.hr_confm_dt, r.hr_confm_by, r.rqs_cls_dt, r.is_lm_aprv, ");
-            sb.Append("r.is_hd_aprv, r.is_hr_aprv, r.is_xm_aprv, r.is_sm_aprv, ");
-            sb.Append("r.lvs_rqst_dur_typ, r.act_lvs_dur_typ, r.rqst_rsmptn_dt, ");
+            sb.Append("r.act_lvs_dur, r.act_dur_ds, r.lm_rsmptn_dt, r.lm_confm_dt, ");
+            sb.Append("r.lm_confm_by, r.hr_rsmptn_dt, r.hr_confm_dt, r.hr_confm_by, ");
+            sb.Append("r.rqs_cls_dt, r.is_lm_aprv, r.is_hd_aprv, r.is_hr_aprv, ");
+            sb.Append("r.is_xm_aprv, r.is_sm_aprv, r.lvs_rqst_dur_typ, r.act_lvs_dur_typ, ");
+            sb.Append("r.rqst_rsmptn_dt, is_rqs_cls, rqs_cls_by,");
 
             sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = r.lvs_emp_id) ");
             sb.Append("as lvs_emp_nm, (SELECT lvs_typ_nm FROM public.lvm_lvs_typs ");
@@ -4981,6 +5083,8 @@ namespace IntranetPortal.Data.Repositories.LeaveRepositories
                             HrConfirmResumptionTime = reader["hr_confm_dt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["hr_confm_dt"],
 
                             LeaveRequestCloseDate = reader["rqs_cls_dt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["rqs_cls_dt"],
+                            IsLeaveRequestClosed = reader["is_rqs_cls"] == DBNull.Value ? false : (bool)reader["is_rqs_cls"],
+                            LeaveRequestClosedBy = reader["rqs_cls_by"] == DBNull.Value ? string.Empty : reader["rqs_cls_by"].ToString(),
 
                             IsApprovedByLineManager = reader["is_lm_aprv"] == DBNull.Value ? false : (bool)reader["is_lm_aprv"],
                             IsApprovedByHeadOfDepartment = reader["is_hd_aprv"] == DBNull.Value ? false : (bool)reader["is_hd_aprv"],
@@ -5014,11 +5118,11 @@ namespace IntranetPortal.Data.Repositories.LeaveRepositories
             sb.Append("ELSE 'Unknown' END AS lvs_rqst_sts_ds, ");
             sb.Append("r.lvs_rqst_sdt, r.lvs_rqst_edt, r.lvs_rqst_dur, ");
             sb.Append("r.lvs_rqst_dur_ds, r.act_lvs_sdt, r.act_lvs_edt, ");
-            sb.Append("r.act_lvs_dur, r.act_dur_ds, r.lm_rsmptn_dt, ");
-            sb.Append("r.lm_confm_dt, r.lm_confm_by, r.hr_rsmptn_dt, ");
-            sb.Append("r.hr_confm_dt, r.hr_confm_by, r.rqs_cls_dt, r.is_lm_aprv, ");
-            sb.Append("r.is_hd_aprv, r.is_hr_aprv, r.is_xm_aprv, r.is_sm_aprv, ");
-            sb.Append("r.lvs_rqst_dur_typ, r.act_lvs_dur_typ, r.rqst_rsmptn_dt, ");
+            sb.Append("r.act_lvs_dur, r.act_dur_ds, r.lm_rsmptn_dt, r.lm_confm_dt, ");
+            sb.Append("r.lm_confm_by, r.hr_rsmptn_dt, r.hr_confm_dt, r.hr_confm_by, ");
+            sb.Append("r.rqs_cls_dt, r.is_lm_aprv, r.is_hd_aprv, r.is_hr_aprv, ");
+            sb.Append("r.is_xm_aprv, r.is_sm_aprv, r.lvs_rqst_dur_typ, r.act_lvs_dur_typ, ");
+            sb.Append("r.rqst_rsmptn_dt, is_rqs_cls, rqs_cls_by,");
 
             sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = r.lvs_emp_id) ");
             sb.Append("as lvs_emp_nm, (SELECT lvs_typ_nm FROM public.lvm_lvs_typs ");
@@ -5090,6 +5194,8 @@ namespace IntranetPortal.Data.Repositories.LeaveRepositories
                             HrConfirmResumptionTime = reader["hr_confm_dt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["hr_confm_dt"],
 
                             LeaveRequestCloseDate = reader["rqs_cls_dt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["rqs_cls_dt"],
+                            IsLeaveRequestClosed = reader["is_rqs_cls"] == DBNull.Value ? false : (bool)reader["is_rqs_cls"],
+                            LeaveRequestClosedBy = reader["rqs_cls_by"] == DBNull.Value ? string.Empty : reader["rqs_cls_by"].ToString(),
 
                             IsApprovedByLineManager = reader["is_lm_aprv"] == DBNull.Value ? false : (bool)reader["is_lm_aprv"],
                             IsApprovedByHeadOfDepartment = reader["is_hd_aprv"] == DBNull.Value ? false : (bool)reader["is_hd_aprv"],
@@ -5121,11 +5227,11 @@ namespace IntranetPortal.Data.Repositories.LeaveRepositories
             sb.Append("ELSE 'Unknown' END AS lvs_rqst_sts_ds, ");
             sb.Append("r.lvs_rqst_sdt, r.lvs_rqst_edt, r.lvs_rqst_dur, ");
             sb.Append("r.lvs_rqst_dur_ds, r.act_lvs_sdt, r.act_lvs_edt, ");
-            sb.Append("r.act_lvs_dur, r.act_dur_ds, r.lm_rsmptn_dt, ");
-            sb.Append("r.lm_confm_dt, r.lm_confm_by, r.hr_rsmptn_dt, ");
-            sb.Append("r.hr_confm_dt, r.hr_confm_by, r.rqs_cls_dt, r.is_lm_aprv, ");
-            sb.Append("r.is_hd_aprv, r.is_hr_aprv, r.is_xm_aprv, r.is_sm_aprv, ");
-            sb.Append("r.lvs_rqst_dur_typ, r.act_lvs_dur_typ, r.rqst_rsmptn_dt, ");
+            sb.Append("r.act_lvs_dur, r.act_dur_ds, r.lm_rsmptn_dt, r.lm_confm_dt, ");
+            sb.Append("r.lm_confm_by, r.hr_rsmptn_dt, r.hr_confm_dt, r.hr_confm_by, ");
+            sb.Append("r.rqs_cls_dt, r.is_lm_aprv, r.is_hd_aprv, r.is_hr_aprv, ");
+            sb.Append("r.is_xm_aprv, r.is_sm_aprv, r.lvs_rqst_dur_typ, r.act_lvs_dur_typ, ");
+            sb.Append("r.rqst_rsmptn_dt, is_rqs_cls, rqs_cls_by,");
 
             sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = r.lvs_emp_id) ");
             sb.Append("as lvs_emp_nm, (SELECT lvs_typ_nm FROM public.lvm_lvs_typs ");
@@ -5200,6 +5306,8 @@ namespace IntranetPortal.Data.Repositories.LeaveRepositories
                             HrConfirmResumptionTime = reader["hr_confm_dt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["hr_confm_dt"],
 
                             LeaveRequestCloseDate = reader["rqs_cls_dt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["rqs_cls_dt"],
+                            IsLeaveRequestClosed = reader["is_rqs_cls"] == DBNull.Value ? false : (bool)reader["is_rqs_cls"],
+                            LeaveRequestClosedBy = reader["rqs_cls_by"] == DBNull.Value ? string.Empty : reader["rqs_cls_by"].ToString(),
 
                             IsApprovedByLineManager = reader["is_lm_aprv"] == DBNull.Value ? false : (bool)reader["is_lm_aprv"],
                             IsApprovedByHeadOfDepartment = reader["is_hd_aprv"] == DBNull.Value ? false : (bool)reader["is_hd_aprv"],
@@ -5233,11 +5341,11 @@ namespace IntranetPortal.Data.Repositories.LeaveRepositories
             sb.Append("ELSE 'Unknown' END AS lvs_rqst_sts_ds, ");
             sb.Append("r.lvs_rqst_sdt, r.lvs_rqst_edt, r.lvs_rqst_dur, ");
             sb.Append("r.lvs_rqst_dur_ds, r.act_lvs_sdt, r.act_lvs_edt, ");
-            sb.Append("r.act_lvs_dur, r.act_dur_ds, r.lm_rsmptn_dt, ");
-            sb.Append("r.lm_confm_dt, r.lm_confm_by, r.hr_rsmptn_dt, ");
-            sb.Append("r.hr_confm_dt, r.hr_confm_by, r.rqs_cls_dt, r.is_lm_aprv, ");
-            sb.Append("r.is_hd_aprv, r.is_hr_aprv, r.is_xm_aprv, r.is_sm_aprv, ");
-            sb.Append("r.lvs_rqst_dur_typ, r.act_lvs_dur_typ, r.rqst_rsmptn_dt, ");
+            sb.Append("r.act_lvs_dur, r.act_dur_ds, r.lm_rsmptn_dt, r.lm_confm_dt, ");
+            sb.Append("r.lm_confm_by, r.hr_rsmptn_dt, r.hr_confm_dt, r.hr_confm_by, ");
+            sb.Append("r.rqs_cls_dt, r.is_lm_aprv, r.is_hd_aprv, r.is_hr_aprv, ");
+            sb.Append("r.is_xm_aprv, r.is_sm_aprv, r.lvs_rqst_dur_typ, r.act_lvs_dur_typ, ");
+            sb.Append("r.rqst_rsmptn_dt, is_rqs_cls, rqs_cls_by,");
 
             sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = r.lvs_emp_id) ");
             sb.Append("as lvs_emp_nm, (SELECT lvs_typ_nm FROM public.lvm_lvs_typs ");
@@ -5312,6 +5420,8 @@ namespace IntranetPortal.Data.Repositories.LeaveRepositories
                             HrConfirmResumptionTime = reader["hr_confm_dt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["hr_confm_dt"],
 
                             LeaveRequestCloseDate = reader["rqs_cls_dt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["rqs_cls_dt"],
+                            IsLeaveRequestClosed = reader["is_rqs_cls"] == DBNull.Value ? false : (bool)reader["is_rqs_cls"],
+                            LeaveRequestClosedBy = reader["rqs_cls_by"] == DBNull.Value ? string.Empty : reader["rqs_cls_by"].ToString(),
 
                             IsApprovedByLineManager = reader["is_lm_aprv"] == DBNull.Value ? false : (bool)reader["is_lm_aprv"],
                             IsApprovedByHeadOfDepartment = reader["is_hd_aprv"] == DBNull.Value ? false : (bool)reader["is_hd_aprv"],
@@ -5343,11 +5453,11 @@ namespace IntranetPortal.Data.Repositories.LeaveRepositories
             sb.Append("ELSE 'Unknown' END AS lvs_rqst_sts_ds, ");
             sb.Append("r.lvs_rqst_sdt, r.lvs_rqst_edt, r.lvs_rqst_dur, ");
             sb.Append("r.lvs_rqst_dur_ds, r.act_lvs_sdt, r.act_lvs_edt, ");
-            sb.Append("r.act_lvs_dur, r.act_dur_ds, r.lm_rsmptn_dt, ");
-            sb.Append("r.lm_confm_dt, r.lm_confm_by, r.hr_rsmptn_dt, ");
-            sb.Append("r.hr_confm_dt, r.hr_confm_by, r.rqs_cls_dt, r.is_lm_aprv, ");
-            sb.Append("r.is_hd_aprv, r.is_hr_aprv, r.is_xm_aprv, r.is_sm_aprv, ");
-            sb.Append("r.lvs_rqst_dur_typ, r.act_lvs_dur_typ, r.rqst_rsmptn_dt, ");
+            sb.Append("r.act_lvs_dur, r.act_dur_ds, r.lm_rsmptn_dt, r.lm_confm_dt, ");
+            sb.Append("r.lm_confm_by, r.hr_rsmptn_dt, r.hr_confm_dt, r.hr_confm_by, ");
+            sb.Append("r.rqs_cls_dt, r.is_lm_aprv, r.is_hd_aprv, r.is_hr_aprv, ");
+            sb.Append("r.is_xm_aprv, r.is_sm_aprv, r.lvs_rqst_dur_typ, r.act_lvs_dur_typ, ");
+            sb.Append("r.rqst_rsmptn_dt, is_rqs_cls, rqs_cls_by,");
 
             sb.Append("(SELECT fullname FROM public.gst_prsns WHERE id = r.lvs_emp_id) ");
             sb.Append("as lvs_emp_nm, (SELECT lvs_typ_nm FROM public.lvm_lvs_typs ");
@@ -5425,6 +5535,8 @@ namespace IntranetPortal.Data.Repositories.LeaveRepositories
                             HrConfirmResumptionTime = reader["hr_confm_dt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["hr_confm_dt"],
 
                             LeaveRequestCloseDate = reader["rqs_cls_dt"] == DBNull.Value ? DateTime.Now : (DateTime)reader["rqs_cls_dt"],
+                            IsLeaveRequestClosed = reader["is_rqs_cls"] == DBNull.Value ? false : (bool)reader["is_rqs_cls"],
+                            LeaveRequestClosedBy = reader["rqs_cls_by"] == DBNull.Value ? string.Empty : reader["rqs_cls_by"].ToString(),
 
                             IsApprovedByLineManager = reader["is_lm_aprv"] == DBNull.Value ? false : (bool)reader["is_lm_aprv"],
                             IsApprovedByHeadOfDepartment = reader["is_hd_aprv"] == DBNull.Value ? false : (bool)reader["is_hd_aprv"],
@@ -5440,7 +5552,6 @@ namespace IntranetPortal.Data.Repositories.LeaveRepositories
         }
 
         #endregion
-
 
         #endregion
 
@@ -5667,7 +5778,7 @@ namespace IntranetPortal.Data.Repositories.LeaveRepositories
                             ToEmployeeRole = reader["to_emp_rl"] == DBNull.Value ? string.Empty : reader["to_emp_rl"].ToString(),
 
                             LeavePlanYear = reader["lvs_yr"] == DBNull.Value ? 0 : (int)reader["lvs_yr"],
-                            LeavePlanStartDate = reader["lvs_pln_sdt"] == DBNull.Value ? new DateTime(2020,1,1) : (DateTime)reader["lvs_pln_sdt"],
+                            LeavePlanStartDate = reader["lvs_pln_sdt"] == DBNull.Value ? new DateTime(2020, 1, 1) : (DateTime)reader["lvs_pln_sdt"],
                             LeavePlanEndDate = reader["lvs_pln_edt"] == DBNull.Value ? new DateTime(2020, 1, 1) : (DateTime)reader["lvs_pln_edt"],
                             LeavePlanDurationDescription = reader["pln_dur_ds"] == DBNull.Value ? string.Empty : reader["pln_dur_ds"].ToString(),
                             LeavePlanResumptionDate = reader["pln_rsmptn_dt"] == DBNull.Value ? new DateTime(2020, 1, 1) : (DateTime)reader["pln_rsmptn_dt"],
@@ -6261,6 +6372,259 @@ namespace IntranetPortal.Data.Repositories.LeaveRepositories
 
         #endregion
 
+        #region Leave Adjustment Action Methods
+        public async Task<long> AddLeaveAdjustmentAsync(LeaveAdjustment e)
+        {
+            long _newLeaveAdjustmentId = 0;
+            StringBuilder sb = new StringBuilder();
+            sb.Append("INSERT INTO public.lvm_lvs_adjs(lvs_emp_id, lvs_yr, ");
+            sb.Append("lvs_typ_cd, no_wkg_dys, no_dys_des, lvs_adj_typ, ");
+            sb.Append("lvs_adj_jus, lvs_adj_dt, lvs_adj_by, lvs_unit_id, ");
+            sb.Append("lvs_dept_id, lvs_loc_id, lvs_rqs_id) ");
+            sb.Append("VALUES (@lvs_emp_id, @lvs_yr, @lvs_typ_cd, @no_wkg_dys, ");
+            sb.Append("@lvs_adj_typ, @lvs_adj_des, @lvs_adj_jus, @lvs_adj_dt, ");
+            sb.Append("@lvs_adj_by, @lvs_unit_id, @lvs_dept_id, @lvs_loc_id, ");
+            sb.Append("@lvs_rqs_id) RETURNING lvs_adj_id;");
+
+            string query = sb.ToString();
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
+            {
+                await conn.OpenAsync();
+                //Insert data
+                using (var cmd = new NpgsqlCommand(query, conn))
+                {
+                    var lvs_emp_id = cmd.Parameters.Add("lvs_emp_id", NpgsqlDbType.Text);
+                    var lvs_yr = cmd.Parameters.Add("@lvs_yr", NpgsqlDbType.Integer);
+                    var lvs_typ_cd = cmd.Parameters.Add("@lvs_typ_cd", NpgsqlDbType.Text);
+                    var no_wkg_dys = cmd.Parameters.Add("@no_wkg_dys", NpgsqlDbType.Integer);
+                    var no_dys_des = cmd.Parameters.Add("@no_dys_des", NpgsqlDbType.Text);
+                    var lvs_adj_typ = cmd.Parameters.Add("@lvs_adj_typ", NpgsqlDbType.Text);
+                    var lvs_adj_jus = cmd.Parameters.Add("@lvs_adj_jus", NpgsqlDbType.Text);
+                    var lvs_adj_dt = cmd.Parameters.Add("@lvs_adj_dt", NpgsqlDbType.Timestamp);
+                    var lvs_adj_by = cmd.Parameters.Add("@lvs_adj_by", NpgsqlDbType.Text);
+                    var lvs_unit_id = cmd.Parameters.Add("@lvs_unit_id", NpgsqlDbType.Integer);
+                    var lvs_dept_id = cmd.Parameters.Add("@lvs_dept_id", NpgsqlDbType.Integer);
+                    var lvs_loc_id = cmd.Parameters.Add("@lvs_loc_id", NpgsqlDbType.Integer);
+                    var lvs_rqs_id = cmd.Parameters.Add("@lvs_rqs_id", NpgsqlDbType.Bigint);
+
+                    cmd.Prepare();
+
+                    lvs_emp_id.Value = e.LeaveEmployeeId;
+                    lvs_yr.Value = e.LeaveYear;
+                    lvs_typ_cd.Value = e.LeaveTypeCode;
+                    no_wkg_dys.Value = e.NumberOfDays;
+                    no_dys_des.Value = e.DurationDescription;
+                    lvs_adj_typ.Value = e.AdjustmentType;
+                    lvs_adj_jus.Value = e.AdjustmentJustification ?? (object)DBNull.Value;
+                    lvs_adj_dt.Value = e.AdjustmentDate;
+                    lvs_adj_by.Value = e.AdjustmentAddedBy;
+                    lvs_unit_id.Value = e.LeaveUnitId;
+                    lvs_dept_id.Value = e.LeaveDepartmentId;
+                    lvs_loc_id.Value = e.LeaveLocationId;
+                    lvs_rqs_id.Value = e.LeaveRequestId;
+
+                    var obj = await cmd.ExecuteScalarAsync();
+                    _newLeaveAdjustmentId = (long)obj;
+                    await conn.CloseAsync();
+                }
+            }
+            return _newLeaveAdjustmentId;
+        }
+        public async Task<bool> DeleteLeaveAdjustmentAsync(long leaveAdjustmentId)
+        {
+            int rows = 0;
+            string query = "DELETE FROM public.lvm_lvs_adjs WHERE (lvs_adj_id = @lvs_adj_id); ";
+
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
+            {
+                await conn.OpenAsync();
+                //Delete data
+                using (var cmd = new NpgsqlCommand(query, conn))
+                {
+                    var lvs_adj_id = cmd.Parameters.Add("@lvs_adj_id", NpgsqlDbType.Bigint);
+                    cmd.Prepare();
+                    lvs_adj_id.Value = leaveAdjustmentId;
+                    rows = await cmd.ExecuteNonQueryAsync();
+                    await conn.CloseAsync();
+                }
+            }
+            return rows > 0;
+        }
+        public async Task<LeaveAdjustment> GetLeaveAdjustmentByIdAsync(long leaveAdjustmentId)
+        {
+            LeaveAdjustment adjustment = new LeaveAdjustment();
+            StringBuilder sb = new StringBuilder();
+            sb.Append("SELECT lvs_adj_id, lvs_emp_id, lvs_yr, lvs_typ_cd, no_wkg_dys, ");
+            sb.Append("no_dys_des, lvs_adj_typ, lvs_adj_jus, lvs_adj_dt, lvs_adj_by, ");
+            sb.Append("lvs_unit_id, lvs_dept_id, lvs_loc_id, lvs_rqs_id ");
+            sb.Append("FROM public.lvm_lvs_adjs WHERE (lvs_adj_id = @lvs_adj_id); ");
+            string query = sb.ToString();
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
+            {
+                await conn.OpenAsync();
+                // Retrieve all rows
+                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+                {
+                    var lvs_adj_id = cmd.Parameters.Add("@lvs_adj_id", NpgsqlDbType.Bigint);
+                    await cmd.PrepareAsync();
+                    lvs_adj_id.Value = leaveAdjustmentId;
+                    var reader = await cmd.ExecuteReaderAsync();
+                    while (await reader.ReadAsync())
+                    {
+                        adjustment.LeaveAdjustmentId = reader["lvs_adj_id"] == DBNull.Value ? 0L : (long)reader["lvs_adj_id"];
+                        adjustment.LeaveRequestId = reader["lvs_rqs_id"] == DBNull.Value ? 0L : (long)reader["lvs_rqs_id"];
+                        adjustment.LeaveEmployeeId = reader["lvs_emp_id"] == DBNull.Value ? string.Empty : reader["lvs_emp_id"].ToString();
+                        adjustment.LeaveYear = reader["lvs_yr"] == DBNull.Value ? 1900 : (int)reader["lvs_yr"];
+                        adjustment.LeaveTypeCode = reader["lvs_typ_cd"] == DBNull.Value ? string.Empty : reader["lvs_typ_cd"].ToString();
+                        adjustment.NumberOfDays = reader["no_wkg_dys"] == DBNull.Value ? 0 : (int)reader["no_wkg_dys"];
+                        adjustment.DurationDescription = reader["no_dys_des"] == DBNull.Value ? string.Empty : reader["no_dys_des"].ToString();
+                        adjustment.AdjustmentType = reader["lvs_adj_typ"] == DBNull.Value ? string.Empty : reader["lvs_adj_typ"].ToString();
+                        adjustment.AdjustmentJustification = reader["lvs_adj_jus"] == DBNull.Value ? string.Empty : reader["lvs_adj_jus"].ToString();
+                        adjustment.AdjustmentDate = reader["lvs_adj_dt"] == DBNull.Value ? new DateTime(1900, 1, 1) : (DateTime)reader["lvs_adj_dt"];
+                        adjustment.AdjustmentAddedBy = reader["lvs_adj_by"] == DBNull.Value ? string.Empty : reader["lvs_adj_by"].ToString();
+                        adjustment.LeaveUnitId = reader["lvs_unit_id"] == DBNull.Value ? 0 : (int)reader["lvs_unit_id"];
+                        adjustment.LeaveDepartmentId = reader["lvs_dept_id"] == DBNull.Value ? 0 : (int)reader["lvs_dept_id"];
+                        adjustment.LeaveLocationId = reader["lvs_loc_id"] == DBNull.Value ? 0 : (int)reader["lvs_loc_id"];
+                    }
+                }
+                await conn.CloseAsync();
+            }
+            return adjustment;
+        }
+        public async Task<List<LeaveAdjustment>> GetLeaveAdjustmentsByLeaveRequestIdAsync(long leaveRequestId)
+        {
+            List<LeaveAdjustment> adjustmentsList = new List<LeaveAdjustment>();
+            StringBuilder sb = new StringBuilder();
+            sb.Append("SELECT lvs_adj_id, lvs_emp_id, lvs_yr, lvs_typ_cd, no_wkg_dys, ");
+            sb.Append("no_dys_des, lvs_adj_typ, lvs_adj_jus, lvs_adj_dt, lvs_adj_by, ");
+            sb.Append("lvs_unit_id, lvs_dept_id, lvs_loc_id, lvs_rqs_id ");
+            sb.Append("FROM public.lvm_lvs_adjs WHERE (lvs_rqs_id = @lvs_rqs_id) ");
+            sb.Append("ORDER BY lvs_adj_id DESC; ");
+            string query = sb.ToString();
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
+            {
+                await conn.OpenAsync();
+                // Retrieve all rows
+                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+                {
+                    var lvs_rqs_id = cmd.Parameters.Add("@lvs_rqs_id", NpgsqlDbType.Bigint);
+                    await cmd.PrepareAsync();
+                    lvs_rqs_id.Value = leaveRequestId;
+                    var reader = await cmd.ExecuteReaderAsync();
+                    while (await reader.ReadAsync())
+                    {
+                        adjustmentsList.Add(new LeaveAdjustment()
+                        {
+                            LeaveAdjustmentId = reader["lvs_adj_id"] == DBNull.Value ? 0L : (long)reader["lvs_adj_id"],
+                            LeaveRequestId = reader["lvs_rqs_id"] == DBNull.Value ? 0L : (long)reader["lvs_rqs_id"],
+                            LeaveEmployeeId = reader["lvs_emp_id"] == DBNull.Value ? string.Empty : reader["lvs_emp_id"].ToString(),
+                            LeaveYear = reader["lvs_yr"] == DBNull.Value ? 1900 : (int)reader["lvs_yr"],
+                            LeaveTypeCode = reader["lvs_typ_cd"] == DBNull.Value ? string.Empty : reader["lvs_typ_cd"].ToString(),
+                            NumberOfDays = reader["no_wkg_dys"] == DBNull.Value ? 0 : (int)reader["no_wkg_dys"],
+                            DurationDescription = reader["no_dys_des"] == DBNull.Value ? string.Empty : reader["no_dys_des"].ToString(),
+                            AdjustmentType = reader["lvs_adj_typ"] == DBNull.Value ? string.Empty : reader["lvs_adj_typ"].ToString(),
+                            AdjustmentJustification = reader["lvs_adj_jus"] == DBNull.Value ? string.Empty : reader["lvs_adj_jus"].ToString(),
+                            AdjustmentDate = reader["lvs_adj_dt"] == DBNull.Value ? new DateTime(1900, 1, 1) : (DateTime)reader["lvs_adj_dt"],
+                            AdjustmentAddedBy = reader["lvs_adj_by"] == DBNull.Value ? string.Empty : reader["lvs_adj_by"].ToString(),
+                            LeaveUnitId = reader["lvs_unit_id"] == DBNull.Value ? 0 : (int)reader["lvs_unit_id"],
+                            LeaveDepartmentId = reader["lvs_dept_id"] == DBNull.Value ? 0 : (int)reader["lvs_dept_id"],
+                            LeaveLocationId = reader["lvs_loc_id"] == DBNull.Value ? 0 : (int)reader["lvs_loc_id"],
+                        });
+                    }
+                }
+                await conn.CloseAsync();
+            }
+            return adjustmentsList;
+        }
+
+        #endregion
+
+        #region Leave Transactions Action Methods
+        #region Leave Transactions Write Action Methods
+        public async Task<long> AddLeaveTransactionAsync(LeaveTransaction t)
+        {
+            long newTransactionId = 0;
+            StringBuilder sb = new StringBuilder();
+
+            sb.Append("INSERT INTO public.lvm_lvs_trnx(lvs_emp_id, lvs_yr, ");
+            sb.Append("lvs_typ_cd, no_dys_usd, no_dys_gvn, lvs_trnx_ds, ");
+            sb.Append("lvs_trnx_dt, lvs_trnx_by, lvs_unit_id, lvs_dept_id, ");
+            sb.Append("lvs_loc_id, lvs_rqs_id, lvs_adj_id) VALUES (@lvs_emp_id, ");
+            sb.Append("@lvs_yr, @lvs_typ_cd, @no_dys_usd, @no_dys_gvn, ");
+            sb.Append("@lvs_trnx_ds, @lvs_trnx_dt, @lvs_trnx_by, @lvs_unit_id, ");
+            sb.Append("@lvs_dept_id, @lvs_loc_id, @lvs_rqs_id, @lvs_adj_id) ");
+            sb.Append("RETURNING lvs_trnx_id; ");
+
+            string query = sb.ToString();
+
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
+            {
+                await conn.OpenAsync();
+                //Insert data
+                using (var cmd = new NpgsqlCommand(query, conn))
+                {
+                    var lvs_emp_id = cmd.Parameters.Add("lvs_emp_id", NpgsqlDbType.Text);
+                    var lvs_yr = cmd.Parameters.Add("@lvs_yr", NpgsqlDbType.Integer);
+                    var lvs_typ_cd = cmd.Parameters.Add("@lvs_typ_cd", NpgsqlDbType.Text);
+                    var no_dys_usd = cmd.Parameters.Add("@no_dys_usd", NpgsqlDbType.Integer);
+                    var no_dys_gvn = cmd.Parameters.Add("@no_dys_gvn", NpgsqlDbType.Integer);
+                    var lvs_trnx_ds = cmd.Parameters.Add("@lvs_trnx_ds", NpgsqlDbType.Text);
+                    var lvs_trnx_dt = cmd.Parameters.Add("@lvs_trnx_dt", NpgsqlDbType.Timestamp);
+                    var lvs_trnx_by = cmd.Parameters.Add("@lvs_trnx_by", NpgsqlDbType.Text);
+                    var lvs_unit_id = cmd.Parameters.Add("@lvs_unit_id", NpgsqlDbType.Integer);
+                    var lvs_dept_id = cmd.Parameters.Add("@lvs_dept_id", NpgsqlDbType.Integer);
+                    var lvs_loc_id = cmd.Parameters.Add("@lvs_loc_id", NpgsqlDbType.Integer);
+                    var lvs_rqs_id = cmd.Parameters.Add("@lvs_rqs_id", NpgsqlDbType.Bigint);
+                    var lvs_adj_id = cmd.Parameters.Add("@lvs_adj_id", NpgsqlDbType.Bigint);
+                    cmd.Prepare();
+                    lvs_emp_id.Value = t.LeaveEmployeeId;
+                    lvs_yr.Value = t.LeaveYear;
+                    lvs_typ_cd.Value = t.LeaveTypeCode;
+                    no_dys_usd.Value = t.NumberOfDaysUsed;
+                    no_dys_gvn.Value = t.NumberOfDaysGiven;
+                    lvs_trnx_ds.Value = t.TransactionDescription;
+                    lvs_trnx_dt.Value = t.TransactionDate ?? DateTime.UtcNow;
+                    lvs_trnx_by.Value = t.TransactionRecordedBy ?? "System Service";
+                    lvs_unit_id.Value = t.LeaveUnitId;
+                    lvs_dept_id.Value = t.LeaveDepartmentId;
+                    lvs_loc_id.Value = t.LeaveLocationId;
+                    lvs_rqs_id.Value = t.LeaveRequestId ?? (object)DBNull.Value;
+                    lvs_adj_id.Value = t.LeaveAdjustmentId ?? (object)DBNull.Value;
+
+                    var obj = await cmd.ExecuteScalarAsync();
+                    newTransactionId = (long)obj;
+                    await conn.CloseAsync();
+                }
+            }
+            return newTransactionId;
+        }
+        public async Task<bool> DeleteLeaveTransactionAsync(long leaveTransactionId)
+        {
+            int rows = 0;
+            string query = "DELETE FROM public.lvm_lvs_trnx WHERE (lvs_trnx_id = @lvs_trnx_id); ";
+
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
+            {
+                await conn.OpenAsync();
+                //Delete data
+                using (var cmd = new NpgsqlCommand(query, conn))
+                {
+                    var lvs_trnx_id = cmd.Parameters.Add("@lvs_trnx_id", NpgsqlDbType.Bigint);
+                    cmd.Prepare();
+                    lvs_trnx_id.Value = leaveTransactionId;
+                    rows = await cmd.ExecuteNonQueryAsync();
+                    await conn.CloseAsync();
+                }
+            }
+            return rows > 0;
+        }
+
+        #endregion
+        #region Leave Transactions Read Action Methods
+
+        #endregion
+        #endregion
+
         #region Leave Balances Read Methods
         public async Task<long> GetLeaveDaysUsedByEmployeeIdnLeaveTypeCodenLeaveYearAsync(string employeeId, string leaveTypeCode, int leaveYear)
         {
@@ -6324,6 +6688,126 @@ namespace IntranetPortal.Data.Repositories.LeaveRepositories
                 await conn.CloseAsync();
             }
             return totalCount;
+        }
+
+        public async Task<LeaveBalances> GetLeaveBalancesByEmployeeIdnLeaveTypeCodenLeaveYearAsync(string employeeId, string leaveTypeCode, int leaveYear)
+        {
+            LeaveBalances balances = new LeaveBalances();
+            StringBuilder sb = new StringBuilder();
+
+            sb.Append("SELECT lvs_yr, lvs_typ_cd, ");
+            sb.Append("COALESCE(SUM(lvs_opn_blc), 0) as open_balance, ");
+            sb.Append("COALESCE(SUM(lvs_prv_blc), 0) as prev_balance, ");
+            sb.Append("COALESCE(SUM(no_dys_usd), 0) as total_used, ");
+            sb.Append("COALESCE(SUM(no_dys_gvn), 0) as total_given, ");
+            sb.Append("SUM(COALESCE(lvs_opn_blc, 0) + COALESCE(lvs_prv_blc, 0)) ");
+            sb.Append("AS open_plus_prev_balance, ");
+            sb.Append("SUM(COALESCE(lvs_opn_blc, 0) + COALESCE(no_dys_gvn, 0)) ");
+            sb.Append("AS open_plus_gvn, ");
+            sb.Append("SUM(COALESCE(lvs_opn_blc, 0) + COALESCE(no_dys_gvn, 0) ");
+            sb.Append("- COALESCE(no_dys_usd, 0)) AS open_plus_gvn_minus_usd, ");
+            sb.Append("SUM(COALESCE(lvs_opn_blc, 0)  + COALESCE(lvs_prv_blc, 0) ");
+            sb.Append("+ COALESCE(no_dys_gvn, 0) - COALESCE(no_dys_usd, 0)) ");
+            sb.Append("AS open_plus_prev_plus_gvn_minus_usd  ");
+            sb.Append("FROM public.lvm_lvs_trnx ");
+            sb.Append("WHERE (lvs_emp_id = @lvs_emp_id) ");
+            sb.Append("AND (lvs_yr = @lvs_yr) ");
+            sb.Append("AND (lvs_typ_cd = @lvs_typ_cd) ");
+            sb.Append("GROUP BY lvs_yr, lvs_typ_cd; ");
+
+            string query = sb.ToString();
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
+            {
+                await conn.OpenAsync();
+                // Retrieve all rows
+                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+                {
+                    var lvs_emp_id = cmd.Parameters.Add("@lvs_emp_id", NpgsqlDbType.Text);
+                    var lvs_yr = cmd.Parameters.Add("@lvs_yr", NpgsqlDbType.Integer);
+                    var lvs_typ_cd = cmd.Parameters.Add("@lvs_typ_cd", NpgsqlDbType.Text);
+                    await cmd.PrepareAsync();
+                    lvs_emp_id.Value = employeeId;
+                    lvs_yr.Value = leaveYear;
+                    lvs_typ_cd.Value = leaveTypeCode;
+                    var reader = await cmd.ExecuteReaderAsync();
+                    while (await reader.ReadAsync())
+                    {
+                        balances.AnnualLeaveDaysPlusLeaveDaysGiven = reader["open_plus_gvn"] == DBNull.Value ? 0L : (long)reader["open_plus_gvn"];
+                        balances.AnnualLeaveDaysPlusLeaveDaysGivenMinusLeaveDaysUsed = reader["open_plus_gvn_minus_usd"] == DBNull.Value ? 0L : (long)reader["open_plus_gvn_minus_usd"];
+                        balances.AnnualLeaveDaysPlusPreviousYearBalance = reader["open_plus_prev_balance"] == DBNull.Value ? 0L : (long)reader["open_plus_prev_balance"];
+                        balances.AnnualLeaveDaysPlusPreviousYearBalancePlusLeaveDaysGivenMinusLeaveDaysUsed = reader["open_plus_prev_plus_gvn_minus_usd"] == DBNull.Value ? 0L : (long)reader["open_plus_prev_plus_gvn_minus_usd"];
+                        balances.CurrentYearProfileLeaveDays = reader["open_balance"] == DBNull.Value ? 0L : (long)reader["open_balance"];
+                        balances.PreviousYearLeaveBalance = reader["prev_balance"] == DBNull.Value ? 0L : (long)reader["prev_balance"];
+                        balances.TotalLeaveDaysGiven = reader["total_given"] == DBNull.Value ? 0L : (long)reader["total_given"];
+                        balances.TotalLeaveDaysUsed = reader["total_used"] == DBNull.Value ? 0L : (long)reader["total_used"];
+                        balances.TotalOutstandingLeaveDays = reader["open_plus_gvn_minus_usd"] == DBNull.Value ? 0L : (long)reader["open_plus_gvn_minus_usd"];
+                        balances.LeaveTypeCode = reader["lvs_typ_cd"] == DBNull.Value ? string.Empty : reader["lvs_typ_cd"].ToString();
+                        balances.LeaveYear = reader["lvs_yr"] == DBNull.Value ? 1900 : (int)reader["lvs_yr"];
+                    }
+                }
+                await conn.CloseAsync();
+            }
+            return balances;
+        }
+        public async Task<LeaveBalances> GetLeaveBalancesByEmployeeNamenLeaveTypeCodenLeaveYearAsync(string employeeName, string leaveTypeCode, int leaveYear)
+        {
+            LeaveBalances balances = new LeaveBalances();
+            StringBuilder sb = new StringBuilder();
+
+            sb.Append("SELECT lvs_yr, lvs_typ_cd, ");
+            sb.Append("COALESCE(SUM(lvs_opn_blc), 0) as open_balance, ");
+            sb.Append("COALESCE(SUM(lvs_prv_blc), 0) as prev_balance, ");
+            sb.Append("COALESCE(SUM(no_dys_usd), 0) as total_used, ");
+            sb.Append("COALESCE(SUM(no_dys_gvn), 0) as total_given, ");
+            sb.Append("SUM(COALESCE(lvs_opn_blc, 0) + COALESCE(lvs_prv_blc, 0)) ");
+            sb.Append("AS open_plus_prev_balance, ");
+            sb.Append("SUM(COALESCE(lvs_opn_blc, 0) + COALESCE(no_dys_gvn, 0)) ");
+            sb.Append("AS open_plus_gvn, ");
+            sb.Append("SUM(COALESCE(lvs_opn_blc, 0) + COALESCE(no_dys_gvn, 0) ");
+            sb.Append("- COALESCE(no_dys_usd, 0)) AS open_plus_gvn_minus_usd, ");
+            sb.Append("SUM(COALESCE(lvs_opn_blc, 0)  + COALESCE(lvs_prv_blc, 0) ");
+            sb.Append("+ COALESCE(no_dys_gvn, 0) - COALESCE(no_dys_usd, 0)) ");
+            sb.Append("AS open_plus_prev_plus_gvn_minus_usd  ");
+            sb.Append("FROM public.lvm_lvs_trnx ");
+            sb.Append("WHERE (lvs_yr = @lvs_yr) ");
+            sb.Append("AND (lvs_typ_cd = @lvs_typ_cd) ");
+            sb.Append("AND (lvs_emp_id = (SELECT id FROM public.gst_prsns ");
+            sb.Append("WHERE fullname = @lvs_emp_nm)) ");
+            sb.Append("GROUP BY lvs_yr, lvs_typ_cd; ");
+
+            string query = sb.ToString();
+            using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
+            {
+                await conn.OpenAsync();
+                // Retrieve all rows
+                using (NpgsqlCommand cmd = new NpgsqlCommand(query, conn))
+                {
+                    var lvs_emp_nm = cmd.Parameters.Add("@lvs_emp_nm", NpgsqlDbType.Text);
+                    var lvs_yr = cmd.Parameters.Add("@lvs_yr", NpgsqlDbType.Integer);
+                    var lvs_typ_cd = cmd.Parameters.Add("@lvs_typ_cd", NpgsqlDbType.Text);
+                    await cmd.PrepareAsync();
+                    lvs_emp_nm.Value = employeeName;
+                    lvs_yr.Value = leaveYear;
+                    lvs_typ_cd.Value = leaveTypeCode;
+                    var reader = await cmd.ExecuteReaderAsync();
+                    while (await reader.ReadAsync())
+                    {
+                        balances.AnnualLeaveDaysPlusLeaveDaysGiven = reader["open_plus_gvn"] == DBNull.Value ? 0L : (long)reader["open_plus_gvn"];
+                        balances.AnnualLeaveDaysPlusLeaveDaysGivenMinusLeaveDaysUsed = reader["open_plus_gvn_minus_usd"] == DBNull.Value ? 0L : (long)reader["open_plus_gvn_minus_usd"];
+                        balances.AnnualLeaveDaysPlusPreviousYearBalance = reader["open_plus_prev_balance"] == DBNull.Value ? 0L : (long)reader["open_plus_prev_balance"];
+                        balances.AnnualLeaveDaysPlusPreviousYearBalancePlusLeaveDaysGivenMinusLeaveDaysUsed = reader["open_plus_prev_plus_gvn_minus_usd"] == DBNull.Value ? 0L : (long)reader["open_plus_prev_plus_gvn_minus_usd"];
+                        balances.CurrentYearProfileLeaveDays = reader["open_balance"] == DBNull.Value ? 0L : (long)reader["open_balance"];
+                        balances.PreviousYearLeaveBalance = reader["prev_balance"] == DBNull.Value ? 0L : (long)reader["prev_balance"];
+                        balances.TotalLeaveDaysGiven = reader["total_given"] == DBNull.Value ? 0L : (long)reader["total_given"];
+                        balances.TotalLeaveDaysUsed = reader["total_used"] == DBNull.Value ? 0L : (long)reader["total_used"];
+                        balances.TotalOutstandingLeaveDays = reader["open_plus_gvn_minus_usd"] == DBNull.Value ? 0L : (long)reader["open_plus_gvn_minus_usd"];
+                        balances.LeaveTypeCode = reader["lvs_typ_cd"] == DBNull.Value ? string.Empty : reader["lvs_typ_cd"].ToString();
+                        balances.LeaveYear = reader["lvs_yr"] == DBNull.Value ? 1900 : (int)reader["lvs_yr"];
+                    }
+                }
+                await conn.CloseAsync();
+            }
+            return balances;
         }
 
         #endregion
@@ -6560,6 +7044,5 @@ namespace IntranetPortal.Data.Repositories.LeaveRepositories
         }
 
         #endregion
-
     }
 }

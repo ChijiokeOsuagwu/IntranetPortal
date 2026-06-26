@@ -15,7 +15,7 @@ namespace IntranetPortal.Areas.ERM.Models
         public string EmployeeFullName { get; set; }
 
         [Display(Name="Leave Profile")]
-        public int LeaveProfileId { get; set; }
+        public string LeaveProfileCode { get; set; }
         public string LeaveProfileName { get; set; }
     }
 }

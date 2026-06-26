@@ -33,7 +33,7 @@
         <div class="accordion-item">
             <h2 class="accordion-header" id="headingOne">
                 <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-                    <span class="fw-bold"><i class="bi bi-clipboard-data"></i>  Leave Balances</span>
+                    <span class="fw-bold"><i class="bi bi-clipboard-data"></i> Annual Leave Balances</span>
                 </button>
             </h2>
             <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
@@ -44,12 +44,12 @@
                                 <div class="col-md-3 text-center" title="Annual Leave Days">
                                     <div><i class="bi bi-calendar-check" style="font-size:1.5rem; font-weight:bold"></i> </div>
                                     <label class="form-label fw-bold">Annual Leave Days</label>
-                                    <div class="fw-bold text-center" title="Annual Leave Days"> @Model.CurrentLeaveBalances.CurrentYearPrifileLeaveDays Day(s)</div>
+                                    <div class="fw-bold text-center" title="Annual Leave Days"> @Model.CurrentLeaveBalances.CurrentYearProfileLeaveDays Day(s)</div>
                                 </div>
                                 <div class="col-md-3 text-center" title="Previous Balance">
                                     <div><i class="bi bi-calendar-event" style="font-size:1.5rem; font-weight:bold"></i></div>
                                     <label class="form-label fw-bold"> Previous Balance </label>
-                                    <div class="fw-bold" title="Previous Balance"> @Model.CurrentLeaveBalances.CarriedOverLeaveBalance Day(s)</div>
+                                    <div class="fw-bold" title="Previous Balance"> @Model.CurrentLeaveBalances.PreviousYearLeaveBalance Day(s)</div>
                                 </div>
                                 <div class="col-md-3 text-center" title="Total Used">
                                     <div><i class="bi bi-calendar-range" style="font-size:1.5rem; font-weight:bold"></i></div>

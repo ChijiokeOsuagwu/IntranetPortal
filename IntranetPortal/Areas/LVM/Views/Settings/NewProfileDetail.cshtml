@@ -35,7 +35,7 @@
             <div class="row">
                 <div class="col-md-5 mb-3">
                     <input type="hidden" asp-for="Id">
-                    <input type="hidden" asp-for="ProfileId">
+                    <input type="hidden" asp-for="ProfileCode">
                     <label asp-for="ProfileName" class="form-label text-white fw-bold"></label>
                     <input asp-for="ProfileName" class="form-control" readonly>
                 </div>
@@ -99,10 +99,10 @@
             </div>
             <div class="row">
                 <div class="col-md-12 text-end">
-                    <a asp-area="LVM" asp-controller="Settings" asp-action="LeaveProfileDetails" asp-route-id="@Model.ProfileId" asp-route-nm="@Model.ProfileName" class="btn btn-dark" style="width:100px" title="Exit">
+                    <a asp-area="LVM" asp-controller="Settings" asp-action="LeaveProfileDetails" asp-route-cd="@Model.ProfileCode" asp-route-nm="@Model.ProfileName" class="btn btn-dark" style="width:100px" title="Exit">
                         <span class="text-white">Exit</span>
                     </a>
-                    <a asp-area="LVM" asp-controller="Settings" asp-action="NewProfileDetail" asp-route-id="@Model.ProfileId" asp-route-nm="@Model.ProfileName" class="btn btn-warning" style="width:100px" title="Clear">
+                    <a asp-area="LVM" asp-controller="Settings" asp-action="NewProfileDetail" asp-route-cd="@Model.ProfileCode" asp-route-nm="@Model.ProfileName" class="btn btn-warning" style="width:100px" title="Clear">
                         <span class="text-white">Clear</span>
                     </a>
                     @if (!Model.OperationIsSuccessful)

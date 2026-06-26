@@ -24,7 +24,7 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
             if (String.IsNullOrEmpty(employeeId)) { throw new ArgumentNullException(nameof(employeeId), "The required parameter [employeeId] is missing or has in invalid value."); }
             Employee employee = new Employee();
             var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
-            string query = String.Empty;
+            string query = string.Empty;
             StringBuilder sb = new StringBuilder();
 
             sb.Append("SELECT e.emp_id, e.emp_no_1, e.emp_no_2, e.start_up_date, ");
@@ -34,10 +34,10 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
             sb.Append("e.lga_of_origin, e.religion, e.geo_political_region, e.next_of_kin_name, ");
             sb.Append("e.next_of_kin_relationship, e.modified_by, e.modified_date, e.is_dx, e.dx_time, ");
             sb.Append("e.created_by, e.created_date, e.next_of_kin_address, e.next_of_kin_phone, ");
-            sb.Append("e.next_of_kin_email, e.dept_id, e.unit_id, e.loc_id, e.coy_id, p.id, p.title, ");
-            sb.Append("p.sname, p.fname, p.oname, p.fullname, p.sex, p.phone1, p.phone2,");
-            sb.Append("p.email AS personal_email, p.address, p.mdb, p.mdt, p.ctb, p.ctt, ");
-            sb.Append("p.imgp, p.birthday, p.birthmonth, p.birthyear, p.maritalstatus, l.locname, ");
+            sb.Append("e.next_of_kin_email, e.dept_id, e.unit_id, e.loc_id, e.coy_id, e.lvs_pfl_sdt, ");
+            sb.Append("e.lvs_pfl_cd, p.id, p.title, p.sname, p.fname, p.oname, p.fullname, p.sex, ");
+            sb.Append("p.phone1, p.phone2, p.email AS personal_email, p.address, p.mdb, p.mdt, p.ctb, ");
+            sb.Append("p.ctt, p.imgp, p.birthday, p.birthmonth, p.birthyear, p.maritalstatus, l.locname, ");
             sb.Append("l.loctype, l.lochq1, l.lochq2, l.locmb, l.locmd, l.loccb, l.loccd, l.locctr, ");
             sb.Append("l.locst, l.locqk, c.coy_code, c.coy_name, d.deptname, d.depthd1, d.depthd2, ");
             sb.Append("d.deptqk, u.unitname, u.unithd1, u.unithd2, u.unitqk ");
@@ -95,6 +95,9 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
                             employee.DeactivationTime = reader["dx_time"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["dx_time"];
                             employee.DeactivatedBy = reader["dx_by"] == DBNull.Value ? string.Empty : reader["dx_by"].ToString();
 
+                            employee.LeaveProfileStartDate = reader["lvs_pfl_sdt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["lvs_pfl_sdt"];
+                            employee.LeaveProfileCode = reader["lvs_pfl_cd"] == DBNull.Value ? string.Empty : reader["lvs_pfl_cd"].ToString();
+
                             employee.PersonID = reader["id"] == DBNull.Value ? String.Empty : reader["id"].ToString();
                             employee.Title = reader["title"] == DBNull.Value ? string.Empty : reader["title"].ToString();
                             employee.Surname = reader["sname"] == DBNull.Value ? string.Empty : reader["sname"].ToString();
@@ -147,10 +150,10 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
             if (String.IsNullOrEmpty(employeeName)) { throw new ArgumentNullException(nameof(employeeName), "The required parameter [EmployeeName] is missing or has in invalid value."); }
             Employee employee = new Employee();
             var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
-            string query = String.Empty;
+            string query = string.Empty;
             StringBuilder sb = new StringBuilder();
 
-            sb.Append("SELECT e.emp_id, e.emp_no_1, e.emp_no_2, e.start_up_date, ");
+            sb.Append("SELECT e.emp_id, e.emp_no_1, e.emp_no_2, e.start_up_date, e.lvs_pfl_sdt, e.lvs_pfl_cd, ");
             sb.Append("e.yrs_of_experience, e.start_up_designation, e.place_of_engagement, ");
             sb.Append("e.confirmation_date, e.current_designation, e.job_grade, e.employment_status, ");
             sb.Append("e.date_of_last_promotion, e.official_email, e.state_of_origin, e.is_dx, ");
@@ -220,6 +223,9 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
                             employee.DeactivationTime = reader["dx_time"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["dx_time"];
                             employee.DeactivatedBy = reader["dx_by"] == DBNull.Value ? string.Empty : reader["dx_by"].ToString();
 
+                            employee.LeaveProfileStartDate = reader["lvs_pfl_sdt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["lvs_pfl_sdt"];
+                            employee.LeaveProfileCode = reader["lvs_pfl_cd"] == DBNull.Value ? string.Empty : reader["lvs_pfl_cd"].ToString();
+
                             employee.PersonID = reader["id"] == DBNull.Value ? String.Empty : reader["id"].ToString();
                             employee.Title = reader["title"] == DBNull.Value ? string.Empty : reader["title"].ToString();
                             employee.Surname = reader["sname"] == DBNull.Value ? string.Empty : reader["sname"].ToString();
@@ -278,7 +284,7 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
             else { _terminalDate = terminalDate.Value.ToString("dd-MM-yyyy"); }
 
             StringBuilder sb = new StringBuilder();
-            sb.Append("SELECT e.emp_id, e.emp_no_1, e.emp_no_2, e.start_up_date, ");
+            sb.Append("SELECT e.emp_id, e.emp_no_1, e.emp_no_2, e.start_up_date, e.lvs_pfl_sdt, e.lvs_pfl_cd, ");
             sb.Append("e.yrs_of_experience, e.start_up_designation, e.place_of_engagement, ");
             sb.Append("e.confirmation_date, e.current_designation, e.job_grade, e.employment_status, ");
             sb.Append("e.date_of_last_promotion, e.official_email, e.state_of_origin, e.is_dx, ");
@@ -358,6 +364,9 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
                             DeactivationTime = reader["dx_time"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["dx_time"],
                             DeactivatedBy = reader["dx_by"] == DBNull.Value ? string.Empty : reader["dx_by"].ToString(),
 
+                            LeaveProfileStartDate = reader["lvs_pfl_sdt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["lvs_pfl_sdt"],
+                            LeaveProfileCode = reader["lvs_pfl_cd"] == DBNull.Value ? string.Empty : reader["lvs_pfl_cd"].ToString(),
+
                             PersonID = reader["id"] == DBNull.Value ? String.Empty : reader["id"].ToString(),
                             Title = reader["title"] == DBNull.Value ? string.Empty : reader["title"].ToString(),
                             Surname = reader["sname"] == DBNull.Value ? string.Empty : reader["sname"].ToString(),
@@ -409,7 +418,7 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
             else { _terminalDate = terminalDate.Value.ToString("dd-MM-yyyy"); }
 
             StringBuilder sb = new StringBuilder();
-            sb.Append("SELECT e.emp_id, e.emp_no_1, e.emp_no_2, e.start_up_date, ");
+            sb.Append("SELECT e.emp_id, e.emp_no_1, e.emp_no_2, e.start_up_date, e.lvs_pfl_sdt, e.lvs_pfl_cd, ");
             sb.Append("e.yrs_of_experience, e.start_up_designation, e.place_of_engagement, ");
             sb.Append("e.confirmation_date, e.current_designation, e.job_grade, e.employment_status, ");
             sb.Append("e.date_of_last_promotion, e.official_email, e.state_of_origin, e.is_dx, ");
@@ -495,6 +504,9 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
                             DeactivationTime = reader["dx_time"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["dx_time"],
                             DeactivatedBy = reader["dx_by"] == DBNull.Value ? string.Empty : reader["dx_by"].ToString(),
 
+                            LeaveProfileStartDate = reader["lvs_pfl_sdt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["lvs_pfl_sdt"],
+                            LeaveProfileCode = reader["lvs_pfl_cd"] == DBNull.Value ? string.Empty : reader["lvs_pfl_cd"].ToString(),
+
                             PersonID = reader["id"] == DBNull.Value ? String.Empty : reader["id"].ToString(),
                             Title = reader["title"] == DBNull.Value ? string.Empty : reader["title"].ToString(),
                             Surname = reader["sname"] == DBNull.Value ? string.Empty : reader["sname"].ToString(),
@@ -550,7 +562,7 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
             else { _terminalDate = terminalDate.Value.ToString("dd-MM-yyyy"); }
 
             StringBuilder sb = new StringBuilder();
-            sb.Append("SELECT e.emp_id, e.emp_no_1, e.emp_no_2, e.start_up_date, ");
+            sb.Append("SELECT e.emp_id, e.emp_no_1, e.emp_no_2, e.start_up_date, e.lvs_pfl_sdt, e.lvs_pfl_cd, ");
             sb.Append("e.yrs_of_experience, e.start_up_designation, e.place_of_engagement, ");
             sb.Append("e.confirmation_date, e.current_designation, e.job_grade, e.employment_status, ");
             sb.Append("e.date_of_last_promotion, e.official_email, e.state_of_origin, e.is_dx, ");
@@ -627,6 +639,9 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
                             DeactivationTime = reader["dx_time"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["dx_time"],
                             DeactivatedBy = reader["dx_by"] == DBNull.Value ? string.Empty : reader["dx_by"].ToString(),
 
+                            LeaveProfileStartDate = reader["lvs_pfl_sdt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["lvs_pfl_sdt"],
+                            LeaveProfileCode = reader["lvs_pfl_cd"] == DBNull.Value ? string.Empty : reader["lvs_pfl_cd"].ToString(),
+
                             PersonID = reader["id"] == DBNull.Value ? String.Empty : reader["id"].ToString(),
                             Title = reader["title"] == DBNull.Value ? string.Empty : reader["title"].ToString(),
                             Surname = reader["sname"] == DBNull.Value ? string.Empty : reader["sname"].ToString(),
@@ -678,7 +693,7 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
             else { _terminalDate = terminalDate.Value.ToString("dd-MM-yyyy"); }
 
             StringBuilder sb = new StringBuilder();
-            sb.Append("SELECT e.emp_id, e.emp_no_1, e.emp_no_2, e.start_up_date, ");
+            sb.Append("SELECT e.emp_id, e.emp_no_1, e.emp_no_2, e.start_up_date, e.lvs_pfl_sdt, e.lvs_pfl_cd, ");
             sb.Append("e.yrs_of_experience, e.start_up_designation, e.place_of_engagement, ");
             sb.Append("e.confirmation_date, e.current_designation, e.job_grade, e.employment_status, ");
             sb.Append("e.date_of_last_promotion, e.official_email, e.state_of_origin, e.is_dx, ");
@@ -758,6 +773,9 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
                             DeactivationTime = reader["dx_time"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["dx_time"],
                             DeactivatedBy = reader["dx_by"] == DBNull.Value ? string.Empty : reader["dx_by"].ToString(),
 
+                            LeaveProfileStartDate = reader["lvs_pfl_sdt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["lvs_pfl_sdt"],
+                            LeaveProfileCode = reader["lvs_pfl_cd"] == DBNull.Value ? string.Empty : reader["lvs_pfl_cd"].ToString(),
+
                             PersonID = reader["id"] == DBNull.Value ? String.Empty : reader["id"].ToString(),
                             Title = reader["title"] == DBNull.Value ? string.Empty : reader["title"].ToString(),
                             Surname = reader["sname"] == DBNull.Value ? string.Empty : reader["sname"].ToString(),
@@ -810,7 +828,7 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
             else { _terminalDate = terminalDate.Value.ToString("dd-MM-yyyy"); }
 
             StringBuilder sb = new StringBuilder();
-            sb.Append("SELECT e.emp_id, e.emp_no_1, e.emp_no_2, e.start_up_date, ");
+            sb.Append("SELECT e.emp_id, e.emp_no_1, e.emp_no_2, e.start_up_date, e.lvs_pfl_sdt, e.lvs_pfl_cd, ");
             sb.Append("e.yrs_of_experience, e.start_up_designation, e.place_of_engagement, ");
             sb.Append("e.confirmation_date, e.current_designation, e.job_grade, e.employment_status, ");
             sb.Append("e.date_of_last_promotion, e.official_email, e.state_of_origin, e.is_dx, ");
@@ -893,6 +911,9 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
                             DeactivationTime = reader["dx_time"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["dx_time"],
                             DeactivatedBy = reader["dx_by"] == DBNull.Value ? string.Empty : reader["dx_by"].ToString(),
 
+                            LeaveProfileStartDate = reader["lvs_pfl_sdt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["lvs_pfl_sdt"],
+                            LeaveProfileCode = reader["lvs_pfl_cd"] == DBNull.Value ? string.Empty : reader["lvs_pfl_cd"].ToString(),
+
                             PersonID = reader["id"] == DBNull.Value ? String.Empty : reader["id"].ToString(),
                             Title = reader["title"] == DBNull.Value ? string.Empty : reader["title"].ToString(),
                             Surname = reader["sname"] == DBNull.Value ? string.Empty : reader["sname"].ToString(),
@@ -947,7 +968,7 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
             else { _terminalDate = terminalDate.Value.ToString("dd-MM-yyyy"); }
 
             StringBuilder sb = new StringBuilder();
-            sb.Append("SELECT e.emp_id, e.emp_no_1, e.emp_no_2, e.start_up_date, ");
+            sb.Append("SELECT e.emp_id, e.emp_no_1, e.emp_no_2, e.start_up_date, e.lvs_pfl_sdt, e.lvs_pfl_cd, ");
             sb.Append("e.yrs_of_experience, e.start_up_designation, e.place_of_engagement, ");
             sb.Append("e.confirmation_date, e.current_designation, e.job_grade, e.employment_status, ");
             sb.Append("e.date_of_last_promotion, e.official_email, e.state_of_origin, e.is_dx, ");
@@ -1033,6 +1054,9 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
                             DeactivationTime = reader["dx_time"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["dx_time"],
                             DeactivatedBy = reader["dx_by"] == DBNull.Value ? string.Empty : reader["dx_by"].ToString(),
 
+                            LeaveProfileStartDate = reader["lvs_pfl_sdt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["lvs_pfl_sdt"],
+                            LeaveProfileCode = reader["lvs_pfl_cd"] == DBNull.Value ? string.Empty : reader["lvs_pfl_cd"].ToString(),
+
                             PersonID = reader["id"] == DBNull.Value ? String.Empty : reader["id"].ToString(),
                             Title = reader["title"] == DBNull.Value ? string.Empty : reader["title"].ToString(),
                             Surname = reader["sname"] == DBNull.Value ? string.Empty : reader["sname"].ToString(),
@@ -1087,7 +1111,7 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
             else { _terminalDate = terminalDate.Value.ToString("dd-MM-yyyy"); }
 
             StringBuilder sb = new StringBuilder();
-            sb.Append("SELECT e.emp_id, e.emp_no_1, e.emp_no_2, e.start_up_date, ");
+            sb.Append("SELECT e.emp_id, e.emp_no_1, e.emp_no_2, e.start_up_date, e.lvs_pfl_sdt, e.lvs_pfl_cd, ");
             sb.Append("e.yrs_of_experience, e.start_up_designation, e.place_of_engagement, ");
             sb.Append("e.confirmation_date, e.current_designation, e.job_grade, e.employment_status, ");
             sb.Append("e.date_of_last_promotion, e.official_email, e.state_of_origin, e.is_dx, ");
@@ -1174,6 +1198,9 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
                             DeactivationTime = reader["dx_time"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["dx_time"],
                             DeactivatedBy = reader["dx_by"] == DBNull.Value ? string.Empty : reader["dx_by"].ToString(),
 
+                            LeaveProfileStartDate = reader["lvs_pfl_sdt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["lvs_pfl_sdt"],
+                            LeaveProfileCode = reader["lvs_pfl_cd"] == DBNull.Value ? string.Empty : reader["lvs_pfl_cd"].ToString(),
+
                             PersonID = reader["id"] == DBNull.Value ? String.Empty : reader["id"].ToString(),
                             Title = reader["title"] == DBNull.Value ? string.Empty : reader["title"].ToString(),
                             Surname = reader["sname"] == DBNull.Value ? string.Empty : reader["sname"].ToString(),
@@ -1227,7 +1254,7 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
             else { _terminalDate = terminalDate.Value.ToString("dd-MM-yyyy"); }
 
             StringBuilder sb = new StringBuilder();
-            sb.Append("SELECT e.emp_id, e.emp_no_1, e.emp_no_2, e.start_up_date, ");
+            sb.Append("SELECT e.emp_id, e.emp_no_1, e.emp_no_2, e.start_up_date, e.lvs_pfl_sdt, e.lvs_pfl_cd, ");
             sb.Append("e.yrs_of_experience, e.start_up_designation, e.place_of_engagement, ");
             sb.Append("e.confirmation_date, e.current_designation, e.job_grade, e.employment_status, ");
             sb.Append("e.date_of_last_promotion, e.official_email, e.state_of_origin, e.is_dx, ");
@@ -1311,6 +1338,9 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
                             DeactivationTime = reader["dx_time"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["dx_time"],
                             DeactivatedBy = reader["dx_by"] == DBNull.Value ? string.Empty : reader["dx_by"].ToString(),
 
+                            LeaveProfileStartDate = reader["lvs_pfl_sdt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["lvs_pfl_sdt"],
+                            LeaveProfileCode = reader["lvs_pfl_cd"] == DBNull.Value ? string.Empty : reader["lvs_pfl_cd"].ToString(),
+
                             PersonID = reader["id"] == DBNull.Value ? String.Empty : reader["id"].ToString(),
                             Title = reader["title"] == DBNull.Value ? string.Empty : reader["title"].ToString(),
                             Surname = reader["sname"] == DBNull.Value ? string.Empty : reader["sname"].ToString(),
@@ -1364,7 +1394,7 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
             else { _terminalDate = terminalDate.Value.ToString("dd-MM-yyyy"); }
 
             StringBuilder sb = new StringBuilder();
-            sb.Append("SELECT e.emp_id, e.emp_no_1, e.emp_no_2, e.start_up_date, ");
+            sb.Append("SELECT e.emp_id, e.emp_no_1, e.emp_no_2, e.start_up_date, e.lvs_pfl_sdt, e.lvs_pfl_cd, ");
             sb.Append("e.yrs_of_experience, e.start_up_designation, e.place_of_engagement, ");
             sb.Append("e.confirmation_date, e.current_designation, e.job_grade, e.employment_status, ");
             sb.Append("e.date_of_last_promotion, e.official_email, e.state_of_origin, e.is_dx, ");
@@ -1448,6 +1478,9 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
                             DeactivationTime = reader["dx_time"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["dx_time"],
                             DeactivatedBy = reader["dx_by"] == DBNull.Value ? string.Empty : reader["dx_by"].ToString(),
 
+                            LeaveProfileStartDate = reader["lvs_pfl_sdt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["lvs_pfl_sdt"],
+                            LeaveProfileCode = reader["lvs_pfl_cd"] == DBNull.Value ? string.Empty : reader["lvs_pfl_cd"].ToString(),
+
                             PersonID = reader["id"] == DBNull.Value ? String.Empty : reader["id"].ToString(),
                             Title = reader["title"] == DBNull.Value ? string.Empty : reader["title"].ToString(),
                             Surname = reader["sname"] == DBNull.Value ? string.Empty : reader["sname"].ToString(),
@@ -1499,7 +1532,7 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
             else { _terminalDate = terminalDate.Value.ToString("dd-MM-yyyy"); }
 
             StringBuilder sb = new StringBuilder();
-            sb.Append("SELECT e.emp_id, e.emp_no_1, e.emp_no_2, e.start_up_date, ");
+            sb.Append("SELECT e.emp_id, e.emp_no_1, e.emp_no_2, e.start_up_date, e.lvs_pfl_sdt, e.lvs_pfl_cd, ");
             sb.Append("e.yrs_of_experience, e.start_up_designation, e.place_of_engagement, ");
             sb.Append("e.confirmation_date, e.current_designation, e.job_grade, e.employment_status, ");
             sb.Append("e.date_of_last_promotion, e.official_email, e.state_of_origin, e.is_dx, ");
@@ -1577,6 +1610,9 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
                             DeactivationTime = reader["dx_time"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["dx_time"],
                             DeactivatedBy = reader["dx_by"] == DBNull.Value ? string.Empty : reader["dx_by"].ToString(),
 
+                            LeaveProfileStartDate = reader["lvs_pfl_sdt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["lvs_pfl_sdt"],
+                            LeaveProfileCode = reader["lvs_pfl_cd"] == DBNull.Value ? string.Empty : reader["lvs_pfl_cd"].ToString(),
+
                             PersonID = reader["id"] == DBNull.Value ? String.Empty : reader["id"].ToString(),
                             Title = reader["title"] == DBNull.Value ? string.Empty : reader["title"].ToString(),
                             Surname = reader["sname"] == DBNull.Value ? string.Empty : reader["sname"].ToString(),
@@ -1630,7 +1666,7 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
             else { _terminalDate = terminalDate.Value.ToString("dd-MM-yyyy"); }
 
             StringBuilder sb = new StringBuilder();
-            sb.Append("SELECT e.emp_id, e.emp_no_1, e.emp_no_2, e.start_up_date, ");
+            sb.Append("SELECT e.emp_id, e.emp_no_1, e.emp_no_2, e.start_up_date, e.lvs_pfl_sdt, e.lvs_pfl_cd, ");
             sb.Append("e.yrs_of_experience, e.start_up_designation, e.place_of_engagement, ");
             sb.Append("e.confirmation_date, e.current_designation, e.job_grade, e.employment_status, ");
             sb.Append("e.date_of_last_promotion, e.official_email, e.state_of_origin, e.is_dx, ");
@@ -1713,6 +1749,9 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
                             DeactivationTime = reader["dx_time"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["dx_time"],
                             DeactivatedBy = reader["dx_by"] == DBNull.Value ? string.Empty : reader["dx_by"].ToString(),
 
+                            LeaveProfileStartDate = reader["lvs_pfl_sdt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["lvs_pfl_sdt"],
+                            LeaveProfileCode = reader["lvs_pfl_cd"] == DBNull.Value ? string.Empty : reader["lvs_pfl_cd"].ToString(),
+
                             PersonID = reader["id"] == DBNull.Value ? String.Empty : reader["id"].ToString(),
                             Title = reader["title"] == DBNull.Value ? string.Empty : reader["title"].ToString(),
                             Surname = reader["sname"] == DBNull.Value ? string.Empty : reader["sname"].ToString(),
@@ -1767,7 +1806,7 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
             else { _terminalDate = terminalDate.Value.ToString("dd-MM-yyyy"); }
 
             StringBuilder sb = new StringBuilder();
-            sb.Append("SELECT e.emp_id, e.emp_no_1, e.emp_no_2, e.start_up_date, ");
+            sb.Append("SELECT e.emp_id, e.emp_no_1, e.emp_no_2, e.start_up_date, e.lvs_pfl_sdt, e.lvs_pfl_cd, ");
             sb.Append("e.yrs_of_experience, e.start_up_designation, e.place_of_engagement, ");
             sb.Append("e.confirmation_date, e.current_designation, e.job_grade, e.employment_status, ");
             sb.Append("e.date_of_last_promotion, e.official_email, e.state_of_origin, e.is_dx, ");
@@ -1853,6 +1892,9 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
                             DeactivationTime = reader["dx_time"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["dx_time"],
                             DeactivatedBy = reader["dx_by"] == DBNull.Value ? string.Empty : reader["dx_by"].ToString(),
 
+                            LeaveProfileStartDate = reader["lvs_pfl_sdt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["lvs_pfl_sdt"],
+                            LeaveProfileCode = reader["lvs_pfl_cd"] == DBNull.Value ? string.Empty : reader["lvs_pfl_cd"].ToString(),
+
                             PersonID = reader["id"] == DBNull.Value ? String.Empty : reader["id"].ToString(),
                             Title = reader["title"] == DBNull.Value ? string.Empty : reader["title"].ToString(),
                             Surname = reader["sname"] == DBNull.Value ? string.Empty : reader["sname"].ToString(),
@@ -1906,7 +1948,7 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
             else { _terminalDate = terminalDate.Value.ToString("dd-MM-yyyy"); }
 
             StringBuilder sb = new StringBuilder();
-            sb.Append("SELECT e.emp_id, e.emp_no_1, e.emp_no_2, e.start_up_date, ");
+            sb.Append("SELECT e.emp_id, e.emp_no_1, e.emp_no_2, e.start_up_date, e.lvs_pfl_sdt, e.lvs_pfl_cd, ");
             sb.Append("e.yrs_of_experience, e.start_up_designation, e.place_of_engagement, ");
             sb.Append("e.confirmation_date, e.current_designation, e.job_grade, e.employment_status, ");
             sb.Append("e.date_of_last_promotion, e.official_email, e.state_of_origin, e.is_dx, ");
@@ -1989,6 +2031,9 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
                             DeactivationTime = reader["dx_time"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["dx_time"],
                             DeactivatedBy = reader["dx_by"] == DBNull.Value ? string.Empty : reader["dx_by"].ToString(),
 
+                            LeaveProfileStartDate = reader["lvs_pfl_sdt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["lvs_pfl_sdt"],
+                            LeaveProfileCode = reader["lvs_pfl_cd"] == DBNull.Value ? string.Empty : reader["lvs_pfl_cd"].ToString(),
+
                             PersonID = reader["id"] == DBNull.Value ? String.Empty : reader["id"].ToString(),
                             Title = reader["title"] == DBNull.Value ? string.Empty : reader["title"].ToString(),
                             Surname = reader["sname"] == DBNull.Value ? string.Empty : reader["sname"].ToString(),
@@ -2041,7 +2086,7 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
             else { _terminalDate = terminalDate.Value.ToString("dd-MM-yyyy"); }
 
             StringBuilder sb = new StringBuilder();
-            sb.Append("SELECT e.emp_id, e.emp_no_1, e.emp_no_2, e.start_up_date, ");
+            sb.Append("SELECT e.emp_id, e.emp_no_1, e.emp_no_2, e.start_up_date, e.lvs_pfl_sdt, e.lvs_pfl_cd, ");
             sb.Append("e.yrs_of_experience, e.start_up_designation, e.place_of_engagement, ");
             sb.Append("e.confirmation_date, e.current_designation, e.job_grade, e.employment_status, ");
             sb.Append("e.date_of_last_promotion, e.official_email, e.state_of_origin, e.is_dx, ");
@@ -2123,6 +2168,9 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
                             DeactivationTime = reader["dx_time"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["dx_time"],
                             DeactivatedBy = reader["dx_by"] == DBNull.Value ? string.Empty : reader["dx_by"].ToString(),
 
+                            LeaveProfileStartDate = reader["lvs_pfl_sdt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["lvs_pfl_sdt"],
+                            LeaveProfileCode = reader["lvs_pfl_cd"] == DBNull.Value ? string.Empty : reader["lvs_pfl_cd"].ToString(),
+
                             PersonID = reader["id"] == DBNull.Value ? String.Empty : reader["id"].ToString(),
                             Title = reader["title"] == DBNull.Value ? string.Empty : reader["title"].ToString(),
                             Surname = reader["sname"] == DBNull.Value ? string.Empty : reader["sname"].ToString(),
@@ -2174,7 +2222,7 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
             else { _terminalDate = terminalDate.Value.ToString("dd-MM-yyyy"); }
 
             StringBuilder sb = new StringBuilder();
-            sb.Append("SELECT e.emp_id, e.emp_no_1, e.emp_no_2, e.start_up_date, ");
+            sb.Append("SELECT e.emp_id, e.emp_no_1, e.emp_no_2, e.start_up_date, e.lvs_pfl_sdt, e.lvs_pfl_cd, ");
             sb.Append("e.yrs_of_experience, e.start_up_designation, e.place_of_engagement, ");
             sb.Append("e.confirmation_date, e.current_designation, e.job_grade, e.employment_status, ");
             sb.Append("e.date_of_last_promotion, e.official_email, e.state_of_origin, e.is_dx, ");
@@ -2254,6 +2302,9 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
                             IsDeactivated = reader["is_dx"] == DBNull.Value ? true : (bool)reader["is_dx"],
                             DeactivationTime = reader["dx_time"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["dx_time"],
                             DeactivatedBy = reader["dx_by"] == DBNull.Value ? string.Empty : reader["dx_by"].ToString(),
+
+                            LeaveProfileStartDate = reader["lvs_pfl_sdt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["lvs_pfl_sdt"],
+                            LeaveProfileCode = reader["lvs_pfl_cd"] == DBNull.Value ? string.Empty : reader["lvs_pfl_cd"].ToString(),
 
                             PersonID = reader["id"] == DBNull.Value ? String.Empty : reader["id"].ToString(),
                             Title = reader["title"] == DBNull.Value ? string.Empty : reader["title"].ToString(),
@@ -3125,7 +3176,7 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
             List<Employee> employeeList = new List<Employee>();
             if (string.IsNullOrWhiteSpace(leaveProfileCode)) { throw new ArgumentNullException(nameof(leaveProfileCode)); }
             StringBuilder sb = new StringBuilder();
-            sb.Append("SELECT e.emp_id, e.emp_no_1, e.emp_no_2, e.start_up_date, ");
+            sb.Append("SELECT e.emp_id, e.emp_no_1, e.emp_no_2, e.start_up_date, e.lvs_pfl_sdt, e.lvs_pfl_cd, ");
             sb.Append("e.yrs_of_experience, e.start_up_designation, e.place_of_engagement, ");
             sb.Append("e.confirmation_date, e.current_designation, e.job_grade, e.employment_status, ");
             sb.Append("e.date_of_last_promotion, e.official_email, e.state_of_origin, e.is_dx, ");
@@ -3235,8 +3286,9 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
                             UnitHead1 = reader["unithd1"] == DBNull.Value ? string.Empty : reader["unithd1"].ToString(),
                             UnitHead2 = reader["unithd2"] == DBNull.Value ? string.Empty : reader["unithd2"].ToString(),
                             UnitName = reader["unitname"] == DBNull.Value ? string.Empty : reader["unitname"].ToString(),
-                        
+
                             LeaveProfileCode = reader["lvs_pfl_cd"] == DBNull.Value ? string.Empty : reader["lvs_pfl_cd"].ToString(),
+                            LeaveProfileStartDate = reader["lvs_pfl_sdt"] == DBNull.Value ? (DateTime?)null : (DateTime)reader["lvs_pfl_sdt"],
                         });
                     }
                 }

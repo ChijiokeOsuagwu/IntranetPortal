@@ -30,12 +30,12 @@ namespace IntranetPortal.Areas.ERM.Controllers
         private readonly IBaseModelService _baseModelService;
         private readonly IDataProtector _dataProtector;
         private readonly IWebHostEnvironment _webHostEnvironment;
-        private readonly ILmsService _lmsService;
+        private readonly ILeaveService _leaveService;
         public EmployeesController(IConfiguration configuration,
                                     IGlobalSettingsService globalSettingsService, IDataProtectionProvider dataProtectionProvider,
                                     DataProtectionEncryptionStrings dataProtectionEncryptionStrings, IErmService ermService,
                                     IBaseModelService baseModelService, IWebHostEnvironment webHostEnvironment,
-                                    ILmsService lmsService)
+                                    ILeaveService leaveService)
         {
             _configuration = configuration;
             _globalSettingsService = globalSettingsService;
@@ -43,7 +43,7 @@ namespace IntranetPortal.Areas.ERM.Controllers
             _baseModelService = baseModelService;
             _dataProtector = dataProtectionProvider.CreateProtector(dataProtectionEncryptionStrings.RouteValuesEncryptionCode);
             _webHostEnvironment = webHostEnvironment;
-            _lmsService = lmsService;
+            _leaveService = leaveService;
         }
 
         [Authorize(Roles = "ERMVWAEMR, XYALLACCZ")]
@@ -698,7 +698,7 @@ namespace IntranetPortal.Areas.ERM.Controllers
                 {
                     model.EmployeeFullName = o.EmployeeFullName;
                     model.EmployeeId = o.EmployeeId;
-                    model.LeaveProfileId = o.LeaveProfileId;
+                    model.LeaveProfileCode = o.LeaveProfileCode;
                     model.LeaveProfileName = o.LeaveProfileName;
                 }
                 else
@@ -710,8 +710,8 @@ namespace IntranetPortal.Areas.ERM.Controllers
             {
                 model.ViewModelErrorMessage = ex.Message;
             }
-            var leaveProfiles = await _lmsService.GetLeaveProfiles();
-            ViewBag.LeaveProfileList = new SelectList(leaveProfiles, "Id", "Name");
+            var leaveProfiles = await _leaveService.GetLeaveProfiles();
+            ViewBag.LeaveProfileList = new SelectList(leaveProfiles, "Code", "Name");
             return View(model);
         }
 
@@ -724,7 +724,7 @@ namespace IntranetPortal.Areas.ERM.Controllers
                 EmployeeOptions o = new EmployeeOptions
                 {
                     EmployeeId = model.EmployeeId,
-                    LeaveProfileId = model.LeaveProfileId
+                    LeaveProfileCode = model.LeaveProfileCode
                 };
 
                 bool EmployeeIsUpdated = await _ermService.UpdateEmployeeOptionsAsync(o);
@@ -742,8 +742,8 @@ namespace IntranetPortal.Areas.ERM.Controllers
                 model.ViewModelErrorMessage = ex.Message;
             }
 
-            var leaveProfiles = await _lmsService.GetLeaveProfiles();
-            ViewBag.LeaveProfileList = new SelectList(leaveProfiles, "Id", "Name");
+            var leaveProfiles = await _leaveService.GetLeaveProfiles();
+            ViewBag.LeaveProfileList = new SelectList(leaveProfiles, "Code", "Name");
             return View(model);
         }
     }

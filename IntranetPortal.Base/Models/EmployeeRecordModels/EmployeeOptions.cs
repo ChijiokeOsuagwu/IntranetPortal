@@ -8,7 +8,7 @@ namespace IntranetPortal.Base.Models.EmployeeRecordModels
     {
         public string EmployeeId { get; set; }
         public string EmployeeFullName { get; set; }
-        public int LeaveProfileId { get; set; }
+        public string LeaveProfileCode { get; set; }
         public string LeaveProfileName { get; set; }
     }
 }

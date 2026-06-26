@@ -1,0 +1,100 @@
+﻿@model IntranetPortal.Areas.LVM.Models.AddLeaveAdjustmentViewModel
+<h4 class="mb-1">OfficeManager | Leave Management System </h4>
+<hr />
+<div class="card mt-1" style="max-width:1000px">
+    <div class="card-header bg-info" >
+        <h4 class="text-white">Add Leave Adjustment</h4>
+    </div>
+    <div class="card-body table-secondary" >
+        @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-x-circle"></i>
+                <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (!String.IsNullOrEmpty(Model.ViewModelSuccessMessage))
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="bi bi-check-circle"></i>
+                <span class="fw-bold">@Model.ViewModelSuccessMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (!String.IsNullOrEmpty(Model.ViewModelWarningMessage))
+        {
+            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                <i class="bi bi-exclamation-circle"></i>
+                <span class="fw-bold">@Model.ViewModelWarningMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+    <form asp-area="LVM" asp-controller="Leave" asp-action="AddLeaveAdjustment" method="post" autocomplete="off">
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label asp-for="LeaveEmployeeName" class="form-label text-dark">Employee Name</label>
+                <input asp-for="LeaveEmployeeName" class="form-control fw-bold" readonly>
+            </div>
+            <div class="col-md-2 mb-3">
+                <label asp-for="LeaveYear" class="form-label text-dark">Year</label>
+                <input asp-for="LeaveYear" class="form-control fw-bold" min="2020" max="2060" readonly>
+                <div><span asp-validation-for="LeaveYear" class="text-danger"></span></div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <label asp-for="LeaveTypeName" class="form-label text-dark">Leave Type</label>
+                <input asp-for="LeaveTypeName" class="form-control fw-bold" readonly />
+                <div><span asp-validation-for="LeaveTypeName" class="text-danger"></span></div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label asp-for="AdjustmentType" class="form-label text-dark">Adjustment Type</label>
+                <select asp-for="AdjustmentType" class="form-control fw-bold" style="min-width:130px">
+                    <option value="">Select </option>
+                    <option value="Addition">Addition</option>
+                    <option value="Subtraction">Subtraction</option>
+                </select>
+                <div><span asp-validation-for="AdjustmentType" class="text-danger"></span></div>
+            </div>
+            <div class="col-md-2 mb-3">
+                <label asp-for="NumberOfDays" class="form-label text-dark">Day(s)</label>
+                <input asp-for="NumberOfDays" class="form-control fw-bold" style="max-width:100px">
+                <div><span asp-validation-for="NumberOfDays" class="text-danger"></span></div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12 mb-3">
+                <label asp-for="AdjustmentJustification" class="form-label text-dark">Reason</label>
+                <textarea asp-for="AdjustmentJustification" class="form-control fw-bold">@Model.AdjustmentJustification</textarea>
+                <div><span asp-validation-for="AdjustmentJustification" class="text-danger"></span></div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12 text-end">
+                <a asp-area="LVM" asp-controller="Leave" asp-action="LeaveAdjustments" asp-route-id="@Model.LeaveRequestId" class="btn btn-dark" style="width:100px" title="Exit">
+                    <span class="text-white">Exit</span>
+                </a>
+                <a asp-area="LVM" asp-controller="Leave" asp-action="AddLeaveAdjustment" asp-route-id="@Model.LeaveRequestId" asp-route-sp="@Model.SourcePage" class="btn btn-warning" style="width:100px" title="Clear">
+                    <span class="text-white">Clear</span>
+                </a>
+                @if (!Model.OperationIsSuccessful)
+                {
+                    <button type="submit" class="btn btn-info" title="Save" style="width: 200px;"><span class="text-white">Save</span></button>
+                }
+            </div>
+        </div>
+        <input type="hidden" asp-for="LeaveRequestId">
+        <input type="hidden" asp-for="LeaveEmployeeId" />
+        <input type="hidden" asp-for="LeaveTypeCode" />
+        <input type="hidden" asp-for="LeaveUnitId">
+        <input type="hidden" asp-for="LeaveDepartmentId" />
+        <input type="hidden" asp-for="LeaveLocationId" />
+        <input type="hidden" asp-for="SourcePage" />
+    </form>
+    </div>
+</div>
+@section Scripts{
+    <script src="~/js/lvs.js"></script>
+}
+

@@ -60,6 +60,12 @@
                                         <i class="bi bi-backspace fw-bolder" style="font-size: 1.0rem;"></i>&nbsp;<span class="fw-bold ml-1" style="font-size: 0.9rem;">Back</span>
                                     </a>
                                 }
+                                else if (Model.SourcePage == "alr" || Model.src == "alr")
+                                {
+                                    <a asp-area="LVM" asp-Controller="Leave" asp-action="ApprovedLeaveRequests" asp-route-yr="@Model.LeaveYear" title="Go Back" class="btn btn-sm btn-outline-light text-dark">
+                                        <i class="bi bi-backspace fw-bolder" style="font-size: 1.0rem;"></i>&nbsp;<span class="fw-bold ml-1" style="font-size: 0.9rem;">Back</span>
+                                    </a>
+                                }
                                 else
                                 {
                                     <a asp-area="LVM" asp-Controller="Leave" asp-action="Index" title="Go Back" class="btn btn-sm btn-outline-light text-dark">

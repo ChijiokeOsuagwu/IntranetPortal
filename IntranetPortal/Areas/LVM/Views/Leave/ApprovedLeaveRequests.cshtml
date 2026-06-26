@@ -94,53 +94,61 @@
                                         <div class="card-header" style="background-color: #4F194B;">
                                             <h4 class="text-white"> @request.LeaveYear | Leave Request </h4>
                                         </div>
-                                        <div class="card-body bg-secondary">
+                                        <div class="card-body table-secondary">
                                             <div class="row">
                                                 <div class="col-md-4 mb-3">
-                                                    <label class="form-label text-white fw-bold">Type</label>
+                                                    <label class="form-label text-dark fw-bold">Type</label>
                                                     <div class="form-control fw-bold">@request.LeaveTypeName</div>
                                                 </div>
                                                 <div class="col-md-4 mb-3">
-                                                    <label class="form-label text-white fw-bold">Duration</label>
+                                                    <label class="form-label text-dark fw-bold">Duration</label>
                                                     <div class="form-control fw-bold">@request.RequestedDurationDescription</div>
                                                 </div>
                                                 <div class="col-md-4 mb-3">
-                                                    <label class="form-label text-white fw-bold">Status</label>
-                                                    @if (request.IsApprovedByHR)
+                                                    <label class="form-label text-dark fw-bold">Status</label>
+                                                    @if (request.LeaveRequestStatusId == (int)LeaveStatusEnum.Confirmed)
                                                     {
-                                                        <div class="form-control fw-bold" style="background-color: #4F194B; color: #fff;">@request.LeaveRequestStatusDescription</div>
+                                                    <div class="form-control fw-bold" style="background-color: #4F194B; color: #fff;">
+                                                        <span>@request.LeaveRequestStatusDescription <i class="bi bi-check-all" style="font-size:1.1rem"></i></span>
+                                                    </div>
+                                                    }
+                                                    else if (request.IsApprovedByHR)
+                                                    {
+                                                    <div class="form-control fw-bold" style="background-color: #4F194B; color: #fff;">
+                                                        <span>@request.LeaveRequestStatusDescription <i class="bi bi-check" style="font-size:1.1rem"></i></span>
+                                                    </div>
                                                     }
                                                     else
                                                     {
-                                                        <div class="form-control fw-bold">@request.LeaveRequestStatusDescription</div>
+                                                    <div class="form-control fw-bold">@request.LeaveRequestStatusDescription</div>
                                                     }
                                                 </div>
                                             </div>
                                             <div class="row">
                                                 <div class="col-md-4 mb-3">
-                                                    <label class="form-label text-white fw-bold">Leave Starts On:</label>
+                                                    <label class="form-label text-dark fw-bold">Leave Starts On:</label>
                                                     <div class="form-control fw-bold">@request.RequestedStartDate.ToLongDateString()</div>
                                                 </div>
                                                 <div class="col-md-4 mb-3">
-                                                    <label class="form-label text-white fw-bold">Leave Ends On:</label>
+                                                    <label class="form-label text-dark fw-bold">Leave Ends On:</label>
                                                     <div class="form-control fw-bold">@request.RequestedEndDate.ToLongDateString()</div>
                                                 </div>
                                                 <div class="col-md-4 mb-3">
-                                                    <label class="form-label text-white fw-bold">Resumes Work On:</label>
+                                                    <label class="form-label text-dark fw-bold">Resumes Work On:</label>
                                                     <div class="form-control fw-bold">@request.RequestedResumptionDate.Value.ToLongDateString()</div>
                                                 </div>
                                             </div>
                                             <div class="row">
                                                 <div class="col-md-4 mb-3">
-                                                    <label class="form-label text-white fw-bold">Staff</label>
+                                                    <label class="form-label text-dark fw-bold">Staff</label>
                                                     <div class="form-control fw-bold">@request.LeaveEmployeeName</div>
                                                 </div>
                                                 <div class="col-md-4 mb-3">
-                                                    <label class="form-label text-white fw-bold">Location</label>
+                                                    <label class="form-label text-dark fw-bold">Location</label>
                                                     <div class="form-control fw-bold">@request.LocationName</div>
                                                 </div>
                                                 <div class="col-md-4 mb-3">
-                                                    <label class="form-label text-white fw-bold">Unit</label>
+                                                    <label class="form-label text-dark fw-bold">Unit</label>
                                                     <div class="form-control fw-bold">@request.UnitName</div>
                                                 </div>
                                             </div>
@@ -150,14 +158,17 @@
                                                 <div class="col-md-10 text-end">
                                                     @if (request.IsApprovedByHR && request.LeaveRequestStatusId < 4)
                                                     {
-                                                        <button class="btn btn-sm" title="Confirm this Leave Request" style="width: 120px; border-radius: 5px; background-color: #4F194B; border-color: #fff;" onclick="confirmLeaveRequest(@request.LeaveRequestId)">
+                                                        <button class="btn btn-sm" title="Confirm this Leave Request" style="width: 120px; border-radius: 5px; background-color: #029938; border-color: #fff;" onclick="confirmLeaveRequest(@request.LeaveRequestId)">
                                                             <span class="text-white"><i class="bi bi-check2-all"></i> Confirm Leave </span>
                                                         </button>
                                                     }
 
                                                     @if (request.LeaveRequestStatusId == 4)
                                                     {
-                                                        <a asp-area="LVM" asp-controller="Leave" asp-action="LeaveRequestClose" asp-route-id="@request.LeaveRequestId" asp-route-sp="lsh" class="btn btn-sm" style="width: 120px; background-color: #4F194B; border-radius: 5px; border-color: #fff;" title="Close Leave">
+                                                        <a asp-area="LVM" asp-controller="Leave" asp-action="LeaveAdjustments" asp-route-id="@request.LeaveRequestId" asp-route-sp="alr" class="btn btn-sm mr-2" style="width: 150px; background-color: #4F194B; border-radius: 5px; border-color: #fff;" title="Leave Adjustments">
+                                                            <span class="text-white fw-bold"><i class="bi bi-arrow-down-up"></i> Adjustments </span>
+                                                        </a>
+                                                        <a asp-area="LVM" asp-controller="Leave" asp-action="CloseLeaveRequest" asp-route-id="@request.LeaveRequestId" asp-route-sp="alr" class="btn btn-sm" style="width: 150px; background-color: #4F194B; border-radius: 5px; border-color: #fff;" title="Close Leave">
                                                             <span class="text-white fw-bold"><i class="bi bi-x-lg"></i> Close Leave </span>
                                                         </a>
                                                     }
@@ -204,4 +215,6 @@
         }
     </div>
 </div>
-
+@section Scripts{
+    <script src="~/js/lvs.js"></script>
+}

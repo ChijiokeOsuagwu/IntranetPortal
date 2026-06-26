@@ -43,6 +43,9 @@ namespace IntranetPortal.Base.Models.LeaveModels
         public DateTime? HrResumptionDate { get; set; }
         public DateTime? HrConfirmResumptionTime { get; set; }
         public string HrConfirmResumptionBy { get; set; }
+
+        public bool IsLeaveRequestClosed { get; set; }
+        public string LeaveRequestClosedBy { get; set; }
         public DateTime? LeaveRequestCloseDate { get; set; }
 
         public bool IsApprovedByLineManager { get; set; }

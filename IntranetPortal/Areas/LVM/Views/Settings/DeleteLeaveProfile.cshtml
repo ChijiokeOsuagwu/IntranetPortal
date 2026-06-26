@@ -34,7 +34,6 @@
         <form asp-area="LVM" asp-controller="Settings" asp-action="DeleteLeaveProfile" method="post" autocomplete="off">
             <div class="row">
                 <div class="col-md-8 mb-3">
-                    <input type="hidden" asp-for="Id">
                     <label asp-for="Name" class="form-label text-white fw-bold"></label>
                     <div class="form-control">@Model.Name</div>
                 </div>

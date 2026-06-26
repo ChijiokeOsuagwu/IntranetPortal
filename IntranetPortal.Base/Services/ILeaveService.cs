@@ -30,18 +30,18 @@ namespace IntranetPortal.Base.Services
 
         #region Leave Profiles Service Interfaces
         Task<List<LeaveProfile>> GetLeaveProfiles();
-        Task<LeaveProfile> GetLeaveProfile(int Id);
-        Task<LeaveProfile> GetLeaveProfile(string Name);
+        Task<LeaveProfile> GetLeaveProfileByCode(string ProfileCode);
+        Task<LeaveProfile> GetLeaveProfileByName(string ProfileName);
         Task<bool> CreateLeaveProfile(LeaveProfile leaveProfile);
         Task<bool> UpdateLeaveProfile(LeaveProfile leaveProfile);
-        Task<bool> DeleteLeaveProfile(int Id);
+        Task<bool> DeleteLeaveProfile(string ProfileCode);
 
         #endregion
 
         #region Leave Profile Details Service Interfaces
         //========= Read Method Interfaces ==============//
-        Task<List<LeaveProfileDetail>> GetLeaveProfileDetails(int LeaveProfileId);
-        Task<List<LeaveProfileDetail>> GetLeaveProfileDetails(int LeaveProfileId, string LeaveTypeCode);
+        Task<List<LeaveProfileDetail>> GetLeaveProfileDetails(string LeaveProfileCode);
+        Task<List<LeaveProfileDetail>> GetLeaveProfileDetails(string LeaveProfileCode, string LeaveTypeCode);
         Task<LeaveProfileDetail> GetLeaveProfileDetail(int Id);
 
         //=========== Write Method Interfaces ===========//
@@ -66,9 +66,10 @@ namespace IntranetPortal.Base.Services
         Task<long> CreateLeaveRequestAsync(LeaveRequest r);
         Task<bool> UpdateLeaveRequestAsync(LeaveRequest r);
         Task<bool> DeleteLeaveRequestAsync(long id);
-
+        Task<bool> HrConfirmLeaveRequestAsync(long LeaveRequestId, string ConfirmedBy, DateTime ConfirmedTime);
+        Task<bool> CloseLeaveRequestAsync(LeaveRequest r, string LeaveRequestClosedBy);
         #endregion
-       
+
         #region Leave Request Read Interfaces
         Task<List<LeaveRequest>> GetLeaveRequestsAsync(string EmployeeId, int LeaveYear);
         Task<LeaveRequest> GetLeaveRequestAsync(long LeaveRequestId);
@@ -79,6 +80,8 @@ namespace IntranetPortal.Base.Services
 
         #region Leave Balances Service Interfaces
         Task<LeaveBalances> GetLeaveBalancesAsync(string LeaveTypeCode, int LeaveYear, string EmployeeId = null, string EmployeeName = null);
+        Task<LeaveBalances> RefreshAndRetrieveLeaveBalancesAsync(string LeaveTypeCode, int LeaveYear, string EmployeeId = null, string EmployeeName = null);
+
         #endregion
 
         #region Leave Submission Service Interfaces
@@ -103,6 +106,13 @@ namespace IntranetPortal.Base.Services
 
         Task<LeaveDocument> GetLeaveDocumentAsync(long LeaveDocumentId);
         Task<List<LeaveDocument>> GetLeaveDocumentsAsync(long LeaveRequestId);
+        #endregion
+
+        #region Leave Adjustments Service Interfaces
+        Task<List<LeaveAdjustment>> GetLeaveAdjustmentsAsync(long LeaveRequestId);
+        Task<LeaveAdjustment> GetLeaveAdjustmentAsync(long LeaveAdjustmentId);
+
+        Task<bool> AddLeaveAdjustmentAsync(LeaveAdjustment adjustment);
         #endregion
 
         #region Leave Service Helper Interfaces

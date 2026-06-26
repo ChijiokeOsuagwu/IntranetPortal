@@ -1,0 +1,96 @@
+﻿@model IntranetPortal.Areas.LVM.Models.LeaveAdjustmentListViewModel
+<div class="container">
+    <h4 class="mb-1">Leave Management System | Leave Adjustments</h4>
+    <hr />
+    <div class="mb-2">
+        <div class="row">
+            <div class="col-md-2">
+                <a asp-area="LVM" asp-controller="Leave" asp-action="ApprovedLeaveRequests" class="btn btn-sm btn-dark" style="width:100px;" title="Exit">
+                    <span class="text-white">Back</span>
+                </a>
+            </div>
+            <div class="col-md-8">
+                <h5 class="text-dark">
+                    @Model.LeaveRequestDetail.LeaveYear | @Model.LeaveRequestDetail.LeaveTypeName | @Model.LeaveRequestDetail.LeaveEmployeeName
+                </h5>
+            </div>
+            <div class="col-md-2">
+                <a asp-area="LVM" asp-controller="Leave" asp-action="AddLeaveAdjustment" asp-route-id="@Model.LeaveRequestDetail.LeaveRequestId" class="btn btn-sm btn-info" title="Add Leave Adjustment">
+                    <span class="text-white"><i class="bi bi-plus-lg"></i> Add Adjustment</span>
+                </a>
+            </div>
+        </div>
+        <hr />
+
+        @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-x-circle"></i>
+                <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+    </div>
+    <div class="row">
+        @if (Model == null || Model.LeaveAdjustmentList == null || Model.LeaveAdjustmentList.Count < 1)
+        {
+            <div class="alert alert-info fade show" role="alert">
+                <i class="bi bi-info-circle"></i>
+                <span class="fw-bold">No record was found.</span>
+            </div>
+        }
+        else
+        {
+            int row_no = 0;
+            <div class="table-responsive" style="min-height:450px">
+                @foreach (var adjustment in Model.LeaveAdjustmentList)
+                {
+                    row_no++;
+                    <div class="card mt-1" style="max-width:1000px">
+                        <div class="card-header" style="background-color: #4F194B;">
+                            <h4 class="text-white"> @adjustment.AdjustmentType </h4>
+                        </div>
+                        <div class="card-body bg-secondary">
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label text-white fw-bold">Adjustment Type:</label>
+                                    <div class="form-control fw-bold">@adjustment.AdjustmentType</div>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label text-white fw-bold">Added By:</label>
+                                    <div class="form-control fw-bold">@adjustment.AdjustmentAddedBy</div>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label text-white fw-bold">Added On:</label>
+                                    <div class="form-control fw-bold">@adjustment.AdjustmentDate.ToLongDateString() @adjustment.AdjustmentDate.ToLongTimeString()</div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12 mb-3">
+                                    <label class="form-label text-white fw-bold">Justification</label>
+                                    <div class="form-control fw-bold">@adjustment.AdjustmentJustification</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-footer" style="background-color: #4F194B;">
+                            <div class="row">
+                                <div class="col-md-12 text-end">
+                                    <a asp-area="LVM" asp-controller="Leave" asp-action="EditLeaveAdjustment" asp-route-id="@adjustment.LeaveAdjustmentId" asp-route-sp="ldj" class="btn btn-sm mr-2" style="width: 150px; background-color: #4F194B; border-radius: 5px; border-color: #fff;" title="Edit Adjustment">
+                                        <span class="text-white fw-bold"><i class="bi bi-pencil-square"></i> Edit </span>
+                                    </a>
+                                    <button class="btn btn-sm btn-danger" title="Delete this Leave Adjustment" style="width: 120px; border-radius: 5px; border-color: #fff;" onclick="deleteLeaveAdjustment(@adjustment.LeaveAdjustmentId)">
+                                        <span class="text-white"><i class="bi bi-trash"></i> Delete </span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</div>
+@section Scripts{
+    <script src="~/js/lvs.js"></script>
+}
+

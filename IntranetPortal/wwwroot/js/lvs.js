@@ -65,7 +65,6 @@ $(document).ready(function () {
         }
     }
 
-
     //======= Leave Plan Helper Functions =======//
     //===== Get the Last Leave Date from the Start Date and Duration =====//
     getLastLeaveDate = function () {
@@ -114,7 +113,6 @@ $(document).ready(function () {
             });
         }
     }
-
 
 
     //===== Leave Request Helper Functions =======//
@@ -247,7 +245,7 @@ $(document).ready(function () {
 
     }
 
-    //===== Function to delete a submission message ========//
+    //===== Function to approve Leave Request ========//
     approveLeaveRequest = function (leave_request_id, submission_id) {
         $.ajax({
             type: 'POST',
@@ -269,5 +267,79 @@ $(document).ready(function () {
             }
         })
     }
-})
 
+    //===== Function to Confirm a Request by HR ========//
+    confirmLeaveRequest = function (leave_request_id) {
+        if (confirm("Do you want to proceed to Confirm this Leave Request? ")) {
+            $.ajax({
+                type: 'POST',
+                url: '/LVM/Leave/ConfirmLeaveRequest',
+                dataType: "text",
+                data: { rd: leave_request_id },
+                success: function (result) {
+                    if (result == "confirmed") {
+                        location.reload();
+                    }
+                    else {
+                        alert('Sorry, the request could not be completed.');
+                        console.log(result);
+                    }
+                },
+                error: function () {
+                    alert('Sorry, the request could not be completed.');
+                    console.log('Failed');
+                }
+            })
+        }
+    }
+
+
+    //===== Get the Last Leave Date from the Start Date and Duration =====//
+    getClosingLastLeaveDate = function () {
+        let closing_start_date = $("#ActualLeaveStartDate").val();
+        let closing_duration = $("#ActualLeaveDuration").val();
+        let closing_duration_type_id = $("#ActualLeaveDurationTypeId").val();
+
+        if ((closing_start_date != "" || closing_start_date != undefined) && (closing_duration != 0 || closing_duration != undefined) && (closing_duration_type_id != "" || closing_duration_type_id != undefined)) {
+            console.log(closing_start_date);
+            console.log(closing_duration);
+            console.log(closing_duration_type_id);
+
+            $.get("/LVM/Leave/GetLeaveEndDate?sd=" + closing_start_date + "&dr=" + closing_duration + "&dt=" + closing_duration_type_id, function (data) {
+                const obj = JSON.parse(data)
+                console.log(obj);
+                if (obj.errormsg !== "" || obj.errormsg !== null || obj.errormsg !== undefined) {
+                    $("#ActualLeaveEndDate").val(obj.result);
+                }
+                else {
+                    $("#ActualLeaveEndDate").focus();
+                    document.getElementById("actualEndDateErrorSpan").innerText = obj.errormsg;
+                }
+            });
+        }
+    }
+
+    //===== Get Expected Resumption Date from the Leave End Date =====//
+    getClosingExpectedResumptionDate = function () {
+        let requested_end_date = $("#RequestedEndDate").val();
+
+        if (requested_end_date != "" || requested_end_date != undefined) {
+            console.log(requested_end_date);
+
+            $.get("/LVM/Leave/GetResumptionDate?ed=" + requested_end_date, function (data) {
+                const obj = JSON.parse(data)
+                console.log(obj);
+                if (obj.errormsg !== "" || obj.errormsg !== null || obj.errormsg !== undefined) {
+                    $("#RequestedResumptionDate").val(obj.result);
+                    //$("#LeaveEndDate").focus();
+                }
+                else {
+                    $("#RequestedResumptionDate").focus();
+                    document.getElementById("requestedResumptionDateErrorSpan").innerText = obj.errormsg;
+                }
+            });
+        }
+    }
+
+
+})

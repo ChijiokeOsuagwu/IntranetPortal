@@ -13,7 +13,7 @@ namespace IntranetPortal.Areas.LVM.Models
         public int Id { get; set; }
 
         [Required]
-        public int ProfileId { get; set; }
+        public string ProfileCode { get; set; }
 
         [Display(Name = "Profile Name")]
         public string ProfileName { get; set; }

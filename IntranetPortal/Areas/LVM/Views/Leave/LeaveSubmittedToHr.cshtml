@@ -57,7 +57,7 @@
                                         <div class="card-header bg-info">
                                             <h4 class="text-white"> @submission.LeavePlanYear | Leave Plan </h4>
                                         </div>
-                                        <div class="card-body bg-secondary">
+                                        <div class="card-body table-secondary">
                                             <div class="row">
                                                 <div class="col-md-4 mb-3">
                                                     <label class="form-label text-white fw-bold">Type</label>
@@ -159,18 +159,18 @@
                                         <div class="card-header" style="background-color: #198754;">
                                             <h4 class="text-white"> @submission.LeaveRequestYear | Leave Request </h4>
                                         </div>
-                                        <div class="card-body bg-secondary">
+                                        <div class="card-body table-secondary">
                                             <div class="row">
                                                 <div class="col-md-4 mb-3">
-                                                    <label class="form-label text-white fw-bold">Type</label>
+                                                    <label class="form-label text-dark fw-bold">Type</label>
                                                     <div class="form-control fw-bold">@submission.LeaveRequestTypeName</div>
                                                 </div>
                                                 <div class="col-md-4 mb-3">
-                                                    <label class="form-label text-white fw-bold">Duration</label>
+                                                    <label class="form-label text-dark fw-bold">Duration</label>
                                                     <div class="form-control fw-bold">@submission.LeaveRequestDurationDescription</div>
                                                 </div>
                                                 <div class="col-md-4 mb-3">
-                                                    <label class="form-label text-white fw-bold">Status</label>
+                                                    <label class="form-label text-dark fw-bold">Status</label>
                                                     @if (submission.LeaveRequestStatusDescription == "Approved")
                                                     {
                                                         <div class="form-control fw-bold" style="background-color: #198754; color:#fff">@submission.LeaveRequestStatusDescription</div>
@@ -183,29 +183,29 @@
                                             </div>
                                             <div class="row">
                                                 <div class="col-md-4 mb-3">
-                                                    <label class="form-label text-white fw-bold">Leave Starts On:</label>
+                                                    <label class="form-label text-dark fw-bold">Leave Starts On:</label>
                                                     <div class="form-control fw-bold">@submission.LeaveRequestStartDate.ToLongDateString()</div>
                                                 </div>
                                                 <div class="col-md-4 mb-3">
-                                                    <label class="form-label text-white fw-bold">Leave Ends On:</label>
+                                                    <label class="form-label text-dark fw-bold">Leave Ends On:</label>
                                                     <div class="form-control fw-bold">@submission.LeaveRequestEndDate.ToLongDateString()</div>
                                                 </div>
                                                 <div class="col-md-4 mb-3">
-                                                    <label class="form-label text-white fw-bold">Resumes Work On:</label>
+                                                    <label class="form-label text-dark fw-bold">Resumes Work On:</label>
                                                     <div class="form-control fw-bold">@submission.LeaveRequestResumptionDate.ToLongDateString()</div>
                                                 </div>
                                             </div>
                                             <div class="row">
                                                 <div class="col-md-4 mb-3">
-                                                    <label class="form-label text-white fw-bold">Staff</label>
+                                                    <label class="form-label text-dark fw-bold">Staff</label>
                                                     <div class="form-control fw-bold">@submission.LeaveRequestEmployeeName</div>
                                                 </div>
                                                 <div class="col-md-4 mb-3">
-                                                    <label class="form-label text-white fw-bold">Location</label>
+                                                    <label class="form-label text-dark fw-bold">Location</label>
                                                     <div class="form-control fw-bold">@submission.LeaveRequestLocationName</div>
                                                 </div>
                                                 <div class="col-md-4 mb-3">
-                                                    <label class="form-label text-white fw-bold">Unit</label>
+                                                    <label class="form-label text-dark fw-bold">Unit</label>
                                                     <div class="form-control fw-bold">@submission.LeaveRequestUnitName</div>
                                                 </div>
                                             </div>

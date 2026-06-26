@@ -66,6 +66,7 @@ namespace IntranetPortal.Base.Models.EmployeeRecordModels
 
         public string LeaveProfileCode { get; set; }
         public string LeaveProfileName { get; set; }
+        public DateTime? LeaveProfileStartDate { get; set; }
 
         public Person ToPerson()
         {

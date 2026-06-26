@@ -311,7 +311,6 @@ namespace IntranetPortal.Areas.LVM.Controllers
                 LeaveProfile e = new LeaveProfile();
                 if (ModelState.IsValid)
                 {
-                    e.Id = model.Id;
                     e.Name = model.Name;
                     e.Description = model.Description;
                     e.Code = model.Code;
@@ -327,17 +326,16 @@ namespace IntranetPortal.Areas.LVM.Controllers
             return View(model);
         }
         
-        public async Task<IActionResult> EditLeaveProfile(int id)
+        public async Task<IActionResult> EditLeaveProfile(string cd)
         {
             LeaveProfileViewModel model = new LeaveProfileViewModel();
             try
             {
-                if (id > 0)
+                if (!string.IsNullOrWhiteSpace(cd))
                 {
-                    var leaveProfile = await _leaveService.GetLeaveProfile(id);
+                    var leaveProfile = await _leaveService.GetLeaveProfileByCode(cd);
                     if (leaveProfile != null)
                     {
-                        model.Id = leaveProfile.Id;
                         model.Name = leaveProfile.Name;
                         model.Description = leaveProfile.Description;
                         model.Code = leaveProfile.Code;
@@ -358,7 +356,6 @@ namespace IntranetPortal.Areas.LVM.Controllers
                 LeaveProfile e = new LeaveProfile();
                 if (ModelState.IsValid)
                 {
-                    e.Id = model.Id;
                     e.Name = model.Name;
                     e.Description = model.Description;
                     e.Code = model.Code;
@@ -373,17 +370,17 @@ namespace IntranetPortal.Areas.LVM.Controllers
             return View(model);
         }
         
-        public async Task<IActionResult> DeleteLeaveProfile(int id)
+        public async Task<IActionResult> DeleteLeaveProfile(string cd)
         {
             LeaveProfileViewModel model = new LeaveProfileViewModel();
             try
             {
-                if (id > 0)
+                if (!string.IsNullOrWhiteSpace(cd))
                 {
-                    var leaveProfile = await _leaveService.GetLeaveProfile(id);
+                    var leaveProfile = await _leaveService.GetLeaveProfileByCode(cd);
                     if (leaveProfile != null)
                     {
-                        model.Id = leaveProfile.Id;
+                        model.Code = leaveProfile.Code;
                         model.Name = leaveProfile.Name;
                         model.Description = leaveProfile.Description;
                     }
@@ -400,9 +397,9 @@ namespace IntranetPortal.Areas.LVM.Controllers
         {
             try
             {
-                if (model.Id > 0)
+                if (!string.IsNullOrWhiteSpace(model.Code))
                 {
-                    if (await _leaveService.DeleteLeaveProfile(model.Id))
+                    if (await _leaveService.DeleteLeaveProfile(model.Code))
                     {
                         return RedirectToAction("LeaveProfiles");
                     }
@@ -430,20 +427,20 @@ namespace IntranetPortal.Areas.LVM.Controllers
         #endregion
 
         #region Leave Profile Details Controller Action Methods
-        public async Task<IActionResult> LeaveProfileDetails(int id, string nm)
+        public async Task<IActionResult> LeaveProfileDetails(string cd, string nm)
         {
             LeaveProfileDetailsListViewModel model = new LeaveProfileDetailsListViewModel();
-            model.LeaveProfileId = id;
+            model.LeaveProfileCode = cd;
             model.LeaveProfileName = nm;
-            try { model.LeaveProfileDetailList = await _leaveService.GetLeaveProfileDetails(id); }
+            try { model.LeaveProfileDetailList = await _leaveService.GetLeaveProfileDetails(model.LeaveProfileCode); }
             catch (Exception ex) { model.ViewModelErrorMessage = ex.Message; }
             return View(model);
         }
         
-        public async Task<IActionResult> NewProfileDetail(int id, string nm)
+        public async Task<IActionResult> NewProfileDetail(string cd, string nm)
         {
             LeaveProfileDetailViewModel model = new LeaveProfileDetailViewModel();
-            model.ProfileId = id;
+            model.ProfileCode = cd;
             model.ProfileName = nm;
             List<LeaveType> entities = await _leaveService.GetLeaveTypes();
             if (entities != null) { ViewBag.LeaveTypeCodeList = new SelectList(entities, "Code", "Name"); }
@@ -459,7 +456,7 @@ namespace IntranetPortal.Areas.LVM.Controllers
                 if (ModelState.IsValid)
                 {
                     d.Id = model.Id;
-                    d.ProfileId = model.ProfileId;
+                    d.ProfileCode = model.ProfileCode;
                     d.IsYearly = model.IsYearly;
                     d.LeaveTypeCode = model.LeaveTypeCode;
                     d.Duration = model.Duration;
@@ -470,7 +467,7 @@ namespace IntranetPortal.Areas.LVM.Controllers
 
                     if (await _leaveService.CreateLeaveProfileDetail(d))
                     {
-                        return RedirectToAction("LeaveProfileDetails", new { id = model.ProfileId, nm = model.ProfileName });
+                        return RedirectToAction("LeaveProfileDetails", new { cd = model.ProfileCode, nm = model.ProfileName });
                     }
                     else { throw new Exception("An error was encountered. New Profile option could not be added."); }
                 }
@@ -496,7 +493,7 @@ namespace IntranetPortal.Areas.LVM.Controllers
                 model.DurationTypeId = entity.DurationTypeId;
                 model.IsYearly = entity.IsYearly;
                 model.LeaveTypeCode = entity.LeaveTypeCode;
-                model.ProfileId = entity.ProfileId;
+                model.ProfileCode = entity.ProfileCode;
                 model.ProfileName = entity.ProfileName;
                 model.CarryOverEndMonth = entity.CarryOverEndMonth;
             }
@@ -514,7 +511,7 @@ namespace IntranetPortal.Areas.LVM.Controllers
                 if (ModelState.IsValid)
                 {
                     d.Id = model.Id;
-                    d.ProfileId = model.ProfileId;
+                    d.ProfileCode = model.ProfileCode;
                     d.IsYearly = model.IsYearly;
                     d.LeaveTypeCode = model.LeaveTypeCode;
                     d.Duration = model.Duration;
@@ -525,7 +522,7 @@ namespace IntranetPortal.Areas.LVM.Controllers
 
                     if (await _leaveService.UpdateLeaveProfileDetail(d))
                     {
-                        return RedirectToAction("LeaveProfileDetails", new { id = model.ProfileId, nm = model.ProfileName });
+                        return RedirectToAction("LeaveProfileDetails", new { id = model.ProfileCode, nm = model.ProfileName });
                     }
                     else { throw new Exception("An error was encountered. Profile option could not be added."); }
                 }
@@ -553,7 +550,7 @@ namespace IntranetPortal.Areas.LVM.Controllers
                 model.IsYearly = entity.IsYearly;
                 model.LeaveTypeCode = entity.LeaveTypeCode;
                 model.LeaveTypeName = entity.LeaveTypeName;
-                model.ProfileId = entity.ProfileId;
+                model.ProfileCode = entity.ProfileCode;
                 model.ProfileName = entity.ProfileName;
             }
             return View(model);
@@ -569,7 +566,7 @@ namespace IntranetPortal.Areas.LVM.Controllers
 
                     if (await _leaveService.DeleteLeaveProfileDetail(model.Id))
                     {
-                        return RedirectToAction("LeaveProfileDetails", new { id = model.ProfileId, nm = model.ProfileName });
+                        return RedirectToAction("LeaveProfileDetails", new { cd = model.ProfileCode, nm = model.ProfileName });
                     }
                     else { throw new Exception("An error was encountered. Profile option could not be deleted."); }
                 }
@@ -595,7 +592,7 @@ namespace IntranetPortal.Areas.LVM.Controllers
                 model.IsYearly = entity.IsYearly;
                 model.LeaveTypeCode = entity.LeaveTypeCode;
                 model.LeaveTypeName = entity.LeaveTypeName;
-                model.ProfileId = entity.ProfileId;
+                model.ProfileCode = entity.ProfileCode;
                 model.ProfileName = entity.ProfileName;
             }
             return View(model);

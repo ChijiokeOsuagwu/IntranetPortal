@@ -62,16 +62,16 @@
                                 <span class="fw-bolder">@item.Description</span>
                             </td>
                             <td class="text-end">
-                                <a asp-area="LVM" asp-controller="Settings" asp-action="LeaveProfileDetails" asp-route-id="@item.Id" asp-route-nm="@item.Name" title="Leave Profile Options" class="btn btn-sm btn-dark">
+                                <a asp-area="LVM" asp-controller="Settings" asp-action="LeaveProfileDetails" asp-route-cd="@item.Code" asp-route-nm="@item.Name" title="Leave Profile Options" class="btn btn-sm btn-dark">
                                     <span class="text-white fw-bold">Options</span>
                                 </a>
                                 <a asp-area="LVM" asp-controller="Settings" asp-action="LeaveProfileEmployees" asp-route-cd="@item.Code" title="Leave Profile Employees" class="btn btn-sm btn-success">
                                     <span class="text-white fw-bold"><i class="bi bi-people"></i> Members</span>
                                 </a>
-                                <a asp-area="LVM" asp-controller="Settings" asp-action="EditLeaveProfile" asp-route-id="@item.Id" title="Edit" class="btn btn-sm btn-info">
+                                <a asp-area="LVM" asp-controller="Settings" asp-action="EditLeaveProfile" asp-route-cd="@item.Code" title="Edit" class="btn btn-sm btn-info">
                                     <span class="text-white fw-bold">Edit</span>
                                 </a>
-                                <a asp-area="LVM" asp-controller="Settings" asp-action="DeleteLeaveProfile" asp-route-id="@item.Id" title="Delete" class="btn btn-sm btn-danger">
+                                <a asp-area="LVM" asp-controller="Settings" asp-action="DeleteLeaveProfile" asp-route-cd="@item.Code" title="Delete" class="btn btn-sm btn-danger">
                                     <span class="text-white fw-bold">Delete</span>
                                 </a>
                             </td>

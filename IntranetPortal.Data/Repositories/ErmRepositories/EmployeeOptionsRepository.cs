@@ -23,10 +23,10 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
             EmployeeOptions e = new EmployeeOptions();
             var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection"));
             StringBuilder sb = new StringBuilder();
-            sb.Append("SELECT e.emp_id, e.lvs_pfl_id, (SELECT fullname FROM ");
+            sb.Append("SELECT e.emp_id, e.lvs_pfl_cd, (SELECT fullname FROM ");
             sb.Append("public.gst_prsns WHERE id = e.emp_id) as emp_nm, ");
-            sb.Append("(SELECT lvs_pfl_nm FROM public.lms_lvs_pfls ");
-            sb.Append("WHERE lvs_pfl_id = e.lvs_pfl_id) as lvs_pfl_nm  ");
+            sb.Append("(SELECT lvs_pfl_nm FROM public.lvm_lvs_pfls ");
+            sb.Append("WHERE lvs_pfl_cd = e.lvs_pfl_cd) as lvs_pfl_nm  ");
             sb.Append("FROM erm_emp_inf e ");
             sb.Append("WHERE(LOWER(e.emp_id) = LOWER(@emp_id)) AND (e.is_dx = false);");
             string query = sb.ToString();
@@ -42,7 +42,7 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
                     {
                         e.EmployeeId = reader["emp_id"] == DBNull.Value ? string.Empty : reader["emp_id"].ToString();
                         e.EmployeeFullName = reader["emp_nm"] == DBNull.Value ? string.Empty : reader["emp_nm"].ToString();
-                        e.LeaveProfileId = reader["lvs_pfl_id"] == DBNull.Value ? 0 : (int)reader["lvs_pfl_id"];
+                        e.LeaveProfileCode = reader["lvs_pfl_cd"] == DBNull.Value ? string.Empty : reader["lvs_pfl_cd"].ToString();
                         e.LeaveProfileName = reader["lvs_pfl_nm"] == DBNull.Value ? string.Empty : reader["lvs_pfl_nm"].ToString();
                     }
             }
@@ -55,7 +55,7 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
             if (e == null) { throw new ArgumentNullException(nameof(e), "The required parameter [Employee Options] is missing or has an invalid value."); }
             int rows = 0;
             StringBuilder sb = new StringBuilder();
-            sb.Append("UPDATE public.erm_emp_inf SET lvs_pfl_id = @lvs_pfl_id ");
+            sb.Append("UPDATE public.erm_emp_inf SET lvs_pfl_cd = @lvs_pfl_cd ");
             sb.Append("WHERE (emp_id = @emp_id);");
             string query = sb.ToString();
             using (var conn = new NpgsqlConnection(_config.GetConnectionString("PortalConnection")))
@@ -65,10 +65,10 @@ namespace IntranetPortal.Data.Repositories.ErmRepositories
                 using (var cmd = new NpgsqlCommand(query, conn))
                 {
                     var emp_id = cmd.Parameters.Add("@emp_id", NpgsqlDbType.Text);
-                    var lvs_pfl_id = cmd.Parameters.Add("@lvs_pfl_id", NpgsqlDbType.Integer);
+                    var lvs_pfl_cd = cmd.Parameters.Add("@lvs_pfl_cd", NpgsqlDbType.Text);
                     cmd.Prepare();
                     emp_id.Value = e.EmployeeId;
-                    lvs_pfl_id.Value = e.LeaveProfileId == 0 ? (object)DBNull.Value : e.LeaveProfileId;
+                    lvs_pfl_cd.Value = e.LeaveProfileCode == "" ? (object)DBNull.Value : e.LeaveProfileCode;
                     rows = await cmd.ExecuteNonQueryAsync();
                 }
                 await conn.CloseAsync();
