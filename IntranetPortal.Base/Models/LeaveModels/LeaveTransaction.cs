@@ -16,6 +16,7 @@ namespace IntranetPortal.Base.Models.LeaveModels
         public long? LeaveAdjustmentId { get; set; }
         public int NumberOfDaysUsed { get; set; }
         public int NumberOfDaysGiven { get; set; }
+        public int NumberOfDaysDeducted { get; set; }
         public int OpeningBalance { get; set; }
         public int PreviousBalance { get; set; }
         public string TransactionDescription { get; set; }

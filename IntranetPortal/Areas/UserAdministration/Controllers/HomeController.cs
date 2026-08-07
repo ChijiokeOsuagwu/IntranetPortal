@@ -98,7 +98,7 @@ namespace IntranetPortal.Areas.UserAdministration.Controllers
                         {
                             Id = model.UserID,
                             ModifiedBy = HttpContext.User.Identity.Name,
-                            ModifiedTime = $"{DateTime.Now.Date.ToLongDateString()} {DateTime.Now.ToLongTimeString()}",
+                            ModifiedTime = $"{DateTime.Now.Date.ToLongDateString()} {DateTime.UtcNow.ToLongTimeString()}",
                         };
 
                         if (string.IsNullOrWhiteSpace(model.Password))
@@ -186,7 +186,7 @@ namespace IntranetPortal.Areas.UserAdministration.Controllers
                         FullName = model.FullName,
                         LockoutEnabled = model.EnableLockOut,
                         LockoutEnd = model.LockOutEndDate,
-                        ModifiedTime = $"{DateTime.Now.Date.ToLongDateString()} {DateTime.Now.ToLongTimeString()}",
+                        ModifiedTime = $"{DateTime.UtcNow.Date.ToLongDateString()} {DateTime.UtcNow.ToLongTimeString()}",
                     };
 
                     bool LoginIsAvailable = await _securityService.LoginIdIsAvailable(model.UserID, model.LoginID);

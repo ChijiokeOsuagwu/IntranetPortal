@@ -66,45 +66,26 @@
             </div>
         </div>
         <div class="row">
-            <div class="col-md-3 mb-3">
+            <div class="col-md-4 mb-3">
                 <label class="form-label text-dark">Actual Start Date:</label>
                 <input asp-for="ActualLeaveStartDate" class="form-control fw-bold" type="date" autofocus>
                 <div><span asp-validation-for="ActualLeaveStartDate" class="text-danger"></span></div>
             </div>
-            <div class="col-md-3 mb-3">
+            <div class="col-md-4 mb-3">
                 <label class="form-label text-dark">Actual End Date:</label>
                 <input asp-for="ActualLeaveEndDate" id="ActualLeaveEndDate" class="form-control fw-bold" type="date">
                 <div><span id="actualEndDateErrorSpan" asp-validation-for="ActualLeaveEndDate" class="text-danger"></span></div>
             </div>
-            <div class="col-md-3 mb-3">
-                <label class="form-label text-dark">Actual Duration</label>
-                <div class="input-group">
-                    <input asp-for="ActualLeaveDuration" class="form-control fw-bold" min="1" style="max-width:75px">
-                    <select asp-for="ActualLeaveDurationTypeId" class="form-control fw-bold" style="min-width:130px">
-                        <option value="">Select</option>
-                        <option value="0">Working Day(s)</option>
-                        <option value="1">Day(s)</option>
-                        <option value="2">Week(s)</option>
-                        <option value="3">Month(s)</option>
-                        <option value="4">Year(s)</option>
-                    </select>
-                </div>
-                <div><span asp-validation-for="ActualLeaveDuration" class="text-danger"></span></div>
-                <div><span asp-validation-for="ActualLeaveDurationTypeId" class="text-danger"></span></div>
-            </div>
-            <div class="col-md-3 mb-3">
-                <label class="form-label text-dark">Approved Resumption Date:</label>
+            <div class="col-md-4 mb-3">
+                <label class="form-label text-dark">Actual Resumption Date:</label>
                 <input asp-for="HrResumptionDate"  class="form-control fw-bold" type="date">
                 <div><span asp-validation-for="HrResumptionDate" class="text-danger"></span></div>
             </div>
         </div>
         <div class="row">
             <div class="col-md-12 text-end">
-                <a asp-area="LVM" asp-controller="Leave" asp-action="ApprovedLeaveRequests" class="btn btn-dark" style="width:100px" title="Exit">
+                <a asp-area="LVM" asp-controller="Leave" asp-action="LeaveRequestsDueResumption" class="btn btn-dark" style="width:100px" title="Exit">
                     <span class="text-white">Exit</span>
-                </a>
-                <a asp-area="LVM" asp-controller="Leave" asp-action="CloseLeaveRequest" asp-route-id="@Model.LeaveRequestId" class="btn btn-warning" style="width:100px" title="Clear">
-                    <span class="text-white">Clear</span>
                 </a>
                 @if (!Model.OperationIsSuccessful)
                 {
@@ -119,6 +100,10 @@
         <input type="hidden" asp-for="RequestedStartDate" />
         <input type="hidden" asp-for="RequestedEndDate" />
         <input type="hidden" asp-for="RequestedResumptionDate" />
+        <input type="hidden" asp-for="ActualLeaveDuration"/>
+        <input type="hidden" asp-for="LeaveUnitId" />
+        <input type="hidden" asp-for="LeaveDepartmentId" />
+        <input type="hidden" asp-for="LeaveLocationId" />
     </form>
     </div>
 </div>

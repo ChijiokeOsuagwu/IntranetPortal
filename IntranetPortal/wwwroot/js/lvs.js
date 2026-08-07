@@ -341,5 +341,53 @@ $(document).ready(function () {
         }
     }
 
+    //===== Function to delete a submission message ========//
+    deleteLeaveAdjustment = function (leave_adjustment_id) {
+        if (confirm("Are you sure you want to reverse this ?")) {
+            $.ajax({
+                type: 'POST',
+                url: '/LVM/Leave/DeleteLeaveAdjustment',
+                dataType: "text",
+                data: { id: leave_adjustment_id },
+                success: function (result) {
+                    if (result == "deleted") {
+                        location.reload();
+                    }
+                    else {
+                        alert('Deleting record failed!');
+                        console.log(result);
+                    }
+                },
+                error: function () {
+                    alert('Sorry deleting operation could not be completed.');
+                    console.log('Failed ');
+                }
+            })
+        }
+    }
 
+        //===== Function to Unflag a Leave Plan by HR ========//
+    unflagLeavePlan = function (leave_plan_id) {
+        if (confirm("Are you sure you want to unflag this Leave Plan? ")) {
+            $.ajax({
+                type: 'POST',
+                url: '/LVM/Leave/UnflagLeavePlan',
+                dataType: "text",
+                data: { pd: leave_plan_id },
+                success: function (result) {
+                    if (result == "unflagged") {
+                        location.reload();
+                    }
+                    else {
+                        alert('Sorry, the request could not be completed.');
+                        console.log(result);
+                    }
+                },
+                error: function () {
+                    alert('Sorry, the request could not be completed.');
+                    console.log('Failed');
+                }
+            })
+        }
+    }
 })

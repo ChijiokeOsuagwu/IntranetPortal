@@ -1,6 +1,6 @@
 ﻿@model IntranetPortal.Areas.LVM.Models.LeaveDocumentListViewModel
 <div class="container">
-    <h3 class="mb-4">Leave Documents</h3>
+    <h4 class="mb-4">Leave Managment System | Leave Documents</h4>
     <hr />
     <div class="mb-3">
         @if (Model.src == "lra" || Model.SourcePage == "lra")
@@ -12,6 +12,12 @@
         else if (Model.src == "lsh" || Model.SourcePage == "lsh")
         {
             <a asp-area="LVM" asp-controller="Leave" asp-action="LeaveSubmittedToHr" class="btn btn-dark" style="width:100px" title="Click to Go Back">
+                <span class="text-white">Back</span>
+            </a>
+        }
+        else if (Model.src == "hlr" || Model.SourcePage == "hlr")
+        {
+            <a asp-area="LVM" asp-controller="Leave" asp-action="LeaveRecords" class="btn btn-dark" style="width:100px" title="Click to Go Back">
                 <span class="text-white">Back</span>
             </a>
         }

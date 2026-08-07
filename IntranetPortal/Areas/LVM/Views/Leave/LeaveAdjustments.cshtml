@@ -5,7 +5,7 @@
     <div class="mb-2">
         <div class="row">
             <div class="col-md-2">
-                <a asp-area="LVM" asp-controller="Leave" asp-action="ApprovedLeaveRequests" class="btn btn-sm btn-dark" style="width:100px;" title="Exit">
+                <a asp-area="LVM" asp-controller="Leave" asp-action="LeaveRequestsDueResumption" class="btn btn-sm btn-dark" style="width:100px;" title="Exit">
                     <span class="text-white">Back</span>
                 </a>
             </div>
@@ -48,38 +48,35 @@
                     row_no++;
                     <div class="card mt-1" style="max-width:1000px">
                         <div class="card-header" style="background-color: #4F194B;">
-                            <h4 class="text-white"> @adjustment.AdjustmentType </h4>
+                            <h4 class="text-white"> @adjustment.AdjustmentType | @adjustment.LeaveTypeName</h4>
                         </div>
                         <div class="card-body bg-secondary">
                             <div class="row">
-                                <div class="col-md-4 mb-3">
-                                    <label class="form-label text-white fw-bold">Adjustment Type:</label>
-                                    <div class="form-control fw-bold">@adjustment.AdjustmentType</div>
+                                 <div class="col-md-3 mb-3">
+                                    <label class="form-label text-white fw-bold">Duration:</label>
+                                    <div class="form-control fw-bold">@adjustment.DurationDescription</div>
                                 </div>
-                                <div class="col-md-4 mb-3">
-                                    <label class="form-label text-white fw-bold">Added By:</label>
+                                <div class="col-md-5 mb-3">
+                                    <label class="form-label text-white fw-bold">Recorded By:</label>
                                     <div class="form-control fw-bold">@adjustment.AdjustmentAddedBy</div>
                                 </div>
                                 <div class="col-md-4 mb-3">
-                                    <label class="form-label text-white fw-bold">Added On:</label>
+                                    <label class="form-label text-white fw-bold">Recorded On:</label>
                                     <div class="form-control fw-bold">@adjustment.AdjustmentDate.ToLongDateString() @adjustment.AdjustmentDate.ToLongTimeString()</div>
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="col-md-12 mb-3">
-                                    <label class="form-label text-white fw-bold">Justification</label>
-                                    <div class="form-control fw-bold">@adjustment.AdjustmentJustification</div>
+                                    <label class="form-label text-white fw-bold">Reason</label>
+                                    <textarea class="form-control fw-bold" rows="4" readonly>@adjustment.AdjustmentJustification</textarea>
                                 </div>
                             </div>
                         </div>
                         <div class="card-footer" style="background-color: #4F194B;">
                             <div class="row">
                                 <div class="col-md-12 text-end">
-                                    <a asp-area="LVM" asp-controller="Leave" asp-action="EditLeaveAdjustment" asp-route-id="@adjustment.LeaveAdjustmentId" asp-route-sp="ldj" class="btn btn-sm mr-2" style="width: 150px; background-color: #4F194B; border-radius: 5px; border-color: #fff;" title="Edit Adjustment">
-                                        <span class="text-white fw-bold"><i class="bi bi-pencil-square"></i> Edit </span>
-                                    </a>
-                                    <button class="btn btn-sm btn-danger" title="Delete this Leave Adjustment" style="width: 120px; border-radius: 5px; border-color: #fff;" onclick="deleteLeaveAdjustment(@adjustment.LeaveAdjustmentId)">
-                                        <span class="text-white"><i class="bi bi-trash"></i> Delete </span>
+                                     <button class="btn btn-sm" title="Delete this Leave Adjustment" style="width: 120px; border-radius: 5px; border-color: #fff; background-color: #4F194B;" onclick="deleteLeaveAdjustment(@adjustment.LeaveAdjustmentId)">
+                                        <span class="text-white fw-bold"><i class="bi bi-arrow-counterclockwise"></i> Reverse </span>
                                     </button>
                                 </div>
                             </div>

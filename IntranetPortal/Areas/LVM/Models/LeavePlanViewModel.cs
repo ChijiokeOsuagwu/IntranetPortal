@@ -67,9 +67,10 @@ namespace IntranetPortal.Areas.LVM.Models
         public int LeavePlanDurationTypeId { get; set; }
         public string LeavePlanDurationTypeDescription { get; set; }
         public string LeavePlanDurationDescription { get; set; }
+        public long CurrentLeaveBalance { get; set; }
+        public string CurrentLeaveBalanceDescription { get; set; }
 
-        public int LeavePlanStatusId { get; set; }
-        public string LeavePlanStatusDescription { get; set; }
+        public LeaveRollingBalance RollingBalances { get; set; }
 
         public LeavePlanViewModel Extract(LeavePlan plan)
         {
@@ -96,8 +97,6 @@ namespace IntranetPortal.Areas.LVM.Models
                 LeavePlanEndDate = plan.LeavePlanEndDate,
                 LeavePlanResumptionDate = plan.LeavePlanResumptionDate,
                 LeavePlanStartDate = plan.LeavePlanStartDate,
-                LeavePlanStatusId = plan.LeavePlanStatusId,
-                LeavePlanStatusDescription = plan.LeavePlanStatusDescription,
             };
         }
         
@@ -126,8 +125,6 @@ namespace IntranetPortal.Areas.LVM.Models
             p.LeavePlanEndDate = LeavePlanEndDate;
             p.LeavePlanResumptionDate = LeavePlanResumptionDate;
             p.LeavePlanStartDate = LeavePlanStartDate;
-            p.LeavePlanStatusId = LeavePlanStatusId;
-            p.LeavePlanStatusDescription = LeavePlanStatusDescription;
 
             switch (LeavePlanDurationTypeId) 
             {

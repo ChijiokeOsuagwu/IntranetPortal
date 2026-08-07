@@ -13,6 +13,7 @@ namespace IntranetPortal.Areas.LVM.Models
         public int mn { get; set; }
         public int ld { get; set; }
         public int ud { get; set; }
+        public bool UserIsSeniorHr { get; set; }
         public List<LeaveSubmission> LeaveSubmissionList { get; set; }
     }
 }

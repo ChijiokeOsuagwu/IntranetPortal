@@ -6,6 +6,7 @@ using IntranetPortal.Areas.CLM.Models;
 using IntranetPortal.Base.Models.ClmModels;
 using IntranetPortal.Base.Services;
 using IntranetPortal.Configurations;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -15,6 +16,7 @@ using Microsoft.Extensions.Configuration;
 namespace IntranetPortal.Areas.CLM.Controllers
 {
     [Area("CLM")]
+    [Authorize]
     public class LibraryController : Controller
     {
         private readonly IConfiguration _configuration;

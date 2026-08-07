@@ -122,7 +122,7 @@
                                                 <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton2">
                                                     <li>
                                                         <a class="dropdown-item" asp-area="LVM" asp-controller="Leave" asp-action="LeavePlanApproval" asp-route-id="@item.LeavePlanId" asp-route-sd="@item.LeaveSubmissionId" asp-route-sp="lpa">
-                                                            <i class="bi bi-check-circle"></i>  <span> Open </span>
+                                                            <i class="bi bi-arrow-right-circle"></i>  <span> Proceed </span>
                                                         </a>
                                                     </li>
                                                     <li>
@@ -147,17 +147,16 @@
                                                     </li>
                                                 </ul>
                                             </div>
-
-                                        </td>
+                                            </td>
+                                                                         
                                     }
-
-                                </tr>
+                                       </tr>
                             }
                             else if (item.LeaveRequestId > 0)
                             {
                                 <tr>
                                     <td>
-                                        <span class="fw-bolder"> Leave Request </span>
+                                        <span class="fw-bolder"> @item.DocumentType </span>
                                     </td>
                                     <td>
                                         <span class="fw-bolder">@item.FromEmployeeName</span>
@@ -216,11 +215,38 @@
                                                     <span class="text-white"><i class="bi bi-tools"></i> Options</span>
                                                 </button>
                                                 <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton2">
-                                                    <li>
+                                                    @if(item.Purpose == "Approval")
+                                                    {
+                                                        @if(item.ToEmployeeRole == "HR Department")
+                                                        {
+                                                            @if(Model.UserIsSeniorHr)
+                                                            {
+                                                                                                                                                                                <li>
                                                         <a class="dropdown-item" asp-area="LVM" asp-controller="Leave" asp-action="LeaveRequestApproval" asp-route-id="@item.LeaveRequestId" asp-route-sd="@item.LeaveSubmissionId" asp-route-src="lpa">
-                                                            <i class="bi bi-envelope-open"></i>  <span> Open </span>
+                                                            <i class="bi bi-arrow-right-circle"></i>  <span> Proceed </span>
                                                         </a>
                                                     </li>
+                                                            }
+                                                        }
+                                                        else
+                                                        {
+                                                                                                                <li>
+                                                        <a class="dropdown-item" asp-area="LVM" asp-controller="Leave" asp-action="LeaveRequestApproval" asp-route-id="@item.LeaveRequestId" asp-route-sd="@item.LeaveSubmissionId" asp-route-src="lpa">
+                                                            <i class="bi bi-arrow-right-circle"></i>  <span> Proceed </span>
+                                                        </a>
+                                                    </li>
+
+                                                        }
+                                                    }
+                                                    else if(item.Purpose == "Confirm Resumption")
+                                                    {
+                                                    <li>
+                                                        <a class="dropdown-item" asp-area="LVM" asp-controller="Leave" asp-action="ConfirmResumption" asp-route-rd="@item.LeaveRequestId" asp-route-sd="@item.LeaveSubmissionId">
+                                                            <i class="bi bi-arrow-right-circle"></i>  <span> Proceed </span>
+                                                        </a>
+                                                    </li>
+
+                                                    }
                                                     <li>
                                                         <a class="dropdown-item" asp-area="LVM" asp-controller="Leave" asp-action="ViewLeaveRequest" asp-route-id="@item.LeaveRequestId">
                                                             <i class="bi bi-info-circle"></i>  <span>View Details</span>

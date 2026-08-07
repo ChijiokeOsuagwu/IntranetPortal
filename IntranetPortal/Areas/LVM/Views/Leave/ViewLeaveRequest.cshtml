@@ -2,7 +2,7 @@
 @model IntranetPortal.Areas.LVM.Models.LeaveRequestViewModel
 <h3 class="mb-1">My Leave Records</h3>
 <hr />
-<div class="card mt-1" style="max-width:1000px">
+<div class="card mt-1" style="max-width:1200px">
     <div class="card-header bg-dark">
         <h4 class="text-white">Leave Request Details</h4>
     </div>
@@ -46,19 +46,21 @@
             </div>
         </div>
         <div class="row">
-            <div class="col-md-3 mb-3">
+            <div class="col-md-4 mb-3">
                 <label class="form-label text-white fw-bold">Leave Starts On:</label>
                 <div class="form-control fw-bold">@Model.RequestedStartDate.ToLongDateString()</div>
             </div>
-            <div class="col-md-3 mb-3">
+            <div class="col-md-4 mb-3">
                 <label class="form-label text-white fw-bold">Requested Duration</label>
                 <div class="form-control fw-bold">@Model.RequestedDurationDescription</div>
             </div>
-            <div class="col-md-3 mb-3">
+            <div class="col-md-4 mb-3">
                 <label class="form-label text-white fw-bold">Leave Ends On:</label>
                 <div class="form-control fw-bold">@Model.RequestedEndDate.ToLongDateString()</div>
             </div>
-            <div class="col-md-3 mb-3">
+        </div>
+        <div class="row">
+            <div class="col-md-4 mb-3">
                 <label class="form-label text-white fw-bold">Resumes Work On:</label>
                 @if (Model.RequestedResumptionDate == null)
                 {
@@ -69,6 +71,22 @@
                     <div class="form-control fw-bold">@Model.RequestedResumptionDate.Value.ToLongDateString()</div>
                 }
             </div>
+            <div class="col-md-4 mb-3">
+                <label class="form-label text-white fw-bold">Status:</label>
+                <div class="form-control fw-bold">@Model.LeaveRequestStatusDescription</div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <div style="margin-top:30px;">
+                @if(Model.RequestLeaveAllowance)
+                {
+                   <span class="fw-bold text-white"> <i class="bi bi-check-square" style="font-size:1.2rem;"></i>  Include My Leave Allowance</span>
+                }
+                else
+                {
+                   <span class="fw-bold text-white"> <i class="bi bi-x-square" style="font-size:1.2rem;"></i>  Include My Leave Allowance</span>
+                }
+                </div>
+            </div>
         </div>
         <div class="row">
             <div class="col-md-12 mb-3">
@@ -77,11 +95,7 @@
             </div>
         </div>
         <div class="row">
-            <div class="col-md-3">
-                <label class="form-label text-white fw-bold">Status:</label>
-                <div class="form-control fw-bold">@Model.LeaveRequestStatusDescription</div>
-            </div>
-            <div class="col-md-9 text-end">
+            <div class="col-md-12 text-end">
                 <button class="btn btn-dark" title="Back" style="width:200px; margin-top:30px" onclick="history.back()"><span class="text-white">Go Back</span></button>
             </div>
         </div>

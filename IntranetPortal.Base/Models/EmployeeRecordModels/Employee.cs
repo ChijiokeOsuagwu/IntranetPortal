@@ -67,7 +67,7 @@ namespace IntranetPortal.Base.Models.EmployeeRecordModels
         public string LeaveProfileCode { get; set; }
         public string LeaveProfileName { get; set; }
         public DateTime? LeaveProfileStartDate { get; set; }
-
+        public bool IsEligibleForLeaveAllowance { get; set; }
         public Person ToPerson()
         {
             Person person = new Person

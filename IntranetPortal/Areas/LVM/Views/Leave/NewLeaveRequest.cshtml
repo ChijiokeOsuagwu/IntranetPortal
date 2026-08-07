@@ -2,7 +2,7 @@
 @model IntranetPortal.Areas.LVM.Models.LeaveRequestViewModel
 <h3 class="mb-1">My Leave Records</h3>
 <hr />
-<div class="card mt-1" style="max-width:1000px">
+<div class="card mt-1" style="max-width:1200px">
     <div class="card-header" style="background-color:#035711">
         <h4 class="text-white">New Leave Request</h4>
     </div>
@@ -51,15 +51,19 @@
                 </div>
             </div>
             <div class="row">
-                <div class="col-md-3 mb-3">
-                    <label asp-for="RequestedStartDate" class="form-label text-dark">Starts On:</label>
+                 <div class="col-md-4 mb-3">
+                    <label class="form-label text-dark">Current Leave Balance</label>
+                    <input asp-for="CurrentLeaveBalanceDescription" class="form-control fw-bold" readonly>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label asp-for="RequestedStartDate" class="form-label text-dark">Starts On*:</label>
                     <input asp-for="RequestedStartDate" class="form-control fw-bold" type="date">
                     <div><span asp-validation-for="RequestedStartDate" class="text-danger"></span></div>
                 </div>
-                <div class="col-md-3 mb-3">
-                    <label class="form-label text-dark">Leave Duration</label>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label text-dark">Leave Duration*</label>
                     <div class="input-group">
-                        <input asp-for="RequestedDuration" class="form-control fw-bold" min="1" style="max-width:75px">
+                        <input asp-for="RequestedDuration" class="form-control fw-bold" min="1" style="max-width:150px">
                         <select asp-for="RequestedDurationTypeId" class="form-control fw-bold" style="min-width:130px">
                             <option value="">Select</option>
                             <option value="0">Working Day(s)</option>
@@ -72,20 +76,35 @@
                     <div><span asp-validation-for="RequestedDuration" class="text-danger"></span></div>
                     <div><span asp-validation-for="RequestedDurationTypeId" class="text-danger"></span></div>
                 </div>
-                <div class="col-md-3 mb-3">
-                    <label class="form-label text-dark">Ends On:</label>
+               </div>
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label class="form-label text-dark">Ends On*:</label>
                     <input asp-for="RequestedEndDate" id="RequestedEndDate" class="form-control fw-bold" type="date" readonly onclick="getRequestLastLeaveDate()">
                     <div><span id="requestedEndDateErrorSpan" asp-validation-for="RequestedEndDate" class="text-danger"></span></div>
                 </div>
-                <div class="col-md-3 mb-3">
-                    <label class="form-label text-dark">Resumes Work On:</label>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label text-dark">Resumes Work On*:</label>
                     <input asp-for="RequestedResumptionDate" id="RequestedResumptionDate" class="form-control fw-bold" type="date" readonly onclick="getRequestedExpectedResumptionDate()">
                     <div><span id="requestedResumptionDateErrorSpan" asp-validation-for="RequestedResumptionDate" class="text-danger"></span></div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <div style="margin-top:35px">
+                 @if(Model.EligibleForLeaveAllowance)
+                    {
+                                            <div class="form-check">
+  <input asp-for="RequestLeaveAllowance" class="form-check-input" type="checkbox" style="width:18px; height:18px; margin-right:10px;">
+  <label class="form-check-label">
+    <span class="fw-bold text-dark"> Include My Leave Allowance</span>
+  </label>
+</div>
+                   }
+                   </div>
                 </div>
             </div>
             <div class="row">
                 <div class="col-md-12 mb-3">
-                    <label asp-for="LeaveReason" class="form-label text-dark">Reason <small>(optional)</small></label>
+                    <label asp-for="LeaveReason" class="form-label text-dark">Reason*</label>
                     <textarea asp-for="LeaveReason" class="form-control fw-bold">@Model.LeaveReason</textarea>
                     <div><span asp-validation-for="LeaveReason" class="text-danger"></span></div>
                 </div>
@@ -108,6 +127,8 @@
             <input type="hidden" asp-for="LeaveEmployeeId" />
             <input type="hidden" asp-for="LeaveEmployeeName" />
             <input type="hidden" asp-for="LeaveRequestStatusId" />
+              <input type="hidden" asp-for="CurrentLeaveBalance" />
+               <input type="hidden" asp-for="EligibleForLeaveAllowance" />
         </form>
     </div>
 </div>

@@ -2,6 +2,7 @@
 using IntranetPortal.Models;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -16,6 +17,8 @@ namespace IntranetPortal.Areas.LVM.Models
         public int LeaveYear { get; set; }
         public string LeaveTypeCode { get; set; }
         public string LeaveTypeName { get; set; }
+
+        [Required(ErrorMessage = "Reason is required!")]
         public string LeaveReason { get; set; }
         public int LeaveRequestStatusId { get; set; }
         public string LeaveRequestStatusDescription { get; set; }
@@ -47,6 +50,12 @@ namespace IntranetPortal.Areas.LVM.Models
         public bool IsApprovedByHeadOfDepartment { get; set; }
         public bool IsApprovedByHR { get; set; }
         public bool IsApprovedByExecutiveManagement { get; set; }
+
+        public long CurrentLeaveBalance { get; set; }
+        public string CurrentLeaveBalanceDescription { get; set; }
+        public bool RequestLeaveAllowance { get; set; }
+        public bool EligibleForLeaveAllowance { get; set; }
+        public LeaveRollingBalance RollingBalances { get; set; }
 
         public LeaveRequestViewModel ExtractFromLeavePlan(LeavePlan plan)
         {
@@ -104,6 +113,7 @@ namespace IntranetPortal.Areas.LVM.Models
             request.RequestedEndDate = RequestedEndDate;
             request.RequestedResumptionDate = RequestedResumptionDate;
             request.RequestedStartDate = RequestedStartDate;
+            request.RequestLeaveAllowance = RequestLeaveAllowance;
 
             return request;
         }
@@ -114,6 +124,7 @@ namespace IntranetPortal.Areas.LVM.Models
             model.LeaveRequestId = request.LeaveRequestId;
             model.RequestedDuration = request.RequestedDuration;
             model.RequestedDurationTypeId = request.RequestedDurationTypeId;
+            model.RequestedDurationDescription = request.RequestedDurationDescription;
             model.RequestedEndDate = request.RequestedEndDate;
             model.RequestedResumptionDate = request.RequestedResumptionDate;
             model.RequestedStartDate = request.RequestedStartDate;
@@ -125,6 +136,7 @@ namespace IntranetPortal.Areas.LVM.Models
             model.LeaveReason = request.LeaveReason;
             model.LeaveRequestStatusDescription = request.LeaveRequestStatusDescription;
             model.LeaveRequestStatusId = request.LeaveRequestStatusId;
+            model.RequestLeaveAllowance = request.RequestLeaveAllowance;
 
             return model;
         }

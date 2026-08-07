@@ -1,0 +1,157 @@
+﻿
+@model IntranetPortal.Areas.LVM.Models.ConfirmResumptionViewModel
+<h4 class="mb-1">Leave Management System | Resumption Notice</h4>
+<hr />
+<div class="card mt-1" style="max-width:1200px">
+    <div class="card-header" style="background-color:#035711">
+        <h4 class="text-white"> Resumption Notice </h4>
+    </div>
+    <div class="card-body table-secondary" >
+        @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-x-circle"></i>
+                <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (!String.IsNullOrEmpty(Model.ViewModelSuccessMessage))
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="bi bi-check-circle"></i>
+                <span class="fw-bold">@Model.ViewModelSuccessMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (!String.IsNullOrEmpty(Model.ViewModelWarningMessage))
+        {
+            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                <i class="bi bi-exclamation-circle"></i>
+                <span class="fw-bold">@Model.ViewModelWarningMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label class="form-label text-dark">Employee Name</label>
+                    <input asp-for="LeaveEmployeeName" class="form-control fw-bold" readonly>
+                </div>
+                <div class="col-md-2 mb-3">
+                    <label class="form-label text-dark">Year</label>
+                    <div class="form-control fw-bold"> @Model.LeaveYear</div>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label class="form-label text-dark">Type</label>
+                    <div class="form-control fw-bold">@Model.LeaveTypeName</div>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label class="form-label text-dark">Approved Resumption Date</label>
+                    <div class="form-control fw-bold">@Model.ApprovedResumptionDate.ToLongDateString()</div>
+                </div>
+            </div> 
+            <div class="row">
+                <div class="col-md-12">
+                    <hr>
+                <h5 class="text-dark fw-bold"> Employee Resumption Claims </h5>
+                <hr>
+                </div>
+            </div> 
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label class="form-label text-dark">Resumption Date:</label>
+                    <div class="form-control fw-bold" type="date">@Model.ResumptionDateByEmployee.ToLongDateString()</div>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label class="form-label text-dark">Extra Days Used</label>
+                    <div class="form-control fw-bold"> @Model.NoOfExtraDaysByEmployee</div>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label class="form-label text-dark">Leave Days Not Used</label>
+                    <div class="form-control fw-bold"> @Model.NoOfUnusedDaysByEmployee</div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12 mb-3">
+                    <label class="form-label text-dark">Reason <small>(optional)</small></label>
+                    <textarea class="form-control fw-bold" readonly>@Model.ReasonByEmployee</textarea>
+                </div>
+            </div>
+                        <div class="row">
+                <div class="col-md-4">
+                    <div style="margin-top:28px;">
+                @if(Model.EmployeeRequestAdjustment)
+                {
+                   <span class="fw-bold text-dark"> <i class="bi bi-check-square" style="font-size:1.2rem;"></i> Request Leave Balance Adjustment </span>
+                }
+                else
+                {
+                   <span class="fw-bold text-dark"> <i class="bi bi-x-square" style="font-size:1.2rem;"></i> Request Leave Balance Adjustment</span>
+                }
+                </div>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label text-dark">Adjustment Type</label>
+                    @if(!string.IsNullOrWhiteSpace(Model.RequestedAdjustmentType))
+                    {
+                        <div class="form-control fw-bold"> @Model.RequestedAdjustmentType</div>
+                    }
+                    else
+                    {
+                        <div class="form-control fw-bold"> [Not Applicable] </div>
+                    }
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-12">
+                    <hr>
+                <h5 class="text-dark fw-bold"> Confirmed Resumption Details </h5>
+                <hr>
+                </div>
+            </div> 
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label class="form-label text-dark">Resumption Date:</label>
+                    <div class="form-control fw-bold">@Model.ResumptionDateByLineManager.Value.ToLongDateString()</div>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label class="form-label text-dark">Extra Days Used</label>
+                    <div class="form-control fw-bold"> @Model.NoOfExtraDaysByLineManager</div>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label class="form-label text-dark">Days Not Used</label>
+                    <div class="form-control fw-bold"> @Model.NoOfUnusedDaysByLineManager</div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12 mb-3">
+                    <label class="form-label text-dark">Comments <small>(optional)</small></label>
+                    <textarea class="form-control fw-bold" readonly>@Model.ReasonByLineManager</textarea>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-4">
+                    <label class="form-label text-dark">Confirmed By</label>
+                    <div class="form-control fw-bold"> @Model.LineManagerName</div>
+                </div>
+                <div class="col-md-4">
+                  <div style="margin-top:28px;">
+                @if(Model.LineManagerApprovesAdjustment)
+                {
+                   <span class="fw-bold text-dark"> <i class="bi bi-check-square" style="font-size:1.2rem;"></i> Approve Leave Balance Adjustment </span>
+                }
+                else
+                {
+                   <span class="fw-bold text-dark"> <i class="bi bi-x-square" style="font-size:1.2rem;"></i> Approve Leave Balance Adjustment</span>
+                }
+                </div>
+
+                </div>
+                <div class="col-md-4 text-end">
+                    <a asp-area="LVM" asp-controller="Leave" asp-action="LeaveRequestsDueResumption" class="btn btn-dark" style="width:75px" title="Exit">
+                        <span class="text-white">Exit</span>
+                    </a>
+                </div>
+            </div>
+    </div>
+</div>

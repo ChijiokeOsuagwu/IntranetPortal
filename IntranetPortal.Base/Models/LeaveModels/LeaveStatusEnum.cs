@@ -11,6 +11,8 @@ namespace IntranetPortal.Base.Models.LeaveModels
         Declined,
         Approved,
         Confirmed,
+        ResumptionNotice,
+        PendingClosure,
         Cancelled,
         Completed
     }

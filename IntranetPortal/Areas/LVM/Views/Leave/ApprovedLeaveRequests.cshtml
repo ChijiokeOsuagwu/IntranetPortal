@@ -1,6 +1,6 @@
 ﻿@model IntranetPortal.Areas.LVM.Models.LeaveRequestsListViewModel
 <div class="container">
-    <h4 class="mb-1">Approved Leave Requests</h4>
+    <h4 class="mb-1">Leave Pending Confirmation</h4>
     <hr />
     <div class="mb-2">
         <div class="row">
@@ -12,12 +12,12 @@
             <div class="col-md-10">
                 <form asp-area="LVM" asp-controller="Leave" asp-action="ApprovedLeaveRequests" method="get">
                     <div class="row">
-                        <div class="col-md-2">
+                        <div class="col-md-3">
                             <select asp-for="l" asp-items="@ViewBag.LocationList" class="form-control fw-bold">
                                 <option value=""> Location </option>
                             </select>
                         </div>
-                        <div class="col-md-2">
+                        <div class="col-md-3">
                             <select asp-for="u" asp-items="@ViewBag.UnitList" class="form-control fw-bold">
                                 <option value=""> Unit </option>
                             </select>
@@ -44,10 +44,7 @@
                                 <option value="12"> Dec </option>
                             </select>
                         </div>
-                        <div class="col-md-3">
-                            <input asp-for="n" id="sn" class="border-0" placeholder="Name">
-                        </div>
-                        <div class="col-md-1">
+                        <div class="col-md-2">
                             <input type="submit" value="Search" class="btn btn-dark btn-sm text-white" />
                         </div>
                     </div>
@@ -163,13 +160,16 @@
                                                         </button>
                                                     }
 
-                                                    @if (request.LeaveRequestStatusId == 4)
+                                                    @if (request.LeaveRequestStatusId == 5)
+                                                    {
+                                                        <a asp-area="LVM" asp-controller="Leave" asp-action="CloseLeaveRequest" asp-route-id="@request.LeaveRequestId" asp-route-sp="alr" class="btn btn-sm" style="width: 150px; background-color: #4F194B; border-radius: 5px; border-color: #fff;" title="Close Leave">
+                                                            <span class="text-white fw-bold"><i class="bi bi-x-lg"></i> Close Leave </span>
+                                                        </a>
+                                                    }
+                                                    @if (request.LeaveRequestStatusId >= 5)
                                                     {
                                                         <a asp-area="LVM" asp-controller="Leave" asp-action="LeaveAdjustments" asp-route-id="@request.LeaveRequestId" asp-route-sp="alr" class="btn btn-sm mr-2" style="width: 150px; background-color: #4F194B; border-radius: 5px; border-color: #fff;" title="Leave Adjustments">
                                                             <span class="text-white fw-bold"><i class="bi bi-arrow-down-up"></i> Adjustments </span>
-                                                        </a>
-                                                        <a asp-area="LVM" asp-controller="Leave" asp-action="CloseLeaveRequest" asp-route-id="@request.LeaveRequestId" asp-route-sp="alr" class="btn btn-sm" style="width: 150px; background-color: #4F194B; border-radius: 5px; border-color: #fff;" title="Close Leave">
-                                                            <span class="text-white fw-bold"><i class="bi bi-x-lg"></i> Close Leave </span>
                                                         </a>
                                                     }
                                                 </div>
@@ -180,7 +180,7 @@
                                                         </button>
                                                         <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton2">
                                                             <li>
-                                                                <a asp-area="LVM" asp-controller="Leave" asp-action="LeaveDocuments" asp-route-id="@request.LeaveRequestId" asp-route-sp="alr" title="View Attachments" class="dropdown-item">
+                                                                <a asp-area="LVM" asp-controller="Leave" asp-action="ViewAttachments" asp-route-id="@request.LeaveRequestId" title="View Attached Documents" class="dropdown-item">
                                                                     <span class="text-white"><i class="bi bi-paperclip"></i> View Attachments </span>
                                                                 </a>
                                                             </li>

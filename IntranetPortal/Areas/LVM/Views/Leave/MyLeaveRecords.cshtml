@@ -17,7 +17,6 @@
                 </div>
             </div>
         </form>
-
         @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
         {
             <div class="alert alert-danger alert-dismissible fade show" role="alert">
@@ -40,28 +39,65 @@
                 <div class="accordion-body">
                     <div class="card">
                         <div class="card-body">
-                            <div class="row">
-                                <div class="col-md-3 text-center" title="Annual Leave Days">
-                                    <div><i class="bi bi-calendar-check" style="font-size:1.5rem; font-weight:bold"></i> </div>
-                                    <label class="form-label fw-bold">Annual Leave Days</label>
-                                    <div class="fw-bold text-center" title="Annual Leave Days"> @Model.CurrentLeaveBalances.CurrentYearProfileLeaveDays Day(s)</div>
-                                </div>
-                                <div class="col-md-3 text-center" title="Previous Balance">
-                                    <div><i class="bi bi-calendar-event" style="font-size:1.5rem; font-weight:bold"></i></div>
-                                    <label class="form-label fw-bold"> Previous Balance </label>
-                                    <div class="fw-bold" title="Previous Balance"> @Model.CurrentLeaveBalances.PreviousYearLeaveBalance Day(s)</div>
-                                </div>
-                                <div class="col-md-3 text-center" title="Total Used">
-                                    <div><i class="bi bi-calendar-range" style="font-size:1.5rem; font-weight:bold"></i></div>
-                                    <label class="form-label fw-bold"> Total Used </label>
-                                    <div class="fw-bold text-dark" title="Total Used">@Model.CurrentLeaveBalances.TotalLeaveDaysUsed Day(s)</div>
-                                </div>
-                                <div class="col-md-3 text-center" title="Total Unused">
-                                    <div><i class="bi bi-calendar-week" style="font-size:1.5rem; font-weight:bold"></i> </div>
-                                    <label class="form-label fw-bold">Total Unused </label>
-                                    <div class="fw-bold text-dark" title="Total Unused"> @Model.CurrentLeaveBalances.TotalOutstandingLeaveDays Day(s)</div>
-                                </div>
-                            </div>
+                            @if(Model == null || Model.CurrentLeaveRollingBalances == null)
+                            {
+                              <div class="alert alert-info fade show" role="alert">
+                                <i class="bi bi-info-circle"></i>
+                                <span class="fw-bold">No record was found.</span>
+                              </div>
+                            }
+                            else
+                            {
+                               <div class="row">
+                                    <div class="col-md-2 mb-3 text-center" title="Annual Leave Days">
+                                        <div><i class="bi bi-calendar-check" style="font-size:1.5rem; font-weight:bold"></i> </div>
+                                        <span class="fw-bold">Annual Leave</span>
+                                        <div class="fw-bold text-center" title="Annual Leave Days"> @Model.CurrentLeaveRollingBalances.AnnualProfileLeaveDays Day(s)</div>
+                                    </div>
+                                    <div class="col-md-2 mb-3 text-center" title="Previous Balance">
+                                        <div><i class="bi bi-calendar-event" style="font-size:1.5rem; font-weight:bold"></i></div>
+                                        <span class="fw-bold"> Prev. Balance </span>
+                                        <div class="fw-bold" title="Previous Balance"> @Model.CurrentLeaveRollingBalances.PreviousYearsLeaveBalance Day(s)</div>
+                                    </div>
+                                    <div class="col-md-2 mb-3 text-center" title="Total Added">
+                                        <div><i class="bi bi-calendar-plus" style="font-size:1.5rem; font-weight:bold"></i></div>
+                                        <span class="fw-bold"> Added </span>
+                                        <div class="fw-bold text-dark" title="Total Added">@Model.CurrentLeaveRollingBalances.LeaveDaysAdded Day(s)</div>
+                                    </div>
+                                    <div class="col-md-2 mb-3 text-center" title="Total Deducted">
+                                        <div><i class="bi bi-calendar-minus" style="font-size:1.5rem; font-weight:bold"></i></div>
+                                        <span class="fw-bold"> Deducted </span>
+                                        <div class="fw-bold text-dark" title="Total Deducted">@Model.CurrentLeaveRollingBalances.LeaveDaysDeducted Day(s)</div>
+                                    </div>
+                                    <div class="col-md-2 mb-3 text-center" title="Total Used">
+                                        <div><i class="bi bi-calendar-range" style="font-size:1.5rem; font-weight:bold"></i></div>
+                                        <span class="fw-bold"> Used </span>
+                                        <div class="fw-bold text-dark" title="Total Used">@Model.CurrentLeaveRollingBalances.LeaveDaysUsed Day(s)</div>
+                                    </div>
+                                    <div class="col-md-2 mb-3 text-center" title="Total Outstanding">
+                                        <div><i class="bi bi-calendar-week" style="font-size:1.5rem; font-weight:bold"></i> </div>
+                                        <span class="fw-bold"> Outstanding </span>
+                                        <div class="fw-bold text-dark" title="Total Outstanding"> @Model.CurrentLeaveRollingBalances.TotalOutstandingLeaveDaysBeforeExpiry Day(s)</div>
+                                    </div>
+                                    </div>
+                                    <div class=row>
+                                    <div class="col-md-2 text-center" title="Total Available">
+                                        <div><i class="bi bi-calendar-week" style="font-size:1.5rem; font-weight:bold"></i> </div>
+                                        <span class="fw-bold"> Available </span>
+                                        @if(Model.CurrentLeaveRollingBalances.PreviousBalanceExpiryMonth > DateTime.Now.Month)
+                                        {
+                                           <div class="fw-bold text-dark" title="Total Available"> @Model.CurrentLeaveRollingBalances.TotalOutstandingLeaveDaysBeforeExpiry Day(s)</div>
+                                        }
+                                        else
+                                        {
+                                        <div class="fw-bold text-dark" title="Total Available"> @Model.CurrentLeaveRollingBalances.TotalOutstandingLeaveDaysAfterExpiry Day(s)</div>
+                                        }
+                                    </div>
+                                    <div class="col-md-10 text-end" style="margin-top:50px">
+                                         <span><strong><em><u>Note:</u>  Previous Leave Balances must be used up before @Model.CurrentLeaveRollingBalances.PreviousBalanceExpiryMonthName @DateTime.Now.Year, else they will automatically be forfeited.</em></strong></span>
+                                    </div>
+                                 </div>
+                            }
                         </div>
                     </div>
                 </div>
@@ -90,11 +126,13 @@
                         }
                         else
                         {
-                            <div class="table-responsive" style="min-height:150px">
+                            <div class="table-responsive" style="min-height:350px">
                                 @foreach (var plan in Model.LeavePlanList)
                                 {
                                     <div class="card">
-                                        <div class="card-header bg-info">
+                                        @if(plan.LeavePlanIsReturned)
+                                        {
+                                           <div class="card-header bg-danger">
                                             <div class="row">
                                                 <div class="col-md-2" title="Leave Year">
                                                     @if (plan.LeaveYear < 1)
@@ -106,7 +144,119 @@
                                                         <span class="fw-bold text-white" title="Leave Year"><i class="bi bi-calendar" style="font-size:1.0rem; font-weight:bold"></i> @plan.LeaveYear.ToString()</span>
                                                     }
                                                 </div>
-                                                <div class="col-md-3" title="Leave Type">
+                                                <div class="col-md-4" title="Leave Type">
+                                                    @if (string.IsNullOrWhiteSpace(plan.LeaveTypeName))
+                                                    {
+                                                        <span class="fw-bold text-white" title="Leave Type"><i class="bi bi-person" style="font-size:1.2rem; font-weight:bold"></i> [Not Specified] </span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="fw-bold text-white" title="Leave Type"><i class="bi bi-person" style="font-size:1.2rem; font-weight:bold"></i> @plan.LeaveTypeName</span>
+                                                    }
+                                                </div>
+                                                <div class="col-md-2" title="Leave Duration">
+                                                    <span class="fw-bold text-white" title="Leave Duration"><i class="bi bi-clock" style="font-size:1.2rem; font-weight:bold"></i> @plan.LeavePlanDurationDescription</span>
+                                                </div>
+                                                <div class="col-md-2" title="Status">
+                                                    <span class="fw-bold text-white" title="Status"><i class="bi bi-flag" style="font-size:1.2rem; font-weight:bold"></i> Flagged By HR </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="card-body" style="background-color:#BDDFF2">
+                                            <div class="row">
+                                                <div class="col-md-4" title="Start Date">
+                                                    @if (plan.LeavePlanStartDate == null)
+                                                    {
+                                                        <span class="fw-bold text-dark" title="Start Date"><i class="bi bi-calendar" style="font-size:1.0rem; font-weight:bold"></i> Start Date: [Unspecified]</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="fw-bold text-dark" title="Start Date"><i class="bi bi-calendar" style="font-size:1.0rem; font-weight:bold"></i> Start Date: @plan.LeavePlanStartDate.Value.ToLongDateString()</span>
+                                                    }
+                                                </div>
+                                                <div class="col-md-4" title="Duration">
+                                                    @if (string.IsNullOrWhiteSpace(plan.LeavePlanDurationDescription))
+                                                    {
+                                                        <span class="fw-bold text-dark" title="Duration"><i class="bi bi-clock" style="font-size:1.2rem; font-weight:bold"></i> Duration: [N/A]</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="fw-bold text-dark" title="Duration"><i class="bi bi-clock" style="font-size:1.2rem; font-weight:bold"></i> Duration: @plan.LeavePlanDurationDescription</span>
+                                                    }
+                                                </div>
+                                                <div class="col-md-4" title="Resumption Date">
+                                                    @if (plan.LeavePlanResumptionDate == null)
+                                                    {
+                                                        <span class="fw-bold text-dark" title="Resumption Date"><i class="bi bi-calendar" style="font-size:1.0rem; font-weight:bold"></i> Resumption Date: [Unspecified]</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="fw-bold text-dark" title="Resumption Date"><i class="bi bi-calendar" style="font-size:1.0rem; font-weight:bold"></i> Resumption Date: @plan.LeavePlanResumptionDate.Value.ToLongDateString()</span>
+                                                    }
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="card-footer bg-danger">
+                                            <div class="row">
+                                                <div class="col-md-10 text-end">
+                                                       <a asp-area="LVM" asp-controller="Leave" asp-action="EditLeavePlan" asp-route-id="@plan.LeavePlanId" title="Edit" class="btn btn-info btn-sm mr-2" style="width:100px; border-radius:5px; border-color:#fff;">
+                                                            <span class="text-white fw-bold"><i class="bi bi-pencil-square"></i> Edit</span>
+                                                       </a>
+
+                      @*                               <a asp-area="LVM" asp-controller="Leave" asp-action="SubmitLeave" asp-route-pd="@plan.LeavePlanId" title="Submit" class="btn btn-info btn-sm" style="width:100px; border-radius:5px; border-color:#fff;">
+                                                        <span class="text-white fw-bold"><i class="bi bi-box-arrow-in-right"></i> Submit</span>
+                                                    </a> *@
+                                                    <a asp-area="LVM" asp-controller="Leave" asp-action="DeleteLeavePlan" asp-route-id="@plan.LeavePlanId" title="Delete" class="btn btn-danger btn-sm" style="width:100px; border-radius:5px; border-color:#fff;">
+                                                        <span class="text-white"><i class="bi bi-trash"></i> Delete</span>
+                                                    </a>
+                                                </div>
+                                                <div class="col-md-2 text-end">
+                                                    <div class="dropdown">
+                                                        <button class="btn btn-dark btn-sm" type="button" id="dropdownMenuButton2" data-bs-toggle="dropdown" aria-expanded="false" style="border-radius:5px; border-color:#fff;">
+                                                            <span class="fw-bold text-white"><i class="bi bi-tools"></i> Options</span>
+                                                        </button>
+                                                        <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton2">
+                                                            <li>
+                                                                <a asp-area="LVM" asp-controller="Leave" asp-action="ViewLeavePlan" asp-route-id="@plan.LeavePlanId" title="View Details" class="dropdown-item">
+                                                                    <span class="text-white"><i class="bi bi-info-circle"></i> View Details</span>
+                                                                </a>
+                                                            </li>
+                                                            <li>
+                                                                <a asp-area="LVM" asp-controller="Leave" asp-action="LeaveApprovals" asp-route-pd="@plan.LeavePlanId" asp-route-sp="mlr" asp-route-yr="@plan.LeaveYear" title="View Approvals" class="dropdown-item">
+                                                                    <span class="text-white"><i class="bi bi-calendar-check"></i> View Approvals</span>
+                                                                </a>
+                                                            </li>
+                                                            <li>
+                                                                <a asp-area="LVM" asp-controller="Leave" asp-action="LeaveNotes" asp-route-pd="@plan.LeavePlanId" asp-route-sp="mlr" asp-route-yr="@plan.LeaveYear" title="View Notes" class="dropdown-item">
+                                                                    <span class="text-white"><i class="bi bi-journals"></i> View Notes</span>
+                                                                </a>
+                                                            </li>
+                                                            <li>
+                                                                <a asp-area="LVM" asp-controller="Leave" asp-action="LeaveActivities" asp-route-pd="@plan.LeavePlanId" title="Activity Log" class="dropdown-item">
+                                                                    <span class="text-white"><i class="bi bi-file-earmark-text"></i> View History</span>
+                                                                </a>
+                                                            </li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        }
+                                        else
+                                        {
+                                          <div class="card-header bg-info">
+                                            <div class="row">
+                                                <div class="col-md-4" title="Leave Year">
+                                                    @if (plan.LeaveYear < 1)
+                                                    {
+                                                        <span class="fw-bold text-white" title="Leave Year"><i class="bi bi-calendar" style="font-size:1.0rem; font-weight:bold"></i> [Unspecified]</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="fw-bold text-white" title="Leave Year"><i class="bi bi-calendar" style="font-size:1.0rem; font-weight:bold"></i> @plan.LeaveYear.ToString()</span>
+                                                    }
+                                                </div>
+                                                <div class="col-md-4" title="Leave Type">
                                                     @if (string.IsNullOrWhiteSpace(plan.LeaveTypeName))
                                                     {
                                                         <span class="fw-bold text-white" title="Leave Type"><i class="bi bi-person" style="font-size:1.2rem; font-weight:bold"></i> [Not Specified] </span>
@@ -118,34 +268,6 @@
                                                 </div>
                                                 <div class="col-md-4" title="Leave Duration">
                                                     <span class="fw-bold text-white" title="Leave Duration"><i class="bi bi-clock" style="font-size:1.2rem; font-weight:bold"></i> @plan.LeavePlanDurationDescription</span>
-                                                </div>
-                                                <div class="col-md-3" title="Status">
-                                                    @switch (plan.LeavePlanStatusId)
-                                                    {
-                                                        case 0:
-                                                            <span class="fw-bold text-white" title="Status"><i class="bi bi-dash-circle" style="font-size: 1.2rem; font-weight: bold;"></i> Not Yet Approved</span>
-                                                            break;
-                                                        case 1:
-                                                            <span class="fw-bold text-white" title="Status"><i class="bi bi-dash-circle" style="font-size: 1.2rem; font-weight: bold;"></i> Pending Approval</span>
-                                                            break;
-                                                        case 2:
-                                                            <span class="fw-bold text-white" title="Status"><i class="bi bi-x-circle" style="font-size: 1.2rem; font-weight: bold;"></i> Declined</span>
-                                                            break;
-                                                        case 3:
-                                                            <span class="fw-bold text-white" title="Status"><i class="bi bi-check-circle" style="font-size: 1.2rem; font-weight: bold;"></i> Approved</span>
-                                                            break;
-                                                        case 4:
-                                                            <span class="fw-bold text-white" title="Status"><i class="bi bi-check-circle" style="font-size: 1.2rem; font-weight: bold;"></i> Confirmed</span>
-                                                            break;
-                                                        case 5:
-                                                            <span class="fw-bold text-white" title="Status"><i class="bi bi-x-circle" style="font-size: 1.2rem; font-weight: bold;"></i> Cancelled</span>
-                                                            break;
-                                                        case 6:
-                                                            <span class="fw-bold text-white" title="Status"><i class="bi bi-check2-circle" style="font-size: 1.2rem; font-weight: bold;"></i> Completed</span>
-                                                            break;
-                                                        default:
-                                                            break;
-                                                    }
                                                 </div>
                                             </div>
                                         </div>
@@ -186,25 +308,23 @@
                                         <div class="card-footer bg-info">
                                             <div class="row">
                                                 <div class="col-md-10 text-end">
-                                                    @if (plan.LeavePlanStatusId == 3)
-                                                    {
                                                         <a asp-area="LVM" asp-controller="Leave" asp-action="NewLeaveRequest" asp-route-pd="@plan.LeavePlanId" title="Create Leave Request" class="btn btn-info btn-sm mr-2" style="width:100px; border-radius:5px; border-color:#fff;">
                                                             <span class="text-white fw-bold"><i class="bi bi-envelope"></i> Request</span>
                                                         </a>
-                                                    }
-
-                                                    @if (plan.LeavePlanStatusId < 4)
-                                                    {
+                                                        @if(!plan.LeavePlanIsClosed)
+                                                        {
                                                         <a asp-area="LVM" asp-controller="Leave" asp-action="EditLeavePlan" asp-route-id="@plan.LeavePlanId" title="Edit" class="btn btn-info btn-sm mr-2" style="width:100px; border-radius:5px; border-color:#fff;">
                                                             <span class="text-white fw-bold"><i class="bi bi-pencil-square"></i> Edit</span>
                                                         </a>
-                                                    }
-                                                    <a asp-area="LVM" asp-controller="Leave" asp-action="SubmitLeave" asp-route-pd="@plan.LeavePlanId" title="Submit" class="btn btn-info btn-sm" style="width:100px; border-radius:5px; border-color:#fff;">
+
+                    @*                                 <a asp-area="LVM" asp-controller="Leave" asp-action="SubmitLeave" asp-route-pd="@plan.LeavePlanId" title="Submit" class="btn btn-info btn-sm" style="width:100px; border-radius:5px; border-color:#fff;">
                                                         <span class="text-white fw-bold"><i class="bi bi-box-arrow-in-right"></i> Submit</span>
-                                                    </a>
+                                                    </a> *@
                                                     <a asp-area="LVM" asp-controller="Leave" asp-action="DeleteLeavePlan" asp-route-id="@plan.LeavePlanId" title="Delete" class="btn btn-danger btn-sm" style="width:100px; border-radius:5px; border-color:#fff;">
                                                         <span class="text-white"><i class="bi bi-trash"></i> Delete</span>
                                                     </a>
+                                                        }
+
                                                 </div>
                                                 <div class="col-md-2 text-end">
                                                     <div class="dropdown">
@@ -237,6 +357,7 @@
                                                 </div>
                                             </div>
                                         </div>
+                                      }
                                     </div>
                                 }
                             </div>
@@ -268,7 +389,7 @@
                         }
                         else
                         {
-                            <div class="table-responsive" style="min-height:250px">
+                            <div class="table-responsive" style="min-height:450px">
                                 @foreach (var request in Model.LeaveRequestList)
                                 {
                                     <div class="card">
@@ -310,15 +431,18 @@
                                                             <span class="fw-bold text-white" title="Status"><i class="bi bi-x-circle" style="font-size: 1.2rem; font-weight: bold;"></i> Declined</span>
                                                             break;
                                                         case 3:
-                                                            <span class="fw-bold text-white" title="Status"><i class="bi bi-check-circle" style="font-size: 1.2rem; font-weight: bold;"></i> Approved</span>
+                                                            <span class="fw-bold text-white" title="Status"><i class="bi bi-check" style="font-size: 1.2rem; font-weight: bold;"></i> Approved</span>
                                                             break;
                                                         case 4:
-                                                            <span class="fw-bold text-white" title="Status"><i class="bi bi-check-circle" style="font-size: 1.2rem; font-weight: bold;"></i> Confirmed</span>
+                                                            <span class="fw-bold text-white" title="Status"><i class="bi bi-check-all" style="font-size: 1.2rem; font-weight: bold;"></i> Confirmed</span>
                                                             break;
                                                         case 5:
-                                                            <span class="fw-bold text-white" title="Status"><i class="bi bi-x-circle" style="font-size: 1.2rem; font-weight: bold;"></i> Cancelled</span>
+                                                            <span class="fw-bold text-white" title="Status"><i class="bi bi-info-circle" style="font-size: 1.2rem; font-weight: bold;"></i> Resumption Notified</span>
                                                             break;
                                                         case 6:
+                                                            <span class="fw-bold text-white" title="Status"><i class="bi bi-x-circle" style="font-size: 1.2rem; font-weight: bold;"></i> Cancelled</span>
+                                                            break;
+                                                        case 7:
                                                             <span class="fw-bold text-white" title="Status"><i class="bi bi-check2-circle" style="font-size: 1.2rem; font-weight: bold;"></i> Completed</span>
                                                             break;
                                                         default:
@@ -366,9 +490,12 @@
                                         <div class="card-footer" style="background-color: #035711">
                                             <div class="row">
                                                 <div class="col-md-10 text-end">
-                                                    <a asp-area="LVM" asp-controller="Leave" asp-action="LeaveApprovals" asp-route-rd="@request.LeaveRequestId" asp-route-sp="mlr" asp-route-yr="@request.LeaveYear" title="View Approvals" class="btn btn-sm" style="width:120px; border-radius: 5px; border-color: #fff; background-color: #035711;">
-                                                        <span class="text-white fw-bold"><i class="bi bi-clipboard-check"></i> Approvals</span>
+                                                   @if (request.LeaveRequestStatusId == 4)
+                                                    {
+                                                    <a asp-area="LVM" asp-controller="Leave" asp-action="SendResumptionNotice" asp-route-id="@request.LeaveRequestId" title="Send Resumption Notice" class="btn btn-sm" style="width:200px; border-radius: 5px; border-color: #fff; background-color: #035711;">
+                                                        <span class="text-white fw-bold"><i class="bi bi-send"></i> Send Resumption Notice </span>
                                                     </a>
+                                                    }
                                                     <a asp-area="LVM" asp-controller="Leave" asp-action="LeaveDocuments" asp-route-id="@request.LeaveRequestId" asp-route-sp="mlr" title="View Documents" class="btn btn-sm" style="width:120px; border-radius: 5px; border-color: #fff; background-color: #035711;">
                                                         <span class="text-white fw-bold"><i class="bi bi-paperclip"></i> Attachments</span>
                                                     </a>
@@ -378,13 +505,13 @@
                                                         <a asp-area="LVM" asp-controller="Leave" asp-action="EditLeaveRequest" asp-route-id="@request.LeaveRequestId" title="Edit" class="btn btn-sm" style="width: 100px; border-radius: 5px; border-color: #fff; background-color: #035711;">
                                                             <span class="text-white fw-bold"><i class="bi bi-pencil-square"></i> Edit</span>
                                                         </a>
+                                                        <a asp-area="LVM" asp-controller="Leave" asp-action="SubmitLeave" asp-route-rd="@request.LeaveRequestId" title="Submit" class="btn btn-sm" style="width: 100px; border-radius: 5px; border-color: #fff; background-color: #035711;">
+                                                            <span class="text-white fw-bold"><i class="bi bi-box-arrow-in-right"></i> Submit</span>
+                                                        </a>
+                                                        <a asp-area="LVM" asp-controller="Leave" asp-action="DeleteLeaveRequest" asp-route-id="@request.LeaveRequestId" title="Delete" class="btn btn-danger btn-sm" style="width:100px; border-radius:5px; border-color:#fff;">
+                                                            <span class="text-white"><i class="bi bi-trash"></i> Delete</span>
+                                                        </a>
                                                     }
-                                                    <a asp-area="LVM" asp-controller="Leave" asp-action="SubmitLeave" asp-route-rd="@request.LeaveRequestId" title="Submit" class="btn btn-sm" style="width: 100px; border-radius: 5px; border-color: #fff; background-color: #035711;">
-                                                        <span class="text-white fw-bold"><i class="bi bi-box-arrow-in-right"></i> Submit</span>
-                                                    </a>
-                                                    <a asp-area="LVM" asp-controller="Leave" asp-action="DeleteLeaveRequest" asp-route-id="@request.LeaveRequestId" title="Delete" class="btn btn-danger btn-sm" style="width:100px; border-radius:5px; border-color:#fff;">
-                                                        <span class="text-white"><i class="bi bi-trash"></i> Delete</span>
-                                                    </a>
                                                 </div>
                                                 <div class="col-md-2 text-end">
                                                     <div class="dropdown">
@@ -394,12 +521,17 @@
                                                         <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton2">
                                                             <li>
                                                                 <a asp-area="LVM" asp-controller="Leave" asp-action="ViewLeaveRequest" asp-route-id="@request.LeaveRequestId" title="View Details" class="dropdown-item">
-                                                                    <span class="text-white"><i class="bi bi-info-circle"></i> View</span>
+                                                                    <span class="text-white"><i class="bi bi-info-circle"></i> View Details</span>
                                                                 </a>
                                                             </li>
                                                             <li>
                                                                 <a asp-area="LVM" asp-controller="Leave" asp-action="LeaveApprovals" asp-route-id="@request.LeaveRequestId" asp-route-sp="mlp" asp-route-yr="@request.LeaveYear" title="View Approvals" class="dropdown-item">
                                                                     <span class="text-white"><i class="bi bi-calendar-check"></i> View Approvals</span>
+                                                                </a>
+                                                            </li>
+                                                            <li>
+                                                                <a asp-area="LVM" asp-controller="Leave" asp-action="MyLeaveAdjustments" asp-route-id="@request.LeaveRequestId" asp-route-sp="mlp" asp-route-yr="@request.LeaveYear" title="View Adjustments" class="dropdown-item">
+                                                                    <span class="text-white"><i class="bi bi-arrow-down-up"></i> View Adjustments</span>
                                                                 </a>
                                                             </li>
                                                             <li>

@@ -19,8 +19,6 @@ namespace IntranetPortal.Base.Models.LeaveModels
         public string LeaveTypeCode { get; set; }
         public string LeaveTypeName { get; set; }
         public string LeaveReason { get; set; }
-        public int LeavePlanStatusId { get; set; }
-        public string LeavePlanStatusDescription { get; set; }
         public DateTime? LeavePlanStartDate { get; set; }
         public DateTime? LeavePlanEndDate { get; set; }
         public DateTime? LeavePlanResumptionDate { get; set; }
@@ -29,5 +27,7 @@ namespace IntranetPortal.Base.Models.LeaveModels
         public int LeavePlanDurationTypeId { get; set; }
         public string LeavePlanDurationTypeDescription { get; set; }
         public string LeavePlanDurationDescription { get; set; }
+        public bool LeavePlanIsClosed { get; set; }
+        public bool LeavePlanIsReturned { get; set; }
     }
 }

@@ -9,6 +9,7 @@ namespace IntranetPortal.Base.Models.LeaveModels
         public long LeaveSubmissionId { get; set; }
         public long? LeavePlanId { get; set; }
         public long? LeaveRequestId { get; set; }
+        public string DocumentType { get; set; }
         public string FromEmployeeName { get; set; }
         public string ToEmployeeName { get; set; }
         public string ToEmployeeRole { get; set; }

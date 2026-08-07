@@ -1,4 +1,5 @@
-﻿using IntranetPortal.Base.Models.EmployeeRecordModels;
+﻿using IntranetPortal.Base.Models.BaseModels;
+using IntranetPortal.Base.Models.EmployeeRecordModels;
 using IntranetPortal.Base.Models.GlobalSettingsModels;
 using IntranetPortal.Base.Models.LeaveModels;
 using IntranetPortal.Base.Repositories.ErmRepositories;
@@ -6,6 +7,7 @@ using IntranetPortal.Base.Repositories.GlobalSettingsRepositories;
 using IntranetPortal.Base.Repositories.LeaveRepositories;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -373,7 +375,7 @@ namespace IntranetPortal.Base.Services
             }
             return p;
         }
-        public async Task<List<LeavePlan>> SearchLeavePlansAsync(int LeaveYear, int LeaveMonth, string EmployeeName = null, int? LocationId = null, int? UnitId = null)
+        public async Task<List<LeavePlan>> SearchLeavePlansAsync(int LeaveYear, int LeaveMonth, string EmployeeName = null, int? LocationId = null, int? UnitId = null, string EmployeeId = null)
         {
             List<LeavePlan> leavePlanList = new List<LeavePlan>();
             if (!string.IsNullOrWhiteSpace(EmployeeName))
@@ -386,12 +388,30 @@ namespace IntranetPortal.Base.Services
                     }
                     else
                     {
-                        leavePlanList = await _leaveRepository.GetLeavePlansByEmployeeNameAsync(EmployeeName, LeaveYear, LeaveMonth);
+                        leavePlanList = await _leaveRepository.GetLeavePlansByEmployeeNameAsync(EmployeeName, LeaveYear);
                     }
                 }
                 else
                 {
                     leavePlanList = await _leaveRepository.GetLeavePlansByEmployeeNameAsync(EmployeeName);
+                }
+            }
+            else if (!string.IsNullOrWhiteSpace(EmployeeId))
+            {
+                if (LeaveYear > 0)
+                {
+                    if (LeaveMonth > 0)
+                    {
+                        leavePlanList = await _leaveRepository.GetLeavePlansByEmployeeIdAsync(EmployeeId, LeaveYear, LeaveMonth);
+                    }
+                    else
+                    {
+                        leavePlanList = await _leaveRepository.GetLeavePlansByEmployeeIdAsync(EmployeeName, LeaveYear);
+                    }
+                }
+                else
+                {
+                    leavePlanList = await _leaveRepository.GetLeavePlansByEmployeeIdAsync(EmployeeName);
                 }
             }
             else
@@ -461,269 +481,77 @@ namespace IntranetPortal.Base.Services
             }
             return leavePlanList;
         }
+        public async Task<List<LeavePlan>> SearchMyTeamsLeavePlansAsync(string TeamLeadId, int LeaveYear, int LeaveMonth, string EmployeeId = null)
+        {
+            List<LeavePlan> leavePlanList = new List<LeavePlan>();
+            if (!string.IsNullOrWhiteSpace(EmployeeId))
+            {
+                if (LeaveYear > 0)
+                {
+                    if (LeaveMonth > 0)
+                    {
+                        var eym_entities = await _leaveRepository.GetLeavePlansByEmployeeIdAsync(EmployeeId, LeaveYear, LeaveMonth);
 
-        //public async Task<List<EmployeeLeave>> SearchMyTeamsEmployeeLeavesAsync(string TeamLeadId, int LeaveYear, int LeaveMonth, string EmployeeId = null, string LeaveStatus = null, bool IsPlan = true)
-        //{
-        //    List<EmployeeLeave> LeaveList = new List<EmployeeLeave>();
-        //    if (string.IsNullOrWhiteSpace(EmployeeId))
-        //    {
-        //        if (LeaveYear > 0)
-        //        {
-        //            if (LeaveMonth > 0)
-        //            {
-        //                if (!string.IsNullOrWhiteSpace(LeaveStatus))
-        //                {
-        //                    var tyms_entities = await _employeeLeaveRepository.GetByReportingLineIdnYearnMonthnStatusAsync(TeamLeadId, LeaveYear, LeaveMonth, LeaveStatus, IsPlan);
-        //                    if (tyms_entities != null && tyms_entities.Count > 0)
-        //                    {
-        //                        LeaveList = tyms_entities;
-        //                    }
-        //                }
-        //                else
-        //                {
-        //                    var tym_entities = await _employeeLeaveRepository.GetByReportingLineIdnYearnMonthAsync(TeamLeadId, LeaveYear, LeaveMonth, IsPlan);
-        //                    if (tym_entities != null && tym_entities.Count > 0)
-        //                    {
-        //                        LeaveList = tym_entities;
-        //                    }
-        //                }
-        //            }
-        //            else
-        //            {
-        //                if (!string.IsNullOrWhiteSpace(LeaveStatus))
-        //                {
-        //                    var tys_entities = await _employeeLeaveRepository.GetByReportingLineIdnYearnStatusAsync(TeamLeadId, LeaveYear, LeaveStatus, IsPlan);
-        //                    if (tys_entities != null && tys_entities.Count > 0)
-        //                    {
-        //                        LeaveList = tys_entities;
-        //                    }
-        //                }
-        //                else
-        //                {
-        //                    var ty_entities = await _employeeLeaveRepository.GetByReportingLineIdnYearAsync(TeamLeadId, LeaveYear, IsPlan);
-        //                    if (ty_entities != null && ty_entities.Count > 0)
-        //                    {
-        //                        LeaveList = ty_entities;
-        //                    }
-        //                }
-        //            }
-        //        }
-        //        else
-        //        {
-        //            if (!string.IsNullOrWhiteSpace(LeaveStatus))
-        //            {
-        //                var ts_entities = await _employeeLeaveRepository.GetByReportingLineIdnStatusAsync(TeamLeadId, LeaveStatus, IsPlan);
-        //                if (ts_entities != null && ts_entities.Count > 0)
-        //                {
-        //                    LeaveList = ts_entities;
-        //                }
-        //            }
-        //            else
-        //            {
-        //                var t_entities = await _employeeLeaveRepository.GetByReportingLineIdAsync(TeamLeadId, IsPlan);
-        //                if (t_entities != null && t_entities.Count > 0)
-        //                {
-        //                    LeaveList = t_entities;
-        //                }
-        //            }
-        //        }
-        //    }
-        //    else
-        //    {
-        //        if (LeaveYear > 0)
-        //        {
-        //            if (LeaveMonth > 0)
-        //            {
-        //                if (!string.IsNullOrWhiteSpace(LeaveStatus))
-        //                {
-        //                    var eyms_entities = await _employeeLeaveRepository.GetByReportingLineIdnYearnMonthnStatusAsync(TeamLeadId, LeaveYear, LeaveMonth, LeaveStatus, IsPlan);
-        //                    if (eyms_entities != null && eyms_entities.Count > 0)
-        //                    {
-        //                        LeaveList = eyms_entities;
-        //                    }
-        //                }
-        //                else
-        //                {
-        //                    var eym_entities = await _employeeLeaveRepository.GetByReportingLineIdnYearnMonthAsync(TeamLeadId, LeaveYear, LeaveMonth, IsPlan);
-        //                    if (eym_entities != null && eym_entities.Count > 0)
-        //                    {
-        //                        LeaveList = eym_entities;
-        //                    }
-        //                }
-        //            }
-        //            else
-        //            {
-        //                if (!string.IsNullOrWhiteSpace(LeaveStatus))
-        //                {
-        //                    var eyms_entities = await _employeeLeaveRepository.GetByEmployeeIdnYearnMonthnStatusAsync(EmployeeId, LeaveYear, LeaveMonth, LeaveStatus, IsPlan);
-        //                    if (eyms_entities != null && eyms_entities.Count > 0)
-        //                    {
-        //                        LeaveList = eyms_entities;
-        //                    }
-        //                }
-        //                else
-        //                {
-        //                    var eym_entities = await _employeeLeaveRepository.GetByEmployeeIdnYearnMonthAsync(TeamLeadId, LeaveYear, LeaveMonth, IsPlan);
-        //                    if (eym_entities != null && eym_entities.Count > 0)
-        //                    {
-        //                        LeaveList = eym_entities;
-        //                    }
-        //                }
-        //            }
-        //        }
-        //        else
-        //        {
-        //            if (!string.IsNullOrWhiteSpace(LeaveStatus))
-        //            {
-        //                var es_entities = await _employeeLeaveRepository.GetByEmployeeIdnStatusAsync(EmployeeId, LeaveStatus, IsPlan);
-        //                if (es_entities != null && es_entities.Count > 0)
-        //                {
-        //                    LeaveList = es_entities;
-        //                }
-        //            }
-        //            else
-        //            {
-        //                var e_entities = await _employeeLeaveRepository.GetByEmployeeIdAsync(EmployeeId, IsPlan);
-        //                if (e_entities != null && e_entities.Count > 0)
-        //                {
-        //                    LeaveList = e_entities;
-        //                }
-        //            }
-        //        }
-        //    }
-        //    return LeaveList;
-        //}
-        //public async Task<List<EmployeeLeave>> SearchAllEmployeeLeavesAsync(int LeaveYear, int LeaveMonth, string EmployeeName = null, string LeaveStatus = null, bool IsPlan = true)
-        //{
-        //    List<EmployeeLeave> LeaveList = new List<EmployeeLeave>();
-        //    if (string.IsNullOrWhiteSpace(EmployeeName))
-        //    {
-        //        if (LeaveYear > 0)
-        //        {
-        //            if (LeaveMonth > 0)
-        //            {
-        //                if (!string.IsNullOrWhiteSpace(LeaveStatus))
-        //                {
-        //                    var tyms_entities = await _employeeLeaveRepository.GetByYearnMonthnStatusAsync(LeaveYear, LeaveMonth, LeaveStatus, IsPlan);
-        //                    if (tyms_entities != null && tyms_entities.Count > 0)
-        //                    {
-        //                        LeaveList = tyms_entities;
-        //                    }
-        //                }
-        //                else
-        //                {
-        //                    var tym_entities = await _employeeLeaveRepository.GetByYearnMonthAsync(LeaveYear, LeaveMonth, IsPlan);
-        //                    if (tym_entities != null && tym_entities.Count > 0)
-        //                    {
-        //                        LeaveList = tym_entities;
-        //                    }
-        //                }
-        //            }
-        //            else
-        //            {
-        //                if (!string.IsNullOrWhiteSpace(LeaveStatus))
-        //                {
-        //                    var tys_entities = await _employeeLeaveRepository.GetByYearnStatusAsync(LeaveYear, LeaveStatus, IsPlan);
-        //                    if (tys_entities != null && tys_entities.Count > 0)
-        //                    {
-        //                        LeaveList = tys_entities;
-        //                    }
-        //                }
-        //                else
-        //                {
-        //                    var ty_entities = await _employeeLeaveRepository.GetByYearAsync(LeaveYear, IsPlan);
-        //                    if (ty_entities != null && ty_entities.Count > 0)
-        //                    {
-        //                        LeaveList = ty_entities;
-        //                    }
-        //                }
-        //            }
-        //        }
-        //        else
-        //        {
-        //            if (!string.IsNullOrWhiteSpace(LeaveStatus))
-        //            {
-        //                var ts_entities = await _employeeLeaveRepository.GetByStatusAsync(LeaveStatus, IsPlan);
-        //                if (ts_entities != null && ts_entities.Count > 0)
-        //                {
-        //                    LeaveList = ts_entities;
-        //                }
-        //            }
-        //            else
-        //            {
-        //                var t_entities = await _employeeLeaveRepository.GetAllAsync(IsPlan);
-        //                if (t_entities != null && t_entities.Count > 0)
-        //                {
-        //                    LeaveList = t_entities;
-        //                }
-        //            }
-        //        }
-        //    }
-        //    else
-        //    {
-        //        if (LeaveYear > 0)
-        //        {
-        //            if (LeaveMonth > 0)
-        //            {
-        //                if (!string.IsNullOrWhiteSpace(LeaveStatus))
-        //                {
-        //                    var eyms_entities = await _employeeLeaveRepository.GetByEmployeeNamenYearnMonthnStatusAsync(EmployeeName, LeaveYear, LeaveMonth, LeaveStatus, IsPlan);
-        //                    if (eyms_entities != null && eyms_entities.Count > 0)
-        //                    {
-        //                        LeaveList = eyms_entities;
-        //                    }
-        //                }
-        //                else
-        //                {
-        //                    var eym_entities = await _employeeLeaveRepository.GetByEmployeeNamenYearnMonthAsync(EmployeeName, LeaveYear, LeaveMonth, IsPlan);
-        //                    if (eym_entities != null && eym_entities.Count > 0)
-        //                    {
-        //                        LeaveList = eym_entities;
-        //                    }
-        //                }
-        //            }
-        //            else
-        //            {
-        //                if (!string.IsNullOrWhiteSpace(LeaveStatus))
-        //                {
-        //                    var eyms_entities = await _employeeLeaveRepository.GetByEmployeeNamenYearnStatusAsync(EmployeeName, LeaveYear, LeaveStatus, IsPlan);
-        //                    if (eyms_entities != null && eyms_entities.Count > 0)
-        //                    {
-        //                        LeaveList = eyms_entities;
-        //                    }
-        //                }
-        //                else
-        //                {
-        //                    var eym_entities = await _employeeLeaveRepository.GetByEmployeeNamenYearAsync(EmployeeName, LeaveYear, IsPlan);
-        //                    if (eym_entities != null && eym_entities.Count > 0)
-        //                    {
-        //                        LeaveList = eym_entities;
-        //                    }
-        //                }
-        //            }
-        //        }
-        //        else
-        //        {
-        //            if (!string.IsNullOrWhiteSpace(LeaveStatus))
-        //            {
-        //                var es_entities = await _employeeLeaveRepository.GetByEmployeeNamenStatusAsync(EmployeeName, LeaveStatus, IsPlan);
-        //                if (es_entities != null && es_entities.Count > 0)
-        //                {
-        //                    LeaveList = es_entities;
-        //                }
-        //            }
-        //            else
-        //            {
-        //                var e_entities = await _employeeLeaveRepository.GetByEmployeeNameAsync(EmployeeName, IsPlan);
-        //                if (e_entities != null && e_entities.Count > 0)
-        //                {
-        //                    LeaveList = e_entities;
-        //                }
-        //            }
-        //        }
-        //    }
-        //    return LeaveList;
-        //}
+                        if (eym_entities != null && eym_entities.Count > 0)
+                        {
+                            leavePlanList = eym_entities;
+                        }
+                    }
+                    else
+                    {
+                        var ey_entities = await _leaveRepository.GetLeavePlansByEmployeeIdAsync(EmployeeId, LeaveYear);
+                        if (ey_entities != null && ey_entities.Count > 0)
+                        {
+                            leavePlanList = ey_entities;
+                        }
+
+                    }
+                }
+                else
+                {
+                    var e_entities = await _leaveRepository.GetLeavePlansByEmployeeIdAsync(EmployeeId);
+                    if (e_entities != null && e_entities.Count > 0)
+                    {
+                        leavePlanList = e_entities;
+                    }
+
+                }
+            }
+            else
+            {
+                if (LeaveYear > 0)
+                {
+                    if (LeaveMonth > 0)
+                    {
+                        var tym_entities = await _leaveRepository.GetLeavePlansByReportingLineIdAsync(TeamLeadId, LeaveYear, LeaveMonth);
+                        if (tym_entities != null && tym_entities.Count > 0)
+                        {
+                            leavePlanList = tym_entities;
+                        }
+
+                    }
+                    else
+                    {
+                        var ty_entities = await _leaveRepository.GetLeavePlansByReportingLineIdAsync(TeamLeadId, LeaveYear);
+                        if (ty_entities != null && ty_entities.Count > 0)
+                        {
+                            leavePlanList = ty_entities;
+                        }
+
+                    }
+                }
+                else
+                {
+                    var t_entities = await _leaveRepository.GetLeavePlansByReportingLineIdAsync(EmployeeId);
+                    if (t_entities != null && t_entities.Count > 0)
+                    {
+                        leavePlanList = t_entities;
+                    }
+
+                }
+            }
+            return leavePlanList;
+        }
 
         #endregion
 
@@ -753,8 +581,6 @@ namespace IntranetPortal.Base.Services
             bool IsSuccessful;
             if (p != null)
             {
-                if (p.LeavePlanStatusId > 1) { p.LeavePlanStatusId = 0; }
-
                 IsSuccessful = await _leaveRepository.EditLeavePlanAsync(p);
                 if (IsSuccessful)
                 {
@@ -764,45 +590,33 @@ namespace IntranetPortal.Base.Services
                     LeavePlan oldLeavePlan = await _leaveRepository.GetLeavePlanByIdAsync(p.LeavePlanId);
                     if (oldLeavePlan != null)
                     {
-                        //if (!(string.IsNullOrWhiteSpace(p.LeaveReason) && string.IsNullOrWhiteSpace(oldLeavePlan.LeaveReason)))
-                        //{
+
                         if (!string.Equals(p.LeaveReason, oldLeavePlan.LeaveReason, StringComparison.OrdinalIgnoreCase))
                         {
                             sb.AppendLine($"Updated Reason from: [{oldLeavePlan.LeaveReason}] to [{p.LeaveReason}].");
                         }
-                        //}
 
-                        ////if (!(p.LeavePlanStartDate == null && oldLeavePlan.LeavePlanStartDate == null))
-                        ////{
+
                         if (p.LeavePlanStartDate != oldLeavePlan.LeavePlanStartDate)
                         {
                             sb.AppendLine($"Updated Start Date from: [{oldLeavePlan.LeavePlanStartDate.Value.ToLongDateString()}] to [{p.LeavePlanStartDate.Value.ToLongDateString()}].");
                         }
-                        //}
 
-                        //if (!(p.LeavePlanEndDate == null && oldLeavePlan.LeavePlanEndDate == null))
-                        //{
                         if (p.LeavePlanEndDate != oldLeavePlan.LeavePlanEndDate)
                         {
                             sb.AppendLine($"Updated End Date from: [{oldLeavePlan.LeavePlanEndDate.Value.ToLongDateString()}] to [{p.LeavePlanEndDate.Value.ToLongDateString()}].");
                         }
-                        //}
 
-                        //if (!(p.LeavePlanResumptionDate == null && oldLeavePlan.LeavePlanResumptionDate == null))
-                        //{
                         if (p.LeavePlanResumptionDate != oldLeavePlan.LeavePlanResumptionDate)
                         {
                             sb.AppendLine($"Updated Resumption Date from: [{oldLeavePlan.LeavePlanResumptionDate.Value.ToLongDateString()}] to [{p.LeavePlanResumptionDate.Value.ToLongDateString()}].");
                         }
-                        //}
 
-                        //if (!(p.LeavePlanDuration == 0 && oldLeavePlan.LeavePlanDuration == 0))
-                        //{
                         if (p.LeavePlanDuration != oldLeavePlan.LeavePlanDuration)
                         {
                             sb.AppendLine($"Updated Duration from: [{oldLeavePlan.LeavePlanDurationDescription}] to [{p.LeavePlanDurationDescription}].");
                         }
-                        //}
+
 
                         if (!string.Equals(p.LeaveTypeCode, oldLeavePlan.LeaveTypeCode, StringComparison.OrdinalIgnoreCase))
                         {
@@ -854,6 +668,40 @@ namespace IntranetPortal.Base.Services
             else { throw new Exception("Required parameter [Leave Plan ID] is missing."); }
             return IsSuccessful;
         }
+        public async Task<bool> UpdateLeavePlanFlagAsync(long LeavePlanId, bool IsFlagged, string FlagReason = null, string FlaggedBy = null)
+        {
+            bool IsSuccessful;
+            IsSuccessful = await _leaveRepository.EditLeavePlanReturnStatusAsync(LeavePlanId, IsFlagged);
+            if (IsSuccessful)
+            {
+                if (IsFlagged)
+                {
+                    LeaveNote note = new LeaveNote();
+                    note.LeavePlanId = LeavePlanId;
+                    note.NoteContent = FlagReason;
+                    note.FromEmployeeName = FlaggedBy;
+                    note.TimeAdded = DateTime.Now;
+                    await _leaveRepository.AddNoteAsync(note);
+                }
+
+                //====== Add Activity History =======//
+                LeaveActivityLog history = new LeaveActivityLog();
+                if (IsFlagged)
+                {
+                    history.ActivityDescription = $"Leave Plan was flagged by {FlaggedBy} on {DateTime.UtcNow.ToLongDateString()} at exactly {DateTime.UtcNow.ToLongTimeString()} GMT.";
+                }
+                else
+                {
+                    history.ActivityDescription = $"Leave Plan was unflagged by {FlaggedBy} on {DateTime.UtcNow.ToLongDateString()} at exactly {DateTime.UtcNow.ToLongTimeString()} GMT.";
+                }
+
+                history.ActivityTime = DateTime.UtcNow;
+                history.LeavePlanId = LeavePlanId;
+                await _leaveRepository.AddLeaveActivityLogAsync(history);
+
+            }
+            return IsSuccessful;
+        }
 
         #endregion
 
@@ -890,6 +738,19 @@ namespace IntranetPortal.Base.Services
                 LeaveRequestId = await _leaveRepository.AddLeaveRequestAsync(r);
                 if (LeaveRequestId > 0)
                 {
+                    r.LeaveAllowance.LeaveRequestId = LeaveRequestId;
+                    if (r.RequestLeaveAllowance)
+                    {
+                        var requestedLeaveAllowances = await _leaveRepository.GetLeaveAllowanceByEmployeeIdnLeaveYearAsync(r.LeaveEmployeeId, r.LeaveYear);
+                        if (requestedLeaveAllowances == null || requestedLeaveAllowances.Count < 1)
+                        {
+                            if (await _leaveRepository.AddLeaveAllowanceAsync(r.LeaveAllowance) < 1)
+                            {
+                                await _leaveRepository.DeleteLeaveRequestAsync(LeaveRequestId);
+                            }
+                        }
+                    }
+
                     //====== Add Activity History =======//
                     LeaveActivityLog log = new LeaveActivityLog();
                     log.ActivityDescription = $"Leave Request was created by {r.LeaveEmployeeName} on {DateTime.UtcNow.ToLongDateString()} at {DateTime.UtcNow.ToLongTimeString()}";
@@ -899,7 +760,6 @@ namespace IntranetPortal.Base.Services
                 }
             }
             else { throw new Exception($"Required parameter [Leave Request] cannot be null."); }
-
             return LeaveRequestId;
         }
         public async Task<bool> UpdateLeaveRequestAsync(LeaveRequest r)
@@ -934,6 +794,15 @@ namespace IntranetPortal.Base.Services
                 IsSuccessful = await _leaveRepository.EditLeaveRequestAsync(r);
                 if (IsSuccessful)
                 {
+                    if (r.RequestLeaveAllowance)
+                    {
+                        var requestedLeaveAllowances = await _leaveRepository.GetLeaveAllowanceByEmployeeIdnLeaveYearAsync(r.LeaveEmployeeId, r.LeaveYear);
+                        if (requestedLeaveAllowances == null || requestedLeaveAllowances.Count < 1)
+                        {
+                            await _leaveRepository.AddLeaveAllowanceAsync(r.LeaveAllowance);
+                        }
+                    }
+
                     StringBuilder sb = new StringBuilder();
                     sb.AppendLine($"Leave Request was updated by {r.LeaveEmployeeName} on {DateTime.Now.ToLongDateString()} at {DateTime.Now.ToLongTimeString()}");
 
@@ -1032,24 +901,37 @@ namespace IntranetPortal.Base.Services
             bool IsSuccessful = await _leaveRepository.UpdateLeaveRequestHrConfirmedAsync(LeaveRequestId, ConfirmedBy, ConfirmedTime);
             if (IsSuccessful)
             {
-                if (await _leaveRepository.AddLeaveTransactionAsync(transaction) > 0)
+                long newLeaveTransactionId = await _leaveRepository.AddLeaveTransactionAsync(transaction);
+                if (newLeaveTransactionId > 0)
                 {
-                    string activityDescription = $"Leave Request was Confirmed by the HR Department. The confirmation was done by {ConfirmedBy} on {DateTime.Now.ToLongDateString()} at {DateTime.Now.ToLongTimeString()}";
-                    //====== Add Activity History =======//
-                    LeaveActivityLog history = new LeaveActivityLog();
-                    history.ActivityDescription = activityDescription;
-                    history.ActivityTime = DateTime.Now;
-                    history.LeaveRequestId = LeaveRequestId;
-                    await _leaveRepository.AddLeaveActivityLogAsync(history);
+                    LeaveRollingBalance newRollingBalance = new LeaveRollingBalance();
+                    var currentBalances = await _leaveRepository.GetLeaveRollingBalanceByEmployeeIdAsync(request.LeaveEmployeeId, request.LeaveYear, request.LeaveTypeCode) ?? throw new Exception("Invalid Value Error: No Balances was found for this employee for the current Leave Year. ");
+                    newRollingBalance = currentBalances;
+
+                    newRollingBalance.LeaveDaysUsed = currentBalances.LeaveDaysUsed + request.RequestedDuration;
+                    newRollingBalance.LeaveBalanceDate = DateTime.UtcNow;
+                    newRollingBalance.LeaveTransactionId = newLeaveTransactionId;
+
+                    if (await _leaveRepository.UpdateLeaveRollingBalanceAsync(newRollingBalance))
+                    {
+                        string activityDescription = $"Leave Request was Confirmed by the HR Department. The confirmation was done by {ConfirmedBy} on {DateTime.Now.ToLongDateString()} at {DateTime.Now.ToLongTimeString()}";
+                        //====== Add Activity History =======//
+                        LeaveActivityLog history = new LeaveActivityLog();
+                        history.ActivityDescription = activityDescription;
+                        history.ActivityTime = DateTime.Now;
+                        history.LeaveRequestId = LeaveRequestId;
+                        await _leaveRepository.AddLeaveActivityLogAsync(history);
+                    }
                 }
             }
             return IsSuccessful;
         }
-
         public async Task<bool> CloseLeaveRequestAsync(LeaveRequest r, string LeaveRequestClosedBy)
         {
             bool IsUpdated;
-            if (r != null)
+            if (r == null) { throw new ArgumentNullException("Leave Request"); }
+
+            if (string.IsNullOrWhiteSpace(r.ActualLeaveDurationDescription))
             {
                 switch (r.ActualLeaveDurationTypeId)
                 {
@@ -1071,23 +953,20 @@ namespace IntranetPortal.Base.Services
                     default:
                         break;
                 }
-
-                IsUpdated = await _leaveRepository.UpdateLeaveRequestToClosedAsync(r, LeaveRequestClosedBy);
-                if (IsUpdated)
-                {
-                    //====== Add Activity History =======//
-                    LeaveActivityLog log = new LeaveActivityLog
-                    {
-                        ActivityDescription = $"Leave Request was closed by {LeaveRequestClosedBy} on {DateTime.UtcNow.ToLongDateString()} at {DateTime.UtcNow.ToLongTimeString()}",
-                        ActivityTime = DateTime.UtcNow,
-                        LeaveRequestId = r.LeaveRequestId,
-                    };
-                    await _leaveRepository.AddLeaveActivityLogAsync(log);
-                }
             }
-            else { throw new Exception($"Required parameter [Leave Request] cannot be null."); }
-
-            return IsUpdated;
+            IsUpdated = await _leaveRepository.UpdateLeaveRequestToClosedAsync(r, LeaveRequestClosedBy);
+            if (IsUpdated)
+            {
+                //====== Add Activity History =======//
+                LeaveActivityLog log = new LeaveActivityLog
+                {
+                    ActivityDescription = $"Leave Request was closed by {LeaveRequestClosedBy} on {DateTime.UtcNow.ToLongDateString()} at {DateTime.UtcNow.ToLongTimeString()}",
+                    ActivityTime = DateTime.UtcNow,
+                    LeaveRequestId = r.LeaveRequestId,
+                };
+                await _leaveRepository.AddLeaveActivityLogAsync(log);
+            }
+            return true;
         }
 
         #endregion
@@ -1111,7 +990,6 @@ namespace IntranetPortal.Base.Services
             }
             return p;
         }
-
         public async Task<List<LeaveRequest>> SearchLeaveRequestsAsync(int LeaveYear, int LeaveMonth, string EmployeeName = null, int? LocationId = null, int? UnitId = null)
         {
             List<LeaveRequest> leaveRequestList = new List<LeaveRequest>();
@@ -1200,127 +1078,224 @@ namespace IntranetPortal.Base.Services
             }
             return leaveRequestList;
         }
+        public async Task<List<LeaveRequest>> SearchMyTeamsLeaveRequestsAsync(string TeamLeadId, int LeaveYear, int LeaveMonth, string EmployeeId = null, int? LeaveStatus = null)
+        {
+            List<LeaveRequest> leaveRequestList = new List<LeaveRequest>();
+            if (!string.IsNullOrWhiteSpace(EmployeeId))
+            {
+                if (LeaveYear > 0)
+                {
+                    if (LeaveMonth > 0)
+                    {
+                        if (LeaveStatus != null)
+                        {
+                            var eyms_entities = await _leaveRepository.GetLeaveRequestsByEmployeeIdnStatusAsync(EmployeeId, LeaveYear, LeaveMonth, LeaveStatus.Value);
+                            if (eyms_entities != null)
+                            {
+                                leaveRequestList = eyms_entities;
+                            }
+                        }
+                        else
+                        {
+                            var eym_entities = await _leaveRepository.GetLeaveRequestsByEmployeeIdAsync(EmployeeId, LeaveYear, LeaveMonth);
+                            if (eym_entities != null)
+                            {
+                                leaveRequestList = eym_entities;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if (LeaveStatus != null)
+                        {
+                            var eys_entities = await _leaveRepository.GetLeaveRequestsByEmployeeIdnStatusAsync(EmployeeId, LeaveYear, LeaveStatus.Value);
+                            if (eys_entities != null)
+                            {
+                                leaveRequestList = eys_entities;
+                            }
+                        }
+                        else
+                        {
+                            var ey_entities = await _leaveRepository.GetLeaveRequestsByEmployeeIdAsync(EmployeeId, LeaveYear);
+                            if (ey_entities != null)
+                            {
+                                leaveRequestList = ey_entities;
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    if (LeaveStatus != null)
+                    {
+                        var es_entities = await _leaveRepository.GetLeaveRequestsByEmployeeIdnStatusAsync(EmployeeId, LeaveStatus.Value);
+                        if (es_entities != null)
+                        {
+                            leaveRequestList = es_entities;
+                        }
+                    }
+                    else
+                    {
+                        var e_entities = await _leaveRepository.GetLeaveRequestsByEmployeeIdAsync(EmployeeId);
+                        if (e_entities != null)
+                        {
+                            leaveRequestList = e_entities;
+                        }
+                    }
+                }
+            }
+            else
+            {
+                if (LeaveYear > 0)
+                {
+                    if (LeaveMonth > 0)
+                    {
+                        if (LeaveStatus != null)
+                        {
+                            var tyms_entities = await _leaveRepository.GetLeaveRequestsByReportingLineIdnStatusAsync(TeamLeadId, LeaveYear, LeaveMonth, LeaveStatus.Value);
+                            if (tyms_entities != null)
+                            {
+                                leaveRequestList = tyms_entities;
+                            }
+                        }
+                        else
+                        {
+                            var tym_entities = await _leaveRepository.GetLeaveRequestsByReportingLineIdAsync(TeamLeadId, LeaveYear, LeaveMonth);
+                            if (tym_entities != null)
+                            {
+                                leaveRequestList = tym_entities;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if (LeaveStatus != null)
+                        {
+                            var tys_entities = await _leaveRepository.GetLeaveRequestsByReportingLineIdnStatusAsync(TeamLeadId, LeaveYear, LeaveStatus.Value);
+                            if (tys_entities != null)
+                            {
+                                leaveRequestList = tys_entities;
+                            }
+                        }
+                        else
+                        {
+                            var ty_entities = await _leaveRepository.GetLeaveRequestsByReportingLineIdAsync(TeamLeadId, LeaveYear);
+                            if (ty_entities != null)
+                            {
+                                leaveRequestList = ty_entities;
+                            }
+                        }
+                    }
+                }
+                else
+                {
+
+                }
+            }
+            return leaveRequestList;
+        }
+        public async Task<List<LeaveRequest>> SearchApprovedLeaveRequestsAsync(int LeaveYear, int LeaveMonth = 0, int? LocationId = null, int? UnitId = null)
+        {
+            List<LeaveRequest> leaveRequestList = new List<LeaveRequest>();
+            if (LocationId != null && LocationId > 0)
+            {
+                if (UnitId != null && UnitId > 0)
+                {
+                    if (LeaveMonth > 0)
+                    {
+                        leaveRequestList = await _leaveRepository.GetApprovedLeaveRequestsByLeaveYearnLeaveMonthnLocationIdnUnitIdAsync(LeaveYear, LeaveMonth, LocationId.Value, UnitId.Value);
+                    }
+                    else
+                    {
+                        leaveRequestList = await _leaveRepository.GetApprovedLeaveRequestsByLeaveYearnLocationIdnUnitIdAsync(LeaveYear, LocationId.Value, UnitId.Value);
+                    }
+                }
+                else
+                {
+                    if (LeaveMonth > 0)
+                    {
+                        leaveRequestList = await _leaveRepository.GetApprovedLeaveRequestsByLeaveYearnLeaveMonthnLocationIdAsync(LeaveYear, LeaveMonth, LocationId.Value);
+                    }
+                    else
+                    {
+                        leaveRequestList = await _leaveRepository.GetApprovedLeaveRequestsByLeaveYearnLocationIdAsync(LeaveYear, LocationId.Value);
+                    }
+                }
+            }
+            else
+            {
+                if (UnitId != null && UnitId > 0)
+                {
+                    if (LeaveMonth > 0)
+                    {
+                        leaveRequestList = await _leaveRepository.GetApprovedLeaveRequestsByLeaveYearnLeaveMonthnUnitIdAsync(LeaveYear, LeaveMonth, UnitId.Value);
+                    }
+                    else
+                    {
+                        leaveRequestList = await _leaveRepository.GetApprovedLeaveRequestsByLeaveYearnUnitIdAsync(LeaveYear, UnitId.Value);
+                    }
+                }
+                else
+                {
+                    if (LeaveMonth > 0)
+                    {
+                        leaveRequestList = await _leaveRepository.GetApprovedLeaveRequestsByLeaveYearnLeaveMonthAsync(LeaveYear, LeaveMonth);
+                    }
+                    else
+                    {
+                        leaveRequestList = await _leaveRepository.GetApprovedLeaveRequestsByLeaveYearAsync(LeaveYear);
+                    }
+                }
+            }
+            return leaveRequestList;
+        }
+        public async Task<List<LeaveRequest>> GetLeaveRequestsDueResumptionAsync(int ResumptionYear, int ResumptionMonth, int? LocationId = null, int? UnitId = null)
+        {
+            List<LeaveRequest> leaveRequestList = new List<LeaveRequest>();
+
+
+            if (LocationId > 0)
+            {
+                if (UnitId > 0)
+                {
+                    leaveRequestList = await _leaveRepository.GetLeaveRequestsDueResumptionByResumptionYearnResumptionMonthnLocationIdnUnitIdAsync(ResumptionYear, ResumptionMonth, LocationId.Value, UnitId.Value);
+                }
+                else
+                {
+                    leaveRequestList = await _leaveRepository.GetLeaveRequestsDueResumptionByResumptionYearnResumptionMonthnLocationIdAsync(ResumptionYear, ResumptionMonth, LocationId.Value);
+                }
+            }
+            else
+            {
+                if (UnitId > 0)
+                {
+                    leaveRequestList = await _leaveRepository.GetLeaveRequestsDueResumptionByResumptionYearnResumptionMonthnUnitIdAsync(ResumptionYear, ResumptionMonth, UnitId.Value);
+                }
+                else
+                {
+                    if (ResumptionMonth > 0)
+                    {
+                        leaveRequestList = await _leaveRepository.GetLeaveRequestsDueResumptionByResumptionYearnResumptionMonthAsync(ResumptionYear, ResumptionMonth);
+                    }
+                    else
+                    {
+                        leaveRequestList = await _leaveRepository.GetLeaveRequestsDueResumptionByResumptionYearAsync(ResumptionYear);
+                    }
+                }
+            }
+
+
+
+
+            return leaveRequestList;
+        }
 
         #endregion
 
         #endregion
 
         #region Leave Balances Service Methods
-        public async Task<LeaveBalances> GetLeaveBalancesAsync(string LeaveTypeCode, int LeaveYear, string EmployeeId = null, string EmployeeName = null)
-        {
-            if (string.IsNullOrWhiteSpace(LeaveTypeCode)) { throw new Exception("Required parameter Leave Type Code has an invalid value."); }
-            if (LeaveYear < 2020) { throw new Exception("Required parameter Leave Year has an invalid value."); }
-            if (string.IsNullOrWhiteSpace(EmployeeId) && string.IsNullOrWhiteSpace(EmployeeName)) { throw new Exception("Required parameter Employee ID and Employee Name both have invalid values."); }
-
-            LeaveBalances balances = new LeaveBalances();
-            balances.LeaveYear = LeaveYear;
-
-            //var entity = await _leaveRepository.GetLeaveTypeByCodeAsync(LeaveTypeCode);
-            //if (entity != null)
-            //{
-            //    balances.LeaveTypeName = entity.Name;
-            //}
-
-            //long _totalAnnualLeaveDays = 0;
-            //long _totalLeaveDaysDue = 0;
-            //long _totalLeaveDaysUsedInPreviousYear = 0;
-            //long _totalLeaveDaysUnusedInPreviousYear = 0;
-            //long _totalLeaveDaysUsedInCurrentYear = 0;
-            //long _totalLeaveDaysUnusedInCurrentYear = 0;
-            //LeaveProfileDetail _profileDetail;
-
-            //if (!string.IsNullOrWhiteSpace(EmployeeId))
-            //{
-            //    int _previousLeaveYear = Convert.ToInt32(LeaveYear - 1);
-            //    LeaveBalances _previousBalances = new LeaveBalances();
-            //    _profileDetail = await _leaveRepository.GetLeaveProfileDetailByEmployeeIdnLeaveTypeAsync(EmployeeId, LeaveTypeCode);
-            //    if (_profileDetail == null) { throw new Exception("No Leave Profile was found for this employee. Please ensure this employee is linked to a Leave Profile."); }
-            //    switch (_profileDetail.DurationTypeId)
-            //    {
-            //        case 0:
-            //        case 1:
-            //            _totalAnnualLeaveDays = _profileDetail.Duration;
-            //            break;
-            //        case 2:
-            //            _totalAnnualLeaveDays = _profileDetail.Duration * 7;
-            //            break;
-            //        case 3:
-            //            _totalAnnualLeaveDays = _profileDetail.Duration * 30;
-            //            break;
-            //        case 4:
-            //            _totalAnnualLeaveDays = _profileDetail.Duration * 364;
-            //            break;
-            //        default:
-            //            break;
-            //    }
-
-            //    if (_profileDetail.CanBeCarriedOver && _profileDetail.CarryOverEndMonth > DateTime.Today.Month)
-            //    {
-            //        _totalLeaveDaysUsedInPreviousYear = await _leaveRepository.GetLeaveDaysUsedByEmployeeIdnLeaveTypeCodenLeaveYearAsync(EmployeeId, LeaveTypeCode, _previousLeaveYear);
-            //        _totalLeaveDaysUnusedInPreviousYear = _totalAnnualLeaveDays - _totalLeaveDaysUsedInPreviousYear;
-            //    }
-
-            //    _totalLeaveDaysUsedInCurrentYear = await _leaveRepository.GetLeaveDaysUsedByEmployeeIdnLeaveTypeCodenLeaveYearAsync(EmployeeId, LeaveTypeCode, LeaveYear);
-            //    _totalLeaveDaysUnusedInCurrentYear = _totalAnnualLeaveDays - _totalLeaveDaysUsedInCurrentYear;
-
-            //    _totalLeaveDaysDue = _totalLeaveDaysUnusedInCurrentYear + _totalLeaveDaysUnusedInPreviousYear;
-            //    balances.CurrentYearPrifileLeaveDays = _totalAnnualLeaveDays;
-            //    balances.TotalLeaveDaysUsed = _totalLeaveDaysUsedInCurrentYear;
-            //    balances.TotalOutstandingLeaveDays = _totalLeaveDaysDue;
-            //    balances.CarriedOverLeaveBalance = _totalLeaveDaysUnusedInPreviousYear;
-            //}
-            //else
-            //{
-            //    int _previousLeaveYear = Convert.ToInt32(LeaveYear - 1);
-            //    LeaveBalances _previousBalances = new LeaveBalances();
-            //    _profileDetail = await _leaveRepository.GetLeaveProfileDetailByEmployeeNamenLeaveTypeAsync(EmployeeName, LeaveTypeCode);
-            //    if (_profileDetail == null) { throw new Exception("No Leave Profile was found for this employee. Please ensure this employee is linked to a Leave Profile."); }
-            //    switch (_profileDetail.DurationTypeId)
-            //    {
-            //        case 0:
-            //        case 1:
-            //            _totalAnnualLeaveDays = _profileDetail.Duration;
-            //            break;
-            //        case 2:
-            //            _totalAnnualLeaveDays = _profileDetail.Duration * 7;
-            //            break;
-            //        case 3:
-            //            _totalAnnualLeaveDays = _profileDetail.Duration * 30;
-            //            break;
-            //        case 4:
-            //            _totalAnnualLeaveDays = _profileDetail.Duration * 364;
-            //            break;
-            //        default:
-            //            break;
-            //    }
-            //    _totalLeaveDaysUsedInPreviousYear = await _leaveRepository.GetLeaveDaysUsedByEmployeeIdnLeaveTypeCodenLeaveYearAsync(EmployeeId, LeaveTypeCode, _previousLeaveYear);
-            //    _totalLeaveDaysUnusedInPreviousYear = _totalAnnualLeaveDays - _totalLeaveDaysUsedInPreviousYear;
-
-
-            //    _totalLeaveDaysUsedInCurrentYear = await _leaveRepository.GetLeaveDaysUsedByEmployeeIdnLeaveTypeCodenLeaveYearAsync(EmployeeId, LeaveTypeCode, LeaveYear);
-            //    _totalLeaveDaysUnusedInCurrentYear = _totalAnnualLeaveDays - _totalLeaveDaysUsedInCurrentYear;
-
-            //    if (_profileDetail.CanBeCarriedOver && (_profileDetail.CarryOverEndMonth <= DateTime.Now.Month))
-            //    {
-            //        _totalLeaveDaysDue = _totalAnnualLeaveDays + _totalLeaveDaysUnusedInPreviousYear;
-            //        balances.CarriedOverLeaveBalance = _totalLeaveDaysUnusedInPreviousYear;
-            //        balances.CurrentYearPrifileLeaveDays = _totalAnnualLeaveDays;
-            //        balances.TotalLeaveDaysUsed = _totalLeaveDaysUsedInCurrentYear;
-            //        balances.TotalOutstandingLeaveDays = _totalLeaveDaysDue - _totalLeaveDaysUsedInCurrentYear;
-            //    }
-            //    else
-            //    {
-            //        _totalLeaveDaysDue = _totalAnnualLeaveDays;
-            //        balances.CurrentYearPrifileLeaveDays = _totalAnnualLeaveDays;
-            //        balances.TotalLeaveDaysUsed = _totalLeaveDaysUsedInCurrentYear;
-            //        balances.TotalOutstandingLeaveDays = _totalLeaveDaysDue - _totalLeaveDaysUsedInCurrentYear;
-            //    }
-
-            //}
-            return balances;
-        }
-
-        public async Task<LeaveBalances> RefreshAndRetrieveLeaveBalancesAsync(string LeaveTypeCode, int LeaveYear, string EmployeeId = null, string EmployeeName = null)
+        public async Task<LeaveRollingBalance> GetRefreshedLeaveBalancesAsync(string LeaveTypeCode, int LeaveYear, string EmployeeId = null, string EmployeeName = null)
         {
             if (string.IsNullOrWhiteSpace(LeaveTypeCode)) { throw new Exception("Required parameter Leave Type Code has an invalid value."); }
             if (LeaveYear < 2020) { throw new Exception("Required parameter Leave Year has an invalid value."); }
@@ -1336,53 +1311,51 @@ namespace IntranetPortal.Base.Services
                 leaveEmployee = await _employeesRepository.GetEmployeeByNameAsync(EmployeeName);
             }
 
-            LeaveBalances previousBalances = new LeaveBalances();
-            previousBalances.LeaveYear = LeaveYear-1;
+            LeaveRollingBalance previousYearsBalances = new LeaveRollingBalance();
+            previousYearsBalances.LeaveYear = LeaveYear - 1;
 
-            LeaveBalances currentBalances = new LeaveBalances();
-            currentBalances.LeaveYear  = LeaveYear;
-            currentBalances.LeaveTypeCode = previousBalances.LeaveTypeCode = LeaveTypeCode;
+            LeaveRollingBalance currentYearsBalances = new LeaveRollingBalance();
+            currentYearsBalances.LeaveYear = LeaveYear;
+            currentYearsBalances.LeaveTypeCode = previousYearsBalances.LeaveTypeCode = LeaveTypeCode;
 
-            var entity = await _leaveRepository.GetLeaveTypeByCodeAsync(LeaveTypeCode);
-            if (entity != null)
+            LeaveRollingBalance existingBalances = await _leaveRepository.GetLeaveRollingBalanceByEmployeeIdAsync(leaveEmployee.EmployeeID, LeaveYear, LeaveTypeCode);
+            if (existingBalances == null || existingBalances.AnnualProfileLeaveDays < 1)
             {
-                currentBalances.LeaveTypeName = previousBalances.LeaveTypeName = entity.Name;
-            }
+                //Get Leave Details eg Duration, CanBeCarriedOver and CarryOverExpiryMonth
+                LeaveProfileDetail leaveProfileDetail = await _leaveRepository.GetLeaveProfileDetailByEmployeeNamenLeaveTypeAsync(EmployeeName, LeaveTypeCode);
+                if (leaveProfileDetail == null) { throw new Exception("No Leave Profile was found for this employee. Please ensure this employee is linked to a Leave Profile."); }
+                currentYearsBalances.PreviousBalanceCanBeCarriedOver = leaveProfileDetail.CanBeCarriedOver;
+                currentYearsBalances.PreviousBalanceExpiryMonth = leaveProfileDetail.CarryOverEndMonth ?? 0;
 
-            LeaveProfileDetail leaveProfileDetail = await _leaveRepository.GetLeaveProfileDetailByEmployeeNamenLeaveTypeAsync(EmployeeName, LeaveTypeCode);
-            if (leaveProfileDetail == null) { throw new Exception("No Leave Profile was found for this employee. Please ensure this employee is linked to a Leave Profile."); }
-            currentBalances.PreviouBalanceCanBeCarriedOver = leaveProfileDetail.CanBeCarriedOver;
-            currentBalances.PreviousBalanceXpiryMonth = leaveProfileDetail.CarryOverEndMonth ?? 0;
-            switch (leaveProfileDetail.DurationTypeId)
-            {
-                case 0:
-                case 1:
-                    currentBalances.CurrentYearProfileLeaveDays = leaveProfileDetail.Duration;
-                    break;
-                case 2:
-                    currentBalances.CurrentYearProfileLeaveDays = leaveProfileDetail.Duration * 7;
-                    break;
-                case 3:
-                    currentBalances.CurrentYearProfileLeaveDays = leaveProfileDetail.Duration * 30;
-                    break;
-                case 4:
-                    currentBalances.CurrentYearProfileLeaveDays = leaveProfileDetail.Duration * 364;
-                    break;
-                default:
-                    break;
-            }
-
-            LeaveBalances existingBalances = await _leaveRepository.GetLeaveBalancesByEmployeeIdnLeaveTypeCodenLeaveYearAsync(leaveEmployee.EmployeeID, LeaveTypeCode, LeaveYear);
-            if (existingBalances == null || existingBalances.CurrentYearProfileLeaveDays < 1)
-            {
-                if (currentBalances.PreviouBalanceCanBeCarriedOver && currentBalances.PreviousBalanceXpiryMonth < DateTime.Today.Month)
+                switch (leaveProfileDetail.DurationTypeId)
                 {
-                    var previousBalanceEntity = await _leaveRepository.GetLeaveBalancesByEmployeeIdnLeaveTypeCodenLeaveYearAsync(EmployeeId, LeaveTypeCode, previousBalances.LeaveYear);
-                    if (previousBalanceEntity != null && previousBalanceEntity.TotalOutstandingLeaveDays > 0)
+                    case 0:
+                    case 1:
+                        currentYearsBalances.AnnualProfileLeaveDays = leaveProfileDetail.Duration;
+                        break;
+                    case 2:
+                        currentYearsBalances.AnnualProfileLeaveDays = leaveProfileDetail.Duration * 7;
+                        break;
+                    case 3:
+                        currentYearsBalances.AnnualProfileLeaveDays = leaveProfileDetail.Duration * 30;
+                        break;
+                    case 4:
+                        currentYearsBalances.AnnualProfileLeaveDays = leaveProfileDetail.Duration * 364;
+                        break;
+                    default:
+                        break;
+                }
+
+                if (currentYearsBalances.PreviousBalanceCanBeCarriedOver && currentYearsBalances.PreviousBalanceExpiryMonth > DateTime.Today.Month)
+                {
+                    //Get the Calculated values of Leave Balance for the Previous Leave Year.
+                    var previousBalanceEntity = await _leaveRepository.GetLeaveRollingBalanceByEmployeeIdAsync(EmployeeId, previousYearsBalances.LeaveYear, LeaveTypeCode);
+                    if (previousBalanceEntity != null && previousBalanceEntity.TotalOutstandingLeaveDaysAfterExpiry > 0)
                     {
-                        currentBalances.PreviousYearLeaveBalance = previousBalanceEntity.TotalOutstandingLeaveDays;
+                        currentYearsBalances.PreviousYearsLeaveBalance = previousBalanceEntity.TotalOutstandingLeaveDaysAfterExpiry;
                     }
 
+                    //Create a Transaction Object for the Opening Balance for the current Leave Year And Save to the Database
                     LeaveTransaction openingBalanceTransaction = new LeaveTransaction();
                     openingBalanceTransaction.LeaveDepartmentId = leaveEmployee.DepartmentID ?? 0;
                     openingBalanceTransaction.LeaveEmployeeId = leaveEmployee.EmployeeID;
@@ -1392,12 +1365,56 @@ namespace IntranetPortal.Base.Services
                     openingBalanceTransaction.LeaveYear = LeaveYear;
                     openingBalanceTransaction.NumberOfDaysGiven = 0;
                     openingBalanceTransaction.NumberOfDaysUsed = 0;
-                    openingBalanceTransaction.OpeningBalance = Convert.ToInt32(currentBalances.CurrentYearProfileLeaveDays);
-                    openingBalanceTransaction.PreviousBalance = Convert.ToInt32(currentBalances.PreviousYearLeaveBalance);
+                    openingBalanceTransaction.NumberOfDaysDeducted = 0;
+                    openingBalanceTransaction.OpeningBalance = Convert.ToInt32(currentYearsBalances.AnnualProfileLeaveDays);
+                    openingBalanceTransaction.PreviousBalance = Convert.ToInt32(currentYearsBalances.PreviousYearsLeaveBalance);
+                    openingBalanceTransaction.TransactionDescription = $"Annual Leave Days Opening Balance for the Year {LeaveYear} added. ";
+                    openingBalanceTransaction.TransactionDate = DateTime.UtcNow;
+                    openingBalanceTransaction.TransactionRecordedBy = "System Service";
                     long newOpeningTransactionId = await _leaveRepository.AddLeaveTransactionAsync(openingBalanceTransaction);
+                    if (newOpeningTransactionId > 0)
+                    {
+                        currentYearsBalances.TotalOutstandingLeaveDaysBeforeExpiry = openingBalanceTransaction.OpeningBalance + openingBalanceTransaction.PreviousBalance;
+                        currentYearsBalances.TotalOutstandingLeaveDaysAfterExpiry = openingBalanceTransaction.OpeningBalance;
+
+                        LeaveRollingBalance newRollingBalance = new LeaveRollingBalance();
+                        newRollingBalance.AnnualProfileLeaveDays = openingBalanceTransaction.OpeningBalance;
+                        newRollingBalance.LeaveBalanceDate = DateTime.UtcNow;
+                        newRollingBalance.LeaveDaysAdded = openingBalanceTransaction.NumberOfDaysGiven;
+                        newRollingBalance.LeaveDaysDeducted = openingBalanceTransaction.NumberOfDaysDeducted;
+                        newRollingBalance.LeaveDaysUsed = openingBalanceTransaction.NumberOfDaysUsed;
+                        newRollingBalance.LeaveDepartmentId = openingBalanceTransaction.LeaveDepartmentId;
+                        newRollingBalance.LeaveDepartmentName = openingBalanceTransaction.LeaveDepartmentName;
+                        newRollingBalance.LeaveEmployeeId = openingBalanceTransaction.LeaveEmployeeId;
+                        newRollingBalance.LeaveEmployeeName = openingBalanceTransaction.LeaveEmployeeName;
+                        newRollingBalance.LeaveLocationId = openingBalanceTransaction.LeaveLocationId;
+                        newRollingBalance.LeaveLocationName = openingBalanceTransaction.LeaveLocationName;
+                        newRollingBalance.LeaveTransactionId = newOpeningTransactionId;
+                        newRollingBalance.LeaveTypeCode = openingBalanceTransaction.LeaveTypeCode;
+                        newRollingBalance.LeaveTypeName = openingBalanceTransaction.LeaveTypeName;
+                        newRollingBalance.LeaveUnitId = openingBalanceTransaction.LeaveUnitId;
+                        newRollingBalance.LeaveUnitName = openingBalanceTransaction.LeaveUnitName;
+                        newRollingBalance.LeaveYear = openingBalanceTransaction.LeaveYear;
+                        newRollingBalance.PreviousBalanceCanBeCarriedOver = currentYearsBalances.PreviousBalanceCanBeCarriedOver;
+                        newRollingBalance.PreviousBalanceExpiryMonth = currentYearsBalances.PreviousBalanceExpiryMonth;
+                        newRollingBalance.PreviousYearsLeaveBalance = openingBalanceTransaction.PreviousBalance;
+                        newRollingBalance.TotalOutstandingLeaveDaysBeforeExpiry = currentYearsBalances.TotalOutstandingLeaveDaysBeforeExpiry;
+                        newRollingBalance.TotalOutstandingLeaveDaysAfterExpiry = currentYearsBalances.TotalOutstandingLeaveDaysAfterExpiry;
+
+                        long newRollingBalanceId = await _leaveRepository.AddLeaveRollingBalanceAsync(newRollingBalance);
+                        if (newRollingBalanceId < 1)
+                        {
+                            await _leaveRepository.DeleteLeaveTransactionAsync(newOpeningTransactionId);
+                        }
+                        else
+                        {
+                            currentYearsBalances = newRollingBalance;
+                        }
+                    }
                 }
                 else
                 {
+                    //Create a Transaction Object for the Opening Balance for the current Leave Year And Save to the Database
                     LeaveTransaction openingBalanceTransaction = new LeaveTransaction();
                     openingBalanceTransaction.LeaveDepartmentId = leaveEmployee.DepartmentID ?? 0;
                     openingBalanceTransaction.LeaveEmployeeId = leaveEmployee.EmployeeID;
@@ -1407,19 +1424,264 @@ namespace IntranetPortal.Base.Services
                     openingBalanceTransaction.LeaveYear = LeaveYear;
                     openingBalanceTransaction.NumberOfDaysGiven = 0;
                     openingBalanceTransaction.NumberOfDaysUsed = 0;
-                    openingBalanceTransaction.OpeningBalance = Convert.ToInt32(currentBalances.CurrentYearProfileLeaveDays);
+                    openingBalanceTransaction.NumberOfDaysDeducted = 0;
+                    openingBalanceTransaction.OpeningBalance = Convert.ToInt32(currentYearsBalances.AnnualProfileLeaveDays);
                     openingBalanceTransaction.PreviousBalance = 0;
                     openingBalanceTransaction.TransactionDescription = $"Annual Leave Days Opening Balance for the Year {LeaveYear} added. ";
                     openingBalanceTransaction.TransactionDate = DateTime.UtcNow;
                     openingBalanceTransaction.TransactionRecordedBy = "System Service";
                     long newOpeningTransactionId = await _leaveRepository.AddLeaveTransactionAsync(openingBalanceTransaction);
+                    if (newOpeningTransactionId > 0)
+                    {
+                        currentYearsBalances.TotalOutstandingLeaveDaysBeforeExpiry = openingBalanceTransaction.OpeningBalance + openingBalanceTransaction.PreviousBalance;
+                        currentYearsBalances.TotalOutstandingLeaveDaysAfterExpiry = openingBalanceTransaction.OpeningBalance;
+
+                        LeaveRollingBalance newRollingBalance = new LeaveRollingBalance();
+                        newRollingBalance.AnnualProfileLeaveDays = openingBalanceTransaction.OpeningBalance;
+                        newRollingBalance.LeaveBalanceDate = DateTime.UtcNow;
+                        newRollingBalance.LeaveDaysAdded = openingBalanceTransaction.NumberOfDaysGiven;
+                        newRollingBalance.LeaveDaysDeducted = openingBalanceTransaction.NumberOfDaysDeducted;
+                        newRollingBalance.LeaveDaysUsed = openingBalanceTransaction.NumberOfDaysUsed;
+                        newRollingBalance.LeaveDepartmentId = openingBalanceTransaction.LeaveDepartmentId;
+                        newRollingBalance.LeaveDepartmentName = openingBalanceTransaction.LeaveDepartmentName;
+                        newRollingBalance.LeaveEmployeeId = openingBalanceTransaction.LeaveEmployeeId;
+                        newRollingBalance.LeaveEmployeeName = openingBalanceTransaction.LeaveEmployeeName;
+                        newRollingBalance.LeaveLocationId = openingBalanceTransaction.LeaveLocationId;
+                        newRollingBalance.LeaveLocationName = openingBalanceTransaction.LeaveLocationName;
+                        newRollingBalance.LeaveTransactionId = newOpeningTransactionId;
+                        newRollingBalance.LeaveTypeCode = openingBalanceTransaction.LeaveTypeCode;
+                        newRollingBalance.LeaveTypeName = openingBalanceTransaction.LeaveTypeName;
+                        newRollingBalance.LeaveUnitId = openingBalanceTransaction.LeaveUnitId;
+                        newRollingBalance.LeaveUnitName = openingBalanceTransaction.LeaveUnitName;
+                        newRollingBalance.LeaveYear = openingBalanceTransaction.LeaveYear;
+                        newRollingBalance.PreviousBalanceCanBeCarriedOver = currentYearsBalances.PreviousBalanceCanBeCarriedOver;
+                        newRollingBalance.PreviousBalanceExpiryMonth = currentYearsBalances.PreviousBalanceExpiryMonth;
+                        newRollingBalance.PreviousYearsLeaveBalance = openingBalanceTransaction.PreviousBalance;
+                        newRollingBalance.TotalOutstandingLeaveDaysBeforeExpiry = currentYearsBalances.TotalOutstandingLeaveDaysBeforeExpiry;
+                        newRollingBalance.TotalOutstandingLeaveDaysAfterExpiry = currentYearsBalances.TotalOutstandingLeaveDaysAfterExpiry;
+
+                        long newRollingBalanceId = await _leaveRepository.AddLeaveRollingBalanceAsync(newRollingBalance);
+                        if (newRollingBalanceId < 1)
+                        {
+                            await _leaveRepository.DeleteLeaveTransactionAsync(newOpeningTransactionId);
+                        }
+                        else
+                        {
+                            currentYearsBalances = newRollingBalance;
+                        }
+
+                    }
                 }
             }
             else
             {
-                currentBalances = existingBalances;
+                currentYearsBalances = existingBalances;
             }
-            return currentBalances;
+            return currentYearsBalances;
+        }
+
+        public async Task<bool> RefreshAllEmployeesAnnualLeaveBalances(int LeaveYear)
+        {
+            IEnumerable<EmployeeRoll> entities = await _employeesRepository.GetEmployeeRollsByAllAsync(DateTime.UtcNow);
+            List<EmployeeRoll> listEmployeeRolls = entities.ToList();
+            if (listEmployeeRolls != null && listEmployeeRolls.Count > 0)
+            {
+                int noOfEmployees = listEmployeeRolls.Count;
+                int rowCount = 0;
+                foreach (var employee in listEmployeeRolls)
+                {
+                    await RefreshEmployeeBalances("ANL", LeaveYear, employee.EmployeeID);
+                    rowCount++;
+                }
+                if (rowCount == noOfEmployees) { return true; }
+            }
+            return false;
+        }
+
+        private async Task<bool> RefreshEmployeeBalances(string LeaveTypeCode, int LeaveYear, string EmployeeId)
+        {
+            if (string.IsNullOrWhiteSpace(LeaveTypeCode)) { throw new Exception("Required parameter Leave Type Code has an invalid value."); }
+            if (LeaveYear < 2020) { throw new Exception("Required parameter Leave Year has an invalid value."); }
+            if (string.IsNullOrWhiteSpace(EmployeeId)) { throw new Exception("Required parameter Employee ID have invalid values."); }
+
+            Employee leaveEmployee = new Employee();
+            if (!string.IsNullOrWhiteSpace(EmployeeId))
+            {
+                leaveEmployee = await _employeesRepository.GetEmployeeByIdAsync(EmployeeId);
+            }
+
+
+            LeaveRollingBalance previousYearsBalances = new LeaveRollingBalance();
+            previousYearsBalances.LeaveYear = LeaveYear - 1;
+
+            LeaveRollingBalance currentYearsBalances = new LeaveRollingBalance();
+            currentYearsBalances.LeaveYear = LeaveYear;
+            currentYearsBalances.LeaveTypeCode = previousYearsBalances.LeaveTypeCode = LeaveTypeCode;
+
+            LeaveRollingBalance existingBalances = await _leaveRepository.GetLeaveRollingBalanceByEmployeeIdAsync(leaveEmployee.EmployeeID, LeaveYear, LeaveTypeCode);
+            if (existingBalances == null || existingBalances.AnnualProfileLeaveDays < 1)
+            {
+                //Get Leave Details eg Duration, CanBeCarriedOver and CarryOverExpiryMonth
+                LeaveProfileDetail leaveProfileDetail = await _leaveRepository.GetLeaveProfileDetailByEmployeeNamenLeaveTypeAsync(leaveEmployee.FullName, LeaveTypeCode);
+                if (leaveProfileDetail == null) { throw new Exception("No Leave Profile was found for this employee. Please ensure a Link Profile has been set up for this employee."); }
+                currentYearsBalances.PreviousBalanceCanBeCarriedOver = leaveProfileDetail.CanBeCarriedOver;
+                currentYearsBalances.PreviousBalanceExpiryMonth = leaveProfileDetail.CarryOverEndMonth ?? 0;
+
+                switch (leaveProfileDetail.DurationTypeId)
+                {
+                    case 0:
+                    case 1:
+                        currentYearsBalances.AnnualProfileLeaveDays = leaveProfileDetail.Duration;
+                        break;
+                    case 2:
+                        currentYearsBalances.AnnualProfileLeaveDays = leaveProfileDetail.Duration * 7;
+                        break;
+                    case 3:
+                        currentYearsBalances.AnnualProfileLeaveDays = leaveProfileDetail.Duration * 30;
+                        break;
+                    case 4:
+                        currentYearsBalances.AnnualProfileLeaveDays = leaveProfileDetail.Duration * 364;
+                        break;
+                    default:
+                        break;
+                }
+
+                if (currentYearsBalances.PreviousBalanceCanBeCarriedOver && currentYearsBalances.PreviousBalanceExpiryMonth > DateTime.Today.Month)
+                {
+                    //Get the Calculated values of Leave Balance for the Previous Leave Year.
+                    var previousBalanceEntity = await _leaveRepository.GetLeaveRollingBalanceByEmployeeIdAsync(EmployeeId, previousYearsBalances.LeaveYear, LeaveTypeCode);
+                    if (previousBalanceEntity != null && previousBalanceEntity.TotalOutstandingLeaveDaysAfterExpiry > 0)
+                    {
+                        currentYearsBalances.PreviousYearsLeaveBalance = previousBalanceEntity.TotalOutstandingLeaveDaysAfterExpiry;
+                    }
+
+                    //Create a Transaction Object for the Opening Balance for the current Leave Year And Save to the Database
+                    LeaveTransaction openingBalanceTransaction = new LeaveTransaction();
+                    openingBalanceTransaction.LeaveDepartmentId = leaveEmployee.DepartmentID ?? 0;
+                    openingBalanceTransaction.LeaveEmployeeId = leaveEmployee.EmployeeID;
+                    openingBalanceTransaction.LeaveLocationId = leaveEmployee.LocationID ?? 0;
+                    openingBalanceTransaction.LeaveTypeCode = LeaveTypeCode;
+                    openingBalanceTransaction.LeaveUnitId = leaveEmployee.UnitID ?? 0;
+                    openingBalanceTransaction.LeaveYear = LeaveYear;
+                    openingBalanceTransaction.NumberOfDaysGiven = 0;
+                    openingBalanceTransaction.NumberOfDaysUsed = 0;
+                    openingBalanceTransaction.NumberOfDaysDeducted = 0;
+                    openingBalanceTransaction.OpeningBalance = Convert.ToInt32(currentYearsBalances.AnnualProfileLeaveDays);
+                    openingBalanceTransaction.PreviousBalance = Convert.ToInt32(currentYearsBalances.PreviousYearsLeaveBalance);
+                    openingBalanceTransaction.TransactionDescription = $"Annual Leave Days Opening Balance for the Year {LeaveYear} added. ";
+                    openingBalanceTransaction.TransactionDate = DateTime.UtcNow;
+                    openingBalanceTransaction.TransactionRecordedBy = "System Service";
+                    long newOpeningTransactionId = await _leaveRepository.AddLeaveTransactionAsync(openingBalanceTransaction);
+                    if (newOpeningTransactionId > 0)
+                    {
+                        currentYearsBalances.TotalOutstandingLeaveDaysBeforeExpiry = openingBalanceTransaction.OpeningBalance + openingBalanceTransaction.PreviousBalance;
+                        currentYearsBalances.TotalOutstandingLeaveDaysAfterExpiry = openingBalanceTransaction.OpeningBalance;
+
+                        LeaveRollingBalance newRollingBalance = new LeaveRollingBalance();
+                        newRollingBalance.AnnualProfileLeaveDays = openingBalanceTransaction.OpeningBalance;
+                        newRollingBalance.LeaveBalanceDate = DateTime.UtcNow;
+                        newRollingBalance.LeaveDaysAdded = openingBalanceTransaction.NumberOfDaysGiven;
+                        newRollingBalance.LeaveDaysDeducted = openingBalanceTransaction.NumberOfDaysDeducted;
+                        newRollingBalance.LeaveDaysUsed = openingBalanceTransaction.NumberOfDaysUsed;
+                        newRollingBalance.LeaveDepartmentId = openingBalanceTransaction.LeaveDepartmentId;
+                        newRollingBalance.LeaveDepartmentName = openingBalanceTransaction.LeaveDepartmentName;
+                        newRollingBalance.LeaveEmployeeId = openingBalanceTransaction.LeaveEmployeeId;
+                        newRollingBalance.LeaveEmployeeName = openingBalanceTransaction.LeaveEmployeeName;
+                        newRollingBalance.LeaveLocationId = openingBalanceTransaction.LeaveLocationId;
+                        newRollingBalance.LeaveLocationName = openingBalanceTransaction.LeaveLocationName;
+                        newRollingBalance.LeaveTransactionId = newOpeningTransactionId;
+                        newRollingBalance.LeaveTypeCode = openingBalanceTransaction.LeaveTypeCode;
+                        newRollingBalance.LeaveTypeName = openingBalanceTransaction.LeaveTypeName;
+                        newRollingBalance.LeaveUnitId = openingBalanceTransaction.LeaveUnitId;
+                        newRollingBalance.LeaveUnitName = openingBalanceTransaction.LeaveUnitName;
+                        newRollingBalance.LeaveYear = openingBalanceTransaction.LeaveYear;
+                        newRollingBalance.PreviousBalanceCanBeCarriedOver = currentYearsBalances.PreviousBalanceCanBeCarriedOver;
+                        newRollingBalance.PreviousBalanceExpiryMonth = currentYearsBalances.PreviousBalanceExpiryMonth;
+                        newRollingBalance.PreviousYearsLeaveBalance = openingBalanceTransaction.PreviousBalance;
+                        newRollingBalance.TotalOutstandingLeaveDaysBeforeExpiry = currentYearsBalances.TotalOutstandingLeaveDaysBeforeExpiry;
+                        newRollingBalance.TotalOutstandingLeaveDaysAfterExpiry = currentYearsBalances.TotalOutstandingLeaveDaysAfterExpiry;
+
+                        long newRollingBalanceId = await _leaveRepository.AddLeaveRollingBalanceAsync(newRollingBalance);
+                        if (newRollingBalanceId < 1)
+                        {
+                            await _leaveRepository.DeleteLeaveTransactionAsync(newOpeningTransactionId);
+                        }
+                        else
+                        {
+                            currentYearsBalances = newRollingBalance;
+                        }
+                    }
+                }
+                else
+                {
+                    //Create a Transaction Object for the Opening Balance for the current Leave Year And Save to the Database
+                    LeaveTransaction openingBalanceTransaction = new LeaveTransaction();
+                    openingBalanceTransaction.LeaveDepartmentId = leaveEmployee.DepartmentID ?? 0;
+                    openingBalanceTransaction.LeaveEmployeeId = leaveEmployee.EmployeeID;
+                    openingBalanceTransaction.LeaveLocationId = leaveEmployee.LocationID ?? 0;
+                    openingBalanceTransaction.LeaveTypeCode = LeaveTypeCode;
+                    openingBalanceTransaction.LeaveUnitId = leaveEmployee.UnitID ?? 0;
+                    openingBalanceTransaction.LeaveYear = LeaveYear;
+                    openingBalanceTransaction.NumberOfDaysGiven = 0;
+                    openingBalanceTransaction.NumberOfDaysUsed = 0;
+                    openingBalanceTransaction.NumberOfDaysDeducted = 0;
+                    openingBalanceTransaction.OpeningBalance = Convert.ToInt32(currentYearsBalances.AnnualProfileLeaveDays);
+                    openingBalanceTransaction.PreviousBalance = 0;
+                    openingBalanceTransaction.TransactionDescription = $"Annual Leave Days Opening Balance for the Year {LeaveYear} added. ";
+                    openingBalanceTransaction.TransactionDate = DateTime.UtcNow;
+                    openingBalanceTransaction.TransactionRecordedBy = "System Service";
+                    long newOpeningTransactionId = await _leaveRepository.AddLeaveTransactionAsync(openingBalanceTransaction);
+                    if (newOpeningTransactionId > 0)
+                    {
+                        currentYearsBalances.TotalOutstandingLeaveDaysBeforeExpiry = openingBalanceTransaction.OpeningBalance + openingBalanceTransaction.PreviousBalance;
+                        currentYearsBalances.TotalOutstandingLeaveDaysAfterExpiry = openingBalanceTransaction.OpeningBalance;
+
+                        LeaveRollingBalance newRollingBalance = new LeaveRollingBalance();
+                        newRollingBalance.AnnualProfileLeaveDays = openingBalanceTransaction.OpeningBalance;
+                        newRollingBalance.LeaveBalanceDate = DateTime.UtcNow;
+                        newRollingBalance.LeaveDaysAdded = openingBalanceTransaction.NumberOfDaysGiven;
+                        newRollingBalance.LeaveDaysDeducted = openingBalanceTransaction.NumberOfDaysDeducted;
+                        newRollingBalance.LeaveDaysUsed = openingBalanceTransaction.NumberOfDaysUsed;
+                        newRollingBalance.LeaveDepartmentId = openingBalanceTransaction.LeaveDepartmentId;
+                        newRollingBalance.LeaveDepartmentName = openingBalanceTransaction.LeaveDepartmentName;
+                        newRollingBalance.LeaveEmployeeId = openingBalanceTransaction.LeaveEmployeeId;
+                        newRollingBalance.LeaveEmployeeName = openingBalanceTransaction.LeaveEmployeeName;
+                        newRollingBalance.LeaveLocationId = openingBalanceTransaction.LeaveLocationId;
+                        newRollingBalance.LeaveLocationName = openingBalanceTransaction.LeaveLocationName;
+                        newRollingBalance.LeaveTransactionId = newOpeningTransactionId;
+                        newRollingBalance.LeaveTypeCode = openingBalanceTransaction.LeaveTypeCode;
+                        newRollingBalance.LeaveTypeName = openingBalanceTransaction.LeaveTypeName;
+                        newRollingBalance.LeaveUnitId = openingBalanceTransaction.LeaveUnitId;
+                        newRollingBalance.LeaveUnitName = openingBalanceTransaction.LeaveUnitName;
+                        newRollingBalance.LeaveYear = openingBalanceTransaction.LeaveYear;
+                        newRollingBalance.PreviousBalanceCanBeCarriedOver = currentYearsBalances.PreviousBalanceCanBeCarriedOver;
+                        newRollingBalance.PreviousBalanceExpiryMonth = currentYearsBalances.PreviousBalanceExpiryMonth;
+                        newRollingBalance.PreviousYearsLeaveBalance = openingBalanceTransaction.PreviousBalance;
+                        newRollingBalance.TotalOutstandingLeaveDaysBeforeExpiry = currentYearsBalances.TotalOutstandingLeaveDaysBeforeExpiry;
+                        newRollingBalance.TotalOutstandingLeaveDaysAfterExpiry = currentYearsBalances.TotalOutstandingLeaveDaysAfterExpiry;
+
+                        long newRollingBalanceId = await _leaveRepository.AddLeaveRollingBalanceAsync(newRollingBalance);
+                        if (newRollingBalanceId < 1)
+                        {
+                            await _leaveRepository.DeleteLeaveTransactionAsync(newOpeningTransactionId);
+                        }
+                        else
+                        {
+                            currentYearsBalances = newRollingBalance;
+                        }
+
+                    }
+                }
+            }
+            else
+            {
+                currentYearsBalances = existingBalances;
+            }
+            if (currentYearsBalances != null && currentYearsBalances.AnnualProfileLeaveDays > 0)
+            {
+                return true;
+            }
+            else { return false; }
         }
 
         #endregion
@@ -1428,17 +1690,24 @@ namespace IntranetPortal.Base.Services
         public async Task<bool> SubmitLeaveAsync(LeaveSubmission e)
         {
             bool IsSubmitted = false;
-            string DocumentType = string.Empty;
-            if (e.LeavePlanId > 0) { DocumentType = "Leave Plan"; }
-            else if (e.LeaveRequestId > 0) { DocumentType = "Leave Request"; }
-            else { DocumentType = "Unknown"; }
+
+            //string DocumentType = string.Empty;
+            if (e.LeavePlanId > 0) { e.DocumentType = "Leave Plan"; }
+            else if (e.LeaveRequestId > 0) { e.DocumentType = "Leave Application"; }
+            else { e.DocumentType = "Unknown"; }
             if (e != null)
             {
+                //if (e.LeaveRequestId > 0)
+                //{
+                //    var existingSubmissions = await _leaveRepository.GetLeaveSubmissionsByRequestIdnRolenPurposeAsync(e.LeaveRequestId.Value, e.ToEmployeeRole, e.Purpose);
+                //    if (existingSubmissions != null && existingSubmissions.Count > 0) { throw new Exception($"Double Submission! You have already submitted this Request for {e.ToEmployeeRole} {e.Purpose}."); }
+                //}
+
                 IsSubmitted = await _leaveRepository.AddLeaveSubmissionAsync(e);
                 if (IsSubmitted)
                 {
                     LeaveActivityLog history = new LeaveActivityLog();
-                    history.ActivityDescription = $"{DocumentType} was submitted to {e.ToEmployeeName} by {e.FromEmployeeName} on {DateTime.Now.ToLongDateString()} at {DateTime.Now.ToLongTimeString()}";
+                    history.ActivityDescription = $"{e.DocumentType} was submitted to {e.ToEmployeeName} by {e.FromEmployeeName} on {DateTime.Now.ToLongDateString()} at {DateTime.Now.ToLongTimeString()}";
                     history.ActivityTime = DateTime.UtcNow;
                     history.LeavePlanId = e.LeavePlanId;
                     history.LeaveRequestId = e.LeaveRequestId;
@@ -1452,7 +1721,6 @@ namespace IntranetPortal.Base.Services
         {
             return await _leaveRepository.DeleteSubmissionAsync(LeaveSubmissionId);
         }
-
 
         public async Task<LeaveSubmission> GetLeaveSubmissionByIdAsync(long LeaveSubmissionId)
         {
@@ -1525,14 +1793,6 @@ namespace IntranetPortal.Base.Services
 
             if (t == DocumentType.LeavePlan)
             {
-                //Update Leave Plan Status to Pending
-                IsUpdated = await _leaveRepository.UpdateLeavePlanStatusAsync(a.LeavePlanId.Value, newStatusId);
-                if (!IsUpdated)
-                {
-                    await _leaveRepository.DeleteApprovalAsync(approvalId);
-                    throw new Exception("An error was encountered while attempting to update Leave Plan status.");
-                }
-
                 if (await _leaveRepository.UpdateSubmissionActionStatusAsync(s.LeaveSubmissionId, a.TimeApproved))
                 {
                     //====== Add Leave Activity Log =======//
@@ -1653,36 +1913,28 @@ namespace IntranetPortal.Base.Services
 
             if (t == DocumentType.LeavePlan)
             {
-                //Update Leave Plan Status to Pending
-                IsUpdated = await _leaveRepository.UpdateLeavePlanStatusAsync(a.LeavePlanId.Value, newStatusId);
-                if (IsUpdated)
+                await _leaveRepository.UpdateSubmissionActionStatusAsync(s.LeaveSubmissionId, a.TimeApproved);
+
+                LeaveNote note = new LeaveNote();
+                //====== Add Leave Note =======//
+                if (!string.IsNullOrWhiteSpace(a.ApproverComments))
                 {
-                    await _leaveRepository.UpdateSubmissionActionStatusAsync(s.LeaveSubmissionId, a.TimeApproved);
-
-                    LeaveNote note = new LeaveNote();
-                    //====== Add Leave Note =======//
-                    if (!string.IsNullOrWhiteSpace(a.ApproverComments))
-                    {
-                        note.NoteContent = a.ApproverComments;
-                        note.LeavePlanId = a.LeavePlanId;
-                        note.TimeAdded = DateTime.Now;
-                        note.FromEmployeeName = a.ApproverName;
-                        await _leaveRepository.AddNoteAsync(note);
-                    }
-
-                    //====== Add Leave Activity Log =======//
-                    LeaveActivityLog history = new LeaveActivityLog();
-                    history.ActivityDescription = $"Leave Plan was declined by {a.ApproverName} on {DateTime.UtcNow.ToLongDateString()} at {DateTime.UtcNow.ToLongTimeString()}.";
-                    history.ActivityTime = DateTime.UtcNow;
-                    history.LeavePlanId = a.LeavePlanId;
-                    await _leaveRepository.AddLeaveActivityLogAsync(history);
-
-                    return true;
+                    note.NoteContent = a.ApproverComments;
+                    note.LeavePlanId = a.LeavePlanId;
+                    note.TimeAdded = DateTime.Now;
+                    note.FromEmployeeName = a.ApproverName;
+                    await _leaveRepository.AddNoteAsync(note);
                 }
-                else
-                {
-                    throw new Exception("An error was encountered while attempting to update Leave Plan status.");
-                }
+
+                //====== Add Leave Activity Log =======//
+                LeaveActivityLog history = new LeaveActivityLog();
+                history.ActivityDescription = $"Leave Plan was declined by {a.ApproverName} on {DateTime.UtcNow.ToLongDateString()} at {DateTime.UtcNow.ToLongTimeString()}.";
+                history.ActivityTime = DateTime.UtcNow;
+                history.LeavePlanId = a.LeavePlanId;
+                await _leaveRepository.AddLeaveActivityLogAsync(history);
+
+                return true;
+
             }
             else if (t == DocumentType.LeaveRequest)
             {
@@ -1791,6 +2043,93 @@ namespace IntranetPortal.Base.Services
 
         #endregion
 
+        #region Leave Resumption Service Methods
+        public async Task<bool> SubmitLeaveResumptionNoticeAsync(LeaveResumption u, string SendToEmployeeName, string SendToEmployeeRole)
+        {
+            if (u == null) { throw new ArgumentNullException(nameof(u)); }
+            long leaveResumptionId = 0;
+            try
+            {
+                leaveResumptionId = await _leaveRepository.AddLeaveResumptionAsync(u);
+                if (leaveResumptionId > 0)
+                {
+                    if (await _leaveRepository.UpdateLeaveRequestAdjustmentRequestAsync(u.LeaveRequestId, true))
+                    {
+                        LeaveSubmission leaveSubmission = new LeaveSubmission();
+                        leaveSubmission.LeaveRequestId = u.LeaveRequestId;
+                        leaveSubmission.FromEmployeeName = u.LeaveEmployeeName;
+                        leaveSubmission.Purpose = "Confirm Resumption";
+                        leaveSubmission.ToEmployeeName = SendToEmployeeName;
+                        leaveSubmission.ToEmployeeRole = SendToEmployeeRole;
+                        leaveSubmission.DocumentType = "Resumption Notice";
+                        leaveSubmission.Message = string.Empty;
+
+                        if (await _leaveRepository.UpdateLeaveRequestStatusAsync(u.LeaveRequestId, (int)LeaveStatusEnum.ResumptionNotice))
+                        {
+                            if (await _leaveRepository.AddLeaveSubmissionAsync(leaveSubmission))
+                            {
+                                //====== Add Activity History =======//
+                                LeaveActivityLog history = new LeaveActivityLog();
+                                history.ActivityDescription = $"Resumption Notice was sent to {SendToEmployeeName} on {DateTime.UtcNow.ToLongDateString()} at exactly {DateTime.UtcNow.ToLongTimeString()} WAT.";
+                                history.ActivityTime = DateTime.Now;
+                                history.LeaveRequestId = u.LeaveRequestId;
+                                await _leaveRepository.AddLeaveActivityLogAsync(history);
+                            }
+                            return true;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                await _leaveRepository.DeleteLeaveResumptionAsync(leaveResumptionId);
+                throw new Exception(ex.Message, ex.InnerException);
+            }
+            return false;
+        }
+        public async Task<bool> ConfirmLeaveResumptionAsync(LeaveResumption u, long LeaveSubmissionId)
+        {
+            if (u == null) { throw new ArgumentNullException(nameof(u)); }
+            bool IsUpdated = false;
+            try
+            {
+                IsUpdated = await _leaveRepository.UpdateLeaveResumptionByLineManagerAsync(u.LeaveResumptionId, u.LineManagerName, u.ResumptionDateByLineManager.Value, u.NoOfExtraDaysByLineManager, u.NoOfUnusedDaysByLineManager, u.ReasonByLineManager, u.LineManagerApprovesAdjustment);
+                if (IsUpdated)
+                {
+                    if (await _leaveRepository.UpdateSubmissionActionStatusAsync(LeaveSubmissionId, DateTime.UtcNow))
+                    {
+                        //====== Add Activity History =======//
+                        LeaveActivityLog history = new LeaveActivityLog();
+                        history.ActivityDescription = $"Resumption confirmation was submitted by {u.LineManagerName} on {DateTime.UtcNow.ToLongDateString()} at exactly {DateTime.UtcNow.ToLongTimeString()} WAT.";
+                        history.ActivityTime = DateTime.Now;
+                        history.LeaveRequestId = u.LeaveRequestId;
+                        await _leaveRepository.AddLeaveActivityLogAsync(history);
+                        return true;
+                    }
+
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message, ex.InnerException);
+            }
+            return false;
+        }
+        public async Task<LeaveResumption> GetLeaveResumptionAsync(long LeaveRequestId, long LeaveResumptionId)
+        {
+            LeaveResumption leaveResumption = new LeaveResumption();
+            if (LeaveRequestId > 0)
+            {
+                leaveResumption = await _leaveRepository.GetLeaveResumptionByLeaveRequestIdAsync(LeaveRequestId);
+            }
+            else if (LeaveResumptionId > 0)
+            {
+                leaveResumption = await _leaveRepository.GetLeaveResumptionByLeaveResumptionIdAsync(LeaveResumptionId);
+            }
+            return leaveResumption;
+        }
+        #endregion
+
         #region Leave Adjustments Service Methods
         public async Task<List<LeaveAdjustment>> GetLeaveAdjustmentsAsync(long LeaveRequestId)
         {
@@ -1826,7 +2165,7 @@ namespace IntranetPortal.Base.Services
             leaveTransaction.TransactionDescription = "Leave Adjustment";
             leaveTransaction.TransactionRecordedBy = adjustment.AdjustmentAddedBy;
             if (adjustment.AdjustmentType == "Addition") { leaveTransaction.NumberOfDaysGiven = adjustment.NumberOfDays; }
-            else if (adjustment.AdjustmentType == "Subtraction") { leaveTransaction.NumberOfDaysUsed = adjustment.NumberOfDays; }
+            else if (adjustment.AdjustmentType == "Deduction") { leaveTransaction.NumberOfDaysDeducted = adjustment.NumberOfDays; }
 
             adjustment.LeaveAdjustmentId = await _leaveRepository.AddLeaveAdjustmentAsync(adjustment);
             if (adjustment.LeaveAdjustmentId < 1) { throw new Exception("An error was encountered. Leave Adjustment could not be added."); }
@@ -1839,15 +2178,124 @@ namespace IntranetPortal.Base.Services
                 throw new Exception("An error was encountered. Leave Transaction could not be added. ");
             }
 
-            //====== Add Activity History =======//
-            LeaveActivityLog log = new LeaveActivityLog();
-            log.ActivityDescription = $"A Leave Adjustment was added by {adjustment.AdjustmentAddedBy} on {DateTime.UtcNow.ToLongDateString()} at {DateTime.UtcNow.ToLongTimeString()}";
-            log.ActivityTime = DateTime.UtcNow;
-            log.LeaveRequestId = adjustment.LeaveRequestId;
-            await _leaveRepository.AddLeaveActivityLogAsync(log);
+            LeaveRollingBalance previousLeaveRollingBalance = new LeaveRollingBalance();
+            LeaveRollingBalance currentRollingBalance = new LeaveRollingBalance();
+            previousLeaveRollingBalance = await _leaveRepository.GetLeaveRollingBalanceByEmployeeIdAsync(adjustment.LeaveEmployeeId, adjustment.LeaveYear, adjustment.LeaveTypeCode);
+            if (previousLeaveRollingBalance == null)
+            {
+                await _leaveRepository.DeleteLeaveTransactionAsync(leaveTransaction.LeaveTransactionId);
+                await _leaveRepository.DeleteLeaveAdjustmentAsync(adjustment.LeaveAdjustmentId);
+                return false;
+            }
+            else
+            {
+                currentRollingBalance = previousLeaveRollingBalance;
+                currentRollingBalance.LeaveBalanceDate = DateTime.UtcNow;
+                currentRollingBalance.LeaveTransactionId = leaveTransaction.LeaveTransactionId;
 
-            return true;
+                if (adjustment.AdjustmentType == "Addition")
+                {
+                    currentRollingBalance.LeaveDaysAdded = leaveTransaction.NumberOfDaysGiven + previousLeaveRollingBalance.LeaveDaysAdded;
+                    currentRollingBalance.TotalOutstandingLeaveDaysBeforeExpiry = leaveTransaction.NumberOfDaysGiven + previousLeaveRollingBalance.TotalOutstandingLeaveDaysBeforeExpiry;
+                    currentRollingBalance.TotalOutstandingLeaveDaysAfterExpiry = leaveTransaction.NumberOfDaysGiven + previousLeaveRollingBalance.TotalOutstandingLeaveDaysAfterExpiry;
+                }
+                else if (adjustment.AdjustmentType == "Deduction")
+                {
+                    currentRollingBalance.LeaveDaysDeducted = previousLeaveRollingBalance.LeaveDaysDeducted + leaveTransaction.NumberOfDaysDeducted;
+                    currentRollingBalance.TotalOutstandingLeaveDaysBeforeExpiry = previousLeaveRollingBalance.TotalOutstandingLeaveDaysBeforeExpiry - leaveTransaction.NumberOfDaysDeducted;
+                    currentRollingBalance.TotalOutstandingLeaveDaysAfterExpiry = previousLeaveRollingBalance.TotalOutstandingLeaveDaysAfterExpiry - leaveTransaction.NumberOfDaysDeducted;
+                }
+
+                bool balanceIsUpdated = await _leaveRepository.UpdateLeaveRollingBalanceAsync(currentRollingBalance);
+                if (!balanceIsUpdated)
+                {
+                    await _leaveRepository.DeleteLeaveTransactionAsync(leaveTransaction.LeaveTransactionId);
+                    await _leaveRepository.DeleteLeaveAdjustmentAsync(adjustment.LeaveAdjustmentId);
+                    return false;
+                }
+
+                if (await _leaveRepository.UpdateLeaveRequestStatusAsync(adjustment.LeaveRequestId, (int)LeaveStatusEnum.PendingClosure))
+                {
+                    //====== Add Activity History =======//
+                    LeaveActivityLog log = new LeaveActivityLog();
+                    log.ActivityDescription = $"A Leave Adjustment was added by {adjustment.AdjustmentAddedBy} on {DateTime.UtcNow.ToLongDateString()} at {DateTime.UtcNow.ToLongTimeString()}";
+                    log.ActivityTime = DateTime.UtcNow;
+                    log.LeaveRequestId = adjustment.LeaveRequestId;
+                    await _leaveRepository.AddLeaveActivityLogAsync(log);
+                }
+                return true;
+            }
         }
+        public async Task<bool> DeleteLeaveAdjustmentAsync(long LeaveAdjustmentId, string DeletedBy)
+        {
+            LeaveAdjustment leaveAdjustment = new LeaveAdjustment();
+            if (LeaveAdjustmentId < 1) { throw new Exception("Leave Adjustment ID has an invalid value."); }
+            leaveAdjustment.LeaveAdjustmentId = LeaveAdjustmentId;
+
+            var adjustmentEntity = await _leaveRepository.GetLeaveAdjustmentByIdAsync(leaveAdjustment.LeaveAdjustmentId = LeaveAdjustmentId);
+            if (adjustmentEntity != null)
+            {
+                leaveAdjustment = adjustmentEntity;
+                var transactionEntity = await _leaveRepository.GetLeaveTransactionByAdjustmentIdAsync(leaveAdjustment.LeaveAdjustmentId);
+                if (transactionEntity != null)
+                {
+                    var rollingBalanceEntity = await _leaveRepository.GetLeaveRollingBalanceByEmployeeIdAsync(leaveAdjustment.LeaveEmployeeId, leaveAdjustment.LeaveYear, leaveAdjustment.LeaveTypeCode);
+                    if (rollingBalanceEntity != null)
+                    {
+                        if(leaveAdjustment.AdjustmentType == "Addition")
+                        {
+                            LeaveRollingBalance newRollingBalance = rollingBalanceEntity;
+                            newRollingBalance.LeaveDaysAdded = rollingBalanceEntity.LeaveDaysAdded - leaveAdjustment.NumberOfDays;
+                            newRollingBalance.LeaveBalanceDate = DateTime.UtcNow;
+                            newRollingBalance.LeaveTransactionId = null;
+
+                            if (await _leaveRepository.UpdateLeaveRollingBalanceAsync(newRollingBalance))
+                            {
+                                if (await _leaveRepository.DeleteLeaveTransactionByLeaveAdjustmentIdAsync(leaveAdjustment.LeaveAdjustmentId))
+                                {
+                                    if (await _leaveRepository.DeleteLeaveAdjustmentAsync(leaveAdjustment.LeaveAdjustmentId))
+                                    {
+                                        //====== Add Activity History =======//
+                                        LeaveActivityLog log = new LeaveActivityLog();
+                                        log.ActivityDescription = $"A previous Leave Adjustment was reversed by {DeletedBy} on {DateTime.UtcNow.ToLongDateString()} at {DateTime.UtcNow.ToLongTimeString()}";
+                                        log.ActivityTime = DateTime.UtcNow;
+                                        log.LeaveRequestId = leaveAdjustment.LeaveRequestId;
+                                        await _leaveRepository.AddLeaveActivityLogAsync(log);
+                                    }
+                                    return true;
+                                }
+                            }
+                        }
+                        else if(leaveAdjustment.AdjustmentType == "Deduction")
+                        {
+                            LeaveRollingBalance newRollingBalance = rollingBalanceEntity;
+                            newRollingBalance.LeaveDaysDeducted = rollingBalanceEntity.LeaveDaysDeducted + leaveAdjustment.NumberOfDays;
+                            newRollingBalance.LeaveBalanceDate = DateTime.UtcNow;
+                            newRollingBalance.LeaveTransactionId = null;
+
+                            if (await _leaveRepository.UpdateLeaveRollingBalanceAsync(newRollingBalance))
+                            {
+                                if (await _leaveRepository.DeleteLeaveTransactionByLeaveAdjustmentIdAsync(leaveAdjustment.LeaveAdjustmentId))
+                                {
+                                    if (await _leaveRepository.DeleteLeaveAdjustmentAsync(leaveAdjustment.LeaveAdjustmentId))
+                                    {
+                                        //====== Add Activity History =======//
+                                        LeaveActivityLog log = new LeaveActivityLog();
+                                        log.ActivityDescription = $"A previous Leave Adjustment was reversed by {DeletedBy} on {DateTime.UtcNow.ToLongDateString()} at {DateTime.UtcNow.ToLongTimeString()}";
+                                        log.ActivityTime = DateTime.UtcNow;
+                                        log.LeaveRequestId = leaveAdjustment.LeaveRequestId;
+                                        await _leaveRepository.AddLeaveActivityLogAsync(log);
+                                    }
+                                    return true;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            return false;
+        }
+
         #endregion
 
         #region Leave Service Helper Methods
@@ -1979,6 +2427,23 @@ namespace IntranetPortal.Base.Services
             //    //6.Return D
             return leaveBalance;
         }
+
+        public int GetLeaveDuration(DateTime StartDate, DateTime ResumptionDate)
+        {
+            int _leaveDuration = 0;
+            DateTime _leaveDay = StartDate.Date;
+            while (_leaveDay < ResumptionDate.Date)
+            {
+                if ((_leaveDay.DayOfWeek != DayOfWeek.Saturday) && (_leaveDay.DayOfWeek != DayOfWeek.Sunday))
+                {
+                    _leaveDuration++;
+                }
+                _leaveDay = _leaveDay.AddDays(1);
+            }
+            return _leaveDuration;
+        }
+
+
         #endregion
 
         #region Leave Notes Service Methods
@@ -2051,6 +2516,78 @@ namespace IntranetPortal.Base.Services
         //    }
         //    return IsAdded;
         //}
+        #endregion
+
+        #region Leave Reports Service Methods
+        public async Task<List<LeavePlanCompliance>> GetLeavePlanComplianceAsync(int LeaveYear, ReportParameter parameter)
+        {
+            List<LeavePlanCompliance> leavePlanComplianceList = new List<LeavePlanCompliance>();
+            switch (parameter)
+            {
+                case ReportParameter.Unit:
+                    leavePlanComplianceList = await _leaveRepository.GetLeavePlanComplianceByUnitsAsync(LeaveYear);
+                    break;
+                case ReportParameter.Department:
+                    leavePlanComplianceList = await _leaveRepository.GetLeavePlanComplianceByDepartmentsAsync(LeaveYear);
+                    break;
+                case ReportParameter.Location:
+                    leavePlanComplianceList = await _leaveRepository.GetLeavePlanComplianceByLocationsAsync(LeaveYear);
+                    break;
+            }
+
+            return leavePlanComplianceList;
+        }
+        public async Task<List<LeaveRequestCompliance>> GetLeaveRequestComplianceAsync(int LeaveYear, ReportParameter parameter)
+        {
+            List<LeaveRequestCompliance> leaveRequestComplianceList = new List<LeaveRequestCompliance>();
+            switch (parameter)
+            {
+                case ReportParameter.Unit:
+                    leaveRequestComplianceList = await _leaveRepository.GetLeaveRequestComplianceByUnitsAsync(LeaveYear);
+                    break;
+                case ReportParameter.Department:
+                    leaveRequestComplianceList = await _leaveRepository.GetLeaveRequestComplianceByDepartmentsAsync(LeaveYear);
+                    break;
+                case ReportParameter.Location:
+                    leaveRequestComplianceList = await _leaveRepository.GetLeaveRequestComplianceByLocationsAsync(LeaveYear);
+                    break;
+            }
+
+            return leaveRequestComplianceList;
+        }
+
+
+        public async Task<List<AnnualLeaveSummary>> SearchAnnualLeaveSummaryAsync(int LeaveYear, int UnitId = 0, int DepartmentId = 0, int LocationId = 0, string EmployeeName = null)
+        {
+            List<AnnualLeaveSummary> annualLeaveSummaryList = new List<AnnualLeaveSummary>();
+            if (LeaveYear < 1) { throw new Exception("Error: Required parameter Leave Year has an invalid value."); }
+            if (!string.IsNullOrWhiteSpace(EmployeeName))
+            {
+                annualLeaveSummaryList = await _leaveRepository.GetAnnualLeaveSummaryByEmployeeNameAsync(LeaveYear, EmployeeName);
+            }
+            else if (UnitId > 0)
+            {
+                if (LocationId > 0)
+                {
+                    annualLeaveSummaryList = await _leaveRepository.GetAnnualLeaveSummaryByLocationIdnUnitIdAsync(LeaveYear, LocationId, UnitId);
+                }
+                else
+                {
+                    annualLeaveSummaryList = await _leaveRepository.GetAnnualLeaveSummaryByUnitIdAsync(LeaveYear, UnitId);
+                }
+            }
+            else if (DepartmentId > 0)
+            {
+                annualLeaveSummaryList = await _leaveRepository.GetAnnualLeaveSummaryByDepartmentIdAsync(LeaveYear, DepartmentId);
+            }
+            else if (LocationId > 0 && UnitId < 1)
+            {
+                annualLeaveSummaryList = await _leaveRepository.GetAnnualLeaveSummaryByLocationIdAsync(LeaveYear, LocationId);
+            }
+
+            return annualLeaveSummaryList;
+        }
+
         #endregion
 
     }

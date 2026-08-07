@@ -94,7 +94,7 @@
                                 <div class="col-md-4" title="Employee Name">
                                     <span class="fw-bold text-white" title="Employee Name"><i class="bi bi-person" style="font-size:1.2rem; font-weight:bold"></i> @plan.LeaveEmployeeName</span>
                                 </div>
-                                <div class="col-md-2 text-center" title="Leave Type">
+                                <div class="col-md-3 text-center" title="Leave Type">
                                     @if (string.IsNullOrWhiteSpace(plan.LeaveTypeName))
                                     {
                                         <span class="fw-bold text-white" title="Leave Type"><i class="bi bi-signpost" style="font-size:1.2rem; font-weight:bold"></i> [Not Specified] </span>
@@ -104,36 +104,24 @@
                                         <span class="fw-bold text-white" title="Leave Type"><i class="bi bi-signpost" style="font-size:1.2rem; font-weight:bold"></i> @plan.LeaveTypeName</span>
                                     }
                                 </div>
-                                <div class="col-md-2 text-center" title="Status">
-                                    @switch (plan.LeavePlanStatusId)
-                                    {
-                                        case 0:
-                                            <span class="fw-bold text-white" title="Status"><i class="bi bi-dash-circle" style="font-size: 1.2rem; font-weight: bold;"></i> Not Yet Approved</span>
-                                            break;
-                                        case 1:
-                                            <span class="fw-bold text-white" title="Status"><i class="bi bi-dash-circle" style="font-size: 1.2rem; font-weight: bold;"></i> Pending Approval</span>
-                                            break;
-                                        case 2:
-                                            <span class="fw-bold text-white" title="Status"><i class="bi bi-x-circle" style="font-size: 1.2rem; font-weight: bold;"></i> Declined</span>
-                                            break;
-                                        case 3:
-                                            <span class="fw-bold text-white" title="Status"><i class="bi bi-check-circle" style="font-size: 1.2rem; font-weight: bold;"></i> Approved</span>
-                                            break;
-                                        case 4:
-                                            <span class="fw-bold text-white" title="Status"><i class="bi bi-check-circle" style="font-size: 1.2rem; font-weight: bold;"></i> Confirmed</span>
-                                            break;
-                                        case 5:
-                                            <span class="fw-bold text-white" title="Status"><i class="bi bi-x-circle" style="font-size: 1.2rem; font-weight: bold;"></i> Cancelled</span>
-                                            break;
-                                        case 6:
-                                            <span class="fw-bold text-white" title="Status"><i class="bi bi-check2-circle" style="font-size: 1.2rem; font-weight: bold;"></i> Completed</span>
-                                            break;
-                                        default:
-                                            break;
-                                    }
-                                </div>
-                                <div class="col-md-2 text-end">
-                                    <div class="dropdown">
+                                <div class="col-md-3">
+                                    <div class="row">
+                                      <div class="col-md-8 text-end">
+                                          @if(plan.LeavePlanIsReturned)
+                                          {
+                                            <button title="Unflag this Leave Plan" target="_blank" class="btn btn-success btn-sm" style="border-radius:5px; border-color:#fff;" onclick="unflagLeavePlan(@plan.LeavePlanId);">
+                                           <span class="text-white fw-bold"><i class="bi bi-flag"></i> Unflag this Plan</span>
+                                       </button>
+                                          }
+                                          else
+                                          {
+                                        <a asp-area="LVM" asp-controller="Leave" asp-action="FlagLeavePlan" asp-route-id="@plan.LeavePlanId" asp-route-tp="p" title="Opens a new Tab" target="_blank" class="btn btn-danger btn-sm" style="border-radius:5px; border-color:#fff;">
+                                           <span class="text-white fw-bold"><i class="bi bi-flag"></i> Flag this Plan</span>
+                                       </a>
+                                          }
+                                    </div>
+                                    <div class="col-md-4">
+                                         <div class="dropdown">
                                         <button class="btn btn-info btn-sm" type="button" id="dropdownMenuButton2" data-bs-toggle="dropdown" aria-expanded="false" style="border-radius:5px; border-color:#fff;">
                                             <span class="fw-bold text-white"><i class="bi bi-tools"></i> Options</span>
                                         </button>
@@ -159,6 +147,8 @@
                                                 </a>
                                             </li>
                                         </ul>
+                                    </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -203,3 +193,6 @@
         }
     </div>
 </div>
+@section Scripts{
+     <script src="~/js/lvs.js"></script>
+}

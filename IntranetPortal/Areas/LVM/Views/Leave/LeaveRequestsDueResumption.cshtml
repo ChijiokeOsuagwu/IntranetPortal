@@ -1,0 +1,217 @@
+﻿@model IntranetPortal.Areas.LVM.Models.LeaveRequestsListViewModel
+<div class="container">
+    <h4 class="mb-1">Leave Resumptions</h4>
+    <hr />
+    <div class="mb-2">
+        <div class="row">
+            <div class="col-md-2">
+                <a asp-area="LVM" asp-controller="Leave" asp-action="Dashboard" class="btn btn-sm btn-dark" style="width:100px;" title="Exit">
+                    <span class="text-white">Back</span>
+                </a>
+            </div>
+            <div class="col-md-10">
+                <form asp-area="LVM" asp-controller="Leave" asp-action="LeaveRequestsDueResumption" method="get">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <select asp-for="l" asp-items="@ViewBag.LocationList" class="form-control fw-bold">
+                                <option value=""> Location </option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <select asp-for="u" asp-items="@ViewBag.UnitList" class="form-control fw-bold">
+                                <option value=""> Unit </option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <span class="text-dark fw-bold">Year: </span>
+                            <input asp-for="y" class="border-0" style="width:75px" min="2020" max="2060">
+                        </div>
+                        <div class="col-md-2">
+                            <span class="text-dark fw-bold">Month: </span>
+                            <select asp-for="m" class="border-0" style="width:75px">
+                                <option value="0"> All </option>
+                                <option value="1"> Jan </option>
+                                <option value="2"> Feb </option>
+                                <option value="3"> Mar </option>
+                                <option value="4"> Apr </option>
+                                <option value="5"> May </option>
+                                <option value="6"> Jun </option>
+                                <option value="7"> Jul </option>
+                                <option value="8"> Aug </option>
+                                <option value="9"> Sep </option>
+                                <option value="10"> Oct </option>
+                                <option value="11"> Nov </option>
+                                <option value="12"> Dec </option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <input type="submit" value="Search" class="btn btn-dark btn-sm text-white" />
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <hr />
+
+        @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-x-circle"></i>
+                <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+    </div>
+    <div class="row">
+        @if (Model == null || Model.LeaveRequestList == null || Model.LeaveRequestList.Count < 1)
+        {
+            <div class="alert alert-info fade show" role="alert">
+                <i class="bi bi-info-circle"></i>
+                <span class="fw-bold">No record was found.</span>
+            </div>
+        }
+        else
+        {
+            int row_no = 0;
+            <div class="table-responsive" style="min-height:450px">
+                <!-- Beginning of Accordion -->
+                <div class="accordion" id="accordionExample">
+                    @foreach (var request in Model.LeaveRequestList)
+                    {
+                        row_no++;
+                        <div class="accordion-item">
+                            <h4 class="accordion-header" id="heading_@row_no">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse_@row_no" aria-expanded="false" aria-controls="collapse_@row_no">
+                                    <span class="fw-bold"><i class="bi bi-person"></i> @request.LeaveEmployeeName </span>
+                                </button>
+                            </h4>
+                            <div id="collapse_@row_no" class="accordion-collapse collapse" aria-labelledby="heading_@row_no" data-bs-parent="#accordionExample">
+                                <div class="accordion-body">
+                                    <div class="card mt-1" style="max-width:1000px">
+                                        <div class="card-header" style="background-color: #4F194B;">
+                                            <h4 class="text-white"> @request.LeaveYear | Leave Request </h4>
+                                        </div>
+                                        <div class="card-body table-secondary">
+                                            <div class="row">
+                                                <div class="col-md-4 mb-3">
+                                                    <label class="form-label text-dark fw-bold">Type</label>
+                                                    <div class="form-control fw-bold">@request.LeaveTypeName</div>
+                                                </div>
+                                                <div class="col-md-4 mb-3">
+                                                    <label class="form-label text-dark fw-bold">Duration</label>
+                                                    <div class="form-control fw-bold">@request.RequestedDurationDescription</div>
+                                                </div>
+                                                <div class="col-md-4 mb-3">
+                                                    <label class="form-label text-dark fw-bold">Status</label>
+                                                    @if (request.LeaveRequestStatusId == (int)LeaveStatusEnum.Confirmed)
+                                                    {
+                                                    <div class="form-control fw-bold" style="background-color: #4F194B; color: #fff;">
+                                                        <span>@request.LeaveRequestStatusDescription <i class="bi bi-check-all" style="font-size:1.1rem"></i></span>
+                                                    </div>
+                                                    }
+                                                    else if (request.IsApprovedByHR)
+                                                    {
+                                                    <div class="form-control fw-bold" style="background-color: #4F194B; color: #fff;">
+                                                        <span>@request.LeaveRequestStatusDescription <i class="bi bi-check" style="font-size:1.1rem"></i></span>
+                                                    </div>
+                                                    }
+                                                    else
+                                                    {
+                                                    <div class="form-control fw-bold">@request.LeaveRequestStatusDescription</div>
+                                                    }
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-md-4 mb-3">
+                                                    <label class="form-label text-dark fw-bold">Leave Starts On:</label>
+                                                    <div class="form-control fw-bold">@request.RequestedStartDate.ToLongDateString()</div>
+                                                </div>
+                                                <div class="col-md-4 mb-3">
+                                                    <label class="form-label text-dark fw-bold">Leave Ends On:</label>
+                                                    <div class="form-control fw-bold">@request.RequestedEndDate.ToLongDateString()</div>
+                                                </div>
+                                                <div class="col-md-4 mb-3">
+                                                    <label class="form-label text-dark fw-bold">Resumes Work On:</label>
+                                                    <div class="form-control fw-bold">@request.RequestedResumptionDate.Value.ToLongDateString()</div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-md-4 mb-3">
+                                                    <label class="form-label text-dark fw-bold">Staff</label>
+                                                    <div class="form-control fw-bold">@request.LeaveEmployeeName</div>
+                                                </div>
+                                                <div class="col-md-4 mb-3">
+                                                    <label class="form-label text-dark fw-bold">Location</label>
+                                                    <div class="form-control fw-bold">@request.LocationName</div>
+                                                </div>
+                                                <div class="col-md-4 mb-3">
+                                                    <label class="form-label text-dark fw-bold">Unit</label>
+                                                    <div class="form-control fw-bold">@request.UnitName</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="card-footer" style="background-color: #4F194B;">
+                                            <div class="row">
+                                                <div class="col-md-10 text-end">
+                                                    @if(request.LeaveRequestStatusId == 5 || request.LeaveRequestStatusId == 6)
+                                                    {
+                                                    <a asp-area="LVM" asp-controller="Leave" asp-action="ViewResumptionNotice" asp-route-rd="@request.LeaveRequestId" title="View Resumption Notice" class="btn btn-sm" style="width:200px; border-radius: 5px; border-color: #fff; background-color: #4F194B;">
+                                                        <span class="text-white fw-bold"><i class="bi bi-send"></i> View Resumption Notice </span>
+                                                    </a>
+                                                     <a asp-area="LVM" asp-controller="Leave" asp-action="LeaveAdjustments" asp-route-id="@request.LeaveRequestId" asp-route-sp="alr" class="btn btn-sm mr-2" style="width: 150px; background-color: #4F194B; border-radius: 5px; border-color: #fff;" title="Leave Adjustments">
+                                                            <span class="text-white fw-bold"><i class="bi bi-arrow-down-up"></i> Adjustments </span>
+                                                     </a>
+                                                    }
+                                                   @if ((!request.RequestLeaveAdjustment && request.LeaveRequestStatusId == 5) || request.LeaveRequestStatusId == 6)
+                                                    {
+                                                        <a asp-area="LVM" asp-controller="Leave" asp-action="CloseLeaveRequest" asp-route-id="@request.LeaveRequestId" asp-route-sp="alr" class="btn btn-sm" style="width: 150px; background-color: #4F194B; border-radius: 5px; border-color: #fff;" title="Close Leave">
+                                                            <span class="text-white fw-bold"><i class="bi bi-x-lg"></i> Close Leave </span>
+                                                        </a>
+                                                    }
+                                                </div>
+                                                <div class="col-md-2 text-end">
+                                                    <div class="dropdown">
+                                                        <button class="btn btn-sm btn-dark" type="button" id="dropdownMenuButton2" data-bs-toggle="dropdown" aria-expanded="false" style="width:100px; border-radius:5px; border-color:#fff;">
+                                                            <span class="text-white"><i class="bi bi-tools"></i> Options</span>
+                                                        </button>
+                                                        <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton2">
+                                                            <li>
+                                                                <a asp-area="LVM" asp-controller="Leave" asp-action="ViewAttachments" asp-route-id="@request.LeaveRequestId" title="View Attached Documents" class="dropdown-item">
+                                                                    <span class="text-white"><i class="bi bi-paperclip"></i> View Attachments </span>
+                                                                </a>
+                                                            </li>
+                                                            <li>
+                                                                <a asp-area="LVM" asp-controller="Leave" asp-action="LeaveApprovals" asp-route-rd="@request.LeaveRequestId" asp-route-sp="alr" title="View Approvals" class="dropdown-item">
+                                                                    <span class="text-white"><i class="bi bi-calendar-check"></i> View Approvals</span>
+                                                                </a>
+                                                            </li>
+                                                            <li>
+                                                                <a asp-area="LVM" asp-controller="Leave" asp-action="LeaveNotes" asp-route-rd="@request.LeaveRequestId" asp-route-sp="alr" title="View Notes" class="dropdown-item">
+                                                                    <span class="text-white"><i class="bi bi-journals"></i> View Notes</span>
+                                                                </a>
+                                                            </li>
+                                                            <li>
+                                                                <a asp-area="LVM" asp-controller="Leave" asp-action="LeaveActivities" asp-route-rd="@request.LeaveRequestId" title="Activity Log" class="dropdown-item">
+                                                                    <span class="text-white"><i class="bi bi-file-earmark-text"></i> View History</span>
+                                                                </a>
+                                                            </li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+                <!-- End of Accordion -->
+            </div>
+        }
+    </div>
+</div>
+@section Scripts{
+    <script src="~/js/lvs.js"></script>
+}
+

@@ -183,14 +183,14 @@ namespace IntranetPortal.Areas.UserAdministration.Controllers
                             CompanyCode = model.CompanyCode ?? string.Empty,
                             ConcurrencyStamp = string.Empty,
                             CreatedBy = "System Administrator",
-                            CreatedTime = $"{DateTime.Now.Date.ToLongDateString()} {DateTime.Now.ToLongTimeString()}",
+                            CreatedTime = $"{DateTime.UtcNow.Date.ToLongDateString()} {DateTime.UtcNow.ToLongTimeString()}",
                             EmailConfirmed = false,
                             FullName = model.FullName,
                             Id = model.UserID,
                             LockoutEnabled = model.EnableLockOut,
                             LockoutEnd = null,
                             ModifiedBy = "System Administrator",
-                            ModifiedTime = $"{DateTime.Now.Date.ToLongDateString()} {DateTime.Now.ToLongTimeString()}",
+                            ModifiedTime = $"{DateTime.UtcNow.Date.ToLongDateString()} {DateTime.UtcNow.ToLongTimeString()}",
                             NormalizedUserName = model.LoginID.ToUpper(),
                             PasswordHash = _securityService.CreatePasswordHash(model.Password),
                             SecurityStamp = string.Empty,
@@ -325,7 +325,7 @@ namespace IntranetPortal.Areas.UserAdministration.Controllers
                             LockoutEnabled = model.EnableLockOut,
                             PasswordHash = _securityService.CreatePasswordHash(model.Password),
                             ModifiedBy = "System Administrator",
-                            ModifiedTime = $"{DateTime.Now.Date.ToLongDateString()} {DateTime.Now.ToLongTimeString()}",
+                            ModifiedTime = $"{DateTime.UtcNow.Date.ToLongDateString()} {DateTime.UtcNow.ToLongTimeString()}",
                         };
 
                         // var result = await _userManager.CreateAsync(user, model.Password);

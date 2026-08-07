@@ -26,7 +26,6 @@
     <Folder Include="Areas\ContentManager\Data\" />
     <Folder Include="Areas\ERM\Data\" />
     <Folder Include="Areas\GlobalSettings\Data\" />
-    <Folder Include="Areas\LMS\Data\" />
     <Folder Include="Areas\LVM\Data\" />
     <Folder Include="Areas\PartnerServices\Data\" />
     <Folder Include="Areas\PMS\Data\" />

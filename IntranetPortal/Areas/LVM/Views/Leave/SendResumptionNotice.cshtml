@@ -1,0 +1,117 @@
+﻿
+@model IntranetPortal.Areas.LVM.Models.SendResumptionNoticeViewModel
+<h3 class="mb-1">Leave Management System | Send Resumption Notice</h3>
+<hr />
+<div class="card mt-1" style="max-width:1200px">
+    <div class="card-header" style="background-color:#035711">
+        <h4 class="text-white"> Resumption Notice </h4>
+    </div>
+    <div class="card-body table-secondary" >
+        @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-x-circle"></i>
+                <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (!String.IsNullOrEmpty(Model.ViewModelSuccessMessage))
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="bi bi-check-circle"></i>
+                <span class="fw-bold">@Model.ViewModelSuccessMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (!String.IsNullOrEmpty(Model.ViewModelWarningMessage))
+        {
+            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                <i class="bi bi-exclamation-circle"></i>
+                <span class="fw-bold">@Model.ViewModelWarningMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        <form asp-area="LVM" asp-controller="Leave" asp-action="SendResumptionNotice" method="post" autocomplete="off">
+            <div class="row">
+                 <div class="col-md-3 mb-3">
+                    <label class="form-label text-dark">Approved Resumption Date</label>
+                    <div class="form-control fw-bold">@Model.ApprovedResumptionDate.ToLongDateString()</div>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label asp-for="ResumptionDateByEmployee" class="form-label text-dark">Actual Resumption Date:</label>
+                    <input asp-for="ResumptionDateByEmployee" class="form-control fw-bold" type="date">
+                    <div><span asp-validation-for="ResumptionDateByEmployee" class="text-danger"></span></div>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label class="form-label text-dark">Extra Days Used</label>
+                    <input asp-for="NoOfExtraDaysByEmployee" class="form-control fw-bold" min="0" style="max-width:100px">
+                    <div><span asp-validation-for="NoOfExtraDaysByEmployee" class="text-danger"></span></div>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label class="form-label text-dark">Leave Days Not Used</label>
+                    <input asp-for="NoOfUnusedDaysByEmployee" class="form-control fw-bold" min="0" style="max-width:100px">
+                    <div><span asp-validation-for="NoOfUnusedDaysByEmployee" class="text-danger"></span></div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12 mb-3">
+                    <label asp-for="ReasonByEmployee" class="form-label text-dark">Reason <small>(optional)</small></label>
+                    <textarea asp-for="ReasonByEmployee" class="form-control fw-bold">@Model.ReasonByEmployee</textarea>
+                    <div><span asp-validation-for="ReasonByEmployee" class="text-danger"></span></div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-3 mb-3" style="margin-top:30px">
+                        <div class="form-check">
+  <input asp-for="EmployeeRequestAdjustment" class="form-check-input" type="checkbox" style="width:18px; height:18px; margin-right:10px;">
+  <label asp-for="EmployeeRequestAdjustment" class="form-check-label"> <span class="fw-bold text-dark"> Request Leave Balance Adjustment </span> </label>
+</div>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label class="form-label text-dark">Adjustment Type</label>
+                    <select asp-for="RequestedAdjustmentType" class="form-control fw-bold">
+                        <option value="">Select</option>
+                        <option value="Addition">Add to my Leave Balance</option>
+                        <option value="Deduction">Deduct from my Leave Balance</option>
+                    </select>
+                    <div><span asp-validation-for="RequestedAdjustmentType" class="text-danger"></span></div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label asp-for="SendToEmployeeName" class="form-label text-dark">Send To*</label>
+                    <input asp-for="SendToEmployeeName" id="sn" class="form-control fw-bold" >
+                </div>
+                <div class="col-md-2 mb-3">
+                    <label asp-for="SendToEmployeeRole" class="form-label text-dark">Role*</label>
+                    <select asp-for="SendToEmployeeRole" class="form-control fw-bold">
+                        <option value="">Select</option>
+                        <option value="Supervisor">Supervisor</option>
+                        <option value="Line Manager">Line Manager</option>
+                        <option value="Head of Department">Head of Department</option>
+                        <option value="Station Manager">Station Manager</option>
+                        <option value="Executive Management">Executive Management</option>
+                    </select>
+                    <div><span asp-validation-for="SendToEmployeeRole" class="text-danger"></span></div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12 text-end">
+                    <a asp-area="LVM" asp-controller="Leave" asp-action="MyLeaveRecords" class="btn btn-dark" style="width:75px" title="Exit">
+                        <span class="text-white">Exit</span>
+                    </a>
+                    @if (!Model.OperationIsSuccessful)
+                    {
+                        <button type="submit" class="btn" title="Save" style="width: 150px; background-color:#035711"><span class="text-white">Send</span></button>
+                    }
+                </div>
+            </div>
+            <input type="hidden" asp-for="LeaveRequestId">
+            <input type="hidden" asp-for="LeaveResumptionId">
+            <input type="hidden" asp-for="ApprovedResumptionDate" />
+        </form>
+    </div>
+</div>
+@section Scripts{
+    <script src="~/js/lvs.js"></script>
+}
+
+

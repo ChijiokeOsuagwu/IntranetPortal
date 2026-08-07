@@ -10,11 +10,11 @@ namespace IntranetPortal.Areas.LVM.Models
     public class MyLeaveRecordsViewModel:BaseViewModel
     {
         public int yr { get; set; }
-        public string nm { get; set; }
+        public string sn { get; set; }
         public string ei { get; set; }
         public List<LeavePlan> LeavePlanList { get; set; }
         public List<LeaveRequest> LeaveRequestList { get; set; }
-        public LeaveBalances CurrentLeaveBalances { get; set; }
+        public LeaveRollingBalance CurrentLeaveRollingBalances { get; set; }
 
     }
 }

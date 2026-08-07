@@ -33,7 +33,7 @@
         }
         <form asp-area="LVM" asp-controller="Leave" asp-action="EditLeavePlan" method="post" autocomplete="off">
             <div class="row">
-                <div class="col-md-6 mb-3">
+                <div class="col-md-5 mb-3">
                     <label asp-for="LeaveEmployeeName" class="form-label text-white fw-bold"></label>
                     <input asp-for="LeaveEmployeeName" class="form-control fw-bold" readonly>
                 </div>
@@ -42,12 +42,16 @@
                     <input asp-for="LeaveYear" class="form-control fw-bold" min="2020" max="2060" autofocus>
                     <div><span asp-validation-for="LeaveYear" class="text-danger"></span></div>
                 </div>
-                <div class="col-md-4 mb-3">
+                <div class="col-md-2 mb-3">
                     <label asp-for="LeaveTypeCode" class="form-label text-white fw-bold"></label>
                     <select asp-for="LeaveTypeCode" class="form-control fw-bold" asp-items="@ViewBag.LeaveTypeCodeList" autofocus>
                         <option value="">Select</option>
                     </select>
                     <div><span asp-validation-for="LeaveTypeCode" class="text-danger"></span></div>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label class="form-label text-white fw-bold">Current Leave Balance</label>
+                    <input asp-for="CurrentLeaveBalanceDescription" class="form-control fw-bold" readonly>
                 </div>
             </div>
             <div class="row">
@@ -107,6 +111,7 @@
             <input type="hidden" asp-for="LeavePlanId">
             <input type="hidden" asp-for="LeaveEmployeeId" />
             <input type="hidden" asp-for="LeaveEmployeeName" />
+            <input type="hidden" asp-for="CurrentLeaveBalance" />
         </form>
     </div>
 </div>

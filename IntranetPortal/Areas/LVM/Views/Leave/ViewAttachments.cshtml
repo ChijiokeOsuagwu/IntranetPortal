@@ -1,0 +1,52 @@
+﻿@model IntranetPortal.Areas.LVM.Models.LeaveDocumentListViewModel
+<div class="container">
+    <h4 class="mb-4">Leave Management System | Leave Documents</h4>
+    <hr />
+    <div class="mb-3">
+            <button class="btn btn-dark" style="width:100px" title="Click to Go Back" onclick="history.back();">
+                <span class="text-white">Back</span>
+            </button>
+    </div>
+    <hr />
+    @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-x-circle"></i>
+            <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    @if (!String.IsNullOrEmpty(Model.ViewModelSuccessMessage))
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle"></i>
+            <span class="fw-bold">@Model.ViewModelSuccessMessage</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    @if (Model == null || Model.LeaveDocumentList == null || Model.LeaveDocumentList.Count < 1)
+    {
+        <div class="alert alert-info fade show" role="alert">
+            <i class="bi bi-info-circle"></i>
+            <span class="fw-bold">No record was found.</span>
+        </div>
+    }
+    else
+    {
+        <div class="row">
+            @foreach (var document in Model.LeaveDocumentList)
+            {
+                <div class="col-lg-3 col-sm-6">
+                    <div class="card">
+                        <div class="card-body text-center">
+                            <a href="@document.DocumentReferencePath" target="_blank" rel="noopener noreferrer" title="Click to Open in a new Tab.">
+                                <span class="fw-bold text-dark"><i class="bi bi-file-pdf" style="font-size:5rem"></i></span>
+                            </a>
+                            <h5 class="fw-bold text-dark"> @document.DocumentTitle</h5>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>

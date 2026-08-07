@@ -6,6 +6,6 @@ namespace IntranetPortal.Base.Models.LeaveModels
 {
     public enum LeaveAdjustmentType
     {
-        Addition, Subtraction
+        Addition, Deduction
     }
 }

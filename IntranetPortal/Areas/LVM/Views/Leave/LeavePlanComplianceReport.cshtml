@@ -1,0 +1,104 @@
+﻿
+@model IntranetPortal.Areas.LVM.Models.LeavePlanComplianceReportViewModel
+<div class="container">
+    <h4 class="mb-1">Leave Plan Compliance Report</h4>
+    <hr />
+       <form asp-area="LVM" asp-controller="Leave" asp-action="LeavePlanComplianceReport" method="get">
+        <div class="row">
+            <div class="col-md-3 mb-2">
+                <a asp-area="LVM" asp-controller="Leave" asp-action="Dashboard" title="Go Back" class="btn btn-sm btn-outline-light text-dark">
+                    <i class="bi bi-backspace fw-bolder" style="font-size: 1.0rem;"></i><span class="fw-bold ml-1" style="font-size: 0.9rem;">Back</span>
+                </a>
+            </div>
+            <div class="col-md-3 mb-2">
+                <select asp-for="pm" class="form-select fw-bold">
+                    <option value=""> Select </option>
+                    <option value="U"> Unit </option>
+                    <option value="D"> Department </option>
+                    <option value="L"> Location </option>
+                </select>
+         </div>
+         <div class="col-md-2 mb-2">
+            <input asp-for="yr" class="form-control fw-bold" min="2025">
+        </div>
+        <div class="col-md-2 mb-2">
+            <input type="submit" value="Search" class="btn btn-dark btn-sm text-white" />
+        </div>
+        <div class="col-md-2 mb-2">
+            <a asp-area="LVM" asp-controller="Leave" asp-action="DownloadLeavePlanComplianceReport" asp-route-yr="@Model.yr" asp-route-pm="@Model.pm" title="Download Excel" class="btn btn-sm btn-outline-light ml-2 text-dark">
+            <i class="bi bi-download fw-bolder" style="font-size: 1.0rem;"></i><span class="fw-bold ml-1" style="font-size: 0.9rem;">Download</span>
+            </a>
+        </div>
+        </div>
+        </form>
+ 
+    <hr>
+    @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+    {<div class="row">
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-x-circle"></i>
+                <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        </div>
+    }
+    <div class="row">
+        @if (Model == null || Model.LeavePlanComplianceList == null || Model.LeavePlanComplianceList.Count < 1)
+        {
+            <div class="alert alert-info fade show" role="alert">
+                <i class="bi bi-info-circle"></i>
+                <span class="fw-bold">No record was found.</span>
+            </div>
+        }
+        else
+        {
+            int row_no = 0;
+            <div class="row">
+                <div class="table-responsive" style="max-height:450px;">
+                    <table class="table table-sm table-striped caption-top">
+                        <thead class="table-dark">
+                            <tr>
+                                <th colspan="6" class="text-center"><span class="text-white fw-bold" style="font-size:1.2rem">@Model.ReportHeaderTitle</span></th>
+                            </tr>
+                            <tr>
+                                <th><span class="text-white fw-bold">#</span></th>
+                                <th><span class="text-white fw-bold">Name</span></th>
+                                <th><span class="text-white fw-bold">Total Staff</span>
+                                <th><span class="text-white fw-bold">Staff With Leave Plans</span></th>
+                                <th><span class="text-white fw-bold">Staff Without Leave Plans</span></th>
+                                <th><span class="text-white fw-bold">% Compliance</span></th>
+                            </tr>
+                        </thead>
+                        <tbody class="table-light">
+                            @foreach (var item in Model.LeavePlanComplianceList)
+                            {
+                                row_no++;
+                                <tr>
+                                    <td><span class="fw-bold">@row_no.ToString()</span></td>
+                                    @if(!string.IsNullOrWhiteSpace(item.UnitName)){
+                                        <td><span class="fw-bold">@item.UnitName</span></td>
+                                    }
+                                    else if(!string.IsNullOrWhiteSpace(item.DepartmentName)){
+                                        <td><span class="fw-bold">@item.DepartmentName</span></td>
+                                    }
+                                    else if(!string.IsNullOrWhiteSpace(item.LocationName)){
+                                        <td><span class="fw-bold">@item.LocationName</span></td>
+                                    }
+                                    <td><span class="fw-bold">@item.TotalNumberOfStaff</span></td>
+                                    <td><span class="fw-bold">@item.NumberWithLeavePlans</span>
+                                    <td><span class="fw-bold">@item.NumberWithoutLeavePlans</span>
+                                    <td><span class="fw-bold">@item.PercentageCompliance.ToString("F2")</span></td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+@section Scripts{
+    
+}
+
+

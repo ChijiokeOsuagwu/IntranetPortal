@@ -1,0 +1,55 @@
+﻿
+@model IntranetPortal.Areas.LVM.Models.FlagLeaveViewModel
+<h3 class="mb-1">Leave Management System | </h3>
+<hr />
+<div class="card mt-1" style="max-width:600px">
+    <div class="card-header bg-danger">
+            <h4 class="text-white fw-bold"><i class="bi bi-flag"></i> Flag Leave Plan</h4>
+    </div>
+    <div class="card-body table-secondary">
+        @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-x-circle"></i>
+                <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (!String.IsNullOrEmpty(Model.ViewModelSuccessMessage))
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="bi bi-check-circle"></i>
+                <span class="fw-bold">@Model.ViewModelSuccessMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (!String.IsNullOrEmpty(Model.ViewModelWarningMessage))
+        {
+            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                <i class="bi bi-exclamation-circle"></i>
+                <span class="fw-bold">@Model.ViewModelWarningMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        <form asp-area="LVM" asp-controller="Leave" asp-action="FlagLeavePlan" asp-route-id="@Model.LeavePlanId" method="post" autocomplete="off">
+            <div class="row">
+                <div class="col-md-12 mb-3">
+                    <label class="form-label text-dark fw-bold">Reason</label>
+                    <textarea asp-for="FlagReason" class="form-control fw-bold" rows="4" placeholder="Enter Reason Here...">@Model.FlagReason</textarea>
+                    <div><span asp-validation-for="FlagReason" class="text-danger"></span></div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12 text-end">
+                    @if (!Model.OperationIsSuccessful)
+                    {
+                        <button type="submit" class="btn btn-sm btn-danger" title="Submit" style="width:100px; border-radius:5px;"><span class="text-white fw-bold">Send</span></button>
+                    }
+                </div>
+            </div>
+            <input type="hidden" asp-for="LeavePlanId" />
+            <input type="hidden" asp-for="FlaggedByEmployeeName" />
+        </form>
+    </div>
+</div>
+

@@ -1,6 +1,6 @@
 ﻿@model IntranetPortal.Areas.LVM.Models.LeaveSubmittedToHrListViewModel
 <div class="container">
-    <h4 class="mb-1"> Submitted Leave Requests </h4>
+    <h4 class="mb-1"> Leave Requests Pending Approval </h4>
     <hr />
     <div class="mb-2">
         <form asp-area="LVM" asp-controller="Leave" asp-action="LeaveSubmittedToHr" method="get">
@@ -41,112 +41,7 @@
             <!-- Beginning of Accordion -->
             <div class="accordion" id="accordionExample">
                 @foreach (var submission in Model.LeaveSubmissionList)
-                {
-                    row_no++;
-                    @if (submission.LeavePlanId > 0)
-                    {
-                        <div class="accordion-item">
-                            <h4 class="accordion-header" id="heading_@row_no">
-                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse_@row_no" aria-expanded="false" aria-controls="collapse_@row_no">
-                                    <span class="fw-bold text-dark"><i class="bi bi-person-fill" style="font-size:1.2rem;"></i> @submission.FromEmployeeName</span>
-                                </button>
-                            </h4>
-                            <div id="collapse_@row_no" class="accordion-collapse collapse" aria-labelledby="heading_@row_no" data-bs-parent="#accordionExample">
-                                <div class="accordion-body">
-                                    <div class="card mt-1" style="max-width:1000px">
-                                        <div class="card-header bg-info">
-                                            <h4 class="text-white"> @submission.LeavePlanYear | Leave Plan </h4>
-                                        </div>
-                                        <div class="card-body table-secondary">
-                                            <div class="row">
-                                                <div class="col-md-4 mb-3">
-                                                    <label class="form-label text-white fw-bold">Type</label>
-                                                    <div class="form-control fw-bold">@submission.LeavePlanTypeName</div>
-                                                </div>
-                                                <div class="col-md-4 mb-3">
-                                                    <label class="form-label text-white fw-bold">Duration</label>
-                                                    <div class="form-control fw-bold">@submission.LeavePlanDurationDescription</div>
-                                                </div>
-                                                <div class="col-md-4 mb-3">
-                                                    <label class="form-label text-white fw-bold">Status</label>
-                                                    <div class="form-control fw-bold">@submission.LeavePlanStatusDescription</div>
-                                                </div>
-                                            </div>
-                                            <div class="row">
-                                                <div class="col-md-4 mb-3">
-                                                    <label class="form-label text-white fw-bold">Leave Starts On:</label>
-                                                    <div class="form-control fw-bold">@submission.LeavePlanStartDate.ToLongDateString()</div>
-                                                </div>
-                                                <div class="col-md-4 mb-3">
-                                                    <label class="form-label text-white fw-bold">Leave Ends On:</label>
-                                                    <div class="form-control fw-bold">@submission.LeavePlanEndDate.ToLongDateString()</div>
-                                                </div>
-                                                <div class="col-md-4 mb-3">
-                                                    <label class="form-label text-white fw-bold">Resumes Work On:</label>
-                                                    <div class="form-control fw-bold">@submission.LeavePlanResumptionDate.ToLongDateString()</div>
-                                                </div>
-                                            </div>
-                                            <div class="row">
-                                                <div class="col-md-4 mb-3">
-                                                    <label class="form-label text-white fw-bold">Staff</label>
-                                                    <div class="form-control fw-bold">@submission.LeavePlanEmployeeName</div>
-                                                </div>
-                                                <div class="col-md-4 mb-3">
-                                                    <label class="form-label text-white fw-bold">Location</label>
-                                                    <div class="form-control fw-bold">@submission.LeavePlanLocationName</div>
-                                                </div>
-                                                <div class="col-md-4 mb-3">
-                                                    <label class="form-label text-white fw-bold">Duration</label>
-                                                    <div class="form-control fw-bold">@submission.LeavePlanUnitName</div>
-                                                </div>
-                                            </div>
-                                            <div class="row">
-                                                <div class="col-md-9 text-end">
-                                                    <a asp-area="LVM" asp-controller="Leave" asp-action="LeavePlanDecline" asp-route-id="@submission.LeavePlanId" asp-route-sd="@submission.LeaveSubmissionId" asp-route-sp="lsh" class="btn btn-danger" style="width: 120px; border-radius: 5px;" title="Decline">
-                                                        <span class="text-white"><i class="bi bi-x-lg"></i> Decline</span>
-                                                    </a>
-                                                    <button class="btn btn-success" title="Approve this Leave Request" style="width: 120px; border-radius: 5px;">
-                                                        <span class="text-white"><i class="bi bi-check-lg"></i> Approve</span>
-                                                    </button>
-                                                </div>
-                                                <div class="col-md-3 text-end">
-                                                    <div class="dropdown">
-                                                        <button class="btn btn-dark" type="button" id="dropdownMenuButton2" data-bs-toggle="dropdown" aria-expanded="false" style="width:100px; border-radius:5px;">
-                                                            <span class="text-white"><i class="bi bi-tools"></i> Options</span>
-                                                        </button>
-                                                        <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton2">
-                                                            <li>
-                                                                <a asp-area="LVM" asp-controller="Leave" asp-action="LeaveDocuments" asp-route-id="@submission.LeavePlanId" asp-route-sp="lsh" asp-route-sd="@submission.LeaveSubmissionId" title="View Attachments" class="dropdown-item">
-                                                                    <span class="text-white"><i class="bi bi-paperclip"></i> View Attachments </span>
-                                                                </a>
-                                                            </li>
-                                                            <li>
-                                                                <a asp-area="LVM" asp-controller="Leave" asp-action="LeaveApprovals" asp-route-pd="@submission.LeavePlanId" asp-route-sd="@submission.LeaveSubmissionId" asp-route-sp="lsh" title="View Approvals" class="dropdown-item">
-                                                                    <span class="text-white"><i class="bi bi-calendar-check"></i> View Approvals</span>
-                                                                </a>
-                                                            </li>
-                                                            <li>
-                                                                <a asp-area="LVM" asp-controller="Leave" asp-action="LeaveNotes" asp-route-pd="@submission.LeavePlanId" asp-route-sp="lsh" asp-route-sd="@submission.LeaveSubmissionId" title="View Notes" class="dropdown-item">
-                                                                    <span class="text-white"><i class="bi bi-journals"></i> View Notes</span>
-                                                                </a>
-                                                            </li>
-                                                            <li>
-                                                                <a asp-area="LVM" asp-controller="Leave" asp-action="LeaveActivities" asp-route-pd="@submission.LeavePlanId" title="Activity Log" class="dropdown-item">
-                                                                    <span class="text-white"><i class="bi bi-file-earmark-text"></i> View History</span>
-                                                                </a>
-                                                            </li>
-                                                        </ul>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    }
-                    else
-                    {
+                {   row_no++;               
                         <div class="accordion-item">
                             <h4 class="accordion-header" id="heading_@row_no">
                                 <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse_@row_no" aria-expanded="false" aria-controls="collapse_@row_no">
@@ -212,22 +107,27 @@
                                         </div>
                                         <div class="card-footer" style="background-color: #198754;">
                                             <div class="row">
-                                                <div class="col-md-8 text-end">
-                                                    @if (!submission.IsActioned)
+                                                    @if (!submission.IsActioned && Model.UserIsSeniorHr)
                                                     {
+                                                        <div class="col-md-8 text-end">
                                                         <a asp-area="LVM" asp-controller="Leave" asp-action="LeaveRequestDecline" asp-route-id="@submission.LeaveRequestId" asp-route-sd="@submission.LeaveSubmissionId" asp-route-sp="lsh" class="btn btn-sm btn-danger" style="width: 120px; border-radius: 5px; border-color: #fff;" title="Decline">
                                                             <span class="text-white"><i class="bi bi-x-lg"></i> Decline</span>
                                                         </a>
                                                         <button class="btn btn-sm btn-success" title="Approve this Leave Request" style="width: 120px; border-radius: 5px; background-color: #198754; border-color: #fff; " onclick="approveLeaveRequest(@submission.LeaveRequestId, @submission.LeaveSubmissionId)">
                                                             <span class="text-white"><i class="bi bi-check-lg"></i> Approve</span>
                                                         </button>
-                                                    }
-                                                </div>
+                                                        </div>
                                                 <div class="col-md-2 text-end">
                                                     <button class="btn btn-sm" title="Remove from this List" style="width: 120px; border-radius: 5px; border-color: #fff; background-color: #198754;" onclick="deleteLeaveSubmission(@submission.LeaveSubmissionId)">
                                                         <span class="text-white"><i class="bi bi-file-earmark-x"></i> Remove</span>
                                                     </button>
                                                 </div>
+                                                    }
+                                                    else
+                                                    {
+                                                        <div class="col-md-10"></div>
+                                                    }
+  
                                                 <div class="col-md-2 text-end">
                                                     <div class="dropdown">
                                                         <button class="btn btn-sm btn-dark" type="button" id="dropdownMenuButton2" data-bs-toggle="dropdown" aria-expanded="false" style="width: 100px; border-radius: 5px; border-color: #fff; ">
@@ -263,7 +163,6 @@
                                 </div>
                             </div>
                         </div>
-                    }
                 }
             </div>
             <!-- End of Accordion -->

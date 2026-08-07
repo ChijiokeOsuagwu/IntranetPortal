@@ -243,7 +243,7 @@ namespace IntranetPortal.Controllers
                         {
                             Id = model.UserID,
                             ModifiedBy = HttpContext.User.Identity.Name,
-                            ModifiedTime = $"{DateTime.Now.Date.ToLongDateString()} {DateTime.Now.ToLongTimeString()}",
+                            ModifiedTime = $"{DateTime.UtcNow.Date.ToLongDateString()} {DateTime.UtcNow.ToLongTimeString()}",
                         };
 
                         user.PasswordHash = _securityService.CreatePasswordHash(model.NewPassword);

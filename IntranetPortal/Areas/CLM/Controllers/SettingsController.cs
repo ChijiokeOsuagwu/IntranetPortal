@@ -19,6 +19,7 @@ using IntranetPortal.Helpers;
 namespace IntranetPortal.Areas.CLM.Controllers
 {
     [Area("CLM")]
+    [Authorize]
     public class SettingsController : Controller
     {
         private readonly IConfiguration _configuration;

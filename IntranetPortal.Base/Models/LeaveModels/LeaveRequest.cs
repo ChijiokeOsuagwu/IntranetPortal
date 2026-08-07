@@ -53,5 +53,10 @@ namespace IntranetPortal.Base.Models.LeaveModels
         public bool IsApprovedByHeadOfDepartment { get; set; }
         public bool IsApprovedByHR { get; set; }
         public bool IsApprovedByExecutiveManagement { get; set; }
+
+        public bool RequestLeaveAllowance { get; set; }
+        public bool RequestLeaveAdjustment { get; set; }
+
+        public LeaveAllowance LeaveAllowance { get; set; }
     }
 }

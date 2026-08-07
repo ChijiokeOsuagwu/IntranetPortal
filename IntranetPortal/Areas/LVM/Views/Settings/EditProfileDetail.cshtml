@@ -35,15 +35,13 @@
                 <div class="col-md-5 mb-3">
                     <input type="hidden" asp-for="Id">
                     <input type="hidden" asp-for="ProfileCode">
+                    <input type="hidden" asp-for="LeaveTypeCode">
                     <label asp-for="ProfileName" class="form-label text-white fw-bold"></label>
-                    <input asp-for="ProfileName" class="form-control" readonly>
+                    <input asp-for="ProfileName" class="form-control fw-bold" readonly>
                 </div>
                 <div class="col-md-3 mb-3">
-                    <label asp-for="LeaveTypeCode" class="form-label text-white fw-bold"></label>
-                    <select asp-for="LeaveTypeCode" class="form-control" asp-items="@ViewBag.LeaveTypeCodeList" autofocus>
-                        <option value="">Select</option>
-                    </select>
-                    <div><span asp-validation-for="LeaveTypeCode" class="text-danger"></span></div>
+                    <label asp-for="LeaveTypeName" class="form-label text-white fw-bold">Leave Type</label>
+                    <input asp-for="LeaveTypeName" class="form-control fw-bold" readonly>
                 </div>
                 <div class="col-md-2 mb-3">
                     <label asp-for="Duration" class="form-label text-white fw-bold"></label>

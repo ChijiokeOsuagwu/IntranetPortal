@@ -1,4 +1,5 @@
-﻿using IntranetPortal.Base.Models.GlobalSettingsModels;
+﻿using IntranetPortal.Base.Models.BaseModels;
+using IntranetPortal.Base.Models.GlobalSettingsModels;
 using IntranetPortal.Base.Models.LeaveModels;
 using System;
 using System.Collections.Generic;
@@ -53,15 +54,18 @@ namespace IntranetPortal.Base.Services
         #region Leave Plans Service Interfaces
         Task<List<LeavePlan>> GetLeavePlansAsync(string EmployeeId, int LeaveYear);
         Task<LeavePlan> GetLeavePlanAsync(long LeavePlanId);
-        Task<List<LeavePlan>> SearchLeavePlansAsync(int LeaveYear, int LeaveMonth, string EmployeeName = null, int? LocationId = null, int? UnitId = null);
+        Task<List<LeavePlan>> SearchLeavePlansAsync(int LeaveYear, int LeaveMonth, string EmployeeName = null, int? LocationId = null, int? UnitId = null, string EmployeeId = null);
+        Task<List<LeavePlan>> SearchMyTeamsLeavePlansAsync(string TeamLeadId, int LeaveYear, int LeaveMonth, string EmployeeId = null);
+
 
         Task<long> CreateLeavePlanAsync(LeavePlan p);
         Task<bool> UpdateLeavePlanAsync(LeavePlan p);
         Task<bool> DeleteLeavePlanAsync(long id);
+        Task<bool> UpdateLeavePlanFlagAsync(long LeavePlanId, bool IsFlagged, string FlagReason = null, string FlaggedBy = null);
         #endregion
 
         #region Leave Request Service Interfaces
-       
+
         #region Leave Request Write Interfaces
         Task<long> CreateLeaveRequestAsync(LeaveRequest r);
         Task<bool> UpdateLeaveRequestAsync(LeaveRequest r);
@@ -74,14 +78,18 @@ namespace IntranetPortal.Base.Services
         Task<List<LeaveRequest>> GetLeaveRequestsAsync(string EmployeeId, int LeaveYear);
         Task<LeaveRequest> GetLeaveRequestAsync(long LeaveRequestId);
         Task<List<LeaveRequest>> SearchLeaveRequestsAsync(int LeaveYear, int LeaveMonth, string EmployeeName = null, int? LocationId = null, int? UnitId = null);
+        Task<List<LeaveRequest>> SearchMyTeamsLeaveRequestsAsync(string TeamLeadId, int LeaveYear, int LeaveMonth, string EmployeeId = null, int? LeaveStatus = null);
+
+        Task<List<LeaveRequest>> SearchApprovedLeaveRequestsAsync(int LeaveYear, int LeaveMonth = 0, int? LocationId = null, int? UnitId = null);
+
+        Task<List<LeaveRequest>> GetLeaveRequestsDueResumptionAsync(int ResumptionYear, int ResumptionMonth, int? LocationId = null, int? UnitId = null);
         #endregion
 
         #endregion
 
         #region Leave Balances Service Interfaces
-        Task<LeaveBalances> GetLeaveBalancesAsync(string LeaveTypeCode, int LeaveYear, string EmployeeId = null, string EmployeeName = null);
-        Task<LeaveBalances> RefreshAndRetrieveLeaveBalancesAsync(string LeaveTypeCode, int LeaveYear, string EmployeeId = null, string EmployeeName = null);
-
+        Task<LeaveRollingBalance> GetRefreshedLeaveBalancesAsync(string LeaveTypeCode, int LeaveYear, string EmployeeId = null, string EmployeeName = null);
+        Task<bool> RefreshAllEmployeesAnnualLeaveBalances(int LeaveYear);
         #endregion
 
         #region Leave Submission Service Interfaces
@@ -108,16 +116,24 @@ namespace IntranetPortal.Base.Services
         Task<List<LeaveDocument>> GetLeaveDocumentsAsync(long LeaveRequestId);
         #endregion
 
+        #region Leave Resumption Service Interfaces
+        Task<bool> SubmitLeaveResumptionNoticeAsync(LeaveResumption u, string SendToEmployeeName, string SendToEmployeeRole);
+        Task<bool> ConfirmLeaveResumptionAsync(LeaveResumption u, long LeaveSubmissionId);
+        Task<LeaveResumption> GetLeaveResumptionAsync(long LeaveRequestId, long LeaveResumptionId);
+        #endregion
+
         #region Leave Adjustments Service Interfaces
         Task<List<LeaveAdjustment>> GetLeaveAdjustmentsAsync(long LeaveRequestId);
         Task<LeaveAdjustment> GetLeaveAdjustmentAsync(long LeaveAdjustmentId);
 
         Task<bool> AddLeaveAdjustmentAsync(LeaveAdjustment adjustment);
+        Task<bool> DeleteLeaveAdjustmentAsync(long LeaveAdjustmentId, string DeletedBy);
         #endregion
 
         #region Leave Service Helper Interfaces
         DateTime GenerateLeaveEndDate(DateTime StartDate, int DurationTypeId, int Duration);
         int GetLeaveBalance(string EmployeeId, string LeaveTypeCode, int LeaveYear);
+        int GetLeaveDuration(DateTime StartDate, DateTime ResumptionDate);
 
         #endregion
 
@@ -127,6 +143,13 @@ namespace IntranetPortal.Base.Services
         Task<bool> AddLeaveNoteAsync(LeaveNote e);
 
         Task<List<LeaveActivityLog>> GetLeaveActivitiesAsync(long? LeavePlanId = null, long? LeaveRequestId = null);
+        #endregion
+
+        #region Leave Reports Service Interfaces
+        Task<List<LeavePlanCompliance>> GetLeavePlanComplianceAsync(int LeaveYear, ReportParameter parameter);
+        Task<List<LeaveRequestCompliance>> GetLeaveRequestComplianceAsync(int LeaveYear, ReportParameter parameter);
+
+        Task<List<AnnualLeaveSummary>> SearchAnnualLeaveSummaryAsync(int LeaveYear, int UnitId = 0, int DepartmentId = 0, int LocationId = 0, string EmployeeName = null);
         #endregion
     }
 }

@@ -1,7 +1,7 @@
 ﻿
 @model IntranetPortal.Areas.LVM.Models.LeaveProfileDetailsListViewModel
 <div class="container">
-    <h3 class="mb-1">@Model.LeaveProfileName Options</h3>
+    <h4 class="mb-1">Leave Management System | Settings | @Model.LeaveProfileName</h4>
     <hr />
     <div class="mb-2">
         <a asp-area="LVM" asp-controller="Settings" asp-action="LeaveProfiles" class="btn btn-dark" style="width:100px" title="Exit">
@@ -30,88 +30,158 @@
         }
         else
         {
-            <div class="table-responsive" style="min-height:400px">
-                <table class="table table-sm table-hover">
-                    <thead class="table-dark">
-                        <tr>
-                            <th>
-                                <span class="text-white fw-bolder">Leave Type</span>
-                            </th>
-                            <th>
-                                <span class="text-white fw-bolder">Duration</span>
-                            </th>
-                            <th>
-                                <span class="text-white fw-bolder">Is Yearly</span>
-                            </th>
-                            <th>
-                                <span class="text-white fw-bolder">Is Deferrable</span>
-                            </th>
-                            <th>
-                                <span class="text-white fw-bolder">Is Monetizable</span>
-                            </th>
-                            <th>
-
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody class="table-light">
-                        @foreach (var item in Model.LeaveProfileDetailList)
-                        {
-                            <tr>
-                                <td class="p-2">
-                                    <span class="fw-bolder">@item.LeaveTypeName</span>
-                                </td>
-                                <td class="p-2">
-                                    <span class="fw-bolder">@item.Duration @item.DurationTypeDescription</span>
-                                </td>
-                                <td>
-                                    @if (item.IsYearly)
-                                    {<span class="fw-bolder text-dark"><i class="bi bi-check-lg"></i></span>}
-                                    else
-                                    {<span class="fw-bolder text-dark"><i class="bi bi-x-lg"></i></span>}
-                                </td>
-                                <td>
-                                    @if (item.CanBeCarriedOver)
-                                    {<span class="fw-bolder text-dark"><i class="bi bi-check-lg"></i></span>}
-                                    else
-                                    {<span class="fw-bolder text-dark"><i class="bi bi-x-lg"></i></span>}
-                                </td>
-                                <td>
-                                    @if (item.CanBeMonetized)
-                                    {<span class="fw-bolder text-dark"><i class="bi bi-check-lg"></i></span>}
-                                    else
-                                    {<span class="fw-bolder text-dark"><i class="bi bi-x-lg"></i></span>}
-                                </td>
-                                <td>
-                                    <div class="dropdown">
-                                        <button class="btn btn-light btn-sm" type="button" id="dropdownMenuButton2" data-bs-toggle="dropdown" aria-expanded="false">
-                                            <span class="fw-bold text-dark"><i class="bi bi-three-dots"></i></span>
-                                        </button>
-                                        <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton2">
-                                            <li>
-                                                <a asp-area="LVM" asp-controller="Settings" asp-action="ViewProfileDetail" asp-route-id="@item.Id" title="Details" class="dropdown-item">
-                                                    <span class="text-white"><i class="bi bi-info-circle"></i> View</span>
-                                                </a>
-                                            </li>
-                                            <li>
-                                                <a asp-area="LVM" asp-controller="Settings" asp-action="EditProfileDetail" asp-route-id="@item.Id" title="Edit" class="dropdown-item">
-                                                    <span class="text-white"><i class="bi bi-pencil-square"></i> Edit</span>
-                                                </a>
-                                            </li>
-                                            <li>
-                                                <a asp-area="LVM" asp-controller="Settings" asp-action="DeleteProfileDetail" asp-route-id="@item.Id" title="Delete" class="dropdown-item">
-                                                    <span class="text-white"><i class="bi bi-trash"></i> Delete</span>
-                                                </a>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
-            </div>
+            @foreach (var item in Model.LeaveProfileDetailList)
+            {
+                <div class="card">
+                    <div class="card-header bg-info">
+                        <h5 class="text-white fw-bold">@item.LeaveTypeName </h5>
+                    </div>
+                    <div class="card-body bg-secondary">
+                        <div class="row">
+                            <div class="col-md-3 mb-3">
+                                <label class="form-label text-white fw-bold">Leave Duration</label>
+                                <div class="form-control fw-bold">@item.DurationDescription</div>
+                            </div>
+                            <div class="col-md-3 mb-3 mt-4">
+                                @if (item.IsYearly)
+                                {
+                                    <span class="fw-bold text-white"><i class="bi bi-check-square" style="font-size: 1.5rem; margin-right: 4px;"></i> Is Yearly Renewable</span>
+                                }
+                                else
+                                {
+                                    <span class="fw-bold text-white"><i class="bi bi-x-square" style="font-size: 1.5rem; margin-right: 4px;"></i> Is Yearly Renewable</span>
+                                }
+                            </div>
+                            <div class="col-md-3 mb-3 mt-4">
+                                @if (item.CanBeMonetized)
+                                {
+                                    <span class="fw-bold text-white"><i class="bi bi-check-square" style="font-size: 1.5rem; margin-right: 4px;"></i> Is Monetizable</span>
+                                }
+                                else
+                                {
+                                    <span class="fw-bold text-white"><i class="bi bi-x-square" style="font-size: 1.5rem; margin-right:4px;"></i> Is Monetizable</span>
+                                }
+                            </div>
+                            <div class="col-md-3 mb-3 mt-4">
+                                @if (item.CanBeCarriedOver)
+                                {
+                                    <span class="fw-bold text-white"><i class="bi bi-check-square" style="font-size:1.5rem; margin-right:4px;"></i>  Can be Carried Forward</span>
+                                }
+                                else
+                                {
+                                    <span class="text-white fw-bold"><i class="bi bi-x-square" style="font-size: 1.5rem; margin-right: 4px;"></i> Can be Carried Forward</span>
+                                }
+                            </div>
+                        </div>
+                        <div class="row">
+                            @if (item.CanBeCarriedOver)
+                            {
+                                <div class="col-md-6" style="padding-top:10px">
+                                    <span class="text-white fw-bold mr-3">Can be Carried Forward Until:  </span>
+                                    <span class="text-white fw-bold"> @item.CarryOverEndMonthName</span>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="col-md-6">
+                                </div>
+                            }
+                            <div class="col-md-6 text-end">
+                                <a asp-area="LVM" asp-controller="Settings" asp-action="DeleteProfileDetail" asp-route-id="@item.Id" title="Delete" class="btn btn-sm btn-danger">
+                                    <span class="text-white"><i class="bi bi-trash"></i> Delete</span>
+                                </a>
+                                <a asp-area="LVM" asp-controller="Settings" asp-action="EditProfileDetail" asp-route-id="@item.Id" title="Edit Options" class="btn btn-sm btn-info">
+                                    <span class="text-white fw-bold"><i class="bi bi-pencil-square"></i> Edit Options</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
         }
+        @*}
+                <div class="table-responsive" style="min-height:400px">
+                    <table class="table table-sm table-hover">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>
+                                    <span class="text-white fw-bolder">Leave Type</span>
+                                </th>
+                                <th>
+                                    <span class="text-white fw-bolder">Duration</span>
+                                </th>
+                                <th>
+                                    <span class="text-white fw-bolder">Is Yearly</span>
+                                </th>
+                                <th>
+                                    <span class="text-white fw-bolder">Is Deferrable</span>
+                                </th>
+                                <th>
+                                    <span class="text-white fw-bolder">Is Monetizable</span>
+                                </th>
+                                <th>
+
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody class="table-light">
+                            @foreach (var item in Model.LeaveProfileDetailList)
+                            {
+                                <tr>
+                                    <td class="p-2">
+                                        <span class="fw-bolder">@item.LeaveTypeName</span>
+                                    </td>
+                                    <td class="p-2">
+                                        <span class="fw-bolder">@item.Duration @item.DurationTypeDescription</span>
+                                    </td>
+                                    <td>
+                                        @if (item.IsYearly)
+                                        {<span class="fw-bolder text-dark"><i class="bi bi-check-lg"></i></span>}
+                                        else
+                                        {<span class="fw-bolder text-dark"><i class="bi bi-x-lg"></i></span>}
+                                    </td>
+                                    <td>
+                                        @if (item.CanBeCarriedOver)
+                                        {<span class="fw-bolder text-dark"><i class="bi bi-check-lg"></i></span>}
+                                        else
+                                        {<span class="fw-bolder text-dark"><i class="bi bi-x-lg"></i></span>}
+                                    </td>
+                                    <td>
+                                        @if (item.CanBeMonetized)
+                                        {<span class="fw-bolder text-dark"><i class="bi bi-check-lg"></i></span>}
+                                        else
+                                        {<span class="fw-bolder text-dark"><i class="bi bi-x-lg"></i></span>}
+                                    </td>
+                                    <td>
+                                        <div class="dropdown">
+                                            <button class="btn btn-light btn-sm" type="button" id="dropdownMenuButton2" data-bs-toggle="dropdown" aria-expanded="false">
+                                                <span class="fw-bold text-dark"><i class="bi bi-three-dots"></i></span>
+                                            </button>
+                                            <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton2">
+                                                <li>
+                                                    <a asp-area="LVM" asp-controller="Settings" asp-action="ViewProfileDetail" asp-route-id="@item.Id" title="Details" class="dropdown-item">
+                                                        <span class="text-white"><i class="bi bi-info-circle"></i> View</span>
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <a asp-area="LVM" asp-controller="Settings" asp-action="EditProfileDetail" asp-route-id="@item.Id" title="Edit" class="dropdown-item">
+                                                        <span class="text-white"><i class="bi bi-pencil-square"></i> Edit</span>
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <a asp-area="LVM" asp-controller="Settings" asp-action="DeleteProfileDetail" asp-route-id="@item.Id" title="Delete" class="dropdown-item">
+                                                        <span class="text-white"><i class="bi bi-trash"></i> Delete</span>
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }*@
 
     </div>
 </div>

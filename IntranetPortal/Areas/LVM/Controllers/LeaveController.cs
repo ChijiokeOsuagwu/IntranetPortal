@@ -1,4 +1,5 @@
-﻿using IntranetPortal.Areas.LVM.Models;
+﻿using ClosedXML.Excel;
+using IntranetPortal.Areas.LVM.Models;
 using IntranetPortal.Base.Models.BaseModels;
 using IntranetPortal.Base.Models.EmployeeRecordModels;
 using IntranetPortal.Base.Models.LeaveModels;
@@ -12,6 +13,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -60,29 +62,58 @@ namespace IntranetPortal.Areas.LVM.Controllers
             }
             else { model.yr = yr; }
 
-            model.nm = HttpContext.User.Identity.Name;
+            model.sn = HttpContext.User.Identity.Name;
             model.ei = HttpContext.User.Claims.FirstOrDefault(c => c.Type.Contains("nameidentifier")).Value;
             try
             {
-                model.LeavePlanList = await _leaveService.GetLeavePlansAsync(model.ei, model.yr);
-                model.LeaveRequestList = await _leaveService.GetLeaveRequestsAsync(model.ei, model.yr);
-                model.CurrentLeaveBalances = await _leaveService.RefreshAndRetrieveLeaveBalancesAsync("ANL", DateTime.Now.Year, model.ei, model.nm);
+                if (string.IsNullOrWhiteSpace(model.ei))
+                {
+                    await HttpContext.SignOutAsync(SecurityConstants.ChxCookieAuthentication);
+                    return LocalRedirect("/Home/Login");
+                }
+                Employee employee = await _ermService.GetEmployeeByIdAsync(model.ei);
+                if (employee == null || string.IsNullOrWhiteSpace(employee.FullName)) { throw new Exception("Sorry, no employee record was found for this user."); }
+                model.sn = employee.FullName;
+                model.ei = employee.EmployeeID;
+                model.LeavePlanList = await _leaveService.GetLeavePlansAsync(employee.EmployeeID, model.yr);
+                model.LeaveRequestList = await _leaveService.GetLeaveRequestsAsync(employee.EmployeeID, model.yr);
+                model.CurrentLeaveRollingBalances = await _leaveService.GetRefreshedLeaveBalancesAsync("ANL", DateTime.Now.Year, employee.EmployeeID, employee.FullName);
+
+                //model.CurrentLeaveBalances = await _leaveService.RefreshAndRetrieveLeaveBalancesAsync("ANL", DateTime.Now.Year, employee.EmployeeID, employee.FullName);
             }
             catch (Exception ex) { model.ViewModelErrorMessage = ex.Message; }
             return View(model);
         }
 
+
         #region Leave Plans
         public async Task<IActionResult> NewLeavePlan()
         {
             LeavePlanViewModel model = new LeavePlanViewModel();
-            model.LeavePlanStatusId = 0;
-            model.LeaveYear = DateTime.Today.Year;
-            model.LeaveEmployeeName = HttpContext.User.Identity.Name;
-            model.LeaveEmployeeId = HttpContext.User.Claims.FirstOrDefault(c => c.Type.Contains("nameidentifier")).Value;
-
+            try
+            {
+                model.LeaveYear = DateTime.Today.Year;
+                model.LeaveEmployeeName = HttpContext.User.Identity.Name;
+                model.LeaveEmployeeId = HttpContext.User.Claims.FirstOrDefault(c => c.Type.Contains("nameidentifier")).Value;
+                model.RollingBalances = await _leaveService.GetRefreshedLeaveBalancesAsync("ANL", model.LeaveYear, model.LeaveEmployeeId, model.LeaveEmployeeName);
+                if (model.RollingBalances.PreviousBalanceExpiryMonth > DateTime.Now.Month)
+                {
+                    model.CurrentLeaveBalance = model.RollingBalances.TotalOutstandingLeaveDaysBeforeExpiry;
+                    model.CurrentLeaveBalanceDescription = $"{model.RollingBalances.TotalOutstandingLeaveDaysBeforeExpiry} Working Day(s)";
+                }
+                else
+                {
+                    model.CurrentLeaveBalance = model.RollingBalances.TotalOutstandingLeaveDaysAfterExpiry;
+                    model.CurrentLeaveBalanceDescription = $"{model.RollingBalances.TotalOutstandingLeaveDaysAfterExpiry} Working Day(s)";
+                }
+            }
+            catch (Exception ex)
+            {
+                model.ViewModelErrorMessage = ex.Message;
+            }
             List<LeaveType> entities = await _leaveService.GetLeaveTypes();
             if (entities != null) { ViewBag.LeaveTypeCodeList = new SelectList(entities, "Code", "Name", model.LeaveTypeCode); }
+
             return View(model);
         }
 
@@ -94,6 +125,11 @@ namespace IntranetPortal.Areas.LVM.Controllers
                 LeavePlan d = new LeavePlan();
                 if (ModelState.IsValid)
                 {
+                    if (model.LeaveTypeCode == "ANL" & model.LeavePlanDuration > model.CurrentLeaveBalance)
+                    {
+                        throw new Exception("Sorry, your Leave Duration cannot exceed your Current Leave Balance.");
+                    }
+
                     d = model.Convert();
                     Employee e = await _ermService.GetEmployeeByIdAsync(d.LeaveEmployeeId);
                     if (e == null || string.IsNullOrWhiteSpace(e.FullName)) { throw new Exception("Sorry, no record was found for this staff."); }
@@ -132,9 +168,29 @@ namespace IntranetPortal.Areas.LVM.Controllers
             {
                 return RedirectToAction("NewLeavePlan");
             }
-            var entity = await _leaveService.GetLeavePlanAsync(id);
-            if (entity != null) { plan = entity; }
-            model = model.Extract(plan);
+            try
+            {
+                var entity = await _leaveService.GetLeavePlanAsync(id);
+                if (entity != null) { plan = entity; }
+                model = model.Extract(plan);
+
+                model.RollingBalances = await _leaveService.GetRefreshedLeaveBalancesAsync("ANL", model.LeaveYear, model.LeaveEmployeeId, model.LeaveEmployeeName);
+                if (model.RollingBalances.PreviousBalanceExpiryMonth > DateTime.Now.Month)
+                {
+                    model.CurrentLeaveBalance = model.RollingBalances.TotalOutstandingLeaveDaysBeforeExpiry;
+                    model.CurrentLeaveBalanceDescription = $"{model.RollingBalances.TotalOutstandingLeaveDaysBeforeExpiry} Working Day(s)";
+                }
+                else
+                {
+                    model.CurrentLeaveBalance = model.RollingBalances.TotalOutstandingLeaveDaysAfterExpiry;
+                    model.CurrentLeaveBalanceDescription = $"{model.RollingBalances.TotalOutstandingLeaveDaysAfterExpiry} Working Day(s)";
+                }
+
+            }
+            catch (Exception ex)
+            {
+                model.ViewModelErrorMessage = ex.Message;
+            }
 
             List<LeaveType> entities = await _leaveService.GetLeaveTypes();
             if (entities != null) { ViewBag.LeaveTypeCodeList = new SelectList(entities, "Code", "Name", model.LeaveTypeCode); }
@@ -149,6 +205,11 @@ namespace IntranetPortal.Areas.LVM.Controllers
                 LeavePlan d = new LeavePlan();
                 if (ModelState.IsValid)
                 {
+                    if (model.LeaveTypeCode == "ANL" & model.LeavePlanDuration > model.CurrentLeaveBalance)
+                    {
+                        throw new Exception("Sorry, your Leave Duration cannot exceed your Current Leave Balance.");
+                    }
+
                     d = model.Convert();
 
                     if (!_validateEndDate(d.LeavePlanStartDate.Value, d.LeavePlanEndDate.Value)) { throw new Exception("Error: Invalid Leave Start Date or End Date."); }
@@ -219,114 +280,6 @@ namespace IntranetPortal.Areas.LVM.Controllers
             return View(model);
         }
 
-        public async Task<IActionResult> SubmitLeave(long? pd = null, long? rd = null)
-        {
-            SubmitLeaveViewModel model = new SubmitLeaveViewModel();
-            try
-            {
-                model.LeavePlanId = pd;
-                model.LeaveRequestId = rd;
-                model.FromEmployeeName = HttpContext.User.Identity.Name;
-                string _loggedInEmployeeId = HttpContext.User.Claims.FirstOrDefault(c => c.Type.Contains("nameidentifier")).Value;
-                var entities = await _ermService.GetActiveEmployeeReportLinesByEmployeeIdAsync(_loggedInEmployeeId);
-                if (entities != null)
-                {
-                    ViewBag.ReportingLines = new SelectList(entities, "ReportsToEmployeeID", "ReportsToEmployeeName");
-                }
-            }
-            catch (Exception ex)
-            {
-                model.ViewModelErrorMessage = ex.Message;
-            }
-            return View(model);
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> SubmitLeave(SubmitLeaveViewModel model)
-        {
-            if (ModelState.IsValid)
-            {
-                LeaveSubmission leaveSubmission = new LeaveSubmission();
-                leaveSubmission = model.Convert();
-                leaveSubmission.TimeSubmitted = DateTime.Now;
-                try
-                {
-                    bool IsSubmitted = await _leaveService.SubmitLeaveAsync(leaveSubmission);
-                    if (IsSubmitted)
-                    {
-                        Employee sender = new Employee();
-                        sender = await _ermService.GetEmployeeByNameAsync(model.FromEmployeeName);
-                        Employee approver = new Employee();
-                        approver = await _ermService.GetEmployeeByNameAsync(model.ToEmployeeName);
-
-                        //===== Send Notificiation Message to Approver ========//
-                        Message message = new Message
-                        {
-                            MessageID = Guid.NewGuid().ToString(),
-                            RecipientID = approver.EmployeeID,
-                            RecipientName = approver.FullName,
-                            SentBy = sender.FullName
-                        };
-
-                        //===== Send Email Notifications to Approver =========//
-                        bool approverEmailCopySent = false;
-                        UtilityHelper utilityHelper = new UtilityHelper(_configuration);
-                        EmailModel recipientEmailCopy = new EmailModel();
-                        recipientEmailCopy.RecipientName = approver.FullName;
-                        if (!string.IsNullOrWhiteSpace(approver.OfficialEmail))
-                        {
-                            recipientEmailCopy.RecipientEmail = approver.OfficialEmail;
-                        }
-                        else
-                        {
-                            recipientEmailCopy.RecipientEmail = approver.Email;
-                        }
-
-                        recipientEmailCopy.RecipientEmail = approver.OfficialEmail;
-                        recipientEmailCopy.SenderName = sender.FullName;
-                        switch (leaveSubmission.Purpose)
-                        {
-                            case "Approval":
-                                recipientEmailCopy.Subject = "Request for Leave Plan Approval";
-                                recipientEmailCopy.HtmlContent = UtilityHelper.GetLeavePlanApprovalEmailHtmlContent(approver.FullName, sender.FullName);
-                                recipientEmailCopy.PlainContent = UtilityHelper.GetLeavePlanApprovalEmailPlainContent(approver.FullName, sender.FullName);
-
-                                message.Subject = "Request for Leave Plan Approval";
-                                message.MessageBody = UtilityHelper.GetLeavePlanApprovalMessageContent(sender.FullName);
-                                break;
-                            case "Notification":
-                                recipientEmailCopy.Subject = "Notice of Leave Plan";
-                                recipientEmailCopy.HtmlContent = UtilityHelper.GetLeavePlanNoticeEmailHtmlContent(approver.FullName, sender.FullName);
-                                recipientEmailCopy.PlainContent = UtilityHelper.GetLeavePlanNoticeEmailPlainContent(approver.FullName, sender.FullName);
-
-                                message.Subject = "Notice of Leave Plan";
-                                message.MessageBody = UtilityHelper.GetLeavePlanNoticeMessageContent(sender.FullName);
-                                break;
-                            default:
-                                break;
-                        }
-
-                        bool messageSent = await _baseModelService.SendMessageAsync(message);
-                        if (!string.IsNullOrWhiteSpace(recipientEmailCopy.RecipientEmail))
-                        {
-                            // approverEmailCopySent = utilityHelper.SendEmailWithSendGrid(recipientEmailCopy);
-                        }
-
-                        return RedirectToAction("MyLeaveRecords", new { yr = DateTime.Now.Year });
-                    }
-                    else
-                    {
-                        model.ViewModelErrorMessage = "An error was encountered. The attempted submission failed.";
-                    }
-                }
-                catch (Exception ex)
-                {
-                    model.ViewModelErrorMessage = ex.Message;
-                }
-            }
-            return View(model);
-        }
-
         public async Task<IActionResult> LeavePendingApproval(int? yr = null)
         {
             LeavePendingApprovalListViewModel model = new LeavePendingApprovalListViewModel();
@@ -342,6 +295,15 @@ namespace IntranetPortal.Areas.LVM.Controllers
 
             model.nm = HttpContext.User.Identity.Name;
             model.ei = userId;
+
+            if (User.Identity is { IsAuthenticated: true })
+            {
+                if (User.IsInRole("GBSHRDAPV"))
+                {
+                    model.UserIsSeniorHr = true;
+                }
+            }
+
 
             if (!string.IsNullOrWhiteSpace(model.nm))
             {
@@ -386,8 +348,6 @@ namespace IntranetPortal.Areas.LVM.Controllers
             model.LeavePlanId = plan.LeavePlanId;
             model.LeavePlanResumptionDate = plan.LeavePlanResumptionDate;
             model.LeavePlanStartDate = plan.LeavePlanStartDate;
-            model.LeavePlanStatusDescription = plan.LeavePlanStatusDescription;
-            model.LeavePlanStatusId = plan.LeavePlanStatusId;
             model.LeaveTypeName = plan.LeaveTypeName;
             model.LeaveTypeCode = plan.LeaveTypeCode;
             model.LeaveYear = plan.LeaveYear;
@@ -523,8 +483,6 @@ namespace IntranetPortal.Areas.LVM.Controllers
             model.LeavePlanId = plan.LeavePlanId;
             model.LeavePlanResumptionDate = plan.LeavePlanResumptionDate;
             model.LeavePlanStartDate = plan.LeavePlanStartDate;
-            model.LeavePlanStatusDescription = plan.LeavePlanStatusDescription;
-            model.LeavePlanStatusId = plan.LeavePlanStatusId;
             model.LeaveTypeName = plan.LeaveTypeName;
             model.LeaveTypeCode = plan.LeaveTypeCode;
             model.LeaveYear = plan.LeaveYear;
@@ -635,19 +593,42 @@ namespace IntranetPortal.Areas.LVM.Controllers
         public async Task<IActionResult> NewLeaveRequest(long? pd = null)
         {
             LeaveRequestViewModel model = new LeaveRequestViewModel();
-            if (pd > 0)
+            try
             {
-                LeavePlan plan = await _leaveService.GetLeavePlanAsync(pd.Value);
-                if (plan != null) { model = model.ExtractFromLeavePlan(plan); }
+                if (pd > 0)
+                {
+                    LeavePlan plan = await _leaveService.GetLeavePlanAsync(pd.Value);
+                    if (plan != null) { model = model.ExtractFromLeavePlan(plan); }
+                }
+                else
+                {
+                    model.RequestedStartDate = DateTime.Now.Date;
+                    model.LeaveYear = DateTime.Today.Year;
+                    model.LeaveEmployeeName = HttpContext.User.Identity.Name;
+                    model.LeaveEmployeeId = HttpContext.User.Claims.FirstOrDefault(c => c.Type.Contains("nameidentifier")).Value;
+                }
+                model.LeaveRequestStatusId = 0;
+                model.RollingBalances = await _leaveService.GetRefreshedLeaveBalancesAsync("ANL", model.LeaveYear, model.LeaveEmployeeId, model.LeaveEmployeeName);
+                if (model.RollingBalances.PreviousBalanceExpiryMonth > DateTime.Now.Month)
+                {
+                    model.CurrentLeaveBalance = model.RollingBalances.TotalOutstandingLeaveDaysBeforeExpiry;
+                    model.CurrentLeaveBalanceDescription = $"{model.RollingBalances.TotalOutstandingLeaveDaysBeforeExpiry} Working Day(s)";
+                }
+                else
+                {
+                    model.CurrentLeaveBalance = model.RollingBalances.TotalOutstandingLeaveDaysAfterExpiry;
+                    model.CurrentLeaveBalanceDescription = $"{model.RollingBalances.TotalOutstandingLeaveDaysAfterExpiry} Working Day(s)";
+                }
+                var employee = await _ermService.GetEmployeeByIdAsync(model.LeaveEmployeeId);
+                if (employee != null)
+                {
+                    model.EligibleForLeaveAllowance = employee.IsEligibleForLeaveAllowance;
+                }
             }
-            else
+            catch (Exception ex)
             {
-                model.RequestedStartDate = DateTime.Now.Date;
-                model.LeaveYear = DateTime.Today.Year;
-                model.LeaveEmployeeName = HttpContext.User.Identity.Name;
-                model.LeaveEmployeeId = HttpContext.User.Claims.FirstOrDefault(c => c.Type.Contains("nameidentifier")).Value;
+                model.ViewModelErrorMessage = ex.Message;
             }
-            model.LeaveRequestStatusId = 0;
             List<LeaveType> entities = await _leaveService.GetLeaveTypes();
             if (entities != null) { ViewBag.LeaveTypeCodeList = new SelectList(entities, "Code", "Name", model.LeaveTypeCode); }
             return View(model);
@@ -659,8 +640,13 @@ namespace IntranetPortal.Areas.LVM.Controllers
             try
             {
                 LeaveRequest r = new LeaveRequest();
+                LeaveAllowance leaveAllowance = new LeaveAllowance();
                 if (ModelState.IsValid)
                 {
+                    if (model.LeaveTypeCode == "ANL" & model.RequestedDuration > model.CurrentLeaveBalance)
+                    {
+                        throw new Exception("Sorry, your Leave Duration cannot exceed your Current Leave Balance.");
+                    }
                     r = model.Convert();
                     Employee e = await _ermService.GetEmployeeByIdAsync(r.LeaveEmployeeId);
                     if (e == null || string.IsNullOrWhiteSpace(e.FullName)) { throw new Exception("Sorry, no record was found for this staff."); }
@@ -671,6 +657,20 @@ namespace IntranetPortal.Areas.LVM.Controllers
                         r.DepartmentId = e.DepartmentID ?? 0;
                         r.UnitId = e.UnitID ?? 0;
                         r.LocationId = e.LocationID ?? 0;
+
+                        leaveAllowance.LeaveEmployeeId = e.EmployeeID;
+                        leaveAllowance.LeaveDepartmentId = e.DepartmentID ?? 0;
+                        leaveAllowance.LeaveYear = r.LeaveYear;
+                        leaveAllowance.PaymentYear = r.LeaveYear;
+                        leaveAllowance.LeaveLocationId = e.LocationID ?? 0;
+                        leaveAllowance.LeaveRequestId = r.LeaveRequestId;
+                        leaveAllowance.LeaveUnitId = e.UnitID ?? 0;
+                        leaveAllowance.PaymentMonth = r.RequestedStartDate.Month;
+                        leaveAllowance.RecordedBy = HttpContext.User.Identity.Name;
+                        leaveAllowance.RecordedTime = DateTime.UtcNow;
+                        leaveAllowance.RequestedTime = DateTime.UtcNow;
+
+                        r.LeaveAllowance = leaveAllowance;
                     }
 
                     if (!_validateEndDate(r.RequestedStartDate, r.RequestedEndDate)) { throw new Exception("Error: Invalid Start Date or End Date."); }
@@ -693,15 +693,37 @@ namespace IntranetPortal.Areas.LVM.Controllers
 
         public async Task<IActionResult> EditLeaveRequest(long id)
         {
+            if (id < 1) { return RedirectToAction("NewLeaveRequest"); }
             LeaveRequestViewModel model = new LeaveRequestViewModel();
             LeaveRequest request = new LeaveRequest();
-            if (id < 1)
+
+            try
             {
-                return RedirectToAction("NewLeaveRequest");
+                var entity = await _leaveService.GetLeaveRequestAsync(id);
+                if (entity != null) { request = entity; }
+                model = model.ExtractFromLeaveRequest(request);
+                model.RollingBalances = await _leaveService.GetRefreshedLeaveBalancesAsync("ANL", model.LeaveYear, model.LeaveEmployeeId, model.LeaveEmployeeName);
+                if (model.RollingBalances.PreviousBalanceExpiryMonth > DateTime.Now.Month)
+                {
+                    model.CurrentLeaveBalance = model.RollingBalances.TotalOutstandingLeaveDaysBeforeExpiry;
+                    model.CurrentLeaveBalanceDescription = $"{model.RollingBalances.TotalOutstandingLeaveDaysBeforeExpiry} Working Day(s)";
+                }
+                else
+                {
+                    model.CurrentLeaveBalance = model.RollingBalances.TotalOutstandingLeaveDaysAfterExpiry;
+                    model.CurrentLeaveBalanceDescription = $"{model.RollingBalances.TotalOutstandingLeaveDaysAfterExpiry} Working Day(s)";
+                }
+
+                var employee = await _ermService.GetEmployeeByIdAsync(model.LeaveEmployeeId);
+                if (employee != null)
+                {
+                    model.EligibleForLeaveAllowance = employee.IsEligibleForLeaveAllowance;
+                }
             }
-            var entity = await _leaveService.GetLeaveRequestAsync(id);
-            if (entity != null) { request = entity; }
-            model = model.ExtractFromLeaveRequest(request);
+            catch (Exception ex)
+            {
+                model.ViewModelErrorMessage = ex.Message;
+            }
 
             List<LeaveType> entities = await _leaveService.GetLeaveTypes();
             if (entities != null) { ViewBag.LeaveTypeCodeList = new SelectList(entities, "Code", "Name", model.LeaveTypeCode); }
@@ -714,12 +736,36 @@ namespace IntranetPortal.Areas.LVM.Controllers
             try
             {
                 LeaveRequest request = new LeaveRequest();
+                LeaveAllowance leaveAllowance = new LeaveAllowance();
                 if (ModelState.IsValid)
                 {
+                    if (model.LeaveTypeCode == "ANL" & model.RequestedDuration > model.CurrentLeaveBalance)
+                    {
+                        throw new Exception("Sorry, your Leave Duration cannot exceed your Current Leave Balance.");
+                    }
                     request = model.Convert();
 
                     if (!_validateEndDate(request.RequestedStartDate, request.RequestedEndDate)) { throw new Exception("Error: Invalid Start Date and/or End Date."); }
                     if (!_validateResumptionDate(request.RequestedResumptionDate.Value, request.RequestedEndDate)) { throw new Exception("Error: Invalid Resumption Date."); }
+
+                    Employee e = await _ermService.GetEmployeeByIdAsync(request.LeaveEmployeeId);
+                    if (e == null || string.IsNullOrWhiteSpace(e.FullName)) { throw new Exception("Sorry, no record was found for this staff."); }
+                    else
+                    {
+                        leaveAllowance.LeaveEmployeeId = e.EmployeeID;
+                        leaveAllowance.LeaveDepartmentId = e.DepartmentID ?? 0;
+                        leaveAllowance.LeaveYear = request.LeaveYear;
+                        leaveAllowance.PaymentYear = request.LeaveYear;
+                        leaveAllowance.LeaveLocationId = e.LocationID ?? 0;
+                        leaveAllowance.LeaveRequestId = request.LeaveRequestId;
+                        leaveAllowance.LeaveUnitId = e.UnitID ?? 0;
+                        leaveAllowance.PaymentMonth = request.RequestedStartDate.Month;
+                        leaveAllowance.RecordedBy = HttpContext.User.Identity.Name;
+                        leaveAllowance.RecordedTime = DateTime.UtcNow;
+                        leaveAllowance.RequestedTime = DateTime.UtcNow;
+
+                        request.LeaveAllowance = leaveAllowance;
+                    }
 
                     if (await _leaveService.UpdateLeaveRequestAsync(request))
                     {
@@ -783,6 +829,147 @@ namespace IntranetPortal.Areas.LVM.Controllers
 
             List<LeaveType> entities = await _leaveService.GetLeaveTypes();
             if (entities != null) { ViewBag.LeaveTypeCodeList = new SelectList(entities, "Code", "Name", model.LeaveTypeCode); }
+            return View(model);
+        }
+
+        public async Task<IActionResult> SubmitLeave(long? pd = null, long? rd = null)
+        {
+            SubmitLeaveViewModel model = new SubmitLeaveViewModel();
+            try
+            {
+                model.LeavePlanId = pd;
+                model.LeaveRequestId = rd;
+                model.FromEmployeeName = HttpContext.User.Identity.Name;
+                string _loggedInEmployeeId = HttpContext.User.Claims.FirstOrDefault(c => c.Type.Contains("nameidentifier")).Value;
+                var entities = await _ermService.GetActiveEmployeeReportLinesByEmployeeIdAsync(_loggedInEmployeeId);
+                if (entities != null)
+                {
+                    ViewBag.ReportingLines = new SelectList(entities, "ReportsToEmployeeID", "ReportsToEmployeeName");
+                }
+            }
+            catch (Exception ex)
+            {
+                model.ViewModelErrorMessage = ex.Message;
+            }
+            return View(model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> SubmitLeave(SubmitLeaveViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                LeaveSubmission leaveSubmission = new LeaveSubmission();
+                leaveSubmission = model.Convert();
+                leaveSubmission.TimeSubmitted = DateTime.Now;
+
+                string documentType = string.Empty;
+                if (model.LeavePlanId > 0) { documentType = "Leave Plan"; }
+                else if (model.LeaveRequestId > 0) { documentType = "Leave Request"; }
+
+                try
+                {
+                    bool IsSubmitted = await _leaveService.SubmitLeaveAsync(leaveSubmission);
+                    if (IsSubmitted)
+                    {
+                        Employee sender = new Employee();
+                        sender = await _ermService.GetEmployeeByNameAsync(model.FromEmployeeName);
+                        Employee approver = new Employee();
+                        approver = await _ermService.GetEmployeeByNameAsync(model.ToEmployeeName);
+
+                        //===== Send Notificiation Message to Approver ========//
+                        Message message = new Message
+                        {
+                            MessageID = Guid.NewGuid().ToString(),
+                            RecipientID = approver.EmployeeID,
+                            RecipientName = approver.FullName,
+                            SentBy = sender.FullName
+                        };
+
+                        //===== Send Email Notifications to Approver =========//
+                        bool approverEmailCopySent = false;
+                        UtilityHelper utilityHelper = new UtilityHelper(_configuration);
+                        EmailModel recipientEmailCopy = new EmailModel();
+                        recipientEmailCopy.RecipientName = approver.FullName;
+                        if (!string.IsNullOrWhiteSpace(approver.OfficialEmail))
+                        {
+                            recipientEmailCopy.RecipientEmail = approver.OfficialEmail;
+                        }
+                        else
+                        {
+                            recipientEmailCopy.RecipientEmail = approver.Email;
+                        }
+
+                        recipientEmailCopy.RecipientEmail = approver.OfficialEmail;
+                        recipientEmailCopy.SenderName = sender.FullName;
+
+                        if(model.LeaveRequestId > 0)
+                        {
+                            switch (leaveSubmission.Purpose)
+                            {
+                                case "Approval":
+                                    recipientEmailCopy.Subject = "Request for Leave Plan Approval";
+                                    recipientEmailCopy.HtmlContent = UtilityHelper.GetLeavePlanApprovalEmailHtmlContent(approver.FullName, sender.FullName);
+                                    recipientEmailCopy.PlainContent = UtilityHelper.GetLeavePlanApprovalEmailPlainContent(approver.FullName, sender.FullName);
+
+                                    message.Subject = "Request for Leave Plan Approval";
+                                    message.MessageBody = UtilityHelper.GetLeavePlanApprovalMessageContent(sender.FullName);
+                                    break;
+                                case "Notification":
+                                    recipientEmailCopy.Subject = "Notice of Leave Plan";
+                                    recipientEmailCopy.HtmlContent = UtilityHelper.GetLeavePlanNoticeEmailHtmlContent(approver.FullName, sender.FullName);
+                                    recipientEmailCopy.PlainContent = UtilityHelper.GetLeavePlanNoticeEmailPlainContent(approver.FullName, sender.FullName);
+
+                                    message.Subject = "Notice of Leave Plan";
+                                    message.MessageBody = UtilityHelper.GetLeavePlanNoticeMessageContent(sender.FullName);
+                                    break;
+                                default:
+                                    break;
+                            }
+                        }
+                        else if(model.LeaveRequestId > 0)
+                        {
+                            switch (leaveSubmission.Purpose)
+                            {
+                                case "Approval":
+                                    recipientEmailCopy.Subject = "Request for Leave Application Approval";
+                                    recipientEmailCopy.HtmlContent = UtilityHelper.GetLeaveRequestApprovalEmailHtmlContent(approver.FullName, sender.FullName);
+                                    recipientEmailCopy.PlainContent = UtilityHelper.GetLeaveRequestApprovalEmailPlainContent(approver.FullName, sender.FullName);
+
+                                    message.Subject = "Request for Leave Application Approval";
+                                    message.MessageBody = UtilityHelper.GetLeavePlanApprovalMessageContent(sender.FullName);
+                                    break;
+                                case "Notification":
+                                    recipientEmailCopy.Subject = "Notice of Leave Application";
+                                    recipientEmailCopy.HtmlContent = UtilityHelper.GetLeaveRequestNoticeEmailHtmlContent(approver.FullName, sender.FullName);
+                                    recipientEmailCopy.PlainContent = UtilityHelper.GetLeaveRequestNoticeEmailPlainContent(approver.FullName, sender.FullName);
+
+                                    message.Subject = "Notice of Leave Application";
+                                    message.MessageBody = UtilityHelper.GetLeaveRequestNoticeMessageContent(sender.FullName);
+                                    break;
+                                default:
+                                    break;
+                            }
+                        }
+
+                        bool messageSent = await _baseModelService.SendMessageAsync(message);
+                        if (!string.IsNullOrWhiteSpace(recipientEmailCopy.RecipientEmail))
+                        {
+                            // approverEmailCopySent = utilityHelper.SendEmailWithSendGrid(recipientEmailCopy);
+                        }
+
+                        return RedirectToAction("MyLeaveRecords", new { yr = DateTime.Now.Year });
+                    }
+                    else
+                    {
+                        model.ViewModelErrorMessage = "An error was encountered. The attempted submission failed.";
+                    }
+                }
+                catch (Exception ex)
+                {
+                    model.ViewModelErrorMessage = ex.Message;
+                }
+            }
             return View(model);
         }
 
@@ -1038,6 +1225,135 @@ namespace IntranetPortal.Areas.LVM.Controllers
             return View(model);
         }
 
+        public async Task<IActionResult> SendResumptionNotice(long id)
+        {
+            SendResumptionNoticeViewModel model = new SendResumptionNoticeViewModel();
+            try
+            {
+                if (id < 1) { throw new ArgumentNullException("id"); }
+                var entity = await _leaveService.GetLeaveRequestAsync(id);
+                model.LeaveRequest = entity ?? throw new ArgumentNullException(nameof(entity));
+                model.LeaveRequestId = entity.LeaveRequestId;
+                model.LeaveEmployeeName = entity.LeaveEmployeeName;
+                model.ApprovedResumptionDate = entity.RequestedResumptionDate.Value;
+                model.ResumptionDateByEmployee = entity.RequestedResumptionDate.Value.Date;
+            }
+            catch (Exception ex)
+            {
+                model.ViewModelErrorMessage = ex.Message;
+            }
+            return View(model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> SendResumptionNotice(SendResumptionNoticeViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                LeaveResumption leaveResumption = new LeaveResumption();
+
+                try
+                {
+                    leaveResumption.LeaveEmployeeName = HttpContext.User.Identity.Name;
+                    leaveResumption.NoOfExtraDaysByEmployee = model.NoOfExtraDaysByEmployee;
+                    leaveResumption.NoOfUnusedDaysByEmployee = model.NoOfUnusedDaysByEmployee;
+                    leaveResumption.ResumptionDateByEmployee = model.ResumptionDateByEmployee;
+                    leaveResumption.ReasonByEmployee = model.ReasonByEmployee;
+                    leaveResumption.LeaveRequestId = model.LeaveRequestId;
+                    leaveResumption.ApprovedResumptionDate = model.ApprovedResumptionDate;
+                    leaveResumption.DateRecordedByEmployee = DateTime.UtcNow;
+                    leaveResumption.EmployeeRequestAdjustment = model.EmployeeRequestAdjustment;
+                    leaveResumption.RequestedAdjustmentType = model.RequestedAdjustmentType;
+
+                    bool IsSent = await _leaveService.SubmitLeaveResumptionNoticeAsync(leaveResumption, model.SendToEmployeeName, model.SendToEmployeeRole);
+                    if (!IsSent)
+                    {
+                        model.ViewModelErrorMessage = "An error was encountered. The operation failed.";
+                    }
+                    else
+                    {
+                        Employee sender = new Employee();
+                        sender = await _ermService.GetEmployeeByNameAsync(leaveResumption.LeaveEmployeeName);
+                        Employee approver = new Employee();
+                        approver = await _ermService.GetEmployeeByNameAsync(model.SendToEmployeeName);
+
+                        //===== Send Notificiation Message to Approver ========//
+                        Message message = new Message
+                        {
+                            MessageID = Guid.NewGuid().ToString(),
+                            RecipientID = approver.EmployeeID,
+                            RecipientName = approver.FullName,
+                            SentBy = sender.FullName
+                        };
+
+                        //===== Send Email Notifications to Approver =========//
+                        bool approverEmailCopySent = false;
+                        UtilityHelper utilityHelper = new UtilityHelper(_configuration);
+                        EmailModel recipientEmailCopy = new EmailModel();
+                        recipientEmailCopy.RecipientName = approver.FullName;
+                        if (!string.IsNullOrWhiteSpace(approver.OfficialEmail))
+                        {
+                            recipientEmailCopy.RecipientEmail = approver.OfficialEmail;
+                        }
+                        else
+                        {
+                            recipientEmailCopy.RecipientEmail = approver.Email;
+                        }
+
+                        recipientEmailCopy.RecipientEmail = approver.OfficialEmail;
+                        recipientEmailCopy.SenderName = sender.FullName;
+
+                        recipientEmailCopy.Subject = "Notice of Resumption from Leave";
+                        recipientEmailCopy.HtmlContent = UtilityHelper.GetLeaveResumptionNoticeEmailHtmlContent(approver.FullName, sender.FullName);
+                        recipientEmailCopy.PlainContent = UtilityHelper.GetLeaveResumptionNoticeEmailPlainContent(approver.FullName, sender.FullName);
+
+                        message.Subject = "Notice of Resumption from Leave";
+                        message.MessageBody = UtilityHelper.GetLeaveResumptionNoticeMessageContent(sender.FullName);
+
+                        bool messageSent = await _baseModelService.SendMessageAsync(message);
+                        if (!string.IsNullOrWhiteSpace(recipientEmailCopy.RecipientEmail))
+                        {
+                            // approverEmailCopySent = utilityHelper.SendEmailWithSendGrid(recipientEmailCopy);
+                        }
+                        return RedirectToAction("MyLeaveRecords");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    model.ViewModelErrorMessage = ex.Message;
+                }
+            }
+            return View(model);
+        }
+        public async Task<IActionResult> MyLeaveAdjustments(long id)
+        {
+            LeaveAdjustmentListViewModel model = new LeaveAdjustmentListViewModel();
+            model.LeaveRequestDetail = new LeaveRequest();
+
+            try
+            {
+                if (id > 0)
+                {
+                    var entity = await _leaveService.GetLeaveRequestAsync(id);
+                    if (entity != null)
+                    {
+                        model.LeaveRequestDetail = entity;
+                    }
+
+                    var entities = await _leaveService.GetLeaveAdjustmentsAsync(id);
+                    if (entities != null)
+                    {
+                        model.LeaveAdjustmentList = entities;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                model.ViewModelErrorMessage = ex.Message;
+            }
+            return View(model);
+        }
+
         #endregion
 
         #region HR Actions
@@ -1075,6 +1391,60 @@ namespace IntranetPortal.Areas.LVM.Controllers
             return View(model);
         }
 
+        public IActionResult FlagLeavePlan(int id)
+        {
+            FlagLeaveViewModel model = new FlagLeaveViewModel();
+            model.LeavePlanId = id;
+            model.FlaggedByEmployeeName = HttpContext.User.Identity.Name;
+            return View(model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> FlagLeavePlan(FlagLeaveViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    await _leaveService.UpdateLeavePlanFlagAsync(model.LeavePlanId, true, model.FlagReason, model.FlaggedByEmployeeName);
+                    model.OperationIsSuccessful = true;
+                    model.ViewModelSuccessMessage = "Leave Plan was flagged successfully! Please close this tab.";
+                }
+                catch (Exception ex)
+                {
+                    model.ViewModelErrorMessage = ex.Message;
+                }
+            }
+            return View(model);
+        }
+
+        public async Task<IActionResult> LeaveRecords(string sn, int yr)
+        {
+            MyLeaveRecordsViewModel model = new MyLeaveRecordsViewModel();
+            model.sn = sn;
+            if (yr < 2020)
+            {
+                model.yr = DateTime.Now.Year;
+            }
+            else { model.yr = yr; }
+
+            try
+            {
+                if (!string.IsNullOrWhiteSpace(model.sn))
+                {
+                    Employee employee = await _ermService.GetEmployeeByNameAsync(model.sn);
+                    if (employee == null || string.IsNullOrWhiteSpace(employee.EmployeeID)) { throw new Exception("Sorry, no employee record was found for this staff."); }
+                    model.ei = employee.EmployeeID;
+                    model.sn = employee.FullName;
+                    model.LeavePlanList = await _leaveService.GetLeavePlansAsync(model.ei, model.yr);
+                    model.LeaveRequestList = await _leaveService.GetLeaveRequestsAsync(model.ei, model.yr);
+                    model.CurrentLeaveRollingBalances = await _leaveService.GetRefreshedLeaveBalancesAsync("ANL", model.yr, model.ei, model.sn);
+                }
+            }
+            catch (Exception ex) { model.ViewModelErrorMessage = ex.Message; }
+            return View(model);
+        }
+
         public async Task<IActionResult> LeaveSubmittedToHr(int? yr = null)
         {
             LeaveSubmittedToHrListViewModel model = new LeaveSubmittedToHrListViewModel();
@@ -1089,10 +1459,18 @@ namespace IntranetPortal.Areas.LVM.Controllers
                     return LocalRedirect("/Home/Login");
                 }
 
+                if (User.Identity is { IsAuthenticated: true })
+                {
+                    if (User.IsInRole("GBSHRDAPV"))
+                    {
+                        model.UserIsSeniorHr = true;
+                    }
+                }
+
                 var entities = await _leaveService.GetLeaveSubmissionsByApproverRoleAsync("HR Department", model.yr);
                 if (entities != null && entities.Count > 0)
                 {
-                    model.LeaveSubmissionList = entities.ToList();
+                    model.LeaveSubmissionList = entities.Where(x => x.IsActioned == false).ToList();
                 }
             }
             catch (Exception ex)
@@ -1102,14 +1480,13 @@ namespace IntranetPortal.Areas.LVM.Controllers
             return View(model);
         }
 
-        public async Task<IActionResult> ApprovedLeaveRequests(int? l = null, int? u = null, int? y = null, int? m = null, string n = null)
+        public async Task<IActionResult> ApprovedLeaveRequests(int? l = null, int? u = null, int? y = null, int? m = null)
         {
             LeaveRequestsListViewModel model = new LeaveRequestsListViewModel();
             model.l = l;
             model.u = u;
             model.y = y;
             model.m = m ?? 0;
-            model.n = n;
             if (model.y == null || model.y < 2020)
             {
                 model.y = DateTime.Now.Year;
@@ -1117,7 +1494,7 @@ namespace IntranetPortal.Areas.LVM.Controllers
 
             try
             {
-                model.LeaveRequestList = await _leaveService.SearchLeaveRequestsAsync(model.y.Value, model.m ?? 0, model.n, model.l, model.u);
+                model.LeaveRequestList = await _leaveService.SearchApprovedLeaveRequestsAsync(model.y.Value, model.m ?? 0, model.l, model.u);
             }
             catch (Exception ex) { model.ViewModelErrorMessage = ex.Message; }
 
@@ -1131,6 +1508,61 @@ namespace IntranetPortal.Areas.LVM.Controllers
             if (unit_entities != null && unit_entities.Count > 0)
             {
                 ViewBag.UnitList = new SelectList(unit_entities, "UnitID", "UnitName", u);
+            }
+            return View(model);
+        }
+
+        public async Task<IActionResult> LeaveRequestsDueResumption(int? l = null, int? u = null, int? y = null, int? m = null)
+        {
+            LeaveRequestsListViewModel model = new LeaveRequestsListViewModel();
+            model.l = l;
+            model.u = u;
+            model.y = y;
+            model.m = m;
+            if (model.y == null || model.y < 2026)
+            {
+                model.y = DateTime.Now.Year;
+            }
+
+            try
+            {
+                model.LeaveRequestList = await _leaveService.GetLeaveRequestsDueResumptionAsync(model.y.Value, model.m ?? 0, model.l, model.u);
+            }
+            catch (Exception ex) { model.ViewModelErrorMessage = ex.Message; }
+
+            var loc_entities = await _globalSettingsService.GetAllLocationsAsync();
+            if (loc_entities != null && loc_entities.Count > 0)
+            {
+                ViewBag.LocationList = new SelectList(loc_entities, "LocationID", "LocationName", l);
+            }
+
+            var unit_entities = await _globalSettingsService.GetUnitsAsync();
+            if (unit_entities != null && unit_entities.Count > 0)
+            {
+                ViewBag.UnitList = new SelectList(unit_entities, "UnitID", "UnitName", u);
+            }
+            return View(model);
+        }
+
+        public async Task<IActionResult> ViewResumptionNotice(long rd)
+        {
+            ConfirmResumptionViewModel model = new ConfirmResumptionViewModel();
+            try
+            {
+                if (rd < 1) { throw new ArgumentNullException("Required parameter Leave Request ID has an invalid value."); }
+                var leaveResumption = await _leaveService.GetLeaveResumptionAsync(rd, 0);
+                if (leaveResumption != null) { model = model.Convert(leaveResumption); }
+
+                var leaveRequest = await _leaveService.GetLeaveRequestAsync(rd);
+                if (leaveRequest != null)
+                {
+                    model.LeaveYear = leaveRequest.LeaveYear;
+                    model.LeaveTypeName = leaveRequest.LeaveTypeName;
+                }
+            }
+            catch (Exception ex)
+            {
+                model.ViewModelErrorMessage = ex.Message;
             }
             return View(model);
         }
@@ -1152,7 +1584,7 @@ namespace IntranetPortal.Areas.LVM.Controllers
                     }
 
                     var entities = await _leaveService.GetLeaveAdjustmentsAsync(id);
-                    if(entities != null)
+                    if (entities != null)
                     {
                         model.LeaveAdjustmentList = entities;
                     }
@@ -1189,7 +1621,7 @@ namespace IntranetPortal.Areas.LVM.Controllers
                 model.LeaveDepartmentId = request.DepartmentId;
                 model.LeaveLocationId = request.LocationId;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 model.ViewModelErrorMessage = ex.Message;
             }
@@ -1197,7 +1629,7 @@ namespace IntranetPortal.Areas.LVM.Controllers
             if (entities != null) { ViewBag.LeaveTypeCodeList = new SelectList(entities, "Code", "Name", model.LeaveTypeCode); }
             return View(model);
         }
-        
+
         [HttpPost]
         public async Task<IActionResult> AddLeaveAdjustment(AddLeaveAdjustmentViewModel model)
         {
@@ -1209,7 +1641,7 @@ namespace IntranetPortal.Areas.LVM.Controllers
                     adjustment = model.Convert();
                     adjustment.AdjustmentAddedBy = HttpContext.User.Identity.Name;
                     adjustment.AdjustmentDate = DateTime.UtcNow;
-                    adjustment.DurationDescription = $"{model.NumberOfDays} Working Day(s)"; 
+                    adjustment.DurationDescription = $"{model.NumberOfDays} Working Day(s)";
 
                     if (await _leaveService.AddLeaveAdjustmentAsync(adjustment))
                     {
@@ -1243,6 +1675,9 @@ namespace IntranetPortal.Areas.LVM.Controllers
                 model.ActualLeaveEndDate = request.RequestedEndDate;
                 model.ActualLeaveStartDate = request.RequestedStartDate;
                 model.HrResumptionDate = request.RequestedResumptionDate;
+                model.LeaveUnitId = request.UnitId;
+                model.LeaveDepartmentId = request.DepartmentId;
+                model.LeaveLocationId = request.LocationId;
             }
             catch (Exception ex)
             {
@@ -1266,10 +1701,13 @@ namespace IntranetPortal.Areas.LVM.Controllers
 
                     if (!_validateEndDate(request.ActualLeaveStartDate.Value, request.ActualLeaveEndDate.Value)) { throw new Exception("Error: Invalid Start Date and/or End Date."); }
                     if (!_validateResumptionDate(request.HrResumptionDate.Value, request.ActualLeaveEndDate.Value)) { throw new Exception("Error: Invalid Resumption Date."); }
+                    request.ActualLeaveDuration = _leaveService.GetLeaveDuration(request.ActualLeaveStartDate.Value, request.HrResumptionDate.Value);
+                    request.ActualLeaveDurationTypeId = (int)DurationTypeEnum.WorkingDays;
+                    request.ActualLeaveDurationDescription = $"{request.ActualLeaveDuration} Working Day(s)";
 
                     if (await _leaveService.CloseLeaveRequestAsync(request, HttpContext.User.Identity.Name))
                     {
-                        return RedirectToAction("ApprovedLeaveRequests", new { yr = model.RequestedStartDate.Year });
+                        return RedirectToAction("LeaveRequestsDueResumption");
                     }
                     else { throw new Exception("An error was encountered. Attempt to update Leave Request was not successful."); }
                 }
@@ -1278,6 +1716,203 @@ namespace IntranetPortal.Areas.LVM.Controllers
             catch (Exception ex) { model.ViewModelErrorMessage = ex.Message; }
             return View(model);
         }
+
+        #endregion
+
+        #region Teams Leave Plans
+        public async Task<IActionResult> MyTeamsLeavePlans(int yr, int mm, string ed)
+        {
+            MyTeamsLeavePlansListViewModel model = new MyTeamsLeavePlansListViewModel();
+            model.yr = yr < 1 ? DateTime.Now.Year : yr;
+            model.mm = mm;
+            model.ed = ed;
+            model.td = HttpContext.User.Claims.FirstOrDefault(c => c.Type.Contains("nameidentifier")).Value;
+            try
+            {
+                model.LeavePlanList = await _leaveService.SearchMyTeamsLeavePlansAsync(model.td, model.yr, model.mm, model.ed);
+            }
+            catch (Exception ex) { model.ViewModelErrorMessage = ex.Message; }
+
+            var reports_entities = await _ermService.GetEmployeeReportsByReportsToEmployeeIdAsync(model.td);
+            if (reports_entities != null && reports_entities.Count > 0)
+            {
+                ViewBag.ReportsList = new SelectList(reports_entities, "EmployeeID", "EmployeeName", model.ed);
+            }
+
+            return View(model);
+        }
+
+        public async Task<IActionResult> MyTeamsLeaveRequests(int yr, int mm, string ed = null, int? st = null)
+        {
+            MyTeamsLeaveRequestsListViewModel model = new MyTeamsLeaveRequestsListViewModel();
+            model.yr = yr;
+            model.mm = mm;
+            model.ed = ed;
+            model.st = st;
+            model.td = HttpContext.User.Claims.FirstOrDefault(c => c.Type.Contains("nameidentifier")).Value;
+
+            if (model.yr < 2020)
+            {
+                model.yr = DateTime.Now.Year;
+            }
+
+            try
+            {
+                model.LeaveRequestList = await _leaveService.SearchMyTeamsLeaveRequestsAsync(model.td, model.yr, model.mm, model.ed, model.st);
+            }
+            catch (Exception ex) { model.ViewModelErrorMessage = ex.Message; }
+
+            var reports_entities = await _ermService.GetEmployeeReportsByReportsToEmployeeIdAsync(model.td);
+            if (reports_entities != null && reports_entities.Count > 0)
+            {
+                ViewBag.ReportsList = new SelectList(reports_entities, "EmployeeID", "EmployeeName", model.ed);
+            }
+            return View(model);
+        }
+
+        public async Task<IActionResult> ConfirmResumption(long rd, long sd)
+        {
+            ConfirmResumptionViewModel model = new ConfirmResumptionViewModel();
+           try
+            {
+                if (rd < 1) { throw new ArgumentNullException("Required parameter Leave Request ID has an invalid value."); }
+                var leaveResumption = await _leaveService.GetLeaveResumptionAsync(rd, 0);
+                if(leaveResumption != null) { model = model.Convert(leaveResumption); }
+                model.LineManagerName = HttpContext.User.Identity.Name;
+
+                var leaveRequest = await _leaveService.GetLeaveRequestAsync(rd);
+                if (leaveRequest != null)
+                {
+                    model.LeaveYear = leaveRequest.LeaveYear;
+                    model.LeaveTypeName = leaveRequest.LeaveTypeName;
+                    model.ResumptionDateByLineManager = leaveRequest.RequestedResumptionDate;
+                }
+            }
+            catch (Exception ex)
+            {
+                model.ViewModelErrorMessage = ex.Message;
+            }
+            model.LeaveSubmissionId = sd;
+            return View(model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ConfirmResumption(ConfirmResumptionViewModel model)
+        {
+            if(!ModelState.IsValid) return View(model);
+            try
+            {
+                var leaveResumption = await _leaveService.GetLeaveResumptionAsync(model.LeaveRequestId, model.LeaveResumptionId);
+                if (leaveResumption != null) 
+                { 
+                    leaveResumption.DateRecordedByLineManager = DateTime.Today;
+                    leaveResumption.LineManagerName= HttpContext.User.Identity.Name;
+                    leaveResumption.NoOfExtraDaysByLineManager = model.NoOfExtraDaysByLineManager;
+                    leaveResumption.NoOfUnusedDaysByLineManager = model.NoOfUnusedDaysByLineManager;
+                    leaveResumption.ResumptionDateByLineManager = model.ResumptionDateByLineManager;
+                    leaveResumption.ReasonByLineManager = model.ReasonByLineManager;
+                    leaveResumption.LineManagerApprovesAdjustment = model.LineManagerApprovesAdjustment;
+
+                    if(await _leaveService.ConfirmLeaveResumptionAsync(leaveResumption, model.LeaveSubmissionId))
+                    {
+                        return RedirectToAction("LeavePendingApproval");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                model.ViewModelErrorMessage = ex.Message;
+            }
+            return View(model);
+        }
+
+
+        //[HttpPost]
+        //public async Task<IActionResult> ReturnLeave(ReturnLeaveViewModel model)
+        //{
+        //    if (ModelState.IsValid)
+        //    {
+        //        bool IsReturned = false;
+        //        string DocumentTypeDescription;
+        //        if (model.DocumentType == "P") { DocumentTypeDescription = "Leave Plan"; }
+        //        else { DocumentTypeDescription = "Leave Request"; }
+        //        try
+        //        {
+        //            IsReturned = await _lmsService.UpdateLeaveStatusAsync(model.LeaveId, LeaveStatus.Draft.ToString());
+        //            if (IsReturned)
+        //            {
+        //                LeaveNote note = new LeaveNote();
+
+        //                note.NoteContent = model.ReturnNote;
+        //                note.LeaveId = model.LeaveId;
+        //                note.TimeAdded = DateTime.Now;
+        //                note.FromEmployeeName = model.ApproverName;
+        //                if (await _lmsService.AddLeaveNoteAsync(note))
+        //                {
+        //                    LeaveActivityLog history = new LeaveActivityLog();
+        //                    history.ActivityDescription = $"{DocumentTypeDescription} was declined approval by {model.ApproverName}. It was returned to applicant on {DateTime.UtcNow.ToLongDateString()} at {DateTime.UtcNow.ToLongTimeString()} WAT";
+        //                    history.ActivityTime = DateTime.Now;
+        //                    history.LeaveId = model.LeaveId;
+        //                    await _lmsService.AddActivityLogAsync(history);
+        //                }
+        //                else { model.ViewModelErrorMessage = "Sorry, return note was not added due to an error."; }
+        //                model.ViewModelSuccessMessage = "Returned to Applicant successfully!";
+        //                model.OperationIsSuccessful = true;
+        //            }
+        //            else
+        //            {
+        //                model.ViewModelErrorMessage = "Sorry, an error was encountered. Operation cound not be completed.";
+        //            }
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            model.ViewModelErrorMessage = ex.Message;
+        //        }
+        //    }
+        //    return View(model);
+        //}
+
+        //public IActionResult ApproveLeave(int id, string nm, string tp)
+        //{
+        //    ApproveLeaveViewModel model = new ApproveLeaveViewModel();
+        //    model.LeaveId = id;
+        //    model.ApplicantName = nm;
+        //    model.DocumentType = tp;
+        //    model.ApproverName = HttpContext.User.Identity.Name;
+        //    model.IsApproved = true;
+        //    return View(model);
+        //}
+
+        //[HttpPost]
+        //public async Task<IActionResult> ApproveLeave(ApproveLeaveViewModel model)
+        //{
+        //    model.TimeApproved = DateTime.Now;
+        //    if (ModelState.IsValid)
+        //    {
+
+        //        string DocumentTypeDescription;
+        //        if (model.DocumentType == "P") { DocumentTypeDescription = "Leave Plan"; }
+        //        else { DocumentTypeDescription = "Leave Request"; }
+        //        try
+        //        {
+        //            if (await _lmsService.ApproveLeaveAsync(model.Convert(), DocumentTypeDescription))
+        //            {
+        //                model.ViewModelSuccessMessage = "Leave approval completed successfully!";
+        //                model.OperationIsSuccessful = true;
+        //            }
+        //            else
+        //            {
+        //                model.ViewModelErrorMessage = "Sorry, an error was encountered. Operation cound not be completed.";
+        //            }
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            model.ViewModelErrorMessage = ex.Message;
+        //        }
+        //    }
+        //    return View(model);
+        //}
+
 
         #endregion
 
@@ -1414,6 +2049,30 @@ namespace IntranetPortal.Areas.LVM.Controllers
             return View(model);
         }
 
+        public async Task<IActionResult> ViewAttachments(long id)
+        {
+            LeaveDocumentListViewModel model = new LeaveDocumentListViewModel();
+            model.LeaveRequestId = id;
+            var entities = await _leaveService.GetLeaveDocumentsAsync(model.LeaveRequestId);
+            if (entities != null)
+            {
+                model.LeaveDocumentList = entities;
+            }
+
+            if (TempData["SuccessMessage"] != null)
+            {
+                model.ViewModelSuccessMessage = TempData["SuccessMessage"].ToString();
+            }
+
+            if (TempData["ErrorMessage"] != null)
+            {
+                model.ViewModelErrorMessage = TempData["ErrorMessage"].ToString();
+            }
+
+            return View(model);
+        }
+
+
         public IActionResult UploadDocument(long id)
         {
             LeaveDocumentViewModel model = new LeaveDocumentViewModel();
@@ -1542,6 +2201,560 @@ namespace IntranetPortal.Areas.LVM.Controllers
             }
             return RedirectToAction("LeaveDocuments", new { id = LeaveRequestId });
         }
+        #endregion
+
+        #region Leave Reports Controller Methods
+
+        //Leave Plan Reports
+        public async Task<IActionResult> LeavePlanReport(int yr, int mn = 0, int ld = 0, int ud = 0)
+        {
+            LeavePlanReportViewModel model = new LeavePlanReportViewModel();
+            model.LeavePlanList = new List<LeavePlan>();
+            model.yr = yr;
+            model.mn = mn;
+            model.ld = ld;
+            model.ud = ud;
+            if(yr < 2020) { model.yr = DateTime.Now.Year; }
+            model.ReportHeaderTitle = $"Leave Plan Report ({model.yr})";
+
+            try
+            {
+                var entities = await _leaveService.SearchLeavePlansAsync(model.yr,model.mn,null,model.ld,model.ud,null);
+                if (entities != null && entities.Count > 0)
+                {
+                    model.LeavePlanList = entities;
+                }
+            }
+            catch (Exception ex)
+            {
+                model.ViewModelErrorMessage = ex.Message;
+            }
+
+            var loc_entities = await _globalSettingsService.GetAllLocationsAsync();
+            if (loc_entities != null && loc_entities.Count > 0)
+            {
+                ViewBag.LocationList = new SelectList(loc_entities, "LocationID", "LocationName", ld);
+            }
+
+            var unit_entities = await _globalSettingsService.GetUnitsAsync();
+            if (unit_entities != null && unit_entities.Count > 0)
+            {
+                ViewBag.UnitList = new SelectList(unit_entities, "UnitID", "UnitName", ud);
+            }
+
+            if (TempData["ErrorMessage"] != null)
+            {
+                model.ViewModelErrorMessage = TempData["ErrorMessage"].ToString();
+            }
+
+            return View(model);
+        }
+        public async Task<IActionResult> LeavePlanComplianceReport(int yr, string pm)
+        {
+            LeavePlanComplianceReportViewModel model = new LeavePlanComplianceReportViewModel();
+            model.LeavePlanComplianceList = new List<LeavePlanCompliance>();
+            model.yr = yr;
+            model.pm = pm;
+            if (yr < 2020) { model.yr = DateTime.Now.Year; }
+            model.ReportHeaderTitle = $"Leave Plan Compliance Report ({model.yr})";
+
+            try
+            {
+                ReportParameter reportParameter = new ReportParameter();
+                switch (pm)
+                {
+                    case "U":
+                        reportParameter = ReportParameter.Unit;
+                        break;
+                    case "D":
+                        reportParameter = ReportParameter.Department; 
+                        break;
+                    case "L":
+                        reportParameter = ReportParameter.Location;
+                        break;
+                }
+
+                var entities = await _leaveService.GetLeavePlanComplianceAsync(model.yr, reportParameter);
+                if (entities != null && entities.Count > 0)
+                {
+                    model.LeavePlanComplianceList = entities;
+                }
+            }
+            catch (Exception ex)
+            {
+                model.ViewModelErrorMessage = ex.Message;
+            }
+
+
+            if (TempData["ErrorMessage"] != null)
+            {
+                model.ViewModelErrorMessage = TempData["ErrorMessage"].ToString();
+            }
+
+            return View(model);
+        }
+
+
+        //Leave Request Reports
+        public async Task<IActionResult> LeaveRequestReport(int yr, int mn = 0, int ld = 0, int ud = 0)
+        {
+            LeaveRequestReportViewModel model = new LeaveRequestReportViewModel();
+            model.LeaveRequestList = new List<LeaveRequest>();
+            model.yr = yr;
+            model.mn = mn;
+            model.ld = ld;
+            model.ud = ud;
+            if (yr < 2020) { model.yr = DateTime.Now.Year; }
+            model.ReportHeaderTitle = $"Employee Leave Report ({model.yr})";
+
+            try
+            {
+                var entities = await _leaveService.SearchLeaveRequestsAsync(model.yr, model.mn, null, model.ld, model.ud);
+                if (entities != null && entities.Count > 0)
+                {
+                    model.LeaveRequestList = entities;
+                }
+            }
+            catch (Exception ex)
+            {
+                model.ViewModelErrorMessage = ex.Message;
+            }
+
+            var loc_entities = await _globalSettingsService.GetAllLocationsAsync();
+            if (loc_entities != null && loc_entities.Count > 0)
+            {
+                ViewBag.LocationList = new SelectList(loc_entities, "LocationID", "LocationName", ld);
+            }
+
+            var unit_entities = await _globalSettingsService.GetUnitsAsync();
+            if (unit_entities != null && unit_entities.Count > 0)
+            {
+                ViewBag.UnitList = new SelectList(unit_entities, "UnitID", "UnitName", ud);
+            }
+
+            if (TempData["ErrorMessage"] != null)
+            {
+                model.ViewModelErrorMessage = TempData["ErrorMessage"].ToString();
+            }
+
+            return View(model);
+        }
+        public async Task<IActionResult> LeaveRequestComplianceReport(int yr, string pm)
+        {
+            LeaveRequestComplianceReportViewModel model = new LeaveRequestComplianceReportViewModel();
+            model.LeaveRequestComplianceList = new List<LeaveRequestCompliance>();
+            model.yr = yr;
+            model.pm = pm;
+            if (yr < 2020) { model.yr = DateTime.Now.Year; }
+            model.ReportHeaderTitle = $"Employee Leave Compliance Report ({model.yr})";
+
+            try
+            {
+                ReportParameter reportParameter = new ReportParameter();
+                switch (pm)
+                {
+                    case "U":
+                        reportParameter = ReportParameter.Unit;
+                        break;
+                    case "D":
+                        reportParameter = ReportParameter.Department;
+                        break;
+                    case "L":
+                        reportParameter = ReportParameter.Location;
+                        break;
+                }
+
+                var entities = await _leaveService.GetLeaveRequestComplianceAsync(model.yr, reportParameter);
+                if (entities != null && entities.Count > 0)
+                {
+                    model.LeaveRequestComplianceList = entities;
+                }
+            }
+            catch (Exception ex)
+            {
+                model.ViewModelErrorMessage = ex.Message;
+            }
+
+
+            if (TempData["ErrorMessage"] != null)
+            {
+                model.ViewModelErrorMessage = TempData["ErrorMessage"].ToString();
+            }
+
+            return View(model);
+        }
+
+
+        //Annual Leave Report
+        public async Task<IActionResult> AnnualLeaveSummaryReport(int yr, int ld = 0,  int dd = 0, int ud = 0, string sn = null)
+        {
+            AnnualLeaveSummaryReportViewModel model = new AnnualLeaveSummaryReportViewModel();
+            model.AnnualLeaveSummaryList = new List<AnnualLeaveSummary>();
+            model.yr = yr;
+            model.ld = ld;
+            model.ud = ud;
+            model.sn = sn;
+            if (yr < 2020) { model.yr = DateTime.Now.Year; }
+            model.ReportHeaderTitle = $"Annual Leave Summary Report ({model.yr})";
+
+            try
+            {
+                    var entities = await _leaveService.SearchAnnualLeaveSummaryAsync(model.yr, model.ud, model.dd, model.ld, model.sn);
+                    if (entities != null && entities.Count > 0)
+                    {
+                        model.AnnualLeaveSummaryList = entities;
+                    }
+            }
+            catch (Exception ex)
+            {
+                model.ViewModelErrorMessage = ex.Message;
+            }
+
+            var loc_entities = await _globalSettingsService.GetAllLocationsAsync();
+            if (loc_entities != null && loc_entities.Count > 0)
+            {
+                ViewBag.LocationList = new SelectList(loc_entities, "LocationID", "LocationName", ld);
+            }
+
+            var dept_entities = await _globalSettingsService.GetDepartmentsAsync();
+            if (dept_entities != null && dept_entities.Count > 0)
+            {
+                ViewBag.DepartmentList = new SelectList(dept_entities, "DepartmentID", "DepartmentName", dd);
+            }
+
+            var unit_entities = await _globalSettingsService.GetUnitsAsync();
+            if (unit_entities != null && unit_entities.Count > 0)
+            {
+                ViewBag.UnitList = new SelectList(unit_entities, "UnitID", "UnitName", ud);
+            }
+
+            if (TempData["ErrorMessage"] != null)
+            {
+                model.ViewModelErrorMessage = TempData["ErrorMessage"].ToString();
+            }
+
+            return View(model);
+        }
+
+        #endregion
+
+        #region Download Controller Methods
+        public async Task<FileResult> DownloadLeavePlanReport(int yr, int mn = 0, int ld = 0, int ud = 0)
+        {
+            LeavePlanReportViewModel model = new LeavePlanReportViewModel();
+            model.LeavePlanList = new List<LeavePlan>();
+            model.yr = yr;
+            model.mn = mn;
+            model.ld = ld;
+            model.ud = ud;
+            if (yr < 2020) { model.yr = DateTime.Now.Year; }
+            model.ReportHeaderTitle = $"Leave Plan Report ({model.yr})";
+            string fileName =  $"{model.ReportHeaderTitle}_vs{DateTime.UtcNow.ToString("yyyyMMddHHmmssfff")}.xlsx";
+
+            try
+            {
+                var entities = await _leaveService.SearchLeavePlansAsync(model.yr, model.mn, null, model.ld, model.ud, null);
+                if (entities != null && entities.Count > 0)
+                {
+                    model.LeavePlanList = entities;
+                }
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+
+            return GenerateLeavePlanReportExcel(fileName, model.LeavePlanList);
+        }
+        public async Task<FileResult> DownloadLeaveRequestReport(int yr, int mn = 0, int ld = 0, int ud = 0)
+        {
+            LeaveRequestReportViewModel model = new LeaveRequestReportViewModel();
+            model.LeaveRequestList = new List<LeaveRequest>();
+            model.yr = yr;
+            model.mn = mn;
+            model.ld = ld;
+            model.ud = ud;
+            if (yr < 2020) { model.yr = DateTime.Now.Year; }
+            model.ReportHeaderTitle = $"Employee Leave Report ({model.yr})";
+            string fileName = $"{model.ReportHeaderTitle} vs {DateTime.UtcNow.ToString("yyyyMMddHHmmssfff")}.xlsx";
+
+            try
+            {
+                var entities = await _leaveService.SearchLeaveRequestsAsync(model.yr, model.mn, null, model.ld, model.ud);
+                if (entities != null && entities.Count > 0)
+                {
+                    model.LeaveRequestList = entities;
+                }
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+
+            return GenerateLeaveRequestReportExcel(fileName, model.LeaveRequestList);
+        }
+        public async Task<IActionResult> DownloadLeavePlanComplianceReport(int yr, string pm)
+        {
+            LeavePlanComplianceReportViewModel model = new LeavePlanComplianceReportViewModel();
+            model.LeavePlanComplianceList = new List<LeavePlanCompliance>();
+            model.yr = yr;
+            model.pm = pm;
+            if (yr < 2020) { model.yr = DateTime.Now.Year; }
+            model.ReportHeaderTitle = $"Leave Plan Compliance Report ({model.yr})";
+            string fileName = $"{model.ReportHeaderTitle}_vs{DateTime.UtcNow.ToString("yyyyMMddHHmmssfff")}.xlsx";
+
+            try
+            {
+                ReportParameter reportParameter = new ReportParameter();
+                switch (pm)
+                {
+                    case "U":
+                        reportParameter = ReportParameter.Unit;
+                        break;
+                    case "D":
+                        reportParameter = ReportParameter.Department;
+                        break;
+                    case "L":
+                        reportParameter = ReportParameter.Location;
+                        break;
+                }
+
+                var entities = await _leaveService.GetLeavePlanComplianceAsync(model.yr, reportParameter);
+                if (entities != null && entities.Count > 0)
+                {
+                    model.LeavePlanComplianceList = entities;
+                }
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+
+            return GenerateLeavePlanComplianceReportExcel(fileName, model.LeavePlanComplianceList);
+        }
+        public async Task<IActionResult> DownloadLeaveRequestComplianceReport(int yr, string pm)
+        {
+            LeaveRequestComplianceReportViewModel model = new LeaveRequestComplianceReportViewModel();
+            model.LeaveRequestComplianceList = new List<LeaveRequestCompliance>();
+            model.yr = yr;
+            model.pm = pm;
+            if (yr < 2020) { model.yr = DateTime.Now.Year; }
+            model.ReportHeaderTitle = $"Employee Leave Compliance Report ({model.yr})";
+            string fileName = $"{model.ReportHeaderTitle}_vs{DateTime.UtcNow.ToString("yyyyMMddHHmmssfff")}.xlsx";
+
+            try
+            {
+                ReportParameter reportParameter = new ReportParameter();
+                switch (pm)
+                {
+                    case "U":
+                        reportParameter = ReportParameter.Unit;
+                        break;
+                    case "D":
+                        reportParameter = ReportParameter.Department;
+                        break;
+                    case "L":
+                        reportParameter = ReportParameter.Location;
+                        break;
+                }
+
+                var entities = await _leaveService.GetLeaveRequestComplianceAsync(model.yr, reportParameter);
+                if (entities != null && entities.Count > 0)
+                {
+                    model.LeaveRequestComplianceList = entities;
+                }
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+
+            return GenerateLeaveRequestComplianceReportExcel(fileName, model.LeaveRequestComplianceList);
+        }
+
+
+        #endregion
+
+        #region Controller Download Helper Methods
+        private FileResult GenerateLeavePlanReportExcel(string fileName, IEnumerable<LeavePlan> results)
+        {
+            int row_no = 0;
+            DataTable dataTable = new DataTable("results");
+            dataTable.Columns.AddRange(new DataColumn[]
+            {
+new DataColumn("#"),
+new DataColumn("Name"),
+new DataColumn("Leave Type"),
+new DataColumn("Duration"),
+new DataColumn("Start Date"),
+new DataColumn("End Date"),
+new DataColumn("Resumption Date"),
+new DataColumn("Unit"),
+new DataColumn("Department"),
+new DataColumn("Location"),
+});
+            
+            foreach (var result in results)
+            {
+                row_no++;
+                dataTable.Rows.Add(
+                    row_no.ToString(),
+                    result.LeaveEmployeeName,
+                    result.LeaveTypeName,
+                    result.LeavePlanDurationDescription,
+                    result.LeavePlanStartDate.Value.ToLongDateString(),
+                    result.LeavePlanEndDate.Value.ToLongDateString(),
+                    result.LeavePlanResumptionDate.Value.ToLongDateString(),
+                    result.LeaveUnitName,
+                    result.LeaveDepartmentName,
+                    result.LeaveLocationName
+                    );
+            }
+
+            using (XLWorkbook workbook = new XLWorkbook())
+            {
+                workbook.Worksheets.Add(dataTable);
+                using (MemoryStream stream = new MemoryStream())
+                {
+                    workbook.SaveAs(stream);
+                    return File(stream.ToArray(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
+                }
+            }
+        }
+        private FileResult GenerateLeaveRequestReportExcel(string fileName, IEnumerable<LeaveRequest> results)
+        {
+            int row_no = 0;
+            DataTable dataTable = new DataTable("results");
+            dataTable.Columns.AddRange(new DataColumn[]
+            {
+new DataColumn("#"),
+new DataColumn("Name"),
+new DataColumn("Leave Type"),
+new DataColumn("Duration"),
+new DataColumn("Start Date"),
+new DataColumn("End Date"),
+new DataColumn("Resumption Date"),
+new DataColumn("Unit"),
+new DataColumn("Department"),
+new DataColumn("Location"),
+new DataColumn("Allowance"),
+});
+
+            foreach (var result in results)
+            {
+                row_no++;
+                dataTable.Rows.Add(
+                    row_no.ToString(),
+                    result.LeaveEmployeeName,
+                    result.LeaveTypeName,
+                    result.ActualLeaveDurationDescription,
+                    result.ActualLeaveStartDate.Value.ToLongDateString(),
+                    result.ActualLeaveEndDate.Value.ToLongDateString(),
+                    result.HrResumptionDate.Value.ToLongDateString(),
+                    result.UnitName,
+                    result.DepartmentName,
+                    result.LocationName,
+                    result.RequestLeaveAllowance ? "Yes" : "No"
+                    );
+            }
+
+            using (XLWorkbook workbook = new XLWorkbook())
+            {
+                workbook.Worksheets.Add(dataTable);
+                using (MemoryStream stream = new MemoryStream())
+                {
+                    workbook.SaveAs(stream);
+                    return File(stream.ToArray(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
+                }
+            }
+        }
+
+        private FileResult GenerateLeavePlanComplianceReportExcel(string fileName, IEnumerable<LeavePlanCompliance> results)
+        {
+            int row_no = 0;
+            DataTable dataTable = new DataTable("results");
+            dataTable.Columns.AddRange(new DataColumn[]
+            {
+new DataColumn("#"),
+new DataColumn("Name"),
+new DataColumn("Total Staff"),
+new DataColumn("Staff With Leave Plans"),
+new DataColumn("Staff Without Leave Plans"),
+new DataColumn("% Compliance"),
+});
+
+            foreach (var result in results)
+            {
+                row_no++;
+                string Name = string.Empty;
+                if (!string.IsNullOrWhiteSpace(result.UnitName)) { Name = result.UnitName; }
+                else if (!string.IsNullOrWhiteSpace(result.DepartmentName)){ Name = result.DepartmentName; }
+                else if(!string.IsNullOrWhiteSpace(result.LocationName)){ Name = result.LocationName; }
+
+                dataTable.Rows.Add(
+                    row_no.ToString(),
+                    Name,
+                    result.TotalNumberOfStaff,
+                    result.NumberWithLeavePlans,
+                    result.NumberWithoutLeavePlans,
+                    result.PercentageCompliance.ToString("F2")
+                    );
+            }
+
+            using (XLWorkbook workbook = new XLWorkbook())
+            {
+                workbook.Worksheets.Add(dataTable);
+                using (MemoryStream stream = new MemoryStream())
+                {
+                    workbook.SaveAs(stream);
+                    return File(stream.ToArray(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
+                }
+            }
+        }
+
+        private FileResult GenerateLeaveRequestComplianceReportExcel(string fileName, IEnumerable<LeaveRequestCompliance> results)
+        {
+            int row_no = 0;
+            DataTable dataTable = new DataTable("results");
+            dataTable.Columns.AddRange(new DataColumn[]
+            {
+new DataColumn("#"),
+new DataColumn("Name"),
+new DataColumn("Total Staff"),
+new DataColumn("Staff With Leave Plans"),
+new DataColumn("Staff Without Leave Plans"),
+new DataColumn("% Compliance"),
+});
+
+            foreach (var result in results)
+            {
+                row_no++;
+                string Name = string.Empty;
+                if (!string.IsNullOrWhiteSpace(result.UnitName)) { Name = result.UnitName; }
+                else if (!string.IsNullOrWhiteSpace(result.DepartmentName)) { Name = result.DepartmentName; }
+                else if (!string.IsNullOrWhiteSpace(result.LocationName)) { Name = result.LocationName; }
+
+                dataTable.Rows.Add(
+                    row_no.ToString(),
+                    Name,
+                    result.TotalNumberOfStaff,
+                    result.NumberWithLeaveRequests,
+                    result.NumberWithoutLeaveRequests,
+                    result.PercentageCompliance.ToString("F2")
+                    );
+            }
+
+            using (XLWorkbook workbook = new XLWorkbook())
+            {
+                workbook.Worksheets.Add(dataTable);
+                using (MemoryStream stream = new MemoryStream())
+                {
+                    workbook.SaveAs(stream);
+                    return File(stream.ToArray(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
+                }
+            }
+        }
+
 
         #endregion
 
@@ -1789,6 +3002,53 @@ namespace IntranetPortal.Areas.LVM.Controllers
                 return "failed";
             }
         }
+        public string DeleteLeaveAdjustment(long id)
+        {
+            if (id < 1) { return "parameter"; }
+            string actionBy = HttpContext.User.Identity.Name;
+            try
+            {
+                if (_leaveService.DeleteLeaveAdjustmentAsync(id, actionBy).Result)
+                {
+                    return "deleted";
+                }
+                else
+                {
+                    return "failed";
+                }
+            }
+            catch
+            {
+                return "failed";
+            }
+        }
+
+        public string UnflagLeavePlan(long pd)
+        {
+            long LeavePlanId = pd;
+            string UnflaggedBy = HttpContext.User.Identity.Name;
+            DateTime UnflaggedTime = DateTime.UtcNow;
+
+            if (string.IsNullOrWhiteSpace(UnflaggedBy)) { return "parameter"; }
+            if (LeavePlanId < 1) { return "parameter"; }
+            try
+            {
+                if (_leaveService.UpdateLeavePlanFlagAsync(LeavePlanId, false, null, UnflaggedBy).Result)
+                {
+                    return "unflagged";
+                }
+                else
+                {
+                    return "failed";
+                }
+            }
+            catch
+            {
+                return "failed";
+            }
+        }
+
+
 
         private bool _validateEndDate(DateTime leaveStartDate, DateTime leaveEndDate)
         {

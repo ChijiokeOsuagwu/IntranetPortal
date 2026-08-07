@@ -34,11 +34,8 @@ namespace IntranetPortal.Areas.LVM.Models
         [Required(ErrorMessage = "Actual End Date is required.")]
         public DateTime? ActualLeaveEndDate { get; set; }
 
-        [Required(ErrorMessage = "Actual Duration is required.")]
-        [Range(1,2000, ErrorMessage ="Invalid Entry. Please enter a valid Duration.")]
         public int ActualLeaveDuration { get; set; }
 
-        [Required(ErrorMessage = "Please select a Duration Type.")]
         public int ActualLeaveDurationTypeId { get; set; }
         public string ActualLeaveDurationDescription { get; set; }
 
@@ -47,6 +44,10 @@ namespace IntranetPortal.Areas.LVM.Models
         public DateTime? LeaveRequestCloseDate { get; set; }
         public bool IsLeaveRequestClosed { get; set; }
         public string LeaveRequestClosedBy { get; set; }
+
+        public int LeaveUnitId { get; set; }
+        public int LeaveDepartmentId { get; set; }
+        public int LeaveLocationId { get; set; }
 
         public CloseLeaveRequestViewModel Convert(LeaveRequest leaveRequest )
         {
@@ -77,6 +78,10 @@ namespace IntranetPortal.Areas.LVM.Models
                 RequestedEndDate = leaveRequest.RequestedEndDate,
                 RequestedResumptionDate = leaveRequest.RequestedResumptionDate,
                 RequestedStartDate = leaveRequest.RequestedStartDate,
+
+                LeaveLocationId = leaveRequest.LocationId,
+                LeaveDepartmentId = leaveRequest.DepartmentId,
+                LeaveUnitId = leaveRequest.UnitId,
             };
         }
         public LeaveRequest Convert()
@@ -108,6 +113,10 @@ namespace IntranetPortal.Areas.LVM.Models
                 RequestedEndDate = RequestedEndDate,
                 RequestedResumptionDate = RequestedResumptionDate,
                 RequestedStartDate = RequestedStartDate,
+
+                UnitId = LeaveUnitId,
+                DepartmentId = LeaveDepartmentId,
+                LocationId = LeaveLocationId,
             };
         }
     }

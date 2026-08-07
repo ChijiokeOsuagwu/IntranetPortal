@@ -1,0 +1,134 @@
+﻿
+@model IntranetPortal.Areas.LVM.Models.LeaveRequestReportViewModel
+<div class="container">
+    <h4 class="mb-1">Employee Leave Report</h4>
+    <hr />
+    <div class="row">
+        <div class="row">
+            <div class="col-md-12 mb-3 text-start">
+                <a asp-area="LVM" asp-controller="Leave" asp-action="Dashboard" title="Go Back" class="btn btn-sm btn-outline-light text-dark">
+                    <i class="bi bi-backspace fw-bolder" style="font-size: 1.0rem;"></i><span class="fw-bold ml-1" style="font-size: 0.9rem;">Back</span>
+                </a>
+                <a asp-area="LVM" asp-controller="Leave" asp-action="DownloadLeaveRequestReport" asp-route-yr="@Model.yr" asp-route-mn="@Model.mn" asp-route-ld="@Model.ld" asp-route-ud="@Model.ud" title="Download Excel" class="btn btn-sm btn-outline-light ml-2 text-dark">
+                    <i class="bi bi-download fw-bolder" style="font-size: 1.0rem;"></i><span class="fw-bold ml-1" style="font-size: 0.9rem;">Download</span>
+                </a>
+            </div>
+        </div>
+        <div class="row">
+            <form asp-area="LVM" asp-controller="Leave" asp-action="LeaveRequestReport" method="get">
+                <div class="row">
+                    <div class="col-md-3 mb-2">
+                        <select asp-for="ld" asp-items="@ViewBag.LocationList" class="form-select fw-bold">
+                            <option value=""> Location </option>
+                        </select>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <select asp-for="ud" asp-items="@ViewBag.UnitList" class="form-select fw-bold">
+                            <option value=""> Unit </option>
+                        </select>
+                    </div>
+                    <div class="col-md-2 mb-2">
+                        <input asp-for="yr" class="form-control fw-bold" min="2025">
+                    </div>
+                    <div class="col-md-2 mb-2">
+                        <select asp-for="mn" class="form-select fw-bold">
+                            <option value="0"> All </option>
+                            <option value="1"> Jan </option>
+                            <option value="2"> Feb </option>
+                            <option value="3"> Mar </option>
+                            <option value="4"> Apr </option>
+                            <option value="5"> May </option>
+                            <option value="6"> Jun </option>
+                            <option value="7"> Jul </option>
+                            <option value="8"> Aug </option>
+                            <option value="9"> Sep </option>
+                            <option value="10"> Oct </option>
+                            <option value="11"> Nov </option>
+                            <option value="12"> Dec </option>
+                        </select>
+                    </div>
+                    <div class="col-md-2 mb-2">
+                        <input type="submit" value="Search" class="btn btn-dark btn-sm text-white" />
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <hr>
+    @if (!String.IsNullOrEmpty(Model.ViewModelErrorMessage))
+    {<div class="row">
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-x-circle"></i>
+                <span class="fw-bold">@Model.ViewModelErrorMessage</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        </div>
+    }
+    <div class="row">
+        @if (Model == null || Model.LeaveRequestList == null || Model.LeaveRequestList.Count < 1)
+        {
+            <div class="alert alert-info fade show" role="alert">
+                <i class="bi bi-info-circle"></i>
+                <span class="fw-bold">No record was found.</span>
+            </div>
+        }
+        else
+        {
+            int row_no = 0;
+            <div class="row">
+                <div class="table-responsive" style="max-height:450px;">
+                    <table class="table table-sm table-striped caption-top">
+                        <thead class="table-dark">
+                            <tr>
+                                <th colspan="11" class="text-center"><span class="text-white fw-bold" style="font-size:1.2rem">@Model.ReportHeaderTitle</span></th>
+                            </tr>
+                            <tr>
+                                <th><span class="text-white fw-bold">#</span></th>
+                                <th><span class="text-white fw-bold">Name</span></th>
+                                <th><span class="text-white fw-bold">Leave Type</span>
+                                <th><span class="text-white fw-bold">Duration</span></th>
+                                <th><span class="text-white fw-bold">Start Date</span></th>
+                                <th><span class="text-white fw-bold">End Date</span></th>
+                                <th><span class="text-white fw-bold">Resumption Date</span></th>
+                                <th><span class="text-white fw-bold">Unit</span></th>
+                                <th><span class="text-white fw-bold">Department</span></th>
+                                <th><span class="text-white fw-bold">Location</span></th>
+                                <th><span class="text-white fw-bold">Requested Allowance</span></th>                              
+                            </tr>
+                        </thead>
+                        <tbody class="table-light">
+                            @foreach (var request in Model.LeaveRequestList)
+                            {
+                                row_no++;
+                                <tr>
+                                    <td><span class="fw-bold">@row_no.ToString()</span></td>
+                                    <td><span class="fw-bold">@request.LeaveEmployeeName</span></td>
+                                    <td><span class="fw-bold">@request.LeaveTypeName</span>
+                                    <td><span class="fw-bold">@request.ActualLeaveDurationDescription</span></td>
+                                    <td><span class="fw-bold">@request.ActualLeaveStartDate.Value.ToLongDateString()</span>
+                                    <td><span class="fw-bold">@request.ActualLeaveEndDate.Value.ToLongDateString()</span></td>
+                                    <td><span class="fw-bold">@request.HrResumptionDate.Value.ToLongDateString()</span></td>
+                                    <td><span class="fw-bold">@request.UnitName</span></td>
+                                    <td><span class="fw-bold">@request.DepartmentName</span></td>
+                                    <td><span class="fw-bold">@request.LocationName</span></td>
+                                    @if(request.RequestLeaveAllowance)
+                                    {
+                                         <td><span class="fw-bold">Yes</span></td>
+                                    }
+                                    else
+                                    {
+                                         <td><span class="fw-bold">No</span></td>
+                                    }
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+@section Scripts{
+    
+}
+

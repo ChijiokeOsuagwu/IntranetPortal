@@ -7,6 +7,7 @@ namespace IntranetPortal.Base.Models.LeaveModels
     public enum DocumentType
     {
         LeavePlan,
-        LeaveRequest
+        LeaveRequest,
+        ResumptionNotice
     }
 }

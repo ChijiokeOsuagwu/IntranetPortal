@@ -6,7 +6,6 @@ using IntranetPortal.Base.Repositories.ClmRepositories;
 using IntranetPortal.Base.Repositories.ContentManagerRepositories;
 using IntranetPortal.Base.Repositories.ErmRepositories;
 using IntranetPortal.Base.Repositories.GlobalSettingsRepositories;
-using IntranetPortal.Base.Repositories.LmsRepositories;
 using IntranetPortal.Base.Repositories.PmsRepositories;
 using IntranetPortal.Base.Repositories.SecurityRepositories;
 using IntranetPortal.Base.Repositories.WspRepositories;
@@ -19,7 +18,6 @@ using IntranetPortal.Data.Repositories.ClmRepositories;
 using IntranetPortal.Data.Repositories.ContentManagerRepositories;
 using IntranetPortal.Data.Repositories.ErmRepositories;
 using IntranetPortal.Data.Repositories.GlobalSettingsRepositories;
-using IntranetPortal.Data.Repositories.LmsRepositories;
 using IntranetPortal.Data.Repositories.PmsRepositories;
 using IntranetPortal.Data.Repositories.SecurityRepositories;
 using IntranetPortal.Data.Repositories.WspRepositories;
@@ -128,10 +126,6 @@ namespace IntranetPortal.Configurations
             services.AddScoped<ICourseContentRepository, CourseContentRepository>();
 
             //====== Leave Management Repositories ============//
-            services.AddScoped<ILeaveTypesRepository, LeaveTypesRepository>();
-            services.AddScoped<ILeaveProfileRepository, LeaveProfileRepository>();
-            services.AddScoped<ILeaveProfileDetailRepository, LeaveProfileDetailRepository>();
-            services.AddScoped<IEmployeeLeaveRepository, EmployeeLeaveRepository>();
             services.AddScoped<IAssignmentRepository, AssignmentRepository>();
             services.AddScoped<ILeaveRepository, LeaveRepository>();
 
@@ -151,7 +145,6 @@ namespace IntranetPortal.Configurations
             services.AddScoped<IErmService, ErmService>();
             services.AddScoped<IPerformanceService, PerformanceService>();
             services.AddScoped<IClmService, ClmService>();
-            services.AddScoped<ILmsService, LmsService>();
             services.AddScoped<IWspService, WspService>();
             services.AddScoped<IAssignmentService, AssignmentService>();
             services.AddScoped<ILeaveService, LeaveService>();

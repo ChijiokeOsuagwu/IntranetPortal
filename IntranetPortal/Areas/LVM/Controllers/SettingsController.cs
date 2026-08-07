@@ -484,7 +484,7 @@ namespace IntranetPortal.Areas.LVM.Controllers
             if (id > 0)
             {
                 var entity = await _leaveService.GetLeaveProfileDetail(id);
-                if (entity != null) { throw new Exception("Sorry, the system could not find this record."); }
+                if (entity == null) { throw new Exception("Sorry, the system could not find this record."); }
 
                 model.Id = entity.Id;
                 model.CanBeCarriedOver = entity.CanBeCarriedOver;
@@ -496,6 +496,7 @@ namespace IntranetPortal.Areas.LVM.Controllers
                 model.ProfileCode = entity.ProfileCode;
                 model.ProfileName = entity.ProfileName;
                 model.CarryOverEndMonth = entity.CarryOverEndMonth;
+                model.LeaveTypeName = entity.LeaveTypeName;
             }
             List<LeaveType> entities = await _leaveService.GetLeaveTypes();
             if (entities != null) { ViewBag.LeaveTypeCodeList = new SelectList(entities, "Code", "Name"); }
